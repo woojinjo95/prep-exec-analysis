@@ -4,19 +4,24 @@ import CropGuideLines from './CropGuideLines'
 import ResizingPoints from './ResizingPoints'
 
 interface CropBoxProps {
+  cropTwoPosX: [number, number]
+  cropTwoPosY: [number, number]
   cropWidth: number
   cropHeight: number
-  setCropWidth: React.Dispatch<React.SetStateAction<number>>
-  setCropHeight: React.Dispatch<React.SetStateAction<number>>
 }
 
 /**
  * 비디오 크롭 영역
  */
-const CropBox: React.FC<CropBoxProps> = ({ cropWidth, cropHeight, setCropWidth, setCropHeight }) => {
+const CropBox: React.FC<CropBoxProps> = ({
+  cropTwoPosX: defaultCropTwoPosX,
+  cropTwoPosY: defaultCropTwoPosY,
+  cropWidth,
+  cropHeight,
+}) => {
   const [isDragging, setIsDragging] = useState<boolean>(false)
-  const [cropPosX, setCropPosX] = useState<number>(0)
-  const [cropPosY, setCropPosY] = useState<number>(0)
+  const [cropTwoPosX, setCropTwoPosX] = useState<[number, number]>(defaultCropTwoPosX)
+  const [cropTwoPosY, setCropTwoPosY] = useState<[number, number]>(defaultCropTwoPosY)
 
   return (
     <div
@@ -27,9 +32,9 @@ const CropBox: React.FC<CropBoxProps> = ({ cropWidth, cropHeight, setCropWidth, 
         'bg-none': isDragging,
       })}
       style={{
-        transform: `translate(${cropPosX}px, ${cropPosY}px)`,
-        width: cropWidth,
-        height: cropHeight,
+        transform: `translate(${Math.min(...cropTwoPosX)}px, ${Math.min(...cropTwoPosY)}px)`,
+        width: Math.abs(cropTwoPosX[0] - cropTwoPosX[1]),
+        height: Math.abs(cropTwoPosY[0] - cropTwoPosY[1]),
       }}
       onPointerDown={(e) => {
         e.preventDefault()
@@ -40,8 +45,8 @@ const CropBox: React.FC<CropBoxProps> = ({ cropWidth, cropHeight, setCropWidth, 
         e.preventDefault()
         if (!isDragging) return
 
-        setCropPosX((prev) => prev + e.movementX)
-        setCropPosY((prev) => prev + e.movementY)
+        setCropTwoPosX((prev) => [prev[0] + e.movementX, prev[1] + e.movementX])
+        setCropTwoPosY((prev) => [prev[0] + e.movementY, prev[1] + e.movementY])
       }}
       onPointerUp={(e) => {
         e.preventDefault()
@@ -50,13 +55,8 @@ const CropBox: React.FC<CropBoxProps> = ({ cropWidth, cropHeight, setCropWidth, 
       }}
     >
       <div className="w-full h-full border border-red-500 outline outline-8 -outline-offset-4 outline-red-500/20" />
-      <CropGuideLines cropWidth={cropWidth} cropHeight={cropHeight} />
-      <ResizingPoints
-        setCropPosX={setCropPosX}
-        setCropPosY={setCropPosY}
-        setCropWidth={setCropWidth}
-        setCropHeight={setCropHeight}
-      />
+      <CropGuideLines cropTwoPosX={cropTwoPosX} cropTwoPosY={cropTwoPosY} />
+      <ResizingPoints setCropTwoPosX={setCropTwoPosX} setCropTwoPosY={setCropTwoPosY} />
     </div>
   )
 }

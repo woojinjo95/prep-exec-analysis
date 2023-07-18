@@ -18,10 +18,8 @@ const ResizingPointList: readonly ResizingPoint[] = [
 ] as const
 
 interface ResizingPointsProps {
-  setCropPosX: React.Dispatch<React.SetStateAction<number>>
-  setCropPosY: React.Dispatch<React.SetStateAction<number>>
-  setCropWidth: React.Dispatch<React.SetStateAction<number>>
-  setCropHeight: React.Dispatch<React.SetStateAction<number>>
+  setCropTwoPosX: React.Dispatch<React.SetStateAction<[number, number]>>
+  setCropTwoPosY: React.Dispatch<React.SetStateAction<[number, number]>>
 }
 
 /**
@@ -35,7 +33,7 @@ interface ResizingPointsProps {
  * // |                |
  * // ㅁ-------ㅁ-------ㅁ
  */
-const ResizingPoints: React.FC<ResizingPointsProps> = ({ setCropPosX, setCropPosY, setCropWidth, setCropHeight }) => {
+const ResizingPoints: React.FC<ResizingPointsProps> = ({ setCropTwoPosX, setCropTwoPosY }) => {
   const [isDragging, setIsDragging] = useState<boolean>(false)
 
   return (
@@ -65,18 +63,16 @@ const ResizingPoints: React.FC<ResizingPointsProps> = ({ setCropPosX, setCropPos
             if (!isDragging) return
 
             if (horizontal === 'left') {
-              setCropPosX((prev) => prev + e.movementX)
-              setCropWidth((prev) => prev - e.movementX)
+              setCropTwoPosX((prev) => [prev[0] + e.movementX, prev[1]])
             }
             if (horizontal === 'right') {
-              setCropWidth((prev) => prev + e.movementX)
+              setCropTwoPosX((prev) => [prev[0], prev[1] + e.movementX])
             }
             if (vertical === 'top') {
-              setCropPosY((prev) => prev + e.movementY)
-              setCropHeight((prev) => prev - e.movementY)
+              setCropTwoPosY((prev) => [prev[0] + e.movementY, prev[1]])
             }
             if (vertical === 'bottom') {
-              setCropHeight((prev) => prev + e.movementY)
+              setCropTwoPosY((prev) => [prev[0], prev[1] + e.movementY])
             }
           }}
           onPointerUp={(e) => {
@@ -84,6 +80,8 @@ const ResizingPoints: React.FC<ResizingPointsProps> = ({ setCropPosX, setCropPos
             e.preventDefault()
             e.currentTarget.releasePointerCapture(e.pointerId)
             setIsDragging(false)
+            setCropTwoPosX((prev) => [Math.min(...prev), Math.max(...prev)])
+            setCropTwoPosY((prev) => [Math.min(...prev), Math.max(...prev)])
           }}
         />
       ))}
