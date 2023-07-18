@@ -55,11 +55,13 @@ const ResizingPoints: React.FC<ResizingPointsProps> = ({ setCropPosX, setCropPos
           draggable={false}
           onPointerDown={(e) => {
             e.stopPropagation()
+            e.preventDefault()
             e.currentTarget.setPointerCapture(e.pointerId)
             setIsDragging(true)
           }}
           onPointerMove={(e) => {
             e.stopPropagation()
+            e.preventDefault()
             if (!isDragging) return
 
             if (horizontal === 'left') {
@@ -79,6 +81,7 @@ const ResizingPoints: React.FC<ResizingPointsProps> = ({ setCropPosX, setCropPos
           }}
           onPointerUp={(e) => {
             e.stopPropagation()
+            e.preventDefault()
             e.currentTarget.releasePointerCapture(e.pointerId)
             setIsDragging(false)
           }}

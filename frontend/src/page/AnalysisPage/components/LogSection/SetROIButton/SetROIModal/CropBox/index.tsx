@@ -24,7 +24,7 @@ const CropBox: React.FC<CropBoxProps> = ({ cropWidth, cropHeight, setCropWidth, 
       className={cx('absolute top-0 left-0 z-10 backdrop-brightness-[4] cursor-grab transition-colors', {
         'cursor-grabbing': isDragging,
         'hover:bg-white/10': !isDragging,
-        '!bg-none': isDragging,
+        'bg-none': isDragging,
       })}
       style={{
         transform: `translate(${cropPosX}px, ${cropPosY}px)`,
@@ -32,16 +32,19 @@ const CropBox: React.FC<CropBoxProps> = ({ cropWidth, cropHeight, setCropWidth, 
         height: cropHeight,
       }}
       onPointerDown={(e) => {
+        e.preventDefault()
         e.currentTarget.setPointerCapture(e.pointerId)
         setIsDragging(true)
       }}
       onPointerMove={(e) => {
+        e.preventDefault()
         if (!isDragging) return
 
         setCropPosX((prev) => prev + e.movementX)
         setCropPosY((prev) => prev + e.movementY)
       }}
       onPointerUp={(e) => {
+        e.preventDefault()
         e.currentTarget.releasePointerCapture(e.pointerId)
         setIsDragging(false)
       }}

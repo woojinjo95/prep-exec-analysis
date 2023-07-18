@@ -39,11 +39,15 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose }) => {
           <div
             className="relative"
             ref={(ref) => {
-              if (!ref) return
+              // video 렌더링 전
+              if (!ref || videoWidth === null || videoHeight === null) return
+              // 이미 넓이, 높이를 구했을 경우
+              if (videoClientWidth !== null || cropWidth !== null) return
+
               setVideoClientWidth(ref.clientWidth)
               setVideoClientHeight(ref.clientHeight)
-              if (cropWidth === null && !!videoWidth) setCropWidth(ref.clientWidth / 2)
-              if (cropHeight === null && !!videoHeight) setCropHeight(ref.clientHeight / 2)
+              setCropWidth(ref.clientWidth / 2)
+              setCropHeight(ref.clientHeight / 2)
             }}
           >
             <video
