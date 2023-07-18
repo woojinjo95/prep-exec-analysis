@@ -12,6 +12,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@chakra-ui/react": "^2.7.1",
     "axios": "^1.4.0",
     "classnames": "^2.3.2",
     "react": "^18.2.0",
@@ -20,6 +21,8 @@
     "react-router-dom": "^6.14.1"
   },
   "devDependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
     "@types/node": "^20.4.2",
     "@types/react": "^18.2.14",
     "@types/react-dom": "^18.2.6",
@@ -36,6 +39,7 @@
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.1",
+    "framer-motion": "^10.12.21",
     "postcss": "^8.4.25",
     "prettier": "^3.0.0",
     "sass": "^1.63.6",
