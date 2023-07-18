@@ -6,8 +6,8 @@ import ResizingPoints from './ResizingPoints'
 interface CropBoxProps {
   cropWidth: number
   cropHeight: number
-  setCropWidth: React.Dispatch<React.SetStateAction<number | null>>
-  setCropHeight: React.Dispatch<React.SetStateAction<number | null>>
+  setCropWidth: React.Dispatch<React.SetStateAction<number>>
+  setCropHeight: React.Dispatch<React.SetStateAction<number>>
 }
 
 /**

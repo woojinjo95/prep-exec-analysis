@@ -65,8 +65,8 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose }) => {
               <CropBox
                 cropWidth={cropWidth}
                 cropHeight={cropHeight}
-                setCropWidth={setCropWidth}
-                setCropHeight={setCropHeight}
+                setCropWidth={(value: React.SetStateAction<number>) => setCropWidth(value as typeof cropWidth)}
+                setCropHeight={(value: React.SetStateAction<number>) => setCropHeight(value as typeof cropHeight)}
               />
             )}
           </div>

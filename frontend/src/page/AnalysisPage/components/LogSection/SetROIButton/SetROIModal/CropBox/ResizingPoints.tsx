@@ -20,8 +20,8 @@ const ResizingPointList: readonly ResizingPoint[] = [
 interface ResizingPointsProps {
   setCropPosX: React.Dispatch<React.SetStateAction<number>>
   setCropPosY: React.Dispatch<React.SetStateAction<number>>
-  setCropWidth: React.Dispatch<React.SetStateAction<number | null>>
-  setCropHeight: React.Dispatch<React.SetStateAction<number | null>>
+  setCropWidth: React.Dispatch<React.SetStateAction<number>>
+  setCropHeight: React.Dispatch<React.SetStateAction<number>>
 }
 
 /**
@@ -43,7 +43,7 @@ const ResizingPoints: React.FC<ResizingPointsProps> = ({ setCropPosX, setCropPos
       {ResizingPointList.map(({ horizontal, vertical }) => (
         <div
           key={`set-roi-resizing-point-${horizontal}-${vertical}`}
-          className={cx('absolute -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-red-500 ', {
+          className={cx('absolute -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-red-500', {
             'left-0': horizontal === 'left',
             'left-1/2': horizontal === 'center',
             'left-full': horizontal === 'right',
@@ -66,17 +66,17 @@ const ResizingPoints: React.FC<ResizingPointsProps> = ({ setCropPosX, setCropPos
 
             if (horizontal === 'left') {
               setCropPosX((prev) => prev + e.movementX)
-              setCropWidth((prev) => (prev === null ? prev : prev - e.movementX))
+              setCropWidth((prev) => prev - e.movementX)
             }
             if (horizontal === 'right') {
-              setCropWidth((prev) => (prev === null ? prev : prev + e.movementX))
+              setCropWidth((prev) => prev + e.movementX)
             }
             if (vertical === 'top') {
               setCropPosY((prev) => prev + e.movementY)
-              setCropHeight((prev) => (prev === null ? prev : prev - e.movementY))
+              setCropHeight((prev) => prev - e.movementY)
             }
             if (vertical === 'bottom') {
-              setCropHeight((prev) => (prev === null ? prev : prev + e.movementY))
+              setCropHeight((prev) => prev + e.movementY)
             }
           }}
           onPointerUp={(e) => {
@@ -91,4 +91,4 @@ const ResizingPoints: React.FC<ResizingPointsProps> = ({ setCropPosX, setCropPos
   )
 }
 
-export default React.memo(ResizingPoints)
+export default ResizingPoints
