@@ -37,7 +37,7 @@ const RemoconSection: React.FC = () => {
         </div>
         <div className="h-[calc(100%-30px)] flex flex-row">
           <div ref={remoconDivRef} className="w-[50%] h-full flex items-center justify-center">
-            <img src={Remocon} alt="remocon" style={{ height: `${remoconHeight * 0.95}px` }} />
+            <img src={Remocon} alt="remocon" style={{ height: `${remoconHeight * 0.99}px` }} />
           </div>
           <div className="w-[50%] flex flex-col">
             <div className="flex flex-row justify-between">
