@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  backend:
+    container_name: backend
+    image: registry.dev-nextlab.com/prep-exec-analysis-backend:dev-0
+    build:
+      context: ./backend
+      dockerfile: backend.dockerfile.local
+    command: /start-reload.sh
+    ports:
+      - 5000:80
+    volumes:
+      - ./backend/app:/app
+
+  db:
+    container_name: db
+    image: postgres:15.3
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=.nextlab6318!
+      - POSTGRES_DB=app
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  adminer:
+    container_name: adminer
+    image: dockette/adminer:full
+    ports:
+      - 8082:80
+
+  redis:
+    container_name: redis
+    image: redis:7.0.4
+    volumes:
+      - redis_data:/data
+ 
+volumes:
+  pg_data: {}
+  redis_data: {}

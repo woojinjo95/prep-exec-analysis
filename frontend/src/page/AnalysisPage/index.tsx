@@ -1,8 +1,9 @@
-import { PageContainer } from '@global/ui'
 import React from 'react'
-import LogSection from './LogSection'
-import VideoDetailSection from './VideoDetailSection'
-import TimelineChartSection from './TimelineChartSection'
+
+import { PageContainer } from '@global/ui'
+import LogSection from './components/LogSection'
+import VideoDetailSection from './components/VideoDetailSection'
+import TimelineChartSection from './components/TimelineChartSection'
 
 /**
  * 분석 조회 페이지
