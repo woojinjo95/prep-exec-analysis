@@ -65,14 +65,19 @@ const CropBox: React.FC<CropBoxProps> = ({
         setCropTwoPosY((prev) => [prev[0] + e.movementY, prev[1] + e.movementY])
       }}
       onPointerUp={(e) => {
-        e.preventDefault()
+        e.currentTarget.releasePointerCapture(e.pointerId)
+        setIsDragging(false)
+        setCropTwoPosX([translateX, translateX + cropWidth])
+        setCropTwoPosY([translateY, translateY + cropHeight])
+      }}
+      onLostPointerCapture={(e) => {
         e.currentTarget.releasePointerCapture(e.pointerId)
         setIsDragging(false)
         setCropTwoPosX([translateX, translateX + cropWidth])
         setCropTwoPosY([translateY, translateY + cropHeight])
       }}
     >
-      <div className="w-full h-full border border-red-500 outline outline-8 -outline-offset-4 outline-red-500/20" />
+      <div className="w-full h-full border border-red-500 outline outline-[7px] -outline-offset-[4px] outline-red-500/20" />
       <CropGuideLines cropWidth={cropWidth} cropHeight={cropHeight} />
       <ResizingPoints
         clientWidth={clientWidth}
