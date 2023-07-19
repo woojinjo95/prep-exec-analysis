@@ -10,20 +10,20 @@ import InformationIcon from '@assets/images/information.png'
 
 import classNames from 'classnames/bind'
 
-import { KeyEvent } from '@page/ActionPage/constants'
+import { KeyEvent } from '@page/ActionPage/types'
 import styles from './RemoconSection.module.scss'
 import ButtonSquares from './ButtonSquares/ButtonSquares'
 
 const cx = classNames.bind(styles)
 
 interface RemoconSectionProps {
-  event: KeyEvent | null
+  keyEvent: KeyEvent | null
 }
 
 /**
  * 리모컨 영역
  */
-const RemoconSection: React.FC<RemoconSectionProps> = ({ event }) => {
+const RemoconSection: React.FC<RemoconSectionProps> = ({ keyEvent }) => {
   const remoconDivRef = useRef<HTMLDivElement>(null)
 
   const remoconRef = useRef<HTMLImageElement>(null)
@@ -62,6 +62,7 @@ const RemoconSection: React.FC<RemoconSectionProps> = ({ event }) => {
   ]
 
   useEffect(() => {
+    // 후에 onSuccess에서 처리
     setSelectedRemocon(remocons[0])
   }, [])
 
@@ -104,24 +105,24 @@ const RemoconSection: React.FC<RemoconSectionProps> = ({ event }) => {
       </div>
 
       <div className="h-[calc(100%-30px)] grid grid-cols-2 grid-rows-1">
-        <div ref={remoconDivRef} className="h-full items-center justify-center">
-          <ButtonSquares keyboardCoors={keyboardCoors} event={event} />
+        <div ref={remoconDivRef} className="h-full items-center justify-center w-full flex">
+          <ButtonSquares keyboardCoors={keyboardCoors} keyEvent={keyEvent} />
           <img ref={remoconRef} src={Remocon} alt="remocon" className="h-full object-contain" />
         </div>
         <div className="flex flex-col h-full">
           <div className="grid grid-rows-[1fr_8fr] overflow-y-auto">
-            <div className="flex flex-row justify-between mt-[20px]">
+            <div className="flex flex-row justify-between mt-[20px] items-center">
               <p className="font-medium text-[14px]">Custom Key</p>
               <div className="flex flex-row justify-between items-center">
                 <AddIcon className="w-[14px] h-[14px]" />
                 <EditIcon className="w-[14px] h-[14px] ml-[10px]" />
               </div>
             </div>
-            <div className={cx('flex flex-col mt-[20px] flex-grow overflow-y-auto', 'hot-key-container')}>
+            <div className={cx('mt-[20px] overflow-y-auto w-full', 'hot-key-container')}>
               {hotkeys.map((hotKey) => (
                 <button
                   type="button"
-                  className="h-[32px] bg-white border-[1px] border-[#707070] rounded-[38px] mb-[5px] font-[500] flex pl-[10px] hover:bg-gray-200"
+                  className="h-[32px] w-full bg-white border-[1px] border-[#707070] rounded-[38px] mb-[5px] font-[500] flex pl-[10px] hover:bg-gray-200"
                   key={`hotKey_${hotKey}`}
                 >
                   {hotKey}
