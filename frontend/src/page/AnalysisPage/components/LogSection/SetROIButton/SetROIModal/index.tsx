@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import {
   Button,
   Modal,
@@ -11,6 +11,7 @@ import {
 } from '@chakra-ui/react'
 import video from './video.mp4'
 import CropBox from './CropBox'
+import VideoTimeSlider from './VideoTimeSlider'
 
 interface SetROIModalProps {
   isOpen: boolean
@@ -21,11 +22,13 @@ interface SetROIModalProps {
  * ROI 설정 모달
  */
 const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose }) => {
-  const [videoWidth, setVideoWidth] = useState<number | null>(null)
-  const [videoHeight, setVideoHeight] = useState<number | null>(null)
+  const videoRef = useRef<HTMLVideoElement | null>(null)
+  const [duration, setDuration] = useState<number | null>(null) // 단위: 초
+
   const [videoClientWidth, setVideoClientWidth] = useState<number | null>(null) // 비디오 크기에 맞는 비율 계산 시 사용
   const [videoClientHeight, setVideoClientHeight] = useState<number | null>(null) // 비디오 크기에 맞는 비율 계산 시 사용
-
+  const [videoWidth, setVideoWidth] = useState<number | null>(null)
+  const [videoHeight, setVideoHeight] = useState<number | null>(null)
   const [cropWidth, setCropWidth] = useState<number | null>(null)
   const [cropHeight, setCropHeight] = useState<number | null>(null)
 
@@ -51,12 +54,13 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose }) => {
             }}
           >
             <video
+              ref={videoRef}
               src={video}
               onLoadedData={(e) => {
                 setVideoWidth(e.currentTarget.videoWidth)
                 setVideoHeight(e.currentTarget.videoHeight)
+                setDuration(e.currentTarget.duration)
               }}
-              controls
             />
             {/* background 영역, brightness 1/4배 어둡게 */}
             <div className="absolute top-0 left-0 w-full h-full backdrop-brightness-[0.25]" />
@@ -70,6 +74,17 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose }) => {
               />
             )}
           </div>
+
+          {duration !== null && (
+            <VideoTimeSlider
+              duration={duration}
+              changeVideoTimeCallback={(time) => {
+                if (videoRef.current) {
+                  videoRef.current.currentTime = time
+                }
+              }}
+            />
+          )}
         </ModalBody>
 
         <ModalFooter>
