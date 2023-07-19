@@ -61,12 +61,12 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose }) => {
             {/* background 영역, brightness 1/4배 어둡게 */}
             <div className="absolute top-0 left-0 w-full h-full backdrop-brightness-[0.25]" />
             {/* crop 영역, brightness 4배 밝게 => 원본밝기 */}
-            {cropWidth !== null && cropHeight !== null && (
+            {cropWidth !== null && cropHeight !== null && videoClientWidth !== null && videoClientHeight !== null && (
               <CropBox
-                cropWidth={cropWidth}
-                cropHeight={cropHeight}
-                setCropWidth={setCropWidth}
-                setCropHeight={setCropHeight}
+                clientWidth={videoClientWidth}
+                clientHeight={videoClientHeight}
+                cropTwoPosX={[0, cropWidth]}
+                cropTwoPosY={[0, cropHeight]}
               />
             )}
           </div>

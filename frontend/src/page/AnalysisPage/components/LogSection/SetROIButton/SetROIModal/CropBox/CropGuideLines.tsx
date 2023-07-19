@@ -34,4 +34,4 @@ const CropGuideLines: React.FC<CropGuideLinesProps> = ({ cropWidth, cropHeight }
   ))
 }
 
-export default CropGuideLines
+export default React.memo(CropGuideLines)
