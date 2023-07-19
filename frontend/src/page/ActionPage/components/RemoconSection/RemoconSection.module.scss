@@ -1,0 +1,8 @@
+.hot-key-container {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hot-key-container::-webkit-scrollbar {
+  display: none;
+}
