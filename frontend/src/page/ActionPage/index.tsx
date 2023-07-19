@@ -36,7 +36,7 @@ const ActionPage: React.FC = () => {
   }, [])
 
   return (
-    <PageContainer className="grid grid-cols-[1.5fr_3fr_1.5fr] grid-rows-[2fr_1.5fr]">
+    <PageContainer className="grid grid-cols-[1.5fr_3fr_1.5fr] grid-rows-[60%_39%]">
       <ActionSection />
       <MonitorSection />
       <RemoconSection event={event} />

@@ -28,27 +28,6 @@ const RemoconSection: React.FC<RemoconSectionProps> = ({ event }) => {
 
   const remoconRef = useRef<HTMLImageElement>(null)
 
-  const [remoconHeight, setRemoconHeight] = useState<number>(0)
-
-  useEffect(() => {
-    const updateRemoconHeight = () => {
-      if (remoconDivRef.current) {
-        setRemoconHeight(remoconDivRef.current.offsetHeight)
-      }
-    }
-
-    updateRemoconHeight()
-
-    const resizeHandler = () => {
-      updateRemoconHeight()
-    }
-
-    window.addEventListener('resize', resizeHandler)
-    return () => {
-      window.removeEventListener('resize', resizeHandler)
-    }
-  }, [remoconDivRef, remoconHeight])
-
   const [selectedRemocon, setSelectedRemocon] = useState<string | null>(null)
 
   const remocons = ['skb', 'kt', 'lg']
@@ -95,62 +74,59 @@ const RemoconSection: React.FC<RemoconSectionProps> = ({ event }) => {
 
   return (
     <section className="border border-black h-full p-[20px]">
-      <div className="flex flex-col w-full h-full">
-        <div className="flex flex-row justify-between w-full h-[30px] items-center">
-          {selectedRemocon && remocons && (
-            <Menu>
-              <MenuButton className="w-[60%] flex justify-end">
-                <div className="flex justify-between pr-[5px] pl-[5px] border-b-[1px] border-black">
-                  <p className="pl-[8px] font-medium text-[14px]">{selectedRemocon}</p>
-                  <DropdownIcon className="w-[10px] rotate-180" />
-                </div>
-              </MenuButton>
-              <MenuList>
-                {remocons.map((remocon) => {
-                  return (
-                    <MenuItem
-                      key={`remocon_${remocon}`}
-                      onClick={() => {
-                        setSelectedRemocon(remocon)
-                      }}
-                    >
-                      {remocon}
-                    </MenuItem>
-                  )
-                })}
-              </MenuList>
-            </Menu>
-          )}
-
-          <img alt="information_icon" src={InformationIcon} className="w-[20px] h-[20px] cursor-pointer" />
-        </div>
-        <div className="h-[calc(100%-30px)] grid grid-cols-[1fr_1fr]">
-          <div ref={remoconDivRef} className="h-full flex items-center justify-center">
-            <div className="relative" style={{ height: `${remoconHeight * 0.95}px` }}>
-              <ButtonSquares keyboardCoors={keyboardCoors} event={event} />
-              <img ref={remoconRef} src={Remocon} alt="remocon" className="h-full" />
-            </div>
-          </div>
-          <div className="flex flex-col h-full">
-            <div className="grid grid-rows-[1fr_8fr]" style={{ height: `${remoconHeight * 0.95}px` }}>
-              <div className="flex flex-row justify-between mt-[20px]">
-                <p className="font-medium text-[14px]">Custom Key</p>
-                <div className="flex flex-row justify-between items-center">
-                  <AddIcon className="w-[14px] h-[14px]" />
-                  <EditIcon className="w-[14px] h-[14px] ml-[10px]" />
-                </div>
+      <div className="flex flex-row justify-between w-full h-[30px] items-center">
+        {selectedRemocon && remocons && (
+          <Menu>
+            <MenuButton className="w-[60%] flex justify-end">
+              <div className="flex justify-between pr-[5px] pl-[5px] border-b-[1px] border-black">
+                <p className="pl-[8px] font-medium text-[14px]">{selectedRemocon}</p>
+                <DropdownIcon className="w-[10px] rotate-180" />
               </div>
-              <div className={cx('flex flex-col mt-[20px] flex-grow overflow-y-auto', 'hot-key-container')}>
-                {hotkeys.map((hotKey) => (
-                  <button
-                    type="button"
-                    className="h-[32px] bg-white border-[1px] border-[#707070] rounded-[38px] mb-[5px] font-[500] flex pl-[10px] hover:bg-gray-200"
-                    key={`hotKey_${hotKey}`}
+            </MenuButton>
+            <MenuList>
+              {remocons.map((remocon) => {
+                return (
+                  <MenuItem
+                    key={`remocon_${remocon}`}
+                    onClick={() => {
+                      setSelectedRemocon(remocon)
+                    }}
                   >
-                    {hotKey}
-                  </button>
-                ))}
+                    {remocon}
+                  </MenuItem>
+                )
+              })}
+            </MenuList>
+          </Menu>
+        )}
+
+        <img alt="information_icon" src={InformationIcon} className="w-[20px] h-[20px] cursor-pointer" />
+      </div>
+
+      <div className="h-[calc(100%-30px)] grid grid-cols-2 grid-rows-1">
+        <div ref={remoconDivRef} className="h-full items-center justify-center">
+          <ButtonSquares keyboardCoors={keyboardCoors} event={event} />
+          <img ref={remoconRef} src={Remocon} alt="remocon" className="h-full object-contain" />
+        </div>
+        <div className="flex flex-col h-full">
+          <div className="grid grid-rows-[1fr_8fr] overflow-y-auto">
+            <div className="flex flex-row justify-between mt-[20px]">
+              <p className="font-medium text-[14px]">Custom Key</p>
+              <div className="flex flex-row justify-between items-center">
+                <AddIcon className="w-[14px] h-[14px]" />
+                <EditIcon className="w-[14px] h-[14px] ml-[10px]" />
               </div>
+            </div>
+            <div className={cx('flex flex-col mt-[20px] flex-grow overflow-y-auto', 'hot-key-container')}>
+              {hotkeys.map((hotKey) => (
+                <button
+                  type="button"
+                  className="h-[32px] bg-white border-[1px] border-[#707070] rounded-[38px] mb-[5px] font-[500] flex pl-[10px] hover:bg-gray-200"
+                  key={`hotKey_${hotKey}`}
+                >
+                  {hotKey}
+                </button>
+              ))}
             </div>
           </div>
         </div>
