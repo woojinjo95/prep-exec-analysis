@@ -1,22 +1,22 @@
-import { KeyEvent } from '@page/ActionPage/constants'
+import { KeyEvent } from '@page/ActionPage/types'
 import React, { useEffect, useState } from 'react'
 
 interface ButtonSquaresProps {
-  event: KeyEvent | null
+  keyEvent: KeyEvent | null
   keyboardCoors?: { leftTop: { left: number; top: number }; rightBottom: { right: number; bottom: number } }[]
 }
 
-const ButtonSquares = ({ event, keyboardCoors }: ButtonSquaresProps): JSX.Element => {
+const ButtonSquares = ({ keyEvent, keyboardCoors }: ButtonSquaresProps): JSX.Element => {
   const [isSquareVisible, setIsSquareVisible] = useState<boolean>(false)
 
   useEffect(() => {
-    if (event?.altKey && event.code === 'KeyR') {
+    if (keyEvent?.altKey && keyEvent.code === 'KeyR') {
       setIsSquareVisible(true)
     }
-    if (!event?.altKey) {
+    if (!keyEvent?.altKey) {
       setIsSquareVisible(false)
     }
-  }, [event])
+  }, [keyEvent])
 
   return (
     <div className="relative">

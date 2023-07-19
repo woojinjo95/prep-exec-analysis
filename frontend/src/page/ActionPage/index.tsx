@@ -4,25 +4,25 @@ import ActionSection from './components/ActionSection'
 import MonitorSection from './components/MonitorSection'
 import RemoconSection from './components/RemoconSection'
 import TerminalSection from './components/TerminalSection'
-import { KeyEvent } from './constants'
+import { KeyEvent } from './types'
 
 /**
  * 동작 제어 페이지
  */
 const ActionPage: React.FC = () => {
-  const [event, setEvent] = useState<KeyEvent | null>(null)
+  const [keyEvent, setKeyEvent] = useState<KeyEvent | null>(null)
 
   useEffect(() => {
     const keyDownHandler = (e: KeyEvent) => {
       if (e.altKey) {
-        setEvent(e)
+        setKeyEvent(e)
         e.preventDefault()
       }
     }
 
     const keyUpHandler = (e: KeyEvent) => {
       if (!e.altKey) {
-        setEvent(null)
+        setKeyEvent(null)
         e.preventDefault()
       }
     }
@@ -39,7 +39,7 @@ const ActionPage: React.FC = () => {
     <PageContainer className="grid grid-cols-[1.5fr_3fr_1.5fr] grid-rows-[60%_39%]">
       <ActionSection />
       <MonitorSection />
-      <RemoconSection event={event} />
+      <RemoconSection keyEvent={keyEvent} />
       <TerminalSection />
     </PageContainer>
   )
