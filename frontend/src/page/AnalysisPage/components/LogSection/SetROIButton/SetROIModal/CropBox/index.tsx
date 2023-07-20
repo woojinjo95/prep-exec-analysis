@@ -12,6 +12,8 @@ interface CropBoxProps {
 
 /**
  * 비디오 크롭 영역
+ *
+ * FIXME: resize 이벤트 발생 시 크롭영역 비율 조정
  */
 const CropBox: React.FC<CropBoxProps> = ({
   clientWidth,
