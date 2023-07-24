@@ -29,10 +29,10 @@ const ActionBlockItem = ({
     >
       <div
         className={cx('h-full w-full p-[5px] flex items-center border-[1px] bg-white justify-between  rounded-[5px]', {
-          'bg-blue-200': selectedBlockIds.includes(block.id),
-          'border-red-400': actionStatus === 'RFC',
-          'border-blue-400': actionStatus === 'playing',
-          'border-gray-400': actionStatus === 'normal',
+          '!bg-blue-200': selectedBlockIds.includes(block.id),
+          '!border-red-400': actionStatus === 'RFC',
+          '!border-blue-400': actionStatus === 'playing',
+          '!border-gray-400': actionStatus === 'normal',
         })}
       >
         <p
