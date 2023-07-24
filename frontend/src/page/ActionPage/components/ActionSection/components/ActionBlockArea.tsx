@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd'
 import cx from 'classnames'
 import { formatDateTo } from '@global/usecase'
@@ -9,6 +9,7 @@ const blockData: Block[] = Array.from({ length: 15 }, (_, i) => ({
   id: i,
   title: `block ${i}`,
   time: formatDateTo('HH:MM:SS', new Date()),
+  refIdx: i,
 }))
 
 const ActionBlockArea = (): JSX.Element => {
@@ -17,6 +18,8 @@ const ActionBlockArea = (): JSX.Element => {
 
   // 선택된 블럭 id list
   const [selectedBlockIds, setSelectedBlockIds] = useState<number[]>([])
+
+  const blocksRef = useRef<HTMLDivElement[] | null[]>(new Array(blocks.length))
 
   /**
    * 실제로 렌더링 때 사용될 blockDummys
@@ -49,14 +52,7 @@ const ActionBlockArea = (): JSX.Element => {
     setBlockDummys(updatedBlockDummys)
 
     // 전체 blocks 최신화
-    const newBlocks: Block[] = []
-
-    updatedBlockDummys.forEach((dummy) => {
-      dummy.forEach((block) => {
-        newBlocks.push(block)
-      })
-    })
-    setBlocks(newBlocks)
+    setBlocks(updatedBlockDummys.flat())
   }
 
   /**
@@ -89,15 +85,9 @@ const ActionBlockArea = (): JSX.Element => {
 
   // 연속된 block을 하나의 blockDummy로 묶기 위한 useEffect
   useEffect(() => {
-    const blockIndexs: number[] = []
-
-    selectedBlockIds.forEach((id) => {
-      const findIdx = blocks.findIndex((block_id) => block_id.id === id)
-
-      if (findIdx !== -1) {
-        blockIndexs.push(findIdx)
-      }
-    })
+    const blockIndexs: number[] = selectedBlockIds
+      .map((id) => blocks.findIndex((block_id) => block_id.id === id))
+      .filter((idx) => idx !== -1)
 
     // 선택된 블록들의 sorted index list
     const sortedBlockIdxs = blockIndexs.sort((a, b) => a - b)
@@ -136,8 +126,6 @@ const ActionBlockArea = (): JSX.Element => {
     }
   }, [selectedBlockIds, blocks])
 
-  /// //////////////////////////////////////////
-
   // 드래그 영역을 표시하기 위한 상태와 시작 지점
   const [dragSelection, setDragSelection] = useState<{
     startX: number
@@ -145,14 +133,13 @@ const ActionBlockArea = (): JSX.Element => {
     endX: number
     endY: number
   } | null>(null)
-  const [startPosition, setStartPosition] = useState<{ x: number; y: number } | null>(null)
 
   // 드래그 영역 계산 및 업데이트 함수
   const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
     const x = event.clientX
     const y = event.clientY
     setDragSelection({ startX: x, startY: y, endX: x, endY: y })
-    setStartPosition({ x, y })
+    // setStartPosition({ x, y })
     setSelectedBlockIds([])
   }
 
@@ -168,10 +155,9 @@ const ActionBlockArea = (): JSX.Element => {
       // 드래그 영역 안에 있는 블록들을 선택
       const selectedIds: number[] = blocks
         .filter((block) => {
-          const blockElement = document.getElementById(`block-${block.id}`)
-          if (!blockElement) return false
+          if (!blocksRef.current[block.refIdx]) return false
 
-          const blockRect = blockElement.getBoundingClientRect()
+          const blockRect = blocksRef.current[block.refIdx]!.getBoundingClientRect()
           const blockX = blockRect.left + blockRect.width / 2
           const blockY = blockRect.top + blockRect.height / 2
 
@@ -181,13 +167,12 @@ const ActionBlockArea = (): JSX.Element => {
 
       setSelectedBlockIds(selectedIds)
       setDragSelection(null)
-      setStartPosition(null)
     }
   }
 
   // 드래그 중일 때
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (startPosition) {
+    if (dragSelection) {
       const x = event.clientX
       const y = event.clientY
 
@@ -207,10 +192,9 @@ const ActionBlockArea = (): JSX.Element => {
         // 드래그 영역에 속하는 블럭들의 id
         const selectedIds: number[] = blocks
           .filter((block) => {
-            const blockElement = document.getElementById(`block-${block.id}`)
-            if (!blockElement) return false
+            if (!blocksRef.current[block.refIdx]) return false
 
-            const blockRect = blockElement.getBoundingClientRect()
+            const blockRect = blocksRef.current[block.refIdx]!.getBoundingClientRect()
             const blockX = blockRect.left + blockRect.width / 2
             const blockY = blockRect.top + blockRect.height / 2
 
@@ -246,13 +230,19 @@ const ActionBlockArea = (): JSX.Element => {
                       >
                         {dummy.map((block) => {
                           return (
-                            <ActionBlockItem
-                              actionStatus="normal"
-                              block={block}
+                            <div
                               key={block.id}
-                              selectedBlockIds={selectedBlockIds}
-                              handleBlockClick={handleBlockClick}
-                            />
+                              ref={(ele) => {
+                                blocksRef.current[block.refIdx] = ele
+                              }}
+                            >
+                              <ActionBlockItem
+                                actionStatus="normal"
+                                block={block}
+                                selectedBlockIds={selectedBlockIds}
+                                handleBlockClick={handleBlockClick}
+                              />
+                            </div>
                           )
                         })}
                       </div>
