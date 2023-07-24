@@ -3,6 +3,7 @@ import logging
 import os
 import time
 from threading import Event
+from iterators import TimeoutIterator
 
 import paramiko
 from ppadb.client import Client as AdbClient
@@ -12,6 +13,11 @@ logger = logging.getLogger('connection')
 
 class Connection:
     def __init__(self, host: str, port: int, username: str = None, password: str = None, connection_mode: str = 'ssh'):
+        self.host = host
+        self.port = port
+        self.username = username
+        self.password = password
+        self.connection_mode = connection_mode
         if connection_mode == 'ssh':
             self.client = paramiko.SSHClient()
             self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy)
@@ -26,7 +32,17 @@ class Connection:
                 raise Exception('Invalid IP or Port')
         else:
             raise Exception('Invalid connection_mode')
-        self.connection_mode = connection_mode
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.connection_mode == 'ssh':
+            if self.client:
+                self.client.close()
+        elif self.connection_mode == 'adb':
+            if self.session:
+                self.session.close()
 
     def create_connection(self, timeout: float = 2) -> any:
         start_time = time.time()
@@ -78,30 +94,3 @@ class Connection:
             self.session.send(cmd)
             stdout = self.session.socket.makefile()
         return self.preprocess_stdout_stream(stdout, stop_event)
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        if self.connection_mode == 'ssh':
-            if self.client:
-                self.client.close()
-        elif self.connection_mode == 'adb':
-            if self.session:
-                self.session.close()
-
-
-def check_connection(connection_info: dict) -> bool:
-    try:
-        # Connection 시도 후 끊기
-        if connection_info['connection_mode'] == 'ssh':
-            Connection(**connection_info).client.close()
-        elif connection_info['connection_mode'] == 'adb':
-            Connection(**connection_info).session.close()
-        # Connection 시도 후 끊기가 정상적으로 동작할 경우 연결가능 상태
-        is_connected = True
-    except Exception as e:
-        logger.info(e)
-        # Connection 시도 후 끊기가 정상적으로 동작하지 않을 경우 연결불가 상태
-        is_connected = False
-    return is_connected

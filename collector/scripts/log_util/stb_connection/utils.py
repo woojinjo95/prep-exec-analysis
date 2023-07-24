@@ -27,10 +27,10 @@ def close_client(conn: Connection):
     logger.info('close client')
 
 
-def exec_command(command_script: str, timeout: float, connection_info: ConnectionInfo, su_prefix: bool = False) -> str:
+def exec_command(command_script: str, timeout: float, connection_info: dict, su_prefix: bool = False) -> str:
     command_result = ''
     try:
-        conn = Connection(connection_info.host, connection_info.port, connection_info.username, connection_info.password, connection_info.connection_mode)
+        conn = Connection(**connection_info)
         if su_prefix:
             command_script = add_su_prefix_to_command_script(command_script, conn.connection_mode)
         stdout_stop_event = Event()
@@ -58,3 +58,19 @@ def exec_command(command_script: str, timeout: float, connection_info: Connectio
         logger.info(e)
 
     return command_result
+
+
+def check_connection(connection_info: dict) -> bool:
+    try:
+        # Connection 시도 후 끊기
+        if connection_info['connection_mode'] == 'ssh':
+            Connection(**connection_info).client.close()
+        elif connection_info['connection_mode'] == 'adb':
+            Connection(**connection_info).session.close()
+        # Connection 시도 후 끊기가 정상적으로 동작할 경우 연결가능 상태
+        is_connected = True
+    except Exception as e:
+        logger.info(e)
+        # Connection 시도 후 끊기가 정상적으로 동작하지 않을 경우 연결불가 상태
+        is_connected = False
+    return is_connected
