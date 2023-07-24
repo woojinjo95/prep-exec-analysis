@@ -2,7 +2,7 @@ from .file_manager import FileManager
 
 
 class LogFileManager(FileManager):
-    def __init__(self, ):
+    def __init__(self, session: Session):
         pass
 
     def dump(self, output_path: str):
