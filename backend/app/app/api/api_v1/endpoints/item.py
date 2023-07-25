@@ -1,11 +1,11 @@
 import logging
-from typing import List
+import uuid
 
 from app import schemas
+from app.api.utility import get_multi_or_paginate_by_res
 from app.crud.base import (delete_by_id_to_mongodb, insert_to_mongodb,
-                           load_by_id_from_mongodb, load_from_mongodb,
-                           update_by_id_to_mongodb)
-from fastapi import APIRouter, HTTPException
+                           load_by_id_from_mongodb, update_by_id_to_mongodb)
+from fastapi import APIRouter, HTTPException, Query
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -57,22 +57,24 @@ def delete_item(
     return {'msg': 'Delete a item.'}
 
 
-@router.get("", response_model=List[schemas.Item])
-def read_items() -> List[schemas.Item]:
+@router.get("", response_model=schemas.ItemPage)
+def read_items(page: int = Query(None, ge=1, description="Page number"),
+               page_size: int = Query(None, ge=1, le=100, description="Page size")) -> schemas.ItemPage:
     """
     Retrieve items.
     """
-    res = load_from_mongodb(collection='item', param={})
-    return res
+    return get_multi_or_paginate_by_res(collection='item', param={},
+                                        page=page, page_size=page_size)
 
 
 @router.post("", response_model=schemas.MsgWithId)
 def create_item(
     *,
-    item_in: schemas.ItemCreate,
+    item_in: schemas.ItemBase,
 ) -> schemas.MsgWithId:
     """
     Create new item.
     """
-    id = insert_to_mongodb(collection='item', data=item_in)
-    return {'msg': 'Create new item', 'id': id}
+    item_in = schemas.ItemCreate(name=item_in.name, id=str(uuid.uuid4()))
+    insert_to_mongodb(collection='item', data=item_in)
+    return {'msg': 'Create new item', 'id': item_in.id}

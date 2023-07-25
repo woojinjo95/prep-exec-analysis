@@ -1,6 +1,6 @@
-from app.schemas.base import PyObjectId
-from bson.objectid import ObjectId
-from pydantic import BaseModel, Field
+from typing import List, Optional
+
+from pydantic import BaseModel
 
 
 class ItemBase(BaseModel):
@@ -11,7 +11,7 @@ class ItemBase(BaseModel):
 
 
 class ItemCreate(ItemBase):
-    pass
+    id: str
 
 
 class ItemUpdate(ItemBase):
@@ -19,7 +19,12 @@ class ItemUpdate(ItemBase):
 
 
 class Item(ItemBase):
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")  # TODO 컬럼명 커스텀
+    id: str
 
-    class Config:
-        json_encoders = {ObjectId: str}
+
+class ItemPage(BaseModel):
+    total: Optional[int]
+    pages: Optional[int]
+    prev: Optional[int]
+    next: Optional[int]
+    items: List[Item]
