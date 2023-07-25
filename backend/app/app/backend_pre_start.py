@@ -1,6 +1,6 @@
 import logging
 
-from app.db.session import SessionLocal
+from app.db.session import db_session
 from tenacity import (after_log, before_log, retry, stop_after_attempt,
                       wait_fixed)
 
@@ -19,8 +19,7 @@ wait_seconds = 1
 )
 def init() -> None:
     try:
-        db = SessionLocal()
-        db.execute("SELECT 1")
+        db_session
     except Exception as e:
         logger.error(e)
         raise e
