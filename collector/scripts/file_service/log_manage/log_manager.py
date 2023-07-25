@@ -16,6 +16,9 @@ class LogFileManager(FileManager):
         self.stb_conn = self.create_stb_connection()
         self.db_conn = self.create_db_connection()
 
+        # create db
+        self.create_db()
+
     # Connection factory
     def create_stb_connection(self) -> Connection:
         return Connection(**self.connection_info)
