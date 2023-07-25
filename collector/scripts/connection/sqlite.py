@@ -10,32 +10,30 @@ class SqliteConnection():
     def __init__(self, db_name: str):
         self.db_name = os.path.join('datas', f'{db_name}.db')
 
+    def get_connection(self):
+        return sqlite3.connect(self.db_name)
+
     def create_db(self, statement: str):
-        conn = sqlite3.connect(self.db_name)
-        cursor = conn.cursor()
-        cursor.execute(statement)
-        conn.commit()
-        conn.close()
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(statement)
+            conn.commit()
     
     def save_data(self, statement: str, params: Tuple):
-        conn = sqlite3.connect(self.db_name)
-        cursor = conn.cursor()
-        cursor.execute(statement, params)
-        conn.commit()
-        conn.close()
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(statement, params)
+            conn.commit()
     
     def save_datas(self, statement: str, seq_of_params: List):
-        conn = sqlite3.connect(self.db_name)
-        cursor = conn.cursor()
-        cursor.executemany(statement, seq_of_params)
-        conn.commit()
-        conn.close()
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.executemany(statement, seq_of_params)
+            conn.commit()
     
     def load_data(self, statement: str, params: Tuple) -> List[Any]:
-        conn = sqlite3.connect(self.db_name)
-        cursor = conn.cursor()
-        cursor.execute(statement, params)
-        data = cursor.fetchall()
-        conn.close()
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(statement, params)
+            data = cursor.fetchall()
         return data
-    
