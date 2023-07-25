@@ -32,7 +32,6 @@ def paginate_from_mongodb(collection, param, page, page_size=None, sorting_keywo
         'page_size': page_size,
         'total': res.get('total', 1)
     }
-    print(page_param)
     return convert_pageset(page_param, list(res.get('items', [])))
 
 
