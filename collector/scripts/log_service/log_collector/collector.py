@@ -16,15 +16,19 @@ logger = logging.getLogger('connection')
 
 
 class Collector:
-    def __init__(self, connection_info: dict, command_script: str, log_type: str, stop_event: Event):
+    def __init__(self, connection_info: dict, command_script: str, log_type: str, stop_events: Event):
         self.connection_info = connection_info
         self.command_script = command_script
         self.log_type = log_type
         self.output_dir = 'logs'
-        self.stop_event = stop_event
+        self.stop_event = Event()
+        self.stop_events = (*stop_events, self.stop_event)
 
         self.logging_session_id = str(uuid4())
         self.status = 'stopping'
+
+    def check_stop_events(self) -> bool:
+        return any([stop_event.is_set() for stop_event in self.stop_events if hasattr(stop_event, 'is_set')])
 
     def collect(self):
         conn = Connection(**self.connection_info)
@@ -36,7 +40,7 @@ class Collector:
 
         log_cell_lines = ""
         chunk_count = 1
-        while not self.stop_event.is_set():
+        while not self.check_stop_events():
             if chunk_count == CollectorConfig.SESSION_UPDATE_CHUNK_CNT + 1:
                 chunk_count = 1
             self.status = 'running'
@@ -45,7 +49,7 @@ class Collector:
                 logger.info(f'{f.name} start dump file')
                 start_time = time.time()
                 for line in timeout_stdout:
-                    if self.stop_event.is_set():
+                    if self.check_stop_events():
                         break
                     # while not stop_event.is_set():
                     end_condition = [f.tell() >= CollectorConfig.DUMP_FILESIZE_LIMIT,
@@ -79,7 +83,7 @@ class Collector:
 
                 # stop event로 종료 할 경우 남은 내용물 다 씀
                 # stop event로 종료한게 아니라면, 다음 루프에서 log_cell_lines 내용물들이 다 써지게 되어있음
-                if self.stop_event.is_set() and log_cell_lines != "":
+                if self.check_stop_events() and log_cell_lines != "":
                     # top 의 경우 제일 윗줄에 Timestamp 넣어서 씀
                     if self.log_type == 'top':
                         log_cell_lines = f"Timestamp : {str(datetime.now() - timedelta(seconds=CollectorConfig.LOG_STREAM_TIMEOUT))}\n" + \
