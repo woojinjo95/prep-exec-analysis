@@ -4,7 +4,7 @@ import { useScale } from '../hook'
 import { AreaChartData } from '../types'
 
 /**
- * svg를 이용한 차트 생성기
+ * svg를 이용한 영역 차트 생성기
  */
 export class AreaChartGenerator {
   private svg!: d3.Selection<SVGSVGElement, unknown, null, undefined>
