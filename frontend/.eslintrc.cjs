@@ -26,6 +26,7 @@ module.exports = {
     'prettier/prettier': 0,
     'no-console': ['off'],
     'no-alert': ['off'],
+    'no-useless-constructor': ['off'],
     'import/no-unresolved': ['off'],
     'import/extensions': ['off'],
     'import/prefer-default-export': ['off'],

@@ -8,7 +8,7 @@ import ActionBlockArea from './components/ActionBlockArea'
 const ActionSection: React.FC = () => {
   return (
     <section className="border border-black row-span-2 p-[20px] h-full">
-      <div className="grid grid-rows-[30px_auto_30px] h-full">
+      <div className="grid grid-rows-[30px_auto_30px] gap-y-[10px] h-full">
         <div className="flex justify-end">
           <button
             type="button"
@@ -18,9 +18,9 @@ const ActionSection: React.FC = () => {
             <p className="text-[14px] ml-[10px]">Play</p>
           </button>
         </div>
-        <div className="mt-[10px]">
-          <ActionBlockArea />
-        </div>
+
+        <ActionBlockArea />
+
         <div className="flex justify-between">
           <button
             type="button"
