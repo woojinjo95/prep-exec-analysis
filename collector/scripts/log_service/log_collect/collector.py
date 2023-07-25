@@ -2,7 +2,8 @@ import logging
 import os
 import time
 from datetime import datetime, timedelta
-from threading import Event
+from typing import List
+from multiprocessing import Event, Queue
 from uuid import uuid4
 import traceback
 
@@ -16,14 +17,17 @@ logger = logging.getLogger('connection')
 
 
 class Collector:
-    def __init__(self, connection_info: dict, command_script: str, log_type: str, stop_events: Event):
+    def __init__(self, connection_info: dict, command_script: str, log_type: str, 
+                 upload_queue: Queue, stop_events: List[Event]):
         self.connection_info = connection_info
         self.command_script = command_script
         self.log_type = log_type
-        self.output_dir = 'logs'
+        self.upload_queue = upload_queue
+
         self.stop_event = Event()
         self.stop_events = (*stop_events, self.stop_event)
 
+        self.output_dir = 'logs'
         self.logging_session_id = str(uuid4())
         self.status = 'stopping'
 
@@ -40,14 +44,18 @@ class Collector:
 
         log_cell_lines = ""
         chunk_count = 1
+        
         while not self.check_stop_events():
             if chunk_count == CollectorConfig.SESSION_UPDATE_CHUNK_CNT + 1:
                 chunk_count = 1
             self.status = 'running'
+
             with open(f"{directory_path}/{datetime.now().strftime('%Y%m%d%H%M%S%f')}_{self.log_type}.log",
                     'w', buffering=1, encoding='utf-8-sig') as f:
                 logger.info(f'{f.name} start dump file')
                 start_time = time.time()
+                collector_chunk_start_time = datetime.now().isoformat()
+
                 for line in timeout_stdout:
                     if self.check_stop_events():
                         break
@@ -81,6 +89,11 @@ class Collector:
                         self.stop_event.set()
                         break
 
+                if chunk_count == CollectorConfig.SESSION_UPDATE_CHUNK_CNT or self.check_stop_events():
+                    is_finish = True
+                else:
+                    is_finish = False
+
                 # stop event로 종료 할 경우 남은 내용물 다 씀
                 # stop event로 종료한게 아니라면, 다음 루프에서 log_cell_lines 내용물들이 다 써지게 되어있음
                 if self.check_stop_events() and log_cell_lines != "":
@@ -95,6 +108,7 @@ class Collector:
                 file_name = f.name
                 if file_size > 0:
                     logger.info(f'{f.name} {self.logging_session_id} finish dump file / size : {file_size}Byte')
+                    self.upload_queue.put((f.name, self.logging_session_id, chunk_count, is_finish, collector_chunk_start_time))
                     chunk_count += 1
                 else:
                     logger.info(f'{f.name} {self.logging_session_id} skip this file. {file_size}Byte')

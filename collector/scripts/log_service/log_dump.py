@@ -10,7 +10,6 @@ import requests
 logger = logging.getLogger('connection')
 
 
-LOG_BACKEND_API_URL = os.environ.get('LOG_BACKEND_API_URL')
 def upload(upload_queue, stop_event, is_running):
     while not stop_event.is_set():
         is_running.set()
@@ -19,6 +18,7 @@ def upload(upload_queue, stop_event, is_running):
         else:
             time.sleep(0.1)
     is_running.clear()
+
 
 def upload_file(file_path, logging_session_id, chunk_count, is_finish, collector_chunk_start_time):
     try_count = 0
