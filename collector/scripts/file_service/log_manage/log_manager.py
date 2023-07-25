@@ -1,4 +1,5 @@
-from typing import List, Tuple
+import time
+from typing import List
 
 from .db_connection import LogManagerDBConnection
 from scripts.connection.stb_connection.connector import Connection
@@ -19,11 +20,11 @@ class LogFileManager():
         return LogManagerDBConnection()
 
     # Essential methods
-    def dump(self, output_path: str):
-        pass
+    def save(self, log_line: str):
+        self.db_conn.save_data((time.time(), log_line))
 
-    def load(self, start: float, end: float):
-        pass
+    def load_page(self, start: float, end: float, page_number: int=1, page_size: int=1) -> List:
+        return self.db_conn.load_data_with_paging(start, end, page_number, page_size)
 
     def delete(self, start: float, end: float):
         pass

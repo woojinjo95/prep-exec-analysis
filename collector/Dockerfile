@@ -9,10 +9,6 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 RUN ln -s /usr/bin/pip3 /usr/bin/pip
 RUN pip install --upgrade pip
 
-# set timezone
-ENV TZ=Asia/Seoul
-RUN apt-get install -y tzdata
-
 # install requirements
 WORKDIR /app/
 ADD requirements.txt ./
