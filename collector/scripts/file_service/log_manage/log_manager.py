@@ -5,7 +5,7 @@ from multiprocessing import Event
 from .db_connection import LogManagerDBConnection
 from scripts.connection.stb_connection.connector import Connection
 from scripts.log_service.log_generate.generate import create_stb_output_channel
-from scripts.log_service.log_collector.collector import Collector
+from scripts.log_service.log_collect.collector import Collector
 
 
 class LogFileManager():
@@ -34,7 +34,7 @@ class LogFileManager():
         self.collector = Collector(self.connection_info, 'logcat -v long', 'logcat', [self.local_stop_event, self.global_stop_event])
         self.collector.collect()
 
-    
+
 
     # Essential methods
     def save(self, log_line: str):
