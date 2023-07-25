@@ -7,7 +7,8 @@ import config
 import requests
 
 
-logger = logging.getLogger('log_collector')
+logger = logging.getLogger('connection')
+
 
 LOG_BACKEND_API_URL = os.environ.get('LOG_BACKEND_API_URL')
 def upload(upload_queue, stop_event, is_running):
