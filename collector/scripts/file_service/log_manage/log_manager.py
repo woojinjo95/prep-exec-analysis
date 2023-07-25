@@ -15,7 +15,7 @@ class LogFileManager():
         # set connections
         self.stb_conn = self.__create_stb_connection()
         self.db_conn = self.__create_db_connection()
-        self.stb_output = self.__create_stb_output_channel()
+        self.stb_output = self.__create_stb_output_channel('logcat')
 
     # Connection factory
     def __create_stb_connection(self) -> Connection:
@@ -24,8 +24,8 @@ class LogFileManager():
     def __create_db_connection(self) -> LogManagerDBConnection:
         return LogManagerDBConnection()
 
-    def __create_stb_output_channel(self) -> Generator[str, None, None]:
-        return create_stb_output_channel('logcat', self.connection_info, [self.local_stop_event, self.global_stop_event])
+    def __create_stb_output_channel(self, command: str) -> Generator[str, None, None]:
+        return create_stb_output_channel(command, self.connection_info, [self.local_stop_event, self.global_stop_event])
 
     # Essential methods
     def save(self, log_line: str):
