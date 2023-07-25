@@ -4,7 +4,6 @@ from threading import Event
 from iterators import TimeoutIterator
 
 from .connector import Connection
-from .format import ConnectionInfo
 
 logger = logging.getLogger('connection')
 
