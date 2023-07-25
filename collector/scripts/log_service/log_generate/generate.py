@@ -4,16 +4,15 @@ from multiprocessing import Event
 from typing import Generator, List, Dict, Callable
 import re
 
-from scripts.log_service.stb_log.stb_connection.utils import get_connection_info, exec_command_generator
+from scripts.connection.stb_connection.utils import exec_command_generator
 
 
 logger = logging.getLogger('connection')
 
 
 # 셋탑 박스 내부 특정 command 입력하였을 때 그 output을 generate 하는 함수
-def create_stb_output_channel(command: str, slot_index: int = 0, 
+def create_stb_output_channel(command: str, connection_info: dict, 
                               stop_events: List[Event] = [], su_prefix: bool = False) -> Generator[str, None, None]:
-    connection_info = get_connection_info(slot_index)
     logger.info(f'create settop box output channel. connection info: {connection_info}')
     gen = exec_command_generator(command_script=command, 
                                  connection_info=connection_info, 

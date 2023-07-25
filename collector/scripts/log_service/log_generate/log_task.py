@@ -8,14 +8,14 @@ from .generate import (create_stb_output_channel, find_pattern_with_generator, s
 from .template import PatternFinder
 
 
-def start_log_pattern_finder(slot_index: int, command: str, patterns: List[str], term_cond_func: Callable = None, kwargs: Dict = {}, match_counts: List[int] = [],
+def start_log_pattern_finder(connection_info: dict, command: str, patterns: List[str], term_cond_func: Callable = None, kwargs: Dict = {}, match_counts: List[int] = [],
                              duration: float = None, save_detail: bool = False, global_stop_event: multiprocessing.Event = None) -> PatternFinder:
     if term_cond_func is not None and not callable(term_cond_func):
         raise ValueError('term_cond_func must be callable')
     
     stop_event = threading.Event()
     gen = create_stb_output_channel(command=command, 
-                                    slot_index=slot_index,
+                                    connection_info=connection_info,
                                     stop_events=[stop_event, global_stop_event])
     
     result = {}

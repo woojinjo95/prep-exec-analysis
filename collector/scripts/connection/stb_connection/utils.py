@@ -1,5 +1,7 @@
 import time
 import logging
+import traceback
+from typing import List
 from threading import Event
 from iterators import TimeoutIterator
 
@@ -57,6 +59,43 @@ def exec_command(command_script: str, timeout: float, connection_info: dict, su_
         logger.info(e)
 
     return command_result
+
+
+def exec_command_generator(command_script: str, connection_info: dict,
+                           stop_events: List[Event] = [], su_prefix: bool = False) -> str:
+    try:
+        conn = Connection(**connection_info)
+
+        if su_prefix:
+            command_script = add_su_prefix_to_command_script(command_script, conn.connection_mode)
+
+        stdout_stop_event = Event()
+        stdout = conn.exec_command(command_script, stdout_stop_event)
+        timeout_stdout = TimeoutIterator(stdout, timeout=0.5, sentinel=None)
+
+        for line in timeout_stdout:
+            # check stop event
+            if any([hasattr(event, 'is_set') and event.is_set() for event in stop_events]):
+                break
+
+            if line is None:
+                continue
+            else:
+                yield line
+
+    except Exception as e:
+        logger.info(e)
+        traceback.print_exc()
+    
+    finally:
+        if stdout_stop_event:
+            stdout_stop_event.set()
+        if conn:
+            close_client(conn)
+        del conn
+        del timeout_stdout
+        del stdout
+        logger.info('finish to exec command generator')
 
 
 def check_connection(connection_info: dict) -> bool:
