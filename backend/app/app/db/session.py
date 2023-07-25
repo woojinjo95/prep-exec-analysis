@@ -1,8 +1,3 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from app.crud.base import conn_mongodb
 
-from app.core.config import settings
-
-engine = create_engine(settings.DATABASE_URI, pool_pre_ping=True)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-db = SessionLocal()
+db_session = conn_mongodb()
