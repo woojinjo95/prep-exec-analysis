@@ -5,10 +5,10 @@ import { formatDateTo } from '@global/usecase'
 import ActionBlockItem from './ActionBlockItem'
 import { Block } from '../types'
 
-const blockData: Block[] = Array.from({ length: 15 }, (_, i) => ({
+const blockData: Block[] = Array.from({ length: 30 }, (_, i) => ({
   id: i,
-  title: `block ${i}`,
-  time: formatDateTo('HH:MM:SS', new Date()),
+  title: `block ${i} test block`,
+  time: '23h 23m 23s',
   refIdx: i,
 }))
 
@@ -152,16 +152,19 @@ const ActionBlockArea = (): JSX.Element => {
       const maxX = Math.max(startX, endX)
       const maxY = Math.max(startY, endY)
 
-      // 드래그 영역 안에 있는 블록들을 선택
+      // 드래그 영역에 속하는 블럭들의 id
       const selectedIds: number[] = blocks
         .filter((block) => {
           if (!blocksRef.current[block.refIdx]) return false
 
           const blockRect = blocksRef.current[block.refIdx]!.getBoundingClientRect()
-          const blockX = blockRect.left + blockRect.width / 2
           const blockY = blockRect.top + blockRect.height / 2
 
-          return blockX >= minX && blockX <= maxX && blockY >= minY && blockY <= maxY
+          return (
+            blockY >= minY &&
+            blockY <= maxY &&
+            ((minX <= blockRect.left && maxX >= blockRect.left) || (maxX >= blockRect.right && minX <= blockRect.right))
+          )
         })
         .map((block) => block.id)
 
@@ -195,10 +198,14 @@ const ActionBlockArea = (): JSX.Element => {
             if (!blocksRef.current[block.refIdx]) return false
 
             const blockRect = blocksRef.current[block.refIdx]!.getBoundingClientRect()
-            const blockX = blockRect.left + blockRect.width / 2
             const blockY = blockRect.top + blockRect.height / 2
 
-            return blockX >= minX && blockX <= maxX && blockY >= minY && blockY <= maxY
+            return (
+              blockY >= minY &&
+              blockY <= maxY &&
+              ((minX <= blockRect.left && maxX >= blockRect.left) ||
+                (maxX >= blockRect.right && minX <= blockRect.right))
+            )
           })
           .map((block) => block.id)
 
@@ -209,7 +216,7 @@ const ActionBlockArea = (): JSX.Element => {
 
   return (
     <div
-      className="h-full w-full"
+      className="h-full w-full pl-[30px] pr-[30px] overflow-y-auto pt-[20px]"
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseMove={handleMouseMove}
