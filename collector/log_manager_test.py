@@ -10,5 +10,5 @@ manager = LogFileManager(connection_info = {
     'connection_mode': 'adb',
 })
 
-manager.save_datas([(datetime.now().timestamp(), 'test1'), (datetime.now().timestamp(), 'test2')])
-print(manager.load_data(datetime.now().timestamp() - 5000, datetime.now().timestamp() + 5000))
+manager.__save_datas([(datetime.now().timestamp(), 'test1'), (datetime.now().timestamp(), 'test2')])
+print(manager.__load_data(datetime.now().timestamp() - 5000, datetime.now().timestamp() + 5000))
