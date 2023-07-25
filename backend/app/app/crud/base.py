@@ -1,106 +1,49 @@
-from enum import Enum
-from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
-
-from app.db.base_class import Base
-from app.fastapi_pagination import Page
-from app.fastapi_pagination.ext.sqlalchemy import init_query_to_dict, paginate
+import pymongo
+from app.core.config import settings
+from bson.objectid import ObjectId
 from fastapi.encoders import jsonable_encoder
-from pydantic import BaseModel
-from sqlalchemy.orm import Query, Session
-
-ModelType = TypeVar("ModelType", bound=Base)
-CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
-UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
 
-class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
-    def __init__(self, model: Type[ModelType]):
-        """
-        CRUD object with default methods to Create, Read, Update, Delete (CRUD).
+def conn_mongodb():
+    client = pymongo.MongoClient(
+        f"mongodb://{settings.MONGODB_USERNAME}:{settings.MONGODB_PASSWORD}@{settings.MONGODB_SERVER}:{settings.MONGODB_PORT}/{settings.MONGODB_NAME}?authSource={settings.MONGODB_AUTHENTICATION_SOURCE}&readPreference=primary&ssl=false")
+    return client
 
-        **Parameters**
+def get_mongodb_collection(collection):
+    db = settings.MONGODB_NAME
+    client = conn_mongodb()
+    result_db = client[db]
+    target_collection = result_db[collection]
+    return target_collection
 
-        * `model`: A SQLAlchemy model class
-        * `schema`: A Pydantic model (schema) class
-        """
-        self.model = model
 
-    def get(self, db: Session, id: Any) -> Optional[ModelType]:
-        return db.query(self.model).filter(self.model.id == id).first()
+def insert_to_mongodb(collection, data):
+    col = get_mongodb_collection(collection)
+    res = col.insert_one(jsonable_encoder(data))
+    return str(res.inserted_id)
 
-    def get_multi(
-        self, db: Session
-    ) -> List[ModelType]:
-        return db.query(self.model).all()
 
-    def get_multi_paginate(
-        self, db: Session
-    ) -> Page[ModelType]:
-        return paginate(db.query(self.model))
+def load_from_mongodb(collection, param, projection=None, sort_item=None):
+    col = get_mongodb_collection(collection)
+    res = col.find(param, projection)
+    if sort_item is not None:
+        res.sort(sort_item)
+    return list(res)
 
-    def get_multi_or_paginate_by_query(
-        self, query: Query, page: Optional[int] = 0
-    ) -> Page[ModelType]:
-        if page:
-            res = paginate(query)
-        else:
-            res = init_query_to_dict(query)
-        return res
 
-    def schema_encoder(self, db: Session, *, obj_in: CreateSchemaType) -> ModelType:
-        obj_in_data = jsonable_encoder(obj_in)
-        db_obj = self.model(**obj_in_data)
-        return db_obj
+def load_by_id_from_mongodb(collection, id, projection=None):
+    col = get_mongodb_collection(collection)
+    res = col.find_one({'_id': ObjectId(id)}, projection)
+    return res
 
-    def create(self, db: Session, *, obj_in: CreateSchemaType) -> ModelType:
-        db_obj = self.schema_encoder(db, obj_in=obj_in)
-        db.add(db_obj)
-        db.commit()
-        db.refresh(db_obj)
-        return db_obj
 
-    def create_flush(self, db: Session, *, obj_in: CreateSchemaType) -> ModelType:
-        db_obj = self.schema_encoder(db, obj_in=obj_in)
-        db.add(db_obj)
-        db.flush()
-        db.refresh(db_obj)
-        return db_obj
+def update_by_id_to_mongodb(collection, id, data):
+    col = get_mongodb_collection(collection)
+    return col.update_one({'_id': ObjectId(id)}, jsonable_encoder({'$set': data}))
 
-    def update_encoder(
-        self,
-        db: Session,
-        *,
-        db_obj: ModelType,
-        obj_in: Union[UpdateSchemaType, Dict[str, Any]]
-    ) -> ModelType:
-        obj_data = jsonable_encoder(db_obj)
-        if isinstance(obj_in, dict):
-            update_data = obj_in
-        else:
-            update_data = obj_in.dict(exclude_unset=True)
-        for field in obj_data:
-            if field in update_data:
-                field_data = update_data[field]
-                if isinstance(update_data[field], Enum):
-                    field_data = field_data.value
-                setattr(db_obj, field, field_data)
-        return db_obj
 
-    def update(
-        self,
-        db: Session,
-        *,
-        db_obj: ModelType,
-        obj_in: Union[UpdateSchemaType, Dict[str, Any]]
-    ) -> ModelType:
-        db_obj = self.update_encoder(db, db_obj=db_obj, obj_in=obj_in)
-        db.add(db_obj)
-        db.commit()
-        db.refresh(db_obj)
-        return db_obj
+def delete_by_id_to_mongodb(collection, id):
+    col = get_mongodb_collection(collection)
+    return col.delete_one({'_id': ObjectId(id)})
 
-    def remove(self, db: Session, *, id: int) -> ModelType:
-        obj = db.query(self.model).get(id)
-        db.delete(obj)
-        db.commit()
-        return obj
+# TODO 페이지네이션 함수 추가
