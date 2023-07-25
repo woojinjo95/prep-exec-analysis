@@ -1,13 +1,12 @@
+import { AreaChartData } from '../types'
+
 function getRandomInt(_min: number, _max: number) {
   const min = Math.ceil(_min)
   const max = Math.floor(_max)
   return Math.floor(Math.random() * (max - min)) + min
 }
 
-export const sampleData: {
-  date: Date
-  value: number
-}[] = [
+export const sampleData: AreaChartData = [
   {
     date: new Date('2023-07-20T05:35:00.000Z'),
     value: getRandomInt(0, 100),

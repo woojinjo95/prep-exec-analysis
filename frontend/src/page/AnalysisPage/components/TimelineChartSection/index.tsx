@@ -1,6 +1,6 @@
 import React from 'react'
 
-import AreaChart from './AreaChart'
+import AreaChart from './components/AreaChart'
 
 /**
  * 타임라인 차트 영역
