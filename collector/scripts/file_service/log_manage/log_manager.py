@@ -1,16 +1,21 @@
 import time
-from typing import List
+from typing import List, Generator
+from multiprocessing import Event
 
 from .db_connection import LogManagerDBConnection
 from scripts.connection.stb_connection.connector import Connection
+from scripts.log_service.log_generate.generate import create_stb_output_channel
 
 
 class LogFileManager():
-    def __init__(self, connection_info: dict):
+    def __init__(self, connection_info: dict, global_stop_event: Event = None):
         self.connection_info = connection_info
+        self.local_stop_event = Event()
+        self.global_stop_event = global_stop_event
         # set connections
         self.stb_conn = self.__create_stb_connection()
         self.db_conn = self.__create_db_connection()
+        self.stb_output = self.__create_stb_output_channel()
 
     # Connection factory
     def __create_stb_connection(self) -> Connection:
@@ -18,6 +23,9 @@ class LogFileManager():
 
     def __create_db_connection(self) -> LogManagerDBConnection:
         return LogManagerDBConnection()
+
+    def __create_stb_output_channel(self) -> Generator[str, None, None]:
+        return create_stb_output_channel('logcat', self.connection_info, [self.local_stop_event, self.global_stop_event])
 
     # Essential methods
     def save(self, log_line: str):
