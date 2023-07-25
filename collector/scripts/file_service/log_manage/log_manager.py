@@ -1,39 +1,22 @@
-from datetime import datetime
 from typing import List, Tuple
 
-from scripts.connection.sqlite import SqliteConnection
+from .db_connection import LogManagerDBConnection
 from scripts.connection.stb_connection.connector import Connection
 
 
 class LogFileManager():
     def __init__(self, connection_info: dict):
         self.connection_info = connection_info
-        self.db_name = 'log_file_manager'
-        
         # set connections
         self.stb_conn = self.__create_stb_connection()
         self.db_conn = self.__create_db_connection()
-
-        # create db
-        self.__create_db()
 
     # Connection factory
     def __create_stb_connection(self) -> Connection:
         return Connection(**self.connection_info)
 
-    def __create_db_connection(self) -> SqliteConnection:
-        return SqliteConnection(self.db_name)
-
-    # File manager methods
-    def __create_db(self):
-        self.db_conn.create_db('''CREATE TABLE IF NOT EXISTS log_data
-                                (timestamp real, content text)''')
-
-    def save_datas(self, texts: List[Tuple[float, str]]):
-        self.db_conn.save_datas("INSERT INTO log_data VALUES (?,?)", texts)
-
-    def load_data(self, start: float, end: float) -> List[Tuple[float, str]]:
-        return self.db_conn.load_data("SELECT * FROM log_data WHERE timestamp BETWEEN ? AND ?", (start, end))
+    def __create_db_connection(self) -> LogManagerDBConnection:
+        return LogManagerDBConnection()
 
     # Essential methods
     def dump(self, output_path: str):

@@ -34,7 +34,7 @@ def start_make_data(timeout: float):
         if time.time() > start_time + timeout:
             break
         time.sleep(random.random())
-        manager.save_datas([(time.time(), 'test')])
+        manager.db_conn.save_datas([(time.time(), 'test')])
 th = Thread(target=start_make_data(5))
 th.start()
 
@@ -44,7 +44,7 @@ print(f'start_time: {start_time}, end_time: {end_time}')
 start_timestamp = start_time.timestamp()
 end_timestamp = end_time.timestamp()
 
-datas = manager.load_data(start_timestamp, end_timestamp)
+datas = manager.db_conn.load_data(start_timestamp, end_timestamp)
 datas = [(datetime.fromtimestamp(data[0]).strftime('%Y-%m-%d %H:%M:%S'), data[1]) for data in datas]
 print(datas)
 
