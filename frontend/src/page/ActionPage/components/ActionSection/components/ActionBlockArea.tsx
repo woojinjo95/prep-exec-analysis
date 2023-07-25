@@ -209,7 +209,7 @@ const ActionBlockArea = (): JSX.Element => {
 
   return (
     <div
-      className="h-full w-full"
+      className="h-full w-full overflow-y-auto"
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseMove={handleMouseMove}
