@@ -45,3 +45,5 @@ def update_by_id_to_mongodb(collection, id, data):
 def delete_by_id_to_mongodb(collection, id):
     col = get_mongodb_collection(collection)
     return col.delete_one({'_id': ObjectId(id)})
+
+# TODO 페이지네이션 함수 추가
