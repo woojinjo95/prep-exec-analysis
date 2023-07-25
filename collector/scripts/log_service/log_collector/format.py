@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import Tuple
 
 
 @dataclass
@@ -11,7 +11,7 @@ class CollectorConfig:
     SESSION_UPDATE_CHUNK_CNT: int = 20
     DUMP_FILESIZE_LIMIT: int = (1024 * 1024 * 1)  # bytes
     DUMP_TIME_LIMIT: float = 60 * 15  # seconds
-    LOG_CELL_SPLITER: List = ['[ ', 'Timestamp']
+    LOG_CELL_SPLITER: Tuple[str] = ("[ ", "Timestamp")
     LOG_STREAM_TIMEOUT: int = 1
 
     # uploader parameters

@@ -4,12 +4,13 @@ import time
 from datetime import datetime, timedelta
 from threading import Event
 from uuid import uuid4
+import traceback
 
 from iterators import TimeoutIterator
 from scripts.connection.stb_connection.connector import Connection
 from scripts.connection.stb_connection.utils import close_client
 
-from .format import CollectorConfig, CollectorStatus
+from .format import CollectorConfig
 
 logger = logging.getLogger('connection')
 
@@ -73,7 +74,7 @@ class Collector:
                             break
 
                     except Exception as e:
-                        logger.info(f'Error Msg: {e}')
+                        logger.info(f'Error Msg: {traceback.format_exc()}')
                         self.stop_event.set()
                         break
 
