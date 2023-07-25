@@ -16,12 +16,11 @@ logger = logging.getLogger('connection')
 
 
 class Collector:
-    def __init__(self, connection_info: dict, command_script: str, log_type: str,
-                 output_dir: str, stop_event: Event):
+    def __init__(self, connection_info: dict, command_script: str, log_type: str, stop_event: Event):
         self.connection_info = connection_info
         self.command_script = command_script
         self.log_type = log_type
-        self.output_dir = output_dir
+        self.output_dir = 'logs'
         self.stop_event = stop_event
 
         self.logging_session_id = str(uuid4())

@@ -59,5 +59,5 @@ manager = LogFileManager(connection_info = connection_info)
 
 
 ##### Test3 #####
-collector = Collector(connection_info, 'logcat -v time', 'logcat', './logs', Event())
+collector = Collector(connection_info, 'logcat -v long', 'logcat', Event())
 collector.collect()
