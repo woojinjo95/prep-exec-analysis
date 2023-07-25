@@ -1,8 +1,10 @@
-from typing import List, Tuple
 from datetime import datetime
-from ..file_manager import FileManager
-from scripts.connection.stb_connection.connector import Connection
+from typing import List, Tuple
+
 from scripts.connection.sqlite import SqliteConnection
+from scripts.connection.stb_connection.connector import Connection
+
+from ..file_manager import FileManager
 
 
 class LogFileManager(FileManager):
