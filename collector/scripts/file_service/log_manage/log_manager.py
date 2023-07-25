@@ -29,10 +29,10 @@ class LogFileManager():
         self.db_conn.create_db('''CREATE TABLE IF NOT EXISTS log_data
                                 (timestamp real, content text)''')
 
-    def __save_datas(self, texts: List[Tuple[float, str]]):
+    def save_datas(self, texts: List[Tuple[float, str]]):
         self.db_conn.save_datas("INSERT INTO log_data VALUES (?,?)", texts)
 
-    def __load_data(self, start: float, end: float) -> List[Tuple[float, str]]:
+    def load_data(self, start: float, end: float) -> List[Tuple[float, str]]:
         return self.db_conn.load_data("SELECT * FROM log_data WHERE timestamp BETWEEN ? AND ?", (start, end))
 
     # Essential methods
