@@ -21,7 +21,8 @@ class LogFileManager():
     def __start_log_collector(self):
         self.log_collector = ProcessMaintainer(target=collect, kwargs={
             'connection_info': self.connection_info,
-            'command_script': 'logcat -v long',
+            # 'command_script': 'logcat -v long',
+            'command_script': 'logcat',
             'log_type': 'logcat'
             }, revive_interval=10)
         self.log_collector.start()

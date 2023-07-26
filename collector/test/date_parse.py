@@ -2,7 +2,7 @@ import re
 from datetime import datetime
 
 def extract_timestamp(line):
-    pattern1 = r'\[\s(\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})'  # matches "[ 07-24 04:35:29.422"
+    pattern1 = r'(\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})'  # matches "[ 07-24 04:35:29.422"
     pattern2 = r'Timestamp\s:\s(\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{6})'  # matches "Timestamp : 2023-07-11 18:28:41.105968"
 
     match1 = re.search(pattern1, line)
@@ -17,7 +17,8 @@ def extract_timestamp(line):
 
 lines = [
     "[ 07-24 04:35:29.422  5372:32214 I/chatty   ]",
-    "Timestamp : 2023-07-11 18:28:41.105968"
+    "Timestamp : 2023-07-11 18:28:41.105968",
+    "07-26 17:48:37.657"
 ]
 
 for line in lines:
