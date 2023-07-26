@@ -1,6 +1,6 @@
 import time
 import logging
-from threading import Thread
+from threading import Thread, Event
 from datetime import datetime, timedelta
 from multiprocessing import Queue
 
@@ -17,7 +17,7 @@ logger = logging.getLogger('main')
 
 
 ##### TEST #####
-def dumper():
+def dumper(stop_event):
     try:
         connection_info = {
             'host': '192.168.30.25',
@@ -35,23 +35,33 @@ def dumper():
     finally:
         if manager:
             manager.stop()
+        stop_event.set()
 
 
-def searcher():
+def searcher(stop_event):
     while True:
+        if stop_event.is_set():
+            break
         # get 5 minutes ago logs
         start = datetime.now() - timedelta(minutes=1, seconds=0)
         end = datetime.now() - timedelta(minutes=0, seconds=0)
-        # get 1000 lines
-        logs = load_page(start.timestamp(), end.timestamp(), 1, 1000)
-        print(f'start : {start}, end : {end}, start_log : {logs[0] if len(logs) > 0 else ""}, end_log : {logs[-1] if len(logs) > 0 else ""}, len : {len(logs)}')
+        # get all lines in page
+        i = 1
+        while True:
+            logs = load_page(start.timestamp(), end.timestamp(), i, 1000)
+            print(f'start : {start}, end : {end}, start_log : {logs[0] if len(logs) > 0 else ""}, end_log : {logs[-1] if len(logs) > 0 else ""}, len : {len(logs)}')
+            if len(logs) == 0:
+                break
+            i += 1
         time.sleep(10)
 
 
-searcher_thrd = Thread(target=searcher)
+stop_event = Event()
+searcher_thrd = Thread(target=searcher, args=(stop_event,))
 searcher_thrd.start()
 
-dumper()
+dumper(stop_event)
+print('dump end')
 
 
 
