@@ -46,13 +46,13 @@ def searcher(stop_event):
         start = datetime.now() - timedelta(minutes=1, seconds=0)
         end = datetime.now() - timedelta(minutes=0, seconds=0)
         # get all lines in page
-        i = 1
+        page = 1
         while True:
-            logs = load_page(start.timestamp(), end.timestamp(), i, 1000)
-            print(f'start : {start}, \nend : {end}, \nstart_log : {logs[0] if len(logs) > 0 else ""}, \nend_log : {logs[-1] if len(logs) > 0 else ""}, \nlen : {len(logs)}')
+            logs = load_page(start.timestamp(), end.timestamp(), page, 1000)
             if len(logs) == 0:
                 break
-            i += 1
+            print(f'start : {start}, \nend : {end}, \npage: {page}, \nstart_log : {logs[0] if len(logs) > 0 else ""}, \nend_log : {logs[-1] if len(logs) > 0 else ""}, \nlen : {len(logs)}')
+            page += 1
         time.sleep(10)
 
 
