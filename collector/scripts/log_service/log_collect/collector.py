@@ -30,6 +30,7 @@ def collect(connection_info: dict, command_script: str, log_type: str,
     timeout_stdout = TimeoutIterator(stdout, timeout=CollectorConfig.LOG_STREAM_TIMEOUT, sentinel=None)
 
     log_dir = 'logs'
+    shutil.rmtree(log_dir, ignore_errors=True)
     os.makedirs(log_dir, exist_ok=True)
     completed_log_dir = 'completed_logs'
     os.makedirs(completed_log_dir, exist_ok=True)
