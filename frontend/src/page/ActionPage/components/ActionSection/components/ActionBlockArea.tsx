@@ -218,62 +218,64 @@ const ActionBlockArea = (): JSX.Element => {
   }
 
   return (
-    <div className="h-full w-full relative">
+    <div className="h-full w-full">
       <div className="grid grid-rows-[auto_60px] h-full">
         <div
-          className="h-full w-full pl-[30px] pr-[30px] overflow-y-auto pt-[20px]"
+          className="h-full w-full pt-[30px] overflow-y-auto"
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
         >
-          <DragDropContext onDragEnd={handleDragEnd}>
-            <Droppable droppableId="droppable">
-              {(provided) => (
-                <div ref={provided.innerRef} {...provided.droppableProps} className="flex flex-col">
-                  {blockDummys.map((dummy, dummyIdx) => {
-                    return (
-                      <Draggable
-                        key={dummyIdx}
-                        draggableId={`dummy-${dummyIdx}`}
-                        index={dummyIdx}
-                        isDragDisabled={!!(modifyingBlockId && dummy.find((block) => block.id === modifyingBlockId))}
-                      >
-                        {(provided) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className={cx('w-full cursor-grab ', {})}
-                          >
-                            {dummy.map((block) => {
-                              return (
-                                <div
-                                  key={block.id}
-                                  ref={(ele) => {
-                                    blocksRef.current[block.refIdx] = ele
-                                  }}
-                                >
-                                  <ActionBlockItem
-                                    actionStatus="normal"
-                                    block={block}
-                                    selectedBlockIds={selectedBlockIds}
-                                    handleBlockClick={handleBlockClick}
-                                    setModifyingBlockId={setModifyingBlockId}
-                                    modifyingBlockId={modifyingBlockId}
-                                  />
-                                </div>
-                              )
-                            })}
-                          </div>
-                        )}
-                      </Draggable>
-                    )
-                  })}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
+          <div className="w-full h-full pl-[30px] pr-[30px] overflow-y-auto pt-[2px] pb-[2px]">
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="droppable">
+                {(provided) => (
+                  <div ref={provided.innerRef} {...provided.droppableProps} className="flex flex-col">
+                    {blockDummys.map((dummy, dummyIdx) => {
+                      return (
+                        <Draggable
+                          key={dummyIdx}
+                          draggableId={`dummy-${dummyIdx}`}
+                          index={dummyIdx}
+                          isDragDisabled={!!(modifyingBlockId && dummy.find((block) => block.id === modifyingBlockId))}
+                        >
+                          {(provided) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className={cx('w-full cursor-grab ', {})}
+                            >
+                              {dummy.map((block) => {
+                                return (
+                                  <div
+                                    key={block.id}
+                                    ref={(ele) => {
+                                      blocksRef.current[block.refIdx] = ele
+                                    }}
+                                  >
+                                    <ActionBlockItem
+                                      actionStatus="normal"
+                                      block={block}
+                                      selectedBlockIds={selectedBlockIds}
+                                      handleBlockClick={handleBlockClick}
+                                      setModifyingBlockId={setModifyingBlockId}
+                                      modifyingBlockId={modifyingBlockId}
+                                    />
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          )}
+                        </Draggable>
+                      )
+                    })}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
+          </div>
 
           {dragSelection && (
             <div

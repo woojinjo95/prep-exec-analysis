@@ -67,19 +67,19 @@ const ActionBlockItem = ({
     >
       <div
         className={cx(
-          'border-box h-full w-full min-h-[35px] pl-[10px] pr-[10px] grid grid-cols-[1fr_minmax(100px,auto)] border-[1px] border-[#DFE0EE] bg-white rounded-[5px] whitespace-break-space',
+          'border-box h-full w-full min-h-[35px] pl-[10px] pr-[10px] grid grid-cols-[1fr_minmax(100px,auto)] border-[1px] border-[#DFE0EE] bg-white rounded-[5px] whitespace-break-space outline-[#4C4E68]',
           {
-            '!border-[4px]': selectedBlockIds.includes(block.id),
-            '!border-[#FF433D]': actionStatus === 'RFC',
-            '!border-[#00B1FF]': actionStatus === 'playing',
+            '!outline !outline-[1px]': selectedBlockIds.includes(block.id),
+            '!border-[#FF433D] !outline-[#FF433D]': actionStatus === 'RFC',
+            '!border-[#00B1FF] !outline-[#FF433D]': actionStatus === 'playing',
           },
         )}
       >
         <div
-          className={cx('flex items-center  border-[#DFE0EE] border-r-[1px] box-border', {
-            '!border-r-[4px]': selectedBlockIds.includes(block.id),
-            '!border-[#FF433D] border-r-[1px]': actionStatus === 'RFC',
-            '!border-[#00B1FF] border-r-[1px]': actionStatus === 'playing',
+          className={cx('flex items-center border-[#DFE0EE] border-r-[1px] box-border', {
+            '!border-r-[2px]': selectedBlockIds.includes(block.id),
+            '!border-[#FF433D] border-r-[2px]': actionStatus === 'RFC',
+            '!border-[#00B1FF] border-r-[2px]': actionStatus === 'playing',
           })}
         >
           <MenuIcon
@@ -109,8 +109,8 @@ const ActionBlockItem = ({
                 type="number"
                 className=" ml-[10px] bg-[#EBEBF2] text-right pr-[5px] w-[30px]"
                 min={0}
-                max={100}
-                onChange={(e) => setChangedMin(Number(e.target.value))}
+                max={59}
+                onChange={(e) => setChangedMin(Math.min(Number(e.target.value), 59))}
                 value={changedMin}
               />
               <p> m</p>
@@ -118,8 +118,8 @@ const ActionBlockItem = ({
                 type="number"
                 className=" ml-[10px] bg-[#EBEBF2] text-right pr-[5px] w-[30px]"
                 min={0}
-                max={100}
-                onChange={(e) => setChangedSec(Number(e.target.value))}
+                max={59}
+                onChange={(e) => setChangedSec(Math.min(Number(e.target.value), 59))}
                 value={changedSec}
               />
               <p> m</p>
