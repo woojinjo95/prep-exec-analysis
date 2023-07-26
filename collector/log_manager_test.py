@@ -17,8 +17,6 @@ connection_info = {
     'connection_mode': 'adb',
 }
 
-manager = LogFileManager(connection_info = connection_info)
-
 ##### Test1 #####
 # start_time = datetime.now()
 # end_time = datetime.now() + timedelta(minutes=1)
@@ -79,3 +77,6 @@ manager = LogFileManager(connection_info = connection_info)
 
 
 # ##### Test4 #####
+manager = LogFileManager(connection_info = connection_info)
+manager.start()
+time.sleep(60)
