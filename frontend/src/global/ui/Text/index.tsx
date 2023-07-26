@@ -21,12 +21,12 @@ const Text: React.FC<TextProps> = ({ children, size = 'md', weight = 'regular', 
           'text-sm': size === 'sm',
           'text-base': size === 'md',
           'text-lg': size === 'lg',
+          'font-normal': weight === 'regular',
+          'font-medium': weight === 'medium',
+          'font-bold': weight === 'bold',
         },
         props.className,
       )}
-      style={{
-        fontFamily: `noto-sans-${weight}`,
-      }}
       {...props}
     >
       {children}

@@ -5,7 +5,7 @@
 @layer base {
   * {
     @apply m-0 p-0 border-0 box-border text-[16px] font-normal text-black;
-    font-family: 'noto-sans-regular';
+    font-family: 'Noto-sans';
   }
 }
 
@@ -19,21 +19,21 @@ font {
 }
 
 @font-face {
-  font-family: 'noto-sans-regular';
+  font-family: 'Noto-sans';
   src: url('@src/assets/font/NotoSansKR-regular.woff') format('woff');
   font-style: normal;
   font-weight: 400;
 }
 
 @font-face {
-  font-family: 'noto-sans-medium';
+  font-family: 'Noto-sans';
   src: url('@src/assets/font/NotoSansKR-medium.woff') format('woff');
   font-style: normal;
   font-weight: 500;
 }
 
 @font-face {
-  font-family: 'noto-sans-bold';
+  font-family: 'Noto-sans';
   src: url('@src/assets/font/NotoSansKR-bold.woff') format('woff');
   font-style: bold;
   font-weight: 700;
