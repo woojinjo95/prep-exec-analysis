@@ -10,6 +10,7 @@ init_log_helper(log_helper, log_queue)
 
 
 ##### TEST #####
+# Dump
 connection_info = {
     'host': '192.168.30.25',
     'port': 5555,
@@ -21,6 +22,10 @@ manager = LogFileManager(connection_info = connection_info)
 manager.start()
 time.sleep(60)
 manager.stop()
+
+# Search
+
+
 ################
 
 terminate_log_helper(log_helper, log_queue)

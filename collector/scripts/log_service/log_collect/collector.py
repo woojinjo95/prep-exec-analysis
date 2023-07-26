@@ -18,8 +18,8 @@ from .format import CollectorConfig
 logger = logging.getLogger('connection')
 
 
-log_dir = os.path.join('datas', 'logs', 'logs')
-completed_log_dir = os.path.join('datas', 'logs', 'completed_logs')
+log_dir = os.path.join('datas', 'stb_logs', 'logs')
+completed_log_dir = os.path.join('datas', 'stb_logs', 'completed_logs')
 
 
 def collect(connection_info: dict, command_script: str, log_type: str):

@@ -14,7 +14,7 @@ logger = logging.getLogger('connection')
 
 db_conn = LogManagerDBConnection()
 
-completed_log_dir = os.path.join('datas', 'logs', 'completed_logs')
+completed_log_dir = os.path.join('datas', 'stb_logs', 'completed_logs')
 
 
 def save():

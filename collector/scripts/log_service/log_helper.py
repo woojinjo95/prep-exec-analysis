@@ -33,10 +33,10 @@ class LogHelper():
         self.default_format = colors['RESET_ALL']
 
         # make log directory
-        if os.path.exists('/app'):
-            self.base_log_dir = os.path.join('/app', 'logs')
-        else:
-            self.base_log_dir = os.path.join(os.path.dirname(__file__), 'logs')
+        # if os.path.exists('/app'):
+        self.base_log_dir = os.path.join('datas', 'logs')
+        # else:
+        #     self.base_log_dir = os.path.join(os.path.dirname(__file__), 'logs')
         os.makedirs(self.base_log_dir, exist_ok=True)
 
     def start_listening(self, name: str, queue: multiprocessing.Queue):
