@@ -33,6 +33,7 @@ def collect(connection_info: dict, command_script: str, log_type: str):
 
     log_cell_lines = ""
 
+    logger.info('start loop')
     while True:
         try:
             with open(os.path.join(log_dir, f"{datetime.now().strftime('%Y%m%d%H%M%S%f')}_{log_type}.log"),
