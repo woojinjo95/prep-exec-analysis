@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from multiprocessing import Queue
 from scripts.log_service.log_helper import LogHelper, init_log_helper, terminate_log_helper
 from scripts.log_service.log_manage.log_manager import LogFileManager
-from scripts.log_service.log_manage.log_handle import load_page
+from scripts.log_service.log_manage.log_handle import load_page, load
 
 
 log_queue = Queue(maxsize=10000)
@@ -27,7 +27,7 @@ manager = LogFileManager(connection_info = connection_info)
 
 manager.start()
 try:
-    time.sleep(60)
+    time.sleep(30)
 except KeyboardInterrupt:
     pass
 finally:
@@ -35,10 +35,11 @@ finally:
     logger.info('stop')
 
 # Search
-start = datetime.now() - timedelta(seconds=60)
-end = datetime.now()
+start = datetime.now() - timedelta(seconds=25)
+end = datetime.now() - timedelta(seconds=15)
 print(start, end)
-logs = load_page(start.timestamp(), end.timestamp(), 1, 10)
+# logs = load_page(start.timestamp(), end.timestamp(), 1, 10)
+logs = load(start.timestamp(), end.timestamp())
 print(logs)
 
 ################
