@@ -20,7 +20,7 @@ completed_log_dir = os.path.join('datas', 'stb_logs', 'completed_logs')
 
 
 def collect(connection_info: dict, command_script: str, log_type: str):
-    logger.info(f"start collection")
+    logger.info(f"start log collection")
 
     conn = Connection(**connection_info)
     stdout_stop_event = Event()
@@ -33,7 +33,7 @@ def collect(connection_info: dict, command_script: str, log_type: str):
 
     log_cell_lines = ""
 
-    logger.info('start loop')
+    logger.info('start log collection loop')
     while True:
         try:
             with open(os.path.join(log_dir, f"{datetime.now().strftime('%Y%m%d%H%M%S%f')}_{log_type}.log"),
@@ -90,7 +90,7 @@ def collect(connection_info: dict, command_script: str, log_type: str):
             logger.info(traceback.format_exc())
             break
 
-    logger.info(f"finish collection")
+    logger.info(f"finish log collection")
 
     # clear stdout and conn
     stdout_stop_event.set()
