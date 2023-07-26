@@ -20,6 +20,8 @@ completed_log_dir = os.path.join('datas', 'stb_logs', 'completed_logs')
 
 
 def collect(connection_info: dict, command_script: str, log_type: str):
+    logger.info(f"start collection")
+
     conn = Connection(**connection_info)
     stdout_stop_event = Event()
     stdout = conn.exec_command(command_script, stdout_stop_event)

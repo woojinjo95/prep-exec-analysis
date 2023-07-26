@@ -18,6 +18,7 @@ completed_log_dir = os.path.join('datas', 'stb_logs', 'completed_logs')
 
 
 def save():
+    logger.info(f"start save")
     os.makedirs(completed_log_dir, exist_ok=True)
 
     while True:
