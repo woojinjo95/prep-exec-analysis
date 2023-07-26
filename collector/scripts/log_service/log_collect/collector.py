@@ -23,7 +23,6 @@ def collect(connection_info: dict, command_script: str, log_type: str,
     stop_event = Event()
     stop_events = (*stop_events, stop_event)
 
-    logging_session_id = str(uuid4())
     conn = Connection(**connection_info)
     stdout_stop_event = Event()
     stdout = conn.exec_command(command_script, stdout_stop_event)
@@ -87,14 +86,14 @@ def collect(connection_info: dict, command_script: str, log_type: str,
 
             file_size = f.tell()
             file_name = f.name
-            logger.info(f'{f.name} {logging_session_id} finish dump file / size : {file_size} Byte')
+            logger.info(f'{f.name} finish dump file / size : {file_size} Byte')
             shutil.move(file_name, os.path.join(completed_log_dir, os.path.basename(file_name)))
 
             # 먼저 stdout이 비정상적으로 끊어지는 경우가 있다. (콜드부팅 등의 경우에) 이럴땐 그냥 나가기!
             if stdout_stop_event.is_set():
                 break
 
-    logger.info(f"{logging_session_id} finish collection")
+    logger.info(f"finish collection")
 
     # clear stdout and conn
     stdout_stop_event.set()
