@@ -21,8 +21,6 @@ class LogFileManager():
         # multiprocessing variable
         self.local_stop_event = Event()
         self.global_stop_event = global_stop_event
-        self.is_running = Event()
-        self.upload_queue = Queue(maxsize=1000)
 
     # Connection
     def __create_db_connection(self) -> LogManagerDBConnection:
