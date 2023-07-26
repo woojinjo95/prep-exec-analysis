@@ -37,6 +37,7 @@ finally:
 # Search
 start = datetime.now() - timedelta(seconds=60)
 end = datetime.now()
+print(start, end)
 logs = load_page(start.timestamp(), end.timestamp(), 1, 10)
 print(logs)
 

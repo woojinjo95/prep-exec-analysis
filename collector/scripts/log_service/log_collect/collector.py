@@ -10,7 +10,7 @@ from iterators import TimeoutIterator
 from scripts.connection.stb_connection.connector import Connection
 from scripts.connection.stb_connection.utils import close_client
 
-from .format import CollectorConfig
+from .config import CollectorConfig
 
 logger = logging.getLogger('connection')
 
