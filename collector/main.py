@@ -38,7 +38,7 @@ def searcher():
         end = datetime.now() - timedelta(minutes=1, seconds=0)
         # get 1000 lines
         logs = load_page(start.timestamp(), end.timestamp(), 1, 1000)
-        print(f'start : {start}, end : {end}, logs : {logs}')
+        print(f'start : {start}, end : {end}, start_log : {logs[0]}, end_log : {logs[-1]}, len : {len(logs)}')
         time.sleep(10)
 
 
