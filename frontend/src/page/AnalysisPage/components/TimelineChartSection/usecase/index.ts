@@ -35,7 +35,7 @@ export class AreaChartGenerator {
   }
 
   /**
-   * X축 및 가로 가이드라인 생성
+   * X축 및 세로 가이드라인(격자선) 생성
    */
   private createXAxis() {
     const xAxis: (selection: d3.Selection<SVGGElement, unknown, null, undefined>) => void = (g) =>
@@ -54,7 +54,7 @@ export class AreaChartGenerator {
   }
 
   /**
-   * Y축 및 세로 가이드라인 생성
+   * Y축 및 가로 가이드라인(격자선) 생성
    */
   private createYAxis() {
     const yAxis: (selection: d3.Selection<SVGGElement, unknown, null, undefined>) => void = (g) =>
