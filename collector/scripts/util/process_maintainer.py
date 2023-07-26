@@ -61,7 +61,10 @@ class ProcessMaintainer:
         gc.collect()
 
     def is_running(self):
-        return self.process and self.process.is_alive()
+        if self.process and self.process.is_alive():
+            return True
+        else:
+            return False
 
     def __del__(self):
         self.stop()
