@@ -45,13 +45,12 @@ def collect(connection_info: dict, command_script: str, log_type: str):
                     try:
                         # Timeout 안걸렸을 때
                         if line is not None:
-                            # # 다음 splitter가 등장하면 현재 cell 쓰고 cell 초기화
-                            # if log_cell_lines != "" and any([line.startswith(spliter) for spliter in CollectorConfig.LOG_CELL_SPLITER]):
-                            #     f.write(log_cell_lines)
-                            #     log_cell_lines = ""
-                            # # line 내용물 모음
-                            # log_cell_lines += line
-                            f.write(line)
+                            # 다음 splitter가 등장하면 현재 cell 쓰고 cell 초기화
+                            if log_cell_lines != "" and any([line.startswith(spliter) for spliter in CollectorConfig.LOG_CELL_SPLITER]):
+                                f.write(log_cell_lines)
+                                log_cell_lines = ""
+                            # line 내용물 모음
+                            log_cell_lines += line
                         # Top의 경우 Splitter가 없기 때문에 Timeout 걸린 직후 다음 cell 기다리는 동안 씀
                         elif log_cell_lines != "":
                             if log_type == 'top':

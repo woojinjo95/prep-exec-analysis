@@ -63,7 +63,7 @@ def extract_time_data(line):
 
 # Return [(time, log_line),...]
 # Raise: skip this file
-def LogDataGenerator(file_path: str, batch_size: int = 10, no_time_count_limit: int = 100):
+def LogDataGenerator(file_path: str, batch_size: int = 10, no_time_count_limit: int = 10000):
     last_time = None
     batches = []
     no_time_count = 0

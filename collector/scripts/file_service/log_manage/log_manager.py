@@ -23,7 +23,9 @@ class LogFileManager():
             'connection_info': self.connection_info,
             # 'command_script': 'logcat -v long',
             'command_script': 'logcat',
+            # 'command_script': 'top -b -d 10',
             'log_type': 'logcat'
+            # 'log_type': 'top',
             }, revive_interval=10)
         self.log_collector.start()
 
