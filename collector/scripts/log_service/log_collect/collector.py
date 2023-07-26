@@ -2,16 +2,13 @@ import logging
 import os
 import time
 from datetime import datetime, timedelta
-from typing import List
 from multiprocessing import Event
-from uuid import uuid4
 import traceback
 import shutil
 
 from iterators import TimeoutIterator
 from scripts.connection.stb_connection.connector import Connection
 from scripts.connection.stb_connection.utils import close_client
-from scripts.util.common import check_stop_events
 
 from .format import CollectorConfig
 

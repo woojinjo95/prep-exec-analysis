@@ -11,7 +11,7 @@ class CollectorConfig:
     SESSION_UPDATE_CHUNK_CNT: int = 20
     DUMP_FILESIZE_LIMIT: int = (1024 * 1024 * 1)  # bytes
     # DUMP_TIME_LIMIT: float = 60 * 15  # seconds
-    DUMP_TIME_LIMIT: float = 60
+    DUMP_TIME_LIMIT: float = 20
     LOG_CELL_SPLITER: Tuple[str] = ("[ ", "Timestamp")
     LOG_STREAM_TIMEOUT: int = 1
 

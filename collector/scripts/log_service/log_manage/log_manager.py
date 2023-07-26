@@ -3,7 +3,7 @@ from multiprocessing import Event
 
 from scripts.log_service.log_collect.collector import collect
 from scripts.util.process_maintainer import ProcessMaintainer
-from scripts.file_service.log_manage.save import save
+from .log_save import save
 
 
 class LogFileManager():

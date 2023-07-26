@@ -7,7 +7,7 @@ import re
 from datetime import datetime
 from typing import Union
 
-from scripts.file_service.log_manage.db_connection import LogManagerDBConnection
+from .db_connection import LogManagerDBConnection
 
 
 logger = logging.getLogger('connection')

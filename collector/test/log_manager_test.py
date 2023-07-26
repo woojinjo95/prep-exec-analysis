@@ -5,7 +5,7 @@ import sys
 import random
 from multiprocessing import Event, Queue, Process
 from datetime import datetime, timedelta
-from scripts.file_service.log_manage.log_manager import LogFileManager
+from scripts.log_service.log_manage.log_manager import LogFileManager
 from scripts.log_service.log_collect.collector import collect
 from scripts.util.process_maintainer import ProcessMaintainer
 

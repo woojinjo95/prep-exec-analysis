@@ -1,5 +1,5 @@
-from scripts.log_util.stb_connection.connector import Connection
-from scripts.log_util.stb_connection.utils import exec_command
+from scripts.connection.stb_connection.connector import Connection
+from scripts.connection.stb_connection.utils import exec_command
 
 connection_info = {
     'host': '192.168.30.25',
