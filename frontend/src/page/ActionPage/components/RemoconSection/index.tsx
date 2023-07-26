@@ -1,12 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { Menu, MenuList, MenuItem } from '@chakra-ui/react'
+
 import Remocon from '@assets/images/btv_remote_control.png'
-
-import { Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/react'
-
-import { ReactComponent as DropdownIcon } from '@assets/images/dropdown.svg'
 import { ReactComponent as EditIcon } from '@assets/images/edit.svg'
 import { ReactComponent as AddIcon } from '@assets/images/add.svg'
 import InformationIcon from '@assets/images/information.png'
+import { DropdownButton } from '@global/ui'
 
 import classNames from 'classnames/bind'
 
@@ -15,6 +14,37 @@ import styles from './RemoconSection.module.scss'
 import ButtonSquares from './ButtonSquares/ButtonSquares'
 
 const cx = classNames.bind(styles)
+
+const remocons = ['skb', 'kt', 'lg']
+
+const hotkeys = [
+  '*7890#',
+  '*7890#1',
+  '*7890#2',
+  '*7890#3',
+  '*7890#4',
+  '*7890#5',
+  '*7890#6',
+  '*7890#7',
+  '*7890#8',
+  '*7890#9',
+  '*7890#10',
+  '*7890#11',
+  '*7890#12',
+  '*7890#313',
+  '*7890#14',
+  '*7890#15',
+  '*7890#16',
+  '*7890#22',
+  '*7890#23',
+  '*7890#24',
+  '*7890#35',
+  '*7890#31',
+  '*7890#32',
+  '*7890#33',
+  '*7890#34',
+  '*7890#36',
+]
 
 interface RemoconSectionProps {
   keyEvent: KeyEvent | null
@@ -29,37 +59,6 @@ const RemoconSection: React.FC<RemoconSectionProps> = ({ keyEvent }) => {
   const remoconRef = useRef<HTMLImageElement>(null)
 
   const [selectedRemocon, setSelectedRemocon] = useState<string | null>(null)
-
-  const remocons = ['skb', 'kt', 'lg']
-
-  const hotkeys = [
-    '*7890#',
-    '*7890#1',
-    '*7890#2',
-    '*7890#3',
-    '*7890#4',
-    '*7890#5',
-    '*7890#6',
-    '*7890#7',
-    '*7890#8',
-    '*7890#9',
-    '*7890#10',
-    '*7890#11',
-    '*7890#12',
-    '*7890#313',
-    '*7890#14',
-    '*7890#15',
-    '*7890#16',
-    '*7890#22',
-    '*7890#23',
-    '*7890#24',
-    '*7890#35',
-    '*7890#31',
-    '*7890#32',
-    '*7890#33',
-    '*7890#34',
-    '*7890#36',
-  ]
 
   useEffect(() => {
     // 후에 onSuccess에서 처리
@@ -78,12 +77,7 @@ const RemoconSection: React.FC<RemoconSectionProps> = ({ keyEvent }) => {
       <div className="flex flex-row justify-between w-full h-[30px] items-center">
         {selectedRemocon && remocons && (
           <Menu>
-            <MenuButton className="w-[60%] flex justify-end">
-              <div className="flex justify-between pr-[5px] pl-[5px] border-b-[1px] border-black">
-                <p className="pl-[8px] font-medium text-[14px]">{selectedRemocon}</p>
-                <DropdownIcon className="w-[10px] rotate-180" />
-              </div>
-            </MenuButton>
+            <DropdownButton>{selectedRemocon}</DropdownButton>
             <MenuList>
               {remocons.map((remocon) => {
                 return (
