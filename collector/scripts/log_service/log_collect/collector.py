@@ -18,16 +18,18 @@ from .format import CollectorConfig
 logger = logging.getLogger('connection')
 
 
+log_dir = os.path.join('datas', 'logs', 'logs')
+completed_log_dir = os.path.join('datas', 'logs', 'completed_logs')
+
+
 def collect(connection_info: dict, command_script: str, log_type: str):
     conn = Connection(**connection_info)
     stdout_stop_event = Event()
     stdout = conn.exec_command(command_script, stdout_stop_event)
     timeout_stdout = TimeoutIterator(stdout, timeout=CollectorConfig.LOG_STREAM_TIMEOUT, sentinel=None)
 
-    log_dir = 'logs'
     shutil.rmtree(log_dir, ignore_errors=True)
     os.makedirs(log_dir, exist_ok=True)
-    completed_log_dir = 'completed_logs'
     os.makedirs(completed_log_dir, exist_ok=True)
 
     log_cell_lines = ""

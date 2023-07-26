@@ -8,7 +8,7 @@ logger = logging.getLogger('connection')
 
 class SqliteConnection():
     def __init__(self, db_name: str):
-        self.output_dir = 'datas'
+        self.output_dir = os.path.join('datas', 'logs', 'db')
         os.makedirs(self.output_dir, exist_ok=True)
         self.db_name = os.path.join(self.output_dir, f'{db_name}.db')
 
