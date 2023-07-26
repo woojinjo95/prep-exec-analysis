@@ -1,26 +1,30 @@
 import logging
 import os
-import threading
 import time
 import traceback
+import glob
 
-import requests
+from scripts.util.common import check_stop_events
 
 
 logger = logging.getLogger('connection')
 
 
-def save(upload_queue, stop_event, is_running):
-    while not stop_event.is_set():
-        is_running.set()
-        if upload_queue.qsize() > 0:
-            threading.Thread(target=save_log, args=(*upload_queue.get(), )).start()
-        else:
-            time.sleep(0.1)
-    is_running.clear()
+def save(stop_events):
+    completed_log_dir = 'completed_logs'
+    os.makedirs(completed_log_dir, exist_ok=True)
+
+    while not check_stop_events(stop_events):
+        try:
+            file_path = sorted(glob.glob(os.path.join(completed_log_dir, '*.log')))[0]
+            save_log(file_path)
+        except Exception as e:
+            logger.info(traceback.format_exc())
+        finally:
+            time.sleep(1)
 
 
-def save_log(file_path, logging_session_id, chunk_count, is_finish, collector_chunk_start_time):
+def save_log(file_path):
     try:
         with open(file_path, 'rb') as f:
             logger.info(f'{file_path} try to save.')

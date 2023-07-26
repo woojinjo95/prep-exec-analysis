@@ -59,18 +59,23 @@ manager = LogFileManager(connection_info = connection_info)
 
 # th.join()
 
-upload_queue = Queue()
-is_running = Event()
+
+# ##### Test3 #####
+# upload_queue = Queue()
+# is_running = Event()
 
 
-##### Test3 #####
-log_collector = ProcessMaintainer(target=collect, kwargs={
-    'connection_info': connection_info,
-    'command_script': 'logcat -v long',
-    'log_type': 'logcat',
-    'stop_events': [],
-    })
-log_collector.start()
+# ##### Test3 #####
+# log_collector = ProcessMaintainer(target=collect, kwargs={
+#     'connection_info': connection_info,
+#     'command_script': 'logcat -v long',
+#     'log_type': 'logcat',
+#     'stop_events': [],
+#     })
+# log_collector.start()
 
-time.sleep(60)
-sys.exit(0)
+# time.sleep(60)
+# sys.exit(0)
+
+
+# ##### Test4 #####

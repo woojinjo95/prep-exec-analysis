@@ -3,7 +3,7 @@ import os
 import time
 from datetime import datetime, timedelta
 from typing import List
-from multiprocessing import Event, Queue
+from multiprocessing import Event
 from uuid import uuid4
 import traceback
 import shutil
@@ -11,14 +11,11 @@ import shutil
 from iterators import TimeoutIterator
 from scripts.connection.stb_connection.connector import Connection
 from scripts.connection.stb_connection.utils import close_client
+from scripts.util.common import check_stop_events
 
 from .format import CollectorConfig
 
 logger = logging.getLogger('connection')
-
-
-def check_stop_events(stop_events) -> bool:
-    return any([stop_event.is_set() for stop_event in stop_events if hasattr(stop_event, 'is_set')])
 
 
 def collect(connection_info: dict, command_script: str, log_type: str, 
@@ -31,7 +28,7 @@ def collect(connection_info: dict, command_script: str, log_type: str,
     stdout_stop_event = Event()
     stdout = conn.exec_command(command_script, stdout_stop_event)
     timeout_stdout = TimeoutIterator(stdout, timeout=CollectorConfig.LOG_STREAM_TIMEOUT, sentinel=None)
-    
+
     log_dir = 'logs'
     os.makedirs(log_dir, exist_ok=True)
     completed_log_dir = 'completed_logs'

@@ -189,3 +189,7 @@ def ordinal_suffix(n: int) -> str:
     else:
         suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')
     return str(n) + suffix
+
+
+def check_stop_events(stop_events) -> bool:
+    return any([stop_event.is_set() for stop_event in stop_events if hasattr(stop_event, 'is_set')])
