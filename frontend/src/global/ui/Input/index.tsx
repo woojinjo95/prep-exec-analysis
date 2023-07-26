@@ -21,14 +21,10 @@ const Input: React.FC<InputProps> = ({ className, ...props }) => {
       )}
     >
       <input
-        style={{
-          fontFamily: 'Noto-sans',
-        }}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         className="outline-none w-full bg-transparent placeholder:text-gray-400 text-black"
         {...props}
-        placeholder="*7899#"
       />
     </div>
   )

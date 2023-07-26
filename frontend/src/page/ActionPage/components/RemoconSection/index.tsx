@@ -74,10 +74,10 @@ const RemoconSection: React.FC<RemoconSectionProps> = ({ keyEvent }) => {
 
   return (
     <section className="border border-black h-full p-[20px]">
-      <div className="flex flex-row justify-between w-full h-[30px] items-center">
+      <div className="grid grid-rows-1 grid-cols-[1fr_auto] w-full h-[30px] items-center">
         {selectedRemocon && remocons && (
           <Menu>
-            <DropdownButton>{selectedRemocon}</DropdownButton>
+            <DropdownButton className="w-[60%]">{selectedRemocon}</DropdownButton>
             <MenuList>
               {remocons.map((remocon) => {
                 return (

@@ -4,6 +4,7 @@ import cx from 'classnames'
 interface TextProps extends React.HTMLAttributes<HTMLSpanElement> {
   children: React.ReactNode
   size?: 'sm' | 'md' | 'lg'
+  weight?: 'regular' | 'medium' | 'bold'
 }
 
 /**
@@ -11,14 +12,11 @@ interface TextProps extends React.HTMLAttributes<HTMLSpanElement> {
  *
  * @param size 폰트크기
  */
-const Text: React.FC<TextProps> = ({ children, size = 'md', ...props }) => {
+const Text: React.FC<TextProps> = ({ children, size = 'md', weight = 'regular', ...props }) => {
   return (
     <span
-      style={{
-        fontFamily: 'Noto-sans',
-      }}
       className={cx(
-        'font-medium tracking-tighter text-black text',
+        'font-medium tracking-tighter text-black',
         {
           'text-sm': size === 'sm',
           'text-base': size === 'md',
@@ -26,6 +24,9 @@ const Text: React.FC<TextProps> = ({ children, size = 'md', ...props }) => {
         },
         props.className,
       )}
+      style={{
+        fontFamily: `noto-sans-${weight}`,
+      }}
       {...props}
     >
       {children}

@@ -25,7 +25,11 @@ const Button: React.FC<ButtonProps> = ({ children, type = 'button', variant = 'o
       )}
       {...props}
     >
-      {typeof children === 'string' && <Text size="sm">{children}</Text>}
+      {typeof children === 'string' && (
+        <Text size="sm" weight="medium">
+          {children}
+        </Text>
+      )}
       {typeof children !== 'string' && children}
     </button>
   )
