@@ -4,7 +4,6 @@ import threading
 import time
 import traceback
 
-import config
 import requests
 
 

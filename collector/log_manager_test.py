@@ -1,10 +1,11 @@
 import time
 from threading import Thread
 import random
-from multiprocessing import Event
+from multiprocessing import Event, Queue, Process
 from datetime import datetime, timedelta
 from scripts.file_service.log_manage.log_manager import LogFileManager
-from scripts.log_service.log_collect.collector import Collector
+from scripts.log_service.log_collect.collector import collect
+from scripts.util.process_maintainer import ProcessMaintainer
 
 
 connection_info = {
@@ -57,7 +58,20 @@ manager = LogFileManager(connection_info = connection_info)
 
 # th.join()
 
+upload_queue = Queue()
+is_running = Event()
+
 
 ##### Test3 #####
-collector = Collector(connection_info, 'logcat -v long', 'logcat', Event())
-collector.collect()
+log_collector = Process(target=collect, kwargs={
+    'connection_info': connection_info,
+    'command_script': 'logcat -v long',
+    'log_type': 'logcat',
+    'upload_queue': upload_queue,
+    'stop_events': [],
+    'is_running': is_running
+    })
+log_collector.start()
+
+time.sleep(60)
+log_collector.terminate()

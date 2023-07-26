@@ -21,7 +21,8 @@ def check_stop_events(stop_events) -> bool:
 
 
 def collect(connection_info: dict, command_script: str, log_type: str, 
-                upload_queue: Queue, stop_events: List[Event], is_running: Event):
+            upload_queue: Queue, stop_events: List[Event], is_running: Event):
+    is_running.set()
     stop_event = Event()
     stop_events = (*stop_events, stop_event)
 
@@ -116,6 +117,7 @@ def collect(connection_info: dict, command_script: str, log_type: str,
 
     status = 'stopping'
     logger.info(f"{logging_session_id} finish collection")
+    is_running.clear()
 
     # clear stdout and conn
     stdout_stop_event.set()
