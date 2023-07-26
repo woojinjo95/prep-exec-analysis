@@ -1,5 +1,6 @@
 import time
 from threading import Thread
+import sys
 import random
 from multiprocessing import Event, Queue, Process
 from datetime import datetime, timedelta
@@ -72,4 +73,4 @@ log_collector = ProcessMaintainer(target=collect, kwargs={
 log_collector.start()
 
 time.sleep(60)
-log_collector.terminate()
+sys.exit(0)
