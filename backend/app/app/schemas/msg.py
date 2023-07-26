@@ -7,4 +7,4 @@ class Msg(BaseModel):
 
 class MsgWithId(BaseModel):
     msg: str
-    id: int
+    id: str

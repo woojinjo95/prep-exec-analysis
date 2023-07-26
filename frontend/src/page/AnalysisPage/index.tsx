@@ -10,7 +10,7 @@ import TimelineChartSection from './components/TimelineChartSection'
  */
 const AnalysisPage: React.FC = () => {
   return (
-    <PageContainer className="grid grid-cols-[5fr_3fr] grid-rows-[5fr_4fr]">
+    <PageContainer className="grid grid-cols-[60%_40%] grid-rows-[60%_39%]">
       <LogSection />
       <VideoDetailSection />
       <TimelineChartSection />

@@ -13,15 +13,16 @@ services:
     volumes:
       - ./backend/app:/app
 
-  db:
-    container_name: db
-    image: postgres:15.3
+  mongodb:
+    container_name: mongodb
+    image: mongo:4.4.2
+    ports:
+      - 27017:27017
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=.nextlab6318!
-      - POSTGRES_DB=app
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: .nextlab6318!
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - mongodb_data:/data/db
 
   adminer:
     container_name: adminer
@@ -32,9 +33,19 @@ services:
   redis:
     container_name: redis
     image: redis:7.0.4
+    ports:
+      - 6379:6379
     volumes:
       - redis_data:/data
- 
+
+  redis-commander:
+    container_name: redis-commander
+    image: rediscommander/redis-commander:latest
+    environment:
+    - REDIS_HOSTS=local:redis:6379
+    ports:
+    - 8081:8081
+
 volumes:
-  pg_data: {}
+  mongodb_data: {}
   redis_data: {}
