@@ -17,7 +17,7 @@ class LogFileManager():
         # multiprocessing variable
         self.global_stop_event = global_stop_event
 
-    # Modules
+    # Log Collector
     def __start_log_collector(self):
         self.log_collector = ProcessMaintainer(target=collect, kwargs={
             'connection_info': self.connection_info,
@@ -26,19 +26,25 @@ class LogFileManager():
             }, revive_interval=10)
         self.log_collector.start()
 
+    def __stop_log_collector(self):
+        self.log_collector.stop()
+
+    # Log Saver
     def __start_log_saver(self):
         self.log_saver = ProcessMaintainer(target=save, revive_interval=10)
         self.log_saver.start()
 
+    def __stop_log_saver(self):
+        self.log_saver.stop()
+
     # Control
     def start(self):
-        # start modules
         self.__start_log_collector()
         self.__start_log_saver()
 
     def stop(self):
-        self.log_collector.stop()
-        self.log_saver.stop()
+        self.__stop_log_collector()
+        self.__stop_log_saver()
 
     # def load_page(self, start: float, end: float, page_number: int=1, page_size: int=1) -> List:
     #     return self.db_conn.load_data_with_paging(start, end, page_number, page_size)
