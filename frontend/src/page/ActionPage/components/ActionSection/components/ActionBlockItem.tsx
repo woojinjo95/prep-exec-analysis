@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { ReactComponent as MenuIcon } from '@assets/images/menu.svg'
 import cx from 'classnames'
 import { ActionStatus, Block } from '../types'
@@ -20,25 +20,50 @@ const ActionBlockItem = ({
   setModifyingBlockId,
   modifyingBlockId,
 }: ActionBlockItemProps): JSX.Element => {
-  const handleDragStart = (event: React.MouseEvent<HTMLDivElement>) => {
+  const handleDragStart = (e: React.MouseEvent<HTMLDivElement>) => {
     // 부모 컴포넌트의 onMouseDown 이벤트 발생을 막기 위해서
-    event.stopPropagation()
+    e.stopPropagation()
   }
 
   const [changedMin, setChangedMin] = useState<number>(0)
 
   const [changedSec, setChangedSec] = useState<number>(0)
 
+  const itemRef = useRef<HTMLDivElement>(null)
+
+  const handleOutsideClick = (e: MouseEvent): void => {
+    if (!(modifyingBlockId && modifyingBlockId === block.id)) return
+
+    if (!itemRef.current) {
+      return
+    }
+
+    if (e.target instanceof Node && !itemRef.current.contains(e.target)) {
+      setModifyingBlockId(null)
+    }
+  }
+
+  useEffect(() => {
+    if (modifyingBlockId && modifyingBlockId === block.id) {
+      document.addEventListener('mousedown', handleOutsideClick)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick)
+    }
+  }, [handleOutsideClick, modifyingBlockId])
+
   return (
     <div
+      ref={itemRef}
       className={cx('relative w-full mb-[3px]', { 'z-20': modifyingBlockId && modifyingBlockId === block.id })}
-      onClick={(event) => {
+      onClick={(e) => {
         if (!modifyingBlockId) {
-          handleBlockClick(event, block.id)
+          handleBlockClick(e, block.id)
         }
       }}
       id={`block-${block.id}`}
-      onMouseDown={handleDragStart}
+      onMouseDown={(e) => handleDragStart(e)}
     >
       <div
         className={cx(

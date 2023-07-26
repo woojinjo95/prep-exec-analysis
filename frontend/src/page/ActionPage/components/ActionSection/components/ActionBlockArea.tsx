@@ -289,14 +289,7 @@ const ActionBlockArea = (): JSX.Element => {
         </div>
         <BlockControls />
       </div>
-      {modifyingBlockId && (
-        <div
-          onClick={() => {
-            setModifyingBlockId(null)
-          }}
-          className="absolute top-0 left-0 h-full z-10 w-full bg-gray-100 opacity-50"
-        />
-      )}
+      {modifyingBlockId && <div className="absolute top-0 left-0 h-full z-10 w-full bg-gray-100 opacity-50" />}
     </div>
   )
 }
