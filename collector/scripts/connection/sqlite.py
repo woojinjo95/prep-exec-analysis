@@ -2,6 +2,7 @@ import logging
 import sqlite3
 import os
 from typing import Any, List, Tuple
+import threading
 
 logger = logging.getLogger('connection')
 
@@ -11,11 +12,13 @@ class SqliteConnection():
         self.output_dir = os.path.join('datas', 'db')
         os.makedirs(self.output_dir, exist_ok=True)
         self.db_name = os.path.join(self.output_dir, f'{db_name}.db')
+        self.thread_connections = threading.local()  # having unique context per thread
 
     def get_connection(self):
-        conn = sqlite3.connect(self.db_name)
-        conn.execute("PRAGMA journal_mode=WAL")
-        return conn
+        if not hasattr(self.thread_connections, "conn"):
+            self.thread_connections.conn = sqlite3.connect(self.db_name)
+            self.thread_connections.conn.execute("PRAGMA journal_mode=WAL")
+        return self.thread_connections.conn
 
     def create_db(self, statement: str):
         with self.get_connection() as conn:

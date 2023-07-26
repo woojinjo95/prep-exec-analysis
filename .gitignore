@@ -5,3 +5,5 @@
 
 # collector
 *.db
+*.db-shm
+*.db-wal
