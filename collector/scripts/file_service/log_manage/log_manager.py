@@ -12,29 +12,21 @@ from scripts.util.process_maintainer import ProcessMaintainer
 
 class LogFileManager():
     def __init__(self, connection_info: dict, global_stop_event: Event = None):
+        # Define ONLY immutable variable or multiprocessing variable
+        # DO NOT define mutable variable (will not shared between processes)
+
+        # immutable variable (or will use as immutable)
         self.connection_info = connection_info
+        
+        # multiprocessing variable
         self.local_stop_event = Event()
         self.global_stop_event = global_stop_event
-        self.upload_queue = Queue(maxsize=1000)
         self.is_running = Event()
-        # set connections
-        # self.stb_conn = self.__create_stb_connection()
-        self.db_conn = self.__create_db_connection()
-        # self.stb_output = self.__create_stb_output_channel('logcat')
+        self.upload_queue = Queue(maxsize=1000)
 
-        # start modules
-        self.__start_log_collector()
-        self.__start_log_saver()
-
-    # Connection factory
-    def __create_stb_connection(self) -> Connection:
-        return Connection(**self.connection_info)
-
+    # Connection
     def __create_db_connection(self) -> LogManagerDBConnection:
         return LogManagerDBConnection()
-
-    def __create_stb_output_channel(self, command: str) -> Generator[str, None, None]:
-        return create_stb_output_channel(command, self.connection_info, [self.local_stop_event, self.global_stop_event])
 
     # Modules
     def __start_log_collector(self):
@@ -51,6 +43,14 @@ class LogFileManager():
             'stop_events': [self.local_stop_event, self.global_stop_event],
             }, revive_interval=10)
         log_saver.start()
+
+    # Start
+    def start(self):
+        # set connections
+        self.db_conn = self.__create_db_connection()
+        # start modules
+        self.__start_log_collector()
+        self.__start_log_saver()
 
     # Essential methods
     def save(self, log_line: str):
