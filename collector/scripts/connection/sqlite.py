@@ -13,7 +13,9 @@ class SqliteConnection():
         self.db_name = os.path.join(self.output_dir, f'{db_name}.db')
 
     def get_connection(self):
-        return sqlite3.connect(self.db_name)
+        conn = sqlite3.connect(self.db_name)
+        conn.execute("PRAGMA journal_mode=WAL")
+        return conn
 
     def create_db(self, statement: str):
         with self.get_connection() as conn:
