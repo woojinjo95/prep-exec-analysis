@@ -49,7 +49,7 @@ def searcher(stop_event):
         i = 1
         while True:
             logs = load_page(start.timestamp(), end.timestamp(), i, 1000)
-            print(f'start : {start}, end : {end}, start_log : {logs[0] if len(logs) > 0 else ""}, end_log : {logs[-1] if len(logs) > 0 else ""}, len : {len(logs)}')
+            print(f'start : {start}, \nend : {end}, \nstart_log : {logs[0] if len(logs) > 0 else ""}, \nend_log : {logs[-1] if len(logs) > 0 else ""}, \nlen : {len(logs)}')
             if len(logs) == 0:
                 break
             i += 1
