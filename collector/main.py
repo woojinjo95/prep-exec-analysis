@@ -19,7 +19,7 @@ connection_info = {
 }
 manager = LogFileManager(connection_info = connection_info)
 manager.start()
-time.sleep(30)
+time.sleep(60)
 manager.stop()
 ################
 
