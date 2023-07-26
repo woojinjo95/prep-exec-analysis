@@ -40,6 +40,8 @@ class SqliteConnection():
             data = cursor.fetchall()
             return data
 
+    # If you want to get the next page of data, you can simply call this function again, but with page_number incremented by 1.
+    # Each time you call load_data_with_paging with page_number incremented, it retrieves the next page of data. If there are no more pages, the function will return an empty list.
     def load_data_with_paging(self, statement: str, params: Tuple, page_number: int=1, page_size: int=1):
         with self.get_connection() as conn:
             cursor = conn.cursor()
