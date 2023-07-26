@@ -10,6 +10,8 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 /**
  * 버튼 컴포넌트
+ *
+ * @param variant 버튼 스타일
  */
 const Button: React.FC<ButtonProps> = ({ children, type = 'button', variant = 'outline', ...props }) => {
   return (
