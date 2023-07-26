@@ -5,6 +5,7 @@ import traceback
 import glob
 import re
 from datetime import datetime
+from typing import Union
 
 from scripts.file_service.log_manage.db_connection import LogManagerDBConnection
 
@@ -44,7 +45,7 @@ def save_log(file_path: str):
         logger.info(f'{file_path} remove complete.')
 
 
-def extract_time_data(line):
+def extract_time_data(line: str) -> Union[None, datetime]:
     pattern1 = r'(\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})'  # matches "[ 07-24 04:35:29.422"
     pattern2 = r'Timestamp\s:\s(\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{6})'  # matches "Timestamp : 2023-07-11 18:28:41.105968"
 
@@ -63,7 +64,7 @@ def extract_time_data(line):
 
 # Return [(time, log_line),...]
 # Raise: skip this file
-def LogDataGenerator(file_path: str, batch_size: int = 10, no_time_count_limit: int = 10000):
+def LogDataGenerator(file_path: str, batch_size: int = 1000, no_time_count_limit: int = 10000):
     last_time = None
     batches = []
     no_time_count = 0
@@ -84,9 +85,9 @@ def LogDataGenerator(file_path: str, batch_size: int = 10, no_time_count_limit: 
                     raise Exception(f'No time data in {file_path} at line {index}')
             
             if last_time is not None:
-                batches.append((last_time, line))
+                batches.append((last_time.timestamp(), line))
 
-            if len(batches) > batch_size:
+            if len(batches) >= batch_size:
                 yield batches
                 batches = []
     yield batches
@@ -94,7 +95,8 @@ def LogDataGenerator(file_path: str, batch_size: int = 10, no_time_count_limit: 
 
 def insert_to_db(file_path: str):
     for log_batch in LogDataGenerator(file_path):
-        print(log_batch)
+        # print(log_batch)
+        db_conn.save_datas(log_batch)
+        # db_conn.save_data(log_batch)
 
     # db_conn.save_data((time.time(), log_line))
-
