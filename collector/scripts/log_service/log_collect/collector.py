@@ -21,8 +21,8 @@ def check_stop_events(stop_events) -> bool:
 
 
 def collect(connection_info: dict, command_script: str, log_type: str, 
-            upload_queue: Queue, stop_events: List[Event], is_running: Event):
-    is_running.set()
+            stop_events: List[Event]):
+    # is_running.set()
     stop_event = Event()
     stop_events = (*stop_events, stop_event)
 
@@ -54,7 +54,6 @@ def collect(connection_info: dict, command_script: str, log_type: str,
             for line in timeout_stdout:
                 if check_stop_events(stop_events):
                     break
-                # while not stop_event.is_set():
                 end_condition = [f.tell() >= CollectorConfig.DUMP_FILESIZE_LIMIT,
                                 time.time() - start_time >= CollectorConfig.DUMP_TIME_LIMIT]
                 try:
@@ -103,7 +102,7 @@ def collect(connection_info: dict, command_script: str, log_type: str,
             file_name = f.name
             if file_size > 0:
                 logger.info(f'{f.name} {logging_session_id} finish dump file / size : {file_size}Byte')
-                upload_queue.put((f.name, logging_session_id, chunk_count, is_finish, collector_chunk_start_time))
+                # upload_queue.put((f.name, logging_session_id, chunk_count, is_finish, collector_chunk_start_time))
                 chunk_count += 1
             else:
                 logger.info(f'{f.name} {logging_session_id} skip this file. {file_size}Byte')
@@ -117,7 +116,7 @@ def collect(connection_info: dict, command_script: str, log_type: str,
 
     status = 'stopping'
     logger.info(f"{logging_session_id} finish collection")
-    is_running.clear()
+    # is_running.clear()
 
     # clear stdout and conn
     stdout_stop_event.set()

@@ -63,13 +63,11 @@ is_running = Event()
 
 
 ##### Test3 #####
-log_collector = Process(target=collect, kwargs={
+log_collector = ProcessMaintainer(target=collect, kwargs={
     'connection_info': connection_info,
     'command_script': 'logcat -v long',
     'log_type': 'logcat',
-    'upload_queue': upload_queue,
     'stop_events': [],
-    'is_running': is_running
     })
 log_collector.start()
 
