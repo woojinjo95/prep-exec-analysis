@@ -98,6 +98,3 @@ def insert_to_db(file_path: str):
     for log_batch in LogDataGenerator(file_path):
         # print(log_batch)
         db_conn.save_datas(log_batch)
-        # db_conn.save_data(log_batch)
-
-    # db_conn.save_data((time.time(), log_line))
