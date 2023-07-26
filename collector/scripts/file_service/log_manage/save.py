@@ -3,20 +3,20 @@ import os
 import time
 import traceback
 import glob
-from typing import List
-from multiprocessing import Event
 
-from scripts.util.common import check_stop_events
+from scripts.file_service.log_manage.db_connection import LogManagerDBConnection
 
 
 logger = logging.getLogger('connection')
 
+db_conn = LogManagerDBConnection()
 
-def save(stop_events: List[Event]):
+
+def save():
     completed_log_dir = 'completed_logs'
     os.makedirs(completed_log_dir, exist_ok=True)
 
-    while not check_stop_events(stop_events):
+    while True:
         try:
             file_paths = sorted(glob.glob(os.path.join(completed_log_dir, '*.log')))
             if len(file_paths) > 0:
@@ -31,10 +31,17 @@ def save_log(file_path: str):
     try:
         with open(file_path, 'rb') as f:
             logger.info(f'{file_path} try to save.')
-            # insert code here
+            ##### Save log here
+            insert_to_db(file_path)
+            #####
             logger.info(f'{file_path} save complete.')
     except Exception as e:
         logger.info(traceback.format_exc())
     finally:
         os.remove(file_path)
         logger.info(f'{file_path} remove complete.')
+
+
+def insert_to_db(file_path: str):
+    # db_conn.save_data((time.time(), log_line))
+    pass

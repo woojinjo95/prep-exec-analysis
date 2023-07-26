@@ -1,13 +1,10 @@
-import time
-from typing import List, Generator
-from multiprocessing import Event, Queue
+from typing import List
+from multiprocessing import Event
 
 from .db_connection import LogManagerDBConnection
-from scripts.connection.stb_connection.connector import Connection
-from scripts.log_service.log_generate.generate import create_stb_output_channel
 from scripts.log_service.log_collect.collector import collect
-from scripts.log_service.log_collect.save import save
 from scripts.util.process_maintainer import ProcessMaintainer
+from scripts.file_service.log_manage.save import save
 
 
 class LogFileManager():
@@ -28,21 +25,18 @@ class LogFileManager():
 
     # Modules
     def __start_log_collector(self):
-        log_collector = ProcessMaintainer(target=collect, kwargs={
+        self.log_collector = ProcessMaintainer(target=collect, kwargs={
             'connection_info': self.connection_info,
             'command_script': 'logcat -v long',
-            'log_type': 'logcat',
-            'stop_events': [self.local_stop_event, self.global_stop_event],
+            'log_type': 'logcat'
             }, revive_interval=10)
-        log_collector.start()
+        self.log_collector.start()
 
     def __start_log_saver(self):
-        log_saver = ProcessMaintainer(target=save, kwargs={
-            'stop_events': [self.local_stop_event, self.global_stop_event],
-            }, revive_interval=10)
-        log_saver.start()
+        self.log_saver = ProcessMaintainer(target=save, revive_interval=10)
+        self.log_saver.start()
 
-    # Start
+    # Control
     def start(self):
         # set connections
         self.db_conn = self.__create_db_connection()
@@ -50,9 +44,9 @@ class LogFileManager():
         self.__start_log_collector()
         self.__start_log_saver()
 
-    # Essential methods
-    def save(self, log_line: str):
-        self.db_conn.save_data((time.time(), log_line))
+    def stop(self):
+        self.log_collector.stop()
+        self.log_saver.stop()
 
     def load_page(self, start: float, end: float, page_number: int=1, page_size: int=1) -> List:
         return self.db_conn.load_data_with_paging(start, end, page_number, page_size)
