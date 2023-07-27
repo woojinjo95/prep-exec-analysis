@@ -39,6 +39,27 @@ services:
         max-file: "3"
         max-size: "250m"
 
+  media:
+    restart: always
+    # env_file:
+    #   - .env
+    build:
+      context: ./media
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: beyondtest1
+      USER: ${USER}
+    devices:
+        - "/dev/video0:/dev/video0"
+        - "/dev/ttyUSB1:/dev/ttyUSB1"
+        - "/dev/ttyUSB2:/dev/ttyUSB2"
+    privileged: true
+    volumes:
+      - "/dev/ttyCB:/dev/ttyCB"
+      - "/dev/ttyBT:/dev/ttyBT"
+      - "$HOME/.ssh/runner_key:/app/static/keys/runner_key"
+
   adminer:
     container_name: adminer
     image: dockette/adminer:full
