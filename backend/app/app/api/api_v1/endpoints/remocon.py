@@ -44,6 +44,20 @@ def read_remocon() -> schemas.RemoconRead:
     # return result
     
 
+@router.post("")
+def create_basic_remocon(
+    remocon_in: schemas.Remocon
+):
+    """
+    신규 리모컨 등록 (임시).
+    """
+    remocon_in.id = str(uuid.uuid4())
+    for idx in range(len(remocon_in.custom_keys)):
+        remocon_in.custom_keys[idx].id = str(uuid.uuid4())
+
+    res = insert_to_mongodb(collection='remocon', data=remocon_in)
+    return {'msg': 'Create new item', 'id': remocon_in.id}
+
 
 @router.post("/custom_key/{remocon_id}", response_model=schemas.MsgWithId)
 def insert_custom_key(
