@@ -14,12 +14,12 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.get("", response_model=List[schemas.Remocon])
-def read_remocon() -> List[schemas.Remocon]:
+@router.get("", response_model=schemas.RemoconRead)
+def read_remocon() -> schemas.RemoconRead:
     """
     리모컨 조회
     """
-    return load_from_mongodb(collection='remocon', param={}, sort_item="custom_keys.order")
+    return {'items': load_from_mongodb(collection='remocon', param={}, sort_item="custom_keys.order")}
     #TODO: cunstom_keys array 정렬
     # col = get_mongodb_collection('remocon')
     # pipeline = [

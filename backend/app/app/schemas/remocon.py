@@ -27,6 +27,9 @@ class Remocon(BaseModel):
     class Config:
         orm_mode = True
 
+class RemoconRead(BaseModel):
+    items: list[Remocon]
+
 
 class RemoconCustomKeyCreate(BaseModel):
     id: Optional[str]
