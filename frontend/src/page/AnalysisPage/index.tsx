@@ -1,9 +1,9 @@
 import React from 'react'
 
 import { PageContainer } from '@global/ui'
-import LogSection from './components/LogSection'
+import LogTraceSection from './components/LogTraceSection'
 import VideoDetailSection from './components/VideoDetailSection'
-import TimelineChartSection from './components/TimelineChartSection'
+import TimelineSection from './components/TimelineSection'
 
 /**
  * 분석 조회 페이지
@@ -11,9 +11,9 @@ import TimelineChartSection from './components/TimelineChartSection'
 const AnalysisPage: React.FC = () => {
   return (
     <PageContainer className="grid grid-cols-[60%_40%] grid-rows-[60%_39%]">
-      <LogSection />
+      <LogTraceSection />
       <VideoDetailSection />
-      <TimelineChartSection />
+      <TimelineSection />
     </PageContainer>
   )
 }

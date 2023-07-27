@@ -1,5 +1,5 @@
 import * as d3 from 'd3'
-import { sampleData } from '@page/AnalysisPage/components/TimelineChartSection/constant'
+import { sampleData } from '@page/AnalysisPage/components/TimelineSection/constant'
 import { useScale } from '../hook'
 import { AreaChartData } from '../types'
 
