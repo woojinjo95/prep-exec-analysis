@@ -1,14 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd'
 import cx from 'classnames'
-import { formatDateTo } from '@global/usecase'
+
 import ActionBlockItem from './ActionBlockItem'
 import { Block } from '../types'
+import BlockControls from './BlockControls'
 
-const blockData: Block[] = Array.from({ length: 15 }, (_, i) => ({
+const blockData: Block[] = Array.from({ length: 30 }, (_, i) => ({
   id: i,
-  title: `block ${i}`,
-  time: formatDateTo('HH:MM:SS', new Date()),
+  title: `block ${i} test block`,
+  time: '23h 23m 23s',
   refIdx: i,
 }))
 
@@ -20,6 +21,8 @@ const ActionBlockArea = (): JSX.Element => {
   const [selectedBlockIds, setSelectedBlockIds] = useState<number[]>([])
 
   const blocksRef = useRef<HTMLDivElement[] | null[]>(new Array(blocks.length))
+
+  const [modifyingBlockId, setModifyingBlockId] = useState<number | null>(null)
 
   /**
    * 실제로 렌더링 때 사용될 blockDummys
@@ -152,16 +155,19 @@ const ActionBlockArea = (): JSX.Element => {
       const maxX = Math.max(startX, endX)
       const maxY = Math.max(startY, endY)
 
-      // 드래그 영역 안에 있는 블록들을 선택
+      // 드래그 영역에 속하는 블럭들의 id
       const selectedIds: number[] = blocks
         .filter((block) => {
           if (!blocksRef.current[block.refIdx]) return false
 
           const blockRect = blocksRef.current[block.refIdx]!.getBoundingClientRect()
-          const blockX = blockRect.left + blockRect.width / 2
           const blockY = blockRect.top + blockRect.height / 2
 
-          return blockX >= minX && blockX <= maxX && blockY >= minY && blockY <= maxY
+          return (
+            blockY >= minY &&
+            blockY <= maxY &&
+            ((minX <= blockRect.left && maxX >= blockRect.left) || (maxX >= blockRect.right && minX <= blockRect.right))
+          )
         })
         .map((block) => block.id)
 
@@ -195,10 +201,14 @@ const ActionBlockArea = (): JSX.Element => {
             if (!blocksRef.current[block.refIdx]) return false
 
             const blockRect = blocksRef.current[block.refIdx]!.getBoundingClientRect()
-            const blockX = blockRect.left + blockRect.width / 2
             const blockY = blockRect.top + blockRect.height / 2
 
-            return blockX >= minX && blockX <= maxX && blockY >= minY && blockY <= maxY
+            return (
+              blockY >= minY &&
+              blockY <= maxY &&
+              ((minX <= blockRect.left && maxX >= blockRect.left) ||
+                (maxX >= blockRect.right && minX <= blockRect.right))
+            )
           })
           .map((block) => block.id)
 
@@ -208,65 +218,80 @@ const ActionBlockArea = (): JSX.Element => {
   }
 
   return (
-    <div
-      className="h-full w-full overflow-y-auto"
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
-      onMouseMove={handleMouseMove}
-    >
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable droppableId="droppable">
-          {(provided) => (
-            <div ref={provided.innerRef} {...provided.droppableProps} className="flex flex-col">
-              {blockDummys.map((dummy, dummyIdx) => {
-                return (
-                  <Draggable key={dummyIdx} draggableId={`dummy-${dummyIdx}`} index={dummyIdx}>
-                    {(provided) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        className={cx('w-full cursor-grab ', {})}
-                      >
-                        {dummy.map((block) => {
-                          return (
-                            <div
-                              key={block.id}
-                              ref={(ele) => {
-                                blocksRef.current[block.refIdx] = ele
-                              }}
-                            >
-                              <ActionBlockItem
-                                actionStatus="normal"
-                                block={block}
-                                selectedBlockIds={selectedBlockIds}
-                                handleBlockClick={handleBlockClick}
-                              />
-                            </div>
-                          )
-                        })}
-                      </div>
-                    )}
-                  </Draggable>
-                )
-              })}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
-
-      {dragSelection && (
+    <div className="h-full w-full">
+      <div className="grid grid-rows-[auto_60px] h-full">
         <div
-          className="absolute border border-blue-500 bg-blue-200 opacity-50"
-          style={{
-            top: Math.min(dragSelection.startY, dragSelection.endY),
-            left: Math.min(dragSelection.startX, dragSelection.endX),
-            width: Math.abs(dragSelection.endX - dragSelection.startX),
-            height: Math.abs(dragSelection.endY - dragSelection.startY),
-          }}
-        />
-      )}
+          className="h-full w-full pt-[30px] overflow-y-auto"
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          onMouseMove={handleMouseMove}
+        >
+          <div className="w-full h-full pl-[30px] pr-[30px] overflow-y-auto pt-[2px] pb-[2px]">
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="droppable">
+                {(provided) => (
+                  <div ref={provided.innerRef} {...provided.droppableProps} className="flex flex-col">
+                    {blockDummys.map((dummy, dummyIdx) => {
+                      return (
+                        <Draggable
+                          key={dummyIdx}
+                          draggableId={`dummy-${dummyIdx}`}
+                          index={dummyIdx}
+                          isDragDisabled={!!(modifyingBlockId && dummy.find((block) => block.id === modifyingBlockId))}
+                        >
+                          {(provided) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className={cx('w-full cursor-grab ', {})}
+                            >
+                              {dummy.map((block) => {
+                                return (
+                                  <div
+                                    key={block.id}
+                                    ref={(ele) => {
+                                      blocksRef.current[block.refIdx] = ele
+                                    }}
+                                  >
+                                    <ActionBlockItem
+                                      actionStatus="normal"
+                                      block={block}
+                                      selectedBlockIds={selectedBlockIds}
+                                      handleBlockClick={handleBlockClick}
+                                      setModifyingBlockId={setModifyingBlockId}
+                                      modifyingBlockId={modifyingBlockId}
+                                    />
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          )}
+                        </Draggable>
+                      )
+                    })}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
+          </div>
+
+          {dragSelection && (
+            <div
+              className="absolute border border-blue-500 bg-blue-200 opacity-50"
+              style={{
+                top: Math.min(dragSelection.startY, dragSelection.endY),
+                left: Math.min(dragSelection.startX, dragSelection.endX),
+                width: Math.abs(dragSelection.endX - dragSelection.startX),
+                height: Math.abs(dragSelection.endY - dragSelection.startY),
+              }}
+            />
+          )}
+        </div>
+        <BlockControls />
+      </div>
+      {modifyingBlockId && <div className="absolute top-0 left-0 h-full z-10 w-full bg-gray-100 opacity-50" />}
     </div>
   )
 }
