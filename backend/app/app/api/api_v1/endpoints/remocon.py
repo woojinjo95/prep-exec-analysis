@@ -1,5 +1,6 @@
 import logging
 import uuid
+import pymongo
 from typing import List
 
 from app import schemas
@@ -19,6 +20,29 @@ def read_remocon() -> List[schemas.Remocon]:
     리모컨 조회
     """
     return load_from_mongodb(collection='remocon', param={}, sort_item="custom_keys.order")
+    #TODO: cunstom_keys array 정렬
+    # col = get_mongodb_collection('remocon')
+    # pipeline = [
+    #     {
+    #         '$unwind': '$custom_keys'
+    #     },
+    #     {
+    #         '$sort': {'custom_keys.order': pymongo.ASCENDING}
+    #     },
+    #     {
+    #         '$group': {
+    #             '_id': '$id',
+    #             'custom_keys': {
+    #                 '$push': '$custom_keys'
+    #             }
+    #         }
+    #     }
+    # ]
+    # result = col.aggregate(pipeline)
+    # for a in result:
+    #     print(a)
+    # return result
+    
 
 
 @router.post("/custom_key/{remocon_id}", response_model=schemas.MsgWithId)
