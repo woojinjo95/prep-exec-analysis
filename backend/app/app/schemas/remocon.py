@@ -7,14 +7,14 @@ from pydantic import BaseModel
 class Remocon(BaseModel):
     class remocon_code(BaseModel):
         name: str
-        hotkey: str
+        hotkey: list[str]
         code: str
         location: list[dict]
     
     class custom_key(BaseModel):
         id: Optional[str] = None
         name: str
-        custom_code: str
+        custom_code: list[str]
         order: int
 
     id: Optional[str] = None
@@ -31,10 +31,10 @@ class Remocon(BaseModel):
 class RemoconCustomKeyCreate(BaseModel):
     id: Optional[str]
     name: Optional[str]
-    custom_code: str
+    custom_code: list[str]
     order: Optional[int]
 
 
 class RemoconCustomKeyUpdate(BaseModel):
     name: Optional[str]
-    custom_code: Optional[str]
+    custom_code: Optional[list[str]]
