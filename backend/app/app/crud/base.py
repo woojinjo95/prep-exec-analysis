@@ -42,6 +42,11 @@ def update_by_id_to_mongodb(collection, id, data):
     return col.update_one({'id': id}, jsonable_encoder({'$set': data}))
 
 
+def update_by_multi_filter_in_mongodb(collection, param, data):
+    col = get_mongodb_collection(collection)
+    return col.update_one(param, jsonable_encoder({'$set': data}))
+
+
 def delete_by_id_to_mongodb(collection, id):
     col = get_mongodb_collection(collection)
     return col.delete_one({'id': id})
