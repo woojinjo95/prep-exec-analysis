@@ -24,6 +24,21 @@ services:
     volumes:
       - mongodb_data:/data/db
 
+  mediamtx:
+    image: aler9/rtsp-simple-server:v0.23.6
+    ports:
+    - "8554:8554" # RTSP
+    - "9997:9997" # API
+    - "9998:9998" # Prometheus
+    - "8889:8889" # WebRTC -> more config needed in docker
+    - "8888:8888" # HLS
+    volumes:
+    - "./media/mediamtx.yml:/mediamtx.yml"
+    logging:
+      options:
+        max-file: "3"
+        max-size: "250m"
+
   adminer:
     container_name: adminer
     image: dockette/adminer:full
