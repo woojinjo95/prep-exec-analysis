@@ -9,46 +9,46 @@ def conn_mongodb():
     return client
 
 
-def get_mongodb_collection(collection):
+def get_mongodb_collection(col):
     db = settings.MONGODB_NAME
     client = conn_mongodb()
     result_db = client[db]
-    target_collection = result_db[collection]
+    target_collection = result_db[col]
     return target_collection
 
 
-def insert_to_mongodb(collection, data):
-    col = get_mongodb_collection(collection)
+def insert_to_mongodb(col, data):
+    col = get_mongodb_collection(col)
     res = col.insert_one(jsonable_encoder(data))
     return res
 
 
-def load_from_mongodb(collection, param, projection=None, sort_item=None):
-    col = get_mongodb_collection(collection)
+def load_from_mongodb(col, param={}, projection=None, sort_item=None):
+    col = get_mongodb_collection(col)
     res = col.find(param, projection)
     if sort_item:
         res.sort(sort_item)
     return list(res)
 
 
-def load_by_id_from_mongodb(collection, id, projection=None):
-    col = get_mongodb_collection(collection)
+def load_by_id_from_mongodb(col, id, projection=None):
+    col = get_mongodb_collection(col)
     res = col.find_one({'id': id}, projection)
     return res
 
 
-def update_by_id_to_mongodb(collection, id, data):
-    col = get_mongodb_collection(collection)
+def update_by_id_to_mongodb(col, id, data):
+    col = get_mongodb_collection(col)
     return col.update_one({'id': id}, jsonable_encoder({'$set': data}))
 
 
-def delete_by_id_to_mongodb(collection, id):
-    col = get_mongodb_collection(collection)
+def delete_by_id_to_mongodb(col, id):
+    col = get_mongodb_collection(col)
     return col.delete_one({'id': id})
 
 
-def load_paginate_from_mongodb(collection, param, page, page_size, projection=None, sort_item=None):
-    col = get_mongodb_collection(collection)
+def load_paginate_from_mongodb(col, page, page_size, param={}, projection=None, sort_item=None):
+    col = get_mongodb_collection(col)
     res = col.find(param, projection)
     if sort_item:
         res.sort(sort_item)
