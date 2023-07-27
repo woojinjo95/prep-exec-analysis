@@ -12,12 +12,12 @@ class Remocon(BaseModel):
         location: list[dict]
     
     class custom_key(BaseModel):
-        id: Optional[uuid.UUID] = uuid.uuid4()
+        id: Optional[str] = None
         name: str
         custom_code: str
         order: int
 
-    id: Optional[uuid.UUID] = uuid.uuid4()
+    id: Optional[str] = None
     name: str
     image_path: str
     image_resolution: dict
@@ -29,13 +29,12 @@ class Remocon(BaseModel):
 
 
 class RemoconCustomKeyCreate(BaseModel):
-    id: str
+    id: Optional[str]
     name: Optional[str]
     custom_code: str
-    order: int
+    order: Optional[int]
 
 
 class RemoconCustomKeyUpdate(BaseModel):
     name: Optional[str]
     custom_code: Optional[str]
-    order: Optional[int]
