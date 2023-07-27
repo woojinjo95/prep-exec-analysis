@@ -6,6 +6,7 @@ import glob
 import re
 from datetime import datetime
 from typing import Union
+from multiprocessing import Event
 
 from .db_connection import LogManagerDBConnection
 
@@ -17,11 +18,11 @@ db_conn = LogManagerDBConnection()
 completed_log_dir = os.path.join('datas', 'stb_logs', 'completed_logs')
 
 
-def save():
+def save(stop_event: Event):
     logger.info(f"start log save")
     os.makedirs(completed_log_dir, exist_ok=True)
 
-    while True:
+    while not stop_event.is_set():
         try:
             file_paths = sorted(glob.glob(os.path.join(completed_log_dir, '*.log')))
             if len(file_paths) > 0:

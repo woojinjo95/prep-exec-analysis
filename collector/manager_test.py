@@ -1,6 +1,7 @@
 import time
 import logging
-from threading import Thread, Event
+from threading import Thread
+from multiprocessing import Event
 from datetime import datetime, timedelta
 from multiprocessing import Queue
 
