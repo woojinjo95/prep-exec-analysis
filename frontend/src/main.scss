@@ -4,6 +4,37 @@
 
 @layer base {
   * {
-    @apply box-border;
+    @apply m-0 p-0 border-0 box-border text-[16px] font-normal text-black;
+    font-family: 'Noto-sans';
   }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+font {
+  font: inherit;
+  color: inherit;
+}
+
+@font-face {
+  font-family: 'Noto-sans';
+  src: url('@src/assets/font/NotoSansKR-regular.woff') format('woff');
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'Noto-sans';
+  src: url('@src/assets/font/NotoSansKR-medium.woff') format('woff');
+  font-style: normal;
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: 'Noto-sans';
+  src: url('@src/assets/font/NotoSansKR-bold.woff') format('woff');
+  font-style: bold;
+  font-weight: 700;
 }

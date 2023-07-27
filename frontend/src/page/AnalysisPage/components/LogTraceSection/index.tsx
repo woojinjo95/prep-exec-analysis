@@ -2,15 +2,15 @@ import React from 'react'
 import SetROIButton from './SetROIButton'
 
 /**
- * 로그 영역
+ * 로그 추적 영역
  */
-const LogSection: React.FC = () => {
+const LogTraceSection: React.FC = () => {
   return (
     <section className="border border-black">
-      LogSection
+      LogTraceSection
       <SetROIButton />
     </section>
   )
 }
 
-export default LogSection
+export default LogTraceSection

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 
 import { Text } from '@chakra-ui/react'
-import { sampleData } from '@page/AnalysisPage/components/TimelineChartSection/constant'
+import { sampleData } from '@page/AnalysisPage/components/TimelineSection/constant'
 import { useScale } from '../hook'
 import { AreaChartGenerator } from '../usecase'
 
