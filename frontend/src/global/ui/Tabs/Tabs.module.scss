@@ -1,0 +1,13 @@
+.tab-panel {
+  &.dark {
+    * {
+      @apply text-white;
+    }
+  }
+
+  &.light {
+    * {
+      @apply text-black;
+    }
+  }
+}
