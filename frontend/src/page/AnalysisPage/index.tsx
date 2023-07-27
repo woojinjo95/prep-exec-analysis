@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { PageContainer } from '@global/ui'
-import LogSection from './components/LogSection'
+import LogTraceSection from './components/LogTraceSection'
 import VideoDetailSection from './components/VideoDetailSection'
 import TimelineSection from './components/TimelineSection'
 
@@ -11,7 +11,7 @@ import TimelineSection from './components/TimelineSection'
 const AnalysisPage: React.FC = () => {
   return (
     <PageContainer className="grid grid-cols-[60%_40%] grid-rows-[60%_39%]">
-      <LogSection />
+      <LogTraceSection />
       <VideoDetailSection />
       <TimelineSection />
     </PageContainer>
