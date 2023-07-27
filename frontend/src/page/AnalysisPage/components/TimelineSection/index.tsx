@@ -7,7 +7,7 @@ import AreaChart from './components/AreaChart'
  */
 const TimelineSection: React.FC = () => {
   return (
-    <section className="border border-black col-span-2 grid grid-cols-1 grid-rows-6 gap-y-2 p-2">
+    <section className="bg-black grid grid-cols-1 grid-rows-6 gap-y-2 p-2 text-white">
       <AreaChart />
     </section>
   )

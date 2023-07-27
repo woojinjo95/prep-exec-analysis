@@ -49,7 +49,9 @@ export class AreaChartGenerator {
         )
         .call((_g) => _g.select('.domain').remove())
         .call((_g) => _g.selectAll('text').remove())
-        .call((_g) => _g.selectAll('line').attr('y1', -this.height).style('stroke', '#ddd').style('stroke-width', 0.5))
+        .call((_g) =>
+          _g.selectAll('line').attr('y1', -this.height).style('stroke', '#37383E').style('stroke-width', 0.5),
+        )
     this.svg.append('g').call(xAxis)
   }
 
@@ -63,7 +65,7 @@ export class AreaChartGenerator {
         .call(d3.axisLeft(this.scaleY).ticks(5))
         .call((_g) => _g.select('.domain').remove())
         .call((_g) => _g.selectAll('text').remove())
-        .call((_g) => _g.selectAll('line').attr('x2', this.width).style('stroke', '#ddd').style('stroke-width', 0.5))
+        .call((_g) => _g.selectAll('line').attr('x2', this.width).style('stroke', '#37383E').style('stroke-width', 0.5))
     this.svg.append('g').call(yAxis)
   }
 

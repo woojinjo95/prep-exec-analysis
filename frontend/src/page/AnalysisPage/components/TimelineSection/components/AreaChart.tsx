@@ -31,9 +31,9 @@ const AreaChart: React.FC = () => {
 
   return (
     <div className="grid grid-cols-1 grid-rows-[auto_1fr]">
-      <Text className="text-xs">CPU</Text>
+      <Text className="text-xs text-gray-400">CPU</Text>
       <div
-        className="border-l-[0.5px] border-r-[0.5px] border-[#ddd]"
+        className="border-l-[0.5px] border-r-[0.5px] border-[#37383E]"
         ref={(ref) => {
           if (!ref) return
 
