@@ -41,7 +41,7 @@ const AreaChart: React.FC = () => {
           setChartHeight(ref.clientHeight)
         }}
       >
-        <div ref={divRef} />
+        <div ref={divRef} className="brightness-150" />
       </div>
     </div>
   )

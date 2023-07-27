@@ -42,7 +42,13 @@ const Tabs: React.FC<TabsProps> = ({ header, children, className, theme = 'light
             className={cx('p-2 mr-2', { 'border-b-2 border-blue-300': index === activeIndex })}
             onClick={() => setActiveIndex(index)}
           >
-            <Text weight="medium" theme={theme}>
+            <Text
+              weight="medium"
+              theme={theme}
+              className={cx({
+                'text-gray-500': index !== activeIndex,
+              })}
+            >
               {name}
             </Text>
           </button>
