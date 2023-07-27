@@ -7,6 +7,8 @@ import { AreaChartGenerator } from '../usecase'
 
 /**
  * 영역 차트
+ *
+ * TODO: resizing event
  */
 const AreaChart: React.FC = () => {
   const divRef = useRef<HTMLDivElement | null>(null)
@@ -30,8 +32,9 @@ const AreaChart: React.FC = () => {
   }, [chartWidth, chartHeight, scaleX, scaleY])
 
   return (
-    <div className="grid grid-cols-1 grid-rows-[auto_1fr]">
-      <Text className="text-xs text-gray-400">CPU</Text>
+    <div className="grid grid-cols-1 grid-rows-[auto_1fr] h-40">
+      <Text className="sticky top-0 text-xs text-gray-400 z-10 px-1">CPU</Text>
+
       <div
         className="border-l-[0.5px] border-r-[0.5px] border-[#37383E]"
         ref={(ref) => {

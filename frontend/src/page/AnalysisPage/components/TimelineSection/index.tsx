@@ -7,8 +7,19 @@ import AreaChart from './components/AreaChart'
  */
 const TimelineSection: React.FC = () => {
   return (
-    <section className="bg-black grid grid-cols-1 grid-rows-6 gap-y-2 p-2 text-white">
-      <AreaChart />
+    <section className="h-full bg-black grid grid-cols-1 grid-rows-[auto_1fr_auto] gap-1 p-1">
+      <div className="text-white">time</div>
+
+      <div className="grid grid-cols-1 gap-y-2 p-1 overflow-y-auto">
+        <AreaChart />
+        <AreaChart />
+        <AreaChart />
+        <AreaChart />
+        <AreaChart />
+        <AreaChart />
+      </div>
+
+      <div className="text-white">scroll</div>
     </section>
   )
 }

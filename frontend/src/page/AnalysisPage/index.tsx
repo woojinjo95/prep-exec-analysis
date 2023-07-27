@@ -11,7 +11,7 @@ import VarAnalysisResultSection from './components/VarAnalysisResultSection'
  */
 const AnalysisPage: React.FC = () => {
   return (
-    <PageContainer className="grid grid-cols-[65%_35%] grid-rows-[40%_25%_35%]">
+    <PageContainer className="grid grid-cols-[65%_35%] grid-rows-[40%_25%_35%] overflow-y-hidden">
       <VideoDetailSection />
       <VarAnalysisResultSection />
       <LogTraceSection />
