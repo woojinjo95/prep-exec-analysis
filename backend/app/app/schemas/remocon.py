@@ -10,7 +10,7 @@ class Remocon(BaseModel):
         hotkey: list[str]
         code: str
         location: list[dict]
-    
+
     class custom_key(BaseModel):
         id: Optional[str] = None
         name: str
@@ -24,8 +24,6 @@ class Remocon(BaseModel):
     remocon_codes: list[remocon_code]
     custom_keys: list[custom_key]
 
-    class Config:
-        orm_mode = True
 
 class RemoconRead(BaseModel):
     items: list[Remocon]
@@ -33,11 +31,21 @@ class RemoconRead(BaseModel):
 
 class RemoconCustomKeyCreate(BaseModel):
     id: Optional[str]
-    name: Optional[str]
+    name: str
     custom_code: list[str]
-    order: Optional[int]
+    order: int
+
+
+class RemoconCustomKeyCreateBase(BaseModel):
+    name: str
+    custom_code: list[str]
+    remocon_id: str
 
 
 class RemoconCustomKeyUpdate(BaseModel):
     name: Optional[str]
     custom_code: Optional[list[str]]
+
+
+class RemoconCustomKeyUpdateMulti(BaseModel):
+    custom_key_ids: list[str]

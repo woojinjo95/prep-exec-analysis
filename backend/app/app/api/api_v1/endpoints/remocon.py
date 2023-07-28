@@ -20,7 +20,7 @@ def read_remocon() -> schemas.RemoconRead:
     리모컨 조회
     """
     return {'items': load_from_mongodb(collection='remocon', param={}, sort_item="custom_keys.order")}
-    #TODO: cunstom_keys array 정렬
+    # TODO: cunstom_keys array 정렬
     # col = get_mongodb_collection('remocon')
     # pipeline = [
     #     {
@@ -42,7 +42,7 @@ def read_remocon() -> schemas.RemoconRead:
     # for a in result:
     #     print(a)
     # return result
-    
+
 
 @router.post("")
 def create_basic_remocon(
@@ -59,19 +59,23 @@ def create_basic_remocon(
     return {'msg': 'Create new item', 'id': remocon_in.id}
 
 
-@router.post("/custom_key/{remocon_id}", response_model=schemas.MsgWithId)
+@router.post("/custom_key", response_model=schemas.MsgWithId)
 def insert_custom_key(
-    remocon_id: str,
-    custom_key_in: schemas.RemoconCustomKeyCreate,
+    custom_key_in_base: schemas.RemoconCustomKeyCreateBase,
 ) -> schemas.MsgWithId:
-    custom_key_in.id = str(uuid.uuid4())
-    custom_key_in.order = len(load_by_id_from_mongodb(collection='remocon', id=remocon_id).get('custom_keys', [])) + 1
+    custom_key_in = schemas.RemoconCustomKeyCreate(
+        id=str(uuid.uuid4()),
+        order=len(load_by_id_from_mongodb(collection='remocon',
+                  id=custom_key_in_base.remocon_id).get('custom_keys', [])) + 1,
+        name=custom_key_in_base.name,
+        custom_code=custom_key_in_base.custom_code,
+    )
     input_data = {
         'custom_keys': custom_key_in.dict()
     }
-    insert_by_id_to_mongodb(collection='remocon', id=remocon_id, data=input_data)
-    return {'msg': 'Create new custom_key', 'id': remocon_id}
-    # TODO: response_model 필요
+    insert_by_id_to_mongodb(collection='remocon',
+                            id=custom_key_in_base.remocon_id, data=input_data)
+    return {'msg': 'Create new custom_key', 'id': custom_key_in.id}
 
 
 @router.put("/custom_key/{remocon_id}/{custom_key_id}", response_model=schemas.MsgWithId)
@@ -88,23 +92,24 @@ def update_custom_key(
         "id": remocon_id,
         "custom_keys.id": custom_key_id
     }
-    update_data = {}
-    for key, value in custom_key_in.dict().items():
-        if value is not None:
-            update_data["custom_keys.$." + key] = value
-    
-    update_result = update_by_multi_filter_in_mongodb(collection='remocon', param=id_filter, data=update_data)
-    return {'msg': 'Update custom_key', 'id': remocon_id}
-    # TODO: response_model 필요
+
+    update_data = {"custom_keys.$." + key: value for key,
+                   value in custom_key_in.dict().items() if value is not None}
+
+    update_by_multi_filter_in_mongodb(collection='remocon',
+                                      param=id_filter,
+                                      data=update_data)
+    return {'msg': 'Update custom_key', 'id': custom_key_id}
 
 
-@router.put("/custom_keys_order", response_model=schemas.MsgWithId)
+@router.put("/custom_keys_order/{remocon_id}", response_model=schemas.MsgWithId)
 def update_custom_key(
     remocon_id: str,
-    custom_key_ids: List[str]
+    custom_key_in: schemas.RemoconCustomKeyUpdateMulti,
 ) -> schemas.MsgWithId:
     id_filter = {"id": remocon_id}
-    for idx, custom_key_id in enumerate(custom_key_ids, start=1):
+    for idx, custom_key_id in enumerate(custom_key_in.custom_key_ids, start=1):
         id_filter['custom_keys.id'] = custom_key_id
-        update_by_multi_filter_in_mongodb(collection='remocon', param=id_filter, data={"custom_keys.$.order": idx})
+        update_by_multi_filter_in_mongodb(collection='remocon', param=id_filter, data={
+                                          "custom_keys.$.order": idx})
     return {'msg': 'Update custom_key order', 'id': remocon_id}
