@@ -1,8 +1,10 @@
 import logging
+import uuid
+from datetime import datetime
 
 from app import schemas
 from app.db.redis_session import RedisClient
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from fastapi.encoders import jsonable_encoder
 
 logger = logging.getLogger(__name__)
@@ -60,32 +62,41 @@ def read_hardware_configuration():
             'ip': res.get('ip', ''),
             'port': res.get('port', ''),
             'type': res.get('type', ''),
-            'created_at': float(res.get('created_at', '')),
+            'created_at': res.get('created_at', ''),
         })
     config['ip_limit'] = ip_limit_list
     return {'items': config}
 
 
-#  등록로직
-configs = {'remote_control_type': 'IR',
-           'enable_dut_power': 'True',
-           'enable_hdmi': 'True',
-           'enable_dut_wan': 'True',
-           'enable_network_emulation': 'True',
-           'packet_bandwidth': 1000,
-           'packet_delay': 0.0,
-           'packet_loss': 0.0}
-for k, v in configs.items():
-    RedisClient.hset(f'hardware_configuration', k, v)
+@router.post("/ip_limit", response_model=schemas.MsgWithId)
+def create_hardware_configuration_ip_limit(
+    *,
+    ip_limit_in: schemas.HardwareConfigurationIpLimitCreate,
+) -> schemas.MsgWithId:
+    """
+    Create new hardware_configuration ip_limit.
+    """
+    id = str(uuid.uuid4())
+    RedisClient.hset(f'hardware_configuration_ip_limit:{id}',
+                     'created_at',
+                     datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S'))
+    for key, val in jsonable_encoder(ip_limit_in).items():
+        RedisClient.hset(f'hardware_configuration_ip_limit:{id}', key, val)
 
-result = []
-matching_keys = RedisClient.scan_iter(
-    match="hardware_configuration_ip_limit:*")
-for key in matching_keys:
-    res = RedisClient.hgetall(key)
-    result.append({
-        'id': key.split(':')[1],
-        'ip': res.get('ip', ''),
-        'port': res.get('port', ''),
-        'type': res.get('type', ''),
-    })
+    return {'msg': 'Create new hardware_configuration ip_limit', 'id': id}
+
+
+@router.delete("/ip_limit/{id}", response_model=schemas.Msg)
+def delete_hardware_configuration_ip_limit(
+    id: str,
+) -> schemas.Msg:
+    """
+    Delete a hardware_configuration ip_limit.
+    """
+    ip_limit = RedisClient.hget(name=f'hardware_configuration_ip_limit:{id}',
+                                key='created_at')
+    if not ip_limit:
+        raise HTTPException(
+            status_code=404, detail="The hardware_configuration ip_limit with this id does not exist in the system.")
+    RedisClient.delete(f'hardware_configuration_ip_limit:{id}')
+    return {'msg': 'Delete a hardware_configuration ip_limit.'}

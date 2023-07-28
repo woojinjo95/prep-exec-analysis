@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from app.schemas.enum import RemoteControlTypeEnum
 from pydantic import BaseModel
 
 
@@ -8,11 +9,17 @@ class HardwareConfigurationIpLimit(BaseModel):
     ip: str
     port: str
     type: str
-    created_at: float
+    created_at: str
+
+
+class HardwareConfigurationIpLimitCreate(BaseModel):
+    ip: str
+    port: str
+    type: str
 
 
 class HardwareConfiguration(BaseModel):
-    remote_control_type: str  # TODO enum
+    remote_control_type: RemoteControlTypeEnum
     enable_dut_power: bool
     enable_hdmi: bool
     enable_dut_wan: bool
@@ -28,7 +35,7 @@ class HardwareConfigurationBase(BaseModel):
 
 
 class HardwareConfigurationUpdate(BaseModel):
-    remote_control_type: Optional[str]
+    remote_control_type: Optional[RemoteControlTypeEnum]
     enable_dut_power: Optional[bool]
     enable_hdmi: Optional[bool]
     enable_dut_wan: Optional[bool]
