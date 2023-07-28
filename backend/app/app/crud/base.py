@@ -42,13 +42,15 @@ def update_by_id_to_mongodb(col, id, data):
     return col.update_one({'id': id}, jsonable_encoder({'$set': data}))
 
 # TODO : 몽고디비 CRUD 정리
-def insert_by_id_to_mongodb(collection, id, data):
-    col = get_mongodb_collection(collection)
+
+
+def insert_by_id_to_mongodb(col, id, data):
+    col = get_mongodb_collection(col)
     return col.update_one({'id': id}, jsonable_encoder({'$push': data}))
 
 
-def update_by_multi_filter_in_mongodb(collection, param, data):
-    col = get_mongodb_collection(collection)
+def update_by_multi_filter_in_mongodb(col, param, data):
+    col = get_mongodb_collection(col)
     return col.update_one(param, jsonable_encoder({'$set': data}))
 
 
