@@ -3,8 +3,10 @@ import cx from 'classnames'
 
 interface TextProps extends React.HTMLAttributes<HTMLSpanElement> {
   children: React.ReactNode
+  className?: string
   size?: 'sm' | 'md' | 'lg'
   weight?: 'regular' | 'medium' | 'bold'
+  theme?: 'dark' | 'light'
 }
 
 /**
@@ -12,11 +14,18 @@ interface TextProps extends React.HTMLAttributes<HTMLSpanElement> {
  *
  * @param size 폰트크기
  */
-const Text: React.FC<TextProps> = ({ children, size = 'md', weight = 'regular', ...props }) => {
+const Text: React.FC<TextProps> = ({
+  children,
+  className,
+  size = 'md',
+  weight = 'regular',
+  theme = 'light',
+  ...props
+}) => {
   return (
     <span
       className={cx(
-        'font-medium tracking-tighter text-black',
+        'tracking-tighter text-black',
         {
           'text-sm': size === 'sm',
           'text-base': size === 'md',
@@ -24,8 +33,10 @@ const Text: React.FC<TextProps> = ({ children, size = 'md', weight = 'regular', 
           'font-normal': weight === 'regular',
           'font-medium': weight === 'medium',
           'font-bold': weight === 'bold',
+          'text-black': theme === 'light',
+          'text-white': theme === 'dark',
         },
-        props.className,
+        className,
       )}
       {...props}
     >

@@ -8,7 +8,7 @@ const cx = classnames.bind(styles)
 
 interface DropdownProps {
   children: React.ReactNode
-  theme?: 'black' | 'white'
+  theme?: 'dark' | 'light'
   className?: string
 }
 
@@ -21,23 +21,23 @@ interface DropdownProps {
  *
  * TODO: 방향키 위 아래 조절 시 선택될 아이템 배경색으로 표시? 포커싱?
  */
-const DropdownButton: React.FC<DropdownProps> = ({ children, theme = 'black', className }) => {
+const DropdownButton: React.FC<DropdownProps> = ({ children, theme = 'dark', className }) => {
   return (
     <MenuButton className="flex justify-end">
       <div
         className={cx(
           'flex justify-between px-2 py-1 border-b-[1px]',
           {
-            'border-black': theme === 'black',
-            'border-white': theme === 'white',
+            'border-black': theme === 'light',
+            'border-white': theme === 'dark',
           },
           className,
         )}
       >
         <p
           className={cx('font-medium text-[14px]', {
-            'text-black': theme === 'black',
-            'text-white': theme === 'white',
+            'text-black': theme === 'light',
+            'text-white': theme === 'dark',
           })}
         >
           {children}
