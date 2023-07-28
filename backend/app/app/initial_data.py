@@ -11,7 +11,7 @@ def init_hardware_configuration():
     config = RedisClient.hget(name=f'hardware_configuration',
                               key='remote_control_type')
     if not config:
-        configs = {'remote_control_type': 'IR',
+        configs = {'remote_control_type': 'ir',
                    'enable_dut_power': 'True',
                    'enable_hdmi': 'True',
                    'enable_dut_wan': 'True',
