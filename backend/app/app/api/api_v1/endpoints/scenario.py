@@ -2,7 +2,7 @@ import logging
 import uuid
 
 from app import schemas
-from app.crud.base import (get_mongodb_collection, insert_to_mongodb,
+from app.crud.base import (get_mongodb_collection, insert_one_to_mongodb,
                            load_from_mongodb)
 from fastapi import APIRouter
 from fastapi.encoders import jsonable_encoder
@@ -36,7 +36,7 @@ def create_block(
     col = get_mongodb_collection('scenario')
     obj = col.find_one()
     if obj is None:
-        insert_to_mongodb(col='scenario', data={"block_group": [{
+        insert_one_to_mongodb(col='scenario', data={"block_group": [{
             "id": str(uuid.uuid4()),
             "repeat_cnt": 1,
             "block": [jsonable_encoder(block_in)]

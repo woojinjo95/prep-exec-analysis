@@ -3,7 +3,7 @@ import uuid
 
 from app import schemas
 from app.api.utility import get_multi_or_paginate_by_res
-from app.crud.base import (delete_by_id_to_mongodb, insert_to_mongodb,
+from app.crud.base import (delete_by_id_to_mongodb, insert_one_to_mongodb,
                            load_by_id_from_mongodb, update_by_id_to_mongodb)
 from fastapi import APIRouter, HTTPException, Query
 
@@ -75,5 +75,5 @@ def create_item(
     Create new item.
     """
     item_in = schemas.ItemCreate(name=item_in.name, id=str(uuid.uuid4()))
-    insert_to_mongodb(col='item', data=item_in)
+    insert_one_to_mongodb(col='item', data=item_in)
     return {'msg': 'Create new item', 'id': item_in.id}
