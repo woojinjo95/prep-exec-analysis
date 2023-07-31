@@ -1,11 +1,12 @@
 import logging
 import os
 import time
+import re
 from datetime import datetime, timedelta
 from multiprocessing import Event
 import traceback
 import shutil
-from typing import TextIO, List
+from typing import TextIO, List, Union
 
 from iterators import TimeoutIterator
 from scripts.connection.stb_connection.connector import Connection
@@ -25,6 +26,18 @@ def write_with_time_prefix(file: TextIO, line: str):
     new_line = f'<Collector: {cur_time}> {line}'
     file.write(new_line)
     # print(new_line)
+    # stb_time = extract_logcat_time_data(line)
+    # print(f'cur_time: {datetime.fromtimestamp(cur_time)}, stb_time: {stb_time}, diff: {cur_time - stb_time.timestamp() if stb_time else None}')
+
+
+def extract_logcat_time_data(line: str) -> Union[None, datetime]:
+    pattern1 = r'(\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})'  # matches "[ 07-24 04:35:29.422" / logcat
+    match = re.search(pattern1, line)
+    if match:
+        # Format for pattern1 is "MM-DD HH:MM:SS.sss", so we assume current year
+        return datetime.strptime(f"{datetime.now().year}-{match.group(1)}", "%Y-%m-%d %H:%M:%S.%f")
+    else:
+        return None
 
 
 def collect(connection_info: dict, command_script: str, log_type: str, stop_event: Event):
