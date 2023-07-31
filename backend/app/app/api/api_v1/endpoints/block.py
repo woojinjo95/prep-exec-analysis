@@ -2,9 +2,10 @@ import logging
 import uuid
 
 from app import schemas
-from app.crud.base import (get_mongodb_collection, insert_to_mongodb,
-                           load_from_mongodb,
-                           update_by_multi_filter_in_mongodb)
+from app.crud.base import (delete_part_to_mongodb, get_mongodb_collection,
+                           load_from_mongodb, load_one_from_mongodb,
+                           update_by_multi_filter_in_mongodb,
+                           update_by_multi_in_mongodb)
 from fastapi import APIRouter, HTTPException
 from fastapi.encoders import jsonable_encoder
 
@@ -24,17 +25,13 @@ def create_block(
                              type=block_in.type,
                              value=block_in.value,
                              delay_time=block_in.delay_time)
-    col = get_mongodb_collection('scenario')
-    obj = col.find_one()
+    block_group = load_one_from_mongodb('scenario').get('block_group', [])
 
-    if obj is None:
-        insert_to_mongodb(col='scenario', data={"block_group": [{
-            "id": str(uuid.uuid4()),
-            "repeat_cnt": 1,
-            "block": [jsonable_encoder(block_in)]
-        }]})
+    if len(block_group) == 0:
+        new_last_block_group = [{"id": str(uuid.uuid4()),
+                                 "repeat_cnt": 1,
+                                 "block": [jsonable_encoder(block_in)]}]
     else:
-        block_group = obj.get('block_group', [{}])
         last_block_group = block_group[-1]
         new_last_block_group = [item for item in block_group
                                 if item != last_block_group]
@@ -44,14 +41,32 @@ def create_block(
         new_last_block_group.append({"id": last_block_group.get('id', ''),
                                      "repeat_cnt": last_block_group.get('repeat_cnt', 0),
                                      "block": new_blocks})
-        col.update_many({}, {'$set': {'block_group': new_last_block_group}})
+    update_by_multi_in_mongodb(col='scenario', data={
+                               'block_group': new_last_block_group})
     return {'msg': 'Create new block', 'id': block_in.id}
 
 
-@router.put("/{block_group_id}/{block_id}", response_model=schemas.MsgWithId)
+@router.delete("", response_model=schemas.Msg)
+def delete_block(
+    block_in: schemas.BlockDelete,
+) -> schemas.Msg:
+    """
+    Delete a block.
+    """
+    for block_id in block_in.block_ids:
+        delete_part_to_mongodb(col='scenario',
+                               param={'block_group': {
+                                   '$elemMatch': {'block.id': block_id}}},
+                               data={'block_group.$.block': {'id': block_id}})
+    delete_part_to_mongodb(col='scenario',
+                           param={'block_group.block': {'$size': 0}},
+                           data={'block_group': {'block': {'$size': 0}}})
+    return {'msg': 'Delete a block.'}
+
+
+@router.put("/{block_id}", response_model=schemas.MsgWithId)
 def update_block(
     *,
-    block_group_id: str,
     block_id: str,
     block_in: schemas.BlockUpdate,
 ) -> schemas.MsgWithId:
@@ -59,14 +74,8 @@ def update_block(
     Update a block.
     """
     block = load_from_mongodb(col='scenario',
-                              param={
-                                  "block_group": {
-                                      "$elemMatch": {
-                                          "id": block_group_id,
-                                          "block.id": block_id
-                                      }
-                                  }
-                              },
+                              param={"block_group": {
+                                  "$elemMatch": {"block.id": block_id}}},
                               proj={"_id": 1})
     if not block:
         raise HTTPException(
@@ -76,7 +85,7 @@ def update_block(
                    for key, value in block_in.dict().items() if value is not None}
 
     col = get_mongodb_collection('scenario')
-    col.update_one({"block_group.id": block_group_id, "block_group.block.id": block_id},
+    col.update_one({"block_group.block.id": block_id},
                    {'$set': update_data},
                    array_filters=[{"elem.id": block_id}],
                    upsert=False)

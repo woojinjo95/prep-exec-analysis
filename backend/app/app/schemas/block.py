@@ -9,6 +9,10 @@ class BlockCreate(BaseModel):
     delay_time: float
 
 
+class BlockDelete(BaseModel):
+    block_ids: List[str]
+
+
 class Block(BaseModel):
     id: str
     type: str
