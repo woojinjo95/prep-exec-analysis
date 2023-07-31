@@ -17,6 +17,7 @@ db_conn = LogManagerDBConnection()
 completed_log_dir = os.path.join('datas', 'stb_logs', 'completed_logs')
 log_prefix_pattern = r'<Collector:\s(\d+\.\d+)>'
 
+
 def postprocess(stop_event: Event):
     logger.info(f"start log postprocess")
     os.makedirs(completed_log_dir, exist_ok=True)
@@ -45,7 +46,7 @@ def postprocess_log(file_path: str):
         logger.info(f'{file_path} remove complete.')
 
 
-def read_file_with_delimiter(filename, delimiter_pattern):
+def LogChunkGenerator(filename, delimiter_pattern):
     with open(filename, 'r') as f:
         buf = ""
         while True:
@@ -66,12 +67,12 @@ def read_file_with_delimiter(filename, delimiter_pattern):
 
 # Return [(time, log_line),...]
 # Raise: skip this file
-def LogDataGenerator(file_path: str, batch_size: int = 1000, no_time_count_limit: int = 10000):
+def LogBatchGenerator(file_path: str, batch_size: int = 1000, no_time_count_limit: int = 10000):
     last_time = None
     batches = []
     no_time_count = 0
 
-    for index, (line, log_time) in enumerate(read_file_with_delimiter(file_path, log_prefix_pattern)):
+    for index, (line, log_time) in enumerate(LogChunkGenerator(file_path, log_prefix_pattern)):
         if line.isspace():
             continue
         # print(f'index {index}\nline {line}\nlog_time {log_time}')
@@ -94,6 +95,6 @@ def LogDataGenerator(file_path: str, batch_size: int = 1000, no_time_count_limit
 
 
 def insert_to_db(file_path: str):
-    for log_batch in LogDataGenerator(file_path):
+    for log_batch in LogBatchGenerator(file_path):
         # print(log_batch)
         db_conn.save_datas(log_batch)
