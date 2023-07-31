@@ -1,5 +1,5 @@
-import pymongo
 from app.core.config import settings
+from app.db.session import db_session
 from fastapi.encoders import jsonable_encoder
 
 
@@ -9,16 +9,9 @@ def convert_to_dict(data):
     return data
 
 
-def conn_mongodb():
-    client = pymongo.MongoClient(
-        f"mongodb://{settings.MONGODB_USERNAME}:{settings.MONGODB_PASSWORD}@{settings.MONGODB_SERVER}:{settings.MONGODB_PORT}/{settings.MONGODB_NAME}?authSource={settings.MONGODB_AUTHENTICATION_SOURCE}&readPreference=primary&ssl=false")
-    return client
-
-
 def get_mongodb_collection(col):
     db = settings.MONGODB_NAME
-    client = conn_mongodb()
-    result_db = client[db]
+    result_db = db_session[db]
     target_collection = result_db[col]
     return target_collection
 
@@ -43,6 +36,12 @@ def load_by_id_from_mongodb(col, id, proj=None):
     return res
 
 
+def load_one_from_mongodb(col, proj=None):
+    col = get_mongodb_collection(col)
+    res = col.find_one(projection=proj)
+    return res
+
+
 def update_by_id_to_mongodb(col, id, data):
     col = get_mongodb_collection(col)
     return col.update_one({'id': id}, {'$set': convert_to_dict(data)})
@@ -60,6 +59,11 @@ def update_by_multi_filter_in_mongodb(col, param, data):
     return col.update_one(param, {'$set': convert_to_dict(data)})
 
 
+def update_by_multi_in_mongodb(col, param={}, data={}):
+    col = get_mongodb_collection(col)
+    return col.update_many(param, {'$set': convert_to_dict(data)})
+
+
 def delete_by_id_to_mongodb(col, id):
     col = get_mongodb_collection(col)
     return col.delete_one({'id': id})
@@ -70,10 +74,15 @@ def delete_part_by_id_to_mongodb(col, id, data):
     return col.update_one({'id': id}, {'$pull': convert_to_dict(data)})
 
 
+def delete_part_to_mongodb(col, param, data):
+    col = get_mongodb_collection(col)
+    return col.update_one(param, {'$pull': convert_to_dict(data)})
+
+
 def load_paginate_from_mongodb(col, page, page_size, param={}, proj=None, sort_item=None):
     col = get_mongodb_collection(col)
     res = col.find(param, proj)
     if sort_item:
         res.sort(sort_item)
     return {'items': res.skip(page_size * (page - 1)).limit(page_size),
-            'total': len(list(col.find(param, proj)))}  # TODO 카운트 방식 변경
+            'total': col.count_documents(param)}
