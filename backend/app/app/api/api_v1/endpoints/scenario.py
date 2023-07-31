@@ -16,7 +16,8 @@ def read_scenario() -> schemas.Scenario:
     """
     Retrieve scenario.
     """
-    return {'items': load_from_mongodb(col='scenario')}
+    res = load_from_mongodb(col='scenario')
+    return {'items': res[0] if res else {}}
 
 
 @router.post("/block", response_model=schemas.MsgWithId)

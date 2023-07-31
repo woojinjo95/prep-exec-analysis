@@ -33,4 +33,4 @@ class ScenarioBase(BaseModel):
 
 
 class Scenario(BaseModel):
-    items: List[ScenarioBase]
+    items: ScenarioBase
