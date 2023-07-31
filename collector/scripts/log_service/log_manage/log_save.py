@@ -14,9 +14,8 @@ from .db_connection import LogManagerDBConnection
 logger = logging.getLogger('connection')
 
 db_conn = LogManagerDBConnection()
-
 completed_log_dir = os.path.join('datas', 'stb_logs', 'completed_logs')
-
+log_prefix_pattern = r'<Collector:\s(\d+\.\d+)>'
 
 def save(stop_event: Event):
     logger.info(f"start log save")
@@ -48,28 +47,23 @@ def save_log(file_path: str):
         logger.info(f'{file_path} remove complete.')
 
 
-# stb 로그에 포함된 타임 데이터 추출
-def extract_stb_log_time_data(line: str) -> Union[None, datetime]:
-    pattern1 = r'(\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})'  # matches "[ 07-24 04:35:29.422" / logcat
-    # 탑 로그의 타임스탬프는 콜렉터에서 강제 주입했던거라 사실상 stb 자체의 타임스탬프가 아니라서 넣지 않음.
-
-    match1 = re.search(pattern1, line)
-
-    if match1:
-        # Format for pattern1 is "MM-DD HH:MM:SS.sss", so we assume current year
-        return datetime.strptime(f"{datetime.now().year}-{match1.group(1)}", "%Y-%m-%d %H:%M:%S.%f")
-    else:
-        return None
-    
-
-# 콜렉터에서 주입한 타임 데이터 추출
-def extract_log_collector_time_data(line: str) -> Union[None, datetime]:
-    pattern = r'<Collector:\s(\d+\.\d+)>'  # matches "<Collector: 1627096529.422>"
-    match = re.search(pattern, line)
-    if match:
-        return datetime.fromtimestamp(float(match.group(1)))
-    else:
-        return None
+def read_file_with_delimiter(filename, delimiter_pattern):
+    with open(filename, 'r') as f:
+        buf = ""
+        while True:
+            match = re.search(delimiter_pattern, buf)
+            if match:
+                pos = match.start()
+                time_data = datetime.fromtimestamp(float(match.group(1)))
+                yield buf[:pos], time_data
+                buf = buf[match.end():]
+            else:
+                chunk = f.read(4096)
+                if not chunk:
+                    # end of file
+                    yield buf, None
+                    break
+                buf += chunk
 
 
 # Return [(time, log_line),...]
@@ -79,27 +73,25 @@ def LogDataGenerator(file_path: str, batch_size: int = 1000, no_time_count_limit
     batches = []
     no_time_count = 0
 
-    with open(file_path, 'rb') as f:
-        for index, line in enumerate(f.readlines()):
-            line = line.decode('utf-8')
-            if line.isspace():
-                continue
+    for index, (line, log_time) in enumerate(read_file_with_delimiter(file_path, log_prefix_pattern)):
+        if line.isspace():
+            continue
+        # print(f'index {index}\nline {line}\nlog_time {log_time}')
+        
+        if log_time is not None:  # time is in line
+            last_time = log_time  # store
+            no_time_count = 0
+        else:
+            no_time_count += 1
+            if no_time_count > no_time_count_limit:  # too many no time data in lines
+                raise Exception(f'No time data in {file_path} at line {index}')
+        
+        if last_time is not None:
+            batches.append((last_time.timestamp(), line))
 
-            log_time = extract_log_collector_time_data(line)
-            if log_time is not None:  # time is in line
-                last_time = log_time  # store
-                no_time_count = 0
-            else:
-                no_time_count += 1
-                if no_time_count > no_time_count_limit:  # too many no time data in lines
-                    raise Exception(f'No time data in {file_path} at line {index}')
-            
-            if last_time is not None:
-                batches.append((last_time.timestamp(), line))
-
-            if len(batches) >= batch_size:
-                yield batches
-                batches = []
+        if len(batches) >= batch_size:
+            yield batches
+            batches = []
     yield batches
 
 
