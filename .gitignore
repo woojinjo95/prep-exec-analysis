@@ -3,3 +3,9 @@
 *.pyc
 *.DS_Store
 *.mp4
+
+# collector
+*.db
+*.db-shm
+*.db-wal
+total.log.*
