@@ -4,7 +4,8 @@ import uuid
 from app import schemas
 from app.crud.base import (insert_by_id_to_mongodb, load_by_id_from_mongodb,
                            load_from_mongodb,
-                           update_by_multi_filter_in_mongodb)
+                           update_by_multi_filter_in_mongodb,
+                           delete_part_by_id_to_mongodb)
 from fastapi import APIRouter, HTTPException
 
 logger = logging.getLogger(__name__)
@@ -74,3 +75,22 @@ def update_custom_keys_order(
                                           param=id_filter,
                                           data={"custom_keys.$.order": idx})
     return {'msg': 'Update custom_key order', 'id': remocon_id}
+
+
+@router.delete("/custom_key/{remocon_id}", response_model=schemas.Msg)
+def delete_custom_keys(
+    remocon_id: str,
+    custom_key_ids: schemas.RemoconCustomKeyUpdateMulti
+) -> schemas.Msg:
+    remocon = load_by_id_from_mongodb(col='remocon', id=remocon_id)
+    if remocon is None:
+        raise HTTPException(status_code=404, detail="Remocon not found")
+    for custom_key_id in custom_key_ids.custom_key_ids:
+        delete_part_by_id_to_mongodb(col='remocon',
+                                     id=remocon_id,
+                                     data={"custom_keys":{'id': custom_key_id}})
+        logger.info(f"[Delete]remocon_id/custom_key : {remocon_id}/{custom_key_id}")
+    return {'msg': 'custom_key Deletion Completed'}
+        
+        
+
