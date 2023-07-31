@@ -80,12 +80,12 @@ def update_custom_keys_order(
 @router.delete("/custom_key/{remocon_id}", response_model=schemas.Msg)
 def delete_custom_keys(
     remocon_id: str,
-    custom_key_ids: list
+    custom_key_ids: schemas.RemoconCustomKeyUpdateMulti
 ) -> schemas.Msg:
     remocon = load_by_id_from_mongodb(col='remocon', id=remocon_id)
     if remocon is None:
         raise HTTPException(status_code=404, detail="Remocon not found")
-    for custom_key_id in custom_key_ids:
+    for custom_key_id in custom_key_ids.custom_key_ids:
         delete_part_by_id_to_mongodb(col='remocon',
                                      id=remocon_id,
                                      data={"custom_keys":{'id': custom_key_id}})
