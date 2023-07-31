@@ -1,10 +1,12 @@
 import logging
 import logging.config
+import traceback
 
 import sentry_sdk
+from app import schemas
 from app.api.api_v1.api import api_router
 from app.core.config import settings
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI, HTTPException
 from starlette.middleware.cors import CORSMiddleware
 
 logging.config.fileConfig('./app/logging.conf', disable_existing_loggers=False)
@@ -32,5 +34,18 @@ if settings.BACKEND_CORS_ORIGINS:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+
+@api_router.get("/healthcheck", response_model=schemas.Msg)
+def healthcheck() -> schemas.Msg:
+    try:
+        from app.crud.base import conn_mongodb
+        from app.db.redis_session import RedisClient
+        RedisClient.hget(name='item', key='id')
+        conn_mongodb()
+    except Exception as er:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return {"msg": "OK"}
+
 
 app.include_router(api_router, prefix=settings.API_V1_STR)

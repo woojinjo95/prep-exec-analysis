@@ -18,7 +18,7 @@ def read_item_by_id(
     """
     Get a specific item by id.
     """
-    item = load_by_id_from_mongodb(collection='item', id=item_id)
+    item = load_by_id_from_mongodb(col='item', id=item_id)
     if not item:
         raise HTTPException(
             status_code=404, detail="The item with this id does not exist in the system.")
@@ -34,11 +34,11 @@ def update_item(
     """
     Update a item.
     """
-    item = load_by_id_from_mongodb(collection='item', id=item_id)
+    item = load_by_id_from_mongodb(col='item', id=item_id)
     if not item:
         raise HTTPException(
             status_code=404, detail="The item with this id does not exist in the system.")
-    update_by_id_to_mongodb(collection='item', id=item_id, data=item_in)
+    update_by_id_to_mongodb(col='item', id=item_id, data=item_in)
     return {'msg': 'Update a item', 'id': item_id}
 
 
@@ -49,11 +49,11 @@ def delete_item(
     """
     Delete a item.
     """
-    item = load_by_id_from_mongodb(collection='item', id=item_id)
+    item = load_by_id_from_mongodb(col='item', id=item_id)
     if not item:
         raise HTTPException(
             status_code=404, detail="The item with this id does not exist in the system.")
-    delete_by_id_to_mongodb(collection='item', id=item_id)
+    delete_by_id_to_mongodb(col='item', id=item_id)
     return {'msg': 'Delete a item.'}
 
 
@@ -63,8 +63,7 @@ def read_items(page: int = Query(None, ge=1, description="Page number"),
     """
     Retrieve items.
     """
-    return get_multi_or_paginate_by_res(collection='item', param={},
-                                        page=page, page_size=page_size)
+    return get_multi_or_paginate_by_res(col='item', page=page, page_size=page_size)
 
 
 @router.post("", response_model=schemas.MsgWithId)
@@ -76,5 +75,5 @@ def create_item(
     Create new item.
     """
     item_in = schemas.ItemCreate(name=item_in.name, id=str(uuid.uuid4()))
-    insert_to_mongodb(collection='item', data=item_in)
+    insert_to_mongodb(col='item', data=item_in)
     return {'msg': 'Create new item', 'id': item_in.id}

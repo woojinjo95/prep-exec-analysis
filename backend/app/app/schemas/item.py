@@ -6,9 +6,6 @@ from pydantic import BaseModel
 class ItemBase(BaseModel):
     name: str
 
-    class Config:
-        orm_mode = True
-
 
 class ItemCreate(ItemBase):
     id: str
