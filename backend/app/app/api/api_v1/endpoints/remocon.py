@@ -2,8 +2,8 @@ import logging
 import uuid
 
 from app import schemas
-from app.crud.base import (insert_by_id_to_mongodb, insert_to_mongodb,
-                           load_by_id_from_mongodb, load_from_mongodb,
+from app.crud.base import (insert_by_id_to_mongodb, load_by_id_from_mongodb,
+                           load_from_mongodb,
                            update_by_multi_filter_in_mongodb)
 from fastapi import APIRouter, HTTPException
 
@@ -17,43 +17,6 @@ def read_remocon() -> schemas.RemoconRead:
     리모컨 조회
     """
     return {'items': load_from_mongodb(col='remocon', sort_item="custom_keys.order")}
-    # TODO: cunstom_keys array 정렬
-    # col = get_mongodb_collection('remocon')
-    # pipeline = [
-    #     {
-    #         '$unwind': '$custom_keys'
-    #     },
-    #     {
-    #         '$sort': {'custom_keys.order': pymongo.ASCENDING}
-    #     },
-    #     {
-    #         '$group': {
-    #             '_id': '$id',
-    #             'custom_keys': {
-    #                 '$push': '$custom_keys'
-    #             }
-    #         }
-    #     }
-    # ]
-    # result = col.aggregate(pipeline)
-    # for a in result:
-    #     print(a)
-    # return result
-
-
-@router.post("")
-def create_basic_remocon(
-    remocon_in: schemas.Remocon
-):
-    """
-    신규 리모컨 등록 (임시).
-    """
-    remocon_in.id = str(uuid.uuid4())
-    for idx in range(len(remocon_in.custom_keys)):
-        remocon_in.custom_keys[idx].id = str(uuid.uuid4())
-
-    res = insert_to_mongodb(col='remocon', data=remocon_in)
-    return {'msg': 'Create new item', 'id': remocon_in.id}
 
 
 @router.post("/custom_key", response_model=schemas.MsgWithId)
@@ -62,8 +25,7 @@ def insert_custom_key(
 ) -> schemas.MsgWithId:
     custom_key_in = schemas.RemoconCustomKeyCreate(
         id=str(uuid.uuid4()),
-        order=len(load_by_id_from_mongodb(col='remocon',
-                  id=custom_key_in_base.remocon_id).get('custom_keys', [])) + 1,
+        order=0,
         name=custom_key_in_base.name,
         custom_code=custom_key_in_base.custom_code,
     )
@@ -100,7 +62,7 @@ def update_custom_key(
     return {'msg': 'Update custom_key', 'id': custom_key_id}
 
 
-@router.put("/custom_keys_order/{remocon_id}", response_model=schemas.MsgWithId)
+# @router.put("/custom_keys_order/{remocon_id}", response_model=schemas.MsgWithId)
 def update_custom_keys_order(
     remocon_id: str,
     custom_key_in: schemas.RemoconCustomKeyUpdateMulti,
