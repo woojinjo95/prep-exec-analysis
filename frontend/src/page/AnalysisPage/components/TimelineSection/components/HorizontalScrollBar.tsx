@@ -1,5 +1,10 @@
 import React, { useCallback, useState } from 'react'
 
+/**
+ * 스크롤바 높이 사이즈
+ */
+const SCROLL_BAR_HEIGHT = 12
+
 interface HorizontalScrollBarProps {
   chartWidth: number | null
   scrollBarTwoPosX: [number, number] | null
@@ -27,7 +32,7 @@ const HorizontalScrollBar: React.FC<HorizontalScrollBarProps> = ({
     setIsDragging(false)
   }, [])
 
-  if (chartWidth === null || scrollBarTwoPosX === null) return <div className="h-3" />
+  if (chartWidth === null || scrollBarTwoPosX === null) return <div style={{ height: SCROLL_BAR_HEIGHT }} />
 
   return (
     <div className="text-white">
@@ -36,6 +41,7 @@ const HorizontalScrollBar: React.FC<HorizontalScrollBarProps> = ({
         className="w-full h-3 min-w-3 bg-gray-600 rounded-full flex justify-between cursor-grab relative"
         style={{
           width: `${scrollBarTwoPosX[1] - scrollBarTwoPosX[0]}px`,
+          height: SCROLL_BAR_HEIGHT,
           maxWidth: `${chartWidth}px`,
           transform: `translateX(${scrollBarTwoPosX[0]}px)`,
         }}
@@ -68,7 +74,7 @@ const HorizontalScrollBar: React.FC<HorizontalScrollBarProps> = ({
             if (!isDragging) return
 
             setScrollBarTwoPosX([
-              Math.min(Math.max(0, scrollBarTwoPosX[0] + e.movementX), scrollBarTwoPosX[1] - 12),
+              Math.min(Math.max(0, scrollBarTwoPosX[0] + e.movementX), scrollBarTwoPosX[1] - SCROLL_BAR_HEIGHT),
               scrollBarTwoPosX[1],
             ])
           }}
@@ -87,7 +93,10 @@ const HorizontalScrollBar: React.FC<HorizontalScrollBarProps> = ({
 
             setScrollBarTwoPosX([
               scrollBarTwoPosX[0],
-              Math.max(scrollBarTwoPosX[0] + 12, Math.min(chartWidth, scrollBarTwoPosX[1] + e.movementX)),
+              Math.max(
+                scrollBarTwoPosX[0] + SCROLL_BAR_HEIGHT,
+                Math.min(chartWidth, scrollBarTwoPosX[1] + e.movementX),
+              ),
             ])
           }}
           onPointerUp={onPointerUpHandler}
