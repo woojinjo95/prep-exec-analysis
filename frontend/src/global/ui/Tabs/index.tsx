@@ -49,7 +49,7 @@ const Tabs: React.FC<TabsProps> = ({ header, children, className, theme = 'light
               weight="medium"
               theme={theme}
               className={cx({
-                'text-gray-500': index !== activeIndex,
+                '!text-gray-500': index !== activeIndex,
               })}
             >
               {name}
