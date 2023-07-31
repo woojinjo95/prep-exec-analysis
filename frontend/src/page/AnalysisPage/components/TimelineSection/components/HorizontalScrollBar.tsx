@@ -60,7 +60,7 @@ const HorizontalScrollBar: React.FC<HorizontalScrollBarProps> = ({
       >
         {/* 스크롤바 왼쪽 조절 버튼 */}
         <div
-          className="w-3 h-3 rounded-full border-[3px] border-gray-400 cursor-ew-resize absolute top-0 left-0 z-10"
+          className="w-3 h-3 rounded-full border-[3px] border-gray-400 cursor-ew-resize absolute top-0 left-0"
           onPointerDown={onPointerDownHandler}
           onPointerMove={(e) => {
             e.preventDefault()
@@ -78,7 +78,7 @@ const HorizontalScrollBar: React.FC<HorizontalScrollBarProps> = ({
 
         {/* 스크롤바 오른쪽 조절 버튼 */}
         <div
-          className="w-3 h-3 rounded-full border-[3px] border-gray-400 cursor-ew-resize  absolute top-0 right-0 z-10"
+          className="w-3 h-3 rounded-full border-[3px] border-gray-400 cursor-ew-resize  absolute top-0 right-0"
           onPointerDown={onPointerDownHandler}
           onPointerMove={(e) => {
             e.preventDefault()
