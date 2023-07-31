@@ -1,5 +1,4 @@
 import * as d3 from 'd3'
-import { sampleData } from '@page/AnalysisPage/components/TimelineSection/constant'
 import { useScale } from '../hook'
 import { AreaChartData } from '../types'
 
@@ -11,6 +10,7 @@ export class AreaChartGenerator {
 
   constructor(
     private ref: HTMLDivElement,
+    private data: AreaChartData,
     private width: number,
     private height: number,
     private scaleX: NonNullable<ReturnType<typeof useScale>['scaleX']>,
@@ -80,7 +80,7 @@ export class AreaChartGenerator {
       .y((d) => this.scaleY(d.value))
     this.svg
       .append('path')
-      .datum(sampleData)
+      .datum(this.data)
       .attr('fill', 'none')
       .attr('stroke', '#269')
       .attr('stroke-width', 1)
@@ -99,6 +99,6 @@ export class AreaChartGenerator {
       .x((d) => this.scaleX(d.date))
       .y0(this.scaleY(0))
       .y1((d) => this.scaleY(d.value))
-    this.svg.append('path').datum(sampleData).attr('fill', 'steelblue').attr('opacity', '50%').attr('d', area)
+    this.svg.append('path').datum(this.data).attr('fill', 'steelblue').attr('opacity', '50%').attr('d', area)
   }
 }
