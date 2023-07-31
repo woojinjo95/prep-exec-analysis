@@ -48,19 +48,26 @@ def save_log(file_path: str):
         logger.info(f'{file_path} remove complete.')
 
 
-def extract_time_data(line: str) -> Union[None, datetime]:
-    pattern1 = r'(\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})'  # matches "[ 07-24 04:35:29.422"
-    pattern2 = r'Timestamp\s:\s(\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{6})'  # matches "Timestamp : 2023-07-11 18:28:41.105968"
+# stb 로그에 포함된 타임 데이터 추출
+def extract_stb_log_time_data(line: str) -> Union[None, datetime]:
+    pattern1 = r'(\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})'  # matches "[ 07-24 04:35:29.422" / logcat
+    # 탑 로그의 타임스탬프는 콜렉터에서 강제 주입했던거라 사실상 stb 자체의 타임스탬프가 아니라서 넣지 않음.
 
     match1 = re.search(pattern1, line)
-    match2 = re.search(pattern2, line)
 
     if match1:
         # Format for pattern1 is "MM-DD HH:MM:SS.sss", so we assume current year
         return datetime.strptime(f"{datetime.now().year}-{match1.group(1)}", "%Y-%m-%d %H:%M:%S.%f")
-    elif match2:
-        # Format for pattern2 is "YYYY-MM-DD HH:MM:SS.ssssss"
-        return datetime.strptime(match2.group(1), "%Y-%m-%d %H:%M:%S.%f")
+    else:
+        return None
+    
+
+# 콜렉터에서 주입한 타임 데이터 추출
+def extract_log_collector_time_data(line: str) -> Union[None, datetime]:
+    pattern = r'<Collector:\s(\d+\.\d+)>'  # matches "<Collector: 1627096529.422>"
+    match = re.search(pattern, line)
+    if match:
+        return datetime.fromtimestamp(float(match.group(1)))
     else:
         return None
 
@@ -78,7 +85,7 @@ def LogDataGenerator(file_path: str, batch_size: int = 1000, no_time_count_limit
             if line.isspace():
                 continue
 
-            log_time = extract_time_data(line)
+            log_time = extract_log_collector_time_data(line)
             if log_time is not None:  # time is in line
                 last_time = log_time  # store
                 no_time_count = 0
