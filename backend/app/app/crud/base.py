@@ -65,6 +65,11 @@ def delete_by_id_to_mongodb(col, id):
     return col.delete_one({'id': id})
 
 
+def delete_part_by_id_to_mongodb(col, id, data):
+    col = get_mongodb_collection(col)
+    return col.update_one({'id': id}, {'$pull': convert_to_dict(data)})
+
+
 def load_paginate_from_mongodb(col, page, page_size, param={}, projection=None, sort_item=None):
     col = get_mongodb_collection(col)
     res = col.find(param, projection)
