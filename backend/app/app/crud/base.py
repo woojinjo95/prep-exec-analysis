@@ -42,43 +42,6 @@ def load_one_from_mongodb(col, proj=None):
     return res
 
 
-def update_by_id_to_mongodb(col, id, data):
-    col = get_mongodb_collection(col)
-    return col.update_one({'id': id}, {'$set': convert_to_dict(data)})
-
-# TODO : 몽고디비 CRUD 정리
-
-
-def insert_by_id_to_mongodb(col, id, data):
-    col = get_mongodb_collection(col)
-    return col.update_one({'id': id}, {'$push': convert_to_dict(data)})
-
-
-def update_by_multi_filter_in_mongodb(col, param, data):
-    col = get_mongodb_collection(col)
-    return col.update_one(param, {'$set': convert_to_dict(data)})
-
-
-def update_by_multi_in_mongodb(col, param={}, data={}):
-    col = get_mongodb_collection(col)
-    return col.update_many(param, {'$set': convert_to_dict(data)})
-
-
-def delete_by_id_to_mongodb(col, id):
-    col = get_mongodb_collection(col)
-    return col.delete_one({'id': id})
-
-
-def delete_part_by_id_to_mongodb(col, id, data):
-    col = get_mongodb_collection(col)
-    return col.update_one({'id': id}, {'$pull': convert_to_dict(data)})
-
-
-def delete_part_to_mongodb(col, param, data):
-    col = get_mongodb_collection(col)
-    return col.update_one(param, {'$pull': convert_to_dict(data)})
-
-
 def load_paginate_from_mongodb(col, page, page_size, param={}, proj=None, sort_item=None):
     col = get_mongodb_collection(col)
     res = col.find(param, proj)
@@ -86,3 +49,38 @@ def load_paginate_from_mongodb(col, page, page_size, param={}, proj=None, sort_i
         res.sort(sort_item)
     return {'items': res.skip(page_size * (page - 1)).limit(page_size),
             'total': col.count_documents(param)}
+
+
+def update_to_mongodb(col, param, data):
+    col = get_mongodb_collection(col)
+    return col.update_one(param, {'$set': convert_to_dict(data)})
+
+
+def update_by_id_to_mongodb(col, id, data):
+    col = get_mongodb_collection(col)
+    return col.update_one({'id': id}, {'$set': convert_to_dict(data)})
+
+
+def update_many_to_mongodb(col, param={}, data={}):
+    col = get_mongodb_collection(col)
+    return col.update_many(param, {'$set': convert_to_dict(data)})
+
+
+def insert_by_id_to_mongodb_array(col, id, data):
+    col = get_mongodb_collection(col)
+    return col.update_one({'id': id}, {'$push': convert_to_dict(data)})
+
+
+def delete_part_to_mongodb(col, param, data):
+    col = get_mongodb_collection(col)
+    return col.update_one(param, {'$pull': convert_to_dict(data)})
+
+
+def delete_part_by_id_to_mongodb(col, id, data):
+    col = get_mongodb_collection(col)
+    return col.update_one({'id': id}, {'$pull': convert_to_dict(data)})
+
+
+def delete_by_id_to_mongodb(col, id):
+    col = get_mongodb_collection(col)
+    return col.delete_one({'id': id})

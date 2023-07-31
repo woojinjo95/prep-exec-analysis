@@ -4,8 +4,7 @@ import uuid
 from app import schemas
 from app.crud.base import (delete_part_to_mongodb, get_mongodb_collection,
                            load_from_mongodb, load_one_from_mongodb,
-                           update_by_multi_filter_in_mongodb,
-                           update_by_multi_in_mongodb)
+                           update_many_to_mongodb, update_to_mongodb)
 from fastapi import APIRouter, HTTPException
 from fastapi.encoders import jsonable_encoder
 
@@ -41,7 +40,7 @@ def create_block(
         new_last_block_group.append({"id": last_block_group.get('id', ''),
                                      "repeat_cnt": last_block_group.get('repeat_cnt', 0),
                                      "block": new_blocks})
-    res = update_by_multi_in_mongodb(col='scenario',
+    res = update_many_to_mongodb(col='scenario',
                                      data={'block_group': new_last_block_group})
     if res.matched_count == 0:
         raise HTTPException(
@@ -120,9 +119,9 @@ def update_block_group(
 
     update_data = {f"block_group.$.{key}": value
                    for key, value in block_group_in.dict().items() if value is not None}
-    res = update_by_multi_filter_in_mongodb(col='scenario',
-                                            param=param,
-                                            data=update_data)
+    res = update_to_mongodb(col='scenario',
+                            param=param,
+                            data=update_data)
     if res.matched_count == 0:
         raise HTTPException(
             status_code=406, detail="No items have been updated.")
