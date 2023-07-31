@@ -3,7 +3,7 @@ import logging
 import json
 import uuid
 
-# from PIL import Image
+from PIL import Image
 from app.db.redis_session import RedisClient
 from app.crud.base import insert_many_to_mongodb, load_from_mongodb
 
@@ -49,6 +49,7 @@ def init_remocon_registration():
             "height": int
         }
         remocon_codes: list[remocon_code_basic]
+        custom_keys: list
 
     with open('/app/app/remocon_ir_preset.json') as f:
         remocons_data = []
@@ -60,10 +61,11 @@ def init_remocon_registration():
             remocon = remocon_basic()
             remocon.id = str(uuid.uuid4())
             remocon.name = remocon_model
-            # TODO: 파일 업로드/다운로드 작업 이후에 다시 재개하여 기능 적용
-            # remocon.image_path = f'/app/app/files/image/remocon_image_{remocon_model}.jpg'
-            # image_size = Image.open(remocon.image_path).size # 이미지 해상도 계산
-            # remocon.image_resolution = {"width":image_size[0], "height":image_size[1]}
+            remocon.custom_keys = []
+            # TODO: 파일 업로드/다운로드 작업 이후에 다시 재개하여 파일 주소 적용
+            remocon.image_path = f'/app/app/files/image/remocon_image_{remocon_model}.jpg'
+            image_size = Image.open(remocon.image_path).size # 이미지 해상도 계산 (0, 0)
+            remocon.image_resolution = {"width":image_size[0], "height":image_size[1]}
             remocon_codes = []
             for preset in codes:
                 remocon_code = remocon_code_basic()
