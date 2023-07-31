@@ -22,6 +22,10 @@ class BlockUpdate(BaseModel):
     delay_time: Optional[float]
 
 
+class BlockGroupUpdate(BaseModel):
+    repeat_cnt: Optional[int]
+
+
 class BlockGroup(BaseModel):
     id: str
     repeat_cnt: int
