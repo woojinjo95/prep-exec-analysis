@@ -44,8 +44,8 @@ def searcher(stop_event):
         if stop_event.is_set():
             break
         # get 5 minutes ago logs
-        start = datetime.now() - timedelta(minutes=1, seconds=0)
-        end = datetime.now() - timedelta(minutes=0, seconds=0)
+        start = datetime.now() - timedelta(minutes=2, seconds=0)
+        end = datetime.now() - timedelta(minutes=1, seconds=0)
         # get all lines in page
         page = 1
         while True:
