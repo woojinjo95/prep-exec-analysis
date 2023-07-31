@@ -15,12 +15,24 @@ def extract_timestamp(line):
         # Format for pattern2 is "YYYY-MM-DD HH:MM:SS.ssssss"
         return datetime.strptime(match2.group(1), "%Y-%m-%d %H:%M:%S.%f")
 
-lines = [
-    "[ 07-24 04:35:29.422  5372:32214 I/chatty   ]",
-    "Timestamp : 2023-07-11 18:28:41.105968",
-    "07-26 17:48:37.657"
-]
+# lines = [
+#     "[ 07-24 04:35:29.422  5372:32214 I/chatty   ]",
+#     "Timestamp : 2023-07-11 18:28:41.105968",
+#     "07-26 17:48:37.657"
+# ]
 
-for line in lines:
-    t = extract_timestamp(line)
-    print(t, type(t))
+# for line in lines:
+#     t = extract_timestamp(line)
+#     print(t, type(t))
+
+
+def extract_log_collector_time_data(line: str):
+    pattern = r'<Collector:\s(\d+\.\d+)>'  # matches "<Collector: 1627096529.422>"
+    match = re.search(pattern, line)
+    if match:
+        return datetime.fromtimestamp(float(match.group(1)))
+    else:
+        return None
+
+print(extract_log_collector_time_data('<Collector: 1627096529.422>'))
+    
