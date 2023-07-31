@@ -29,7 +29,7 @@ declare global {
     const src: string
     export default src
   }
-  declare module '*.wav' {
+  declare module '*.mp4' {
     const value: string
     export = value
   }
