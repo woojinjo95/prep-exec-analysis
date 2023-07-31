@@ -17,29 +17,27 @@ db_conn = LogManagerDBConnection()
 completed_log_dir = os.path.join('datas', 'stb_logs', 'completed_logs')
 log_prefix_pattern = r'<Collector:\s(\d+\.\d+)>'
 
-def save(stop_event: Event):
-    logger.info(f"start log save")
+def postprocess(stop_event: Event):
+    logger.info(f"start log postprocess")
     os.makedirs(completed_log_dir, exist_ok=True)
 
     while not stop_event.is_set():
         try:
             file_paths = sorted(glob.glob(os.path.join(completed_log_dir, '*.log')))
             if len(file_paths) > 0:
-                save_log(file_paths[0])
+                postprocess_log(file_paths[0])
         except Exception as e:
             logger.info(traceback.format_exc())
         finally:
             time.sleep(1)
 
 
-def save_log(file_path: str):
+def postprocess_log(file_path: str):
     try:
         with open(file_path, 'rb') as f:
-            logger.info(f'{file_path} try to save.')
-            ##### Save log here
+            logger.info(f'{file_path} try to postprocess.')
             insert_to_db(file_path)
-            #####
-            logger.info(f'{file_path} save complete.')
+            logger.info(f'{file_path} postprocess complete.')
     except Exception as e:
         logger.info(traceback.format_exc())
     finally:

@@ -7,7 +7,7 @@ from multiprocessing import Queue
 
 from scripts.log_service.log_helper import LogHelper, init_log_helper, terminate_log_helper
 from scripts.log_service.log_manage.log_manager import LogFileManager
-from scripts.log_service.log_manage.log_handle import load_page, load
+from scripts.log_service.log_manage.log_handle import load_page
 
 
 log_queue = Queue(maxsize=10000)

@@ -2,8 +2,7 @@ from multiprocessing import Event
 
 from scripts.log_service.log_collect.collector import collect
 from threading import Thread
-from scripts.util.process_maintainer import ProcessMaintainer
-from .log_save import save
+from .postprocess import postprocess
 
 
 class LogFileManager():
@@ -30,17 +29,17 @@ class LogFileManager():
             })
         self.log_collector.start()
 
-    # Log Saver
-    def __start_log_saver(self):
-        self.log_saver = Thread(target=save, kwargs={
+    # Log Postprocessor
+    def __start_log_postprocessor(self):
+        self.log_postprocessor = Thread(target=postprocess, kwargs={
             'stop_event': self.local_stop_event,
         })
-        self.log_saver.start()
+        self.log_postprocessor.start()
 
     # Control
     def start(self):
         self.__start_log_collector()
-        self.__start_log_saver()
+        self.__start_log_postprocessor()
 
     def stop(self):
         self.local_stop_event.set()
