@@ -41,17 +41,20 @@ def create_block(
         new_last_block_group.append({"id": last_block_group.get('id', ''),
                                      "repeat_cnt": last_block_group.get('repeat_cnt', 0),
                                      "block": new_blocks})
-    update_by_multi_in_mongodb(col='scenario', data={
-                               'block_group': new_last_block_group})
+    res = update_by_multi_in_mongodb(col='scenario',
+                                     data={'block_group': new_last_block_group})
+    if res.matched_count == 0:
+        raise HTTPException(
+            status_code=406, detail="No items have been updated.")
     return {'msg': 'Create new block', 'id': block_in.id}
 
 
 @router.delete("", response_model=schemas.Msg)
-def delete_block(
+def delete_blocks(
     block_in: schemas.BlockDelete,
 ) -> schemas.Msg:
     """
-    Delete a block.
+    Delete blocks.
     """
     for block_id in block_in.block_ids:
         delete_part_to_mongodb(col='scenario',
@@ -61,7 +64,7 @@ def delete_block(
     delete_part_to_mongodb(col='scenario',
                            param={'block_group.block': {'$size': 0}},
                            data={'block_group': {'block': {'$size': 0}}})
-    return {'msg': 'Delete a block.'}
+    return {'msg': 'Delete blocks.'}
 
 
 @router.put("/{block_id}", response_model=schemas.MsgWithId)
@@ -85,11 +88,13 @@ def update_block(
                    for key, value in block_in.dict().items() if value is not None}
 
     col = get_mongodb_collection('scenario')
-    col.update_one({"block_group.block.id": block_id},
-                   {'$set': update_data},
-                   array_filters=[{"elem.id": block_id}],
-                   upsert=False)
-
+    res = col.update_one({"block_group.block.id": block_id},
+                         {'$set': update_data},
+                         array_filters=[{"elem.id": block_id}],
+                         upsert=False)
+    if res.matched_count == 0:
+        raise HTTPException(
+            status_code=406, detail="No items have been updated.")
     return {'msg': 'Update a block', 'id': block_id}
 
 
@@ -115,7 +120,10 @@ def update_block_group(
 
     update_data = {f"block_group.$.{key}": value
                    for key, value in block_group_in.dict().items() if value is not None}
-    update_by_multi_filter_in_mongodb(col='scenario',
-                                      param=param,
-                                      data=update_data)
+    res = update_by_multi_filter_in_mongodb(col='scenario',
+                                            param=param,
+                                            data=update_data)
+    if res.matched_count == 0:
+        raise HTTPException(
+            status_code=406, detail="No items have been updated.")
     return {'msg': 'Update a block_group', 'id': block_group_id}
