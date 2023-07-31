@@ -62,8 +62,7 @@ def init_remocon_registration():
             remocon.id = str(uuid.uuid4())
             remocon.name = remocon_model
             remocon.custom_keys = []
-            # TODO: 파일 업로드/다운로드 작업 이후에 다시 재개하여 파일 주소 적용
-            remocon.image_path = f'/app/app/files/image/remocon_image_{remocon_model}.jpg'
+            remocon.image_path = f'/app/app/files/system/remocon_image_{remocon_model}.jpg'
             image_size = Image.open(remocon.image_path).size # 이미지 해상도 계산 (0, 0)
             remocon.image_resolution = {"width":image_size[0], "height":image_size[1]}
             remocon_codes = []
