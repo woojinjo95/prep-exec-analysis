@@ -5,7 +5,7 @@ import uuid
 
 # from PIL import Image
 from app.db.redis_session import RedisClient
-from app.crud.base import insert_to_mongodb
+from app.crud.base import insert_many_to_mongodb
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -51,24 +51,28 @@ def init_remocon_registration():
         remocon_codes: list[remocon_code_basic]
 
     with open('/app/app/remocon_ir_preset.json') as f:
+        remocons_data = []
         preset_json = json.load(f)
-        for company, codes in preset_json.items():
+        for remocon_model, codes in preset_json.items():
             remocon = remocon_basic()
             remocon.id = str(uuid.uuid4())
-            remocon.name = company
-            # remocon.image_path = f'/app/app/files/image/remocon_image_{company}.jpg'
-            # image_size = Image.open(remocon.image_path).size
+            remocon.name = remocon_model
+            # remocon.image_path = f'/app/app/files/image/remocon_image_{remocon_model}.jpg'
+            # image_size = Image.open(remocon.image_path).size # 이미지 해상도 계산
             # remocon.image_resolution = {"width":image_size[0], "height":image_size[1]}
             remocon_codes = []
-            for preset in codes["default"]:
+            for preset in codes:
                 remocon_code = remocon_code_basic()
                 remocon_code.name = preset.get('name', '')
                 remocon_code.code = preset.get('pronto_code', '')
                 # remocon_code.hotkey = preset.get('', [])
                 # remocon_code.location = [{"x1": 1, "y1": 1}, {"x2": 2, "y2": 2}]
-                remocon_codes.append(remocon_code)
+                remocon_codes.append(remocon_code.__dict__)
             remocon.remocon_codes = remocon_codes
-            insert_to_mongodb(col='remocon', data=remocon)
+            remocons_data.append(remocon.__dict__)
+        insert_many_to_mongodb(col='remocon', data=remocons_data)
+        
+            
 
 
 def init() -> None:
