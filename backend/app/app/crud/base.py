@@ -29,17 +29,17 @@ def insert_to_mongodb(col, data):
     return res
 
 
-def load_from_mongodb(col, param={}, projection=None, sort_item=None):
+def load_from_mongodb(col, param={}, proj=None, sort_item=None):
     col = get_mongodb_collection(col)
-    res = col.find(param, projection)
+    res = col.find(param, proj)
     if sort_item:
         res.sort(sort_item)
     return list(res)
 
 
-def load_by_id_from_mongodb(col, id, projection=None):
+def load_by_id_from_mongodb(col, id, proj=None):
     col = get_mongodb_collection(col)
-    res = col.find_one({'id': id}, projection)
+    res = col.find_one({'id': id}, proj)
     return res
 
 
@@ -65,10 +65,10 @@ def delete_by_id_to_mongodb(col, id):
     return col.delete_one({'id': id})
 
 
-def load_paginate_from_mongodb(col, page, page_size, param={}, projection=None, sort_item=None):
+def load_paginate_from_mongodb(col, page, page_size, param={}, proj=None, sort_item=None):
     col = get_mongodb_collection(col)
-    res = col.find(param, projection)
+    res = col.find(param, proj)
     if sort_item:
         res.sort(sort_item)
     return {'items': res.skip(page_size * (page - 1)).limit(page_size),
-            'total': len(list(col.find(param, projection)))}  # TODO 카운트 방식 변경
+            'total': len(list(col.find(param, proj)))}  # TODO 카운트 방식 변경

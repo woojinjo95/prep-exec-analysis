@@ -4,7 +4,7 @@ import uuid
 from app import schemas
 from app.crud.base import (get_mongodb_collection, insert_to_mongodb,
                            load_from_mongodb)
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from fastapi.encoders import jsonable_encoder
 
 logger = logging.getLogger(__name__)
@@ -55,3 +55,39 @@ def create_block(
         col = get_mongodb_collection('scenario')
         col.update_many({}, {'$set': new_block_group})
     return {'msg': 'Create new block', 'id': block_id}
+
+
+@router.put("/block/{block_group_id}/{block_id}", response_model=schemas.MsgWithId)
+def update_block(
+    *,
+    block_group_id: str,
+    block_id: str,
+    block_in: schemas.BlockUpdate,
+) -> schemas.MsgWithId:
+    """
+    Update a block.
+    """
+    block = load_from_mongodb(col='scenario',
+                              param={
+                                  "block_group": {
+                                      "$elemMatch": {
+                                          "id": block_group_id,
+                                          "block.id": block_id
+                                      }
+                                  }
+                              },
+                              proj={"_id": 1})
+    if not block:
+        raise HTTPException(
+            status_code=404, detail="The block with this id does not exist in the system.")
+
+    update_data = {f"block_group.$.block.$[elem].{key}": value
+                   for key, value in block_in.dict().items() if value is not None}
+
+    col = get_mongodb_collection('scenario')
+    col.update_one({"block_group.id": block_group_id, "block_group.block.id": block_id},
+                   {'$set': update_data},
+                   array_filters=[{"elem.id": block_id}],
+                   upsert=False)
+
+    return {'msg': 'Update a block', 'id': block_id}
