@@ -34,5 +34,5 @@ jobs:
         shell: bash
       - run: sed -i "s|\b/qaas-backend:dev-.*\b|/qaas-backend:dev-${{github.run_id}}${{github.run_number}}|g" /home/jade-m32-07/service/backend.yml
         shell: bash
-      - run: docker compose --project-directory /home/jade-m32-07/service -f /home/jade-m32-07/service/backend.yml up -d
+      - run: docker-compose --project-directory /home/jade-m32-07/service -f /home/jade-m32-07/service/backend.yml up -d
         shell: bash
