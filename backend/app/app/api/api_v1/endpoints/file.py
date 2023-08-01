@@ -33,16 +33,16 @@ async def file_upload(
             'id': file_uuid}
 
 
-@router.get('/download/{file_uuid}', response_class=FileResponse)
+@router.get('/download/{file_id}', response_class=FileResponse)
 async def file_download(
-    file_uuid: str
+    file_id: str
 ) -> FileResponse:
-    file_info = load_from_mongodb(col='file', param={'file_id': {'$eq': file_uuid}})
+    file_info = load_from_mongodb(col='file', param={'file_id': {'$eq': file_id}})
     if file_info == []:
         raise HTTPException(status_code=400, detail="No file")
     file_name = file_info[0]['file_name']
     file_dir = classify_file_type(file_name)
-    file_dir = os.path.join(file_dir, file_info[0]['file_id'])
+    file_dir = os.path.join(file_dir, file_id)
     return FileResponse(path=file_dir, filename=file_name)
 
 
