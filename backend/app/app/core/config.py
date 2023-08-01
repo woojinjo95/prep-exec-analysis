@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS = os.getenv("BACKEND_CORS_ORIGINS", '')
     SENTRY_DSN: Optional[HttpUrl] = None
     SERVICE_NAME: str
+    FILES_PATH: str = os.getenv("FILES_PATH", '/app/app/files')
 
     MONGODB_SERVER: str
     MONGODB_NAME: str
