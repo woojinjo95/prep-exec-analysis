@@ -37,9 +37,10 @@ const HorizontalScrollBar: React.FC<HorizontalScrollBarProps> = ({
     <div className="text-white">
       {/* 스크롤바 */}
       <div
-        className="w-full h-3 min-w-3 bg-gray-600 rounded-full flex justify-between cursor-grab relative"
+        className="w-full bg-gray-600 rounded-full flex justify-between cursor-grab relative"
         style={{
           width: `${scrollBarTwoPosX[1] - scrollBarTwoPosX[0]}px`,
+          minWidth: SCROLL_BAR_HEIGHT,
           height: SCROLL_BAR_HEIGHT,
           maxWidth: `${chartWidth}px`,
           transform: `translateX(${scrollBarTwoPosX[0]}px)`,
@@ -64,7 +65,11 @@ const HorizontalScrollBar: React.FC<HorizontalScrollBarProps> = ({
       >
         {/* 스크롤바 왼쪽 조절 버튼 */}
         <div
-          className="w-3 h-3 rounded-full border-[3px] border-gray-400 cursor-ew-resize absolute top-0 left-0"
+          className="rounded-full border-[3px] border-gray-400 cursor-ew-resize absolute top-0 left-0"
+          style={{
+            width: SCROLL_BAR_HEIGHT,
+            height: SCROLL_BAR_HEIGHT,
+          }}
           onPointerDown={onPointerDownHandler}
           onPointerMove={(e) => {
             e.stopPropagation()
@@ -81,7 +86,11 @@ const HorizontalScrollBar: React.FC<HorizontalScrollBarProps> = ({
 
         {/* 스크롤바 오른쪽 조절 버튼 */}
         <div
-          className="w-3 h-3 rounded-full border-[3px] border-gray-400 cursor-ew-resize  absolute top-0 right-0"
+          className="rounded-full border-[3px] border-gray-400 cursor-ew-resize  absolute top-0 right-0"
+          style={{
+            width: SCROLL_BAR_HEIGHT,
+            height: SCROLL_BAR_HEIGHT,
+          }}
           onPointerDown={onPointerDownHandler}
           onPointerMove={(e) => {
             e.stopPropagation()
