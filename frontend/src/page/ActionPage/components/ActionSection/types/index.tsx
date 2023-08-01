@@ -1,7 +1,9 @@
+// refIdx가 포함된 block type
 export interface Block {
-  id: number
-  title: string
-  time: string
+  id: string
+  type: string
+  delay_time: number
+  value: string
   refIdx: number
 }
 
