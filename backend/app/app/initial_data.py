@@ -1,12 +1,12 @@
 
-import logging
 import json
+import logging
 import uuid
 
-from PIL import Image
-from app.crud.base import insert_to_mongodb, load_one_from_mongodb
+from app.crud.base import (insert_many_to_mongodb, insert_one_to_mongodb,
+                           load_from_mongodb, load_one_from_mongodb)
 from app.db.redis_session import RedisClient
-from app.crud.base import insert_many_to_mongodb, load_from_mongodb
+from PIL import Image
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ def init_hardware_configuration():
 def init_scenario():
     scenario = load_one_from_mongodb('scenario', {"_id": 1})
     if scenario is None:
-        insert_to_mongodb(col='scenario', data={"block_group": []})
+        insert_one_to_mongodb(col='scenario', data={"block_group": []})
 
 
 def init_remocon_registration():
