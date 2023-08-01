@@ -34,6 +34,6 @@ jobs:
         shell: bash
       - run: sed -i "s|\b/qaas-frontend:dev-.*\b|/qaas-frontend:dev-${{github.run_id}}${{github.run_number}}|g" /home/jade-m32-07/service/frontend.yml
         shell: bash
-      - run: docker compose --project-directory /home/jade-m32-07/service -f /home/jade-m32-07/service/frontend.yml up -d
+      - run: docker-compose --project-directory /home/jade-m32-07/service -f /home/jade-m32-07/service/frontend.yml up -d
         shell: bash
     # - run: docker stack deploy -c /home/nextlab/frontend_admin_heliodor/heliodor.yml heliodor-admin
