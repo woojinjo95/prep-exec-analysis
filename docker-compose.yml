@@ -48,12 +48,16 @@ services:
 
   stb-log:
     container_name: stb-log
+    restart: always
     image: registry.dev-nextlab.com/prep-exec-analysis-stblog:dev-0
     build:
       context: ./stb_log
       dockerfile: Dockerfile
     command: python -u main.py
+    volumes:
+      - "adb-rsa:/root/.android"
 
 volumes:
   mongodb_data: {}
   redis_data: {}
+  adb-rsa: null
