@@ -1,4 +1,4 @@
-from app.api.api_v1.endpoints import item, remocon, scenario, hardware_configuration, block
+from app.api.api_v1.endpoints import item, remocon, scenario, hardware_configuration, block, file
 from fastapi import APIRouter
 
 api_router = APIRouter()
@@ -8,3 +8,4 @@ api_router.include_router(remocon.router, prefix="/remocon", tags=["remocon"])
 api_router.include_router(scenario.router, prefix="/scenario", tags=["scenario"])
 api_router.include_router(block.router, prefix="/scenario/block", tags=["scenario"])
 api_router.include_router(block.router_detail, prefix="/scenario/block_group", tags=["scenario"])
+api_router.include_router(file.router, prefix="/file", tags=["file"])
