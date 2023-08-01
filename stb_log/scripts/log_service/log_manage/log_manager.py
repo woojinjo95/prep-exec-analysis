@@ -43,3 +43,7 @@ class LogFileManager():
 
     def stop(self):
         self.local_stop_event.set()
+
+    def join(self):
+        self.log_collector.join()
+        self.log_postprocessor.join()

@@ -31,6 +31,7 @@ def postprocess(stop_event: Event):
             logger.info(traceback.format_exc())
         finally:
             time.sleep(1)
+    logger.info(f"end log postprocess")
 
 
 def postprocess_log(file_path: str):
