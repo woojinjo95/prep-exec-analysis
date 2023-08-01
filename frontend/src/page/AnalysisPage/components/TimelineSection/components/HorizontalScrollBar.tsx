@@ -22,7 +22,6 @@ const HorizontalScrollBar: React.FC<HorizontalScrollBarProps> = ({
   const [isDragging, setIsDragging] = useState<boolean>(false)
 
   const onPointerDownHandler: React.PointerEventHandler<HTMLDivElement> = useCallback((e) => {
-    e.preventDefault()
     e.stopPropagation()
     e.currentTarget.setPointerCapture(e.pointerId)
     setIsDragging(true)
@@ -47,7 +46,6 @@ const HorizontalScrollBar: React.FC<HorizontalScrollBarProps> = ({
         }}
         onPointerDown={onPointerDownHandler}
         onPointerMove={(e) => {
-          e.preventDefault()
           if (!isDragging) return
 
           if (scrollBarTwoPosX[0] + e.movementX < 0) {
@@ -69,7 +67,6 @@ const HorizontalScrollBar: React.FC<HorizontalScrollBarProps> = ({
           className="w-3 h-3 rounded-full border-[3px] border-gray-400 cursor-ew-resize absolute top-0 left-0"
           onPointerDown={onPointerDownHandler}
           onPointerMove={(e) => {
-            e.preventDefault()
             e.stopPropagation()
             if (!isDragging) return
 
@@ -87,7 +84,6 @@ const HorizontalScrollBar: React.FC<HorizontalScrollBarProps> = ({
           className="w-3 h-3 rounded-full border-[3px] border-gray-400 cursor-ew-resize  absolute top-0 right-0"
           onPointerDown={onPointerDownHandler}
           onPointerMove={(e) => {
-            e.preventDefault()
             e.stopPropagation()
             if (!isDragging) return
 
