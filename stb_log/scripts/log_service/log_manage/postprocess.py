@@ -5,7 +5,7 @@ import traceback
 import glob
 import re
 from datetime import datetime
-from typing import Union
+from typing import Union, Tuple
 from multiprocessing import Event
 
 from .db_connection import LogManagerDBConnection
@@ -46,7 +46,7 @@ def postprocess_log(file_path: str):
         logger.info(f'{file_path} remove complete.')
 
 
-def LogChunkGenerator(filename, delimiter_pattern):
+def LogChunkGenerator(filename, delimiter_pattern) -> Tuple[str, Union[datetime, None]]:
     with open(filename, 'r') as f:
         buf = ""
         while True:
@@ -67,7 +67,7 @@ def LogChunkGenerator(filename, delimiter_pattern):
 
 # Return [(time, log_line),...]
 # Raise: skip this file
-def LogBatchGenerator(file_path: str, batch_size: int = 1000, no_time_count_limit: int = 10000):
+def LogBatchGenerator(file_path: str, no_time_count_limit: int = 10000):
     last_time = None
     batches = []
     no_time_count = 0
@@ -77,8 +77,13 @@ def LogBatchGenerator(file_path: str, batch_size: int = 1000, no_time_count_limi
             continue
         # print(f'index {index}\nline {line}\nlog_time {log_time}')
         
-        if log_time is not None:  # time is in line
-            last_time = log_time  # store
+        if log_time is not None:  # time data exist in line
+            if last_time is not None and int(log_time.timestamp()) != int(last_time.timestamp()): 
+                # when the integer part of the timestamp (the seconds) changes,
+                # yield the current batch and start a new one
+                yield batches
+                batches = []
+            last_time = log_time  # store the last time
             no_time_count = 0
         else:
             no_time_count += 1
@@ -88,9 +93,6 @@ def LogBatchGenerator(file_path: str, batch_size: int = 1000, no_time_count_limi
         if last_time is not None:
             batches.append((last_time.timestamp(), line))
 
-        if len(batches) >= batch_size:
-            yield batches
-            batches = []
     yield batches
 
 
