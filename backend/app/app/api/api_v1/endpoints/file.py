@@ -21,7 +21,7 @@ async def file_upload(
         raise HTTPException(status_code=400, detail="No upload file")
     
     file_uuid = str(uuid4())
-    insert_to_mongodb(col='files', data={'file_id':file_uuid, "file_name":file.filename})
+    insert_to_mongodb(col='file', data={'file_id':file_uuid, "file_name":file.filename})
 
     file_dir = classify_file_type(file.filename)
     if not os.path.isdir(file_dir):
