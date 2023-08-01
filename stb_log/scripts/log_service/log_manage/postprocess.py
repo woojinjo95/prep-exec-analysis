@@ -9,7 +9,7 @@ from typing import Union, Tuple, List, Dict
 from multiprocessing import Event
 
 from .db_connection import LogManagerDBConnection
-from scripts.util.common import write_json
+from scripts.connection.mongo_db.crud import insert_to_mongodb
 
 
 logger = logging.getLogger('connection')
@@ -102,7 +102,7 @@ def insert_to_db(file_path: str):
 
         json_data = construct_json_data(log_batch)
         # write_json(f'stb_log_{datetime.fromtimestamp(log_batch[0][0]).strftime("%Y-%m-%d %H:%M:%S")}.json', json_data)
-        # insert_to_mongodb('stb_log', json_data)
+        insert_to_mongodb('stb_log', json_data)
 
 
 def construct_json_data(log_batch: List[Tuple[float, str]]) -> Dict:

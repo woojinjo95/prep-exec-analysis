@@ -19,7 +19,7 @@ def get_mongodb_collection(col):
 
 def insert_to_mongodb(col, data):
     col = get_mongodb_collection(col)
-    res = col.insert_one(convert_to_dict(data))
+    res = col.insert_one(data)
     return res
 
 
