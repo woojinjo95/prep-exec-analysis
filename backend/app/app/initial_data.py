@@ -1,6 +1,8 @@
 
 import logging
+import uuid
 
+from app.crud.base import insert_to_mongodb, load_one_from_mongodb
 from app.db.redis_session import RedisClient
 
 logging.basicConfig(level=logging.INFO)
@@ -23,8 +25,15 @@ def init_hardware_configuration():
             RedisClient.hset(f'hardware_configuration', k, v)
 
 
+def init_scenario():
+    scenario = load_one_from_mongodb('scenario', {"_id": 1})
+    if scenario is None:
+        insert_to_mongodb(col='scenario', data={"block_group": []})
+
+
 def init() -> None:
     init_hardware_configuration()
+    init_scenario()
 
 
 def main() -> None:
