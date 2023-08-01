@@ -10,18 +10,17 @@ import requests
 
 import cv2
 import numpy as np
-from dotenv import dotenv_values
 
 
 logger = logging.getLogger('main')
 
 
-def get_dotenvs_value(path: str, name: str, default: str = '') -> str:
-    if name in dotenv_values(path):
-        value = dotenv_values(path)[name]
-    else:
-        value = default
-    return value
+def is_running_in_docker():
+    try:
+        with open('/proc/1/cgroup', 'rt') as f:
+            return 'docker' in f.read()
+    except FileNotFoundError:
+        return False
 
 
 def camel_to_snake(name: str) -> str:
