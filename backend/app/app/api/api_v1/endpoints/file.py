@@ -13,10 +13,10 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.post("/upload", response_model=schemas.Msg)
+@router.post("/upload", response_model=schemas.MsgWithId)
 async def file_upload(
     file: UploadFile = File(...)
-) -> schemas.Msg:
+) -> schemas.MsgWithId:
     if file is None:
         raise HTTPException(status_code=400, detail="No upload file")
     
@@ -29,14 +29,15 @@ async def file_upload(
     with open(os.path.join(file_dir, file_uuid), 'wb') as f:
         f.write(file.file.read())
     
-    return {'msg': f'{file.filename}({file_uuid}) uploaded successfully'}
+    return {'msg': f'{file.filename} uploaded successfully',
+            'id': file_uuid}
 
 
 @router.get('/download/{file_uuid}', response_class=FileResponse)
 async def file_download(
     file_uuid: str
 ) -> FileResponse:
-    file_info = load_from_mongodb(col='files', param={'file_id': {'$eq': file_uuid}})
+    file_info = load_from_mongodb(col='file', param={'file_id': {'$eq': file_uuid}})
     if file_info == []:
         raise HTTPException(status_code=400, detail="No file")
     file_name = file_info[0]['file_name']
