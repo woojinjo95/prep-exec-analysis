@@ -9,6 +9,7 @@ from typing import Union, Tuple
 from multiprocessing import Event
 
 from .db_connection import LogManagerDBConnection
+from scripts.connection.mongo_db.crud import insert_to_mongodb
 
 
 logger = logging.getLogger('connection')
@@ -101,3 +102,4 @@ def insert_to_db(file_path: str):
         logger.info(f'first data: {datetime.fromtimestamp(log_batch[0][0])}, {log_batch[0][1]}, last data: {datetime.fromtimestamp(log_batch[-1][0])}, {log_batch[-1][1]}')
 
         # db_conn.save_datas(log_batch)
+        insert_to_mongodb('stb_log', log_batch)

@@ -24,4 +24,4 @@ ENV MONGODB_USERNAME admin
 ENV MONGODB_PASSWORD .nextlab6318!
 ENV MONGODB_AUTHENTICATION_SOURCE admin
 
-CMD ["python", "main.py"]
+# CMD ["python", "main.py"]

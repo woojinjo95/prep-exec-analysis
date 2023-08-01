@@ -46,6 +46,14 @@ services:
     ports:
     - 8081:8081
 
+  stb-log:
+    container_name: stb-log
+    image: registry.dev-nextlab.com/prep-exec-analysis-stblog:dev-0
+    build:
+      context: ./stb_log
+      dockerfile: Dockerfile
+    command: python -u main.py
+
 volumes:
   mongodb_data: {}
   redis_data: {}
