@@ -1,31 +1,7 @@
-from typing import Optional, List
+from typing import List, Optional
 
+from app.schemas.block import BlockGroup
 from pydantic import BaseModel
-
-
-class BlockCreate(BaseModel):
-    type: str
-    value: str
-    delay_time: float
-
-
-class Block(BaseModel):
-    id: str
-    type: str
-    value: str
-    delay_time: float
-
-
-class BlockUpdate(BaseModel):
-    type: Optional[str]
-    value: Optional[str]
-    delay_time: Optional[float]
-
-
-class BlockGroup(BaseModel):
-    id: str
-    repeat_cnt: int
-    block: List[Block]
 
 
 class ScenarioBase(BaseModel):
