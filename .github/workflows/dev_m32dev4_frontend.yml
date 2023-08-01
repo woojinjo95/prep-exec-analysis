@@ -1,5 +1,5 @@
-name: qaas-dev-frontend
-run-name: ${{ github.actor }} is deploy qaas-dev-frontend
+name: qaas-dev-m32dev4-frontend
+run-name: ${{ github.actor }} is deploy qaas-dev-m32dev4-frontend
 # on: push
 on: workflow_dispatch
 jobs:
