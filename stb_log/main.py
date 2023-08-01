@@ -33,6 +33,7 @@ def start_manager():
         logger.error(f'LogFileManager error: {e}')
         logger.warning(traceback.format_exc())
     finally:
+        logger.info('LogFileManager finally')
         if manager:
             manager.stop()
 

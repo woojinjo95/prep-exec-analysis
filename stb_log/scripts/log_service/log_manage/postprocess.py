@@ -31,7 +31,7 @@ def postprocess(stop_event: Event):
             logger.info(traceback.format_exc())
         finally:
             time.sleep(1)
-    logger.info(f"end log postprocess")
+    logger.info(f"finish log postprocess")
 
 
 def postprocess_log(file_path: str):
@@ -97,6 +97,7 @@ def LogBatchGenerator(file_path: str, no_time_count_limit: int = 10000):
 
 def insert_to_db(file_path: str):
     for log_batch in LogBatchGenerator(file_path):
-        # print(log_batch)
         logger.info(f'insert {len(log_batch)} datas to db')
+        logger.info(f'first data: {datetime.fromtimestamp(log_batch[0][0])}, {log_batch[0][1]}, last data: {datetime.fromtimestamp(log_batch[-1][0])}, {log_batch[-1][1]}')
+
         # db_conn.save_datas(log_batch)
