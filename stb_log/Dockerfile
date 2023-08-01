@@ -3,7 +3,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 # install fundamental
 RUN apt-get update
-RUN apt-get -y install libsqlite3-dev
+RUN apt-get -y install libsqlite3-dev adb
 
 # install pip & python
 RUN ln -s /usr/bin/python3 /usr/bin/python
