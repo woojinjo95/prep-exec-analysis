@@ -65,8 +65,6 @@ def LogChunkGenerator(filename, delimiter_pattern) -> Tuple[str, Union[datetime,
                 buf += chunk
 
 
-# Return [(time, log_line),...]
-# Raise: skip this file
 def LogBatchGenerator(file_path: str, no_time_count_limit: int = 10000):
     last_time = None
     batches = []
