@@ -4,7 +4,7 @@ on: push
 # on: workflow_dispatch
 jobs:
   build-dev-m32dev4-stblog:
-    runs-on: [self-hosted, ndev8]
+    runs-on: [self-hosted, docker, Linux]
     steps:
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v1
