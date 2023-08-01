@@ -1,5 +1,4 @@
 import * as d3 from 'd3'
-import { sampleData } from '@page/AnalysisPage/components/TimelineSection/constant'
 import { useScale } from '../hook'
 import { AreaChartData } from '../types'
 
@@ -11,6 +10,7 @@ export class AreaChartGenerator {
 
   constructor(
     private ref: HTMLDivElement,
+    private data: AreaChartData,
     private width: number,
     private height: number,
     private scaleX: NonNullable<ReturnType<typeof useScale>['scaleX']>,
@@ -49,7 +49,9 @@ export class AreaChartGenerator {
         )
         .call((_g) => _g.select('.domain').remove())
         .call((_g) => _g.selectAll('text').remove())
-        .call((_g) => _g.selectAll('line').attr('y1', -this.height).style('stroke', '#ddd').style('stroke-width', 0.5))
+        .call((_g) =>
+          _g.selectAll('line').attr('y1', -this.height).style('stroke', '#37383E').style('stroke-width', 0.5),
+        )
     this.svg.append('g').call(xAxis)
   }
 
@@ -63,7 +65,7 @@ export class AreaChartGenerator {
         .call(d3.axisLeft(this.scaleY).ticks(5))
         .call((_g) => _g.select('.domain').remove())
         .call((_g) => _g.selectAll('text').remove())
-        .call((_g) => _g.selectAll('line').attr('x2', this.width).style('stroke', '#ddd').style('stroke-width', 0.5))
+        .call((_g) => _g.selectAll('line').attr('x2', this.width).style('stroke', '#37383E').style('stroke-width', 0.5))
     this.svg.append('g').call(yAxis)
   }
 
@@ -78,7 +80,7 @@ export class AreaChartGenerator {
       .y((d) => this.scaleY(d.value))
     this.svg
       .append('path')
-      .datum(sampleData)
+      .datum(this.data)
       .attr('fill', 'none')
       .attr('stroke', '#269')
       .attr('stroke-width', 1)
@@ -97,6 +99,6 @@ export class AreaChartGenerator {
       .x((d) => this.scaleX(d.date))
       .y0(this.scaleY(0))
       .y1((d) => this.scaleY(d.value))
-    this.svg.append('path').datum(sampleData).attr('fill', 'steelblue').attr('opacity', '50%').attr('d', area)
+    this.svg.append('path').datum(this.data).attr('fill', 'steelblue').attr('opacity', '50%').attr('d', area)
   }
 }

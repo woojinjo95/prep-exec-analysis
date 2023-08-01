@@ -1,13 +1,9 @@
 .tab-panel {
-  &.dark {
-    * {
-      @apply text-white;
-    }
+  &.dark > * {
+    @apply text-white;
   }
 
-  &.light {
-    * {
-      @apply text-black;
-    }
+  &.light > * {
+    @apply text-black;
   }
 }

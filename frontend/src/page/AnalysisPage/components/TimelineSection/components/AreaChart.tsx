@@ -1,47 +1,49 @@
-import React, { useEffect, useRef, useState } from 'react'
-
+import React, { useEffect, useRef, useState, useMemo } from 'react'
+import * as d3 from 'd3'
 import { Text } from '@chakra-ui/react'
-import { sampleData } from '@page/AnalysisPage/components/TimelineSection/constant'
-import { useScale } from '../hook'
+
 import { AreaChartGenerator } from '../usecase'
+import { AreaChartData } from '../types'
+
+interface AreaChartProps {
+  chartWidth: number | null
+  chartWrapperRef: React.MutableRefObject<HTMLDivElement | null>
+  scaleX: d3.ScaleTime<number, number, never> | null
+  data: AreaChartData
+}
 
 /**
  * 영역 차트
+ *
+ * TODO: resizing event
  */
-const AreaChart: React.FC = () => {
-  const divRef = useRef<HTMLDivElement | null>(null)
-  const [chartWidth, setChartWidth] = useState<number | null>(null)
+const AreaChart: React.FC<AreaChartProps> = ({ chartWidth, chartWrapperRef, scaleX, data }) => {
+  const chartRef = useRef<HTMLDivElement | null>(null)
   const [chartHeight, setChartHeight] = useState<number | null>(null)
 
-  const { scaleX, scaleY } = useScale({
-    width: chartWidth,
-    height: chartHeight,
-    xAxisMin: sampleData[0].date,
-    xAxisMax: sampleData[sampleData.length - 1].date,
-    yAxisMin: 0,
-    yAxisMax: 100,
-  })
+  const scaleY: d3.ScaleLinear<number, number, never> | null = useMemo(() => {
+    if (!chartHeight) return null
+    return d3.scaleLinear().domain([0, 100]).range([chartHeight, 0])
+  }, [chartHeight])
 
   useEffect(() => {
-    if (!divRef.current || !chartWidth || !chartHeight || !scaleX || !scaleY) return
+    if (!chartWrapperRef.current) return
+    setChartHeight(chartWrapperRef.current.clientHeight)
+  }, [])
 
-    const chart = new AreaChartGenerator(divRef.current, chartWidth, chartHeight, scaleX, scaleY)
+  useEffect(() => {
+    if (!chartRef.current || !chartWidth || !chartHeight || !scaleX || !scaleY) return
+
+    const chart = new AreaChartGenerator(chartRef.current, data, chartWidth, chartHeight, scaleX, scaleY)
     chart.createChart()
   }, [chartWidth, chartHeight, scaleX, scaleY])
 
   return (
-    <div className="grid grid-cols-1 grid-rows-[auto_1fr]">
-      <Text className="text-xs">CPU</Text>
-      <div
-        className="border-l-[0.5px] border-r-[0.5px] border-[#ddd]"
-        ref={(ref) => {
-          if (!ref) return
+    <div className="grid grid-cols-1 grid-rows-[auto_1fr] h-40">
+      <Text className="sticky top-0 text-xs text-gray-400 z-10 px-1">CPU</Text>
 
-          setChartWidth(ref.clientWidth)
-          setChartHeight(ref.clientHeight)
-        }}
-      >
-        <div ref={divRef} />
+      <div ref={chartWrapperRef} className="border-l-[0.5px] border-r-[0.5px] border-[#37383E]">
+        <div ref={chartRef} className="brightness-150" />
       </div>
     </div>
   )

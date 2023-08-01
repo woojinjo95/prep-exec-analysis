@@ -21,7 +21,7 @@ interface DropdownProps {
  *
  * TODO: 방향키 위 아래 조절 시 선택될 아이템 배경색으로 표시? 포커싱?
  */
-const DropdownButton: React.FC<DropdownProps> = ({ children, theme = 'dark', className }) => {
+const DropdownButton: React.FC<DropdownProps> = ({ children, theme = 'light', className }) => {
   return (
     <MenuButton className="flex justify-end">
       <div
