@@ -40,6 +40,7 @@ services:
         max-size: "250m"
 
   media:
+    image: registry.dev-nextlab.com/prep-exec-media:dev-0
     restart: always
     build:
       context: ./media
