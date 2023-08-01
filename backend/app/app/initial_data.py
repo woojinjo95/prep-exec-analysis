@@ -56,7 +56,7 @@ def init_remocon_registration():
         remocons_data = []
         preset_json = json.load(f)
         for remocon_model, codes in preset_json.items():
-            exist_check = load_from_mongodb(col='remocon', param={'name': f'{remocon_model}'}, projection={'_id': 1})
+            exist_check = load_from_mongodb(col='remocon', param={'name': f'{remocon_model}'}, proj={'_id': 1})
             if exist_check != []:
                 continue
             remocon = remocon_basic()
@@ -78,6 +78,7 @@ def init_remocon_registration():
             remocons_data.append(remocon.__dict__)
         if len(remocons_data) != 0:
             insert_many_to_mongodb(col='remocon', data=remocons_data)
+            logger.info(f'Remocon data registration complete')
 
 
 def init() -> None:
