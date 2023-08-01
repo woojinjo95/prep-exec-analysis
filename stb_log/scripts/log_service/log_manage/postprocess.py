@@ -109,6 +109,8 @@ def construct_json_data(log_batch: List[Tuple[float, str]]) -> Dict:
     return {
         'time': int(log_batch[0][0]),  # first log time(second) in batch
         'readable_time': datetime.fromtimestamp(log_batch[0][0]).strftime('%Y-%m-%d %H:%M:%S'),  # first log time in batch
-        'lines': [log[1] for log in log_batch]  # log lines in batch
+        'lines': [{
+            'time': time_data,
+            'raw': line,
+        } for time_data, line in log_batch],
     }
-
