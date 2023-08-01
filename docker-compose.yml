@@ -24,6 +24,39 @@ services:
     volumes:
       - mongodb_data:/data/db
 
+  mediamtx:
+    image: aler9/rtsp-simple-server:v0.23.8
+    ports:
+    - "8554:8554" # RTSP
+    - "9997:9997" # API
+    - "9998:9998" # Prometheus
+    - "8889:8889" # WebRTC -> more config needed in docker
+    - "8888:8888" # HLS
+    volumes:
+    - "./media/mediamtx.yml:/mediamtx.yml"
+    logging:
+      options:
+        max-file: "3"
+        max-size: "250m"
+
+  media:
+    restart: always
+    build:
+      context: ./media
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: beyondtest1
+      USER: ${USER}
+    devices:
+        - "/dev/video0:/dev/video0"
+    privileged: true
+    volumes:
+      - "$HOME/.ssh/runner_key:/app/static/keys/runner_key"
+      - "./media/videos:/app/videos"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
   adminer:
     container_name: adminer
     image: dockette/adminer:full
@@ -42,7 +75,8 @@ services:
     container_name: redis-commander
     image: rediscommander/redis-commander:latest
     environment:
-    - REDIS_HOSTS=local:redis:6379
+    - REDIS_HOSTS=hardware:redis:6379:0
+                  collector:redis:6379:3
     ports:
     - 8081:8081
 
