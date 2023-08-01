@@ -17,4 +17,11 @@ RUN pip install -r requirements.txt
 
 ADD . ./
 
+ENV MONGODB_SERVER mongodb
+ENV MONGODB_NAME prep-exec-analysis
+ENV MONGODB_PORT 27017
+ENV MONGODB_USERNAME admin
+ENV MONGODB_PASSWORD .nextlab6318!
+ENV MONGODB_AUTHENTICATION_SOURCE admin
+
 CMD ["python", "main.py"]
