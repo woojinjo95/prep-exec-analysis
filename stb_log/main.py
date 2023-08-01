@@ -14,7 +14,7 @@ init_log_helper(log_helper, log_queue)
 logger = logging.getLogger('main')
 
 
-# connection info from redis (툴에서 사용자가 입력한 값을 가져옴)
+# connection info from redis (사용자가 입력한 값을 가져옴)
 connection_info = {
     'host': '192.168.30.25',
     'port': 5555,
