@@ -4,4 +4,3 @@ from .remocon import Remocon, RemoconCustomKeyCreate, RemoconCustomKeyUpdate, Re
 from .scenario import Scenario, ScenarioBase
 from .hardware_configuration import HardwareConfigurationBase, HardwareConfigurationUpdate, HardwareConfigurationIpLimit, HardwareConfigurationIpLimitCreate
 from .block import Block, BlockCreate, BlockGroup, BlockUpdate, BlockGroupUpdate, BlockDelete
-from .file import FileRead
