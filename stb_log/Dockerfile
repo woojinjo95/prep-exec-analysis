@@ -23,5 +23,6 @@ ENV MONGODB_PORT 27017
 ENV MONGODB_USERNAME admin
 ENV MONGODB_PASSWORD .nextlab6318!
 ENV MONGODB_AUTHENTICATION_SOURCE admin
+# mongodb://admin:.nextlab6318!@127.0.0.1:27017/prep-exec-analysis?authSource=admin&readPreference=primary&ssl=false
 
 # CMD ["python", "main.py"]
