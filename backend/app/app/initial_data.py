@@ -4,6 +4,7 @@ import json
 import uuid
 
 from PIL import Image
+from app.crud.base import insert_to_mongodb, load_one_from_mongodb
 from app.db.redis_session import RedisClient
 from app.crud.base import insert_many_to_mongodb, load_from_mongodb
 
@@ -25,6 +26,12 @@ def init_hardware_configuration():
                    'packet_loss': 0.0}
         for k, v in configs.items():
             RedisClient.hset(f'hardware_configuration', k, v)
+
+
+def init_scenario():
+    scenario = load_one_from_mongodb('scenario', {"_id": 1})
+    if scenario is None:
+        insert_to_mongodb(col='scenario', data={"block_group": []})
 
 
 def init_remocon_registration():
@@ -81,6 +88,7 @@ def init_remocon_registration():
 
 def init() -> None:
     init_hardware_configuration()
+    init_scenario()
     init_remocon_registration()
 
 

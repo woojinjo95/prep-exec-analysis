@@ -19,13 +19,13 @@ def convert_pageset(page_param, res):
     }
 
 
-def paginate_from_mongodb(col, page, page_size=None, param={}, sorting_keyword=None, is_descending=None, projection=None):
+def paginate_from_mongodb(col, page, page_size=None, param={}, sorting_keyword=None, is_descending=None, proj=None):
     page_size = page_size if page_size else 30
     res = load_paginate_from_mongodb(col=col,
                                      page=page,
                                      page_size=page_size,
                                      param=param,
-                                     projection=projection,
+                                     proj=proj,
                                      sort_item=None if sorting_keyword is None else [(sorting_keyword, -1 if json.load(is_descending) else 1)])
     page_param = {
         'page': page,

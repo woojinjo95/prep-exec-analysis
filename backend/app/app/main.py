@@ -39,10 +39,10 @@ if settings.BACKEND_CORS_ORIGINS:
 @api_router.get("/healthcheck", response_model=schemas.Msg)
 def healthcheck() -> schemas.Msg:
     try:
-        from app.crud.base import conn_mongodb
+        from app.db.session import db_session
         from app.db.redis_session import RedisClient
         RedisClient.hget(name='item', key='id')
-        conn_mongodb()
+        db_session
     except Exception as er:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {"msg": "OK"}
