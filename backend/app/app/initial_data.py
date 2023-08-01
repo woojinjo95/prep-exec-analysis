@@ -39,22 +39,16 @@ def init_remocon_registration():
         name: str
         hotkey: list
         code: str
-        location: [{
-            "x1": int,
-            "y1": int
-            },{
-            "x2": int,
-            "y2": int
-            }
-        ]
+        location: list([
+            {"x1": int, "y1": int},
+            {"x2": int, "y2": int}
+            ])
+
     class remocon_basic():
         id: str
         name: str
         image_path: str
-        image_resolution: {
-            "width": int,
-            "height": int
-        }
+        image_resolution: dict({"width": int, "height": int})
         remocon_codes: list[remocon_code_basic]
         custom_keys: list
 
