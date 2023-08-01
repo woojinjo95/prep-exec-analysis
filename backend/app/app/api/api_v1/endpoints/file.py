@@ -1,8 +1,11 @@
 import logging
 import os
 
+from uuid import uuid4
 from app import schemas
+from app.crud.base import insert_to_mongodb, load_from_mongodb
 from app.core.config import settings
+from app.api.utility import classify_file_type
 from fastapi import APIRouter, HTTPException, File, UploadFile
 from fastapi.responses import FileResponse
 
@@ -17,34 +20,35 @@ async def file_upload(
     if file is None:
         raise HTTPException(status_code=400, detail="No upload file")
     
-    file_exp = file.filename.split('.')[-1]
-    if file_exp in ['jpg', 'png', 'jpeg', 'gif']:
-        file_dir = os.path.join(settings.FILES_PATH, 'images')
-    elif file_exp in ['mp4', 'avi']:
-        file_dir = os.path.join(settings.FILES_PATH, 'videos')
-    else:
-        file_dir = os.path.join(settings.FILES_PATH, 'etc')
+    file_uuid = str(uuid4())
+    insert_to_mongodb(col='files', data={'file_id':file_uuid, "file_name":file.filename})
+
+    file_dir = classify_file_type(file.filename)
     if not os.path.isdir(file_dir):
         os.mkdir(file_dir)
-    with open(os.path.join(file_dir, file.filename), 'wb') as f:
+    with open(os.path.join(file_dir, file_uuid), 'wb') as f:
         f.write(file.file.read())
     
-    return {'msg': f'{file.filename} uploaded successfully'}
+    return {'msg': f'{file.filename}({file_uuid}) uploaded successfully'}
 
 
-@router.get('/download', response_class=FileResponse)
+@router.get('/download/{file_name}', response_class=FileResponse)
 async def file_download(
     file_name: str
 ) -> FileResponse:
-    file_exp = file_name.split('.')[-1]
-    if file_exp in ['jpg', 'jpeg', 'png', 'gif']:
-        file_dir = os.path.join(settings.FILES_PATH, 'images', file_name)
-    elif file_exp in ['mp4', 'avi']:
-        file_dir = os.path.join(settings.FILES_PATH, 'videos', file_name)
-    else:
-        file_dir = os.path.join(settings.FILES_PATH, 'etc', file_name)
-    
+    file_dir = classify_file_type(file_name)
+    file_info = load_from_mongodb(col='files', param={'file_name': {'$eq': file_name}})
+    if file_info == []:
+        raise HTTPException(status_code=400, detail="No file")
+    file_dir = os.path.join(file_dir, file_info[0]['file_id'])
+    return FileResponse(path=file_dir, filename=file_name)
+
+
+@router.get('/system_file/{file_name}', response_class=FileResponse)
+async def system_file_download(
+    file_name: str,
+) -> FileResponse:
+    file_dir = os.path.join(settings.FILES_PATH, 'system', file_name)
     if not os.path.isfile(path=file_dir):
         raise HTTPException(status_code=400, detail="No file")
-    
     return FileResponse(path=file_dir, filename=file_name)
