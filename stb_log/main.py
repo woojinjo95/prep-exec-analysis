@@ -22,11 +22,12 @@ connection_info = {
     'password': '',
     'connection_mode': 'adb',
 }
+log_type = 'logcat'
 
 
 def start_manager():
     try:
-        manager = LogFileManager(connection_info=connection_info)
+        manager = LogFileManager(connection_info=connection_info, log_type=log_type)
         manager.start()
         manager.join()
     except Exception as e:
