@@ -27,7 +27,7 @@ def read_stb_connection() -> schemas.StbConnectionBase:
             'username': res.get('username', None),
             'password': res.get('password', None),
         })
-    return {'items': sorted(stb_conn_list, key=lambda x: x['ip'])}
+    return {'items': sorted(stb_conn_list, key=lambda x: (x['connection_type'], x['ip']))}
 
 
 @router.post("", response_model=schemas.MsgWithId)
