@@ -13,7 +13,7 @@ logger = logging.Logger('main')
 REDIS_HOST = os.getenv("REDIS_HOST", "redis") if is_running_in_docker() else 'localhost'
 REDIS_PORT = os.getenv("REDIS_PORT")
 REDIS_PASSWORD = ''
-# REDIS_DB: int = os.getenv("REDIS_DB")
+# REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
 
 
 def get_strict_redis_connection(db=RedisDBEnum.media) -> StrictRedis:
