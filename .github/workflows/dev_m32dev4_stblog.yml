@@ -32,7 +32,7 @@ jobs:
           password: .nextlab1@
       - run: docker image pull registry.dev-nextlab.com/qaas-stblog:dev-${{github.run_id}}${{github.run_number}}
         shell: bash
-      - run: sed -i "s|\b/qaas-backend:dev-.*\b|/qaas-stblog:dev-${{github.run_id}}${{github.run_number}}|g" /home/jade-m32-07/service/stblog.yml
+      - run: sed -i "s|\b/qaas-stblog:dev-.*\b|/qaas-stblog:dev-${{github.run_id}}${{github.run_number}}|g" /home/jade-m32-07/service/stblog.yml
         shell: bash
       - run: docker-compose --project-directory /home/jade-m32-07/service -f /home/jade-m32-07/service/stblog.yml up -d
         shell: bash
