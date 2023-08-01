@@ -5,7 +5,7 @@ from app import schemas
 from app.crud.base import (delete_part_by_id_to_mongodb,
                            insert_by_id_to_mongodb_array,
                            load_by_id_from_mongodb, load_from_mongodb,
-                           update_to_mongodb)
+                           update_to_mongodb, update_by_id_to_mongodb)
 from fastapi import APIRouter, HTTPException
 
 logger = logging.getLogger(__name__)
@@ -18,6 +18,19 @@ def read_remocon() -> schemas.RemoconRead:
     리모컨 조회
     """
     return {'items': load_from_mongodb(col='remocon', sort_item="custom_keys.order")}
+
+
+@router.put("/{remocon_id}", response_model=schemas.MsgWithId)
+def update_remocon(
+    remocon_id: str,
+    remocon_in: schemas.Remocon,
+) -> schemas.MsgWithId:
+    """
+    리모컨 정보 덮어쓰기
+    """
+    update_by_id_to_mongodb(col='remocon', id=remocon_id, data=remocon_in)
+    logger.info(f"Update remocon data: {remocon_id}")
+    return ({'msg': 'Update remocon', 'id': remocon_id})
 
 
 @router.post("/custom_key", response_model=schemas.MsgWithId)
