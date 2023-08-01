@@ -38,7 +38,7 @@ def main():
             hset_single('test', 'mode', 'streaming')
             is_streaming = True
             stop_event = streaming()
-        elif is_streaming and hget_single('test', 'mode', 'idle'):
+        elif is_streaming and hget_single('test', 'mode') ==  'idle':
             stop_event.set()
             time.sleep(5)
         else:

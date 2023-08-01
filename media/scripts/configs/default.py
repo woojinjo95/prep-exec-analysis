@@ -40,5 +40,5 @@ def initialize_keys(db: int, settings: dict):
 
 
 def init_configs():
-    initialize_keys(RedisDBEnum.hardware, settings)
+    initialize_keys(RedisDBEnum.hardware, hardware_settings)
     initialize_keys(RedisDBEnum.media, settings)
