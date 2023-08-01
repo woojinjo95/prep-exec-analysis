@@ -2,7 +2,8 @@ import os
 import paramiko
 import subprocess
 import logging
-from ..utils.common import is_running_in_docker
+from ..utils.docker import is_running_in_docker
+from ..configs.redis_connection import hget_single
 
 # from ..configs.config import get_setting
 
@@ -12,7 +13,7 @@ rsa_key_path = os.path.join(static_root_path, 'keys', 'runner_key')
 
 HOST = 'host.docker.internal'
 USER = os.environ.get('USER', 'nextlab')
-PORT = 2345   # local config setting
+PORT = hget_single('hardware_configuration', 'ssh_port', 2345, 0)
 TIMEOUT = 3
 
 logger = logging.getLogger('connection')
@@ -21,6 +22,7 @@ logger = logging.getLogger('connection')
 def run_command_in_docker_host(command: str, ip: str = HOST, username: str = USER, port: int = PORT, timeout: float = TIMEOUT) -> str:
     output = ''
     if is_running_in_docker():
+        logger.info(f'This command; "{command}" is need to run on host computer, self-ssh command is executed')
         try:
             with paramiko.SSHClient() as client:
                 client.set_missing_host_key_policy(paramiko.AutoAddPolicy())

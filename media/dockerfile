@@ -3,7 +3,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 # install fundamental
 RUN apt update 
-RUN apt install lsof iperf3 iftop ethtool ffmpeg -y python3-opencv
+RUN apt install lsof ffmpeg -y 
 
 # install pip & python
 RUN ln -s /usr/bin/python3 /usr/bin/python

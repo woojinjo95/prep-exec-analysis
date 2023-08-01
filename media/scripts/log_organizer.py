@@ -10,7 +10,8 @@ from threading import Thread
 
 class LogOrganizer():
 
-    def __init__(self, maxsize=500):
+    def __init__(self, maxsize=500, name='total'):
+        self.name = name
         self.listener = None
         self.log_queue = MultiprocessQueue(maxsize=maxsize)
         self.occupied_color_index = 0
@@ -115,7 +116,7 @@ class LogOrganizer():
         return logger
 
     def init(self):
-        self.start_listening('total')
+        self.start_listening(self.name)
 
     def close(self):
         self.end_listening()

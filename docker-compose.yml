@@ -25,7 +25,7 @@ services:
       - mongodb_data:/data/db
 
   mediamtx:
-    image: aler9/rtsp-simple-server:v0.23.6
+    image: aler9/rtsp-simple-server:v0.23.8
     ports:
     - "8554:8554" # RTSP
     - "9997:9997" # API
@@ -41,8 +41,6 @@ services:
 
   media:
     restart: always
-    # env_file:
-    #   - .env
     build:
       context: ./media
     environment:
@@ -52,13 +50,12 @@ services:
       USER: ${USER}
     devices:
         - "/dev/video0:/dev/video0"
-        - "/dev/ttyUSB1:/dev/ttyUSB1"
-        - "/dev/ttyUSB2:/dev/ttyUSB2"
     privileged: true
     volumes:
-      - "/dev/ttyCB:/dev/ttyCB"
-      - "/dev/ttyBT:/dev/ttyBT"
       - "$HOME/.ssh/runner_key:/app/static/keys/runner_key"
+      - "./media/videos:/app/videos"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   adminer:
     container_name: adminer
@@ -78,10 +75,13 @@ services:
     container_name: redis-commander
     image: rediscommander/redis-commander:latest
     environment:
-    - REDIS_HOSTS=local:redis:6379
+    - REDIS_HOSTS=hardware:redis:6379:0
+                  collector:redis:6379:3
     ports:
     - 8081:8081
 
 volumes:
   mongodb_data: {}
   redis_data: {}
+
+

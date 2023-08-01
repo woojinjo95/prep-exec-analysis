@@ -1,26 +1,17 @@
+import datetime
+import inspect
+import logging
 import re
 import time
-import logging
 from collections import defaultdict
-from typing import Iterable, List
-import inspect
-import datetime
 from functools import wraps
-import requests
+from typing import Iterable, List
 
 import cv2
 import numpy as np
-
+import requests
 
 logger = logging.getLogger('main')
-
-
-def is_running_in_docker():
-    try:
-        with open('/proc/1/cgroup', 'rt') as f:
-            return 'docker' in f.read()
-    except FileNotFoundError:
-        return False
 
 
 def camel_to_snake(name: str) -> str:

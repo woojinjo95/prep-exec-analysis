@@ -33,6 +33,12 @@ class JsonManager:
         del self.data[key]
         self.save()
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.save()
+
 
 def get_file_dir_path(path: str) -> str:
     abspath = os.path.abspath(path)

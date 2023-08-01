@@ -20,3 +20,8 @@ class VideoFormat:
 class AudioDevice:
     gain = 67 if _platform == 'nt' else 90
     silence = -90
+
+
+class RedisDBEnum:
+    hardware: int = 0
+    media: int = 3
