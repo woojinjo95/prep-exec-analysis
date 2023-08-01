@@ -41,7 +41,7 @@ def extract_logcat_time_data(line: str) -> Union[None, datetime]:
 
 
 def collect(connection_info: dict, command_script: str, log_type: str, stop_event: Event):
-    logger.info(f"start log collection")
+    logger.info(f"start log collection. connection_info: {connection_info}, command_script: {command_script}, log_type: {log_type}")
 
     conn = Connection(**connection_info)
     stdout = conn.exec_command(command_script, stop_event)
