@@ -9,7 +9,7 @@ from typing import Union, Tuple, List, Dict
 from multiprocessing import Event
 
 from .db_connection import LogManagerDBConnection
-from scripts.connection.mongo_db.crud import insert_to_mongodb
+from scripts.util.common import write_json
 
 
 logger = logging.getLogger('connection')
@@ -99,17 +99,16 @@ def LogBatchGenerator(file_path: str, no_time_count_limit: int = 10000):
 def insert_to_db(file_path: str):
     for log_batch in LogBatchGenerator(file_path):
         logger.info(f'insert {len(log_batch)} datas to db')
-        # logger.info(f'first data: {datetime.fromtimestamp(log_batch[0][0])}, {log_batch[0][1]}, last data: {datetime.fromtimestamp(log_batch[-1][0])}, {log_batch[-1][1]}')
 
-        # db_conn.save_datas(log_batch)
         json_data = construct_json_data(log_batch)
-        logger.info(f'json_data: {json_data}')
-        insert_to_mongodb('stb_log', json_data)
+        # write_json(f'stb_log_{datetime.fromtimestamp(log_batch[0][0]).strftime("%Y-%m-%d %H:%M:%S")}.json', json_data)
+        # insert_to_mongodb('stb_log', json_data)
 
 
 def construct_json_data(log_batch: List[Tuple[float, str]]) -> Dict:
     return {
         'time': int(log_batch[0][0]),  # first log time(second) in batch
+        'readable_time': datetime.fromtimestamp(log_batch[0][0]).strftime('%Y-%m-%d %H:%M:%S'),  # first log time in batch
         'lines': [log[1] for log in log_batch]  # log lines in batch
     }
 

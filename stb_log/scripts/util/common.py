@@ -2,6 +2,7 @@ import time
 import logging
 from functools import wraps
 import dataclasses
+import json
 
 from dotenv import dotenv_values
 
@@ -36,3 +37,8 @@ def convert_to_dict(data):
         return vars(data)
     else:
         raise TypeError("Data is neither a dataclass instance nor an object")
+
+
+def write_json(json_path: str, result: dict):
+    with open(json_path, 'w') as f:
+        json.dump(result, f, indent=4, ensure_ascii=False)

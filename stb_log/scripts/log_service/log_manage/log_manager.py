@@ -24,7 +24,7 @@ class LogFileManager():
     def __start_log_collector(self):
         self.log_collector = Thread(target=collect, kwargs={
             'connection_info': self.connection_info,
-            'command_script': 'logcat -v long',
+            'command_script': 'logcat -c; logcat -v long',
             # 'command_script': 'logcat',
             # 'command_script': 'top -b -d 10',
             'log_type': 'logcat',
