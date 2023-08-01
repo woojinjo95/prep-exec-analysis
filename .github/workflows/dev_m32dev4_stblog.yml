@@ -1,7 +1,7 @@
 name: qaas-dev-m32dev4-stblog
 run-name: ${{ github.actor }} is deploy qaas-dev-m32dev4-stblog
-on: push
-# on: workflow_dispatch
+# on: push
+on: workflow_dispatch
 jobs:
   build-dev-m32dev4-stblog:
     runs-on: [self-hosted, docker, Linux]
