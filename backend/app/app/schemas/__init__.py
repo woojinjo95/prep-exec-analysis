@@ -3,4 +3,5 @@ from .item import Item, ItemCreate, ItemUpdate, ItemPage, ItemBase
 from .remocon import Remocon, RemoconCustomKeyCreate, RemoconCustomKeyUpdate, RemoconRead, RemoconCustomKeyCreateBase, RemoconCustomKeyUpdateMulti
 from .scenario import Scenario, ScenarioBase
 from .hardware_configuration import HardwareConfigurationBase, HardwareConfigurationUpdate, HardwareConfigurationIpLimit, HardwareConfigurationIpLimitCreate
+from .stb_connection import StbConnectionCreate, StbConnectionBase
 from .block import Block, BlockCreate, BlockGroup, BlockUpdate, BlockGroupUpdate, BlockDelete

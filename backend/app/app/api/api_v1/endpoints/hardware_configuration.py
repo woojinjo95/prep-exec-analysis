@@ -1,6 +1,5 @@
 import logging
 import uuid
-from datetime import datetime
 
 from app import schemas
 from app.db.redis_session import RedisClient
@@ -13,18 +12,18 @@ router = APIRouter()
 
 def converted_data(data_str):
     try:
-        converted_data = float(data_str)
-        if converted_data.is_integer():
-            return int(converted_data)
-        return converted_data
+        res = float(data_str)
+        if res.is_integer():
+            return int(res)
+        return res
     except ValueError:
         try:
-            converted_data = str(data_str)
-            return converted_data
+            res = str(data_str)
+            return res
         except ValueError:
             try:
-                converted_data = bool(data_str)
-                return converted_data
+                res = bool(data_str)
+                return res
             except ValueError:
                 return data_str
 
@@ -44,7 +43,7 @@ def update_hardware_configuration(
 
 
 @router.get("", response_model=schemas.HardwareConfigurationBase)
-def read_hardware_configuration():
+def read_hardware_configuration() -> schemas.HardwareConfigurationBase:
     """
     Retrieve hardware_configuration.
     """
@@ -62,9 +61,8 @@ def read_hardware_configuration():
             'ip': res.get('ip', ''),
             'port': res.get('port', ''),
             'type': res.get('type', ''),
-            'created_at': res.get('created_at', ''),
         })
-    config['ip_limit'] = ip_limit_list
+    config['ip_limit'] = sorted(ip_limit_list, key=lambda x: x['ip'])
     return {'items': config}
 
 
@@ -77,12 +75,8 @@ def create_hardware_configuration_ip_limit(
     Create new hardware_configuration ip_limit.
     """
     id = str(uuid.uuid4())
-    RedisClient.hset(f'hardware_configuration_ip_limit:{id}',
-                     'created_at',
-                     datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S'))
     for key, val in jsonable_encoder(ip_limit_in).items():
         RedisClient.hset(f'hardware_configuration_ip_limit:{id}', key, val)
-
     return {'msg': 'Create new hardware_configuration ip_limit', 'id': id}
 
 
@@ -94,7 +88,7 @@ def delete_hardware_configuration_ip_limit(
     Delete a hardware_configuration ip_limit.
     """
     ip_limit = RedisClient.hget(name=f'hardware_configuration_ip_limit:{id}',
-                                key='created_at')
+                                key='ip')
     if not ip_limit:
         raise HTTPException(
             status_code=404, detail="The hardware_configuration ip_limit with this id does not exist in the system.")

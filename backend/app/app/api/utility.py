@@ -1,6 +1,8 @@
 import json
 import math
+import os
 
+from app.core.config import settings
 from app.crud.base import load_paginate_from_mongodb, load_from_mongodb
 
 
@@ -50,3 +52,14 @@ def get_multi_or_paginate_by_res(col, page, page_size, param={}):
             "items": res
         }
     return res_dict
+
+
+def classify_file_type(file_name):
+    file_exp = file_name.split('.')[-1]
+    if file_exp in ['jpg', 'png', 'jpeg', 'gif']:
+        file_dir = os.path.join(settings.FILES_PATH, 'images')
+    elif file_exp in ['mp4', 'avi']:
+        file_dir = os.path.join(settings.FILES_PATH, 'videos')
+    else:
+        file_dir = os.path.join(settings.FILES_PATH, 'etc')
+    return file_dir
