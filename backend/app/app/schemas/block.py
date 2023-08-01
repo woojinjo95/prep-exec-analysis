@@ -6,18 +6,15 @@ from pydantic import BaseModel
 class BlockCreate(BaseModel):
     type: str
     value: str
-    delay_time: float
+    delay_time: float = 3000  # ms단위
 
 
 class BlockDelete(BaseModel):
     block_ids: List[str]
 
 
-class Block(BaseModel):
+class Block(BlockCreate):
     id: str
-    type: str
-    value: str
-    delay_time: float
 
 
 class BlockUpdate(BaseModel):

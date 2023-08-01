@@ -4,18 +4,14 @@ from app.schemas.enum import RemoteControlTypeEnum
 from pydantic import BaseModel
 
 
-class HardwareConfigurationIpLimit(BaseModel):
-    id: str
-    ip: str
-    port: str
-    type: str
-    created_at: str
-
-
 class HardwareConfigurationIpLimitCreate(BaseModel):
     ip: str
     port: str
     type: str
+
+
+class HardwareConfigurationIpLimit(HardwareConfigurationIpLimitCreate):
+    id: str
 
 
 class HardwareConfiguration(BaseModel):
@@ -27,7 +23,7 @@ class HardwareConfiguration(BaseModel):
     packet_bandwidth: int
     packet_delay: float
     packet_loss: float
-    ip_limit: List[HardwareConfigurationIpLimit]
+    ip_limit: Optional[List[HardwareConfigurationIpLimit]] = []
 
 
 class HardwareConfigurationBase(BaseModel):
