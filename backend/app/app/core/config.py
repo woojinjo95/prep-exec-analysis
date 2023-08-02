@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseSettings, HttpUrl, validator
 
@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     SENTRY_DSN: Optional[HttpUrl] = None
     SERVICE_NAME: str
     FILES_PATH: str = os.getenv("FILES_PATH", '/app/app/files')
+    # REMOCON_COMPANY: str = os.getenv("REMOCON_COMPANY", "LG,KT,SK")
+    REMOCON_COMPANY: str = os.getenv("REMOCON_COMPANY", "Vodafone")
 
     MONGODB_SERVER: str
     MONGODB_NAME: str
@@ -21,6 +23,7 @@ class Settings(BaseSettings):
     REDIS_HOST: str = os.getenv("REDIS_HOST", "")
     REDIS_PORT: int = os.getenv("REDIS_PORT")
     REDIS_DB: int = os.getenv("REDIS_DB")
+    REDIS_PASSWORD: str = os.getenv("REDIS_PASSWORD")
 
     @validator("SENTRY_DSN", pre=True)
     def sentry_dsn_can_be_blank(cls, v: str) -> Optional[str]:

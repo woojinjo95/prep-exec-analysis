@@ -5,10 +5,11 @@ import traceback
 import glob
 import re
 from datetime import datetime
-from typing import Union
+from typing import Union, Tuple, List, Dict
 from multiprocessing import Event
 
 from .db_connection import LogManagerDBConnection
+from scripts.connection.mongo_db.crud import insert_to_mongodb
 
 
 logger = logging.getLogger('connection')
@@ -16,6 +17,7 @@ logger = logging.getLogger('connection')
 db_conn = LogManagerDBConnection()
 completed_log_dir = os.path.join('datas', 'stb_logs', 'completed_logs')
 log_prefix_pattern = r'<Collector:\s(\d+\.\d+)>'
+
 
 def postprocess(stop_event: Event):
     logger.info(f"start log postprocess")
@@ -30,6 +32,7 @@ def postprocess(stop_event: Event):
             logger.info(traceback.format_exc())
         finally:
             time.sleep(1)
+    logger.info(f"finish log postprocess")
 
 
 def postprocess_log(file_path: str):
@@ -45,7 +48,7 @@ def postprocess_log(file_path: str):
         logger.info(f'{file_path} remove complete.')
 
 
-def read_file_with_delimiter(filename, delimiter_pattern):
+def LogChunkGenerator(filename, delimiter_pattern) -> Tuple[str, Union[datetime, None]]:
     with open(filename, 'r') as f:
         buf = ""
         while True:
@@ -64,20 +67,23 @@ def read_file_with_delimiter(filename, delimiter_pattern):
                 buf += chunk
 
 
-# Return [(time, log_line),...]
-# Raise: skip this file
-def LogDataGenerator(file_path: str, batch_size: int = 1000, no_time_count_limit: int = 10000):
+def LogBatchGenerator(file_path: str, no_time_count_limit: int = 10000):
     last_time = None
     batches = []
     no_time_count = 0
 
-    for index, (line, log_time) in enumerate(read_file_with_delimiter(file_path, log_prefix_pattern)):
+    for index, (line, log_time) in enumerate(LogChunkGenerator(file_path, log_prefix_pattern)):
         if line.isspace():
             continue
         # print(f'index {index}\nline {line}\nlog_time {log_time}')
         
-        if log_time is not None:  # time is in line
-            last_time = log_time  # store
+        if log_time is not None:  # time data exist in line
+            if last_time is not None and int(log_time.timestamp()) != int(last_time.timestamp()): 
+                # when the integer part of the timestamp (the seconds) changes,
+                # yield the current batch and start a new one
+                yield batches
+                batches = []
+            last_time = log_time  # store the last time
             no_time_count = 0
         else:
             no_time_count += 1
@@ -87,13 +93,24 @@ def LogDataGenerator(file_path: str, batch_size: int = 1000, no_time_count_limit
         if last_time is not None:
             batches.append((last_time.timestamp(), line))
 
-        if len(batches) >= batch_size:
-            yield batches
-            batches = []
     yield batches
 
 
 def insert_to_db(file_path: str):
-    for log_batch in LogDataGenerator(file_path):
-        # print(log_batch)
-        db_conn.save_datas(log_batch)
+    for log_batch in LogBatchGenerator(file_path):
+        logger.info(f'insert {len(log_batch)} datas to db')
+
+        json_data = construct_json_data(log_batch)
+        # write_json(f'stb_log_{datetime.fromtimestamp(log_batch[0][0]).strftime("%Y-%m-%d %H:%M:%S")}.json', json_data)
+        insert_to_mongodb('stb_log', json_data)
+
+
+def construct_json_data(log_batch: List[Tuple[float, str]]) -> Dict:
+    return {
+        'time': int(log_batch[0][0]),  # first log time(second) in batch
+        'readable_time': datetime.fromtimestamp(log_batch[0][0]).strftime('%Y-%m-%d %H:%M:%S'),  # first log time in batch
+        'lines': [{
+            'time': time_data,
+            'raw': line,
+        } for time_data, line in log_batch],
+    }

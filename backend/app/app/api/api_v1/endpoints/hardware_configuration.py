@@ -50,6 +50,10 @@ def read_hardware_configuration() -> schemas.HardwareConfigurationBase:
     hardware_configuration = RedisClient.hgetall(f'hardware_configuration')
     config = {field: converted_data(value)
               for field, value in hardware_configuration.items()}
+    adb = RedisClient.hgetall(name='stb_connection:adb')
+    ssh = RedisClient.hgetall(name='stb_connection:ssh')
+    config['adb_connection'] = adb if adb else None
+    config['ssh_connection'] = ssh if ssh else None
 
     ip_limit_list = []
     matching_keys = RedisClient.scan_iter(
@@ -60,7 +64,7 @@ def read_hardware_configuration() -> schemas.HardwareConfigurationBase:
             'id': key.split(':')[1],
             'ip': res.get('ip', ''),
             'port': res.get('port', ''),
-            'type': res.get('type', ''),
+            'protocol': res.get('protocol', ''),
         })
     config['ip_limit'] = sorted(ip_limit_list, key=lambda x: x['ip'])
     return {'items': config}
@@ -80,6 +84,27 @@ def create_hardware_configuration_ip_limit(
     return {'msg': 'Create new hardware_configuration ip_limit', 'id': id}
 
 
+@router.put("/ip_limit/{id}", response_model=schemas.MsgWithId)
+def update_hardware_configuration_ip_limit(
+    *,
+    id: str,
+    ip_limit_in: schemas.HardwareConfigurationIpLimitUpdate,
+) -> schemas.MsgWithId:
+    """
+    Update a hardware_configuration ip_limit.
+    """
+    name = f'hardware_configuration_ip_limit:{id}'
+    ip_limit = RedisClient.hgetall(name=name)
+    if not ip_limit:
+        raise HTTPException(
+            status_code=404, detail="The hardware_configuration ip_limit with this id does not exist in the system.")
+
+    for key, val in jsonable_encoder(ip_limit_in).items():
+        if val is not None:
+            RedisClient.hset(name, key, val)
+    return {'msg': 'Update a hardware_configuration ip_limit.', 'id': id}
+
+
 @router.delete("/ip_limit/{id}", response_model=schemas.Msg)
 def delete_hardware_configuration_ip_limit(
     id: str,
@@ -87,10 +112,64 @@ def delete_hardware_configuration_ip_limit(
     """
     Delete a hardware_configuration ip_limit.
     """
-    ip_limit = RedisClient.hget(name=f'hardware_configuration_ip_limit:{id}',
-                                key='ip')
+    name = f'hardware_configuration_ip_limit:{id}'
+    ip_limit = RedisClient.hgetall(name=name)
     if not ip_limit:
         raise HTTPException(
             status_code=404, detail="The hardware_configuration ip_limit with this id does not exist in the system.")
-    RedisClient.delete(f'hardware_configuration_ip_limit:{id}')
+
+    RedisClient.delete(name)
     return {'msg': 'Delete a hardware_configuration ip_limit.'}
+
+
+@router.post("/stb_connection", response_model=schemas.Msg)
+def create_stb_connection(
+    *,
+    stb_connection_in: schemas.StbConnectionCreate,
+) -> schemas.Msg:
+    """
+    Create new stb_connection.
+    """
+    connection_type = stb_connection_in.connection_type
+    for key, val in jsonable_encoder(stb_connection_in).items():
+        if val is not None and key != 'connection_type':
+            RedisClient.hset(f'stb_connection:{connection_type}', key, val)
+    return {'msg': f'Create new {connection_type} stb_connection'}
+
+
+@router.put("/stb_connection/{connection_type}", response_model=schemas.Msg)
+def update_stb_connection(
+    *,
+    connection_type: str,
+    stb_connection_in: schemas.StbConnectionUpdate,
+) -> schemas.Msg:
+    """
+    Update a stb_connection.
+    """
+    name = f'stb_connection:{connection_type}'
+    stb_connection = RedisClient.hgetall(name=name)
+    if not stb_connection:
+        raise HTTPException(
+            status_code=404, detail="The stb_connection with this connection_type does not exist in the system.")
+
+    for key, val in jsonable_encoder(stb_connection_in).items():
+        if val is not None:
+            RedisClient.hset(name, key, val)
+    return {'msg': f'Update {connection_type} stb_connection.'}
+
+
+@router.delete("/stb_connection/{connection_type}", response_model=schemas.Msg)
+def delete_stb_connection(
+    connection_type: str,
+) -> schemas.Msg:
+    """
+    Delete a stb_connection.
+    """
+    name = f'stb_connection:{connection_type}'
+    stb_connection = RedisClient.hgetall(name=name)
+    if not stb_connection:
+        raise HTTPException(
+            status_code=404, detail="The stb_connection with this connection_type does not exist in the system.")
+
+    RedisClient.delete(name)
+    return {'msg': f'Delete {connection_type} stb_connection.'}

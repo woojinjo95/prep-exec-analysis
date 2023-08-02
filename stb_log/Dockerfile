@@ -2,7 +2,8 @@ FROM python:3.9.7
 ARG DEBIAN_FRONTEND=noninteractive
 
 # install fundamental
-RUN apt-get update && apt-get -y install libgl1-mesa-glx x264 libx264-dev libavcodec-dev ffmpeg adb lsof libsqlite3-dev
+RUN apt-get update
+RUN apt-get -y install libsqlite3-dev adb
 
 # install pip & python
 RUN ln -s /usr/bin/python3 /usr/bin/python
@@ -16,4 +17,12 @@ RUN pip install -r requirements.txt
 
 ADD . ./
 
-CMD ["python", "main.py"]
+ENV MONGODB_SERVER mongodb
+ENV MONGODB_NAME prep-exec-analysis
+ENV MONGODB_PORT 27017
+ENV MONGODB_USERNAME admin
+ENV MONGODB_PASSWORD .nextlab6318!
+ENV MONGODB_AUTHENTICATION_SOURCE admin
+# mongodb://admin:.nextlab6318!@127.0.0.1:27017/prep-exec-analysis?authSource=admin&readPreference=primary&ssl=false
+
+# CMD ["python", "main.py"]
