@@ -16,7 +16,7 @@ async def get_redis_pool():
 
 
 async def producer_handler(pubsub: redis):
-    await pubsub.subscribe("command")
+    await pubsub.subscribe("control")
     try:
         while True:
             message = await pubsub.get_message(ignore_subscribe_messages=True)
