@@ -13,9 +13,9 @@ from typing import List, Tuple
 
 import cv2
 
-from ..configs.redis_connection import get_value
+from ..configs.redis_connection import get_value, RedisDBEnum
 from ..utils.file_manage import JsonManager, substitute_path_extension
-from ..utils._timezone import timestamp_to_datetime_str_with_timezone
+from ..utils._timezone import timestamp_to_datetime_with_timezone_str
 
 logger = logging.getLogger('main')
 
@@ -122,7 +122,7 @@ class MakeVideo:
 
         os.makedirs(self.temp_path, exist_ok=True)
         os.makedirs(self.output_path, exist_ok=True)
-        time_info = timestamp_to_datetime_str_with_timezone(self.start_time, format="%Y-%m-%dT%H%M%SF%f%z")
+        time_info = timestamp_to_datetime_with_timezone_str(self.start_time, format="%Y-%m-%dT%H%M%SF%f%z", timezone=get_value('common', 'timezone', db=RedisDBEnum.hardware))
         self.output_video_name = os.path.join(self.output_path, f'video_{time_info}_{interval}.mp4')
         self.video_name_list = []
         self.json_name_list = []
