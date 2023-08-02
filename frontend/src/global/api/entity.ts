@@ -1,7 +1,14 @@
 /**
- * 페이지네이션 데이터
+ * API Response
+ */
+export interface Response<T> {
+  items: T
+}
+
+/**
+ * API 페이지네이션 Response
  *
- * @param results 페이징처리된 데이터
+ * @param items 페이징처리된 데이터
  * @param jumpNext 10페이지 건너뛴 다음 페이지
  * @param jumpPrev 10페이지 건너뛴 이전 페이지
  * @param next 다음 페이지
@@ -9,12 +16,11 @@
  * @param prev 이전 페이지
  * @param total 데이터 총 개수
  */
-export interface PaginationResult<T> {
+export interface PaginationResponse<T> extends Response<T> {
   jumpNext: number
   jumpPrev: number
   next: number
   pages: number
   prev: number
   total: number
-  results: T
 }

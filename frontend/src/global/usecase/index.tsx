@@ -1,3 +1,5 @@
+import { MILLISECONDS_PER_MINUTE, MILLISECONDS_PER_SECOND } from '@global/constant'
+
 type DateToken =
   | 'YYYYMMDD'
   | 'YYYY-MM-DD'
@@ -53,4 +55,38 @@ export const formatDateTo = (type: DateToken, dateObject = new Date()): string =
     default:
       return `${year}${month}${date}`
   }
+}
+/**
+ * 100단위로 ms를 끊어주는 함수
+ */
+export const formMsToHundred = (ms: number) => {
+  if (ms < 100) return ms
+
+  if (ms < 150) return 100
+
+  if (ms >= 900) return 900
+
+  return Math.round(ms / 100) * 100
+}
+
+/**
+ * ms를 분, 초, ms로 끊어주는 함수
+ */
+export const changeMsToMinSecMs = (_ms: number) => {
+  const m = Math.floor(_ms / MILLISECONDS_PER_MINUTE)
+  const s = Math.floor((_ms % MILLISECONDS_PER_MINUTE) / MILLISECONDS_PER_SECOND)
+  const ms = (_ms % MILLISECONDS_PER_MINUTE) % MILLISECONDS_PER_SECOND
+  return {
+    m,
+    s,
+    ms,
+  }
+}
+
+/**
+ * 분, 초, ms를 ms로 변환해주는 함수
+ */
+export const changeMinSecMsToMs = (m: number, s: number, ms: number) => {
+  console.log(m, s, ms)
+  return m * MILLISECONDS_PER_MINUTE + s * MILLISECONDS_PER_SECOND + ms
 }
