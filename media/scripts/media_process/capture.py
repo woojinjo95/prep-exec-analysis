@@ -4,7 +4,7 @@ import subprocess
 import time
 from multiprocessing import Event, Process, Queue
 
-from ..configs.redis_connection import get_value, set_value
+from ..configs.config import get_value, set_value
 from ..utils._subprocess import kill_pid_grep
 from ..utils.docker import convert_if_docker_localhost
 from .loudness import get_sound_values, set_device_volume

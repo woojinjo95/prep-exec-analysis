@@ -2,7 +2,7 @@ import logging
 import time
 
 from scripts.configs.default import init_configs
-from scripts.configs.redis_connection import get_value, set_value
+from scripts.configs.config import get_value, set_value
 from scripts.log_organizer import LogOrganizer
 from scripts.media_process.capture import streaming
 from scripts.media_process.rotation import MakeVideo
