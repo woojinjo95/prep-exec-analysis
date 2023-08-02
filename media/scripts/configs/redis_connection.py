@@ -16,11 +16,8 @@ REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
 
 
 def get_strict_redis_connection(db=RedisDBEnum.media) -> StrictRedis:
-
-    if len(REDIS_PASSWORD) > 0:
-        return StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=db, password=REDIS_PASSWORD)
-    else:
-        return StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=db)
+    logger.info(f'{REDIS_HOST} {REDIS_PORT} {REDIS_PASSWORD}')
+    return StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=db, password=REDIS_PASSWORD)
 
 
 def parse_bytes_to_value(value: bytes) -> any:

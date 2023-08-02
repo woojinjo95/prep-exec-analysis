@@ -1,31 +1,14 @@
 import logging
 import time
-from multiprocessing import Event, Manager, Process, Queue
-from multiprocessing.managers import DictProxy
 
 from scripts.configs.default import init_configs
 from scripts.configs.redis_connection import get_value, set_value
 from scripts.log_organizer import LogOrganizer
-from scripts.media_process.capture import test, start_capture, audio_value_consumer
+from scripts.media_process.capture import streaming
 from scripts.media_process.rotation import MakeVideo
-
 from scripts.utils._exceptions import handle_errors
 
 logger = logging.getLogger('main')
-
-
-def streaming() -> Event:
-    with Manager() as manager:
-        configs = manager.dict()
-        audio_values = Queue()
-        stop_event = Event()
-        capture_process = Process(target=start_capture, args=(configs, audio_values, stop_event), daemon=True)
-        consumer_process = Process(target=audio_value_consumer, args=(audio_values, stop_event), daemon=True)
-
-        capture_process.start()
-        consumer_process.start()
-
-        return stop_event
 
 
 @handle_errors
@@ -38,7 +21,7 @@ def main():
             set_value('test', 'mode', 'streaming')
             is_streaming = True
             stop_event = streaming()
-        elif is_streaming and get_value('test', 'mode') ==  'idle':
+        elif is_streaming and get_value('test', 'mode') == 'idle':
             stop_event.set()
             time.sleep(5)
         else:

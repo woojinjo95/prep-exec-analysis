@@ -1,18 +1,14 @@
-import datetime
 import logging
 import os
 import subprocess
 import time
-from multiprocessing import Event, Manager, Process, Queue
-from multiprocessing.managers import DictProxy
-
-import cv2
+from multiprocessing import Event, Process, Queue
 
 from ..configs.redis_connection import get_value, set_value
 from ..utils._subprocess import kill_pid_grep
 from ..utils.docker import convert_if_docker_localhost
 from .loudness import get_sound_values, set_device_volume
-from .rotation import MakeVideo, RotationFileManager, get_file_creation_time
+from .rotation import RotationFileManager, get_file_creation_time
 
 logger = logging.getLogger('main')
 
@@ -78,21 +74,7 @@ def construct_ffmpeg_cmd() -> str:
     return cmd
 
 
-def get_video_info(filepath):
-    # Get creation time
-    os.stat
-    creation_time = os.path.get(filepath)
-    readable_creation_time = datetime.datetime.fromtimestamp(creation_time)
-
-    # Get video info
-    video = cv2.VideoCapture(filepath)
-    frame_count = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
-    fps = video.get(cv2.CAP_PROP_FPS)
-
-    return {"creation_time": readable_creation_time, "frame_count": frame_count, "fps": fps}
-
-
-def start_capture(shared_values: DictProxy, audio_values: Queue, stop_event: Event):
+def start_capture(audio_values: Queue, stop_event: Event):
     capture_configs = get_value('capture')
     set_device_volume(capture_configs['audio_device'], capture_configs['audio_gain'])
     cmd = construct_ffmpeg_cmd()
@@ -100,7 +82,7 @@ def start_capture(shared_values: DictProxy, audio_values: Queue, stop_event: Eve
 
     try:
         set_value('state', 'state', 'streaming')
-        ## ffmpeg use stderr that stderr = stderr=subprocess.STDOUT
+        # ffmpeg use stderr that stderr = stderr=subprocess.STDOUT
         with subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as process:
             start_time = time.time()
             while process.poll() is None and not stop_event.is_set():
@@ -127,6 +109,8 @@ def start_capture(shared_values: DictProxy, audio_values: Queue, stop_event: Eve
 
 
 def audio_value_consumer(audio_values: Queue, stop_event: Event):
+    # TODO pipe it to frontend lkfs lvel
+    # value format: {'t': 1690940538.72, 'M': -27.5, 'I': -29.1, 'inactive': False}
     idx = 0
     while not stop_event.is_set() or not audio_values.empty():
         idx += 1
@@ -135,22 +119,14 @@ def audio_value_consumer(audio_values: Queue, stop_event: Event):
             logger.info(f'{value}')
 
 
-def test():
-    logger.info('start')
+def streaming() -> Event:
+    logger.info('Streaming Start')
+    audio_values = Queue()
+    stop_event = Event()
+    capture_process = Process(target=start_capture, args=(audio_values, stop_event), daemon=True)
+    consumer_process = Process(target=audio_value_consumer, args=(audio_values, stop_event), daemon=True)
 
-    with Manager() as manager:
-        configs = manager.dict()
-        audio_values = Queue()
-        stop_event = Event()
-        capture_process = Process(target=start_capture, args=(configs, audio_values, stop_event), daemon=True)
-        consumer_process = Process(target=audio_value_consumer, args=(audio_values, stop_event), daemon=True)
+    capture_process.start()
+    consumer_process.start()
 
-        capture_process.start()
-        consumer_process.start()
-        time.sleep(35)
-        new_video = MakeVideo(duration=20)
-        new_video.run()
-        time.sleep(5)
-        stop_event.set()
-        # time to safe stop process
-        time.sleep(5)
+    return stop_event
