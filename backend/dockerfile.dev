@@ -13,6 +13,7 @@ ENV SENTRY_DSN ''
 ENV BACKEND_CORS_ORIGINS http://localhost:3000
 ENV SERVICE_NAME prep-exec-analysis
 ENV FILES_PATH /app/app/files
+ENV COMPANY Vodafone,LG,KT
 
 ENV MONGODB_SERVER mongodb
 ENV MONGODB_NAME prep-exec-analysis

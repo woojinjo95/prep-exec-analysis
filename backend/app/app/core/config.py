@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     SENTRY_DSN: Optional[HttpUrl] = None
     SERVICE_NAME: str
     FILES_PATH: str = os.getenv("FILES_PATH", '/app/app/files')
+    COMPANY: str = os.getenv("COMPANY", "Vodafone,LG,KT,SK").split(',')
 
     MONGODB_SERVER: str
     MONGODB_NAME: str
