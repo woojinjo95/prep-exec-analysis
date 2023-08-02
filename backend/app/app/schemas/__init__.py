@@ -1,3 +1,4 @@
+from .analysis_config import AnalysisConfigBase, AnalysisConfigUpdate
 from .block import (Block, BlockCreate, BlockDelete, BlockGroup,
                     BlockGroupUpdate, BlockUpdate)
 from .hardware_configuration import (HardwareConfigurationBase,
