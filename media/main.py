@@ -7,6 +7,7 @@ from scripts.log_organizer import LogOrganizer
 from scripts.media_process.capture import streaming
 from scripts.media_process.rotation import MakeVideo
 from scripts.utils._exceptions import handle_errors
+from scripts.media_process.loudness import test_audio_redis_update
 
 logger = logging.getLogger('main')
 
@@ -21,6 +22,7 @@ def main():
             set_value('test', 'mode', 'streaming')
             is_streaming = True
             stop_event = streaming()
+            test_audio_redis_update(stop_event)
         elif is_streaming and get_value('test', 'mode') == 'idle':
             stop_event.set()
             time.sleep(5)

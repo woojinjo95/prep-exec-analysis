@@ -1,11 +1,14 @@
-import math
-import re
-import os
-
 import logging
+import math
+import os
+import re
 import traceback
-from ..configs.constant import AudioDevice
+from multiprocessing import Event
+
+from ..configs.config import set_value
+from ..configs.constant import AudioDevice, RedisChannel
 from ..connection.local_connect import run_command_in_docker_host
+from ..connection.redis_pubsub import Subscribe, get_strict_redis_connection
 
 logger = logging.getLogger('audio')
 
@@ -73,3 +76,11 @@ def get_sound_values(start_time: float, line: str) -> dict:
         pass
 
     return values
+
+
+def test_audio_redis_update(stop_event: Event):
+    with get_strict_redis_connection() as src:
+        idx = 0
+        for loudness in Subscribe(src, RedisChannel.loudness, stop_event):
+            if idx % 10 == 0:
+                set_value('test', 'sound_level', loudness)
