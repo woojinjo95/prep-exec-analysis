@@ -8,8 +8,8 @@ class Remocon(BaseModel):
     class remocon_code(BaseModel):
         name: str
         hotkey: list[str]
-        code: str
-        location: list[dict]
+        pronto_code: str
+        coordinate: list[int]
 
     class custom_key(BaseModel):
         id: Optional[str] = None
