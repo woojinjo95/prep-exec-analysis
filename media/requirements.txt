@@ -1,0 +1,5 @@
+paramiko==3.2.0
+python-dotenv==1.0.0
+Requests==2.31.0
+redis==4.6.0
+opencv-contrib-python==4.5.5.62
