@@ -8,7 +8,7 @@ from multiprocessing.managers import DictProxy
 
 import cv2
 
-from ..configs.redis_connection import hget_single, hset_single
+from ..configs.redis_connection import get_value, set_value
 from ..utils._subprocess import kill_pid_grep
 from ..utils.docker import convert_if_docker_localhost
 from .loudness import get_sound_values, set_device_volume
@@ -18,14 +18,14 @@ logger = logging.getLogger('main')
 
 
 def get_rtsp_public_url() -> str:
-    streaming_url = hget_single('capture', '')
+    streaming_url = get_value('capture', '')
     return convert_if_docker_localhost(streaming_url)
 
 
 def construct_ffmpeg_cmd() -> str:
-    capture_configs = hget_single('capture')
-    streaming_configs = hget_single('streaming')
-    recording_configs = hget_single('recording')
+    capture_configs = get_value('capture')
+    streaming_configs = get_value('streaming')
+    recording_configs = get_value('recording')
 
     # capture config
     video_name = capture_configs['video_device']
@@ -93,13 +93,13 @@ def get_video_info(filepath):
 
 
 def start_capture(shared_values: DictProxy, audio_values: Queue, stop_event: Event):
-    capture_configs = hget_single('capture')
+    capture_configs = get_value('capture')
     set_device_volume(capture_configs['audio_device'], capture_configs['audio_gain'])
     cmd = construct_ffmpeg_cmd()
     rotation_file_manager = RotationFileManager()
 
     try:
-        hset_single('state', 'state', 'streaming')
+        set_value('state', 'state', 'streaming')
         ## ffmpeg use stderr that stderr = stderr=subprocess.STDOUT
         with subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as process:
             start_time = time.time()
@@ -123,7 +123,7 @@ def start_capture(shared_values: DictProxy, audio_values: Queue, stop_event: Eve
         # kill process
         time.sleep(0.5)
         kill_pid_grep(capture_configs['video_device'])
-        hset_single('state', 'state', 'idle')
+        set_value('state', 'state', 'idle')
 
 
 def audio_value_consumer(audio_values: Queue, stop_event: Event):

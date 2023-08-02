@@ -14,7 +14,7 @@ from typing import List, Tuple
 
 import cv2
 
-from ..configs.redis_connection import hget_single
+from ..configs.redis_connection import get_value
 from ..utils.file_manage import JsonManager, substitute_path_extension
 
 logger = logging.getLogger('main')
@@ -69,7 +69,7 @@ def process_video_info(file_info: dict) -> dict:
 class RotationFileManager:
 
     def __init__(self, duration: int = 60):
-        recording_config = hget_single('recording')
+        recording_config = get_value('recording')
         self.path = recording_config['real_time_video_path']
         self.segment_time = recording_config['segment_time']
         self.duration = duration
@@ -112,7 +112,7 @@ class RotationFileManager:
 class MakeVideo:
 
     def __init__(self, start_time: float = None, end_time: float = None, duration: float = 30):
-        recording_config = hget_single('recording')
+        recording_config = get_value('recording')
         self.path = recording_config['real_time_video_path']
         self.output_path = recording_config['output_video_path']
         self.temp_path = 'temp_videos'

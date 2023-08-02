@@ -4,7 +4,7 @@ from multiprocessing import Event, Manager, Process, Queue
 from multiprocessing.managers import DictProxy
 
 from scripts.configs.default import init_configs
-from scripts.configs.redis_connection import hget_single, hset_single
+from scripts.configs.redis_connection import get_value, set_value
 from scripts.log_organizer import LogOrganizer
 from scripts.media_process.capture import test, start_capture, audio_value_consumer
 from scripts.media_process.rotation import MakeVideo
@@ -34,19 +34,19 @@ def main():
 
     is_streaming = False
     while True:
-        if hget_single('test', 'mode') == 'streaming_start':
-            hset_single('test', 'mode', 'streaming')
+        if get_value('test', 'mode') == 'streaming_start':
+            set_value('test', 'mode', 'streaming')
             is_streaming = True
             stop_event = streaming()
-        elif is_streaming and hget_single('test', 'mode') ==  'idle':
+        elif is_streaming and get_value('test', 'mode') ==  'idle':
             stop_event.set()
             time.sleep(5)
         else:
             pass
 
-        if hget_single('test', 'capture') == 'yes':
-            hset_single('test', 'capture', 'no')
-            duration = hget_single('test', 'interval', 30)
+        if get_value('test', 'capture') == 'yes':
+            set_value('test', 'capture', 'no')
+            duration = get_value('test', 'interval', 30)
 
             new_video = MakeVideo(duration=duration)
             new_video.run()
