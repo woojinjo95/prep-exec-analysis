@@ -30,7 +30,6 @@ const HLSPlayer: React.FC<HLSPlayerProps> = ({ src }) => {
     const timerId = setInterval(() => {
       if (isConnectHLS) {
         pullCurrentPlayTime(playerRef.current, -1)
-        console.log('pull playtime interval', src)
       }
     }, 1000 * 60)
 
@@ -50,19 +49,18 @@ const HLSPlayer: React.FC<HLSPlayerProps> = ({ src }) => {
       // but doesn't support fMP4s.
       if (Hls.isSupported()) {
         console.log('isSupported')
-        const hls = new Hls()
+        const hls = new Hls({
+          maxLiveSyncPlaybackRate: 1.5,
+        })
         hlsInstance = hls
 
         hls.on(Hls.Events.ERROR, (_, data) => {
           if (data.fatal) {
             hls.destroy()
-
             setTimeout(create, 2000)
           }
         })
         hls.config.xhrSetup = (xhr: XMLHttpRequest) => {
-          // eslint-disable-next-line no-param-reassign
-          xhr.withCredentials = false
           xhr.setRequestHeader('Authorization', `Basic ${btoa('heliodor:ffdf00')}`)
         }
         hls.config.backBufferLength = 0 // before(default) Infinity -> after 0(최소한의 재생가능한 세그먼트를 유지)
