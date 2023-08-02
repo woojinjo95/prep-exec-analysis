@@ -32,7 +32,6 @@ def update_remocon(
                         for remocon_key, remocon_value in remocon_in
                         if remocon_value is not None}
     update_by_id_to_mongodb(col='remocon', id=remocon_id, data=new_remocon_data)
-    logger.info(f"Update remocon data: {remocon_id}")
     return ({'msg': 'Update remocon', 'id': remocon_id})
 
 
