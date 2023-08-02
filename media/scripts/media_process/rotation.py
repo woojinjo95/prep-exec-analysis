@@ -9,13 +9,13 @@ import time
 from collections import deque
 from copy import deepcopy
 from glob import glob
-from multiprocessing import Event
 from typing import List, Tuple
 
 import cv2
 
-from ..configs.redis_connection import hget_single
+from ..configs.redis_connection import get_value, RedisDBEnum
 from ..utils.file_manage import JsonManager, substitute_path_extension
+from ..utils._timezone import timestamp_to_datetime_with_timezone_str
 
 logger = logging.getLogger('main')
 
@@ -68,13 +68,13 @@ def process_video_info(file_info: dict) -> dict:
 
 class RotationFileManager:
 
-    def __init__(self, duration: int = 60):
-        recording_config = hget_single('recording')
+    def __init__(self):
+        recording_config = get_value('recording')
         self.path = recording_config['real_time_video_path']
-        self.segment_time = recording_config['segment_time']
-        self.duration = duration
+        self.segment_interval = recording_config['segment_interval']
+        self.rotation_interval = recording_config['rotation_interval']
 
-        self.file_count = duration//self.segment_time + 5
+        self.file_count = self.segment_interval // self.segment_interval + 5
         self.files_deque = deque(maxlen=self.file_count)
         self.preserved_list = []
         self.index = 0
@@ -111,22 +111,23 @@ class RotationFileManager:
 
 class MakeVideo:
 
-    def __init__(self, start_time: float = None, end_time: float = None, duration: float = 30):
-        recording_config = hget_single('recording')
+    def __init__(self, start_time: float = None, end_time: float = None, interval: float = 30):
+        recording_config = get_value('recording')
         self.path = recording_config['real_time_video_path']
         self.output_path = recording_config['output_video_path']
         self.temp_path = 'temp_videos'
         self.now = time.time()
-        self.start_time = self.now - duration if start_time is None else start_time
-        self.end_time = self.start_time + duration if end_time is None else end_time is None
+        self.start_time = self.now - interval if start_time is None else start_time
+        self.end_time = self.start_time + interval if end_time is None else end_time is None
 
         os.makedirs(self.temp_path, exist_ok=True)
         os.makedirs(self.output_path, exist_ok=True)
-        self.video_name = os.path.join(self.output_path, f'video_{self.start_time}_{duration}.mp4')
+        time_info = timestamp_to_datetime_with_timezone_str(self.start_time, format="%Y-%m-%dT%H%M%SF%f%z", timezone=get_value('common', 'timezone', db=RedisDBEnum.hardware))
+        self.output_video_name = os.path.join(self.output_path, f'video_{time_info}_{interval}.mp4')
         self.video_name_list = []
         self.json_name_list = []
 
-        logger.info(f'Make new video: {self.video_name}, {self.start_time} to {self.end_time}')
+        logger.info(f'Make new video: {self.output_video_name}, {self.start_time} to {self.end_time}')
         self.state = 'writing'
 
     def copy_files(self):
@@ -156,13 +157,13 @@ class MakeVideo:
                 f.write(f"file '{os.path.abspath(video)}'\n")
             temp_filename = f.name
 
-        ffmpeg_command = f"ffmpeg -f concat -safe 0 -i {temp_filename} -c copy {self.video_name} -loglevel panic -hide_banner"
+        ffmpeg_command = f"ffmpeg -f concat -safe 0 -i {temp_filename} -c copy {self.output_video_name} -loglevel panic -hide_banner"
         logger.info(f'Concat ffmpeg command: {ffmpeg_command}')
         subprocess.call(ffmpeg_command, shell=True)
 
         json_name_list = sorted(list(set(self.json_name_list)))
 
-        with JsonManager(substitute_path_extension(self.video_name, 'mp4_stat')) as jf:
+        with JsonManager(substitute_path_extension(self.output_video_name, 'mp4_stat')) as jf:
             video_infos = []
             for json_file in json_name_list:
                 with open(json_file, 'r') as f:
@@ -179,7 +180,7 @@ class MakeVideo:
         # remove the temporary file
         os.unlink(temp_filename)
         self.state = 'end'
-        logger.info(f'New video save completed: {self.video_name},')
+        logger.info(f'New video save completed: {self.output_video_name},')
 
     def run(self):
         while self.state == 'writing':
