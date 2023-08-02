@@ -21,7 +21,7 @@ def init_hardware_configuration():
                    'enable_hdmi': 'True',
                    'enable_dut_wan': 'True',
                    'enable_network_emulation': 'True',
-                   'packet_bandwidth': 1000,
+                   'packet_bandwidth': 0,
                    'packet_delay': 0.0,
                    'packet_loss': 0.0}
         for k, v in configs.items():

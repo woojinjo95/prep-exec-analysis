@@ -6,24 +6,9 @@ from pydantic import BaseModel
 
 
 class StbConnection(BaseModel):
+    type: StbConnectionTypeEnum
     ip: str
     port: str
-    username: Optional[str]
-    password: Optional[str]
-
-
-class StbAdbConnection(BaseModel):
-    ip: str
-    port: str
-
-
-class StbConnectionCreate(StbConnection):
-    connection_type: StbConnectionTypeEnum
-
-
-class StbConnectionUpdate(BaseModel):
-    ip: Optional[str]
-    port: Optional[str]
     username: Optional[str]
     password: Optional[str]
 
@@ -36,12 +21,6 @@ class HardwareConfigurationIpLimitCreate(BaseModel):
     ip: str
     port: str
     protocol: ProtocolEnum
-
-
-class HardwareConfigurationIpLimitUpdate(BaseModel):
-    ip: Optional[str]
-    port: Optional[str]
-    protocol: Optional[ProtocolEnum]
 
 
 class HardwareConfigurationIpLimit(HardwareConfigurationIpLimitCreate):
@@ -57,9 +36,8 @@ class HardwareConfiguration(BaseModel):
     packet_bandwidth: int
     packet_delay: float
     packet_loss: float
-    adb_connection: Optional[StbAdbConnection] = {}
-    ssh_connection: Optional[StbConnection] = {}
-    ip_limit: Optional[List[HardwareConfigurationIpLimit]] = []
+    stb_connection: Optional[StbConnection]
+    ip_limit: Optional[List[HardwareConfigurationIpLimit]]
 
 
 class HardwareConfigurationBase(BaseModel):

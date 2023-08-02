@@ -1,31 +1,15 @@
+import json
 import logging
 import uuid
 
 from app import schemas
+from app.api.utility import converted_str_data
 from app.db.redis_session import RedisClient
 from fastapi import APIRouter, HTTPException
 from fastapi.encoders import jsonable_encoder
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
-
-
-def converted_data(data_str):
-    try:
-        res = float(data_str)
-        if res.is_integer():
-            return int(res)
-        return res
-    except ValueError:
-        try:
-            res = str(data_str)
-            return res
-        except ValueError:
-            try:
-                res = bool(data_str)
-                return res
-            except ValueError:
-                return data_str
 
 
 @router.put("", response_model=schemas.Msg)
@@ -48,12 +32,11 @@ def read_hardware_configuration() -> schemas.HardwareConfigurationBase:
     Retrieve hardware_configuration.
     """
     hardware_configuration = RedisClient.hgetall(f'hardware_configuration')
-    config = {field: converted_data(value)
+    config = {field: converted_str_data(value)
               for field, value in hardware_configuration.items()}
-    adb = RedisClient.hgetall(name='stb_connection:adb')
-    ssh = RedisClient.hgetall(name='stb_connection:ssh')
-    config['adb_connection'] = adb if adb else None
-    config['ssh_connection'] = ssh if ssh else None
+    stb_conn = RedisClient.hget(f'hardware_configuration',
+                                'stb_connection')
+    config['stb_connection'] = json.loads(stb_conn) if stb_conn else None
 
     ip_limit_list = []
     matching_keys = RedisClient.scan_iter(
@@ -66,7 +49,8 @@ def read_hardware_configuration() -> schemas.HardwareConfigurationBase:
             'port': res.get('port', ''),
             'protocol': res.get('protocol', ''),
         })
-    config['ip_limit'] = sorted(ip_limit_list, key=lambda x: x['ip'])
+    config['ip_limit'] = sorted(
+        ip_limit_list, key=lambda x: x['ip']) if ip_limit_list else None
     return {'items': config}
 
 
@@ -88,7 +72,7 @@ def create_hardware_configuration_ip_limit(
 def update_hardware_configuration_ip_limit(
     *,
     id: str,
-    ip_limit_in: schemas.HardwareConfigurationIpLimitUpdate,
+    ip_limit_in: schemas.HardwareConfigurationIpLimitCreate,
 ) -> schemas.MsgWithId:
     """
     Update a hardware_configuration ip_limit.
@@ -100,8 +84,7 @@ def update_hardware_configuration_ip_limit(
             status_code=404, detail="The hardware_configuration ip_limit with this id does not exist in the system.")
 
     for key, val in jsonable_encoder(ip_limit_in).items():
-        if val is not None:
-            RedisClient.hset(name, key, val)
+        RedisClient.hset(name, key, val)
     return {'msg': 'Update a hardware_configuration ip_limit.', 'id': id}
 
 
@@ -125,51 +108,50 @@ def delete_hardware_configuration_ip_limit(
 @router.post("/stb_connection", response_model=schemas.Msg)
 def create_stb_connection(
     *,
-    stb_connection_in: schemas.StbConnectionCreate,
+    stb_connection_in: schemas.StbConnection,
 ) -> schemas.Msg:
     """
     Create new stb_connection.
     """
-    connection_type = stb_connection_in.connection_type
-    for key, val in jsonable_encoder(stb_connection_in).items():
-        if val is not None and key != 'connection_type':
-            RedisClient.hset(f'stb_connection:{connection_type}', key, val)
-    return {'msg': f'Create new {connection_type} stb_connection'}
+    RedisClient.hset('hardware_configuration',
+                     'stb_connection', json.dumps({k: v for k, v
+                                                   in jsonable_encoder(stb_connection_in).items()
+                                                   if v is not None}))
+    return {'msg': f'Create new {stb_connection_in.type} stb_connection'}
 
 
-@router.put("/stb_connection/{connection_type}", response_model=schemas.Msg)
+@router.put("/stb_connection", response_model=schemas.Msg)
 def update_stb_connection(
     *,
-    connection_type: str,
-    stb_connection_in: schemas.StbConnectionUpdate,
+    stb_connection_in: schemas.StbConnection,
 ) -> schemas.Msg:
     """
-    Update a stb_connection.
+    Update stb_connection.
     """
-    name = f'stb_connection:{connection_type}'
-    stb_connection = RedisClient.hgetall(name=name)
+    stb_connection = RedisClient.hget('hardware_configuration',
+                                      'stb_connection')
     if not stb_connection:
         raise HTTPException(
-            status_code=404, detail="The stb_connection with this connection_type does not exist in the system.")
+            status_code=404, detail="The hardware_configuration with this stb_connection does not exist in the system.")
 
-    for key, val in jsonable_encoder(stb_connection_in).items():
-        if val is not None:
-            RedisClient.hset(name, key, val)
-    return {'msg': f'Update {connection_type} stb_connection.'}
+    RedisClient.hset('hardware_configuration',
+                     'stb_connection', json.dumps({k: v for k, v
+                                                   in jsonable_encoder(stb_connection_in).items()
+                                                   if v is not None}))
+    return {'msg': f'Update {stb_connection_in.type} stb_connection.'}
 
 
-@router.delete("/stb_connection/{connection_type}", response_model=schemas.Msg)
-def delete_stb_connection(
-    connection_type: str,
-) -> schemas.Msg:
+@router.delete("/stb_connection", response_model=schemas.Msg)
+def delete_stb_connection() -> schemas.Msg:
     """
-    Delete a stb_connection.
+    Delete stb_connection.
     """
-    name = f'stb_connection:{connection_type}'
-    stb_connection = RedisClient.hgetall(name=name)
+    stb_connection = RedisClient.hget('hardware_configuration',
+                                      'stb_connection')
     if not stb_connection:
         raise HTTPException(
-            status_code=404, detail="The stb_connection with this connection_type does not exist in the system.")
+            status_code=404, detail="The hardware_configuration with this stb_connection does not exist in the system.")
 
-    RedisClient.delete(name)
-    return {'msg': f'Delete {connection_type} stb_connection.'}
+    RedisClient.hdel('hardware_configuration',
+                     'stb_connection')
+    return {'msg': 'Delete stb_connection.'}
