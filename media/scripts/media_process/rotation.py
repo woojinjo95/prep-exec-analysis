@@ -15,6 +15,7 @@ import cv2
 
 from ..configs.redis_connection import get_value
 from ..utils.file_manage import JsonManager, substitute_path_extension
+from ..utils._timezone import timestamp_to_datetime_str_with_timezone
 
 logger = logging.getLogger('main')
 
@@ -121,11 +122,12 @@ class MakeVideo:
 
         os.makedirs(self.temp_path, exist_ok=True)
         os.makedirs(self.output_path, exist_ok=True)
-        self.video_name = os.path.join(self.output_path, f'video_{self.start_time}_{interval}.mp4')
+        time_info = timestamp_to_datetime_str_with_timezone(self.start_time, format="%Y-%m-%dT%H%M%SF%f%z")
+        self.output_video_name = os.path.join(self.output_path, f'video_{time_info}_{interval}.mp4')
         self.video_name_list = []
         self.json_name_list = []
 
-        logger.info(f'Make new video: {self.video_name}, {self.start_time} to {self.end_time}')
+        logger.info(f'Make new video: {self.output_video_name}, {self.start_time} to {self.end_time}')
         self.state = 'writing'
 
     def copy_files(self):
@@ -155,13 +157,13 @@ class MakeVideo:
                 f.write(f"file '{os.path.abspath(video)}'\n")
             temp_filename = f.name
 
-        ffmpeg_command = f"ffmpeg -f concat -safe 0 -i {temp_filename} -c copy {self.video_name} -loglevel panic -hide_banner"
+        ffmpeg_command = f"ffmpeg -f concat -safe 0 -i {temp_filename} -c copy {self.output_video_name} -loglevel panic -hide_banner"
         logger.info(f'Concat ffmpeg command: {ffmpeg_command}')
         subprocess.call(ffmpeg_command, shell=True)
 
         json_name_list = sorted(list(set(self.json_name_list)))
 
-        with JsonManager(substitute_path_extension(self.video_name, 'mp4_stat')) as jf:
+        with JsonManager(substitute_path_extension(self.output_video_name, 'mp4_stat')) as jf:
             video_infos = []
             for json_file in json_name_list:
                 with open(json_file, 'r') as f:
@@ -178,7 +180,7 @@ class MakeVideo:
         # remove the temporary file
         os.unlink(temp_filename)
         self.state = 'end'
-        logger.info(f'New video save completed: {self.video_name},')
+        logger.info(f'New video save completed: {self.output_video_name},')
 
     def run(self):
         while self.state == 'writing':
