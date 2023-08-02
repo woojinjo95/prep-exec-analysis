@@ -3,7 +3,7 @@ import os
 
 from uuid import uuid4
 from app import schemas
-from app.crud.base import insert_to_mongodb, load_from_mongodb
+from app.crud.base import insert_one_to_mongodb, load_from_mongodb
 from app.core.config import settings
 from app.api.utility import classify_file_type
 from fastapi import APIRouter, HTTPException, File, UploadFile
@@ -21,7 +21,7 @@ async def file_upload(
         raise HTTPException(status_code=400, detail="No upload file")
     
     file_uuid = str(uuid4())
-    insert_to_mongodb(col='file', data={'file_id':file_uuid, "file_name":file.filename})
+    insert_one_to_mongodb(col='file', data={'file_id':file_uuid, "file_name":file.filename})
 
     file_dir = classify_file_type(file.filename)
     if not os.path.isdir(file_dir):
