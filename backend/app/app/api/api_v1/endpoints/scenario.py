@@ -27,7 +27,7 @@ def update_scenario(
     Update a scenario.
     """
     res = update_many_to_mongodb(col='scenario',
-                                     data={'block_group': jsonable_encoder(scenario_in.block_group)})
+                                 data={'block_group': jsonable_encoder(scenario_in.block_group)})
     if res.matched_count == 0:
         raise HTTPException(
             status_code=406, detail="No items have been updated.")

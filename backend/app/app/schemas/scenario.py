@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 
 class ScenarioBase(BaseModel):
-    block_group: Optional[List[BlockGroup]]
+    block_group: List[BlockGroup]
 
 
 class Scenario(BaseModel):
