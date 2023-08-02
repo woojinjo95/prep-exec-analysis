@@ -3,7 +3,7 @@ import math
 import os
 import re
 import traceback
-from multiprocessing import Event
+from multiprocessing import Event, Process
 
 from ..configs.config import set_value
 from ..configs.constant import AudioDevice, RedisChannel
@@ -79,8 +79,11 @@ def get_sound_values(start_time: float, line: str) -> dict:
 
 
 def test_audio_redis_update(stop_event: Event):
-    with get_strict_redis_connection() as src:
-        idx = 0
-        for loudness in Subscribe(src, RedisChannel.loudness, stop_event):
-            if idx % 10 == 0:
-                set_value('test', 'sound_level', loudness)
+    def job():
+        with get_strict_redis_connection() as src:
+            idx = 0
+            for loudness in Subscribe(src, RedisChannel.loudness, stop_event):
+                if idx % 10 == 0:
+                    set_value('test', 'sound_level', loudness)
+
+    Process(target=job).start()
