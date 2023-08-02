@@ -1,6 +1,7 @@
 from typing import List, Optional
 
-from app.schemas.enum import RemoteControlTypeEnum, StbConnectionTypeEnum
+from app.schemas.enum import (ProtocolEnum, RemoteControlTypeEnum,
+                              StbConnectionTypeEnum)
 from pydantic import BaseModel
 
 
@@ -18,8 +19,11 @@ class StbAdbConnection(BaseModel):
 
 class StbConnectionCreate(StbConnection):
     connection_type: StbConnectionTypeEnum
-    ip: str
-    port: str
+
+
+class StbConnectionUpdate(BaseModel):
+    ip: Optional[str]
+    port: Optional[str]
     username: Optional[str]
     password: Optional[str]
 
@@ -31,7 +35,13 @@ class StbConnectionBase(BaseModel):
 class HardwareConfigurationIpLimitCreate(BaseModel):
     ip: str
     port: str
-    type: str
+    protocol: ProtocolEnum
+
+
+class HardwareConfigurationIpLimitUpdate(BaseModel):
+    ip: Optional[str]
+    port: Optional[str]
+    protocol: Optional[ProtocolEnum]
 
 
 class HardwareConfigurationIpLimit(HardwareConfigurationIpLimitCreate):

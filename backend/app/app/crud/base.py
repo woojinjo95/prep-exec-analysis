@@ -16,9 +16,15 @@ def get_mongodb_collection(col):
     return target_collection
 
 
-def insert_to_mongodb(col, data):
+def insert_one_to_mongodb(col, data):
     col = get_mongodb_collection(col)
     res = col.insert_one(convert_to_dict(data))
+    return res
+
+
+def insert_many_to_mongodb(col, data):
+    col = get_mongodb_collection(col)
+    res = col.insert_many(convert_to_dict(data))
     return res
 
 

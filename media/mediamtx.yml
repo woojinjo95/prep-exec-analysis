@@ -1,0 +1,112 @@
+###############################################
+# General parameters
+
+logLevel: info
+logDestinations: [stdout]
+logFile: rtsp-simple-server.log
+readTimeout: 10s
+writeTimeout: 10s
+readBufferCount: 512
+
+# HTTP URL to perform external authentication.
+# Every time a user wants to authenticate, the server calls this URL
+# with the POST method and a body containing:
+# {
+#   "ip": "ip",
+#   "user": "user",
+#   "password": "password",
+#   "path": "path",
+#   "action": "read|publish"
+#   "query": "url's raw query"
+# }
+# If the response code is 20x, authentication is accepted, otherwise
+# it is discarded.
+externalAuthenticationURL:
+
+# Enable the HTTP API.
+api: yes
+apiAddress: :9997
+metrics: yes
+metricsAddress: :9998
+pprof: no
+pprofAddress: 127.0.0.1:9999
+runOnConnect:
+runOnConnectRestart: no
+
+###############################################
+# RTSP parameters
+rtspDisable: no
+protocols: [udp, multicast, tcp]
+encryption: "no"
+rtspAddress: :8554
+rtspsAddress: :8322
+rtpAddress: :8000
+rtcpAddress: :8001
+multicastIPRange: 224.1.0.0/16
+multicastRTPPort: 8002
+multicastRTCPPort: 8003
+serverKey: server.key
+serverCert: server.crt
+authMethods: [basic, digest]
+
+###############################################
+# RTMP parameters
+
+rtmpDisable: yes
+rtmpAddress: :1935
+
+###############################################
+# HLS parameters
+
+hlsDisable: no
+hlsAddress: :8888
+hlsAlwaysRemux: yes # yes로 하면 단 1개의 세션도 없을 때 반응 속도가 빨라짐
+hlsSegmentCount: 10 # 개수가 클 수록 더 이전 값을 불러올 수 있음
+hlsSegmentDuration: 0.5s
+hlsSegmentMaxSize: 200M
+hlsAllowOrigin: '*'
+# LL-HLS parameters
+# hlsVariant: lowLatency
+# hlsEncryption: yes
+# hlsServerKey: server.key
+# hlsServerCert: server.crt
+# hlsPartDuration: 1000ms
+
+
+###############################################
+# Path parameters
+
+paths:
+  all:
+    source: publisher
+    sourceProtocol: automatic
+    sourceAnyPortEnable: no
+    sourceFingerprint:
+    sourceOnDemand: no
+    sourceOnDemandStartTimeout: 10s
+    sourceOnDemandCloseAfter: 10s
+    sourceRedirect:
+    disablePublisherOverride: no
+    fallback:
+
+    # publishUser: garnet
+    # publishPass: 9a2a2a
+    publishIPs: []
+
+    # readUser: heliodor
+    # readUser: 
+    # readPass:
+    # readPass: ffdf00
+    readIPs: []
+    runOnInit:
+    runOnInitRestart: no
+    runOnDemand:
+    runOnDemandRestart: no
+    runOnDemandStartTimeout: 10s
+    runOnDemandCloseAfter: 10s
+
+    runOnReady:
+    runOnReadyRestart: no
+   
+    runOnRead:
+    runOnReadRestart: no
