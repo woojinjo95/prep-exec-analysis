@@ -1,4 +1,4 @@
-import { millisecondsPerMinute, millisecondsPerSecond } from '@global/constant'
+import { MILLISECONDS_PER_MINUTE, MILLISECONDS_PER_SECOND } from '@global/constant'
 
 type DateToken =
   | 'YYYYMMDD'
@@ -73,9 +73,9 @@ export const formMsToHundred = (ms: number) => {
  * ms를 분, 초, ms로 끊어주는 함수
  */
 export const changeMsToMinSecMs = (_ms: number) => {
-  const m = Math.floor(_ms / millisecondsPerMinute)
-  const s = Math.floor((_ms % millisecondsPerMinute) / millisecondsPerSecond)
-  const ms = (_ms % millisecondsPerMinute) % millisecondsPerSecond
+  const m = Math.floor(_ms / MILLISECONDS_PER_MINUTE)
+  const s = Math.floor((_ms % MILLISECONDS_PER_MINUTE) / MILLISECONDS_PER_SECOND)
+  const ms = (_ms % MILLISECONDS_PER_MINUTE) % MILLISECONDS_PER_SECOND
   return {
     m,
     s,
@@ -88,5 +88,5 @@ export const changeMsToMinSecMs = (_ms: number) => {
  */
 export const changeMinSecMsToMs = (m: number, s: number, ms: number) => {
   console.log(m, s, ms)
-  return m * millisecondsPerMinute + s * millisecondsPerSecond + ms
+  return m * MILLISECONDS_PER_MINUTE + s * MILLISECONDS_PER_SECOND + ms
 }

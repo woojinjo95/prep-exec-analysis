@@ -5,5 +5,5 @@ import PagePath from './pagePath'
  */
 export const DEFAULT_PAGE_PATH = PagePath.action
 
-export const millisecondsPerSecond = 1000
-export const millisecondsPerMinute = 60 * millisecondsPerSecond
+export const MILLISECONDS_PER_SECOND = 1000
+export const MILLISECONDS_PER_MINUTE = 60 * MILLISECONDS_PER_SECOND
