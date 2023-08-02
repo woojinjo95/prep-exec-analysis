@@ -7,19 +7,37 @@ from typing import Generator
 
 from redis.exceptions import ConnectionError as RedisConnectionError
 
-from .redis_connection import StrictRedis
+from .redis_connection import StrictRedis, get_strict_redis_connection
 
 logger = logging.getLogger('connection')
 
 process_pubsub_error_dict = {'stack_count': 0, 'last_occured_time': time.time()}
 
 
-def publish(redis_client: StrictRedis, channel: str, payload: dict):
+def publish(redis_client: StrictRedis, channel: str, payload: dict) -> int:
+    """_summary_
+    redis_client 상 channel로 payload를 JSON 으로 덤프하여 보내는 함수
+    Args:
+        redis_client (StrictRedis): 레디스 클라이언트 
+        channel (str): 채널명
+        payload (dict): JSON serialize가 가능한 dictionary
+    Returns:
+        count: 메시지를 수신한 subscriber 개수, 수신한 게 없으면 0
+    """
     data = json.dumps(payload)
     return redis_client.publish(channel, data)
 
 
 def Subscribe(redis_client: StrictRedis, channel: str, stop_event: Event = Event()) -> Generator:
+    """_summary_
+    redis_client 상 channel에서 JSON 값을 가져옴
+    Args:
+        redis_client (StrictRedis): 레디스 클라이언트 
+        channel (str): 채널명
+        stop_event: Mutliprocesse event, 재시작 등을 위한 플래그
+    Yields:
+        payload: JSON serialize가 가능한 dictionary
+    """
     pubsub = redis_client.pubsub()
     pubsub.subscribe(channel)
     logger.info(f'Redis subscriber start in {channel}')
