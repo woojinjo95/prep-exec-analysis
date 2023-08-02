@@ -16,21 +16,21 @@ remocons = [
             "code_name": "TVPower",
             "pronto_code": "TVPower",
             "coordinate": [78,25,121,66],
-            "hotkey": ['control', 'shift', 'z']
+            "hotkey": ['q']
             },
             {
             "name": "1",
             "code_name": "Num1",
             "pronto_code": "Num1",
             "coordinate": [28,85,61,117],
-            "hotkey": ['control', '1']
+            "hotkey": ['1']
             },
             {
             "name": "2",
             "code_name": "Num2",
             "pronto_code": "Num2",
             "coordinate": [83,85,119,120],
-            "hotkey": []
+            "hotkey": ['2']
             },
             {
             "name": "3",
