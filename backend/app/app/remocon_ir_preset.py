@@ -271,28 +271,28 @@ remocons = [
             "hotkey": []
             },
             {
-            "name": "빨강",
+            "name": "Red",
             "code_name": "Red",
             "pronto_code": "Red",
             "coordinate": [22,614,53,646],
             "hotkey": []
             },
             {
-            "name": "초록",
+            "name": "Green",
             "code_name": "Green",
             "pronto_code": "Green",
             "coordinate": [63,614,95,646],
             "hotkey": []
             },
             {
-            "name": "노랑",
+            "name": "Yellow",
             "code_name": "Yellow",
             "pronto_code": "Yellow",
             "coordinate": [104,616,137,648],
             "hotkey": []
             },
             {
-            "name": "파랑",
+            "name": "Blue",
             "code_name": "Blue",
             "pronto_code": "Blue",
             "coordinate": [147,614,176,647],
