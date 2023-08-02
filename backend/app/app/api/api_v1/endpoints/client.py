@@ -58,13 +58,13 @@ async def redis_connector(websocket: WebSocket):
         try:
             while True:
                 message = await ws.receive_text()
-                if message.startswith("command:"):
-                    await conn.publish("command", message)
+                if message.startswith("command:"): #command:로 시작하는 메시지를 control 채널로 발행함
+                    await conn.publish("control", message)
         except WebSocketDisconnect as exc:
             logger.error(exc)
 
     async def producer_handler(pubsub: redis, ws: WebSocket):
-        await pubsub.subscribe("command")
+        await pubsub.subscribe("control") #control 채널을 수신함 
         try:
             while True:
                 message = await pubsub.get_message(ignore_subscribe_messages=True)
