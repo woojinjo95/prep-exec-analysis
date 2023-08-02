@@ -60,7 +60,7 @@ const Tabs: React.FC<TabsProps> = ({ header, children, className, theme = 'light
 
       {React.Children.toArray(children).map((c, index) =>
         index === activeIndex ? (
-          <div key={`tab-panel-${index}`} className={cx('tab-panel', theme)}>
+          <div key={`tab-panel-${index}`} className={cx('tab-panel', 'overflow-hidden', theme)}>
             {c}
           </div>
         ) : null,
