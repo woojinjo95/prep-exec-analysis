@@ -23,6 +23,14 @@ class Remocon(BaseModel):
     custom_keys: list[custom_key]
 
 
+class RemoconUpdate(BaseModel):
+    name: Optional[str]
+    image_path: Optional[str]
+    image_resolution: Optional[list]
+    remocon_codes: Optional[list]
+    custom_keys: Optional[list]
+
+
 class RemoconRead(BaseModel):
     items: list[Remocon]
 

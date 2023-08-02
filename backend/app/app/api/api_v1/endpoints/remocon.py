@@ -23,12 +23,15 @@ def read_remocon() -> schemas.RemoconRead:
 @router.put("/{remocon_id}", response_model=schemas.MsgWithId)
 def update_remocon(
     remocon_id: str,
-    remocon_in: schemas.Remocon,
+    remocon_in: schemas.RemoconUpdate,
 ) -> schemas.MsgWithId:
     """
     리모컨 정보 덮어쓰기
     """
-    update_by_id_to_mongodb(col='remocon', id=remocon_id, data=remocon_in)
+    new_remocon_data = {f'{remocon_key}': remocon_value
+                        for remocon_key, remocon_value in remocon_in
+                        if remocon_value is not None}
+    update_by_id_to_mongodb(col='remocon', id=remocon_id, data=new_remocon_data)
     logger.info(f"Update remocon data: {remocon_id}")
     return ({'msg': 'Update remocon', 'id': remocon_id})
 
