@@ -7,7 +7,7 @@ from redis import StrictRedis
 from ..configs.constant import RedisDBEnum
 from ..utils.docker import is_running_in_docker
 
-logger = logging.Logger('main')
+logger = logging.Logger('connection')
 
 
 REDIS_HOST = os.getenv("REDIS_HOST", "redis") if is_running_in_docker() else 'localhost'
@@ -16,7 +16,6 @@ REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
 
 
 def get_strict_redis_connection(db=RedisDBEnum.media) -> StrictRedis:
-    logger.info(f'{REDIS_HOST} {REDIS_PORT} {REDIS_PASSWORD}')
     return StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=db, password=REDIS_PASSWORD)
 
 
