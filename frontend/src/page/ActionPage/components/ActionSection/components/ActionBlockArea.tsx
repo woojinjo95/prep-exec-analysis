@@ -2,27 +2,19 @@ import React, { useEffect, useRef, useState } from 'react'
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd'
 import cx from 'classnames'
 
+import { Block, BlockGroup, Scenario } from '@page/ActionPage/components/ActionSection/api/entity'
+import { useMutation, useQuery } from 'react-query'
 import ActionBlockItem from './ActionBlockItem'
-import { Block } from '../types'
 import BlockControls from './BlockControls'
+import { getScenario, putScenario } from '../api/func'
 
-const blockData: Block[] = Array.from({ length: 30 }, (_, i) => ({
-  id: i,
-  title: `block ${i} test block`,
-  time: '23h 23m 23s',
-  refIdx: i,
-}))
+type BlocksRef = {
+  [id: string]: HTMLDivElement | null
+}
 
 const ActionBlockArea = (): JSX.Element => {
   // 전체 블럭
-  const [blocks, setBlocks] = useState<Block[]>(blockData)
-
-  // 선택된 블럭 id list
-  const [selectedBlockIds, setSelectedBlockIds] = useState<number[]>([])
-
-  const blocksRef = useRef<HTMLDivElement[] | null[]>(new Array(blocks.length))
-
-  const [modifyingBlockId, setModifyingBlockId] = useState<number | null>(null)
+  const [blocks, setBlocks] = useState<Block[] | null>(null)
 
   /**
    * 실제로 렌더링 때 사용될 blockDummys
@@ -31,10 +23,38 @@ const ActionBlockArea = (): JSX.Element => {
    */
   const [blockDummys, setBlockDummys] = useState<Block[][]>([])
 
+  const { data: scenario, refetch: blockRefetch } = useQuery<Scenario>(['scenario'], () => getScenario(), {
+    onSuccess: (res) => {
+      if (res && res.items.block_group.length > 0) {
+        const newBlocks: Block[] = res.items.block_group[0].block
+        setBlocks(newBlocks)
+        setBlockDummys(newBlocks.map((block) => [block]))
+      }
+    },
+  })
+
+  const { mutate: putScenarioMutate } = useMutation(putScenario, {
+    onSuccess: () => {
+      blockRefetch()
+    },
+    onError: () => {
+      alert('시나리오 수정에 실패하였습니다')
+    },
+  })
+
+  // 선택된 블럭 id list
+  const [selectedBlockIds, setSelectedBlockIds] = useState<string[]>([])
+
+  const blocksRef = useRef<BlocksRef>({})
+
+  const [modifyingBlockId, setModifyingBlockId] = useState<string | null>(null)
+
   /**
    * onDragEnd handler (block용)
    */
   const handleDragEnd = (result: DropResult) => {
+    if (!scenario) return
+
     if (!result.destination) return
 
     const { source, destination } = result
@@ -55,14 +75,21 @@ const ActionBlockArea = (): JSX.Element => {
     setBlockDummys(updatedBlockDummys)
 
     // 전체 blocks 최신화
-    setBlocks(updatedBlockDummys.flat())
+
+    const newBlockGroup: BlockGroup = { ...scenario.items.block_group[0], block: updatedBlockDummys.flat() }
+
+    putScenarioMutate({
+      block_group: [newBlockGroup],
+    })
   }
 
   /**
    * block onClick handler
    * @param blockId 클릭한 block id
    */
-  const handleBlockClick = (event: React.MouseEvent<HTMLDivElement>, blockId: number) => {
+  const handleBlockClick = (event: React.MouseEvent<HTMLDivElement>, blockId: string) => {
+    if (!blocks) return
+
     const { ctrlKey, shiftKey } = event
 
     if (ctrlKey) {
@@ -88,44 +115,46 @@ const ActionBlockArea = (): JSX.Element => {
 
   // 연속된 block을 하나의 blockDummy로 묶기 위한 useEffect
   useEffect(() => {
-    const blockIndexs: number[] = selectedBlockIds
-      .map((id) => blocks.findIndex((block_id) => block_id.id === id))
-      .filter((idx) => idx !== -1)
+    if (blocks) {
+      const blockIndexs: number[] = selectedBlockIds
+        .map((id) => blocks.findIndex((block_id) => block_id.id === id))
+        .filter((idx) => idx !== -1)
 
-    // 선택된 블록들의 sorted index list
-    const sortedBlockIdxs = blockIndexs.sort((a, b) => a - b)
+      // 선택된 블록들의 sorted index list
+      const sortedBlockIdxs = blockIndexs.sort((a, b) => a - b)
 
-    if (sortedBlockIdxs.length > 1) {
-      // 연속성 체크
-      let checkContinuous = true
+      if (sortedBlockIdxs.length > 1) {
+        // 연속성 체크
+        let checkContinuous = true
 
-      for (let i = 0; i < sortedBlockIdxs.length - 1; i += 1) {
-        if (Math.abs(sortedBlockIdxs[i + 1] - sortedBlockIdxs[i]) !== 1) {
-          checkContinuous = false
-          break
-        }
-      }
-
-      // 연속인 블럭의 경우
-      if (checkContinuous) {
-        const tempDummyBlocks = []
-
-        for (let i = 0; i < blocks.length; i += 1) {
-          if (i >= sortedBlockIdxs[0] && i <= sortedBlockIdxs[sortedBlockIdxs.length - 1]) {
-            if (i === sortedBlockIdxs[0]) {
-              tempDummyBlocks.push(sortedBlockIdxs.map((idx) => blocks[idx]))
-            }
-          } else {
-            tempDummyBlocks.push([blocks[i]])
+        for (let i = 0; i < sortedBlockIdxs.length - 1; i += 1) {
+          if (Math.abs(sortedBlockIdxs[i + 1] - sortedBlockIdxs[i]) !== 1) {
+            checkContinuous = false
+            break
           }
         }
 
-        setBlockDummys(tempDummyBlocks)
+        // 연속인 블럭의 경우
+        if (checkContinuous) {
+          const tempDummyBlocks = []
+
+          for (let i = 0; i < blocks.length; i += 1) {
+            if (i >= sortedBlockIdxs[0] && i <= sortedBlockIdxs[sortedBlockIdxs.length - 1]) {
+              if (i === sortedBlockIdxs[0]) {
+                tempDummyBlocks.push(sortedBlockIdxs.map((idx) => blocks[idx]))
+              }
+            } else {
+              tempDummyBlocks.push([blocks[i]])
+            }
+          }
+
+          setBlockDummys(tempDummyBlocks)
+        } else {
+          setBlockDummys(blocks.map((block) => [block]))
+        }
       } else {
         setBlockDummys(blocks.map((block) => [block]))
       }
-    } else {
-      setBlockDummys(blocks.map((block) => [block]))
     }
   }, [selectedBlockIds, blocks])
 
@@ -148,7 +177,7 @@ const ActionBlockArea = (): JSX.Element => {
 
   // 드래그 후 마우스를 땠을 때
   const handleMouseUp = () => {
-    if (dragSelection) {
+    if (dragSelection && blocks) {
       const { startX, startY, endX, endY } = dragSelection
       const minX = Math.min(startX, endX)
       const minY = Math.min(startY, endY)
@@ -156,17 +185,19 @@ const ActionBlockArea = (): JSX.Element => {
       const maxY = Math.max(startY, endY)
 
       // 드래그 영역에 속하는 블럭들의 id
-      const selectedIds: number[] = blocks
+      const selectedIds: string[] = blocks
         .filter((block) => {
-          if (!blocksRef.current[block.refIdx]) return false
+          if (!blocksRef.current[block.id]) return false
 
-          const blockRect = blocksRef.current[block.refIdx]!.getBoundingClientRect()
+          const blockRect = blocksRef.current[block.id]!.getBoundingClientRect()
           const blockY = blockRect.top + blockRect.height / 2
 
           return (
             blockY >= minY &&
             blockY <= maxY &&
-            ((minX <= blockRect.left && maxX >= blockRect.left) || (maxX >= blockRect.right && minX <= blockRect.right))
+            ((minX <= blockRect.left && maxX >= blockRect.left) ||
+              (maxX >= blockRect.right && minX <= blockRect.right) ||
+              (minX >= blockRect.left && maxX <= blockRect.right))
           )
         })
         .map((block) => block.id)
@@ -182,7 +213,7 @@ const ActionBlockArea = (): JSX.Element => {
       const x = event.clientX
       const y = event.clientY
 
-      if (dragSelection) {
+      if (dragSelection && blocks) {
         setDragSelection((prevState) => ({
           ...prevState!,
           endX: x,
@@ -196,18 +227,19 @@ const ActionBlockArea = (): JSX.Element => {
         const maxY = Math.max(startY, endY)
 
         // 드래그 영역에 속하는 블럭들의 id
-        const selectedIds: number[] = blocks
+        const selectedIds: string[] = blocks
           .filter((block) => {
-            if (!blocksRef.current[block.refIdx]) return false
+            if (!blocksRef.current[block.id]) return false
 
-            const blockRect = blocksRef.current[block.refIdx]!.getBoundingClientRect()
+            const blockRect = blocksRef.current[block.id]!.getBoundingClientRect()
             const blockY = blockRect.top + blockRect.height / 2
 
             return (
               blockY >= minY &&
               blockY <= maxY &&
               ((minX <= blockRect.left && maxX >= blockRect.left) ||
-                (maxX >= blockRect.right && minX <= blockRect.right))
+                (maxX >= blockRect.right && minX <= blockRect.right) ||
+                (minX >= blockRect.left && maxX <= blockRect.right))
             )
           })
           .map((block) => block.id)
@@ -226,56 +258,63 @@ const ActionBlockArea = (): JSX.Element => {
           onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
         >
-          <div className="w-full h-full pl-[30px] pr-[30px] overflow-y-auto pt-[2px] pb-[2px]">
-            <DragDropContext onDragEnd={handleDragEnd}>
-              <Droppable droppableId="droppable">
-                {(provided) => (
-                  <div ref={provided.innerRef} {...provided.droppableProps} className="flex flex-col">
-                    {blockDummys.map((dummy, dummyIdx) => {
-                      return (
-                        <Draggable
-                          key={dummyIdx}
-                          draggableId={`dummy-${dummyIdx}`}
-                          index={dummyIdx}
-                          isDragDisabled={!!(modifyingBlockId && dummy.find((block) => block.id === modifyingBlockId))}
-                        >
-                          {(provided) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className={cx('w-full cursor-grab ', {})}
-                            >
-                              {dummy.map((block) => {
-                                return (
-                                  <div
-                                    key={block.id}
-                                    ref={(ele) => {
-                                      blocksRef.current[block.refIdx] = ele
-                                    }}
-                                  >
-                                    <ActionBlockItem
-                                      actionStatus="normal"
-                                      block={block}
-                                      selectedBlockIds={selectedBlockIds}
-                                      handleBlockClick={handleBlockClick}
-                                      setModifyingBlockId={setModifyingBlockId}
-                                      modifyingBlockId={modifyingBlockId}
-                                    />
-                                  </div>
-                                )
-                              })}
-                            </div>
-                          )}
-                        </Draggable>
-                      )
-                    })}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
-          </div>
+          {blocks && blockDummys && (
+            <div className="w-full h-full pl-[30px] pr-[30px] overflow-y-auto pt-[2px] pb-[2px]">
+              <DragDropContext onDragEnd={handleDragEnd}>
+                <Droppable droppableId="droppable">
+                  {(provided) => (
+                    <div ref={provided.innerRef} {...provided.droppableProps} className="flex flex-col">
+                      {blockDummys.map((dummy, dummyIdx) => {
+                        return (
+                          <Draggable
+                            key={dummyIdx}
+                            draggableId={`dummy-${dummyIdx}`}
+                            index={dummyIdx}
+                            isDragDisabled={
+                              !!(modifyingBlockId && dummy.find((block) => block.id === modifyingBlockId))
+                            }
+                          >
+                            {(provided) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                className={cx('w-full cursor-grab ', {})}
+                              >
+                                {dummy.map((block) => {
+                                  return (
+                                    <div
+                                      key={block.id}
+                                      ref={(ele) => {
+                                        blocksRef.current[block.id] = ele
+                                      }}
+                                    >
+                                      <ActionBlockItem
+                                        actionStatus="normal"
+                                        block={block}
+                                        selectedBlockIds={selectedBlockIds}
+                                        handleBlockClick={handleBlockClick}
+                                        setModifyingBlockId={setModifyingBlockId}
+                                        modifyingBlockId={modifyingBlockId}
+                                        blockRefetch={() => {
+                                          blockRefetch()
+                                        }}
+                                      />
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            )}
+                          </Draggable>
+                        )
+                      })}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
+            </div>
+          )}
 
           {dragSelection && (
             <div
