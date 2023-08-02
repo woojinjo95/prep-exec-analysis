@@ -9,7 +9,7 @@ def timestamp_to_datetime_str_with_timezone(timestamp: float = 0, time_delta: in
     else:
         datetime_obj = datetime.fromtimestamp(timestamp, current_timezone)
 
-    if format == 'iso_format':
+    if format == 'isoformat':
         return datetime_obj.isoformat()
     else:
         return datetime.strftime(datetime_obj, format)
