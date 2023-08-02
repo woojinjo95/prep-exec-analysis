@@ -36,7 +36,7 @@ def init_scenario():
 
 
 def init_remocon_registration():
-    remocons_data = remocon_preset(settings.COMPANY.split(','))
+    remocons_data = remocon_preset(settings.REMOCONS_COMPANY.split(','))
     if remocons_data != []:
         insert_many_to_mongodb(col='remocon', data=remocons_data)
         logger.info(f'Remocon data registration complete')

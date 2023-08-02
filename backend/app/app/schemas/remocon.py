@@ -1,5 +1,3 @@
-import uuid
-
 from typing import Optional
 from pydantic import BaseModel
 
@@ -20,7 +18,7 @@ class Remocon(BaseModel):
     id: Optional[str] = None
     name: str
     image_path: str
-    image_resolution: dict
+    image_resolution: list
     remocon_codes: list[remocon_code]
     custom_keys: list[custom_key]
 

@@ -7,11 +7,8 @@ remocons = [
     {
         "id": str(uuid4()),
         "name": "Vodafone",
-        "image_path": "",
-        "image_resolution": {
-            "width": 0,
-            "height": 0
-        },
+        "image_path": "/api/v1/file/system_file/remocon_image_Vodafone.jpg",
+        "image_resolution": list(Image.open('/app/app/files/system/remocon_image_Vodafone.jpg').size),
         "custom_keys": [],
         "remocon_codes": [
             {
@@ -285,11 +282,8 @@ remocons = [
     {
         "id": str(uuid4()),
         "name": "KT",
-        "image_path": "",
-        "image_resolution": {
-            "width": 0,
-            "height": 0
-        },
+        "image_path": "/api/v1/file/system_file/remocon_image_KT.jpg",
+        "image_resolution": list(Image.open('/app/app/files/system/remocon_image_KT.jpg').size),
         "custom_keys": [],
         "remocon_codes": [
             {
@@ -640,11 +634,8 @@ remocons = [
     {
         "id": str(uuid4()),
         "name": "SK",
-        "image_path": "",
-        "image_resolution": {
-            "width": 0,
-            "height": 0
-        },
+        "image_path": "/api/v1/file/system_file/remocon_image_SK.jpg",
+        "image_resolution": list(Image.open('/app/app/files/system/remocon_image_SK.jpg').size),
         "custom_keys": [],
         "remocon_codes": [
             {
@@ -939,11 +930,8 @@ remocons = [
     {
         "id": str(uuid4()),
         "name": "LG",
-        "image_path": "",
-        "image_resolution": {
-            "width": 0,
-            "height": 0
-        },
+        "image_path": "/api/v1/file/system_file/remocon_image_LG.jpg",
+        "image_resolution": list(Image.open('/app/app/files/system/remocon_image_LG.jpg').size),
         "custom_keys": [],
         "remocon_codes": [
             {
@@ -1348,11 +1336,6 @@ remocons = [
         ]
     }
 ]
-
-for idx, remocon in enumerate(remocons):
-    remocons[idx]['image_path'] = f'/app/app/files/system/remocon_image_{remocon["name"]}.jpg'
-    image_size = Image.open(remocon['image_path']).size # 이미지 해상도 계산 (0, 0)
-    remocons[idx]['image_resolution'] = {"width":image_size[0], "height":image_size[1]}
 
 
 def remocon_preset(company: list[str]):
