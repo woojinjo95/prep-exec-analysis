@@ -39,7 +39,7 @@ def construct_ffmpeg_cmd() -> str:
     streaming_crf = streaming_configs['crf']
 
     # recording config
-    segment_time = recording_configs['segment_time']
+    segment_time = recording_configs['segment_interval']
     output_path = recording_configs['real_time_video_path']
     recording_crf = recording_configs['crf']
     os.makedirs(output_path, exist_ok=True)
@@ -81,7 +81,7 @@ def start_capture(audio_values: Queue, stop_event: Event):
     rotation_file_manager = RotationFileManager()
 
     try:
-        set_value('state', 'state', 'streaming')
+        set_value('state', 'streaming_state', 'streaming')
         # ffmpeg use stderr that stderr = stderr=subprocess.STDOUT
         with subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as process:
             start_time = time.time()
@@ -105,7 +105,7 @@ def start_capture(audio_values: Queue, stop_event: Event):
         # kill process
         time.sleep(0.5)
         kill_pid_grep(capture_configs['video_device'])
-        set_value('state', 'state', 'idle')
+        set_value('state', 'streaming_state', 'idle')
 
 
 def audio_value_consumer(audio_values: Queue, stop_event: Event):

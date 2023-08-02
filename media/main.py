@@ -29,11 +29,10 @@ def main():
 
         if get_value('test', 'capture') == 'yes':
             set_value('test', 'capture', 'no')
-            duration = get_value('test', 'interval', 30)
+            interval = get_value('test', 'interval', 30)
 
-            new_video = MakeVideo(duration=duration)
+            new_video = MakeVideo(interval=interval)
             new_video.run()
-            logger.info(f'New video! : {new_video}')
 
         time.sleep(5)
 
