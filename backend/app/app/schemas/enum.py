@@ -9,3 +9,9 @@ class RemoteControlTypeEnum(str, Enum):
 class StbConnectionTypeEnum(str, Enum):
     ssh = "ssh"
     adb = "adb"
+
+
+class ProtocolEnum(str, Enum):
+    all = "all"
+    tcp = "tcp"
+    udp = "udp"
