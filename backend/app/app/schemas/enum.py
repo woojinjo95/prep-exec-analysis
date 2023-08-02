@@ -15,3 +15,7 @@ class ProtocolEnum(str, Enum):
     all = "all"
     tcp = "tcp"
     udp = "udp"
+
+
+class ResumeMeasurementRecognizingKeyEvent(str, Enum):
+    power = "power"
