@@ -5,9 +5,10 @@ from pydantic import BaseModel
 class Remocon(BaseModel):
     class remocon_code(BaseModel):
         name: str
-        hotkey: list[str]
+        code_name: str
         pronto_code: str
         coordinate: list[int]
+        hotkey: list[str]
 
     class custom_key(BaseModel):
         id: Optional[str] = None

@@ -10,7 +10,8 @@ class Settings(BaseSettings):
     SENTRY_DSN: Optional[HttpUrl] = None
     SERVICE_NAME: str
     FILES_PATH: str = os.getenv("FILES_PATH", '/app/app/files')
-    REMOCON_COMPANY: str = os.getenv("REMOCON_COMPANY", "LG,KT,SK")
+    # REMOCON_COMPANY: str = os.getenv("REMOCON_COMPANY", "LG,KT,SK")
+    REMOCON_COMPANY: str = os.getenv("REMOCON_COMPANY", "Vodafone")
 
     MONGODB_SERVER: str
     MONGODB_NAME: str

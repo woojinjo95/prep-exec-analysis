@@ -12,269 +12,290 @@ remocons = [
         "custom_keys": [],
         "remocon_codes": [
             {
-            "name": "TV전원",
+            "name": "TV Power",
             "code_name": "TVPower",
             "pronto_code": "TVPower",
-            "coordinate": [0,0,0,0],
-            "hotkey": []
+            "coordinate": [78,25,121,66],
+            "hotkey": ['control', 'shift', 'z']
             },
             {
             "name": "1",
             "code_name": "Num1",
             "pronto_code": "Num1",
-            "coordinate": [0,0,0,0],
-            "hotkey": []
+            "coordinate": [28,85,61,117],
+            "hotkey": ['control', '1']
             },
             {
             "name": "2",
             "code_name": "Num2",
             "pronto_code": "Num2",
-            "coordinate": [0,0,0,0],
+            "coordinate": [83,85,119,120],
             "hotkey": []
             },
             {
             "name": "3",
             "code_name": "Num3",
             "pronto_code": "Num3",
-            "coordinate": [0,0,0,0],
+            "coordinate": [138,85,172,118],
             "hotkey": []
             },
             {
             "name": "4",
             "code_name": "Num4",
             "pronto_code": "Num4",
-            "coordinate": [0,0,0,0],
+            "coordinate": [27,129,60,161],
             "hotkey": []
             },
             {
             "name": "5",
             "code_name": "Num5",
             "pronto_code": "Num5",
-            "coordinate": [0,0,0,0],
+            "coordinate": [83,128,118,162],
             "hotkey": []
             },
             {
             "name": "6",
             "code_name": "Num6",
             "pronto_code": "Num6",
-            "coordinate": [0,0,0,0],
+            "coordinate": [138,130,174,162],
             "hotkey": []
             },
             {
             "name": "7",
             "code_name": "Num7",
             "pronto_code": "Num7",
-            "coordinate": [0,0,0,0],
+            "coordinate": [25,171,60,205],
             "hotkey": []
             },
             {
             "name": "8",
             "code_name": "Num8",
             "pronto_code": "Num8",
-            "coordinate": [0,0,0,0],
+            "coordinate": [84,172,117,205],
             "hotkey": []
             },
             {
             "name": "9",
             "code_name": "Num9",
             "pronto_code": "Num9",
-            "coordinate": [0,0,0,0],
+            "coordinate": [139,170,175,208],
             "hotkey": []
             },
             {
             "name": "0",
             "code_name": "Num0",
             "pronto_code": "Num0",
-            "coordinate": [0,0,0,0],
+            "coordinate": [81,214,117,248],
             "hotkey": []
             },
             {
-            "name": "뒤로스킵",
+            "name": "Skip back",
             "code_name": "SkipBack",
             "pronto_code": "SkipBack",
-            "coordinate": [0,0,0,0],
+            "coordinate": [25,214,63,250],
             "hotkey": []
             },
             {
-            "name": "앞으로스킵",
+            "name": "Skip forward",
             "code_name": "SkipForward",
             "pronto_code": "SkipForward",
-            "coordinate": [0,0,0,0],
+            "coordinate": [135,214,173,247],
             "hotkey": []
             },
             {
-            "name": "되감기",
+            "name": "Rewind",
             "code_name": "Rewind",
             "pronto_code": "Rewind",
-            "coordinate": [0,0,0,0],
+            "coordinate": [21,259,67,304],
             "hotkey": []
             },
             {
-            "name": "빨리감기",
+            "name": "Play/Stop",
+            "code_name": "PlayStop",
+            "pronto_code": "PlayStop",
+            "coordinate": [79,259,123,304],
+            "hotkey": []
+            },
+            {
+            "name": "Fast Forward",
             "code_name": "FastForward",
             "pronto_code": "FastForward",
-            "coordinate": [0,0,0,0],
+            "coordinate": [133,259,178,305],
             "hotkey": []
             },
             {
-            "name": "뒤로가기",
+            "name": "Back",
             "code_name": "Back",
             "pronto_code": "Back",
-            "coordinate": [0,0,0,0],
+            "coordinate": [20,313,56,349],
             "hotkey": []
             },
             {
-            "name": "메인메뉴",
+            "name": "Main Menu",
             "code_name": "MainMenu",
             "pronto_code": "MainMenu",
-            "coordinate": [0,0,0,0],
+            "coordinate": [147,313,181,349],
             "hotkey": []
             },
             {
-            "name": "나가기",
+            "name": "Exit",
             "code_name": "Exit",
             "pronto_code": "Exit",
-            "coordinate": [0,0,0,0],
+            "coordinate": [19,441,58,475],
+            "hotkey": []
+            },
+            # {
+            # "name": "Google Asistant",
+            # "code_name": "GoogleAsistant",
+            # "pronto_code": "GoogleAsistant",
+            # "coordinate": [0,0,0,0],
+            # "hotkey": []
+            # },
+            {
+            "name": "Search",
+            "code_name": "Search",
+            "pronto_code": "Search",
+            "coordinate": [147,441,180,475],
             "hotkey": []
             },
             {
-            "name": "구글어시스턴트",
-            "code_name": "GoogleAsistant",
-            "pronto_code": "GoogleAsistant",
-            "coordinate": [0,0,0,0],
-            "hotkey": []
-            },
-            {
-            "name": "위",
+            "name": "Up",
             "code_name": "Up",
             "pronto_code": "Up",
-            "coordinate": [0,0,0,0],
+            "coordinate": [80,330,119,365],
             "hotkey": []
             },
             {
-            "name": "아래",
+            "name": "Down",
             "code_name": "Down",
             "pronto_code": "Down",
-            "coordinate": [0,0,0,0],
+            "coordinate": [78,425,117,460],
             "hotkey": []
             },
             {
-            "name": "왼쪽",
+            "name": "Left",
             "code_name": "Left",
             "pronto_code": "Left",
-            "coordinate": [0,0,0,0],
+            "coordinate": [35,375,74,412],
             "hotkey": []
             },
             {
-            "name": "오른쪽",
+            "name": "Right",
             "code_name": "Right",
             "pronto_code": "Right",
-            "coordinate": [0,0,0,0],
+            "coordinate": [127,375,169,414],
             "hotkey": []
             },
             {
-            "name": "음량 ↑",
+            "name": "OK",
+            "code_name": "Ok",
+            "pronto_code": "Ok",
+            "coordinate": [74,367,129,421],
+            "hotkey": []
+            },
+            {
+            "name": "Volume ↑",
             "code_name": "VolumeUp",
             "pronto_code": "VolumeUp",
-            "coordinate": [0,0,0,0],
+            "coordinate": [23,497,63,532],
             "hotkey": []
             },
             {
-            "name": "음량 ↓",
+            "name": "Volume ↓",
             "code_name": "VolumeDown",
             "pronto_code": "VolumeDown",
-            "coordinate": [0,0,0,0],
+            "coordinate": [29,565,62,597],
             "hotkey": []
             },
             {
-            "name": "채널 ↑",
+            "name": "Channel ↑",
             "code_name": "ChannelUp",
             "pronto_code": "ChannelUp",
-            "coordinate": [0,0,0,0],
+            "coordinate": [138,497,174,531],
             "hotkey": []
             },
             {
-            "name": "채널 ↓",
+            "name": "Channel ↓",
             "code_name": "ChannelDown",
             "pronto_code": "ChannelDown",
-            "coordinate": [0,0,0,0],
+            "coordinate": [138,564,176,596],
             "hotkey": []
             },
             {
-            "name": "녹화",
+            "name": "Record",
             "code_name": "Record",
             "pronto_code": "Record",
-            "coordinate": [0,0,0,0],
+            "coordinate": [80,485,117,521],
             "hotkey": []
             },
             {
-            "name": "음소거",
+            "name": "Mute",
             "code_name": "Mute",
             "pronto_code": "Mute",
-            "coordinate": [0,0,0,0],
+            "coordinate": [78,528,120,563],
             "hotkey": []
             },
             {
-            "name": "외부입력",
+            "name": "Input Select",
             "code_name": "InputSelect",
             "pronto_code": "InputSelect",
-            "coordinate": [0,0,0,0],
+            "coordinate": [81,573,117,607],
             "hotkey": []
             },
             {
-            "name": "넷플릭스",
+            "name": "Netflix",
             "code_name": "Netflix",
             "pronto_code": "Netflix",
-            "coordinate": [0,0,0,0],
+            "coordinate": [22,656,67,701],
             "hotkey": []
             },
+            # {
+            # "name": "디즈니+",
+            # "code_name": "Disney+",
+            # "pronto_code": "Disney+",
+            # "coordinate": [0,0,0,0],
+            # "hotkey": []
+            # },
             {
-            "name": "디즈니+",
-            "code_name": "Disney+",
-            "pronto_code": "Disney+",
-            "coordinate": [0,0,0,0],
-            "hotkey": []
-            },
-            {
-            "name": "아마존프라임비디오",
+            "name": "Amazon Prime Video",
             "code_name": "AmazonPrimeVideo",
             "pronto_code": "AmazonPrimeVideo",
-            "coordinate": [0,0,0,0],
+            "coordinate": [78,656,123,701],
             "hotkey": []
             },
             {
-            "name": "HBO맥스",
-            "code_name": "HBOMax",
-            "pronto_code": "HBOMax",
-            "coordinate": [0,0,0,0],
+            "name": "HBO",
+            "code_name": "HBO",
+            "pronto_code": "HBO",
+            "coordinate": [132,655,178,701],
             "hotkey": []
             },
             {
             "name": "빨강",
             "code_name": "Red",
             "pronto_code": "Red",
-            "coordinate": [0,0,0,0],
+            "coordinate": [22,614,53,646],
             "hotkey": []
             },
             {
             "name": "초록",
             "code_name": "Green",
             "pronto_code": "Green",
-            "coordinate": [0,0,0,0],
+            "coordinate": [63,614,95,646],
             "hotkey": []
             },
             {
             "name": "노랑",
             "code_name": "Yellow",
             "pronto_code": "Yellow",
-            "coordinate": [0,0,0,0],
+            "coordinate": [104,616,137,648],
             "hotkey": []
             },
             {
             "name": "파랑",
             "code_name": "Blue",
             "pronto_code": "Blue",
-            "coordinate": [0,0,0,0],
+            "coordinate": [147,614,176,647],
             "hotkey": []
             }
         ]
