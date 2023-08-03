@@ -111,7 +111,7 @@ def LogBatchGenerator(file_path: str, no_time_count_limit: int = 10000):
         if last_time is not None:
             batches.append({
                 **parsed_chunk,
-                'timestamp': timestamp_to_datetime_with_timezone_str(last_time.timestamp(), format="%Y-%m-%dT%H%M%SF%f%z", timezone=get_value('common', 'timezone', db=RedisDB.hardware)),
+                'timestamp': timestamp_to_datetime_with_timezone_str(last_time.timestamp(), timezone=get_value('common', 'timezone', db=RedisDB.hardware)),
             })
 
     yield batches
@@ -119,18 +119,18 @@ def LogBatchGenerator(file_path: str, no_time_count_limit: int = 10000):
 
 def insert_to_db(file_path: str):
     for log_batch in LogBatchGenerator(file_path):
-        logger.info(f'log_batch: {log_batch}')
-
         logger.info(f'insert {len(log_batch)} datas to db')
 
-        # json_data = construct_json_data(log_batch)
+        json_data = construct_json_data(log_batch)
+        logger.info(f'json_data: {json_data}')
+
         # # write_json(f'stb_log_{datetime.fromtimestamp(log_batch[0][0]).strftime("%Y-%m-%d %H:%M:%S")}.json', json_data)
         # insert_to_mongodb('stb_log', json_data)
 
 
 def construct_json_data(log_batch: List[Tuple[float, str]]) -> Dict:
     return {
-        'time': int(log_batch[0]['timestamp']),  # first log time(second) in batch
+        'time': re.sub(r'F\d{6}', '', log_batch[0]['timestamp']),
         'lines': [{
             'timestamp': log_chunk['timestamp'],
             'module': log_chunk['module'],
