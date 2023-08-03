@@ -23,6 +23,8 @@ completed_log_dir = os.path.join('datas', 'stb_logs', 'completed_logs')
 log_prefix_pattern = r'<Collector:\s(\d+\.\d+)>'
 log_chunk_pattern = r"\[\s(?P<timestamp>\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})\s*(?P<pid>\d+)\s*:\s*(?P<tid>\d+)\s*(?P<log_level>[\w])\/(?P<module>.*)\s*\]\n(?P<message>.*)\n"
 
+timezone = get_value('common', 'timezone', db=RedisDB.hardware)
+
 
 def postprocess(stop_event: Event):
     logger.info(f"start log postprocess")
@@ -111,7 +113,7 @@ def LogBatchGenerator(file_path: str, no_time_count_limit: int = 10000):
         if last_time is not None:
             batches.append({
                 **parsed_chunk,
-                'timestamp': timestamp_to_datetime_with_timezone_str(last_time.timestamp(), timezone=get_value('common', 'timezone', db=RedisDB.hardware)),
+                'timestamp': timestamp_to_datetime_with_timezone_str(last_time.timestamp(), timezone=timezone),
             })
 
     yield batches
@@ -130,7 +132,7 @@ def insert_to_db(file_path: str):
 
 def construct_json_data(log_batch: List[Tuple[float, str]]) -> Dict:
     return {
-        'time': re.sub(r'F\d{6}', '', log_batch[0]['timestamp']),
+        'time': re.sub(r'.\d{6}', '', log_batch[0]['timestamp']),
         'lines': [{
             'timestamp': log_chunk['timestamp'],
             'module': log_chunk['module'],
