@@ -1,117 +1,84 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useEffect } from 'react'
 import Hls from 'hls.js'
 
-const pullCurrentPlayTime = (videoElement: HTMLVideoElement | null, diffTime = 0) => {
-  if (videoElement && videoElement.currentTime) {
-    // 불러온 영상의 마지막 시간 1초전으로 현재 재생시간을 맞춤
-    // eslint-disable-next-line no-param-reassign
-    videoElement.currentTime = videoElement.duration + diffTime
-    videoElement.play().catch((err) => {
-      console.log('error', err)
-    })
-  }
-}
-
-interface HLSPlayerProps {
+export interface HlsPlayerProps extends React.VideoHTMLAttributes<HTMLVideoElement> {
   src: string
 }
 
-const HLSPlayer: React.FC<HLSPlayerProps> = ({ src }) => {
-  const playerRef = useRef<HTMLVideoElement | null>(null)
-  const [isConnectHLS, setIsConnectHLS] = useState<boolean>(false)
+const HLSPlayer: React.FC<HlsPlayerProps> = ({ src, autoPlay, ...props }) => {
+  const playerRef = React.useRef<HTMLVideoElement | null>(null)
 
   useEffect(() => {
-    window.addEventListener('focus', () => {
-      pullCurrentPlayTime(playerRef.current)
-    })
-  }, [])
+    let hls: Hls
 
-  useEffect(() => {
-    const timerId = setInterval(() => {
-      if (isConnectHLS) {
-        pullCurrentPlayTime(playerRef.current, -1)
+    function initPlayer() {
+      if (hls != null) {
+        hls.destroy()
       }
-    }, 1000 * 60)
 
-    return () => {
-      clearInterval(timerId)
-    }
-  }, [isConnectHLS])
+      const newHls = new Hls({
+        enableWorker: false,
+        maxLiveSyncPlaybackRate: 1.5,
+        backBufferLength: 0,
+        xhrSetup: (xhr: XMLHttpRequest) => {
+          xhr.setRequestHeader('Authorization', `Basic ${btoa('heliodor:ffdf00')}`)
+        },
+      })
 
-  let hlsInstance: Hls | null = null
+      if (playerRef.current != null) {
+        newHls.attachMedia(playerRef.current)
+      }
 
-  const create = useCallback(() => {
-    const video = playerRef.current
+      newHls.on(Hls.Events.MEDIA_ATTACHED, () => {
+        newHls.loadSource(`${src}/index.m3u8`)
 
-    if (video) {
-      // always prefer hls.js over native HLS.
-      // this is because some Android versions support native HLS
-      // but doesn't support fMP4s.
-      if (Hls.isSupported()) {
-        console.log('isSupported')
-        const hls = new Hls({
-          maxLiveSyncPlaybackRate: 1.5,
-        })
-        hlsInstance = hls
-
-        hls.on(Hls.Events.ERROR, (_, data) => {
-          if (data.fatal) {
-            hls.destroy()
-            setTimeout(create, 2000)
+        newHls.on(Hls.Events.MANIFEST_PARSED, () => {
+          if (autoPlay) {
+            playerRef?.current
+              ?.play()
+              .catch(() => console.log('Unable to autoplay prior to user interaction with the dom.'))
           }
         })
-        hls.config.xhrSetup = (xhr: XMLHttpRequest) => {
-          xhr.setRequestHeader('Authorization', `Basic ${btoa('heliodor:ffdf00')}`)
-        }
-        hls.config.backBufferLength = 0 // before(default) Infinity -> after 0(최소한의 재생가능한 세그먼트를 유지)
+      })
 
-        hls.loadSource(`${src}/index.m3u8`)
-        hls.attachMedia(video)
-
-        const playPromise = video.play()
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => {
-              setIsConnectHLS(true)
-              pullCurrentPlayTime(video)
-            })
-            .catch((err) => {
-              setIsConnectHLS(false)
-              console.log('error', err)
-            })
+      newHls.on(Hls.Events.ERROR, (_, data) => {
+        if (data.fatal) {
+          switch (data.type) {
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              newHls.startLoad()
+              break
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              newHls.recoverMediaError()
+              break
+            default:
+              initPlayer()
+              break
+          }
         }
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        // since it's not possible to detect timeout errors in iOS,
-        // wait for the playlist to be available before starting the stream
-        fetch('stream.m3u8')
-          .then(() => {
-            video.src = 'index.m3u8'
-            video.play().catch((err) => {
-              console.log('error', err)
-            })
-          })
-          .catch((err) => {
-            console.log('error', err)
-          })
-      }
+      })
+
+      hls = newHls
     }
-  }, [src])
 
-  useEffect(() => {
-    create()
+    // Check for Media Source support
+    if (Hls.isSupported()) {
+      initPlayer()
+    }
 
     return () => {
-      if (hlsInstance) {
-        console.log('destory')
-        hlsInstance.stopLoad()
-        hlsInstance.destroy()
+      if (hls != null) {
+        hls.stopLoad()
+        hls.detachMedia()
+        hls.destroy()
       }
     }
-  }, [])
+  }, [autoPlay, playerRef, src])
 
-  return (
-    <video ref={playerRef} className="h-full aspect-video bg-black" muted controls autoPlay playsInline src={src} />
-  )
+  // If Media Source is supported, use HLS.js to play video
+  if (Hls.isSupported()) return <video ref={playerRef} {...props} />
+
+  // Fallback to using a regular video player if HLS is supported by default in the user's browser
+  return <video ref={playerRef} src={src} muted autoPlay={autoPlay} {...props} />
 }
 
 export default HLSPlayer

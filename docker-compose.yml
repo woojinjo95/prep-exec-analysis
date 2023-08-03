@@ -54,7 +54,7 @@ services:
     privileged: true
     volumes:
       - "$HOME/.ssh/runner_key:/app/static/keys/runner_key"
-      - "./media/videos:/app/videos"
+      - "./data/videos:/app/videos"
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
