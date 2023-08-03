@@ -23,6 +23,8 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: .nextlab6318!
     volumes:
       - mongodb_data:/data/db
+    networks:
+      - service
 
   mediamtx:
     image: aler9/rtsp-simple-server:v0.23.8
