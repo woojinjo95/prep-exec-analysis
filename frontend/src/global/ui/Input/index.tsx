@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import cx from 'classnames'
 
-interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
+interface InputProps extends React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> {
   className?: string
 }
 
@@ -21,8 +21,14 @@ const Input: React.FC<InputProps> = ({ className, ...props }) => {
       )}
     >
       <input
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
+        onFocus={(e) => {
+          setIsFocused(true)
+          props.onFocus?.(e)
+        }}
+        onBlur={(e) => {
+          setIsFocused(false)
+          props.onBlur?.(e)
+        }}
         className="outline-none w-full bg-transparent placeholder:text-gray-400 text-black"
         {...props}
       />
