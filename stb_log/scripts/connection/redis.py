@@ -8,6 +8,7 @@ from redis import StrictRedis
 logger = logging.getLogger('connection')
 
 
+# REDIS_HOST = '192.168.1.45'
 REDIS_HOST = os.getenv("REDIS_HOST")
 REDIS_PORT = os.getenv("REDIS_PORT")
 REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
