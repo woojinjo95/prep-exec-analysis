@@ -26,6 +26,11 @@ def command_parser(command: dict, remocon_process: RemoconProcess):
         key = remocon_args.get('key')
         remocon_process.put_command(key=key, _type='ir')
 
+    if command.get('remocon_type'):
+        remocon_type_args = command.get('remocon_type')
+        remocon_id = remocon_type_args.get('id')
+        remocon_process.set_remocon_id(int(remocon_id))
+
 
 @handle_errors
 def main():
