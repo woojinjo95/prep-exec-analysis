@@ -120,12 +120,7 @@ const RemoconSection: React.FC<RemoconSectionProps> = ({ keyEvent }) => {
               alt="remocon"
               className="h-full object-contain"
             />
-            <ButtonSquares
-              keyboardCoors={selectedKeyoardCoors}
-              keyEvent={keyEvent}
-              imageRef={remoconRef}
-              remoconResolution={selectedRemocon.image_resolution}
-            />
+            <ButtonSquares keyEvent={keyEvent} imageRef={remoconRef} selectedRemocon={selectedRemocon} />
           </div>
           <div className="flex flex-col h-full">
             <div className="grid grid-rows-[1fr_8fr] overflow-y-auto">
