@@ -32,12 +32,6 @@ def init_hardware_configuration():
                 RedisClient.hset(key, field, value)
 
 
-def init_scenario():
-    scenario = load_one_from_mongodb('scenario', {"_id": 1})
-    if scenario is None:
-        insert_one_to_mongodb(col='scenario', data={"block_group": []})
-
-
 def init_remocon_registration():
     remocons_data = remocon_preset(settings.REMOCON_COMPANY.split(','))
     if remocons_data != []:
@@ -60,7 +54,6 @@ def init_analysis_config():
 
 def init() -> None:
     init_hardware_configuration()
-    init_scenario()
     init_remocon_registration()
     init_analysis_config()
 
