@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     REDIS_HOST: str = os.getenv("REDIS_HOST", "")
     REDIS_PORT: int = os.getenv("REDIS_PORT")
     REDIS_DB: int = os.getenv("REDIS_DB")
-    REDIS_PASSWORD: str = os.getenv("REDIS_PASSWORD")
+    REDIS_PASSWORD: str = os.getenv("REDIS_PASSWORD", "")
 
     @validator("SENTRY_DSN", pre=True)
     def sentry_dsn_can_be_blank(cls, v: str) -> Optional[str]:
