@@ -13,6 +13,7 @@ from .rotation import RotationFileManager, get_file_creation_time
 from ..connection.redis_pubsub import publish, get_strict_redis_connection
 
 logger = logging.getLogger('main')
+file_logger = logging.getLogger('file')
 
 
 def get_rtsp_public_url() -> str:
@@ -93,7 +94,7 @@ def start_capture(audio_values: Queue, stop_event: Event):
                     line = output.decode().strip('\n')
                     file_created_info = get_file_creation_time(line)
                     if file_created_info is not None:
-                        logger.info(f'new file created: {file_created_info}')
+                        file_logger.info(f'Video: {file_created_info[0]} / {file_created_info[1]}')
                         rotation_file_manager.add_new_file(*file_created_info)
 
                     loudness_values = get_sound_values(start_time, line)
