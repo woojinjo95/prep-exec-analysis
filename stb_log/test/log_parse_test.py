@@ -2034,7 +2034,9 @@ for i, data in enumerate(datas):
     raw_data = data['raw']
     match = re.search(pattern, raw_data, re.DOTALL)
     if match:
-        print(match.groupdict())
+        dic = match.groupdict()
+        print(dic)
+        print(type(dic))
     else:
         not_match_count += 1
         print(f'not match. {i}. {raw_data}')
