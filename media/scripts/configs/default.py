@@ -1,5 +1,5 @@
-from .redis_connection import (get_strict_redis_connection, hget_value,
-                               hset_value)
+from ..connection.redis_connection import (get_strict_redis_connection,
+                                           hget_value, hset_value)
 from .constant import RedisDBEnum
 
 settings = {'capture': {'video_device': '/dev/video0',
@@ -19,7 +19,8 @@ settings = {'capture': {'video_device': '/dev/video0',
                           'fps': 30,
                           'crf': 30, },
             'recording': {'crf': 23,
-                          'segment_time': 10,
+                          'rotation_interval': 1800,
+                          'segment_interval': 10,
                           'real_time_video_path': 'real_time_videos',
                           'output_video_path': 'videos'},
             'state': {'state': 'idle'},
