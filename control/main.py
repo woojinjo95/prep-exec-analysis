@@ -37,6 +37,7 @@ if __name__ == '__main__':
         log_organizer = LogOrganizer()
         log_organizer.set_stream_logger('main')
         log_organizer.set_stream_logger('connection')
+        log_organizer.set_stream_logger('serial')
         log_organizer.set_stream_logger('error', 10)
         logger.info('Start control container')
 
