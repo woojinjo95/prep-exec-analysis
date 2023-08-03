@@ -21,7 +21,7 @@ db_conn = LogManagerDBConnection()
 completed_log_dir = os.path.join('datas', 'stb_logs', 'completed_logs')
 
 log_prefix_pattern = r'<Collector:\s(\d+\.\d+)>'
-log_chunk_pattern = r"\[\s(?P<timestamp>\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})\s*(?P<pid>\d+)\s*:\s*(?P<tid>\d+)\s*(?P<log_level>[\w])\/(?P<module>.*)\s*\]\n(?P<message>.*)\n"
+log_chunk_pattern = r"\[\s(?P<timestamp>\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})\s*(?P<pid>\d+)\s*:\s*(?P<tid>\d+)\s*(?P<log_level>[\w])\/(?P<module>.*)\s*\](?:\n(?P<message>.*))?"
 
 timezone = get_value('common', 'timezone', db=RedisDB.hardware)
 
