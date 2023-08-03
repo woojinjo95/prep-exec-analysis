@@ -66,7 +66,7 @@ def command_parser(command: dict):
             logger.warning(f'Unknown streaming args: {streaming_arg}')
 
 
-with get_strict_redis_connection() as src:
+with get_strict_redis_connection(0) as src:
     for command in Subscribe(src, RedisChannel.command):
         command_parser(command)
 
