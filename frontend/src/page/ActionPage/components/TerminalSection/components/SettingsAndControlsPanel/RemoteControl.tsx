@@ -40,7 +40,6 @@ const RemoteControl: React.FC = () => {
         <input type="radio" readOnly checked={hardwareConfiguration?.remote_control_type === 'bluetooth'} />
         <span>Bluetooth</span>
       </button>
-      <button type="button">Bluetooth</button>
     </div>
   )
 }
