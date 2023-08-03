@@ -20,6 +20,8 @@ class LogFileManager:
         
         # multiprocessing variable
         self.local_stop_event = Event()
+        self.log_collector = None
+        self.log_postprocessor = None
 
     def get_command_script(self) -> str:
         if self.log_type == 'logcat':
@@ -56,6 +58,12 @@ class LogFileManager:
         self.local_stop_event.set()
         logger.info('LogFileManager stop')
 
+    def is_alive(self):
+        log_alive = self.log_collector.is_alive() if self.log_collector else False
+        pp_alive = self.log_postprocessor.is_alive() if self.log_postprocessor else False
+        return log_alive and pp_alive
+
+    # WARNING: this method will block the main thread
     # wait until any thread is terminated
     def join(self):
         while self.log_collector.is_alive() and self.log_postprocessor.is_alive():
