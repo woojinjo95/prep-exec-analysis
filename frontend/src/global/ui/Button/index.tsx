@@ -3,8 +3,7 @@ import cx from 'classnames'
 
 import Text from '../Text'
 
-interface ButtonProps
-  extends React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement> {
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode
   variant?: 'outline' | 'unstyled'
 }
