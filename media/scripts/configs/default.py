@@ -26,7 +26,8 @@ settings = {'capture': {'video_device': '/dev/video0',
             'state': {'state': 'idle'},
             'test': {'mode': 'idle',
                      'capture': 'no',
-                     'interval': 30}
+                     'interval': 30},
+            'common': {'root_file_path': './data'}
             }
 
 hardware_settings = {'hardware_configuration': {'ssh_port': 2345}}

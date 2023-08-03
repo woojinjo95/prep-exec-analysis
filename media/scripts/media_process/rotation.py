@@ -13,9 +13,11 @@ from typing import List, Tuple
 
 import cv2
 
-from ..configs.config import get_value, RedisDBEnum
-from ..utils.file_manage import JsonManager, substitute_path_extension
+from ..configs.config import RedisDBEnum, get_value
+from ..connection.mongo_db.create import insert_to_mongodb
+from ..connection.redis_pubsub import publish, get_strict_redis_connection
 from ..utils._timezone import timestamp_to_datetime_with_timezone_str
+from ..utils.file_manage import JsonManager, substitute_path_extension
 
 logger = logging.getLogger('main')
 
@@ -73,7 +75,6 @@ class RotationFileManager:
         self.path = recording_config['real_time_video_path']
         self.segment_interval = recording_config['segment_interval']
         self.rotation_interval = recording_config['rotation_interval']
-
         self.file_count = self.segment_interval // self.segment_interval + 5
         self.files_deque = deque(maxlen=self.file_count)
         self.preserved_list = []
@@ -112,6 +113,8 @@ class RotationFileManager:
 class MakeVideo:
 
     def __init__(self, start_time: float = None, end_time: float = None, interval: float = 30):
+
+        self.root_file_path = get_value('common', 'root_file_path', './data')
         recording_config = get_value('recording')
         self.path = recording_config['real_time_video_path']
         self.output_path = recording_config['output_video_path']
@@ -187,3 +190,13 @@ class MakeVideo:
             self.copy_files()
             time.sleep(1)
         self.concat_file()
+        video_info = {'created': timestamp_to_datetime_with_timezone_str(),
+                      'path': os.path.join(self.root_file_path, self.output_video_name),
+                      'name': os.path.basename(self.output_video_name),
+                      # length.. or something
+                      }
+        with get_strict_redis_connection() as src:
+            subscribe_count = publish(src, 'videos', video_info)
+        _, id = insert_to_mongodb('videos', video_info)
+
+        logger.info(f'Video info created, {subscribe_count} listener get data, saved mongodb document "videos", {id}, with info: {video_info}')
