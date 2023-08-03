@@ -50,6 +50,7 @@ class LogFileManager:
 
     # Control
     def start(self):
+        self.local_stop_event.clear()
         self.__start_log_collector()
         self.__start_log_postprocessor()
         logger.info('LogFileManager start')
