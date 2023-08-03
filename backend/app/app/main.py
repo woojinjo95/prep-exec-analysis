@@ -7,6 +7,7 @@ from app import schemas
 from app.api.api_v1.api import api_router
 from app.core.config import settings
 from fastapi import APIRouter, FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 
 logging.config.fileConfig('./app/logging.conf', disable_existing_loggers=False)
@@ -49,3 +50,4 @@ def healthcheck() -> schemas.Msg:
 
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
+app.mount(settings.FILES_PATH + '/system', StaticFiles(directory=settings.FILES_PATH + '/system'), name="static")
