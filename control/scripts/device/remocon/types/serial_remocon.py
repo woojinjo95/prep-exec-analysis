@@ -28,7 +28,7 @@ class SerialRemocon(AbstractRemocon):
 
     # pronto_code 로 직접 리모콘 명령
     def press_key_by_command(self, command_queue: dict) -> float:
-        logger.info('ir remocon transmit')
+        logger.info(f'ir remocon transmit: {command_queue}')
         if self.serial_device is None:
             logger.error('failed to detect serial device.')
             raise Exception('failed to detect serial device.')
