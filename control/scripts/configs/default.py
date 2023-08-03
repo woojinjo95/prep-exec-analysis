@@ -2,7 +2,7 @@ from ..connection.redis_connection import (get_strict_redis_connection,
                                            hget_value, hset_value)
 from .constant import RedisDBEnum
 
-settings = {'devices': {'baudrate': 115200,
+settings = {'devices': {'serial_baud_rate': 115200,
                         'ir_remocon_port': '/dev/ttyUSB1',
                         'bt_remocon_port': '/dev/ttyUSB0'}}
 

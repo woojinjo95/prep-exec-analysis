@@ -7,8 +7,6 @@ from collections import defaultdict
 from functools import wraps
 from typing import Iterable, List
 
-import cv2
-import numpy as np
 import requests
 
 logger = logging.getLogger('main')
@@ -34,12 +32,6 @@ def is_iterable(obj: any) -> bool:
     return hasattr(obj, '__iter__')
 
 
-def figure_to_array(fig: any) -> np.ndarray:
-    fig.canvas.draw()
-    f_arr = np.array(fig.canvas.renderer._renderer)
-    return cv2.cvtColor(f_arr, cv2.COLOR_RGBA2BGR)
-
-
 def group_duplicated_value_in_dict(target_dict: dict) -> List[list]:
     reversed_dict = defaultdict(list)
     for key, value in target_dict.items():
@@ -63,13 +55,6 @@ def join_list_value(target_list: Iterable[any], join_chr: str = ',') -> str:
 def convert_variable_to_name(var: any) -> str:
     callers_local_vars = inspect.currentframe().f_back.f_locals.items()
     return [var_name for var_name, var_val in callers_local_vars if var_val is var][0]
-
-
-def bytes2np_array(image_bytes: bytes, dtype=np.uint8, decoder=cv2.IMREAD_COLOR) -> bytes:
-    if type(image_bytes) != np.ndarray:
-        numpy_bytes = np.fromstring(image_bytes, dtype)
-        return cv2.imdecode(numpy_bytes, decoder)
-    return image_bytes
 
 
 def datetime_str_to_datetime(datetime_str: str) -> datetime.datetime:
@@ -148,16 +133,6 @@ def timeit(func: callable):
         logger.info(f'Function {func.__name__} Took {total_time:.4f} seconds')
         return result
     return timeit_wrapper
-
-
-def get_image_by_url(url: str) -> np.ndarray:
-    try:
-        res = requests.get(url)
-        array = bytes2np_array(res.content)
-    except Exception as err:
-        logger.error(f'get_image_by_url error. Cause: {err}')
-        array = None
-    return array
 
 
 def split_list_into_chunks(li: List, n: int) -> List[List]:

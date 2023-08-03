@@ -21,13 +21,12 @@ logger = logging.getLogger('remocon')
 
 
 class RemoconProcess(ProcessUtil):
-    def __init__(self, slot_index: int, serial_devices: Tuple[SerialDevice]):
+    def __init__(self, serial_devices: Tuple[SerialDevice]):
         ProcessUtil.__init__(self)
 
         self.start_event = Event()
         self.stop_event = Event()
         self.remocon_id_pointer = Value('i', -1)
-        self.slot_index = slot_index
         self.serial_devices = serial_devices
         self.ir_serial_device = self.serial_devices[0]
         self.bt_serial_device = self.serial_devices[1]
