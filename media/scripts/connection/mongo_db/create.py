@@ -30,6 +30,6 @@ def insert_to_mongodb(col: str, data: dict) -> Tuple[bool, str]:
     res = mongo_client.insert_one(data)
     # type(res) == pymongo.results.InsertOneResult
 
-    inserted_id = res.inserted_id
+    inserted_id = str(res.inserted_id)
     acknowledged = res.acknowledged
     return acknowledged, inserted_id
