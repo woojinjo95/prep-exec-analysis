@@ -71,6 +71,9 @@ services:
       - 6379:6379
     volumes:
       - redis_data:/data
+    command: redis-server --save 60 1 --appendonly no --requirepass 66b44dcb7f981904f8536b19e4464725
+    networks:
+      - service
 
   redis-commander:
     container_name: redis-commander
@@ -91,8 +94,14 @@ services:
     command: python -u main.py
     volumes:
       - "adb-rsa:/root/.android"
+    networks:
+      - service
 
 volumes:
   mongodb_data: {}
   redis_data: {}
   adb-rsa: null
+
+networks:
+  service:
+    name: service
