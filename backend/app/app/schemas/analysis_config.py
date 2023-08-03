@@ -52,22 +52,13 @@ class LogLevelFinder(BaseModel):
 
 
 class AnalysisConfig(BaseModel):
-    freeze: Freeze
-    macroblock: Macroblock
-    resume: Resume
-    boot: Boot
-    channel_change_time: ChannelChangeTime
-    log_level_finder: LogLevelFinder
-
-
-class AnalysisConfigBase(BaseModel):
-    items: AnalysisConfig
-
-
-class AnalysisConfigUpdate(BaseModel):
     freeze: Optional[Freeze]
     macroblock: Optional[Macroblock]
     resume: Optional[Resume]
     boot: Optional[Boot]
     channel_change_time: Optional[ChannelChangeTime]
     log_level_finder: Optional[LogLevelFinder]
+
+
+class AnalysisConfigBase(BaseModel):
+    items: AnalysisConfig
