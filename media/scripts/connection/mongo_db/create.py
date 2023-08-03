@@ -4,12 +4,6 @@ from typing import Tuple
 
 from .config import Settings
 
-for el in vars(Settings):
-    if el.startswith('__'):
-        pass
-    else:
-        print(el, getattr(Settings, el))
-
 
 def conn_mongodb() -> pymongo.MongoClient:
     client = pymongo.MongoClient(

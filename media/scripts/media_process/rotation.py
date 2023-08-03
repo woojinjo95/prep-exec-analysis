@@ -155,35 +155,39 @@ class MakeVideo:
     def concat_file(self):
         video_name_list = sorted(list(set(self.video_name_list)))
 
-        with tempfile.NamedTemporaryFile(delete=False, mode='w+t') as f:
+        if len(video_name_list) == 0:
+            logger.error(f'Failed to make {self.output_video_name}, no available live video for that time')
+        else:
+            with tempfile.NamedTemporaryFile(delete=False, mode='w+t') as f:
+                for video in video_name_list:
+                    f.write(f"file '{os.path.abspath(video)}'\n")
+                temp_filename = f.name
+
+            ffmpeg_command = f"ffmpeg -f concat -safe 0 -i {temp_filename} -c copy {self.output_video_name} -loglevel panic -hide_banner"
+            logger.info(f'Concat ffmpeg command: {ffmpeg_command}')
+            subprocess.call(ffmpeg_command, shell=True)
+
+            json_name_list = sorted(list(set(self.json_name_list)))
+
+            with JsonManager(substitute_path_extension(self.output_video_name, 'mp4_stat')) as jf:
+                video_infos = []
+                for json_file in json_name_list:
+                    with open(json_file, 'r') as f:
+                        video_infos.append(json.loads(f.read()))
+                jf.change('data', video_infos)
+
             for video in video_name_list:
-                f.write(f"file '{os.path.abspath(video)}'\n")
-            temp_filename = f.name
+                try:
+                    os.remove(video)
+                    os.remove(substitute_path_extension(video, 'mp4_stat'))
+                except:
+                    pass
 
-        ffmpeg_command = f"ffmpeg -f concat -safe 0 -i {temp_filename} -c copy {self.output_video_name} -loglevel panic -hide_banner"
-        logger.info(f'Concat ffmpeg command: {ffmpeg_command}')
-        subprocess.call(ffmpeg_command, shell=True)
+            # remove the temporary file
+            os.unlink(temp_filename)
+            logger.info(f'New video save completed: {self.output_video_name}')
 
-        json_name_list = sorted(list(set(self.json_name_list)))
-
-        with JsonManager(substitute_path_extension(self.output_video_name, 'mp4_stat')) as jf:
-            video_infos = []
-            for json_file in json_name_list:
-                with open(json_file, 'r') as f:
-                    video_infos.append(json.loads(f.read()))
-            jf.change('data', video_infos)
-
-        for video in video_name_list:
-            try:
-                os.remove(video)
-                os.remove(substitute_path_extension(video, 'mp4_stat'))
-            except:
-                pass
-
-        # remove the temporary file
-        os.unlink(temp_filename)
         self.state = 'end'
-        logger.info(f'New video save completed: {self.output_video_name},')
 
     def run(self):
         while self.state == 'writing':

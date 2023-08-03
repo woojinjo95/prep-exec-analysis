@@ -84,7 +84,8 @@ def start_capture(audio_values: Queue, stop_event: Event):
     rotation_file_manager = RotationFileManager()
 
     try:
-        set_value('state', 'streaming_state', 'streaming')
+        set_value('state', 'streaming', 'streaming')
+        logger.info('Streaming Start')
         # ffmpeg use stderr that stderr = stderr=subprocess.STDOUT
         with subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as process:
             start_time = time.time()
@@ -108,7 +109,8 @@ def start_capture(audio_values: Queue, stop_event: Event):
         # kill process
         time.sleep(0.5)
         kill_pid_grep(capture_configs['video_device'])
-        set_value('state', 'streaming_state', 'idle')
+        set_value('state', 'streaming', 'idle')
+        logger.info('Streaming ended')
 
 
 def audio_value_consumer(audio_values: Queue, stop_event: Event):
@@ -122,10 +124,9 @@ def audio_value_consumer(audio_values: Queue, stop_event: Event):
             publish(src, RedisChannel.loudness, value)
 
 
-def streaming() -> Event:
-    logger.info('Streaming Start')
+def streaming(stop_event: Event = Event()) -> Event:
     audio_values = Queue()
-    stop_event = Event()
+
     capture_process = Process(target=start_capture, args=(audio_values, stop_event), daemon=True)
     consumer_process = Process(target=audio_value_consumer, args=(audio_values, stop_event), daemon=True)
 
