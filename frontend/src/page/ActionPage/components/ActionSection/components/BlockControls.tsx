@@ -12,7 +12,9 @@ import styles from '../css/BlockControls.module.scss'
 const cx = classNames.bind(styles)
 
 // FIXME: 모듈화!!!
-const ws = new WebSocket(`ws://${window.location.hostname}:5000/api/v1/client/ws`)
+const ws = new WebSocket(
+  import.meta.env.VITE_BACKEND_WEBSOCKET_URL || `ws://${window.location.hostname}:5000/api/v1/client/ws`,
+)
 
 const BlockControls: React.FC = () => {
   return (
