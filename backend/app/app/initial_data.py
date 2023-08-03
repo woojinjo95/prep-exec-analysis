@@ -5,8 +5,7 @@ from app.crud.base import (insert_many_to_mongodb, insert_one_to_mongodb,
                            load_one_from_mongodb)
 from app.db.redis_session import RedisClient
 from app.remocon_ir_preset import remocon_preset
-from app.schemas.enum import (RemoteControlTypeEnum,
-                              ResumeMeasurementRecognizingKeyEventEnum)
+from app.schemas.enum import RemoteControlTypeEnum
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -14,27 +13,23 @@ logger = logging.getLogger(__name__)
 
 def init_hardware_configuration():
     configs = {
-        'hardware_configuration': {'remote_control_type': RemoteControlTypeEnum.ir.value,
-                                   'enable_dut_power': 'True',
-                                   'enable_hdmi': 'True',
-                                   'enable_dut_wan': 'True',
-                                   'enable_network_emulation': 'True',
-                                   'packet_bandwidth': 0,
-                                   'packet_delay': 0.0,
-                                   'packet_loss': 0.0},
-        'common': {'timezone': 'Asia/Seoul', },
+        'hardware_configuration': {
+            'remote_control_type': RemoteControlTypeEnum.ir.value,
+            'enable_dut_power': 'True',
+            'enable_hdmi': 'True',
+            'enable_dut_wan': 'True',
+            'enable_network_emulation': 'True',
+            'packet_bandwidth': 0,
+            'packet_delay': 0.0,
+            'packet_loss': 0.0
+        },
+        'common': {'timezone': 'Asia/Seoul'}
     }
 
     for key, fields in configs.items():
         for field, value in fields.items():
             if RedisClient.hget(key, field) is None:
                 RedisClient.hset(key, field, value)
-
-
-def init_scenario():
-    scenario = load_one_from_mongodb('scenario', {"_id": 1})
-    if scenario is None:
-        insert_one_to_mongodb(col='scenario', data={"block_group": []})
 
 
 def init_remocon_registration():
@@ -45,39 +40,12 @@ def init_remocon_registration():
 
 def init_analysis_config():
     config = {
-        "freeze": {
-            "duration": 0,
-            "save_video": True,
-            "before_occurrence": 0,
-            "after_occurrence": 0
-        },
-        "macroblock": {
-            "save_video": True,
-            "before_occurrence": 0,
-            "after_occurrence": 0
-        },
-        "resume": {
-            "recognizing_key_event": ResumeMeasurementRecognizingKeyEventEnum.power.value,
-            "save_video": True,
-            "before_occurrence": 0,
-            "after_occurrence": 0,
-            "frames": []
-        },
-        "boot": {
-            "save_video": True,
-            "before_occurrence": 0,
-            "after_occurrence": 0,
-            "frames": []
-        },
-        "channel_change_time": {
-            "targets": [],
-            "save_video": True,
-            "before_occurrence": 0,
-            "after_occurrence": 0
-        },
-        "log_level_finder": {
-            "targets": []
-        }
+        "freeze": None,
+        "macroblock": None,
+        "resume": None,
+        "boot": None,
+        "channel_change_time": None,
+        "log_level_finder": None
     }
     analysis_config = load_one_from_mongodb('analysis_config', {"_id": 1})
     if analysis_config is None:
@@ -86,7 +54,6 @@ def init_analysis_config():
 
 def init() -> None:
     init_hardware_configuration()
-    init_scenario()
     init_remocon_registration()
     init_analysis_config()
 

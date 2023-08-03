@@ -25,7 +25,8 @@ html = """
         <ul id='messages'>
         </ul>
         <script>
-            var ws = new WebSocket("ws://localhost:5000/api/v1/client/ws");
+            var host = window.location.hostname;
+            var ws = new WebSocket(`ws://${host}:5000/api/v1/client/ws`);
             ws.onmessage = function(event) {
                 var messages = document.getElementById('messages')
                 var message = document.createElement('li')
@@ -43,8 +44,9 @@ html = """
     </body>
 </html>
 """
+CHANNEL_NAME = "command"
 
-@router.get("/")
+@router.get("/test")
 async def get():
     return HTMLResponse(html)
 
@@ -58,13 +60,13 @@ async def redis_connector(websocket: WebSocket):
         try:
             while True:
                 message = await ws.receive_text()
-                if message.startswith("command:"): #command:로 시작하는 메시지를 control 채널로 발행함
-                    await conn.publish("control", message)
+                if message is not None: #command:로 시작하는 메시지를 control 채널로 발행함
+                    await conn.publish(CHANNEL_NAME, message)
         except WebSocketDisconnect as exc:
             logger.error(exc)
 
     async def producer_handler(pubsub: redis, ws: WebSocket):
-        await pubsub.subscribe("control") #control 채널을 수신함 
+        await pubsub.subscribe(CHANNEL_NAME) #control 채널을 수신함 
         try:
             while True:
                 message = await pubsub.get_message(ignore_subscribe_messages=True)
