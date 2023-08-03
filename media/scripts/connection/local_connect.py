@@ -3,7 +3,7 @@ import paramiko
 import subprocess
 import logging
 from ..utils.docker import is_running_in_docker
-from ..configs.redis_connection import hget_single
+from ..configs.redis_connection import get_value
 
 # from ..configs.config import get_setting
 
@@ -13,7 +13,7 @@ rsa_key_path = os.path.join(static_root_path, 'keys', 'runner_key')
 
 HOST = 'host.docker.internal'
 USER = os.environ.get('USER', 'nextlab')
-PORT = hget_single('hardware_configuration', 'ssh_port', 2345, 0)
+PORT = get_value('hardware_configuration', 'ssh_port', 2345, 0)
 TIMEOUT = 3
 
 logger = logging.getLogger('connection')

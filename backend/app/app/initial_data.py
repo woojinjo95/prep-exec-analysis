@@ -13,19 +13,22 @@ logger = logging.getLogger(__name__)
 
 
 def init_hardware_configuration():
-    config = RedisClient.hget(name=f'hardware_configuration',
-                              key='remote_control_type')
-    if not config:
-        configs = {'remote_control_type': RemoteControlTypeEnum.ir.value,
-                   'enable_dut_power': 'True',
-                   'enable_hdmi': 'True',
-                   'enable_dut_wan': 'True',
-                   'enable_network_emulation': 'True',
-                   'packet_bandwidth': 0,
-                   'packet_delay': 0.0,
-                   'packet_loss': 0.0}
-        for k, v in configs.items():
-            RedisClient.hset(f'hardware_configuration', k, v)
+    configs = {
+        'hardware_configuration': {'remote_control_type': RemoteControlTypeEnum.ir.value,
+                                   'enable_dut_power': 'True',
+                                   'enable_hdmi': 'True',
+                                   'enable_dut_wan': 'True',
+                                   'enable_network_emulation': 'True',
+                                   'packet_bandwidth': 0,
+                                   'packet_delay': 0.0,
+                                   'packet_loss': 0.0},
+        'common': {'timezone': 'Asia/Seoul', },
+    }
+
+    for key, fields in configs.items():
+        for field, value in fields.items():
+            if RedisClient.hget(key, field) is None:
+                RedisClient.hset(key, field, value)
 
 
 def init_scenario():

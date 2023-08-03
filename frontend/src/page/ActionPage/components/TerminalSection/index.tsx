@@ -1,5 +1,7 @@
-import { Tabs } from '@global/ui'
 import React from 'react'
+import { Tabs } from '@global/ui'
+import SettingsAndControlsPanel from './components/SettingsAndControlsPanel'
+import TerminalPanel from './components/TerminalPanel'
 
 /**
  * 터미널 영역
@@ -7,13 +9,9 @@ import React from 'react'
 const TerminalSection: React.FC = () => {
   return (
     <section className="border border-black col-span-2">
-      <Tabs header={['Settings & Controls', 'Terminal']} className="px-5 pb-5 pt-2" theme="dark">
-        <div>
-          <span className="text-white">setting</span>
-        </div>
-        <div>
-          <span className="text-white">terminal</span>
-        </div>
+      <Tabs header={['Settings & Controls', 'Terminal']} className="pt-2" theme="dark">
+        <SettingsAndControlsPanel />
+        <TerminalPanel />
       </Tabs>
     </section>
   )
