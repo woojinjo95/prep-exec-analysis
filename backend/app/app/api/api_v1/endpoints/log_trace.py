@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.get("", response_model=schemas.LogcatPage)
+@router.get("/logcat_trace", response_model=schemas.LogcatPage)
 def read_logcat_log(
     page: int = Query(None, ge=1, description="Page number"),
     page_size: int = Query(None, ge=1, le=100, description="Page size")
@@ -20,7 +20,7 @@ def read_logcat_log(
     return get_multi_or_paginate_by_res(col='logcat', page=page, page_size=page_size)
 
 
-@router.get("", response_model=schemas.NetworkPage)
+@router.get("/network_trace", response_model=schemas.NetworkPage)
 def read_network_log(
     page: int = Query(None, ge=1, description="Page number"),
     page_size: int = Query(None, ge=1, le=100, description="Page size")
