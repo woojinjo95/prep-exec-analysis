@@ -254,11 +254,14 @@ const ActionBlockArea = (): JSX.Element => {
     <div className="h-full w-full">
       <div className="grid grid-rows-[auto_56px] h-full">
         <div
-          className="h-full w-full pt-[30px] overflow-y-auto"
+          className="h-full w-full pt-[30px] overflow-y-auto bg-repeat-y"
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
-          style={{ backgroundImage: `url(${BackgroundImage})` }}
+          style={{
+            backgroundImage: `url(${BackgroundImage})`,
+            backgroundSize: '100%',
+          }}
         >
           {blocks && blockDummys && blocks.length > 0 && (
             <div className="w-full h-full pl-[30px] pr-[30px] overflow-y-auto pt-[2px] pb-[2px]">
