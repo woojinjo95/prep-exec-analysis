@@ -60,6 +60,26 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
+  control:
+    image: registry.dev-nextlab.com/prep-exec-control:dev-0
+    restart: always
+    build:
+      context: ./control
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: 
+      USER: ${USER}
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
+      - "/dev/ttyUSB1:/dev/ttyUSB1"
+    privileged: true
+    volumes:
+      - "$HOME/.ssh/runner_key:/app/static/keys/runner_key"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+
   adminer:
     container_name: adminer
     image: dockette/adminer:full
