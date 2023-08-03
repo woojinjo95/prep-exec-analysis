@@ -98,7 +98,7 @@ const ActionBlockItem = ({
     >
       <div
         className={cx(
-          `border-box h-full w-full min-h-[48px] pl-[10px] pr-[10px] grid grid-cols-[1fr_minmax(100px,auto)] border-[1px] border-[#DFE0EE] bg-white rounded-xl whitespace-break-space`,
+          `border-box h-full w-full min-h-[48px] pl-[10px] pr-[10px] grid grid-cols-[1fr_minmax(100px,auto)] border-[1px] border-[#DFE0EE] bg-white rounded-xl`,
           {
             'hover:outline-1 hover:outline-[#4C4E68] hover:outline': !selectedBlockIds.includes(block.id),
             '!outline !outline-[1px] !outline-[#4C4E68]': selectedBlockIds.includes(block.id),
@@ -109,12 +109,15 @@ const ActionBlockItem = ({
         )}
       >
         <div
-          className={cx('flex items-center border-[#DFE0EE] border-r-[1px] box-border', {
-            'hover:border-r-2 hover:border-[4C4E68]': !selectedBlockIds.includes(block.id),
-            '!border-r-[1px] !border-[#4C4E68]': selectedBlockIds.includes(block.id),
-            '!border-[#FF2300] border-r-[2px]': actionStatus === 'RFC',
-            '!border-[#00B1FF] border-r-[2px]': actionStatus === 'playing',
-          })}
+          className={cx(
+            'flex items-center border-[#DFE0EE] border-r-[1px] box-border w-full whitespace-nowrap overflow-x-hidden',
+            {
+              'hover:border-r-2 hover:border-[4C4E68]': !selectedBlockIds.includes(block.id),
+              '!border-r-[1px] !border-[#4C4E68]': selectedBlockIds.includes(block.id),
+              '!border-[#FF2300] border-r-[2px]': actionStatus === 'RFC',
+              '!border-[#00B1FF] border-r-[2px]': actionStatus === 'playing',
+            },
+          )}
         >
           <div
             style={{
@@ -127,7 +130,7 @@ const ActionBlockItem = ({
             {block.type} : {block.value}
           </div>
         </div>
-        <div className={cx('flex items-center justify-end overflow-x-hidden')}>
+        <div className={cx('flex items-center justify-end')}>
           {modifyingBlockId && modifyingBlockId === block.id ? (
             <div className="flex pl-[10px] items-center">
               <p>Delay Time</p>
