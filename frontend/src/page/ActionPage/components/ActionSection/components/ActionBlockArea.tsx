@@ -4,6 +4,7 @@ import cx from 'classnames'
 
 import { Block, BlockGroup, Scenario } from '@page/ActionPage/components/ActionSection/api/entity'
 import { useMutation, useQuery } from 'react-query'
+import BackgroundImage from '@assets/images/background_pattern.svg'
 import ActionBlockItem from './ActionBlockItem'
 import BlockControls from './BlockControls'
 import { getScenario, putScenario } from '../api/func'
@@ -251,12 +252,13 @@ const ActionBlockArea = (): JSX.Element => {
 
   return (
     <div className="h-full w-full">
-      <div className="grid grid-rows-[auto_60px] h-full">
+      <div className="grid grid-rows-[auto_56px] h-full">
         <div
           className="h-full w-full pt-[30px] overflow-y-auto"
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
+          style={{ backgroundImage: `url(${BackgroundImage})` }}
         >
           {blocks && blockDummys && (
             <div className="w-full h-full pl-[30px] pr-[30px] overflow-y-auto pt-[2px] pb-[2px]">
