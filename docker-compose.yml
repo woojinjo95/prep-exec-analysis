@@ -47,7 +47,7 @@ services:
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_PASSWORD: 
+      REDIS_PASSWORD: ''
       USER: ${USER}
     devices:
         - "/dev/video0:/dev/video0"
