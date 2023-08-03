@@ -1,7 +1,7 @@
 import React from 'react'
 import cx from 'classnames'
 
-interface TextProps extends React.HTMLAttributes<HTMLSpanElement> {
+interface TextProps extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLSpanElement>, HTMLSpanElement> {
   children: React.ReactNode
   className?: string
   size?: 'sm' | 'md' | 'lg'

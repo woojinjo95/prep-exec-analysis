@@ -20,6 +20,10 @@ export default defineConfig({
     alias: [
       { find: '@src', replacement: resolve(__dirname, 'src') },
       { find: '@assets', replacement: resolve(__dirname, 'src/assets') },
+      {
+        find: 'hls.js',
+        replacement: 'hls.js/dist/hls.min',
+      },
     ],
   },
   server: {

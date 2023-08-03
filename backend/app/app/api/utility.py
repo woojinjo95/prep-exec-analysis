@@ -63,3 +63,21 @@ def classify_file_type(file_name):
     else:
         file_dir = os.path.join(settings.FILES_PATH, 'etc')
     return file_dir
+
+
+def converted_str_data(data_str):
+    try:
+        res = float(data_str)
+        if res.is_integer():
+            return int(res)
+        return res
+    except ValueError:
+        try:
+            res = str(data_str)
+            return res
+        except ValueError:
+            try:
+                res = bool(data_str)
+                return res
+            except ValueError:
+                return data_str

@@ -1,11 +1,11 @@
 import API from '@global/api'
 import { AxiosError } from 'axios'
-import { BlockData, ScenarioData } from '../entity/intex'
+import { Block, BlockGroup, Scenario } from '@page/ActionPage/components/ActionSection/api/entity'
 import apiUrls from './url'
 
 export const getScenario = async () => {
   try {
-    const result = await API.get<ScenarioData>(apiUrls.scenario)
+    const result = await API.get<Scenario>(apiUrls.scenario)
 
     return result.data
   } catch (err) {
@@ -14,9 +14,9 @@ export const getScenario = async () => {
   }
 }
 
-export const putScenario = async ({ newScenario }: { newScenario: ScenarioData }) => {
+export const putScenario = async ({ block_group }: { block_group: BlockGroup[] }) => {
   try {
-    const result = await API.put<{ msg: string }>(apiUrls.scenario, newScenario)
+    const result = await API.put<{ msg: string }>(apiUrls.scenario, { block_group })
 
     return result.data
   } catch (err) {
@@ -25,7 +25,7 @@ export const putScenario = async ({ newScenario }: { newScenario: ScenarioData }
   }
 }
 
-export const postBlock = async ({ newBlock }: { newBlock: Omit<BlockData, 'id'> }) => {
+export const postBlock = async ({ newBlock }: { newBlock: Omit<Block, 'id'> }) => {
   try {
     const result = await API.post<{ msg: string; id: string }>(apiUrls.block, newBlock)
 
@@ -51,7 +51,7 @@ export const deleteBlock = async ({ block_ids }: { block_ids: string[] }) => {
   }
 }
 
-export const putBlock = async ({ block_id, newBlock }: { block_id: string; newBlock: Omit<BlockData, 'id'> }) => {
+export const putBlock = async ({ block_id, newBlock }: { block_id: string; newBlock: Omit<Block, 'id'> }) => {
   try {
     const result = await API.put<{ msg: string; id: string }>(`${apiUrls.block}/${block_id}`, newBlock)
 

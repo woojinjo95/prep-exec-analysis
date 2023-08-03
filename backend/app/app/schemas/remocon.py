@@ -1,5 +1,3 @@
-import uuid
-
 from typing import Optional
 from pydantic import BaseModel
 
@@ -7,9 +5,10 @@ from pydantic import BaseModel
 class Remocon(BaseModel):
     class remocon_code(BaseModel):
         name: str
+        code_name: str
+        pronto_code: str
+        coordinate: list[int]
         hotkey: list[str]
-        code: str
-        location: list[dict]
 
     class custom_key(BaseModel):
         id: Optional[str] = None
@@ -20,9 +19,17 @@ class Remocon(BaseModel):
     id: Optional[str] = None
     name: str
     image_path: str
-    image_resolution: dict
+    image_resolution: list
     remocon_codes: list[remocon_code]
     custom_keys: list[custom_key]
+
+
+class RemoconUpdate(BaseModel):
+    name: Optional[str]
+    image_path: Optional[str]
+    image_resolution: Optional[list]
+    remocon_codes: Optional[list]
+    custom_keys: Optional[list]
 
 
 class RemoconRead(BaseModel):

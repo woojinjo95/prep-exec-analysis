@@ -1,7 +1,15 @@
+from .analysis_config import (AnalysisConfig, AnalysisConfigBase,
+                              AnalysisConfigUpdate)
+from .block import (Block, BlockCreate, BlockDelete, BlockGroup,
+                    BlockGroupUpdate, BlockUpdate)
+from .hardware_configuration import (HardwareConfigurationBase,
+                                     HardwareConfigurationIpLimit,
+                                     HardwareConfigurationIpLimitCreate,
+                                     HardwareConfigurationUpdate,
+                                     StbConnection, StbConnectionBase)
+from .item import Item, ItemBase, ItemCreate, ItemPage, ItemUpdate
 from .msg import Msg, MsgWithId
-from .item import Item, ItemCreate, ItemUpdate, ItemPage, ItemBase
-from .remocon import Remocon, RemoconCustomKeyCreate, RemoconCustomKeyUpdate, RemoconRead, RemoconCustomKeyCreateBase, RemoconCustomKeyUpdateMulti
+from .remocon import (Remocon, RemoconCustomKeyCreate,
+                      RemoconCustomKeyCreateBase, RemoconCustomKeyUpdate,
+                      RemoconCustomKeyUpdateMulti, RemoconRead, RemoconUpdate)
 from .scenario import Scenario, ScenarioBase
-from .hardware_configuration import HardwareConfigurationBase, HardwareConfigurationUpdate, HardwareConfigurationIpLimit, HardwareConfigurationIpLimitCreate
-from .stb_connection import StbConnectionCreate, StbConnectionBase
-from .block import Block, BlockCreate, BlockGroup, BlockUpdate, BlockGroupUpdate, BlockDelete
