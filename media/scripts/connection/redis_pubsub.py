@@ -7,6 +7,7 @@ from typing import Generator
 
 from redis.exceptions import ConnectionError as RedisConnectionError
 
+# get_strict_redis_connection is not used in this code, but it used when import with publish
 from .redis_connection import StrictRedis, get_strict_redis_connection
 
 logger = logging.getLogger('connection')
@@ -28,7 +29,7 @@ def publish(redis_client: StrictRedis, channel: str, payload: dict) -> int:
     return redis_client.publish(channel, data)
 
 
-def Subscribe(redis_client: StrictRedis, channel: str, stop_event: Event = Event()) -> Generator:
+def Subscribe(redis_client: StrictRedis, channel: str, stop_event: Event = Event()) -> Generator[dict, None, None]:
     """_summary_
     redis_client 상 channel에서 JSON 값을 가져옴
     Args:
@@ -40,14 +41,14 @@ def Subscribe(redis_client: StrictRedis, channel: str, stop_event: Event = Event
     """
     pubsub = redis_client.pubsub()
     pubsub.subscribe(channel)
-    logger.info(f'Redis subscriber start in {channel}')
+    logger.info(f'Redis subscriber start, subscribing this channel: {channel}')
 
     while not stop_event.is_set():
         try:
-            message = pubsub.get_message(ignore_subscribe_messages=True)
-            if message:
-                logger.debug(f'sub: {message}')
-                # message : {'type': 'message', 'pattern': None, 'channel': b'test', 'data': b'{"test": 1}'}
+            message = pubsub.get_message(ignore_subscribe_messages=True, timeout=None)
+            logger.debug(f'sub: {message}')
+            # message : {'type': 'message', 'pattern': None, 'channel': b'test', 'data': b'{"test": 1}'}
+            if isinstance(message, dict):
                 payload = json.loads(message['data'])
                 yield payload
 
