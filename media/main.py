@@ -2,11 +2,12 @@ import logging
 import time
 
 from scripts.configs.default import init_configs
-from scripts.configs.redis_connection import get_value, set_value
+from scripts.configs.config import get_value, set_value
 from scripts.log_organizer import LogOrganizer
 from scripts.media_process.capture import streaming
 from scripts.media_process.rotation import MakeVideo
 from scripts.utils._exceptions import handle_errors
+from scripts.media_process.loudness import test_audio_redis_update
 
 logger = logging.getLogger('main')
 
@@ -21,6 +22,7 @@ def main():
             set_value('test', 'mode', 'streaming')
             is_streaming = True
             stop_event = streaming()
+            test_audio_redis_update(stop_event)
         elif is_streaming and get_value('test', 'mode') == 'idle':
             stop_event.set()
             time.sleep(5)

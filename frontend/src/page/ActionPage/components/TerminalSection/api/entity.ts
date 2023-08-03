@@ -1,3 +1,10 @@
+export interface IPLimit {
+  id: string
+  ip?: string
+  port?: string
+  protocol: 'all' | 'tcp' | 'udp'
+}
+
 /**
  * 하드웨어 설정
  */
@@ -11,10 +18,5 @@ export interface HardwareConfiguration {
   packet_delay: number
   packet_loss: number
   //   stb_connection?: {}
-  ip_limit?: {
-    id: string
-    ip: string
-    port: string
-    protocol: 'all' | 'tcp' | 'udp'
-  }[]
+  ip_limit?: IPLimit[]
 }

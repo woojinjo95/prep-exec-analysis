@@ -25,3 +25,7 @@ class AudioDevice:
 class RedisDBEnum:
     hardware: int = 0
     media: int = 3
+
+
+class RedisChannel:
+    loudness = 'loudness'

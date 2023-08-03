@@ -1,5 +1,5 @@
-from .redis_connection import (get_strict_redis_connection, hget_value,
-                               hset_value)
+from ..connection.redis_connection import (get_strict_redis_connection,
+                                           hget_value, hset_value)
 from .constant import RedisDBEnum
 
 settings = {'capture': {'video_device': '/dev/video0',

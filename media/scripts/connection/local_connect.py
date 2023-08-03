@@ -3,7 +3,7 @@ import paramiko
 import subprocess
 import logging
 from ..utils.docker import is_running_in_docker
-from ..configs.redis_connection import get_value
+from ..configs.config import get_value
 
 # from ..configs.config import get_setting
 
