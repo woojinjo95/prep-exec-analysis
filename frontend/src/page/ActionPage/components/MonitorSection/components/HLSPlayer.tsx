@@ -33,10 +33,9 @@ const HLSPlayer: React.FC<HlsPlayerProps> = ({ src, autoPlay, ...props }) => {
         newHls.loadSource(`${src}/index.m3u8`)
 
         newHls.on(Hls.Events.MANIFEST_PARSED, () => {
-          if (autoPlay) {
-            playerRef?.current
-              ?.play()
-              .catch(() => console.log('Unable to autoplay prior to user interaction with the dom.'))
+          if (autoPlay && playerRef.current) {
+            playerRef.current.muted = true
+            playerRef.current.play().catch((err) => console.log(err))
           }
         })
       })
@@ -72,13 +71,13 @@ const HLSPlayer: React.FC<HlsPlayerProps> = ({ src, autoPlay, ...props }) => {
         hls.destroy()
       }
     }
-  }, [autoPlay, playerRef, src])
+  }, [autoPlay, src])
 
   // If Media Source is supported, use HLS.js to play video
   if (Hls.isSupported()) return <video ref={playerRef} {...props} />
 
   // Fallback to using a regular video player if HLS is supported by default in the user's browser
-  return <video ref={playerRef} src={src} muted autoPlay={autoPlay} {...props} />
+  return <video ref={playerRef} playsInline autoPlay={autoPlay} muted {...props} />
 }
 
 export default HLSPlayer
