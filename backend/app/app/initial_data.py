@@ -6,7 +6,7 @@ from app.crud.base import (insert_many_to_mongodb, insert_one_to_mongodb,
 from app.db.redis_session import RedisClient
 from app.remocon_ir_preset import remocon_preset
 from app.schemas.enum import (RemoteControlTypeEnum,
-                              ResumeMeasurementRecognizingKeyEvent)
+                              ResumeMeasurementRecognizingKeyEventEnum)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -54,7 +54,7 @@ def init_analysis_config():
             "after_occurrence": 0
         },
         "resume": {
-            "recognizing_key_event": ResumeMeasurementRecognizingKeyEvent.power.value,
+            "recognizing_key_event": ResumeMeasurementRecognizingKeyEventEnum.power.value,
             "save_video": True,
             "before_occurrence": 0,
             "after_occurrence": 0,

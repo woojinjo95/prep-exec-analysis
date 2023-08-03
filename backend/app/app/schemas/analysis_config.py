@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from app.schemas.enum import ResumeMeasurementRecognizingKeyEvent
+from app.schemas.enum import ResumeMeasurementRecognizingKeyEventEnum
 from pydantic import BaseModel
 
 
@@ -23,7 +23,7 @@ class Frame(BaseModel):
 
 
 class Freeze(CommonConfig):
-    duration: int = 0
+    duration: int
 
 
 class Macroblock(CommonConfig):
@@ -31,7 +31,7 @@ class Macroblock(CommonConfig):
 
 
 class Resume(CommonConfig):
-    recognizing_key_event: ResumeMeasurementRecognizingKeyEvent
+    recognizing_key_event: ResumeMeasurementRecognizingKeyEventEnum
     frames: List[Frame]
 
 
@@ -61,4 +61,9 @@ class AnalysisConfigBase(BaseModel):
 
 
 class AnalysisConfigUpdate(BaseModel):
-    pass
+    freeze: Optional[Freeze]
+    macroblock: Optional[Macroblock]
+    resume: Optional[Resume]
+    boot: Optional[Boot]
+    channel_change_time: Optional[ChannelChangeTime]
+    log_level_finder: Optional[LogLevelFinder]
