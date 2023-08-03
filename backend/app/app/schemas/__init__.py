@@ -4,3 +4,4 @@ from .remocon import Remocon, RemoconUpdate, RemoconCustomKeyCreate, RemoconCust
 from .scenario import Scenario, ScenarioBase
 from .hardware_configuration import HardwareConfigurationBase, HardwareConfigurationUpdate, HardwareConfigurationIpLimit, HardwareConfigurationIpLimitCreate, StbConnectionCreate, StbConnectionBase, HardwareConfigurationIpLimitUpdate, StbConnectionUpdate
 from .block import Block, BlockCreate, BlockGroup, BlockUpdate, BlockGroupUpdate, BlockDelete
+from .log_trace import LogcatPage, NetworkPage
