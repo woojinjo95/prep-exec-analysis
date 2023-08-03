@@ -2024,9 +2024,13 @@ datas = [
     {
       "time": 1690881439.956212,
       "raw": " [ 08-01 18:17:21.580  3518: 3518 D/memtrack_aml ]\ntype:1 for pid:31091, size_up_to:0\n\n"
+    },
+    {
+      "time": 1690881439.956212,
+      "raw": " [ 08-03 20:08:12.927  3571:32726 I/LivePlayer_0 ]"
     }
   ]
-pattern = r"\[\s(?P<timestamp>\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})\s*(?P<pid>\d+)\s*:\s*(?P<tid>\d+)\s*(?P<log_level>[\w])\/(?P<module>.*)\s*\]\n(?P<message>.*)\n"
+pattern = r"\[\s(?P<timestamp>\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})\s*(?P<pid>\d+)\s*:\s*(?P<tid>\d+)\s*(?P<log_level>[\w])\/(?P<module>.*)\s*\](?:\n(?P<message>.*))?"
 # pattern = r"\[\s(?P<timestamp>\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})\s*(?P<pid>\d+):\s?(?P<tid>\d+).*\n"
 
 not_match_count = 0
