@@ -18,8 +18,8 @@ class StbConnectionBase(BaseModel):
 
 
 class HardwareConfigurationIpLimitCreate(BaseModel):
-    ip: str
-    port: str
+    ip: Optional[str]
+    port: Optional[str]
     protocol: ProtocolEnum
 
 
