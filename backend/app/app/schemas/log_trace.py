@@ -5,11 +5,11 @@ from pydantic import BaseModel
 
 class Logcat(BaseModel):
     timestamp: datetime
+    module: str
+    log_level: str
+    process_name: str
     PID: int
     TID: int
-    process_name: str
-    log_level: str
-    module: Optional[str]
     message: str
 
 
