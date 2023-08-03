@@ -4,10 +4,10 @@ from ast import literal_eval
 
 from redis import StrictRedis
 
-from .constant import RedisDBEnum
+from ..configs.constant import RedisDBEnum
 from ..utils.docker import is_running_in_docker
 
-logger = logging.Logger('main')
+logger = logging.Logger('connection')
 
 
 REDIS_HOST = os.getenv("REDIS_HOST", "redis") if is_running_in_docker() else 'localhost'
@@ -16,7 +16,6 @@ REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
 
 
 def get_strict_redis_connection(db=RedisDBEnum.media) -> StrictRedis:
-    logger.info(f'{REDIS_HOST} {REDIS_PORT} {REDIS_PASSWORD}')
     return StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=db, password=REDIS_PASSWORD)
 
 
@@ -51,13 +50,3 @@ def hset_value(sr_connection: StrictRedis, key: str, field: str, value: any):
     if value == 'None' or value == None:
         logger.warning(f'Nonetype or string "None" is interpreted as key is not exist.')
     value = sr_connection.hset(key, field, str(value))
-
-
-def get_value(key: str, field: str = None, default: any = None, db=RedisDBEnum.media) -> any:
-    with get_strict_redis_connection(db) as src:
-        return hget_value(src, key, field, default)
-
-
-def set_value(key: str, field: str = None, value: any = None, db=RedisDBEnum.media):
-    with get_strict_redis_connection(db) as src:
-        hset_value(src, key, field, value)

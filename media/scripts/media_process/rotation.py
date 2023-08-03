@@ -13,7 +13,7 @@ from typing import List, Tuple
 
 import cv2
 
-from ..configs.redis_connection import get_value, RedisDBEnum
+from ..configs.config import get_value, RedisDBEnum
 from ..utils.file_manage import JsonManager, substitute_path_extension
 from ..utils._timezone import timestamp_to_datetime_with_timezone_str
 

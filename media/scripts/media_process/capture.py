@@ -4,11 +4,13 @@ import subprocess
 import time
 from multiprocessing import Event, Process, Queue
 
-from ..configs.redis_connection import get_value, set_value
+from ..configs.config import get_value, set_value
+from ..configs.constant import RedisChannel
 from ..utils._subprocess import kill_pid_grep
 from ..utils.docker import convert_if_docker_localhost
 from .loudness import get_sound_values, set_device_volume
 from .rotation import RotationFileManager, get_file_creation_time
+from ..connection.redis_pubsub import publish, get_strict_redis_connection
 
 logger = logging.getLogger('main')
 
@@ -109,14 +111,14 @@ def start_capture(audio_values: Queue, stop_event: Event):
 
 
 def audio_value_consumer(audio_values: Queue, stop_event: Event):
-    # TODO pipe it to frontend lkfs lvel
     # value format: {'t': 1690940538.72, 'M': -27.5, 'I': -29.1, 'inactive': False}
     idx = 0
-    while not stop_event.is_set() or not audio_values.empty():
-        idx += 1
-        value = audio_values.get()
-        if idx % 10 == 0:
-            logger.info(f'{value}')
+    with get_strict_redis_connection() as src:
+        while not stop_event.is_set() or not audio_values.empty():
+            idx += 1
+            value = audio_values.get()
+            # TODO add data save function if this value is needed.
+            publish(src, RedisChannel.loudness, value)
 
 
 def streaming() -> Event:
