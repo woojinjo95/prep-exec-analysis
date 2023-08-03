@@ -77,7 +77,7 @@ const HLSPlayer: React.FC<HlsPlayerProps> = ({ src, autoPlay, ...props }) => {
   if (Hls.isSupported()) return <video ref={playerRef} {...props} />
 
   // Fallback to using a regular video player if HLS is supported by default in the user's browser
-  return <video ref={playerRef} playsInline autoPlay={autoPlay} muted {...props} />
+  return <video ref={playerRef} playsInline autoPlay={autoPlay} muted src={src} {...props} />
 }
 
 export default HLSPlayer
