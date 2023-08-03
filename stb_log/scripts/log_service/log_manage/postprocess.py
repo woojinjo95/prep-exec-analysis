@@ -130,10 +130,14 @@ def insert_to_db(file_path: str):
 
 def construct_json_data(log_batch: List[Tuple[float, str]]) -> Dict:
     return {
-        'time': int(log_batch[0][0]),  # first log time(second) in batch
-        'readable_time': datetime.fromtimestamp(log_batch[0][0]).strftime('%Y-%m-%d %H:%M:%S'),  # first log time in batch
+        'time': int(log_batch[0]['timestamp']),  # first log time(second) in batch
         'lines': [{
-            'time': time_data,
-            'raw': line,
-        } for time_data, line in log_batch],
+            'timestamp': log_chunk['timestamp'],
+            'module': log_chunk['module'],
+            'log_level': log_chunk['log_level'],
+            'process_name': log_chunk['pid'],
+            'PID': log_chunk['pid'],
+            'TID': log_chunk['tid'],
+            'message': log_chunk['message'],
+        } for log_chunk in log_batch],
     }

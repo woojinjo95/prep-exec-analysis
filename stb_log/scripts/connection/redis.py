@@ -14,6 +14,7 @@ REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
 
 
 def get_strict_redis_connection(db: int) -> StrictRedis:
+    logger.info(f'get_strict_redis_connection: {REDIS_HOST}:{REDIS_PORT}, password={REDIS_PASSWORD} db={db}')
     return StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=db, password=REDIS_PASSWORD)
 
 
