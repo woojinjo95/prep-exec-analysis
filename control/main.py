@@ -24,7 +24,9 @@ def command_parser(command: dict, remocon_process: RemoconProcess):
     if command.get('remocon'):
         remocon_args = command.get('remocon')
         key = remocon_args.get('key')
-        remocon_process.put_command(key=key, _type='ir')
+        _type = remocon_args.get('type', 'ir')
+        press_time = remocon_args.get('press', 0)
+        remocon_process.put_command(key=key, _type=_type, press_time=press_time)
 
     if command.get('remocon_type'):
         remocon_type_args = command.get('remocon_type')
