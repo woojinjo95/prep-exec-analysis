@@ -1,6 +1,8 @@
 from typing import List, Optional
 
-from app.schemas.enum import ResumeMeasurementRecognizingKeyEventEnum
+from app.schemas.enum import (ChannelChangeTimeTargetEnum,
+                              LogLevelFinderTargetEnum,
+                              ResumeMeasurementRecognizingKeyEventEnum)
 from pydantic import BaseModel
 
 
@@ -11,6 +13,7 @@ class CommonConfig(BaseModel):
 
 
 class Roi(BaseModel):
+    # id: Optional[str]
     x: int
     y: int
     w: int
@@ -18,6 +21,7 @@ class Roi(BaseModel):
 
 
 class Frame(BaseModel):
+    # id: Optional[str]
     image_path: str
     rois: List[Roi]
 
@@ -40,11 +44,11 @@ class Boot(CommonConfig):
 
 
 class ChannelChangeTime(CommonConfig):
-    targets: List[str]
+    targets: List[ChannelChangeTimeTargetEnum]
 
 
 class LogLevelFinder(BaseModel):
-    targets: List[str]
+    targets: List[LogLevelFinderTargetEnum]
 
 
 class AnalysisConfig(BaseModel):

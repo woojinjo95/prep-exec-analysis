@@ -35,3 +35,19 @@ class AnalysisTypeEnum(ExtendedEnum):
     boot = "boot"
     channel_change_time = "channel_change_time"
     log_level_finder = "log_level_finder"
+
+
+class LogLevelFinderTargetEnum(ExtendedEnum):
+    logcat_f = "logcat_f"
+    logcat_e = "logcat_e"
+    logcat_s = "logcat_s"
+    logcat_w = "logcat_w"
+    logcat_i = "logcat_i"
+    logcat_d = "logcat_d"
+    logcat_v = "logcat_v"
+
+
+class ChannelChangeTimeTargetEnum(ExtendedEnum):
+    adjoint_channel = "adjoint_channel"
+    nonadjoint_channel = "nonadjoint_channel"
+    previous_channel = "previous_channel"
