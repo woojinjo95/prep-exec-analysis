@@ -69,3 +69,4 @@ def Subscribe(redis_client: StrictRedis, channel: str, stop_event: Event = Event
         except Exception as e:
             logger.error(f'Error in consume function: {e}')
             logger.info(traceback.format_exc())
+            time.sleep(1)  # to avoid too many log
