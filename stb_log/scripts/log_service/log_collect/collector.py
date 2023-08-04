@@ -17,10 +17,6 @@ from .config import CollectorConfig
 logger = logging.getLogger('connection')
 
 
-log_dir = os.path.join('datas', 'stb_logs', 'logs')
-completed_log_dir = os.path.join('datas', 'stb_logs', 'completed_logs')
-
-
 def write_with_time_prefix(file: TextIO, line: str):
     cur_time = time.time()
     new_line = f'<Collector: {cur_time}> {line}'
@@ -42,6 +38,9 @@ def extract_logcat_time_data(line: str) -> Union[None, datetime]:
 
 def collect(connection_info: dict, command_script: str, log_type: str, stop_event: Event):
     logger.info(f"start log collection. connection_info: {connection_info}, command_script: {command_script}, log_type: {log_type}")
+
+    log_dir = os.path.join('datas', 'stb_logs', log_type, 'logs')
+    completed_log_dir = os.path.join('datas', 'stb_logs', log_type, 'completed_logs')
 
     conn = Connection(**connection_info)
     stdout = conn.exec_command(command_script, stop_event)

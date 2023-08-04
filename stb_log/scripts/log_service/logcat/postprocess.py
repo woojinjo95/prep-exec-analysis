@@ -18,7 +18,6 @@ from .db_connection import LogManagerDBConnection
 logger = logging.getLogger('connection')
 
 db_conn = LogManagerDBConnection()
-completed_log_dir = os.path.join('datas', 'stb_logs', 'completed_logs')
 
 log_prefix_pattern = r'<Collector:\s(\d+\.\d+)>'
 # log_chunk_pattern = r"\[\s(?P<timestamp>\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})\s(?P<pid>\d+):(?P<tid>\d+)\s(?P<log_level>[\w])\/(?P<module>.+?)\s\]\n(?P<message>.*)\n"
@@ -29,8 +28,9 @@ log_chunk_pattern = r"\[\s(?P<timestamp>\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})\s
 timezone = get_value('common', 'timezone', db=RedisDB.hardware)
 
 
-def postprocess(stop_event: Event):
+def postprocess(log_type: str, stop_event: Event):
     logger.info(f"start log postprocess")
+    completed_log_dir = os.path.join('datas', 'stb_logs', log_type, 'completed_logs')
     os.makedirs(completed_log_dir, exist_ok=True)
 
     while not stop_event.is_set():

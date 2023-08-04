@@ -3,6 +3,7 @@ from multiprocessing import Queue
 
 from scripts.log_service.log_helper import LogHelper, init_log_helper, terminate_log_helper
 from scripts.log_service.logcat.log_manager import LogcatManager
+from scripts.log_service.top_log.log_manager import TopLogManager
 from scripts.connection.redis_conn import get_strict_redis_connection
 from scripts.connection.redis_pubsub import Subscribe
 from scripts.config.constant import RedisChannel, RedisDB
@@ -43,6 +44,7 @@ def command_parser(command: dict):
                 logger.warning('Manager is already alive')
             else:
                 manager = LogcatManager(connection_info=connection_info)
+                # manager = TopLogManager(connection_info=connection_info)
                 manager.start()
                 logger.info('Start Manager')
 

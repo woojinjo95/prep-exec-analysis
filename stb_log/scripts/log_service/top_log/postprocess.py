@@ -13,11 +13,9 @@ from scripts.connection.mongo_db.crud import insert_many_to_mongodb
 from scripts.connection.redis_conn import get_value
 from scripts.util._timezone import timestamp_to_datetime_with_timezone_str
 
-from .db_connection import LogManagerDBConnection
 
 logger = logging.getLogger('connection')
 
-db_conn = LogManagerDBConnection()
 completed_log_dir = os.path.join('datas', 'stb_logs', 'completed_logs')
 
 log_prefix_pattern = r'<Collector:\s(\d+\.\d+)>'

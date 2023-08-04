@@ -11,13 +11,9 @@ logger = logging.getLogger('connection')
 
 class LogcatManager:
     def __init__(self, connection_info: dict):
-        # Define ONLY immutable variable or multiprocessing variable
-        # DO NOT define mutable variable (will not shared between processes)
-
-        # immutable variable (or will use as immutable)
         self.connection_info = connection_info
+        self.log_type = 'logcat'
         
-        # multiprocessing variable
         self.local_stop_event = Event()
         self.log_collector = None
         self.log_postprocessor = None
@@ -27,7 +23,7 @@ class LogcatManager:
         self.log_collector = ProcessMaintainer(target=collect, kwargs={
             'connection_info': self.connection_info,
             'command_script': 'logcat -c; logcat -v long',
-            'log_type': 'logcat',
+            'log_type': self.log_type,
             'stop_event': self.local_stop_event,
             }, daemon=True, revive_interval=10)
         self.log_collector.start()
@@ -35,6 +31,7 @@ class LogcatManager:
     # Log Postprocessor
     def __start_log_postprocessor(self):
         self.log_postprocessor = ProcessMaintainer(target=postprocess, kwargs={
+            'log_type': self.log_type,
             'stop_event': self.local_stop_event,
         }, daemon=True, revive_interval=10)
         self.log_postprocessor.start()
