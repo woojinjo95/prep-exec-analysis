@@ -68,7 +68,7 @@ services:
       - "/dev/video0:/dev/video0"
     privileged: true
     volumes:
-      - "$HOME/.ssh/runner_key:/app/static/keys/runner_key"
+      - "$HOME/.ssh:/app/static/keys"
       - "./data/videos:/app/videos"
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -88,7 +88,7 @@ services:
       - "/dev/ttyUSB1:/dev/ttyUSB1"
     privileged: true
     volumes:
-      - "$HOME/.ssh/runner_key:/app/static/keys/runner_key"
+      - "$HOME/.ssh:/app/static/keys"
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
