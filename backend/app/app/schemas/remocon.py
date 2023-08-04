@@ -16,7 +16,6 @@ class Remocon(BaseModel):
         custom_code: List[str]
         order: int
 
-    id: Optional[str] = None
     name: str
     image_path: str
     image_resolution: List
@@ -44,9 +43,9 @@ class RemoconCustomKeyCreate(BaseModel):
 
 
 class RemoconCustomKeyCreateBase(BaseModel):
+    remocon_name: str
     name: str
     custom_code: List[str]
-    remocon_id: str
 
 
 class RemoconCustomKeyUpdate(BaseModel):

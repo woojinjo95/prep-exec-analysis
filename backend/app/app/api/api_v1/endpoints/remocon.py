@@ -52,18 +52,21 @@ def update_remocon(
 def insert_custom_key(
     custom_key_in_base: schemas.RemoconCustomKeyCreateBase,
 ) -> schemas.MsgWithId:
+    """
+    리모컨 커스텀 키 추가
+    """
     custom_key_in = schemas.RemoconCustomKeyCreate(
         id=str(uuid.uuid4()),
-        order=0,
         name=custom_key_in_base.name,
         custom_code=custom_key_in_base.custom_code,
+        order=0,
     )
     input_data = {
         'custom_keys': custom_key_in.dict()
     }
-    insert_by_id_to_mongodb_array(col='remocon',
-                                  id=custom_key_in_base.remocon_id,
-                                  data=input_data)
+    custom_keys = parse_bytes_to_value(RedisClient.hget('remocon:'+custom_key_in_base.remocon_name, 'custom_keys'))
+    custom_keys.append(input_data['custom_keys'])
+    RedisClient.hset('remocon:'+custom_key_in_base.remocon_name, 'custom_keys', str(custom_keys))
     return {'msg': 'Create new custom_key', 'id': custom_key_in.id}
 
 
