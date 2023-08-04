@@ -2,7 +2,7 @@ import logging
 from multiprocessing import Queue
 
 from scripts.log_service.log_helper import LogHelper, init_log_helper, terminate_log_helper
-from scripts.log_service.logcat.log_manager import LogFileManager
+from scripts.log_service.logcat.log_manager import LogcatManager
 from scripts.connection.redis_conn import get_strict_redis_connection
 from scripts.connection.redis_pubsub import Subscribe
 from scripts.config.constant import RedisChannel, RedisDB
@@ -22,7 +22,6 @@ connection_info = {
     'password': '',
     'connection_mode': 'adb',
 }
-log_type = 'logcat'
 
 
 manager = None
@@ -43,7 +42,7 @@ def command_parser(command: dict):
             if manager and manager.is_alive():
                 logger.warning('Manager is already alive')
             else:
-                manager = LogFileManager(connection_info=connection_info, log_type=log_type)
+                manager = LogcatManager(connection_info=connection_info)
                 manager.start()
                 logger.info('Start Manager')
 
