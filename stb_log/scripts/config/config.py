@@ -1,8 +1,9 @@
 import os
 from ast import literal_eval
+from typing import Any
 
 
-def get_setting_with_env(key: str, default: str = None):
+def get_setting_with_env(key: str, default: Any = None):
     try:
         value = os.getenv(key, default)
         if value is None:
