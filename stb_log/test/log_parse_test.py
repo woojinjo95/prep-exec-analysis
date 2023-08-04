@@ -2030,13 +2030,19 @@ datas = [
       "raw": " [ 08-03 20:08:12.927  3571:32726 I/LivePlayer_0 ]"
     }
   ]
-pattern = r"\[\s(?P<timestamp>\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})\s*(?P<pid>\d+)\s*:\s*(?P<tid>\d+)\s*(?P<log_level>[\w])\/(?P<module>.*)\s*\](?:\n(?P<message>.*))?"
 # pattern = r"\[\s(?P<timestamp>\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})\s*(?P<pid>\d+):\s?(?P<tid>\d+).*\n"
+pattern_1 = r"\[\s(?P<timestamp>\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})\s*(?P<pid>\d+)\s*:\s*(?P<tid>\d+)\s*(?P<log_level>[\w])\/(?P<module>.*)\s*\](?:\n(?P<message>.*))?"
+pattern_2 = r"\[\s(?P<timestamp>\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})\s*(?P<pid>\d+)\s*:\s*(?P<tid>\d+)\s*(?P<log_level>[\w])\/(?P<module>.*)\s*\]\n(?P<message>.*)"
 
 not_match_count = 0
 for i, data in enumerate(datas):
+    if i > 100:
+        break
+
     raw_data = data['raw']
-    match = re.search(pattern, raw_data, re.DOTALL)
+
+    print(f'{i}===========================')
+    match = re.search(pattern_1, raw_data, re.DOTALL)
     if match:
         dic = match.groupdict()
         print(dic)
@@ -2044,4 +2050,14 @@ for i, data in enumerate(datas):
     else:
         not_match_count += 1
         print(f'not match. {i}. {raw_data}')
+
+    match = re.search(pattern_2, raw_data, re.DOTALL)
+    if match:
+        dic = match.groupdict()
+        print(dic)
+        print(type(dic))
+    else:
+        not_match_count += 1
+        print(f'not match. {i}. {raw_data}')
+
 print(f'datas: {len(datas)}, not match count: {not_match_count}')

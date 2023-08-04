@@ -3,7 +3,7 @@ from multiprocessing import Queue
 
 from scripts.log_service.log_helper import LogHelper, init_log_helper, terminate_log_helper
 from scripts.log_service.log_manage.log_manager import LogFileManager
-from scripts.connection.redis import get_strict_redis_connection
+from scripts.connection.redis_conn import get_strict_redis_connection
 from scripts.connection.redis_pubsub import Subscribe
 from scripts.config.constant import RedisChannel, RedisDB
 

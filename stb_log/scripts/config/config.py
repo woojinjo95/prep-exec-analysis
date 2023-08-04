@@ -1,4 +1,4 @@
-from scripts.connection.redis import (get_strict_redis_connection,
+from scripts.connection.redis_conn import (get_strict_redis_connection,
                                            hget_value, hset_value)
 from .constant import RedisDB
 

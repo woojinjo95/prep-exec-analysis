@@ -8,7 +8,7 @@ from typing import Generator
 from redis.exceptions import ConnectionError as RedisConnectionError
 
 # get_strict_redis_connection is not used in this code, but it used when import with publish
-from .redis import StrictRedis, get_strict_redis_connection
+from .redis_conn import StrictRedis, get_strict_redis_connection
 
 logger = logging.getLogger('connection')
 
