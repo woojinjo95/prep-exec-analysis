@@ -28,4 +28,5 @@ class RedisDBEnum:
 
 
 class RedisChannel:
+    command = 'command'
     loudness = 'loudness'

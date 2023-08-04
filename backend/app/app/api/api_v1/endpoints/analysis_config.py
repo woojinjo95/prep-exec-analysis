@@ -1,8 +1,10 @@
+import json
 import logging
 import uuid
 
 from app import schemas
-from app.crud.base import load_one_from_mongodb, update_many_to_mongodb
+from app.api.utility import parse_bytes_to_value
+from app.db.redis_session import RedisClient
 from app.schemas.enum import AnalysisTypeEnum
 from fastapi import APIRouter, HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -27,7 +29,11 @@ def read_analysis_config() -> schemas.AnalysisConfigBase:
     """
     Retrieve analysis_config.
     """
-    return {'items': load_one_from_mongodb(col='analysis_config')}
+    analysis_config = {}
+    for key in RedisClient.scan_iter(match="analysis_config:*"):
+        analysis_config[key.split(':')[1]] = {k: parse_bytes_to_value(v)
+                                              for k, v in RedisClient.hgetall(key).items()}
+    return {'items': analysis_config}
 
 
 @router.put("", response_model=schemas.Msg)
@@ -40,8 +46,8 @@ def update_analysis_config(
     """
     for key, val in jsonable_encoder(analysis_config_in).items():
         if val is not None and key in AnalysisTypeEnum.list():
-            update_many_to_mongodb(col='analysis_config',
-                                   data={key: val})
+            for k, v in val.items():
+                RedisClient.hset(f'analysis_config:{key}', k, json.dumps(v))
     return {'msg': 'Update analysis_config'}
 
 
@@ -54,9 +60,10 @@ def delete_analysis_config(
     Delete analysis_config.
     """
     analysis_type = analysis_type.value
-    res = update_many_to_mongodb(col='analysis_config',
-                                 data={analysis_type: None})
-    if res.matched_count == 0:
+    name = f'analysis_config:{analysis_type}'
+    if not RedisClient.hgetall(name=name):
         raise HTTPException(
-            status_code=406, detail="No items have been updated.")
+            status_code=404, detail=f"The analysis_config with this {analysis_type} does not exist in the system.")
+
+    RedisClient.delete(name)
     return {'msg': f'Delete {analysis_type} analysis_config'}

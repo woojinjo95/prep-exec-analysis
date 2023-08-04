@@ -3,7 +3,7 @@ import logging
 import uuid
 
 from app import schemas
-from app.api.utility import converted_str_data
+from app.api.utility import parse_bytes_to_value
 from app.db.redis_session import RedisClient
 from fastapi import APIRouter, HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -32,7 +32,7 @@ def read_hardware_configuration() -> schemas.HardwareConfigurationBase:
     Retrieve hardware_configuration.
     """
     hardware_configuration = RedisClient.hgetall(f'hardware_configuration')
-    config = {field: converted_str_data(value)
+    config = {field: parse_bytes_to_value(value)
               for field, value in hardware_configuration.items()}
     stb_conn = RedisClient.hget(f'hardware_configuration',
                                 'stb_connection')

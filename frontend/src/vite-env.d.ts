@@ -35,6 +35,7 @@ declare global {
   }
   interface ImportMetaEnv {
     readonly VITE_BACKEND_URL?: string
+    readonly VITE_BACKEND_WEBSOCKET_URL?: string
     readonly VITE_STREAMING_URL?: string
   }
   interface ImportMeta {

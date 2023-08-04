@@ -1,5 +1,6 @@
 import pymongo
 from .config import Settings
+from typing import Dict, List
 from scripts.util.common import convert_to_dict
 
 
@@ -9,7 +10,7 @@ def conn_mongodb():
     return client
 
 
-def get_mongodb_collection(col):
+def get_mongodb_collection(col: str) -> pymongo.collection.Collection:
     db = Settings.MONGODB_NAME
     client = conn_mongodb()
     result_db = client[db]
@@ -17,57 +18,13 @@ def get_mongodb_collection(col):
     return target_collection
 
 
-def insert_to_mongodb(col, data):
+def insert_to_mongodb(col, data: Dict) -> pymongo.results.InsertOneResult:
     col = get_mongodb_collection(col)
     res = col.insert_one(data)
     return res
 
 
-def load_from_mongodb(col, param={}, projection=None, sort_item=None):
+def insert_many_to_mongodb(col, data_list: List[Dict]) -> pymongo.results.InsertManyResult:
     col = get_mongodb_collection(col)
-    res = col.find(param, projection)
-    if sort_item:
-        res.sort(sort_item)
-    return list(res)
-
-
-def load_by_id_from_mongodb(col, id, projection=None):
-    col = get_mongodb_collection(col)
-    res = col.find_one({'id': id}, projection)
+    res = col.insert_many(data_list)
     return res
-
-
-def update_by_id_to_mongodb(col, id, data):
-    col = get_mongodb_collection(col)
-    return col.update_one({'id': id}, {'$set': convert_to_dict(data)})
-
-# TODO : 몽고디비 CRUD 정리
-
-
-def insert_by_id_to_mongodb(col, id, data):
-    col = get_mongodb_collection(col)
-    return col.update_one({'id': id}, {'$push': convert_to_dict(data)})
-
-
-def update_by_multi_filter_in_mongodb(col, param, data):
-    col = get_mongodb_collection(col)
-    return col.update_one(param, {'$set': convert_to_dict(data)})
-
-
-def delete_by_id_to_mongodb(col, id):
-    col = get_mongodb_collection(col)
-    return col.delete_one({'id': id})
-
-
-def delete_part_by_id_to_mongodb(col, id, data):
-    col = get_mongodb_collection(col)
-    return col.update_one({'id': id}, {'$pull': convert_to_dict(data)})
-
-
-def load_paginate_from_mongodb(col, page, page_size, param={}, projection=None, sort_item=None):
-    col = get_mongodb_collection(col)
-    res = col.find(param, projection)
-    if sort_item:
-        res.sort(sort_item)
-    return {'items': res.skip(page_size * (page - 1)).limit(page_size),
-            'total': len(list(col.find(param, projection)))}  # TODO 카운트 방식 변경

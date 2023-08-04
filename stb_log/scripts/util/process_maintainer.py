@@ -30,7 +30,7 @@ class ProcessMaintainer:
         if self.revive_interval:
             self.revive(self.revive_interval)
 
-    def stop(self):
+    def terminate(self):
         if self.process:
             # Stop revive task first
             if self.reviver:
@@ -48,7 +48,7 @@ class ProcessMaintainer:
     def revive(self, interval=None):
         if not self.process.is_alive():
             logger.info(f'Revive {self.target.__name__}() process.')
-            self.stop()
+            self.terminate()
             self.start()
             interval = None
 
@@ -60,11 +60,11 @@ class ProcessMaintainer:
 
         gc.collect()
 
-    def is_running(self):
+    def is_alive(self):
         if self.process and self.process.is_alive():
             return True
         else:
             return False
 
     def __del__(self):
-        self.stop()
+        self.terminate()

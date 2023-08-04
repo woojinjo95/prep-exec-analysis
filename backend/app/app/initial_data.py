@@ -32,37 +32,14 @@ def init_hardware_configuration():
                 RedisClient.hset(key, field, value)
 
 
-def init_scenario():
-    scenario = load_one_from_mongodb('scenario', {"_id": 1})
-    if scenario is None:
-        insert_one_to_mongodb(col='scenario', data={"block_group": []})
-
-
 def init_remocon_registration():
-    remocons_data = remocon_preset(settings.REMOCON_COMPANY.split(','))
-    if remocons_data != []:
-        insert_many_to_mongodb(col='remocon', data=remocons_data)
-
-
-def init_analysis_config():
-    config = {
-        "freeze": None,
-        "macroblock": None,
-        "resume": None,
-        "boot": None,
-        "channel_change_time": None,
-        "log_level_finder": None
-    }
-    analysis_config = load_one_from_mongodb('analysis_config', {"_id": 1})
-    if analysis_config is None:
-        insert_one_to_mongodb(col='analysis_config', data=config)
+    remocon_preset(settings.REMOCON_COMPANY.split(','))
+    logger.info('Remote control preset process completed')
 
 
 def init() -> None:
     init_hardware_configuration()
-    init_scenario()
     init_remocon_registration()
-    init_analysis_config()
 
 
 def main() -> None:

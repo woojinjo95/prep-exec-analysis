@@ -25,4 +25,11 @@ ENV MONGODB_PASSWORD .nextlab6318!
 ENV MONGODB_AUTHENTICATION_SOURCE admin
 # mongodb://admin:.nextlab6318!@127.0.0.1:27017/prep-exec-analysis?authSource=admin&readPreference=primary&ssl=false
 
+ENV REDIS_HOST redis
+ENV REDIS_PORT 6379
+ENV REDIS_DB 0
+ENV REDIS_PASSWORD 66b44dcb7f981904f8536b19e4464725
+
+ENV DUMP_TIME_LIMIT=60
+
 # CMD ["python", "main.py"]

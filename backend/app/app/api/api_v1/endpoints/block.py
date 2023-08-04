@@ -3,8 +3,9 @@ import uuid
 
 from app import schemas
 from app.crud.base import (delete_part_to_mongodb, get_mongodb_collection,
-                           load_from_mongodb, load_one_from_mongodb,
-                           update_many_to_mongodb, update_to_mongodb)
+                           insert_one_to_mongodb, load_from_mongodb,
+                           load_one_from_mongodb, update_many_to_mongodb,
+                           update_to_mongodb)
 from fastapi import APIRouter, HTTPException
 from fastapi.encoders import jsonable_encoder
 
@@ -20,6 +21,9 @@ def create_block(
     """
     Create new block.
     """
+    scenario = load_one_from_mongodb('scenario', {"_id": 1, "block_group": 1})
+    if scenario is None:
+        insert_one_to_mongodb(col='scenario', data={"block_group": []})
     block_in = schemas.Block(id=str(uuid.uuid4()),
                              type=block_in.type,
                              value=block_in.value,
