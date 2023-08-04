@@ -33,9 +33,8 @@ def init_hardware_configuration():
 
 
 def init_remocon_registration():
-    remocons_data = remocon_preset(settings.REMOCON_COMPANY.split(','))
-    if remocons_data != []:
-        insert_many_to_mongodb(col='remocon', data=remocons_data)
+    remocon_preset(settings.REMOCON_COMPANY.split(','))
+    logger.info('Remote control preset process completed')
 
 
 def init() -> None:

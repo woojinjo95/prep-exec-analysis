@@ -50,4 +50,3 @@ def healthcheck() -> schemas.Msg:
 
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
-app.mount(settings.FILES_PATH + '/system', StaticFiles(directory=settings.FILES_PATH + '/system'), name="static")

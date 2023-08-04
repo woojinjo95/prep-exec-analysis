@@ -1,4 +1,5 @@
 from enum import Enum
+from app.core.config import settings
 
 
 class ExtendedEnum(Enum):
@@ -51,3 +52,7 @@ class ChannelChangeTimeTargetEnum(ExtendedEnum):
     adjoint_channel = "adjoint_channel"
     nonadjoint_channel = "nonadjoint_channel"
     previous_channel = "previous_channel"
+
+
+RemoconEnum = Enum('MeasureDirectionEnum', [(r, r) for r
+                                            in settings.REMOCON_COMPANY.split(',')])
