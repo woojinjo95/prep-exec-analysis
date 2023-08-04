@@ -20,15 +20,8 @@ def read_remocon() -> schemas.RemoconRead:
     """
     리모컨 조회
     """
-    remocon_list = []
-    for key in RedisClient.scan_iter(match='remocon:*'):
-        remocon = {}
-        for k, v in RedisClient.hgetall(key).items():
-            if k == 'name' or k == 'image_path':
-                remocon[k] = v
-            else:
-                remocon[k] = parse_bytes_to_value(v)
-            remocon_list.append(remocon)
+    remocon_list = [{k: parse_bytes_to_value(v) for k, v in RedisClient.hgetall(key).items()}
+                    for key in RedisClient.scan_iter(match='remocon:*')]
     return {'items': remocon_list}
 
 

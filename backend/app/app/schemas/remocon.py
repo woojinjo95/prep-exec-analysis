@@ -1,6 +1,6 @@
 from typing import Optional, List
 from pydantic import BaseModel
-
+from app.schemas.enum import RemoconEnum
 
 class Remocon(BaseModel):
     class remocon_code(BaseModel):
@@ -16,7 +16,7 @@ class Remocon(BaseModel):
         custom_code: List[str]
         order: int
 
-    name: str
+    name: RemoconEnum
     image_path: str
     remocon_codes: List[remocon_code]
     custom_keys: List[custom_key]
@@ -41,7 +41,7 @@ class RemoconCustomKeyCreate(BaseModel):
 
 
 class RemoconCustomKeyCreateBase(BaseModel):
-    remocon_name: str
+    remocon_name: RemoconEnum
     name: str
     custom_code: List[str]
 
