@@ -13,6 +13,19 @@ services:
     volumes:
       - ./backend/app:/app
 
+  frontend:
+    container_name: frontend
+    image: registry.dev-nextlab.com/prep-exec-analysis-frontend:dev-0
+    build:
+      context: ./frontend
+      dockerfile: dockerfile.development
+    volumes:
+      - ./frontend:/usr/src/app
+      - /usr/src/app/node_modules/
+    ports:
+      - 3000:3000
+    stdin_open: true
+
   mongodb:
     container_name: mongodb
     image: mongo:4.4.2
@@ -27,13 +40,13 @@ services:
   mediamtx:
     image: aler9/rtsp-simple-server:v0.23.8
     ports:
-    - "8554:8554" # RTSP
-    - "9997:9997" # API
-    - "9998:9998" # Prometheus
-    - "8889:8889" # WebRTC -> more config needed in docker
-    - "8888:8888" # HLS
+      - "8554:8554" # RTSP
+      - "9997:9997" # API
+      - "9998:9998" # Prometheus
+      - "8889:8889" # WebRTC -> more config needed in docker
+      - "8888:8888" # HLS
     volumes:
-    - "./media/mediamtx.yml:/mediamtx.yml"
+      - "./media/mediamtx.yml:/mediamtx.yml"
     logging:
       options:
         max-file: "3"
@@ -47,10 +60,10 @@ services:
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_PASSWORD: 
+      REDIS_PASSWORD:
       USER: ${USER}
     devices:
-        - "/dev/video0:/dev/video0"
+      - "/dev/video0:/dev/video0"
     privileged: true
     volumes:
       - "$HOME/.ssh/runner_key:/app/static/keys/runner_key"
@@ -66,7 +79,7 @@ services:
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_PASSWORD: 
+      REDIS_PASSWORD:
       USER: ${USER}
     devices:
       - "/dev/ttyUSB0:/dev/ttyUSB0"
@@ -76,7 +89,6 @@ services:
       - "$HOME/.ssh/runner_key:/app/static/keys/runner_key"
     extra_hosts:
       - "host.docker.internal:host-gateway"
-
 
   adminer:
     container_name: adminer
@@ -96,10 +108,10 @@ services:
     container_name: redis-commander
     image: rediscommander/redis-commander:latest
     environment:
-    - REDIS_HOSTS=hardware:redis:6379:0
-                  collector:redis:6379:3
+      - REDIS_HOSTS=hardware:redis:6379:0
+        collector:redis:6379:3
     ports:
-    - 8081:8081
+      - 8081:8081
 
   stb-log:
     container_name: stb-log
