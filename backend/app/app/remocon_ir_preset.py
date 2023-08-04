@@ -1,13 +1,12 @@
 from PIL import Image
 
-from app.crud.base import load_from_mongodb
+from app.db.redis_session import RedisClient
 
 remocons = [
     {
         "name": "vodafone",
         "image_path": "/api/v1/file/system_file/remocon_image_vodafone.jpg",
         "image_resolution": list(Image.open('/app/app/files/system/remocon_image_vodafone.jpg').size),
-        "custom_keys": [],
         "remocon_codes": [
             {
                 "name": "TV Power",
@@ -302,7 +301,6 @@ remocons = [
         "name": "kt",
         "image_path": "/api/v1/file/system_file/remocon_image_kt.jpg",
         "image_resolution": list(Image.open('/app/app/files/system/remocon_image_kt.jpg').size),
-        "custom_keys": [],
         "remocon_codes": [
             {
                 "name": "TV전원",
@@ -653,7 +651,6 @@ remocons = [
         "name": "sk",
         "image_path": "/api/v1/file/system_file/remocon_image_sk.jpg",
         "image_resolution": list(Image.open('/app/app/files/system/remocon_image_sk.jpg').size),
-        "custom_keys": [],
         "remocon_codes": [
             {
                 "name": "TV전원",
@@ -948,7 +945,6 @@ remocons = [
         "name": "lg",
         "image_path": "/api/v1/file/system_file/remocon_image_lg.jpg",
         "image_resolution": list(Image.open('/app/app/files/system/remocon_image_lg.jpg').size),
-        "custom_keys": [],
         "remocon_codes": [
             {
                 "name": "TV전원",
@@ -1355,13 +1351,9 @@ remocons = [
 
 
 def remocon_preset(company: list[str]):
-    result = []
+    result = 0
     for remocon in remocons:
         remocon_name = remocon['name']
         if remocon_name in company:
-            exist_check = load_from_mongodb(
-                col='remocon', param={'name': f'{remocon_name}'}, proj={'_id': 1})
-            if exist_check != []:
-                continue
-            result.append(remocon)
-    return result
+            for key, value in remocon.items():
+                RedisClient.hset(f'remocon:{remocon_name}', key, str(value))         
