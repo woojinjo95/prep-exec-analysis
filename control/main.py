@@ -50,7 +50,6 @@ def main():
 
 if __name__ == '__main__':
     try:
-        init_configs()
         log_organizer = LogOrganizer()
         log_organizer.set_stream_logger('main')
         log_organizer.set_stream_logger('remocon', 1)
@@ -59,6 +58,7 @@ if __name__ == '__main__':
         log_organizer.set_stream_logger('error', 10)
         logger.info('Start control container')
 
+        init_configs()
         main()
 
     finally:
