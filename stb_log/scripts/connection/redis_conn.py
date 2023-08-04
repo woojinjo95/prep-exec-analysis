@@ -3,15 +3,16 @@ import os
 from ast import literal_eval
 
 from redis import StrictRedis
+from scripts.config.config import get_setting_with_env
 
 
 logger = logging.getLogger('connection')
 
 
 # REDIS_HOST = '192.168.1.45'
-REDIS_HOST = os.getenv("REDIS_HOST")
-REDIS_PORT = os.getenv("REDIS_PORT")
-REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+REDIS_HOST = get_setting_with_env("REDIS_HOST")
+REDIS_PORT = get_setting_with_env("REDIS_PORT")
+REDIS_PASSWORD = get_setting_with_env("REDIS_PASSWORD")
 
 
 def get_strict_redis_connection(db: int) -> StrictRedis:
