@@ -129,9 +129,6 @@ def insert_to_db(file_path: str):
         json_data = construct_json_data(log_batch)
         insert_to_mongodb('stb_log', json_data)
 
-        # logger.info(f'json_data: {json_data}')
-        # write_json(f'stb_log_{datetime.fromtimestamp(log_batch[0][0]).strftime("%Y-%m-%d %H:%M:%S")}.json', json_data)
-
 
 def construct_json_data(log_batch: List[Tuple[float, str]]) -> Dict:
     return {
