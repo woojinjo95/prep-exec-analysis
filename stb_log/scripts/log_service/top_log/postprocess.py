@@ -54,10 +54,24 @@ def postprocess_log(file_path: str):
         logger.info(f'{file_path} remove complete.')
 
 
-def parse_log_chunk(chunk: str) -> Dict:
-    match = re.search(log_chunk_pattern, chunk, re.DOTALL)  # re.DOTALL: include \n
+def parse_cpu(chunk: str) -> float:
+    # 400%cpu  38%user   3%nice  55%sys 300%idle   0%iow   0%irq   4%sirq   0%host
+    match = re.search(r"(\d+)%cpu\s+(\d+)%user\s+(\d+)%nice\s+(\d+)%sys\s+(\d+)%idle\s+(\d+)%iow\s+(\d+)%irq\s+(\d+)%sirq\s+(\d+)%host", chunk)
     if match:
-        return match.groupdict()
+        cpu = float(match.group(1))
+        user = float(match.group(2))
+        nice = float(match.group(3))
+        sys = float(match.group(4))
+        idle = float(match.group(5))
+        iow = float(match.group(6))
+        irq = float(match.group(7))
+        sirq = float(match.group(8))
+        host = float(match.group(9))
+        
+        total = cpu
+        usage = cpu - idle
+        usage_rate = usage / total
+        return usage_rate
     else:
         return None
 
@@ -87,41 +101,45 @@ def LogBatchGenerator(file_path: str, no_time_count_limit: int = 10000):
     no_time_count = 0
 
     for index, (chunk, log_time) in enumerate(LogChunkGenerator(file_path, log_prefix_pattern)):
-        if chunk.isspace():
-            continue
 
         # parse log line
-        parsed_chunk = parse_log_chunk(chunk)
-        if not parsed_chunk:
-            logger.warning(f'Invalid log chunk: {chunk}')
+        cpu_rate = parse_cpu(chunk)
+        if not cpu_rate:
+            logger.warning(f'Cannot parse cpu rate. {chunk[:300]}')
             continue
+        print(cpu_rate)
+        yield cpu_rate
 
-        if log_time is not None:  # time data exist in line
-            if last_time is not None and int(log_time.timestamp()) != int(last_time.timestamp()): 
-                # when the integer part of the timestamp (the seconds) changes,
-                # yield the current batch and start a new one
-                yield batches
-                batches = []
-            last_time = log_time  # store the last time
-            no_time_count = 0
-        else:
-            no_time_count += 1
-            if no_time_count > no_time_count_limit:  # too many no time data in lines
-                raise Exception(f'No time data in {file_path} at line {index}')
+    #     if log_time is not None:  # time data exist in line
+    #         if last_time is not None and int(log_time.timestamp()) != int(last_time.timestamp()): 
+    #             # when the integer part of the timestamp (the seconds) changes,
+    #             # yield the current batch and start a new one
+    #             yield batches
+    #             batches = []
+    #         last_time = log_time  # store the last time
+    #         no_time_count = 0
+    #     else:
+    #         no_time_count += 1
+    #         if no_time_count > no_time_count_limit:  # too many no time data in lines
+    #             raise Exception(f'No time data in {file_path} at line {index}')
         
-        if last_time is not None:
-            batches.append({
-                **parsed_chunk,
-                'timestamp': timestamp_to_datetime_with_timezone_str(last_time.timestamp(), timezone=timezone),
-            })
+    #     if last_time is not None:
+    #         batches.append({
+    #             **parsed_chunk,
+    #             'timestamp': timestamp_to_datetime_with_timezone_str(last_time.timestamp(), timezone=timezone),
+    #         })
 
-    yield batches
+    # yield batches
 
 
 def insert_to_db(file_path: str):
-    json_datas = [construct_json_data(log_batch) for log_batch in LogBatchGenerator(file_path)]
-    logger.info(f'insert {len(json_datas)} datas to db')
-    insert_many_to_mongodb('stb_log', json_datas)
+    for batch in LogBatchGenerator(file_path):
+        # print(batch)
+        pass
+        
+    # json_datas = [construct_json_data(log_batch) for log_batch in LogBatchGenerator(file_path)]
+    # logger.info(f'insert {len(json_datas)} datas to db')
+    # insert_many_to_mongodb('stb_log', json_datas)
 
 
 def construct_json_data(log_batch: List[Tuple[float, str]]) -> Dict:
