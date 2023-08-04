@@ -1,22 +1,32 @@
+import glob
 import logging
 import os
+import re
 import time
 import traceback
-import glob
-import re
 from datetime import datetime
-from typing import Union, Tuple, List, Dict
 from multiprocessing import Event
+from typing import Dict, List, Tuple, Union
 
-from .db_connection import LogManagerDBConnection
 from scripts.connection.mongo_db.crud import insert_to_mongodb
 
+from .db_connection import LogManagerDBConnection
+from scripts.util._timezone import timestamp_to_datetime_with_timezone_str
+from scripts.config.config import get_value
+from scripts.config.constant import RedisDB
 
 logger = logging.getLogger('connection')
 
 db_conn = LogManagerDBConnection()
 completed_log_dir = os.path.join('datas', 'stb_logs', 'completed_logs')
+
 log_prefix_pattern = r'<Collector:\s(\d+\.\d+)>'
+# log_chunk_pattern = r"\[\s(?P<timestamp>\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})\s(?P<pid>\d+):(?P<tid>\d+)\s(?P<log_level>[\w])\/(?P<module>.+?)\s\]\n(?P<message>.*)\n"
+# log_chunk_pattern = r"\[\s(?P<timestamp>\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})\s*(?P<pid>\d+)\s*:\s*(?P<tid>\d+)\s*(?P<log_level>[\w])\/(?P<module>.*)\s*\](?:\n(?P<message>.*))?"
+log_chunk_pattern = r"\[\s(?P<timestamp>\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})\s*(?P<pid>\d+)\s*:\s*(?P<tid>\d+)\s*(?P<log_level>[\w])\/(?P<module>.*)\s*\]\n(?P<message>.*)"
+
+
+timezone = get_value('common', 'timezone', db=RedisDB.hardware)
 
 
 def postprocess(stop_event: Event):
@@ -48,6 +58,14 @@ def postprocess_log(file_path: str):
         logger.info(f'{file_path} remove complete.')
 
 
+def parse_log_chunk(chunk: str) -> Dict:
+    match = re.search(log_chunk_pattern, chunk, re.DOTALL)  # re.DOTALL: include \n
+    if match:
+        return match.groupdict()
+    else:
+        return None
+
+
 def LogChunkGenerator(filename, delimiter_pattern) -> Tuple[str, Union[datetime, None]]:
     with open(filename, 'r') as f:
         buf = ""
@@ -72,11 +90,16 @@ def LogBatchGenerator(file_path: str, no_time_count_limit: int = 10000):
     batches = []
     no_time_count = 0
 
-    for index, (line, log_time) in enumerate(LogChunkGenerator(file_path, log_prefix_pattern)):
-        if line.isspace():
+    for index, (chunk, log_time) in enumerate(LogChunkGenerator(file_path, log_prefix_pattern)):
+        if chunk.isspace():
             continue
-        # print(f'index {index}\nline {line}\nlog_time {log_time}')
-        
+
+        # parse log line
+        parsed_chunk = parse_log_chunk(chunk)
+        if not parsed_chunk:
+            logger.warning(f'Invalid log chunk: {chunk}')
+            continue
+
         if log_time is not None:  # time data exist in line
             if last_time is not None and int(log_time.timestamp()) != int(last_time.timestamp()): 
                 # when the integer part of the timestamp (the seconds) changes,
@@ -91,7 +114,10 @@ def LogBatchGenerator(file_path: str, no_time_count_limit: int = 10000):
                 raise Exception(f'No time data in {file_path} at line {index}')
         
         if last_time is not None:
-            batches.append((last_time.timestamp(), line))
+            batches.append({
+                **parsed_chunk,
+                'timestamp': timestamp_to_datetime_with_timezone_str(last_time.timestamp(), timezone=timezone),
+            })
 
     yield batches
 
@@ -101,16 +127,23 @@ def insert_to_db(file_path: str):
         logger.info(f'insert {len(log_batch)} datas to db')
 
         json_data = construct_json_data(log_batch)
-        # write_json(f'stb_log_{datetime.fromtimestamp(log_batch[0][0]).strftime("%Y-%m-%d %H:%M:%S")}.json', json_data)
         insert_to_mongodb('stb_log', json_data)
+
+        # logger.info(f'json_data: {json_data}')
+        # write_json(f'stb_log_{datetime.fromtimestamp(log_batch[0][0]).strftime("%Y-%m-%d %H:%M:%S")}.json', json_data)
 
 
 def construct_json_data(log_batch: List[Tuple[float, str]]) -> Dict:
     return {
-        'time': int(log_batch[0][0]),  # first log time(second) in batch
-        'readable_time': datetime.fromtimestamp(log_batch[0][0]).strftime('%Y-%m-%d %H:%M:%S'),  # first log time in batch
+        'time': re.sub(r'.\d{6}', '', log_batch[0]['timestamp']),
         'lines': [{
-            'time': time_data,
-            'raw': line,
-        } for time_data, line in log_batch],
+            'timestamp': log_chunk['timestamp'],
+            'module': str(log_chunk['module']).rstrip().replace('\n', ' '),
+            'log_level': log_chunk['log_level'],
+            'process_name': log_chunk['pid'],
+            'PID': log_chunk['pid'],
+            'TID': log_chunk['tid'],
+            'message': str(log_chunk['message']).rstrip().replace('\n', ' ') if log_chunk['message'] else '',
+        } for log_chunk in log_batch],
     }
+ 
