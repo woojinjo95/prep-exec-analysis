@@ -1,9 +1,10 @@
 import json
 import math
 import os
+from ast import literal_eval
 
 from app.core.config import settings
-from app.crud.base import load_paginate_from_mongodb, load_from_mongodb
+from app.crud.base import load_from_mongodb, load_paginate_from_mongodb
 
 
 def convert_pageset(page_param, res):
@@ -65,19 +66,10 @@ def classify_file_type(file_name):
     return file_dir
 
 
-def converted_str_data(data_str):
+def parse_bytes_to_value(value: bytes) -> any:
+    decoded = value.decode() if isinstance(value, bytes) else value
     try:
-        res = float(data_str)
-        if res.is_integer():
-            return int(res)
-        return res
-    except ValueError:
-        try:
-            res = str(data_str)
-            return res
-        except ValueError:
-            try:
-                res = bool(data_str)
-                return res
-            except ValueError:
-                return data_str
+        value = literal_eval(decoded)
+    except:
+        value = decoded
+    return value
