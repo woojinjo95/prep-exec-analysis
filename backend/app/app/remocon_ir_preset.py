@@ -1355,9 +1355,10 @@ remocons = [
 
 
 def remocon_preset(company: list[str]):
-    result = 0
     for remocon in remocons:
         remocon_name = remocon['name']
+        if 'remocon:'+remocon_name in RedisClient.keys('remocon:*'):
+            continue
         if remocon_name in company:
             for key, value in remocon.items():
                 RedisClient.hset(f'remocon:{remocon_name}', key, str(value))         
