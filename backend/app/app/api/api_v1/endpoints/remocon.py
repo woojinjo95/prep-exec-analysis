@@ -32,7 +32,6 @@ def read_remocon() -> schemas.RemoconRead:
     return {'items': remocon_list}
 
 
-
 @router.put("/{remocon_name}", response_model=schemas.Msg)
 def update_remocon(
     remocon_name: RemoconEnum,
@@ -70,6 +69,25 @@ def insert_custom_key(
     return {'msg': 'Create new custom_key', 'id': custom_key_in.id}
 
 
+@router.delete("/custom_key/{remocon_name}", response_model=schemas.Msg)
+def delete_custom_keys(
+    remocon_name: RemoconEnum,
+    custom_key_in: schemas.RemoconCustomKeyUpdateMulti
+) -> schemas.Msg:
+    remocon_name = remocon_name.value
+    name = f'remocon:{remocon_name}'
+    remocon = RedisClient.hgetall(name=name)
+    if not remocon:
+        raise HTTPException(
+            status_code=404, detail=f"The remocon with this {remocon_name} does not exist in the system.")
+
+    custom_keys = parse_bytes_to_value(remocon.get('custom_keys', []))
+    updated_custom_keys = [item for item
+                           in custom_keys if item["id"] not in custom_key_in.custom_key_ids]
+    RedisClient.hset(name, 'custom_keys', json.dumps(updated_custom_keys))
+    return {'msg': 'custom_key Deletion Completed'}
+
+
 @router.put("/custom_key/{remocon_name}/{custom_key_id}", response_model=schemas.MsgWithId)
 def update_custom_key(
     remocon_name: RemoconEnum,
@@ -89,22 +107,3 @@ def update_custom_key(
                            for item in custom_keys]
     RedisClient.hset(name, 'custom_keys', json.dumps(updated_custom_keys))
     return {'msg': 'Update custom_key', 'id': custom_key_id}
-
-
-@router.delete("/custom_key/{remocon_name}", response_model=schemas.Msg)
-def delete_custom_keys(
-    remocon_name: RemoconEnum,
-    custom_key_in: schemas.RemoconCustomKeyUpdateMulti
-) -> schemas.Msg:
-    remocon_name = remocon_name.value
-    name = f'remocon:{remocon_name}'
-    remocon = RedisClient.hgetall(name=name)
-    if not remocon:
-        raise HTTPException(
-            status_code=404, detail=f"The remocon with this {remocon_name} does not exist in the system.")
-
-    custom_keys = parse_bytes_to_value(remocon.get('custom_keys', []))
-    updated_custom_keys = [item for item
-                           in custom_keys if item["id"] not in custom_key_in.custom_key_ids]
-    RedisClient.hset(name, 'custom_keys', json.dumps(updated_custom_keys))
-    return {'msg': 'custom_key Deletion Completed'}
