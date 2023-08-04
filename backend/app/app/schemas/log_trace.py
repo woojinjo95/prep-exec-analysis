@@ -13,11 +13,7 @@ class Logcat(BaseModel):
     message: str
 
 
-class LogcatPage(BaseModel):
-    total: Optional[int]
-    pages: Optional[int]
-    prev: Optional[int]
-    next: Optional[int]
+class ReadLogcat(BaseModel):
     items: List[Logcat]
 
 

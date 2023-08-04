@@ -12,4 +12,4 @@ from .remocon import (Remocon, RemoconCustomKeyCreate,
                       RemoconCustomKeyCreateBase, RemoconCustomKeyUpdate,
                       RemoconCustomKeyUpdateMulti, RemoconRead, RemoconUpdate)
 from .scenario import Scenario, ScenarioBase
-from .log_trace import LogcatPage, NetworkPage
+from .log_trace import ReadLogcat, NetworkPage
