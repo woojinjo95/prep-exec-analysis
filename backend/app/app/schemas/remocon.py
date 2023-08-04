@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel
 
 
@@ -7,52 +7,52 @@ class Remocon(BaseModel):
         name: str
         code_name: str
         pronto_code: str
-        coordinate: list[int]
-        hotkey: list[str]
+        coordinate: List[int]
+        hotkey: List[str]
 
     class custom_key(BaseModel):
         id: Optional[str] = None
         name: str
-        custom_code: list[str]
+        custom_code: List[str]
         order: int
 
     id: Optional[str] = None
     name: str
     image_path: str
-    image_resolution: list
-    remocon_codes: list[remocon_code]
-    custom_keys: list[custom_key]
+    image_resolution: List
+    remocon_codes: List[remocon_code]
+    custom_keys: List[custom_key]
 
 
 class RemoconUpdate(BaseModel):
     name: Optional[str]
     image_path: Optional[str]
-    image_resolution: Optional[list]
-    remocon_codes: Optional[list]
-    custom_keys: Optional[list]
+    image_resolution: Optional[List] = []
+    remocon_codes: Optional[List] = []
+    custom_keys: Optional[List] = []
 
 
 class RemoconRead(BaseModel):
-    items: list[Remocon]
+    items: List[Remocon]
 
 
 class RemoconCustomKeyCreate(BaseModel):
     id: Optional[str]
     name: str
-    custom_code: list[str]
+    custom_code: List[str]
     order: int
 
 
 class RemoconCustomKeyCreateBase(BaseModel):
     name: str
-    custom_code: list[str]
+    custom_code: List[str]
     remocon_id: str
 
 
 class RemoconCustomKeyUpdate(BaseModel):
     name: Optional[str]
-    custom_code: Optional[list[str]]
+    custom_code: Optional[List[str]]
 
 
 class RemoconCustomKeyUpdateMulti(BaseModel):
-    custom_key_ids: list[str]
+    custom_key_ids: List[str]
