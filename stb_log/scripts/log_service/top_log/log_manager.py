@@ -12,6 +12,7 @@ logger = logging.getLogger('connection')
 class TopLogManager:
     def __init__(self, connection_info: dict):
         self.connection_info = connection_info
+        self.log_type = 'top'
         
         self.local_stop_event = Event()
         self.log_collector = None
@@ -22,7 +23,7 @@ class TopLogManager:
         self.log_collector = ProcessMaintainer(target=collect, kwargs={
             'connection_info': self.connection_info,
             'command_script': 'top -b -d 10',
-            'log_type': 'top',
+            'log_type': self.log_type,
             'stop_event': self.local_stop_event,
             }, daemon=True, revive_interval=10)
         self.log_collector.start()
@@ -30,6 +31,7 @@ class TopLogManager:
     # Log Postprocessor
     def __start_log_postprocessor(self):
         self.log_postprocessor = ProcessMaintainer(target=postprocess, kwargs={
+            'log_type': self.log_type,
             'stop_event': self.local_stop_event,
         }, daemon=True, revive_interval=10)
         self.log_postprocessor.start()
