@@ -18,7 +18,6 @@ class Remocon(BaseModel):
 
     name: str
     image_path: str
-    image_resolution: List
     remocon_codes: List[remocon_code]
     custom_keys: List[custom_key]
 
@@ -26,7 +25,6 @@ class Remocon(BaseModel):
 class RemoconUpdate(BaseModel):
     name: Optional[str]
     image_path: Optional[str]
-    image_resolution: Optional[List] = []
     remocon_codes: Optional[List] = []
     custom_keys: Optional[List] = []
 

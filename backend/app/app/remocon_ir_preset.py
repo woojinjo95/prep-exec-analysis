@@ -1,12 +1,9 @@
-from PIL import Image
-
 from app.db.redis_session import RedisClient
 
 remocons = [
     {
         "name": "vodafone",
         "image_path": "/api/v1/file/system_file/remocon_image_vodafone.jpg",
-        "image_resolution": list(Image.open('/app/app/files/system/remocon_image_vodafone.jpg').size),
         "custom_keys": [],
         "remocon_codes": [
             {
@@ -301,7 +298,6 @@ remocons = [
     {
         "name": "kt",
         "image_path": "/api/v1/file/system_file/remocon_image_kt.jpg",
-        "image_resolution": list(Image.open('/app/app/files/system/remocon_image_kt.jpg').size),
         "custom_keys": [],
         "remocon_codes": [
             {
@@ -652,7 +648,6 @@ remocons = [
     {
         "name": "sk",
         "image_path": "/api/v1/file/system_file/remocon_image_sk.jpg",
-        "image_resolution": list(Image.open('/app/app/files/system/remocon_image_sk.jpg').size),
         "custom_keys": [],
         "remocon_codes": [
             {
@@ -947,7 +942,6 @@ remocons = [
     {
         "name": "lg",
         "image_path": "/api/v1/file/system_file/remocon_image_lg.jpg",
-        "image_resolution": list(Image.open('/app/app/files/system/remocon_image_lg.jpg').size),
         "custom_keys": [],
         "remocon_codes": [
             {
