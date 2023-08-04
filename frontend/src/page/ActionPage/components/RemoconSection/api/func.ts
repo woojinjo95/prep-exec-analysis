@@ -2,7 +2,7 @@ import API from '@global/api'
 import { AxiosError } from 'axios'
 import { Response } from '@global/api/entity'
 import apiUrls from './url'
-import { CustomKey, Remocon } from './entity'
+import { Remocon } from './entity'
 
 export const getRemocon = async () => {
   try {
