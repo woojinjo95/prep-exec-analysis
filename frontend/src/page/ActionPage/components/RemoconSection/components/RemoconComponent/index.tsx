@@ -75,15 +75,16 @@ const RemoconComponent: React.FC<RemoconProps> = ({ remocon, keyEvent }) => {
             </div>
           </div>
           <div className={cx('mt-[20px] overflow-y-auto w-full', 'hot-key-container')}>
-            {hotkeys.map((hotKey) => (
-              <button
-                type="button"
-                className="h-[32px] w-full bg-white border-[1px] border-[#707070] rounded-[38px] mb-[5px] font-[500] flex pl-[10px] hover:bg-gray-200"
-                key={`hotKey_${hotKey}`}
-              >
-                {hotKey}
-              </button>
-            ))}
+            {remocon.custom_keys &&
+              remocon.custom_keys.map((custom_keys) => (
+                <button
+                  type="button"
+                  className="h-[32px] w-full bg-white border-[1px] border-[#707070] rounded-[38px] mb-[5px] font-[500] flex pl-[10px] hover:bg-gray-200"
+                  key={`custom_keys_${custom_keys.custom_code.join('')}`}
+                >
+                  {custom_keys.custom_code.join('')}
+                </button>
+              ))}
           </div>
         </div>
       </div>
