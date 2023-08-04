@@ -1,6 +1,7 @@
 import json
 import logging
 import uuid
+import json
 
 from app import schemas
 from app.api.utility import parse_bytes_to_value
@@ -19,7 +20,17 @@ def read_remocon() -> schemas.RemoconRead:
     """
     리모컨 조회
     """
-    return {'items': load_from_mongodb(col='remocon', sort_item="custom_keys.order")}
+    remocon_list = []
+    for key in RedisClient.scan_iter(match='remocon:*'):
+        remocon = {}
+        for k, v in RedisClient.hgetall(key).items():
+            if k == 'name' or k == 'image_path':
+                remocon[k] = v
+            else:
+                remocon[k] = parse_bytes_to_value(v)
+            remocon_list.append(remocon)
+    return {'items': remocon_list}
+
 
 
 @router.put("/{remocon_name}", response_model=schemas.Msg)
