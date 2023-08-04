@@ -38,24 +38,9 @@ def init_remocon_registration():
         insert_many_to_mongodb(col='remocon', data=remocons_data)
 
 
-def init_analysis_config():
-    config = {
-        "freeze": None,
-        "macroblock": None,
-        "resume": None,
-        "boot": None,
-        "channel_change_time": None,
-        "log_level_finder": None
-    }
-    analysis_config = load_one_from_mongodb('analysis_config', {"_id": 1})
-    if analysis_config is None:
-        insert_one_to_mongodb(col='analysis_config', data=config)
-
-
 def init() -> None:
     init_hardware_configuration()
     init_remocon_registration()
-    init_analysis_config()
 
 
 def main() -> None:

@@ -7,12 +7,10 @@ import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
 import { ReactComponent as StopIcon } from '@assets/images/icon_stop.svg'
 
 import classNames from 'classnames/bind'
+import ws from '@global/module/websocket'
 import styles from '../css/BlockControls.module.scss'
 
 const cx = classNames.bind(styles)
-
-// FIXME: 모듈화!!!
-const ws = new WebSocket(`ws://${window.location.hostname}:5000/api/v1/client/ws`)
 
 const BlockControls: React.FC = () => {
   return (
