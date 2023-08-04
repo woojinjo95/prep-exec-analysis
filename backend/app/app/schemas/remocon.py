@@ -50,8 +50,9 @@ class RemoconCustomKeyCreateBase(BaseModel):
 
 
 class RemoconCustomKeyUpdate(BaseModel):
-    name: Optional[str]
-    custom_code: Optional[List[str]]
+    id: str
+    name: str
+    custom_code: List[str]
 
 
 class RemoconCustomKeyUpdateMulti(BaseModel):
