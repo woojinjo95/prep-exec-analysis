@@ -14,7 +14,6 @@ class Remocon(BaseModel):
         id: Optional[str] = None
         name: str
         custom_code: List[str]
-        order: int
 
     name: RemoconEnum
     image_path: str
@@ -37,7 +36,6 @@ class RemoconCustomKeyCreate(BaseModel):
     id: Optional[str]
     name: str
     custom_code: List[str]
-    order: int
 
 
 class RemoconCustomKeyCreateBase(BaseModel):

@@ -51,7 +51,6 @@ def insert_custom_key(
         id=str(uuid.uuid4()),
         name=custom_key_in_base.name,
         custom_code=custom_key_in_base.custom_code,
-        order=0,
     )
     input_data = {
         'custom_keys': custom_key_in.dict()
