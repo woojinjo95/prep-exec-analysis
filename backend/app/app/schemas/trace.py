@@ -26,9 +26,5 @@ class Network(BaseModel):
     info: str
 
 
-class NetworkPage(BaseModel):
-    total: Optional[int]
-    pages: Optional[int]
-    prev: Optional[int]
-    next: Optional[int]
+class ReadNetwork(BaseModel):
     items: List[Network]

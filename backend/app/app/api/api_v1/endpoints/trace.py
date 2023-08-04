@@ -11,7 +11,7 @@ router = APIRouter()
 
 
 @router.get("/logcat", response_model=schemas.ReadLogcat)
-def read_logcat_log(
+def read_logcat(
     timeline: datetime,
     ) -> schemas.ReadLogcat:
     """
@@ -48,13 +48,40 @@ def read_logcat_log(
     return {"items": log_list}
 
 
-@router.get("/network", response_model=schemas.NetworkPage)
-def read_network_log(
-    page: int = Query(None, ge=1, description="Page number"),
-    page_size: int = Query(None, ge=1, le=100, description="Page size")
-    ) -> schemas.NetworkPage:
+@router.get("/network", response_model=schemas.ReadNetwork)
+def read_network(
+    timeline: datetime,
+    ) -> schemas.ReadNetwork:
     """
-    Network 로그 조회
+    Network 조회
+     - timeline: (datetime)YYYY-MM-DD HH:mm:SS
     """
-    return get_multi_or_paginate_by_res(col='network', page=page, page_size=page_size)
+    second_range = 10
+    start_time = timeline - timedelta(seconds=second_range)
+    end_time = timeline + timedelta(seconds=second_range)
+    pipeline = [
+        {
+            '$match': {
+                'time': {
+                    '$gte': str(start_time), 
+                    '$lte': str(end_time)
+                }
+            }
+        }, {
+            '$unwind': {
+                'path': '$lines'
+            }
+        }, {
+            '$group': {
+                '_id': None,
+                'items': {
+                    '$push': '$lines'
+                }
+            }
+        }, {
+            '$project': {'_id': 0}
+        }
+    ]
+    log_list = list(aggregate_from_mongodb(col='network', pipeline=pipeline))[0].get('items', [])
+    return {"items": log_list}
 
