@@ -300,4 +300,5 @@ def parse_on_off_control_args(value: any) -> str:
     elif isinstance(value, bool):
         return 'on' if value else 'off'
     else:
+        logger.error(f'{value} is not normally parsed! return just "on"')
         return 'on'
