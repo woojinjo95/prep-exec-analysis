@@ -57,6 +57,11 @@ def load_paginate_from_mongodb(col, page, page_size, param={}, proj=None, sort_i
             'total': col.count_documents(param)}
 
 
+def aggregate_from_mongodb(col, pipeline):
+    col = get_mongodb_collection(col)
+    return list(col.aggregate(pipeline))
+
+
 def update_to_mongodb(col, param, data):
     col = get_mongodb_collection(col)
     return col.update_one(param, {'$set': convert_to_dict(data)})
