@@ -5,13 +5,17 @@ import asyncio
 import redis.asyncio as redis
 from adbutils import adb
 import logging
-
+import os
 
 logging.config.fileConfig('./app/logging.conf', disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
+REDIS_HOST = os.getenv("REDIS_HOST")
+REDIS_PORT = os.getenv("REDIS_PORT")
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+REDIS_DB = 0
 
 CHANNEL_NAME = 'shell'
 html = """
@@ -49,6 +53,8 @@ html = """
 </html>
 """
 
+adb_conn = None
+
 
 @app.get("/", tags=['websocket'])
 def testclient():
@@ -58,11 +64,13 @@ def testclient():
 @app.websocket('/ws')
 async def ws_voting_endpoint(websocket: WebSocket):
     await websocket.accept()
-    await adb_connector(websocket)
+    await connector(websocket)
 
 
-async def adb_connector(websocket: WebSocket):
-    async def consumer_handler(conn: any, ws: WebSocket):
+async def connector(websocket: WebSocket):
+    # 임시로 레디스 웹소켓 연결을 구성한다.
+    # 웹소켓 연결여부와 상관없이 레디스 소켓 구성은 되어야 함
+    async def consumer_handler(conn: redis, ws: WebSocket):
         try:
             while True:
                 message = await ws.receive_text()
@@ -73,7 +81,7 @@ async def adb_connector(websocket: WebSocket):
         except Exception as exc:
             logger.error(exc)
 
-    async def producer_handler(pubsub: any, ws: WebSocket):
+    async def producer_handler(pubsub: redis, ws: WebSocket):
         await pubsub.subscribe(CHANNEL_NAME)  # control 채널을 수신함
         try:
             while True:
@@ -83,7 +91,8 @@ async def adb_connector(websocket: WebSocket):
         except Exception as exc:
             logger.error(exc)
 
-    conn = await get_adb_connection()
+    adb_conn = get_adb_connection()
+    conn = await get_redis_pool()
     pubsub = conn.pubsub()
 
     consumer_task = consumer_handler(conn=conn, ws=websocket)
@@ -98,4 +107,10 @@ async def adb_connector(websocket: WebSocket):
 
 
 def get_adb_connection():
+    # 사전에 현재 adb 정보를 redis에서 가져옴 (일단은 개발장비 하드픽스)
+    # 이건 비동기로 안되나?
     return adb.connect("192.168.1.208:5555")
+
+
+async def get_redis_pool():
+    return await redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, password=REDIS_PASSWORD, decode_responses=True)
