@@ -25,7 +25,7 @@ const Input: React.ForwardRefExoticComponent<InputProps & React.RefAttributes<HT
     >
       <input
         ref={ref}
-        className="outline-none w-full bg-transparent placeholder:text-gray-400 text-black"
+        className="outline-none w-full bg-transparent placeholder:text-gray-400 text-black text-[15px]"
         {...props}
         onFocus={(e) => {
           setIsFocused(true)

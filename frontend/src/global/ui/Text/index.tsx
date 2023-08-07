@@ -30,7 +30,7 @@ const Text: React.FC<TextProps> = ({
           'text-sm': size === 'sm',
           'text-base': size === 'md',
           'text-lg': size === 'lg',
-          'font-normal': weight === 'regular',
+          'font-light': weight === 'regular',
           'font-medium': weight === 'medium',
           'font-bold': weight === 'bold',
           'text-black': theme === 'light',
