@@ -3,6 +3,9 @@ import cx from 'classnames'
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   className?: string
+  colorScheme?: 'dark' | 'charcoal' | 'light'
+  warningMessage?: string
+  errorMessage?: string
 }
 
 /**
@@ -11,21 +14,29 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 const Input: React.ForwardRefExoticComponent<InputProps & React.RefAttributes<HTMLInputElement>> = React.forwardRef<
   HTMLInputElement,
   InputProps
->(({ className, ...props }, ref) => {
+>(({ className, colorScheme = 'charcoal', ...props }, ref) => {
   const [isFocused, setIsFocused] = useState<boolean>(false)
   return (
     <div
       className={cx(
-        'bg-gray-200 px-4 py-2 rounded-md transition-all',
+        'transition-all border py-3 px-4 rounded-lg',
         {
-          'outline outline-2 outline-blue-300': isFocused,
+          'bg-light-black': colorScheme === 'dark',
+          'border-charcoal': colorScheme === 'dark',
+          'bg-charcoal': colorScheme === 'charcoal',
+          'border-light-charcoal': colorScheme === 'charcoal',
+          'bg-white': colorScheme === 'light',
+          'border-light-grey': colorScheme === 'light',
+          'border-primary': isFocused,
         },
         className,
       )}
     >
       <input
         ref={ref}
-        className="outline-none w-full bg-transparent placeholder:text-grey text-black text-[15px]"
+        className={cx('outline-none w-full bg-transparent placeholder:text-grey text-white text-[15px]', {
+          '!text-black': colorScheme === 'light',
+        })}
         {...props}
         onFocus={(e) => {
           setIsFocused(true)

@@ -85,6 +85,7 @@ const NetworkEmulation: React.FC = () => {
             Bandwidth
           </Text>
           <Input
+            colorScheme="charcoal"
             value={bandwidth || 0}
             type="number"
             pattern="[0-9]*"
@@ -99,6 +100,7 @@ const NetworkEmulation: React.FC = () => {
             Delay
           </Text>
           <Input
+            colorScheme="charcoal"
             value={delay || 0}
             type="number"
             pattern="[0-9]*"
@@ -113,6 +115,7 @@ const NetworkEmulation: React.FC = () => {
             Loss
           </Text>
           <Input
+            colorScheme="charcoal"
             value={loss || 0}
             type="number"
             pattern="[0-9]*"
