@@ -8,8 +8,8 @@ class Logcat(BaseModel):
     module: str
     log_level: str
     process_name: str
-    PID: int
-    TID: int
+    pid: int
+    tid: int
     message: str
 
 
