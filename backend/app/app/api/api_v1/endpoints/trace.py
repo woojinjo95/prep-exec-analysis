@@ -12,21 +12,18 @@ router = APIRouter()
 
 @router.get("/logcat", response_model=schemas.ReadLogcat)
 def read_logcat(
-    timeline: datetime,
+    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00')
     ) -> schemas.ReadLogcat:
     """
     Logcat 로그 조회
-     - timeline: (datetime)YYYY-MM-DD HH:mm:SS
     """
-    second_range = 10
-    start_time = timeline - timedelta(seconds=second_range)
-    end_time = timeline + timedelta(seconds=second_range)
     pipeline = [
         {
             '$match': {
                 'time': {
-                    '$gte': str(start_time), 
-                    '$lte': str(end_time)
+                    '$gte': start_time, 
+                    '$lte': end_time
                 }
             }
         }, {
@@ -44,27 +41,25 @@ def read_logcat(
             '$project': {'_id': 0}
         }
     ]
-    log_list = list(aggregate_from_mongodb(col='logcat', pipeline=pipeline))[0].get('items', [])
+    aggregation_result = aggregate_from_mongodb(col='stb_log', pipeline=pipeline)
+    log_list = aggregation_result[0].get('items', []) if aggregation_result != [] else aggregation_result
     return {"items": log_list}
 
 
 @router.get("/network", response_model=schemas.ReadNetwork)
 def read_network(
-    timeline: datetime,
+    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00')
     ) -> schemas.ReadNetwork:
     """
     Network 조회
-     - timeline: (datetime)YYYY-MM-DD HH:mm:SS
     """
-    second_range = 10
-    start_time = timeline - timedelta(seconds=second_range)
-    end_time = timeline + timedelta(seconds=second_range)
     pipeline = [
         {
             '$match': {
                 'time': {
-                    '$gte': str(start_time), 
-                    '$lte': str(end_time)
+                    '$gte': start_time, 
+                    '$lte': end_time
                 }
             }
         }, {
@@ -82,6 +77,7 @@ def read_network(
             '$project': {'_id': 0}
         }
     ]
-    log_list = list(aggregate_from_mongodb(col='network', pipeline=pipeline))[0].get('items', [])
+    aggregation_result = aggregate_from_mongodb(col='network', pipeline=pipeline)
+    log_list = aggregation_result[0].get('items', []) if aggregation_result != [] else aggregation_result
     return {"items": log_list}
 
