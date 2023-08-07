@@ -8,12 +8,12 @@ from datetime import datetime
 from multiprocessing import Event
 from typing import Dict, List, Tuple, Union
 
-from scripts.connection.mongo_db.crud import insert_to_mongodb
+from scripts.config.constant import RedisDB
+from scripts.connection.mongo_db.crud import insert_many_to_mongodb
+from scripts.connection.redis_conn import get_value
+from scripts.util._timezone import timestamp_to_datetime_with_timezone_str
 
 from .db_connection import LogManagerDBConnection
-from scripts.util._timezone import timestamp_to_datetime_with_timezone_str
-from scripts.config.config import get_value
-from scripts.config.constant import RedisDB
 
 logger = logging.getLogger('connection')
 
@@ -123,11 +123,9 @@ def LogBatchGenerator(file_path: str, no_time_count_limit: int = 10000):
 
 
 def insert_to_db(file_path: str):
-    for log_batch in LogBatchGenerator(file_path):
-        logger.info(f'insert {len(log_batch)} datas to db')
-
-        json_data = construct_json_data(log_batch)
-        insert_to_mongodb('stb_log', json_data)
+    json_datas = [construct_json_data(log_batch) for log_batch in LogBatchGenerator(file_path)]
+    logger.info(f'insert {len(json_datas)} datas to db')
+    insert_many_to_mongodb('stb_log', json_datas)
 
 
 def construct_json_data(log_batch: List[Tuple[float, str]]) -> Dict:

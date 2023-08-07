@@ -3,8 +3,8 @@ import logging
 import time
 
 from scripts.log_service.log_collect.collector import collect
-from threading import Thread
 from .postprocess import postprocess
+from scripts.util.process_maintainer import ProcessMaintainer
 
 
 logger = logging.getLogger('connection')
@@ -33,19 +33,19 @@ class LogFileManager:
 
     # Log Collector
     def __start_log_collector(self):
-        self.log_collector = Thread(target=collect, kwargs={
+        self.log_collector = ProcessMaintainer(target=collect, kwargs={
             'connection_info': self.connection_info,
             'command_script': self.get_command_script(),
             'log_type': self.log_type,
             'stop_event': self.local_stop_event,
-            }, daemon=True)
+            }, daemon=True, revive_interval=10)
         self.log_collector.start()
 
     # Log Postprocessor
     def __start_log_postprocessor(self):
-        self.log_postprocessor = Thread(target=postprocess, kwargs={
+        self.log_postprocessor = ProcessMaintainer(target=postprocess, kwargs={
             'stop_event': self.local_stop_event,
-        }, daemon=True)
+        }, daemon=True, revive_interval=10)
         self.log_postprocessor.start()
 
     # Control
@@ -57,6 +57,8 @@ class LogFileManager:
 
     def stop(self):
         self.local_stop_event.set()
+        self.log_collector.terminate()
+        self.log_postprocessor.terminate()
         logger.info('LogFileManager stop')
 
     def is_alive(self):

@@ -48,7 +48,7 @@ class ProcessMaintainer:
     def revive(self, interval=None):
         if not self.process.is_alive():
             logger.info(f'Revive {self.target.__name__}() process.')
-            self.stop()
+            self.terminate()
             self.start()
             interval = None
 
@@ -67,4 +67,4 @@ class ProcessMaintainer:
             return False
 
     def __del__(self):
-        self.stop()
+        self.terminate()

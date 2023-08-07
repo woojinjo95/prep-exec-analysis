@@ -3,15 +3,17 @@ import os
 from ast import literal_eval
 
 from redis import StrictRedis
+from scripts.config.config import get_setting_with_env
+from scripts.config.constant import RedisDB
 
 
 logger = logging.getLogger('connection')
 
 
 # REDIS_HOST = '192.168.1.45'
-REDIS_HOST = os.getenv("REDIS_HOST")
-REDIS_PORT = os.getenv("REDIS_PORT")
-REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+REDIS_HOST = get_setting_with_env("REDIS_HOST")
+REDIS_PORT = get_setting_with_env("REDIS_PORT")
+REDIS_PASSWORD = get_setting_with_env("REDIS_PASSWORD")
 
 
 def get_strict_redis_connection(db: int) -> StrictRedis:
@@ -50,3 +52,13 @@ def hset_value(sr_connection: StrictRedis, key: str, field: str, value: any):
     if value == 'None' or value == None:
         logger.warning(f'Nonetype or string "None" is interpreted as key is not exist.')
     value = sr_connection.hset(key, field, str(value))
+
+
+def get_value(key: str, field: str = None, default: any = None, db: int = RedisDB.stb_log) -> any:
+    with get_strict_redis_connection(db) as src:
+        return hget_value(src, key, field, default)
+
+
+def set_value(key: str, field: str = None, value: any = None, db: int = RedisDB.stb_log):
+    with get_strict_redis_connection(db) as src:
+        hset_value(src, key, field, value)

@@ -11,6 +11,7 @@ else:
 
 class RemoconSetting:
     max_qsize = 100
+    default_remocon_id = 1
 
 
 class SerialRemoconSetting(RemoconSetting):
