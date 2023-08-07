@@ -35,6 +35,7 @@ const Input: React.ForwardRefExoticComponent<InputProps & React.RefAttributes<HT
           setIsFocused(false)
           props.onBlur?.(e)
         }}
+        // TODO: esc key 누를 시 -> input blur
       />
     </div>
   )
