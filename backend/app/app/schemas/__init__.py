@@ -13,4 +13,4 @@ from .remocon import (Remocon, RemoconCustomKeyCreate,
                       RemoconCustomKeyUpdateMulti, RemoconRead, RemoconUpdate)
 from .scenario import Scenario, ScenarioBase
 from .trace import ReadLogcat, ReadNetwork 
-from .terminal import Terminal, TerminalLogsPage, TerminalList
+from .terminal import Terminal, TerminalLogList, TerminalList
