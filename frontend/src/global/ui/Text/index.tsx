@@ -6,7 +6,7 @@ interface TextProps extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLSpa
   className?: string
   size?: 'xs' | 'sm' | 'md'
   weight?: 'regular' | 'medium' | 'bold'
-  active?: boolean
+  isActive?: boolean
   colorScheme?: 'dark' | 'light'
 }
 
@@ -21,7 +21,7 @@ const Text: React.FC<TextProps> = ({
   size = 'md',
   weight = 'regular',
   colorScheme = 'light',
-  active = true,
+  isActive = true,
   ...props
 }) => {
   return (
@@ -37,7 +37,7 @@ const Text: React.FC<TextProps> = ({
           'font-bold': weight === 'bold',
           'text-white': colorScheme === 'light',
           'text-black': colorScheme === 'dark',
-          'text-grey': !active,
+          '!text-grey': !isActive,
         },
         className,
       )}
