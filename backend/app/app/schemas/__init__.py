@@ -12,3 +12,4 @@ from .remocon import (Remocon, RemoconCustomKeyCreate,
                       RemoconCustomKeyCreateBase, RemoconCustomKeyUpdate,
                       RemoconCustomKeyUpdateMulti, RemoconRead, RemoconUpdate)
 from .scenario import Scenario, ScenarioBase
+from .terminal import Terminal, TerminalLogsPage, TerminalList
