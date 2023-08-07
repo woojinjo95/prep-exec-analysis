@@ -139,6 +139,37 @@ services:
     command: python -u main.py
     volumes:
       - "adb-rsa:/root/.android"
+  
+  shell:
+    container_name: shell
+    image: registry.dev-nextlab.com/prep-exec-analysis-shell:dev-0
+    build:
+      context: ./shell
+      dockerfile: Dockerfile.dev.m32dev4
+    command: /start-reload.sh
+    environment:
+      - ERROR_LOG=error.log
+      - ACCESS_LOG=access.log
+      # - GRACEFUL_TIMEOUT=120
+      # - KEEP_ALIVE=2
+      # - TIMEOUT=120
+      # - WORKER_CLASS=uvicorn.workers.UvicornWorker
+      - LOG_LEVEL=debug
+      # - BIND="0.0.0.0:80"
+      # - PORT=80
+      # - HOST="0.0.0.0"
+      # - WEB_CONCURRENCY=2
+      # - MAX_WORKERS=24
+      # - WORKER_PER_CORE=1
+      # - GUNICORN_CONF=/app/gunicorn_conf.py
+      # - APP_MODULE=main:app
+      # - VARIABLE_NAME=app
+      # - MODULE_NAME=app.main
+
+    ports:
+      - 5005:80
+    volumes:
+      - ./shell/app:/app
 
 volumes:
   mongodb_data: {}
