@@ -53,7 +53,7 @@ const IPLimitItem: React.FC<IPLimitItemProps> = ({
   })
 
   return (
-    <div className="grid grid-cols-[80%_20%]">
+    <div className="grid grid-cols-[80%_20%] pb-3">
       <div className="grid grid-cols-[45%_20%_30%] gap-x-1 items-center">
         <Input
           ref={(ref) => {

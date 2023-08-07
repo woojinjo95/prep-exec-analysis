@@ -29,8 +29,8 @@ const Text: React.FC<TextProps> = ({
       className={cx(
         'tracking-tighter text-black',
         {
-          'text-[13px]': size === 'xs',
-          'text-[15px]': size === 'sm',
+          'text-[13px]': size === 'xs', // tooltip
+          'text-[15px]': size === 'sm', // button, input, select
           'text-base': size === 'md',
           'font-light': weight === 'regular',
           'font-medium': weight === 'medium',
