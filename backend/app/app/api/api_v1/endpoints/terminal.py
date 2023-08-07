@@ -3,7 +3,7 @@ import uuid
 
 from app import schemas
 from app.api.utility import get_multi_or_paginate_by_res
-from app.crud.base import (load_from_mongodb, )
+from app.crud.base import (load_from_mongodb, aggregate_from_mongodb)
 from fastapi import APIRouter, HTTPException, Query
 
 logger = logging.getLogger(__name__)
@@ -11,36 +11,29 @@ router = APIRouter()
 
 
 @router.get("/terminal_list", response_model=schemas.TerminalList)
-def get_terminal_names():
-    result = load_from_mongodb(col="terminal_log", proj={'_id':0, 'terminal_name':1})
-    # [
-    # {
-    #     '$group': {
-    #         '_id': None, 
-    #         'terminal_names': {
-    #             '$push': '$terminal_name'
-    #         }
-    #     }
-    # }
-    # ]
+def get_terminal_names() -> schemas.TerminalList:
+    """
+    터미널 목록
+    """
+    pipeline = [{"$group": {"_id": None, "terminal_names": {"$push": "$terminal_name"}}}]
+    aggregation_result = aggregate_from_mongodb(col="terminal_log", pipeline=pipeline)
+    result = aggregation_result[0]["terminal_names"] if aggregation_result else []
     return {"terminal_names": result}
 
 
-@router.get("")
+@router.get("", response_model=schemas.TerminalLogList)
 def get_terminal_logs(
     terminal_name: str,
-    start_time: str = Query(..., description="Start time (ex.2000-01-01T00:00:00)"),
-    end_time: str = Query(..., description="End time (ex.2000-01-01T00:00:00)"),
-    page: int = Query(1),
-    page_size: int = Query(10)
-    ):
-    # ) -> schemas.TerminalLogsPage:
+    start_time: str = Query(..., description="ex.2009-02-13T23:31:30+00:00"),
+    end_time: str = Query(..., description="ex.2009-02-13T23:31:30+00:00"),
+    ) -> schemas.TerminalLogList:
     """
     터미널별 일정기간 로그 조회
     """
-    result = get_multi_or_paginate_by_res(col="terminal_log",
-                                          page=page,
-                                          page_size=page_size,
-                                          param={"terminal_name":terminal_name, "logs.created_at":{"$gte":start_time, "$lte":end_time}},
-                                          proj={'_id':0, 'terminal_name':0, 'logs':1})
-    return result
+    pipeline = [{'$match': {'terminal_name': terminal_name}}, 
+                {'$project': {'_id': 0, 'logs': 1}}, 
+                {'$unwind': {'path': '$logs'}}, 
+                {'$match': {'logs.created_at': {'$gte': start_time, '$lte': end_time}}}, 
+                {'$replaceRoot': {'newRoot': '$logs'}}
+                ]
+    return {"items": aggregate_from_mongodb(col="terminal_log", pipeline=pipeline)}
