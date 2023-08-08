@@ -8,6 +8,7 @@ import { DropdownButton } from '@global/ui'
 
 import { KeyEvent } from '@page/ActionPage/types'
 import { useQuery } from 'react-query'
+import BackgroundImage from '@assets/images/background_pattern.svg'
 import { Remocon } from './api/entity'
 import { getRemocon } from './api/func'
 import RemoconComponent from './components/RemoconComponent'
@@ -34,7 +35,13 @@ const RemoconSection: React.FC<RemoconSectionProps> = ({ keyEvent }) => {
   })
 
   return (
-    <section className="border border-black h-full p-[20px]">
+    <section
+      className="border border-black h-full p-[20px]"
+      style={{
+        backgroundImage: `url(${BackgroundImage})`,
+        backgroundSize: '100%',
+      }}
+    >
       <div className="grid grid-rows-1 grid-cols-[1fr_auto] w-full h-[30px] items-center">
         {selectedRemocon && remocons && (
           <Menu>
