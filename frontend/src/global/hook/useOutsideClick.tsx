@@ -5,14 +5,14 @@ import { useCallback, useEffect, useRef } from 'react'
  * @param onClickOutside ref 밖 영역을 클릭하였을 경우 실행할 callback
  * @returns ref 밖 영역을 확인하는 hook
  */
-const useOutsideClick = ({
+const useOutsideClick = <T extends HTMLElement>({
   mode = 'position',
   onClickOutside,
 }: {
   mode?: 'node' | 'position'
   onClickOutside: () => void
 }) => {
-  const ref = useRef<HTMLDivElement>(null)
+  const ref = useRef<T>(null)
 
   const handleOutsideClick = useCallback(
     (e: MouseEvent) => {
