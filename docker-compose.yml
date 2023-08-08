@@ -109,6 +109,21 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
+  watcher:
+    image: registry.dev-nextlab.com/prep-exec-watcher:dev-0
+    restart: always
+    build:
+      context: ./watcher
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD:
+      USER: ${USER}
+    volumes:
+      - "./logs:/app/logs"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
   adminer:
     container_name: adminer
     image: dockette/adminer:full
