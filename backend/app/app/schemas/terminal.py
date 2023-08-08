@@ -10,7 +10,7 @@ class Terminal(BaseModel):
         response: str
 
     name: str
-    logs: list[log]
+    logs: List[log]
 
 
 class TerminalLogList(BaseModel):
@@ -18,4 +18,4 @@ class TerminalLogList(BaseModel):
 
 
 class TerminalList(BaseModel):
-    terminal_names: List[str]
+    items: List[dict]

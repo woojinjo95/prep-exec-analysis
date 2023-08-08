@@ -10,18 +10,15 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.get("/terminal_list", response_model=schemas.TerminalList)
+@router.get("/list", response_model=schemas.TerminalList)
 def get_terminal_names() -> schemas.TerminalList:
     """
     터미널 목록
     """
-    pipeline = [{"$group": {"_id": None, "terminal_names": {"$push": "$terminal_name"}}}]
-    aggregation_result = aggregate_from_mongodb(col="terminal_log", pipeline=pipeline)
-    result = aggregation_result[0]["terminal_names"] if aggregation_result else []
-    return {"terminal_names": result}
+    return {"items": load_from_mongodb(col="terminal_log", proj={'_id': 0, 'logs': 0})}
 
 
-@router.get("", response_model=schemas.TerminalLogList)
+@router.get("/logs", response_model=schemas.TerminalLogList)
 def get_terminal_logs(
     terminal_name: str,
     start_time: str = Query(..., description="ex.2009-02-13T23:31:30+00:00"),
