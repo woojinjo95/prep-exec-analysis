@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.get("/list", response_model=schemas.TerminalList)
+@router.get("", response_model=schemas.TerminalList)
 def get_terminal_names() -> schemas.TerminalList:
     """
     터미널 목록
