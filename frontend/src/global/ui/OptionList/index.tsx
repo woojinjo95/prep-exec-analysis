@@ -20,10 +20,12 @@ interface OptionListProps extends React.HTMLAttributes<HTMLUListElement> {
  * 옵션 리스트 컴포넌트
  *
  * OptionItem 컴포넌트와 같이 사용
+ *
+ * FIXME: 스크롤 시 닫히도록
  */
 const OptionList: React.ForwardRefExoticComponent<OptionListProps & React.RefAttributes<HTMLUListElement>> =
   React.forwardRef<HTMLUListElement, OptionListProps>(
-    ({ children, colorScheme = 'charcoal', isVisible, widthOption, wrapperRef, ...props }, ref) => {
+    ({ children, colorScheme = 'charcoal', isVisible, widthOption = 'fit-wrapper', wrapperRef, ...props }, ref) => {
       const createDefaultStyle = useCallback((ref: React.MutableRefObject<HTMLDivElement | null>) => {
         if (!ref.current) return {}
 

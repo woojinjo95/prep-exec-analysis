@@ -6,6 +6,7 @@ import Text from '../Text'
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode
   colorScheme?: 'dark' | 'charcoal' | 'grey' | 'primary'
+  className?: string
   isRoundedFull?: boolean
 }
 
@@ -14,7 +15,13 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
  *
  * @param variant 버튼 스타일
  */
-const Button: React.FC<ButtonProps> = ({ children, colorScheme = 'charcoal', isRoundedFull = true, ...props }) => {
+const Button: React.FC<ButtonProps> = ({
+  children,
+  colorScheme = 'charcoal',
+  isRoundedFull = true,
+  className,
+  ...props
+}) => {
   return (
     <button
       // eslint-disable-next-line react/button-has-type
@@ -29,7 +36,7 @@ const Button: React.FC<ButtonProps> = ({ children, colorScheme = 'charcoal', isR
           'rounded-full': isRoundedFull,
           'rounded-lg': !isRoundedFull,
         },
-        props.className,
+        className,
       )}
       {...props}
     >
