@@ -12,6 +12,7 @@ interface OptionListProps extends React.HTMLAttributes<HTMLUListElement> {
 
   colorScheme?: 'dark' | 'charcoal' | 'light'
   isVisible?: boolean
+  widthOption?: 'fit-content' | 'fit-wrapper'
   wrapperRef: React.MutableRefObject<HTMLDivElement | null>
 }
 
@@ -22,7 +23,7 @@ interface OptionListProps extends React.HTMLAttributes<HTMLUListElement> {
  */
 const OptionList: React.ForwardRefExoticComponent<OptionListProps & React.RefAttributes<HTMLUListElement>> =
   React.forwardRef<HTMLUListElement, OptionListProps>(
-    ({ children, colorScheme = 'charcoal', isVisible, wrapperRef, ...props }, ref) => {
+    ({ children, colorScheme = 'charcoal', isVisible, widthOption, wrapperRef, ...props }, ref) => {
       const createDefaultStyle = useCallback((ref: React.MutableRefObject<HTMLDivElement | null>) => {
         if (!ref.current) return {}
 
@@ -30,7 +31,7 @@ const OptionList: React.ForwardRefExoticComponent<OptionListProps & React.RefAtt
         const dimensions = ref.current.getBoundingClientRect()
 
         styles.left = dimensions.left
-        styles.width = dimensions.width
+        if (widthOption === 'fit-wrapper') styles.width = dimensions.width
 
         if (dimensions.top < window.innerHeight / 2) {
           styles.top = dimensions.top + dimensions.height + SPACE
