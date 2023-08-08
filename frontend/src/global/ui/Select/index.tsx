@@ -20,7 +20,7 @@ interface SelectProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 /**
  * select 컴포넌트
  *
- * SelectOption 컴포넌트를 select option으로 사용
+ * OptionList 및 OptionItem 컴포넌트를 select option으로 사용
  */
 const Select: React.ForwardRefExoticComponent<SelectProps & React.RefAttributes<HTMLButtonElement>> = React.forwardRef<
   HTMLButtonElement,
