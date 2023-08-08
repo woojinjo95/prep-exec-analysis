@@ -1,8 +1,9 @@
 import React, { useCallback, useState } from 'react'
 import { useMutation } from 'react-query'
 import { useToast } from '@chakra-ui/react'
-import { Input, ToggleButton } from '@global/ui'
 
+import { ReactComponent as RefreshIcon } from '@assets/images/icon_refresh_w.svg'
+import { Input, Title, ToggleButton, Text, Divider, Button } from '@global/ui'
 import { useHardwareConfiguration } from '../../../api/hook'
 import { putHardwareConfiguration } from '../../../api/func'
 import IPLimitItem from './IPLimitItem'
@@ -55,23 +56,36 @@ const NetworkEmulation: React.FC = () => {
   )
 
   return (
-    <div className="bg-white row-span-2">
-      <div>
-        <h4>Network Emulation</h4>
+    <div className="row-span-2 bg-light-black p-5 rounded-lg h-fit">
+      <div className="flex items-center gap-x-5">
+        <Title as="h3" colorScheme="light">
+          Network Emulation
+        </Title>
+
         <ToggleButton
           isOn={!!hardwareConfiguration?.enable_network_emulation}
           onClick={(isOn) => updateHardwareConfiguration({ enable_network_emulation: isOn })}
         />
+
+        {/* FIXME: 이 아이콘의 용도 찾기 */}
+        <button type="button" className="ml-auto">
+          <RefreshIcon className="w-5 h-5" />
+        </button>
       </div>
 
-      <div className="grid grid-cols-3 grid-rows-[auto_1fr] gap-2">
+      <Divider />
+
+      <div className="grid grid-cols-3 grid-rows-[auto_1fr] gap-2 pb-1">
         <div className="col-span-3">
-          <h6>Packet Contorl (Inbound)</h6>
+          <Text weight="medium">Packet Contorl (Inbound)</Text>
         </div>
 
         <div>
-          <p>Bandwidth</p>
+          <Text weight="medium" size="xs">
+            Bandwidth
+          </Text>
           <Input
+            colorScheme="charcoal"
             value={bandwidth || 0}
             type="number"
             pattern="[0-9]*"
@@ -82,8 +96,11 @@ const NetworkEmulation: React.FC = () => {
         </div>
 
         <div>
-          <p>Delay</p>
+          <Text weight="medium" size="xs">
+            Delay
+          </Text>
           <Input
+            colorScheme="charcoal"
             value={delay || 0}
             type="number"
             pattern="[0-9]*"
@@ -94,8 +111,11 @@ const NetworkEmulation: React.FC = () => {
         </div>
 
         <div>
-          <p>Loss</p>
+          <Text weight="medium" size="xs">
+            Loss
+          </Text>
           <Input
+            colorScheme="charcoal"
             value={loss || 0}
             type="number"
             pattern="[0-9]*"
@@ -106,8 +126,12 @@ const NetworkEmulation: React.FC = () => {
         </div>
       </div>
 
-      <div>
-        <h6>Configuring IP Limit</h6>
+      <Divider />
+
+      <div className="grid grid-cols-1">
+        <Text weight="medium" className="pb-4">
+          Configuring IP Limit
+        </Text>
 
         {isAddingIPLimit && <IPLimitItem isFocusDefault cancelAddIPLimit={() => setIsAddingIPLimit(false)} />}
         {hardwareConfiguration?.ip_limit?.map(({ id, ip, port, protocol }) => (
@@ -115,9 +139,9 @@ const NetworkEmulation: React.FC = () => {
         ))}
 
         {!isAddingIPLimit && (
-          <button type="button" onClick={() => setIsAddingIPLimit(true)}>
+          <Button type="button" colorScheme="charcoal" onClick={() => setIsAddingIPLimit(true)}>
             Add Item
-          </button>
+          </Button>
         )}
       </div>
     </div>

@@ -1,0 +1,17 @@
+.group-button-icon {
+  svg {
+    @apply w-4 h-4;
+  }
+  &.active {
+    path,
+    polygon {
+      @apply fill-white;
+    }
+  }
+  &.deactive {
+    path,
+    polygon {
+      @apply fill-grey;
+    }
+  }
+}

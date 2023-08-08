@@ -5,7 +5,8 @@ import Text from '../Text'
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode
-  variant?: 'outline' | 'unstyled'
+  colorScheme?: 'dark' | 'charcoal' | 'grey' | 'primary'
+  isRoundedFull?: boolean
 }
 
 /**
@@ -13,15 +14,20 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
  *
  * @param variant 버튼 스타일
  */
-const Button: React.FC<ButtonProps> = ({ children, type = 'button', variant = 'outline', ...props }) => {
+const Button: React.FC<ButtonProps> = ({ children, colorScheme = 'charcoal', isRoundedFull = true, ...props }) => {
   return (
     <button
       // eslint-disable-next-line react/button-has-type
-      type={type}
+      type="button"
       className={cx(
-        'px-4 py-1 rounded-full inline-flex items-center hover:bg-slate-100 active:bg-slate-200 transition-colors',
+        'py-3 px-10',
         {
-          'shadow-[0px_1px_5px_#7777775E]': variant === 'outline',
+          'bg-light-black': colorScheme === 'dark',
+          'bg-light-charcoal': colorScheme === 'charcoal',
+          'bg-grey': colorScheme === 'grey',
+          'bg-primary': colorScheme === 'primary',
+          'rounded-full': isRoundedFull,
+          'rounded-lg': !isRoundedFull,
         },
         props.className,
       )}

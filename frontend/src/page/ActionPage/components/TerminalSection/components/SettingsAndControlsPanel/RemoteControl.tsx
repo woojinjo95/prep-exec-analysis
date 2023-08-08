@@ -1,6 +1,10 @@
 import React from 'react'
 import { useMutation } from 'react-query'
 import { useToast } from '@chakra-ui/react'
+
+import { ReactComponent as IRIcon } from '@assets/images/icon_remote_ir_w.svg'
+import { ReactComponent as BluetoothIcon } from '@assets/images/icon_remote_bt_w.svg'
+import { ButtonGroup, Divider, GroupButton, Title } from '@global/ui'
 import { useHardwareConfiguration } from '../../api/hook'
 import { putHardwareConfiguration } from '../../api/func'
 
@@ -17,29 +21,35 @@ const RemoteControl: React.FC = () => {
   })
 
   return (
-    <div className="bg-white">
-      <h4>Remote Control</h4>
-      <button
-        type="button"
-        onClick={() => {
-          if (hardwareConfiguration?.remote_control_type === 'ir') return
-          updateHardwareConfiguration({ remote_control_type: 'ir' })
-        }}
-      >
-        <input type="radio" readOnly checked={hardwareConfiguration?.remote_control_type === 'ir'} />
-        <span className="mr-4">IR</span>
-      </button>
+    <div className="bg-light-black p-5 rounded-lg h-fit">
+      <Title as="h3" colorScheme="light">
+        Remote Control
+      </Title>
 
-      <button
-        type="button"
-        onClick={() => {
-          if (hardwareConfiguration?.remote_control_type === 'bluetooth') return
-          updateHardwareConfiguration({ remote_control_type: 'bluetooth' })
-        }}
-      >
-        <input type="radio" readOnly checked={hardwareConfiguration?.remote_control_type === 'bluetooth'} />
-        <span>Bluetooth</span>
-      </button>
+      <Divider />
+
+      <ButtonGroup>
+        <GroupButton
+          isActive={hardwareConfiguration?.remote_control_type === 'ir'}
+          icon={<IRIcon />}
+          onClick={() => {
+            if (hardwareConfiguration?.remote_control_type === 'ir') return
+            updateHardwareConfiguration({ remote_control_type: 'ir' })
+          }}
+        >
+          IR
+        </GroupButton>
+        <GroupButton
+          isActive={hardwareConfiguration?.remote_control_type === 'bluetooth'}
+          icon={<BluetoothIcon />}
+          onClick={() => {
+            if (hardwareConfiguration?.remote_control_type === 'bluetooth') return
+            updateHardwareConfiguration({ remote_control_type: 'bluetooth' })
+          }}
+        >
+          Bluetooth
+        </GroupButton>
+      </ButtonGroup>
     </div>
   )
 }

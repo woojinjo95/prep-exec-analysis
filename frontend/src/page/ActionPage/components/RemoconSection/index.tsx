@@ -1,10 +1,9 @@
 import React, { useState } from 'react'
-import { Menu, MenuList, MenuItem } from '@chakra-ui/react'
 
 // import RemoconImage from '@assets/images/btv_remote_control.png'
 
 import InformationIcon from '@assets/images/information.png'
-import { DropdownButton } from '@global/ui'
+import { OptionItem, Select } from '@global/ui'
 
 import { KeyEvent } from '@page/ActionPage/types'
 import { useQuery } from 'react-query'
@@ -52,23 +51,20 @@ const RemoconSection: React.FC<RemoconSectionProps> = ({ keyEvent }) => {
     >
       <div className="grid grid-rows-1 grid-cols-[1fr_auto] w-full h-[30px] items-center">
         {selectedRemocon && remocons && (
-          <Menu>
-            <DropdownButton className="w-[60%]">{selectedRemocon.name}</DropdownButton>
-            <MenuList>
-              {remocons.map((remocon) => {
-                return (
-                  <MenuItem
-                    key={`remocon_${remocon.name}`}
-                    onClick={() => {
-                      setSelectedRemocon(remocon)
-                    }}
-                  >
-                    {remocon.name}
-                  </MenuItem>
-                )
-              })}
-            </MenuList>
-          </Menu>
+          <Select value={selectedRemocon.name} colorScheme="light">
+            {remocons.map((remocon) => (
+              <OptionItem
+                colorScheme="light"
+                key={`remocon_${remocon.name}`}
+                onClick={() => {
+                  setSelectedRemocon(remocon)
+                }}
+                isActive={selectedRemocon.name === remocon.name}
+              >
+                {remocon.name}
+              </OptionItem>
+            ))}
+          </Select>
         )}
 
         <img alt="information_icon" src={InformationIcon} className="w-[20px] h-[20px] cursor-pointer" />

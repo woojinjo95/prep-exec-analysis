@@ -7,7 +7,7 @@ import { Tabs } from '@global/ui'
 const VideoDetailSection: React.FC = () => {
   return (
     <section className="bg-black text-white">
-      <Tabs header={['Video']} theme="dark" className="px-5 pb-5 pt-2">
+      <Tabs header={['Video']} colorScheme="dark" className="px-5 pb-5 pt-2">
         <div />
       </Tabs>
     </section>
