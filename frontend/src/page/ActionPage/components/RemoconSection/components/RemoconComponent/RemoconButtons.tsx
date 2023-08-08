@@ -25,8 +25,6 @@ const RemoconButtons: React.FC<RemoconButtonsProps> = ({
     if (!remoconRef.current) return null
 
     return {
-      buttonTop: 0,
-      buttonLeft: 0,
       buttonWidth: remoconRef.current.getBoundingClientRect().width,
       buttonHeight: remoconRef.current.getBoundingClientRect().height,
       remoconImageWidth: remoconRef.current.naturalWidth,
@@ -69,8 +67,8 @@ const RemoconButtons: React.FC<RemoconButtonsProps> = ({
               'border-orange-300 border-2': isSquareVisible,
             })}
             style={{
-              top: dimension.buttonTop + leftTop.top * (dimension.buttonHeight / dimension.remoconImageHeight),
-              left: dimension.buttonLeft + leftTop.left * (dimension.buttonWidth / dimension.remoconImageWidth),
+              top: leftTop.top * (dimension.buttonHeight / dimension.remoconImageHeight),
+              left: leftTop.left * (dimension.buttonWidth / dimension.remoconImageWidth),
               height:
                 rightBottom.bottom * (dimension.buttonHeight / dimension.remoconImageHeight) -
                 leftTop.top * (dimension.buttonHeight / dimension.remoconImageHeight),
