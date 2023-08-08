@@ -2,8 +2,10 @@ import React, { useEffect, useRef, useState } from 'react'
 import useOutSideRef from '@global/hook/useOutsideRef'
 import cx from 'classnames'
 import { KeyEvent } from '@page/ActionPage/types'
+import { useMutation, useQuery } from 'react-query'
 import { Remocon } from '../../api/entity'
 import AddCustomKeyModalRemoconButtons from './AddCustomKeyModalRemoconButtons'
+import { getRemocon, postCustomKey } from '../../api/func'
 
 interface AddCustomKeyModalProps {
   remocon: Remocon
@@ -60,6 +62,21 @@ const AddCustomKeyModal = ({ remocon, isOpen, close, keyEvent }: AddCustomKeyMod
     }
   }, [])
 
+  const { refetch } = useQuery<Remocon[]>(['remocon'], () => getRemocon(), {
+    onError: (err) => {
+      console.error(err)
+    },
+  })
+
+  const { mutate: postCustomKeyMutate } = useMutation(postCustomKey, {
+    onSuccess: () => {
+      refetch()
+    },
+    onError: (err) => {
+      console.error(err)
+    },
+  })
+
   return (
     <div
       className={cx('absolute top-[10px] right-3.5 h-auto', {
@@ -101,6 +118,13 @@ const AddCustomKeyModal = ({ remocon, isOpen, close, keyEvent }: AddCustomKeyMod
               type="button"
               className="bg-[#00B1FF] w-[132px] h-[48px] mr-3 text-white rounded-3xl"
               ref={firstFocusableElementRef}
+              onClick={() => {
+                postCustomKeyMutate({
+                  newCustomKey: { name: remoconInput.join(','), custom_code: remoconInput, remocon_name: remocon.name },
+                })
+                setRemoconInput([])
+                close()
+              }}
             >
               Submit
             </button>
