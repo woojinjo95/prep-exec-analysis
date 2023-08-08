@@ -26,7 +26,15 @@ const RemoconSection: React.FC<RemoconSectionProps> = ({ keyEvent }) => {
   const { data: remocons } = useQuery<Remocon[]>(['remocon'], () => getRemocon(), {
     onSuccess: (res) => {
       if (res) {
-        setSelectedRemocon(res[0])
+        if (!selectedRemocon) {
+          setSelectedRemocon(res[0])
+        }
+
+        const newSelectedRemocon = res.find((remocon) => remocon.name === selectedRemocon!.name)
+
+        if (newSelectedRemocon) {
+          setSelectedRemocon(newSelectedRemocon)
+        }
       }
     },
     onError: (err) => {
