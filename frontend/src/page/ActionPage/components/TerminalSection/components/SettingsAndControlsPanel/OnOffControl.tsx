@@ -19,13 +19,13 @@ const OnOffControl: React.FC = () => {
 
   return (
     <div className="bg-light-black p-5 rounded-lg h-fit">
-      <Title as="h3" colorScheme="light">
+      <Title as="h3" colorScheme="light" className="px-1">
         On/Off Control
       </Title>
 
       <Divider />
 
-      <ul className="grid grid-cols-1 gap-y-4">
+      <ul className="grid grid-cols-1 gap-y-4 px-1">
         <li className="flex items-center justify-between">
           <Text weight="medium">DUT Power</Text>
           <ToggleButton

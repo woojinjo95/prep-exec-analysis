@@ -57,7 +57,7 @@ const NetworkEmulation: React.FC = () => {
 
   return (
     <div className="row-span-2 bg-light-black p-5 rounded-lg h-fit">
-      <div className="flex items-center gap-x-5">
+      <div className="flex items-center gap-x-5 px-1">
         <Title as="h3" colorScheme="light">
           Network Emulation
         </Title>
@@ -75,7 +75,7 @@ const NetworkEmulation: React.FC = () => {
 
       <Divider />
 
-      <div className="grid grid-cols-3 grid-rows-[auto_1fr] gap-2 pb-1">
+      <div className="grid grid-cols-3 grid-rows-[auto_1fr] gap-2 pb-1 px-1">
         <div className="col-span-3">
           <Text weight="medium">Packet Contorl (Inbound)</Text>
         </div>
@@ -128,7 +128,7 @@ const NetworkEmulation: React.FC = () => {
 
       <Divider />
 
-      <div className="grid grid-cols-1">
+      <div className="grid grid-cols-1 px-1">
         <Text weight="medium" className="pb-4">
           Configuring IP Limit
         </Text>
