@@ -1,0 +1,23 @@
+# This is the network config written by 'subiquity'
+network:
+  renderer: networkd
+  ethernets:
+    eno1:
+      dhcp4: false
+    enx201312130040:
+      dhcp4: false
+  bridges:
+    br0:
+      dhcp4: true
+      interfaces:
+        - eno1
+        - enx201312130040
+  wifis:
+    wlx909f330c4eee:
+      access-points:
+        "NEXTLab":
+          password: "" # password for wifi
+      dhcp4: true
+      optional: true
+
+  version: 2
