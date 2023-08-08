@@ -10,6 +10,7 @@ from scripts.utils._exceptions import handle_errors
 
 logger = logging.getLogger('main')
 
+
 class BlockListManager:
     def __init__(self):
         self.block_list = []
@@ -30,8 +31,9 @@ class BlockListManager:
     def reset_block_list(self):
         self.block_list = []
 
+
 @handle_errors
-def command_parser(command: dict, block_list_manager):
+def command_parser(block_list_manager, command: dict):
     args = command.get('replay', None)
 
     if args == 'run':
@@ -42,6 +44,7 @@ def command_parser(command: dict, block_list_manager):
     elif args == 'stop':
         logger.info('stop!!!!')
         block_list_manager.reset_block_list()
+        # TODO 이어서 실행
 
     elif args == 'next':
         with get_strict_redis_connection() as src:
@@ -49,13 +52,15 @@ def command_parser(command: dict, block_list_manager):
             if next_block:
                 publish(src, 'command', next_block)
 
+
 @handle_errors
 def main():
     block_list_manager = BlockListManager()
 
     with get_strict_redis_connection() as src:
         for command in Subscribe(src, RedisChannel.command):
-            command_parser(command, block_list_manager)
+            command_parser(block_list_manager, command)
+
 
 if __name__ == '__main__':
     try:
