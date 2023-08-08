@@ -14,7 +14,6 @@ export interface CustomKey {
 }
 
 export interface Remocon {
-  id: string
   name: string
   image_path: string
   image_resolution: [number, number] // width, height
