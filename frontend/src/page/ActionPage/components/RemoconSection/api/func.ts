@@ -15,9 +15,9 @@ export const getRemocon = async () => {
   }
 }
 
-export const putRemocon = async ({ remocon_id }: { remocon_id: string }) => {
+export const putRemocon = async ({ remocon_name }: { remocon_name: string }) => {
   try {
-    const result = await API.put<{ msg: string; id: string }>(`${apiUrls.remocon}/${remocon_id}`)
+    const result = await API.put<{ msg: string; id: string }>(`${apiUrls.remocon}/${remocon_name}`)
 
     return result.data
   } catch (err) {
@@ -29,7 +29,7 @@ export const putRemocon = async ({ remocon_id }: { remocon_id: string }) => {
 export const postCustomKey = async ({
   newCustomKey,
 }: {
-  newCustomKey: { name: string; custom_code: string[]; remocon_id: string }
+  newCustomKey: { name: string; custom_code: string[]; remocon_name: string }
 }) => {
   try {
     const result = await API.post<{ msg: string; id: string }>(apiUrls.custom_key, newCustomKey)
@@ -42,14 +42,14 @@ export const postCustomKey = async ({
 }
 
 export const deleteCustomKey = async ({
-  remocon_id,
+  remocon_name,
   custom_key_ids,
 }: {
-  remocon_id: string
+  remocon_name: string
   custom_key_ids: string[]
 }) => {
   try {
-    const result = await API.delete<{ msg: string }>(`${apiUrls.custom_key}/${remocon_id}`, {
+    const result = await API.delete<{ msg: string }>(`${apiUrls.custom_key}/${remocon_name}`, {
       data: {
         custom_key_ids,
       },
@@ -63,11 +63,11 @@ export const deleteCustomKey = async ({
 }
 
 export const putCustomKey = async ({
-  remocon_id,
+  remocon_name,
   custom_key_id,
   newCustomKey,
 }: {
-  remocon_id: string
+  remocon_name: string
   custom_key_id: string
   newCustomKey: {
     name: string
@@ -76,7 +76,7 @@ export const putCustomKey = async ({
 }) => {
   try {
     const result = await API.put<{ msg: string; id: string }>(
-      `${apiUrls.custom_key}/${remocon_id}/${custom_key_id}`,
+      `${apiUrls.custom_key}/${remocon_name}/${custom_key_id}`,
       newCustomKey,
     )
 
