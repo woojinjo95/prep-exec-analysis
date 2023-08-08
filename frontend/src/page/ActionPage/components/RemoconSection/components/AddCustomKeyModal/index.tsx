@@ -3,7 +3,7 @@ import useOutSideRef from '@global/hook/useOutsideRef'
 import cx from 'classnames'
 import { KeyEvent } from '@page/ActionPage/types'
 import { Remocon } from '../../api/entity'
-import RemoconInModalButtons from './RemoconInModalButtons'
+import AddCustomKeyModalRemoconButtons from './AddCustomKeyModalRemoconButtons'
 
 interface AddCustomKeyModalProps {
   remocon: Remocon
@@ -84,7 +84,7 @@ const AddCustomKeyModal = ({ remocon, isOpen, close, keyEvent }: AddCustomKeyMod
                 className="w-full"
               />
               {isLoadedRemoconImage && (
-                <RemoconInModalButtons
+                <AddCustomKeyModalRemoconButtons
                   keyEvent={keyEvent}
                   remoconRef={remoconRef}
                   remocon={remocon}
@@ -108,6 +108,10 @@ const AddCustomKeyModal = ({ remocon, isOpen, close, keyEvent }: AddCustomKeyMod
               type="button"
               className="bg-[#8F949E] w-[132px] h-[48px] text-white rounded-3xl"
               ref={lastFocusableElementRef}
+              onClick={() => {
+                setRemoconInput([])
+                close()
+              }}
             >
               Cancel
             </button>
