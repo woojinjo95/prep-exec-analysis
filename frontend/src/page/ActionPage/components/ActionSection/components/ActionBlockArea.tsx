@@ -262,7 +262,7 @@ const ActionBlockArea = (): JSX.Element => {
   })
 
   useEffect(() => {
-    const remoconButtonSubscribe$ = remoconService.onButtonCode$().subscribe((blockEvent: BlockEvent) => {
+    const remoconButtonSubscribe$ = remoconService.onButton$().subscribe((blockEvent: BlockEvent) => {
       postBlockMutate({ newBlock: { type: blockEvent.type, value: blockEvent.value, delay_time: 3000 } })
     })
 

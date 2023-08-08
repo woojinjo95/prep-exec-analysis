@@ -12,7 +12,7 @@ const customKeyClick$ = new Subject<BlockEvent>()
 // remocon 관련 Service
 
 export const remoconService = {
-  onButtonCode$: () => buttonClick$.asObservable(),
+  onButton$: () => buttonClick$.asObservable(),
   onCustomKey$: () => customKeyClick$.asObservable(),
 
   buttonClick: (buttonName: string) => buttonClick$.next({ type: 'RCU', value: buttonName }),
