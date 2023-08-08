@@ -53,8 +53,9 @@ const RemoconComponent: React.FC<RemoconProps> = ({ remocon, keyEvent }) => {
   const [isAddCustomModalOpen, setIsAddCustomModalOpen] = useState<boolean>(false)
 
   useEffect(() => {
+    // remocon의 name이 변경되면 (즉 다른 remocon을 선택했을 때)
     setIsLoadedRemoconImage(false)
-  }, [remocon])
+  }, [remocon.name])
 
   return (
     <>
