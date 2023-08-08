@@ -55,9 +55,9 @@ def insert_custom_key(
     input_data = {
         'custom_keys': custom_key_in.dict()
     }
-    custom_keys = parse_bytes_to_value(RedisClient.hget('remocon:'+custom_key_in_base.remocon_name, 'custom_keys'))
+    custom_keys = parse_bytes_to_value(RedisClient.hget('remocon:'+custom_key_in_base.remocon_name.value, 'custom_keys'))
     custom_keys.append(input_data['custom_keys'])
-    RedisClient.hset('remocon:'+custom_key_in_base.remocon_name, 'custom_keys', str(custom_keys))
+    RedisClient.hset('remocon:'+custom_key_in_base.remocon_name.value, 'custom_keys', str(custom_keys))
     return {'msg': 'Create new custom_key', 'id': custom_key_in.id}
 
 

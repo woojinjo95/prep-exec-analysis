@@ -4,17 +4,19 @@ import cx from 'classnames'
 import ws from '@global/module/websocket'
 import { Remocon } from '../../api/entity'
 
-interface RemoconButtonsProps {
+interface AddCustomKeyModalRemoconButtonsProps {
   keyEvent: KeyEvent | null
   remoconRef: React.MutableRefObject<HTMLImageElement | null>
   remocon: Remocon | null
+  setRemoconInput: React.Dispatch<React.SetStateAction<string[]>>
 }
 
-const RemoconButtons: React.FC<RemoconButtonsProps> = ({
+const AddCustomKeyModalRemoconButtons: React.FC<AddCustomKeyModalRemoconButtonsProps> = ({
   keyEvent,
   remoconRef,
   remocon,
-}: RemoconButtonsProps): JSX.Element => {
+  setRemoconInput,
+}: AddCustomKeyModalRemoconButtonsProps) => {
   const [isSquareVisible, setIsSquareVisible] = useState<boolean>(false)
   const [windowSize, setWindowSize] = useState<{ width: number; height: number }>({
     width: window.innerWidth,
@@ -25,6 +27,8 @@ const RemoconButtons: React.FC<RemoconButtonsProps> = ({
     if (!remoconRef.current) return null
 
     return {
+      buttonTop: 0,
+      buttonLeft: 0,
       buttonWidth: remoconRef.current.getBoundingClientRect().width,
       buttonHeight: remoconRef.current.getBoundingClientRect().height,
       remoconImageWidth: remoconRef.current.naturalWidth,
@@ -67,8 +71,8 @@ const RemoconButtons: React.FC<RemoconButtonsProps> = ({
               'border-orange-300 border-2': isSquareVisible,
             })}
             style={{
-              top: leftTop.top * (dimension.buttonHeight / dimension.remoconImageHeight),
-              left: leftTop.left * (dimension.buttonWidth / dimension.remoconImageWidth),
+              top: dimension.buttonTop + leftTop.top * (dimension.buttonHeight / dimension.remoconImageHeight),
+              left: dimension.buttonLeft + leftTop.left * (dimension.buttonWidth / dimension.remoconImageWidth),
               height:
                 rightBottom.bottom * (dimension.buttonHeight / dimension.remoconImageHeight) -
                 leftTop.top * (dimension.buttonHeight / dimension.remoconImageHeight),
@@ -77,6 +81,7 @@ const RemoconButtons: React.FC<RemoconButtonsProps> = ({
                 leftTop.left * (dimension.buttonWidth / dimension.remoconImageWidth),
             }}
             onClick={() => {
+              setRemoconInput((prev) => [...prev, code.code_name])
               console.log(`{"remocon": {"key": "${code.code_name}"}}`)
               ws.send(`{"remocon": {"key": "${code.code_name}"}}`)
             }}
@@ -87,4 +92,4 @@ const RemoconButtons: React.FC<RemoconButtonsProps> = ({
   )
 }
 
-export default RemoconButtons
+export default AddCustomKeyModalRemoconButtons
