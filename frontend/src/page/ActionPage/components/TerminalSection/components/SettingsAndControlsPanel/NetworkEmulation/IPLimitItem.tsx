@@ -78,6 +78,7 @@ const IPLimitItem: React.FC<IPLimitItemProps> = ({
           onChange={(e) => setPort(e.target.value)}
         />
         <Select
+          colorScheme="charcoal"
           ref={(ref) => {
             if (!ref) return
             focusableRefs.current[2] = ref
