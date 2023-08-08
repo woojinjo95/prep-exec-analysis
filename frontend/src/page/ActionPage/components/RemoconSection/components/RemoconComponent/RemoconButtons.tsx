@@ -16,17 +16,23 @@ const RemoconButtons: React.FC<RemoconButtonsProps> = ({
   remocon,
 }: RemoconButtonsProps): JSX.Element => {
   const [isSquareVisible, setIsSquareVisible] = useState<boolean>(false)
+  const [windowSize, setWindowSize] = useState<{ width: number; height: number }>({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  })
+
   const dimension = useMemo(() => {
     if (!remoconRef.current) return null
+
     return {
-      buttonTop: remoconRef.current.getBoundingClientRect().top,
-      buttonLeft: remoconRef.current.getBoundingClientRect().left,
+      buttonTop: 0,
+      buttonLeft: 0,
       buttonWidth: remoconRef.current.getBoundingClientRect().width,
       buttonHeight: remoconRef.current.getBoundingClientRect().height,
       remoconImageWidth: remoconRef.current.naturalWidth,
       remoconImageHeight: remoconRef.current.naturalHeight,
     }
-  }, [])
+  }, [windowSize, remocon])
 
   useEffect(() => {
     if (keyEvent?.altKey) {
@@ -36,6 +42,18 @@ const RemoconButtons: React.FC<RemoconButtonsProps> = ({
       setIsSquareVisible(false)
     }
   }, [keyEvent])
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({ width: window.innerWidth, height: window.innerHeight })
+    }
+
+    window.addEventListener('resize', handleResize)
+
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
 
   if (!dimension || !remocon) return <div />
   return (
