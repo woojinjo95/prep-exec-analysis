@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react'
-import { Input } from '@global/ui'
-import { useActiveElement } from '@global/hook'
+import { Input, OptionItem, Select } from '@global/ui'
+
 import { IPLimit } from '../../../api/entity'
 
 const Protocols: readonly IPLimit['protocol'][] = ['all', 'tcp', 'udp'] as const
@@ -27,30 +27,31 @@ const IPLimitItem: React.FC<IPLimitItemProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState<boolean>(isFocusDefault)
   const focusableRefs = useRef<
-    [HTMLInputElement, HTMLInputElement, HTMLSelectElement, HTMLButtonElement | undefined] | []
+    [HTMLInputElement, HTMLInputElement, HTMLButtonElement, HTMLButtonElement | undefined] | []
   >([])
   const [ip, setIP] = useState<typeof defaultIP>(defaultIP)
   const [port, setPort] = useState<typeof defaultPort>(defaultPort)
   const [protocol, setProtocol] = useState<typeof defaultProtocol>(defaultProtocol)
 
-  useActiveElement((activeElement) => {
-    // start editing
-    if (focusableRefs.current.some((ref) => activeElement === ref)) {
-      setIsEditing(true)
-    }
+  // useActiveElement((activeElement) => {
+  //   // FIXME: 여기서 두번씩 발생하는 이벤트때문에 select portal이 간헐적으로 닫힘
+  //   // start editing
+  //   if (focusableRefs.current.some((ref) => activeElement === ref)) {
+  //     setIsEditing(true)
+  //   }
 
-    // end editing
-    if (isEditing && focusableRefs.current.every((ref) => activeElement !== ref)) {
-      if (!ip && !port) {
-        console.log('IP or Port input is required.') // FIXME: Toast로 교체
-        focusableRefs.current[0]?.focus()
-        return
-      }
+  //   // end editing
+  //   if (isEditing && focusableRefs.current.every((ref) => activeElement !== ref)) {
+  //     if (!ip && !port) {
+  //       console.log('IP or Port input is required.') // FIXME: Toast로 교체
+  //       focusableRefs.current[0]?.focus()
+  //       return
+  //     }
 
-      // TODO: save ip limit
-      setIsEditing(false)
-    }
-  })
+  //     // TODO: save ip limit
+  //     setIsEditing(false)
+  //   }
+  // })
 
   return (
     <div className="grid grid-cols-[80%_20%] pb-3">
@@ -66,7 +67,6 @@ const IPLimitItem: React.FC<IPLimitItemProps> = ({
           value={ip}
           onChange={(e) => setIP(e.target.value)}
         />
-
         <Input
           colorScheme="charcoal"
           ref={(ref) => {
@@ -77,21 +77,26 @@ const IPLimitItem: React.FC<IPLimitItemProps> = ({
           value={port}
           onChange={(e) => setPort(e.target.value)}
         />
-
-        <select
+        <Select
           ref={(ref) => {
             if (!ref) return
             focusableRefs.current[2] = ref
           }}
           value={protocol}
-          onChange={(e) => setProtocol(e.target.value as typeof protocol)}
         >
           {Protocols.map((p) => (
-            <option key={`ip-limit-select-protocol-${p}`} value={p}>
+            <OptionItem
+              colorScheme="charcoal"
+              key={`ip-limit-select-protocol-${p}`}
+              onClick={() => {
+                setProtocol(p)
+              }}
+              isActive={p === protocol}
+            >
               {p}
-            </option>
+            </OptionItem>
           ))}
-        </select>
+        </Select>
       </div>
 
       {isEditing ? (

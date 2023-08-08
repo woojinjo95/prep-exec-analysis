@@ -26,7 +26,7 @@ const Tabs: React.FC<TabsProps> = ({ header, children, className, colorScheme })
   return (
     <div
       className={cx(
-        'grid grid-cols-1 grid-rows-[auto_1fr] gap-y-2 h-full',
+        'grid grid-cols-1 grid-rows-[auto_1fr] gap-y-4 h-full',
         'tab-panel',
         {
           'bg-white': colorScheme === 'light',

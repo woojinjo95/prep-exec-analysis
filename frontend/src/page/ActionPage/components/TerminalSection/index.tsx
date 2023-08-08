@@ -8,8 +8,8 @@ import TerminalPanel from './components/TerminalPanel'
  */
 const TerminalSection: React.FC = () => {
   return (
-    <section className="border border-black col-span-2">
-      <Tabs header={['Settings & Controls', 'Terminal']} className="pt-2" colorScheme="dark">
+    <section className="col-span-2">
+      <Tabs header={['Settings & Controls', 'Terminal']} className="py-3 px-6" colorScheme="dark">
         <SettingsAndControlsPanel />
         <TerminalPanel />
       </Tabs>
