@@ -16,20 +16,20 @@ class BlockManager:
         self.block_list = []
         self.progress_index = 0
 
-    def init(self):
+    def init_scenario(self):
         scenario = load_one_from_mongodb(col='scenario')
         self.block_list = [
             {**block, 'network': 'start'}
             for item in scenario.get('block_group', [])
-            for item_idx in range(item['repeat_cnt'])
-            for block_idx, block in enumerate(item['block'])
+            for _ in range(item['repeat_cnt'])
+            for block in item['block']
         ]
 
     def get_block(self, idx: int):
         # TODO 타입에 맞게 변경
-        res = None
         if len(self.block_list) <= idx:
             self.progress_index = 0
+            res = None
         else:
             res = self.block_list[idx]
         return res
@@ -40,18 +40,16 @@ class BlockManager:
     def update_progress_index(self):
         self.progress_index += 1
 
-
+# 현재 초기화 되는 것으로 작업됨
 @handle_errors
 def command_parser(block_manager, command: dict):
     args = command.get('replay', None)
 
     if args == 'run':
-        block_manager.init()
+        # TODO 이어서 하려면
+        block_manager.init_scenario()
         with get_strict_redis_connection() as src:
-            # 이어서 할거면
             publish(src, 'command', block_manager.get_block(block_manager.progress_index))
-            # 초기화 할거면
-            # publish(src, 'command', block_manager.get_block(0))
 
     elif args == 'stop':
         logger.info('stop!!!!')
