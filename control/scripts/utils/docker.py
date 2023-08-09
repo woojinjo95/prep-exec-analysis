@@ -7,7 +7,8 @@ def is_running_in_docker():
         if "docker" in folder_list: # mac os
             return True
         else: #linux
-            return True
+            with open('/proc/1/cgroup', 'rt') as f:
+                return 'docker' in f.read()
     except FileNotFoundError:
         return False
 
