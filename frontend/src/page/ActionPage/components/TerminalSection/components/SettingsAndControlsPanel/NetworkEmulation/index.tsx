@@ -57,7 +57,7 @@ const NetworkEmulation: React.FC = () => {
 
   return (
     <div className="row-span-2 bg-light-black p-5 rounded-lg h-fit">
-      <div className="flex items-center gap-x-5">
+      <div className="flex items-center gap-x-5 px-1">
         <Title as="h3" colorScheme="light">
           Network Emulation
         </Title>
@@ -75,60 +75,77 @@ const NetworkEmulation: React.FC = () => {
 
       <Divider />
 
-      <div className="grid grid-cols-3 grid-rows-[auto_1fr] gap-2 pb-1">
-        <div className="col-span-3">
+      <div className="pb-1 px-1">
+        <div>
           <Text weight="medium">Packet Contorl (Inbound)</Text>
         </div>
 
-        <div>
-          <Text weight="medium" size="xs">
-            Bandwidth
-          </Text>
-          <Input
-            colorScheme="charcoal"
-            value={bandwidth || 0}
-            type="number"
-            pattern="[0-9]*"
-            onChange={(e) => setBandwidth(Number(e.target.value))}
-            onBlur={onBlurInput('bandwidth', bandwidth)}
-            onKeyDown={onKeyDownInput('bandwidth', bandwidth)}
-          />
-        </div>
+        <div className="pt-2 flex justify-between">
+          <div className="w-1/3">
+            <Text weight="medium" size="xs">
+              Bandwidth
+            </Text>
+            <div className="mt-1 grid grid-rows-1 grid-cols-[55%_40%] gap-x-2 items-center">
+              <Input
+                colorScheme="charcoal"
+                value={bandwidth || 0}
+                type="number"
+                pattern="[0-9]*"
+                onChange={(e) => setBandwidth(Number(e.target.value))}
+                onBlur={onBlurInput('bandwidth', bandwidth)}
+                onKeyDown={onKeyDownInput('bandwidth', bandwidth)}
+              />
+              <Text weight="medium" size="xs" className="mr-2">
+                Mbps
+              </Text>
+            </div>
+          </div>
 
-        <div>
-          <Text weight="medium" size="xs">
-            Delay
-          </Text>
-          <Input
-            colorScheme="charcoal"
-            value={delay || 0}
-            type="number"
-            pattern="[0-9]*"
-            onChange={(e) => setDelay(Number(e.target.value))}
-            onBlur={onBlurInput('delay', delay)}
-            onKeyDown={onKeyDownInput('delay', delay)}
-          />
-        </div>
+          <div className="w-1/3">
+            <Text weight="medium" size="xs">
+              Delay
+            </Text>
+            <div className="mt-1 grid grid-rows-1 grid-cols-[55%_40%] gap-x-2 items-center">
+              <Input
+                colorScheme="charcoal"
+                value={delay || 0}
+                type="number"
+                pattern="[0-9]*"
+                onChange={(e) => setDelay(Number(e.target.value))}
+                onBlur={onBlurInput('delay', delay)}
+                onKeyDown={onKeyDownInput('delay', delay)}
+              />
+              <Text weight="medium" size="xs" className="mr-2">
+                ms
+              </Text>
+            </div>
+          </div>
 
-        <div>
-          <Text weight="medium" size="xs">
-            Loss
-          </Text>
-          <Input
-            colorScheme="charcoal"
-            value={loss || 0}
-            type="number"
-            pattern="[0-9]*"
-            onChange={(e) => setLoss(Number(e.target.value))}
-            onBlur={onBlurInput('loss', loss)}
-            onKeyDown={onKeyDownInput('loss', loss)}
-          />
+          <div className="w-1/3">
+            <Text weight="medium" size="xs">
+              Loss
+            </Text>
+            <div className="mt-1 grid grid-rows-1 grid-cols-[55%_40%] gap-x-2 items-center">
+              <Input
+                colorScheme="charcoal"
+                value={loss || 0}
+                type="number"
+                pattern="[0-9]*"
+                onChange={(e) => setLoss(Number(e.target.value))}
+                onBlur={onBlurInput('loss', loss)}
+                onKeyDown={onKeyDownInput('loss', loss)}
+              />
+              <Text weight="medium" size="xs" className="mr-2">
+                %
+              </Text>
+            </div>
+          </div>
         </div>
       </div>
 
       <Divider />
 
-      <div className="grid grid-cols-1">
+      <div className="grid grid-cols-1 px-1">
         <Text weight="medium" className="pb-4">
           Configuring IP Limit
         </Text>

@@ -1,0 +1,4 @@
+paramiko==3.2.0
+python-dotenv==1.0.0
+redis==4.6.0
+pytz==2019.3

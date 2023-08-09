@@ -44,3 +44,15 @@ export const putHardwareConfiguration = async (
     throw er
   }
 }
+
+/**
+ * 하드웨어 설정 - STB 연결 설정 수정 api
+ */
+export const putHardwareConfigurationSTBConnection = async (data: HardwareConfiguration['stb_connection']) => {
+  try {
+    await API.put(`${apiUrls.hardware_configuration}/stb_connection`, data)
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}

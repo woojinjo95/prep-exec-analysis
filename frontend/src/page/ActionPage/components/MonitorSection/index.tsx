@@ -6,7 +6,7 @@ import HLSPlayer from './components/HLSPlayer'
  */
 const MonitorSection: React.FC = () => {
   return (
-    <section className="w-full h-full border border-black relative">
+    <section className="w-full h-full border-b border-light-charcoal relative">
       <HLSPlayer
         autoPlay
         controls
