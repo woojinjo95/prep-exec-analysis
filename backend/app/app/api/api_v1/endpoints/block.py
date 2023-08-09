@@ -26,6 +26,7 @@ def create_block(
         insert_one_to_mongodb(col='scenario', data={"block_group": []})
     block_in = schemas.Block(id=str(uuid.uuid4()),
                              type=block_in.type,
+                             name=block_in.name,
                              value=block_in.value,
                              delay_time=block_in.delay_time)
     block_group = load_one_from_mongodb('scenario').get('block_group', [])

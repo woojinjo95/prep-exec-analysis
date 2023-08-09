@@ -1,5 +1,9 @@
 from enum import Enum
+
 from app.core.config import settings
+
+RemoconEnum = Enum('MeasureDirectionEnum', [(r, r) for r
+                                            in settings.REMOCON_COMPANY.split(',')])
 
 
 class ExtendedEnum(Enum):
@@ -56,5 +60,7 @@ class ChannelChangeTimeTargetEnum(ExtendedEnum):
     previous_channel = "previous_channel"
 
 
-RemoconEnum = Enum('MeasureDirectionEnum', [(r, r) for r
-                                            in settings.REMOCON_COMPANY.split(',')])
+class BlockTypeEnum(ExtendedEnum):
+    rcu = "rcu"
+    config = "config"
+    shell = "shell"

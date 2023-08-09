@@ -1,10 +1,12 @@
-from typing import Optional, List
+from typing import List, Optional
 
+from app.schemas.enum import BlockTypeEnum
 from pydantic import BaseModel
 
 
 class BlockCreate(BaseModel):
-    type: str
+    type: BlockTypeEnum
+    name: str
     value: str
     delay_time: float = 3000  # ms단위
 
@@ -18,7 +20,8 @@ class Block(BlockCreate):
 
 
 class BlockUpdate(BaseModel):
-    type: Optional[str]
+    type: Optional[BlockTypeEnum]
+    name: Optional[str]
     value: Optional[str]
     delay_time: Optional[float]
 
