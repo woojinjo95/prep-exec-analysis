@@ -11,14 +11,15 @@ from scripts.utils._exceptions import handle_errors
 logger = logging.getLogger('main')
 
 
-class BlockListManager:
+class BlockManager:
     def __init__(self):
         self.block_list = []
+        self.progress_index = 0
 
     def init(self):
         scenario = load_one_from_mongodb(col='scenario')
         self.block_list = [
-            {**block, 'network': 'start', 'idx': block_idx + len(item['block']) * item_idx}
+            {**block, 'network': 'start'}
             for item in scenario.get('block_group', [])
             for item_idx in range(item['repeat_cnt'])
             for block_idx, block in enumerate(item['block'])
@@ -26,40 +27,51 @@ class BlockListManager:
 
     def get_block(self, idx: int):
         # TODO 타입에 맞게 변경
-        return None if len(self.block_list) <= idx else self.block_list[idx]
+        res = None
+        if len(self.block_list) <= idx:
+            self.progress_index = 0
+        else:
+            res = self.block_list[idx]
+        return res
 
     def reset_block_list(self):
         self.block_list = []
 
+    def update_progress_index(self):
+        self.progress_index += 1
+
 
 @handle_errors
-def command_parser(block_list_manager, command: dict):
+def command_parser(block_manager, command: dict):
     args = command.get('replay', None)
 
     if args == 'run':
+        block_manager.init()
         with get_strict_redis_connection() as src:
-            block_list_manager.init()
-            publish(src, 'command', block_list_manager.get_block(0))
+            # 이어서 할거면
+            publish(src, 'command', block_manager.get_block(block_manager.progress_index))
+            # 초기화 할거면
+            # publish(src, 'command', block_manager.get_block(0))
 
     elif args == 'stop':
         logger.info('stop!!!!')
-        block_list_manager.reset_block_list()
-        # TODO 이어서 실행
+        block_manager.reset_block_list()
 
     elif args == 'next':
-        with get_strict_redis_connection() as src:
-            next_block = block_list_manager.get_block(command.get('idx')+1)
-            if next_block:
+        block_manager.update_progress_index()
+        next_block = block_manager.get_block(block_manager.progress_index)
+        if next_block:
+            with get_strict_redis_connection() as src:
                 publish(src, 'command', next_block)
 
 
 @handle_errors
 def main():
-    block_list_manager = BlockListManager()
+    block_manager = BlockManager()
 
     with get_strict_redis_connection() as src:
         for command in Subscribe(src, RedisChannel.command):
-            command_parser(block_list_manager, command)
+            command_parser(block_manager, command)
 
 
 if __name__ == '__main__':
