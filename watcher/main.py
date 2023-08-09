@@ -35,6 +35,7 @@ def commander_watcher(channel: str) -> ProcessMaintainer:
                     value = log_level_values[log_level]
 
                 if value < log_level_values['error']:
+                    # same to logger.{log_level}(f'{command}')
                     attrgetter(log_level)(logger)(f'{command}')
                 else:
                     attrgetter(log_level)(error_logger)(f'{log_level} in {channel}: {command}')
