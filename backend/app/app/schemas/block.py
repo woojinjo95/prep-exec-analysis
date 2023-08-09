@@ -27,7 +27,7 @@ class BlockUpdate(BaseModel):
 
 
 class BlockGroupUpdate(BaseModel):
-    repeat_cnt: Optional[int]
+    repeat_cnt: Optional[int] = 1
 
 
 class BlockGroup(BaseModel):
