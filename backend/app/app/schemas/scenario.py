@@ -9,4 +9,4 @@ class ScenarioBase(BaseModel):
 
 
 class Scenario(BaseModel):
-    items: ScenarioBase
+    items: Optional[ScenarioBase]

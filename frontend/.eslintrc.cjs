@@ -1,6 +1,9 @@
 /* eslint-env node */
 module.exports = {
-  env: { browser: true, es2021: true },
+  env: {
+    browser: true,
+    es2021: true,
+  },
   parserOptions: {
     ecmaFeatures: {
       jsx: true,
@@ -31,8 +34,18 @@ module.exports = {
     'import/extensions': ['off'],
     'import/prefer-default-export': ['off'],
     'import/no-extraneous-dependencies': ['off'],
-    'react/jsx-filename-extension': [1, { extensions: ['.js', '.jsx', '.tsx'] }],
-    'react/function-component-definition': [0, { namedcomponents: 'arrow-function' }],
+    'react/jsx-filename-extension': [
+      1,
+      {
+        extensions: ['.js', '.jsx', '.tsx'],
+      },
+    ],
+    'react/function-component-definition': [
+      0,
+      {
+        namedcomponents: 'arrow-function',
+      },
+    ],
     'react/require-default-props': ['off'],
     'react/jsx-props-no-spreading': ['off'],
     'react/no-array-index-key': ['off'],

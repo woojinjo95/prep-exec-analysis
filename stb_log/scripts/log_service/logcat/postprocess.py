@@ -136,8 +136,8 @@ def construct_json_data(log_batch: List[Tuple[float, str]]) -> Dict:
             'module': str(log_chunk['module']).rstrip().replace('\n', ' '),
             'log_level': log_chunk['log_level'],
             'process_name': log_chunk['pid'],
-            'PID': log_chunk['pid'],
-            'TID': log_chunk['tid'],
+            'pid': log_chunk['pid'],
+            'tid': log_chunk['tid'],
             'message': str(log_chunk['message']).rstrip().replace('\n', ' ') if log_chunk['message'] else '',
         } for log_chunk in log_batch],
     }

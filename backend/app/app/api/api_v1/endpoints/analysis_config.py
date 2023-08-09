@@ -1,6 +1,5 @@
 import json
 import logging
-import uuid
 
 from app import schemas
 from app.api.utility import parse_bytes_to_value
@@ -11,17 +10,6 @@ from fastapi.encoders import jsonable_encoder
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
-
-
-def set_uuid(val):
-    frames = val.get('frames', [])
-    for frame in frames:
-        frame['id'] = str(uuid.uuid4())
-        for roi in frame['rois']:
-            roi['id'] = str(uuid.uuid4())
-    if frames:
-        val['frames'] = frames
-    return val
 
 
 @router.get("", response_model=schemas.AnalysisConfigBase)

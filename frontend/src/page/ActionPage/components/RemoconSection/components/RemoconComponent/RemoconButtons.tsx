@@ -2,6 +2,7 @@ import { KeyEvent } from '@page/ActionPage/types'
 import React, { useEffect, useMemo, useState } from 'react'
 import cx from 'classnames'
 import ws from '@global/module/websocket'
+import { remoconService } from '@global/service/RemoconService'
 import { Remocon } from '../../api/entity'
 
 interface RemoconButtonsProps {
@@ -16,17 +17,21 @@ const RemoconButtons: React.FC<RemoconButtonsProps> = ({
   remocon,
 }: RemoconButtonsProps): JSX.Element => {
   const [isSquareVisible, setIsSquareVisible] = useState<boolean>(false)
+  const [windowSize, setWindowSize] = useState<{ width: number; height: number }>({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  })
+
   const dimension = useMemo(() => {
     if (!remoconRef.current) return null
+
     return {
-      buttonTop: remoconRef.current.getBoundingClientRect().top,
-      buttonLeft: remoconRef.current.getBoundingClientRect().left,
       buttonWidth: remoconRef.current.getBoundingClientRect().width,
       buttonHeight: remoconRef.current.getBoundingClientRect().height,
       remoconImageWidth: remoconRef.current.naturalWidth,
       remoconImageHeight: remoconRef.current.naturalHeight,
     }
-  }, [])
+  }, [windowSize, remocon])
 
   useEffect(() => {
     if (keyEvent?.altKey) {
@@ -36,6 +41,18 @@ const RemoconButtons: React.FC<RemoconButtonsProps> = ({
       setIsSquareVisible(false)
     }
   }, [keyEvent])
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({ width: window.innerWidth, height: window.innerHeight })
+    }
+
+    window.addEventListener('resize', handleResize)
+
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
 
   if (!dimension || !remocon) return <div />
   return (
@@ -51,8 +68,8 @@ const RemoconButtons: React.FC<RemoconButtonsProps> = ({
               'border-orange-300 border-2': isSquareVisible,
             })}
             style={{
-              top: dimension.buttonTop + leftTop.top * (dimension.buttonHeight / dimension.remoconImageHeight),
-              left: dimension.buttonLeft + leftTop.left * (dimension.buttonWidth / dimension.remoconImageWidth),
+              top: leftTop.top * (dimension.buttonHeight / dimension.remoconImageHeight),
+              left: leftTop.left * (dimension.buttonWidth / dimension.remoconImageWidth),
               height:
                 rightBottom.bottom * (dimension.buttonHeight / dimension.remoconImageHeight) -
                 leftTop.top * (dimension.buttonHeight / dimension.remoconImageHeight),
@@ -63,6 +80,7 @@ const RemoconButtons: React.FC<RemoconButtonsProps> = ({
             onClick={() => {
               console.log(`{"remocon": {"key": "${code.code_name}"}}`)
               ws.send(`{"remocon": {"key": "${code.code_name}"}}`)
+              remoconService.buttonClick(code.code_name)
             }}
           />
         )

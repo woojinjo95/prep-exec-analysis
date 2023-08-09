@@ -1,17 +1,22 @@
 import logging
-import time
-import serial
 import re
+import time
+from collections import namedtuple
 from multiprocessing import Lock, Manager
 from typing import List, Tuple
 
-from .control_board import set_packet, trans_data, trans_start, trans_end, get_hex, repeat_ir, led_state, counter_set
-from .ir_constant import Status, IrFrame
+import serial
+
 from ...configs.config import get_value
+from .control_board import (counter_set, get_hex, led_state, repeat_ir,
+                            set_packet, trans_data, trans_end, trans_start)
+from .ir_constant import IrFrame, Status
 
 use_control_board = True
 
 logger = logging.getLogger('serial')
+
+SerialDevices = namedtuple('SerialDevices', ['control', 'bluetooth'])
 
 
 class SerialDevice:
@@ -149,7 +154,7 @@ class SerialDevice:
                     remocon_event_time = start_time + transmit_time + self.time_offset
                     return remocon_event_time
         except Exception as e:
-            logger.debug(f'serial write raise error => {e}')
+            logger.error(f'serial write raise error => {e}')
             remocon_event_time = start_time + 0.007
             if self.use_control_board:
                 logger.error(f'Failed to parse value!! real value is in this range: {remocon_event_time} +- 0.001')
@@ -276,11 +281,24 @@ class SerialDevice:
             logger.debug(f'calc error =>{e}')
 
 
-def initial_serial_devices() -> Tuple[SerialDevice, SerialDevice]:
+def initial_serial_devices() -> SerialDevices:
     baud_rate = int(get_value('devices', 'serial_baud_rate'))
     ir_serial_port = get_value('devices', 'ir_remocon_port')
     bt_serial_port = get_value('devices', 'bt_remocon_port')
     ir_serial_device = SerialDevice(ir_serial_port, baud_rate=baud_rate)
     bt_serial_device = SerialDevice(bt_serial_port, baud_rate=baud_rate)
-    serial_devices = (ir_serial_device, bt_serial_device)
+    serial_devices = SerialDevices(control=ir_serial_device, bluetooth=bt_serial_device)
     return serial_devices
+
+
+def parse_on_off_control_args(value: any) -> str:
+    if isinstance(value, str):
+        if value.lower() in ('true', 'on'):
+            return 'on'
+        else:
+            return 'off'
+    elif isinstance(value, bool):
+        return 'on' if value else 'off'
+    else:
+        logger.error(f'{value} is not normally parsed! return just "on"')
+        return 'on'

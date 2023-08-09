@@ -23,7 +23,7 @@ settings = {'capture': {'video_device': '/dev/video0',
                           'segment_interval': 10,
                           'real_time_video_path': 'real_time_videos',
                           'output_video_path': 'videos'},
-            'state': {'state': 'idle'},
+            'state': {'streaming': 'idle'},
             'common': {'root_file_path': './data'},
             'test': {'description': '''PUBLISH command '{"streaming": "start"}'
 PUBLISH command '{"streaming": "stop"}'
