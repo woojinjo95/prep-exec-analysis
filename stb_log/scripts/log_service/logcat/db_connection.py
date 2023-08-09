@@ -4,7 +4,7 @@ import logging
 from scripts.connection.sqlite import SqliteConnection
 
 
-logger = logging.getLogger('connection')
+logger = logging.getLogger('logcat')
 
 class LogManagerDBConnection(SqliteConnection):
     def __init__(self):

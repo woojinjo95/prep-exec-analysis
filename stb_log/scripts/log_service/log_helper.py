@@ -118,44 +118,16 @@ def init_log_helper(log_helper: LogHelper, log_queue: multiprocessing.Queue):
     log_helper.start_listening('total', log_queue)
 
     log_helper.set_queue_logger(log_queue, 'main')
-    log_helper.set_queue_logger(log_queue, 'user')
     log_helper.set_queue_logger(log_queue, 'connection')
-    log_helper.set_queue_logger(log_queue, 'scheduler')
-    log_helper.set_queue_logger(log_queue, 'analysis')
-    log_helper.set_queue_logger(log_queue, 'licence')
-    log_helper.set_queue_logger(log_queue, 'media')
-    log_helper.set_queue_logger(log_queue, 'report')
-    log_helper.set_queue_logger(log_queue, 'event_log')
-    log_helper.set_queue_logger(log_queue, 'remocon')
-    log_helper.set_queue_logger(log_queue, 'serial')
-    log_helper.set_queue_logger(log_queue, 'daq')
-    log_helper.set_queue_logger(log_queue, 'error')
+    log_helper.set_queue_logger(log_queue, 'collector')
+    log_helper.set_queue_logger(log_queue, 'logcat')
+    log_helper.set_queue_logger(log_queue, 'dumpsys')
 
     log_helper.set_stream_logger('main', 1)         # yellow
-    log_helper.set_stream_logger('user', 2)         # blue
-    log_helper.set_stream_logger('connection', 3)   # magenta
-    log_helper.set_stream_logger('scheduler', 4)    # cyan
-    log_helper.set_stream_logger('analysis', 5)     # bright magenta
-    log_helper.set_stream_logger('licence', 5)     # bright magenta
-    log_helper.set_stream_logger('media', 6)        # bright cyan
-    log_helper.set_stream_logger('report', 0)       # green
-    log_helper.set_stream_logger('event_log', 7)    # bright green
-    log_helper.set_stream_logger('remocon', 8)      # bright blue
-    log_helper.set_stream_logger('serial', 8)       # bright blue
-    log_helper.set_stream_logger('daq', 8)          # bright blue
-    log_helper.set_stream_logger('error', 10)          # RED
-    # 9, bright yellow
-
-    # log_helper.set_file_logger('main')
-    # log_helper.set_file_logger('user')
-    # log_helper.set_file_logger('connection')
-    # log_helper.set_file_logger('scheduler')
-    # log_helper.set_file_logger('analysis')
-    # log_helper.set_file_logger('media')
-    # log_helper.set_file_logger('report')
-    # log_helper.set_file_logger('remocon')
-    # log_helper.set_file_logger('serial')
-    # log_helper.set_file_logger('daq')
+    log_helper.set_stream_logger('connection', 2)         # blue
+    log_helper.set_stream_logger('collector', 3)   # magenta
+    log_helper.set_stream_logger('logcat', 4)    # cyan
+    log_helper.set_stream_logger('dumpsys', 5)     # bright magenta
 
     return log_helper
 
