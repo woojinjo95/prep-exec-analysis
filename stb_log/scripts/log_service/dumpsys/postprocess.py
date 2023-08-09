@@ -23,15 +23,13 @@ def postprocess(connection_info: Dict):
     logger.info(f"start cpu and memory postprocess")
 
     scheduler = BlockingScheduler()
-    scheduler.add_job(insert_to_db, 'interval', args=[connection_info], seconds=10)
+    scheduler.add_job(insert_to_db, 'interval', args=[connection_info], seconds=30)
     scheduler.start()
 
 
 def insert_to_db(connection_info: Dict):
-    timeout = get_setting_with_env("DUMPSYS_EXECUTION_TIMEOUT", 20)
-    
-    cpu_usage = get_cpu_usage(connection_info, timeout)
-    memory_usage = get_memory_usage(connection_info, timeout)
+    cpu_usage = get_cpu_usage(connection_info, 5)
+    memory_usage = get_memory_usage(connection_info, 20)
     json_data = construct_json_data(cpu_usage, memory_usage)
 
     logger.info(f'insert {json_data} to db')
