@@ -8,6 +8,7 @@ from scripts.config.constant import RedisDB
 from scripts.connection.mongo_db.crud import insert_to_mongodb
 from scripts.connection.redis_conn import get_value
 from scripts.util._timezone import timestamp_to_datetime_with_timezone_str
+from scripts.config.config import get_setting_with_env
 from .cpu_info import parse_cpu_info
 from .memory_info import parse_memory_info
 
@@ -27,7 +28,8 @@ def postprocess(connection_info: Dict):
 
 
 def insert_to_db(connection_info: Dict):
-    timeout = 20
+    timeout = get_setting_with_env("DUMPSYS_EXECUTION_TIMEOUT", 20)
+    
     cpu_usage = get_cpu_usage(connection_info, timeout)
     memory_usage = get_memory_usage(connection_info, timeout)
     json_data = construct_json_data(cpu_usage, memory_usage)
