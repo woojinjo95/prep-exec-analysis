@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react'
-import { Input, OptionItem, Select } from '@global/ui'
+import { Input, OptionItem, Select, Text } from '@global/ui'
 
 import { IPLimit } from '../../../api/entity'
 
@@ -99,18 +99,30 @@ const IPLimitItem: React.FC<IPLimitItemProps> = ({
       </div>
 
       {isEditing ? (
-        <button
-          ref={(ref) => {
-            if (!ref) return
-            focusableRefs.current[3] = ref
-          }}
-          type="button"
-          onClick={cancelAddIPLimit}
-        >
-          cancel
-        </button>
+        <div className="grid grid-cols-1 justify-center">
+          <button type="button" onClick={cancelAddIPLimit}>
+            <Text colorScheme="light">save</Text>
+          </button>
+          <button
+            ref={(ref) => {
+              if (!ref) return
+              focusableRefs.current[3] = ref
+            }}
+            type="button"
+            onClick={cancelAddIPLimit}
+          >
+            <Text colorScheme="light">cancel</Text>
+          </button>
+        </div>
       ) : (
-        <button type="button">delete</button>
+        <div className="grid grid-cols-1 justify-center">
+          <button type="button" onClick={() => setIsEditing(true)}>
+            <Text colorScheme="light">modify</Text>
+          </button>
+          <button type="button">
+            <Text colorScheme="light">delete</Text>
+          </button>
+        </div>
       )}
     </div>
   )
