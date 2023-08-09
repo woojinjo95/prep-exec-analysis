@@ -1,8 +1,9 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List
 
+from app.schemas.enum import LogLevelFinderTargetEnum
 from pydantic import BaseModel
-from schemas.enum import LogLevelFinderTargetEnum
+
 
 class Logcat(BaseModel):
     timestamp: datetime
