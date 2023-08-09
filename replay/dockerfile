@@ -1,0 +1,27 @@
+FROM python:3.10.6
+ARG DEBIAN_FRONTEND=noninteractive
+
+# install fundamental
+RUN apt update 
+RUN apt install lsof -y 
+
+# install pip & python
+RUN ln -s /usr/bin/python3 /usr/bin/python
+RUN ln -s /usr/bin/pip3 /usr/bin/pip
+RUN pip install --upgrade pip
+
+# install requirements
+WORKDIR /app/
+ADD requirements.txt ./
+RUN pip install -r requirements.txt
+
+ENV MONGODB_SERVER mongodb
+ENV MONGODB_NAME prep-exec-analysis
+ENV MONGODB_PORT 27017
+ENV MONGODB_USERNAME admin
+ENV MONGODB_PASSWORD .nextlab6318!
+ENV MONGODB_AUTHENTICATION_SOURCE admin
+
+ADD . ./
+
+CMD ["python", "main.py"]

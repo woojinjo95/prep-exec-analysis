@@ -45,13 +45,13 @@ class AnalysisTypeEnum(ExtendedEnum):
 
 
 class LogLevelFinderTargetEnum(ExtendedEnum):
-    logcat_f = "logcat_f"
-    logcat_e = "logcat_e"
-    logcat_s = "logcat_s"
-    logcat_w = "logcat_w"
-    logcat_i = "logcat_i"
-    logcat_d = "logcat_d"
-    logcat_v = "logcat_v"
+    V = "V" # verbose 가장 낮은 우선 순위 
+    D = "D" # debug
+    I = "I" # info
+    W = "W" # warning
+    E = "E" # error
+    F = "F" # fatal
+    S = "S" # silent 가장 높은 우선 순위
 
 
 class ChannelChangeTimeTargetEnum(ExtendedEnum):

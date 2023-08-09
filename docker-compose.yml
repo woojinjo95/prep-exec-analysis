@@ -106,6 +106,19 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
+  replay:
+    container_name: replay
+    image: registry.dev-nextlab.com/prep-exec-replay:dev-0
+    restart: always
+    build:
+      context: ./replay
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD:
+      USER: ${USER}
+    privileged: true
+
   adminer:
     container_name: adminer
     image: dockette/adminer:full
