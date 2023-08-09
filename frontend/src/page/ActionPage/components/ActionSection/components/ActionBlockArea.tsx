@@ -5,9 +5,11 @@ import cx from 'classnames'
 import { Block, BlockGroup, Scenario } from '@page/ActionPage/components/ActionSection/api/entity'
 import { useMutation, useQuery } from 'react-query'
 import BackgroundImage from '@assets/images/background_pattern.svg'
+import { remoconService } from '@global/service/RemoconService'
+import { BlockEvent } from '@global/service/type'
 import ActionBlockItem from './ActionBlockItem'
 import BlockControls from './BlockControls'
-import { getScenario, putScenario } from '../api/func'
+import { getScenario, postBlock, putScenario } from '../api/func'
 
 type BlocksRef = {
   [id: string]: HTMLDivElement | null
@@ -249,6 +251,30 @@ const ActionBlockArea = (): JSX.Element => {
       }
     }
   }
+
+  const { mutate: postBlockMutate } = useMutation(postBlock, {
+    onSuccess: () => {
+      blockRefetch()
+    },
+    onError: (err) => {
+      console.error(err)
+    },
+  })
+
+  useEffect(() => {
+    const remoconButtonSubscribe$ = remoconService.onButton$().subscribe((blockEvent: BlockEvent) => {
+      postBlockMutate({ newBlock: { type: blockEvent.type, value: blockEvent.value, delay_time: 3000 } })
+    })
+
+    const remoconCustomKeySubscribe$ = remoconService.onCustomKey$().subscribe((blockEvent: BlockEvent) => {
+      postBlockMutate({ newBlock: { type: blockEvent.type, value: blockEvent.value, delay_time: 3000 } })
+    })
+
+    return () => {
+      remoconButtonSubscribe$.unsubscribe()
+      remoconCustomKeySubscribe$.unsubscribe()
+    }
+  }, [])
 
   return (
     <div className="h-full w-full">

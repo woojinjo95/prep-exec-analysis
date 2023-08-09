@@ -37,9 +37,9 @@ class LogOrganizer():
 
         # make log directory
         if os.path.exists('/app'):
-            self.base_log_dir = os.path.join('/app', 'logs')
+            self.base_log_dir = os.path.join('/app', 'logs', name)
         else:
-            self.base_log_dir = os.path.join(get_parents_path(__file__, 1), 'logs')
+            self.base_log_dir = os.path.join(get_parents_path(__file__, 1), 'logs', name)
         os.makedirs(self.base_log_dir, exist_ok=True)
         self.init()
 

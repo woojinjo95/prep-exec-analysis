@@ -4,7 +4,24 @@ export default {
   theme: {
     extend: {
       colors: {
+        // grey palette
         black: '#222222',
+        'light-black': '#323339',
+        charcoal: '#3E4048',
+        'light-charcoal': '#4E525A',
+        grey: '#8F949E',
+        'light-grey': '#DFE0EE',
+
+        // palette
+        pink: '#D89B9B',
+        red: '#E93535',
+        orange: '#FF9900',
+        yellow: '#FFDD00',
+        navy: '#3A547D',
+        green: '#97A442',
+
+        // default active 색상
+        primary: '#00B1FF',
       },
     },
   },

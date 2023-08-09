@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react'
 import * as d3 from 'd3'
-import { Text } from '@chakra-ui/react'
 
 import { AreaChartGenerator } from '../usecase'
 import { AreaChartData } from '../types'
@@ -40,7 +39,7 @@ const AreaChart: React.FC<AreaChartProps> = ({ chartWidth, chartWrapperRef, scal
 
   return (
     <div className="grid grid-cols-1 grid-rows-[auto_1fr] h-40">
-      <Text className="sticky top-0 text-xs text-gray-400 z-10 px-1">CPU</Text>
+      <span className="sticky top-0 text-xs text-gray-400 z-10 px-1">CPU</span>
 
       <div ref={chartWrapperRef} className="border-l-[0.5px] border-r-[0.5px] border-[#37383E]">
         <div ref={chartRef} className="brightness-150" />

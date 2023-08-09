@@ -26,6 +26,7 @@ def create_block(
         insert_one_to_mongodb(col='scenario', data={"block_group": []})
     block_in = schemas.Block(id=str(uuid.uuid4()),
                              type=block_in.type,
+                             name=block_in.name,
                              value=block_in.value,
                              delay_time=block_in.delay_time)
     block_group = load_one_from_mongodb('scenario').get('block_group', [])
@@ -88,7 +89,7 @@ def update_block(
             status_code=404, detail="The block with this id does not exist in the system.")
 
     update_data = {f"block_group.$.block.$[elem].{key}": value
-                   for key, value in block_in.dict().items() if value is not None}
+                   for key, value in jsonable_encoder(block_in).items() if value is not None}
 
     col = get_mongodb_collection('scenario')
     res = col.update_one({"block_group.block.id": block_id},
@@ -122,7 +123,7 @@ def update_block_group(
             status_code=404, detail="The block_group with this id does not exist in the system.")
 
     update_data = {f"block_group.$.{key}": value
-                   for key, value in block_group_in.dict().items() if value is not None}
+                   for key, value in jsonable_encoder(block_group_in).items() if value is not None}
     res = update_to_mongodb(col='scenario',
                             param=param,
                             data=update_data)
