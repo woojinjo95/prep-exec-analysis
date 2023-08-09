@@ -17,6 +17,12 @@ export interface HardwareConfiguration {
   packet_bandwidth: number
   packet_delay: number
   packet_loss: number
-  //   stb_connection?: {}
+  stb_connection?: {
+    type: 'adb' | 'ssh'
+    ip: string
+    port: string
+    username?: string
+    password?: string
+  }
   ip_limit?: IPLimit[]
 }

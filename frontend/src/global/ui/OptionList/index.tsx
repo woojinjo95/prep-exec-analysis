@@ -3,9 +3,9 @@ import cx from 'classnames'
 import { Portal } from '..'
 
 /**
- * 리스트와 Select 버튼 사이의 간격
+ * 리스트와 상위컴포넌트 사이의 간격
  */
-const SPACE = 8
+const SPACE = 4
 
 interface OptionListProps extends React.HTMLAttributes<HTMLUListElement> {
   children: React.ReactNode

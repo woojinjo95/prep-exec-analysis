@@ -5,8 +5,6 @@ import { IPLimit } from '../../../api/entity'
 
 const Protocols: readonly IPLimit['protocol'][] = ['all', 'tcp', 'udp'] as const
 
-// const regexIP = /^((d{1,2}|1dd|2[0-4]d|25[0-5]).){3}(d{1,2}|1dd|2[0-4]d|25[0-5])$/
-
 interface IPLimitItemProps {
   ip?: IPLimit['ip']
   port?: IPLimit['port']

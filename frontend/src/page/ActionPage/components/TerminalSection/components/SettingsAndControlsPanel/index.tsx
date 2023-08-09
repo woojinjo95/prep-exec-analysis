@@ -10,7 +10,7 @@ import OnOffControl from './OnOffControl'
  */
 const SettingsAndControlsPanel: React.FC = () => {
   return (
-    <div className="grid grid-rows-[auto_1fr] grid-cols-[auto_1fr_1fr] gap-4 h-full overflow-y-auto !text-black">
+    <div className="grid grid-rows-[auto_1fr] grid-cols-[auto_1.5fr_1fr] gap-4 h-full overflow-y-auto !text-black">
       <RemoteControl />
       <NetworkEmulation />
       <DeviceInfo />
