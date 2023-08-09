@@ -71,7 +71,7 @@ const ResizingPoints: React.FC<ResizingPointsProps> = ({
         <div
           key={`set-roi-resizing-point-${horizontal}-${vertical}`}
           // TODO: 모서리 커서 스타일 - 마우스 위치에 따라 동적으로 변경
-          className={cx('absolute -translate-x-1/2 -translate-y-1/2 w-[7px] h-[7px] bg-red-500', cursor, {
+          className={cx('absolute -translate-x-1/2 -translate-y-1/2 w-[7px] h-[7px] bg-red', cursor, {
             'left-0': horizontal === 'left',
             'left-1/2': horizontal === 'center',
             'left-full': horizontal === 'right',
