@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.put("", response_model=schemas.Msg)
+# @router.put("", response_model=schemas.Msg)
 def update_hardware_configuration(
     *,
     hardware_configuration_in: schemas.HardwareConfigurationUpdate,
@@ -68,7 +68,7 @@ def create_hardware_configuration_ip_limit(
     return {'msg': 'Create new hardware_configuration ip_limit', 'id': id}
 
 
-@router.put("/ip_limit/{id}", response_model=schemas.MsgWithId)
+# @router.put("/ip_limit/{id}", response_model=schemas.MsgWithId)
 def update_hardware_configuration_ip_limit(
     *,
     id: str,
@@ -105,7 +105,7 @@ def delete_hardware_configuration_ip_limit(
     return {'msg': 'Delete a hardware_configuration ip_limit.'}
 
 
-@router.post("/stb_connection", response_model=schemas.Msg)
+# @router.post("/stb_connection", response_model=schemas.Msg)
 def create_stb_connection(
     *,
     stb_connection_in: schemas.StbConnection,
@@ -128,12 +128,6 @@ def update_stb_connection(
     """
     Update stb_connection.
     """
-    stb_connection = RedisClient.hget('hardware_configuration',
-                                      'stb_connection')
-    if not stb_connection:
-        raise HTTPException(
-            status_code=404, detail="The hardware_configuration with this stb_connection does not exist in the system.")
-
     RedisClient.hset('hardware_configuration',
                      'stb_connection', json.dumps({k: v for k, v
                                                    in jsonable_encoder(stb_connection_in).items()
