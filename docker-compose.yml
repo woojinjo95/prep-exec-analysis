@@ -68,6 +68,7 @@ services:
     volumes:
       - "$HOME/.ssh:/app/static/keys"
       - "./data/videos:/app/videos"
+      - "./logs:/app/logs"
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -87,6 +88,7 @@ services:
     privileged: true
     volumes:
       - "$HOME/.ssh:/app/static/keys"
+      - "./logs:/app/logs"
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -103,6 +105,22 @@ services:
     privileged: true
     volumes:
       - "$HOME/.ssh:/app/static/keys"
+      - "./logs:/app/logs"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  watcher:
+    image: registry.dev-nextlab.com/prep-exec-watcher:dev-0
+    restart: always
+    build:
+      context: ./watcher
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD:
+      USER: ${USER}
+    volumes:
+      - "./logs:/app/logs"
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -127,6 +145,7 @@ services:
 
   redis:
     container_name: redis
+    restart: always
     image: redis:7.0.4
     ports:
       - 6379:6379
@@ -135,6 +154,7 @@ services:
 
   redis-commander:
     container_name: redis-commander
+    restart: always
     image: rediscommander/redis-commander:latest
     environment:
       - REDIS_HOSTS=hardware:redis:6379:0
