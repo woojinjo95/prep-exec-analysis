@@ -38,9 +38,14 @@ def init_remocon_registration():
     logger.info('Remote control preset process completed')
 
 
+def init_workspace():
+    pass
+
+
 def init() -> None:
     init_hardware_configuration()
     init_remocon_registration()
+    init_workspace()
 
 
 def main() -> None:
