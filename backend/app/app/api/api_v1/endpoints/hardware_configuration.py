@@ -54,7 +54,7 @@ def read_hardware_configuration() -> schemas.HardwareConfigurationBase:
     return {'items': config}
 
 
-@router.post("/ip_limit", response_model=schemas.MsgWithId)
+# @router.post("/ip_limit", response_model=schemas.MsgWithId)
 def create_hardware_configuration_ip_limit(
     *,
     ip_limit_in: schemas.HardwareConfigurationIpLimitCreate,
