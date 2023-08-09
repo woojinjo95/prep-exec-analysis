@@ -17,38 +17,35 @@ const Input: React.ForwardRefExoticComponent<InputProps & React.RefAttributes<HT
 >(({ className, colorScheme = 'charcoal', ...props }, ref) => {
   const [isFocused, setIsFocused] = useState<boolean>(false)
   return (
-    <div
+    <input
+      ref={ref}
       className={cx(
-        'transition-all border py-3 px-4 rounded-lg',
+        'outline-none w-full placeholder:text-grey text-white text-[15px] transition-all border py-3 px-4 rounded-lg',
         {
+          '!text-black': colorScheme === 'light',
+
           'bg-light-black': colorScheme === 'dark',
-          'border-charcoal': colorScheme === 'dark',
           'bg-charcoal': colorScheme === 'charcoal',
-          'border-light-charcoal': colorScheme === 'charcoal',
           'bg-white': colorScheme === 'light',
+
+          'border-charcoal': colorScheme === 'dark',
+          'border-light-charcoal': colorScheme === 'charcoal',
           'border-light-grey': colorScheme === 'light',
           'border-primary': isFocused,
         },
         className,
       )}
-    >
-      <input
-        ref={ref}
-        className={cx('outline-none w-full bg-transparent placeholder:text-grey text-white text-[15px]', {
-          '!text-black': colorScheme === 'light',
-        })}
-        {...props}
-        onFocus={(e) => {
-          setIsFocused(true)
-          props.onFocus?.(e)
-        }}
-        onBlur={(e) => {
-          setIsFocused(false)
-          props.onBlur?.(e)
-        }}
-        // TODO: esc key 누를 시 -> input blur
-      />
-    </div>
+      {...props}
+      onFocus={(e) => {
+        setIsFocused(true)
+        props.onFocus?.(e)
+      }}
+      onBlur={(e) => {
+        setIsFocused(false)
+        props.onBlur?.(e)
+      }}
+      // TODO: esc key 누를 시 -> input blur
+    />
   )
 })
 
