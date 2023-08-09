@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 import React, { useRef, useState } from 'react'
 import {
   Button,
