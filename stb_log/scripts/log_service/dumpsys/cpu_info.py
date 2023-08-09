@@ -2,15 +2,15 @@ from typing import List, Dict
 import re
 import subprocess
 import logging
+from scripts.connection.stb_connection.utils import exec_command
 
 
 logger = logging.getLogger('connection')
 
 
-def get_cpuinfo() -> List[str]:
-    command = 'adb shell dumpsys cpuinfo'
-    result = subprocess.run(command, stdout=subprocess.PIPE, shell=True, text=True)
-    return result.stdout.splitlines()
+def get_cpuinfo(connection_info: Dict, timeout: float) -> List[str]:
+    result = exec_command('dumpsys cpuinfo', timeout, connection_info)
+    return result.splitlines()
 
 
 def parse_cpu_info_summary(chunk: List[str]) -> Dict:
@@ -24,9 +24,9 @@ def parse_cpu_info_summary(chunk: List[str]) -> Dict:
     return {key: '0' if value is None else value for key, value in result.items()}
 
 
-def parse_cpu_info() -> Dict:
+def parse_cpu_info(connection_info: Dict, timeout: float) -> Dict:
     try:
-        lines = get_cpuinfo()
+        lines = get_cpuinfo(connection_info, timeout)
         summary = parse_cpu_info_summary(lines)
         return summary
     except Exception as e:

@@ -1,19 +1,22 @@
-from typing import List, Dict
-import subprocess
-import re
-import logging
+from scripts.connection.stb_connection.connector import Connection
 from scripts.connection.stb_connection.utils import exec_command
+import re
+import subprocess
 
 
-logger = logging.getLogger('connection')
+
+connection_info = {
+    'host': '192.168.30.25',
+    'port': 5555,
+    'username': 'root',
+    'password': '',
+    'connection_mode': 'adb',
+}
+conn = Connection(**connection_info)
 
 
-def get_meminfo(connection_info: Dict, timeout: float) -> List[str]:
-    result = exec_command('dumpsys meminfo', timeout, connection_info)
-    return result.splitlines()
 
-
-def parse_mem_info_summary(chunk: List[str]) -> Dict:
+def parse_summary(chunk):
     summary_result = {'Total_RAM': None, 'Free_RAM': None, 'Used_RAM': None, 'Lost_RAM': None}
     for line in chunk:
         # summary_result check
@@ -33,11 +36,18 @@ def parse_mem_info_summary(chunk: List[str]) -> Dict:
     return summary_result
 
 
-def parse_memory_info(connection_info: Dict, timeout: float) -> Dict:
-    try:
-        lines = get_meminfo(connection_info, timeout)
-        summary = parse_mem_info_summary(lines)
-        return summary
-    except Exception as e:
-        logger.error(f'Error while parsing memory info: {e}')
-        return {}
+def get_meminfo():
+    result = exec_command('dumpsys meminfo', 20, connection_info)
+    return result.splitlines()
+    # command = 'adb shell dumpsys meminfo'
+    # result = subprocess.run(command, stdout=subprocess.PIPE, shell=True, text=True)
+    # return result.stdout.splitlines()
+
+
+lines = get_meminfo()
+print(lines)
+summary = parse_summary(lines)
+print(summary)
+
+mem_usage_rate = (int(summary['Used_RAM'].replace(',', '')) / int(summary['Total_RAM'].replace(',', ''))) * 100
+print(mem_usage_rate)
