@@ -8,6 +8,7 @@ services:
       context: ./backend
       dockerfile: dockerfile.dev
     command: /start-reload.sh
+    platform: linux/amd64
     ports:
       - 5000:80
     volumes:
@@ -156,6 +157,7 @@ services:
     container_name: redis-commander
     restart: always
     image: rediscommander/redis-commander:latest
+    platform: linux/amd64
     environment:
       - REDIS_HOSTS=hardware:redis:6379:0
         collector:redis:6379:3
