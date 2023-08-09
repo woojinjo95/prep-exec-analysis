@@ -22,6 +22,8 @@ interface OptionListProps extends React.HTMLAttributes<HTMLUListElement> {
  * OptionItem 컴포넌트와 같이 사용
  *
  * FIXME: 스크롤 시 닫히도록
+ *
+ * FIXME: 위아래 고정 옵션
  */
 const OptionList: React.ForwardRefExoticComponent<OptionListProps & React.RefAttributes<HTMLUListElement>> =
   React.forwardRef<HTMLUListElement, OptionListProps>(
