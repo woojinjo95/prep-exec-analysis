@@ -7,7 +7,7 @@ from .postprocess import postprocess
 from scripts.util.process_maintainer import ProcessMaintainer
 
 
-logger = logging.getLogger('connection')
+logger = logging.getLogger('logcat')
 
 class LogcatManager:
     def __init__(self, connection_info: dict):

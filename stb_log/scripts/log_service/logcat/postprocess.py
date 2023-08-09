@@ -15,7 +15,7 @@ from scripts.util._timezone import timestamp_to_datetime_with_timezone_str
 
 from .db_connection import LogManagerDBConnection
 
-logger = logging.getLogger('connection')
+logger = logging.getLogger('logcat')
 
 db_conn = LogManagerDBConnection()
 

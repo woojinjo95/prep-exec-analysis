@@ -14,7 +14,7 @@ from .memory_info import parse_memory_info
 
 
 
-logger = logging.getLogger('connection')
+logger = logging.getLogger('dumpsys')
 
 timezone = get_value('common', 'timezone', db=RedisDB.hardware)
 

@@ -14,7 +14,7 @@ from scripts.connection.stb_connection.utils import close_client
 
 from .config import CollectorConfig
 
-logger = logging.getLogger('connection')
+logger = logging.getLogger('collector')
 
 
 def write_with_time_prefix(file: TextIO, line: str):

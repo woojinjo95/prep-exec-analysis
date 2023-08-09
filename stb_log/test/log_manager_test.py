@@ -9,7 +9,7 @@ from scripts.log_service.log_manage.log_manager import LogFileManager
 from scripts.log_service.log_collect.collector import collect
 from scripts.util.process_maintainer import ProcessMaintainer
 
-logger = logging.getLogger('connection')
+logger = logging.getLogger('main')
 
 
 connection_info = {

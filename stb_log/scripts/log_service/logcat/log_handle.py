@@ -4,7 +4,7 @@ from typing import List
 from .db_connection import LogManagerDBConnection
 
 
-logger = logging.getLogger('connection')
+logger = logging.getLogger('logcat')
 
 db_conn = LogManagerDBConnection()
 

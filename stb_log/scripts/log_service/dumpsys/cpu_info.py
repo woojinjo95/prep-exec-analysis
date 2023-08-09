@@ -5,7 +5,7 @@ import logging
 from scripts.connection.stb_connection.utils import exec_command
 
 
-logger = logging.getLogger('connection')
+logger = logging.getLogger('dumpsys')
 
 
 def get_cpuinfo(connection_info: Dict, timeout: float) -> List[str]:
