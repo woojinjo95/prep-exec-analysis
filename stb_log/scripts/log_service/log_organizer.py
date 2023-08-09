@@ -35,7 +35,11 @@ class LogOrganizer():
         self.default_format = colors['RESET_ALL']
 
         # make log directory
-        self.base_log_dir = os.path.join(get_parents_path(__file__, 1), 'logs')
+        if os.path.exists('/app'):
+            self.base_log_dir = os.path.join('/app', 'logs', name)
+        else:
+            self.base_log_dir = os.path.join(get_parents_path(__file__, 1), 'logs', name)
+
         os.makedirs(self.base_log_dir, exist_ok=True)
         self.init()
 
