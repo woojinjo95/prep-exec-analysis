@@ -29,10 +29,8 @@ class BlockManager:
         # TODO 타입에 맞게 변경
         if len(self.block_list) <= idx:
             res = None
-            # ------ 이어서 진행하려면
             if len(self.block_list) != 0:
                 self.progress_index = 0
-            # ------
         else:
             res = self.block_list[idx]
         return res
@@ -63,6 +61,8 @@ def command_parser(block_manager, command: dict):
         if next_block:
             with get_strict_redis_connection() as src:
                 publish(src, 'command', next_block)
+        elif next_block is None and block_manager.progress_index == 0:
+            logger.info('end!!!!')
 
 
 @handle_errors
