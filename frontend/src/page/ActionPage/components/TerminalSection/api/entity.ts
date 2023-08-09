@@ -19,10 +19,10 @@ export interface HardwareConfiguration {
   packet_loss: number
   stb_connection?: {
     type: 'adb' | 'ssh'
-    ip: string
-    port: string
-    username?: string
-    password?: string
+    ip: string | null
+    port: string | null
+    username?: string | null
+    password?: string | null
   }
   ip_limit?: IPLimit[]
 }
