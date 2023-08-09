@@ -37,7 +37,7 @@ def commander_watcher(channel: str) -> ProcessMaintainer:
                 if value < log_level_values['error']:
                     attrgetter(log_level)(logger)(f'{command}')
                 else:
-                    attrgetter(log_level)(error_logger)(f'{command}')
+                    attrgetter(log_level)(error_logger)(f'{log_level} in {channel}: {command}')
 
     proc = ProcessMaintainer(func=log_process, args=(channel, ), daemon=True, revive_interval=1)
     proc.start()
