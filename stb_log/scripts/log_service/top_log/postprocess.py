@@ -54,7 +54,7 @@ def postprocess_log(file_path: str):
         logger.info(f'{file_path} remove complete.')
 
 
-def parse_cpu(chunk: str) -> float:
+def get_cpu_usage(chunk: str) -> float:
     # 400%cpu  38%user   3%nice  55%sys 300%idle   0%iow   0%irq   4%sirq   0%host
     match = re.search(r"(\d+)%cpu\s+(\d+)%user\s+(\d+)%nice\s+(\d+)%sys\s+(\d+)%idle\s+(\d+)%iow\s+(\d+)%irq\s+(\d+)%sirq\s+(\d+)%host", chunk)
     if match:
@@ -69,7 +69,7 @@ def parse_cpu(chunk: str) -> float:
         host = float(match.group(9))
         
         total = cpu
-        usage = cpu - idle
+        usage = total - idle
         usage_rate = usage / total
         return usage_rate
     else:
@@ -103,7 +103,7 @@ def LogBatchGenerator(file_path: str, no_time_count_limit: int = 10000):
     for index, (chunk, log_time) in enumerate(LogChunkGenerator(file_path, log_prefix_pattern)):
 
         # parse log line
-        cpu_rate = parse_cpu(chunk)
+        cpu_rate = get_cpu_usage(chunk)
         if not cpu_rate:
             logger.warning(f'Cannot parse cpu rate. {chunk[:300]}')
             continue
