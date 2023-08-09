@@ -1,9 +1,13 @@
+import os
+import logging
+
+logger = logging.Logger("connection")
+
 def is_running_in_docker():
     try:
-        with open('/proc/1/cgroup', 'rt') as f:
-            return 'docker' in f.read()
-    except FileNotFoundError:
-        return False
+        return os.environ['DOCKER_RUNNING'] == 'true'
+    except Exception as e:
+        logger.error(f"Docker is not running. = {e}")
 
 
 def convert_if_docker_localhost(url: str) -> str:

@@ -8,6 +8,7 @@ services:
       context: ./backend
       dockerfile: dockerfile.dev
     command: /start-reload.sh
+    platform: linux/amd64
     ports:
       - 5000:80
     volumes:
@@ -62,6 +63,7 @@ services:
       REDIS_PORT: 6379
       REDIS_PASSWORD:
       USER: ${USER}
+      DOCKER_RUNNIG: true
     devices:
       - "/dev/video0:/dev/video0"
     privileged: true
@@ -81,6 +83,7 @@ services:
       REDIS_PORT: 6379
       REDIS_PASSWORD:
       USER: ${USER}
+      DOCKER_RUNNIG: true
     devices:
       - "/dev/ttyUSB0:/dev/ttyUSB0"
       - "/dev/ttyUSB1:/dev/ttyUSB1"
@@ -100,6 +103,7 @@ services:
       REDIS_PORT: 6379
       REDIS_PASSWORD:
       USER: ${USER}
+      DOCKER_RUNNIG: true
     privileged: true
     volumes:
       - "$HOME/.ssh:/app/static/keys"
@@ -123,6 +127,7 @@ services:
   redis-commander:
     container_name: redis-commander
     image: rediscommander/redis-commander:latest
+    platform: linux/amd64
     environment:
       - REDIS_HOSTS=hardware:redis:6379:0
         collector:redis:6379:3
