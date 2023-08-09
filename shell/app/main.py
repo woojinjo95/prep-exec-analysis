@@ -3,21 +3,21 @@ from fastapi.responses import HTMLResponse
 from fastapi.websockets import WebSocket, WebSocketDisconnect
 import asyncio
 import redis.asyncio as redis
-from adbutils import adb
 import logging
+import logging.config
 import os
 
-logging.config.fileConfig('./app/logging.conf', disable_existing_loggers=False)
+logging.config.fileConfig('logging.conf', disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
-REDIS_HOST = os.getenv("REDIS_HOST")
-REDIS_PORT = os.getenv("REDIS_PORT")
-REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
-REDIS_DB = 0
+REDIS_HOST = os.getenv("REDIS_HOST", "redis")
+REDIS_PORT = os.getenv("REDIS_PORT", 6379)
+REDIS_DB = os.getenv("REDIS_DB", 0)
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", '')
+CHANNEL_NAME = os.getenv("CHANNEL_NAME", 'shell')
 
-CHANNEL_NAME = 'shell'
 html = """
 <!DOCTYPE html>
 <html>
@@ -34,7 +34,7 @@ html = """
         </ul>
         <script>
             var host = window.location.hostname;
-            var ws = new WebSocket(`ws://${host}:5000/api/v1/client/ws`);
+            var ws = new WebSocket(`ws://${host}:5005/ws`);
             ws.onmessage = function(event) {
                 var messages = document.getElementById('messages')
                 var message = document.createElement('li')
@@ -53,16 +53,15 @@ html = """
 </html>
 """
 
-adb_conn = None
-
-
 @app.get("/", tags=['websocket'])
 def testclient():
+    logger.info("testclient task:")
     return HTMLResponse(html)
 
 
 @app.websocket('/ws')
 async def ws_voting_endpoint(websocket: WebSocket):
+    logger.info("websocket task:")
     await websocket.accept()
     await connector(websocket)
 
@@ -90,27 +89,17 @@ async def connector(websocket: WebSocket):
                     await ws.send_text(message.get('data'))
         except Exception as exc:
             logger.error(exc)
-
-    adb_conn = get_adb_connection()
+    
     conn = await get_redis_pool()
     pubsub = conn.pubsub()
 
-    consumer_task = consumer_handler(conn=conn, ws=websocket)
-    producer_task = producer_handler(pubsub=pubsub, ws=websocket)
-    done, pending = await asyncio.wait(
-        [consumer_task, producer_task], return_when=asyncio.FIRST_COMPLETED,
-    )
+    consumer_task = asyncio.create_task(consumer_handler(conn=conn, ws=websocket))
+    producer_task = asyncio.create_task(producer_handler(pubsub=pubsub, ws=websocket))
+    done, pending = await asyncio.wait([consumer_task, producer_task], return_when=asyncio.FIRST_COMPLETED)
     logger.debug(f"Done task: {done}")
     for task in pending:
         logger.debug(f"Canceling task: {task}")
         task.cancel()
 
-
-def get_adb_connection():
-    # 사전에 현재 adb 정보를 redis에서 가져옴 (일단은 개발장비 하드픽스)
-    # 이건 비동기로 안되나?
-    return adb.connect("192.168.1.208:5555")
-
-
 async def get_redis_pool():
-    return await redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, password=REDIS_PASSWORD, decode_responses=True)
+    return await redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, decode_responses=True)
