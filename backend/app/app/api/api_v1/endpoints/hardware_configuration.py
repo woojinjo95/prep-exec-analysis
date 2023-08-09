@@ -88,7 +88,7 @@ def update_hardware_configuration_ip_limit(
     return {'msg': 'Update a hardware_configuration ip_limit.', 'id': id}
 
 
-@router.delete("/ip_limit/{id}", response_model=schemas.Msg)
+# @router.delete("/ip_limit/{id}", response_model=schemas.Msg)
 def delete_hardware_configuration_ip_limit(
     id: str,
 ) -> schemas.Msg:
