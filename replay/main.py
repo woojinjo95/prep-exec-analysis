@@ -29,7 +29,8 @@ class BlockManager:
         # TODO 타입에 맞게 변경
         if len(self.block_list) <= idx:
             res = None
-            if len(self.block_list) != 0:
+            # ------ 이어서 진행하려면
+            if len(self.block_list) != 0:  # ------
                 self.progress_index = 0
         else:
             res = self.block_list[idx]
