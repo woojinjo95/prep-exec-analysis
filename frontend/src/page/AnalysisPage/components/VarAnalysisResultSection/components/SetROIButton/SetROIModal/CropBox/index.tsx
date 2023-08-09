@@ -79,7 +79,7 @@ const CropBox: React.FC<CropBoxProps> = ({
         setCropTwoPosY([translateY, translateY + cropHeight])
       }}
     >
-      <div className="w-full h-full border border-red-500 outline outline-[7px] -outline-offset-[4px] outline-red-500/20" />
+      <div className="w-full h-full border border-red outline outline-[7px] -outline-offset-[4px] outline-red/20" />
       <CropGuideLines cropWidth={cropWidth} cropHeight={cropHeight} />
       <ResizingPoints
         clientWidth={clientWidth}
