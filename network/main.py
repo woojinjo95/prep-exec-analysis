@@ -37,6 +37,8 @@ if __name__ == '__main__':
     try:
         log_organizer = LogOrganizer()
         log_organizer.set_stream_logger('main')
+        log_organizer.set_stream_logger('packet')
+        log_organizer.set_stream_logger('file')
         log_organizer.set_stream_logger('connection')
         log_organizer.set_stream_logger('error', 10)
         logger.info('Start network container')
