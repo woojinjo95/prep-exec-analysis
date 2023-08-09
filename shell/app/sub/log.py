@@ -1,9 +1,11 @@
 
+import json
 import asyncio
 from .mongodb import get_collection
+from .utils import timestamp
 
 
-async def process_log_queue(queue: asyncio.Queue):
+async def process_log_queue(queue: asyncio.Queue, conn: any, CHANNEL_NAME: str):
     list = []
     sec = 0
     collection = get_collection()
@@ -18,5 +20,12 @@ async def process_log_queue(queue: asyncio.Queue):
             list = []
             sec = _sec
         # print(data)
+        await conn.publish(CHANNEL_NAME, json.dumps({
+            "name": "shell",
+            "level": "debug",
+            "msg": data,
+            "service": "shell",
+            "time": timestamp()
+        }))
         list.append(data)
         queue.task_done()

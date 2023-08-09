@@ -1,7 +1,9 @@
+import json
 import asyncio
 import subprocess
 from .utils import log
 from .log import process_log_queue
+from .message import check_skip_message
 
 
 async def read_stdout(stdout: any, queue: asyncio.Queue):
@@ -29,26 +31,34 @@ async def read_stderr(stderr: any, queue: asyncio.Queue):
     print('read_stderr end')
 
 
-async def consumer_adb_handler(pubsub: any, proc: any, CHANNEL_NAME: str, queue: asyncio.Queue):
+async def consumer_adb_handler(conn: any, proc: any, CHANNEL_NAME: str, queue: asyncio.Queue):
     print(f"subscribe {CHANNEL_NAME}")
+    pubsub = conn.pubsub()
     await pubsub.subscribe(CHANNEL_NAME)
     try:
         while True:
-            message = await pubsub.get_message(ignore_subscribe_messages=True)
-            if message:
-                print(message)
-                data = message.pop('data')
-                proc.stdin.write(f"{data}\n".encode('utf-8'))
-                print(f"stderr: {data}")
-                queue.put_nowait(log(data, "stdin"))
-                await proc.stdin.drain()
-                await asyncio.sleep(0.5)
+            raw = await pubsub.get_message(ignore_subscribe_messages=True)
+            # 필요없는 메시지는 여기서 걸러줌
+            if raw and isinstance(raw, dict):
+                message = json.loads(raw['data'])
+            else:
+                continue
+            if not check_skip_message(message):
+                continue
+
+            print(message)
+            data = message.pop('data')
+            proc.stdin.write(f"{data}\n".encode('utf-8'))
+            print(f"stderr: {data}")
+            queue.put_nowait(log(data, "stdin"))
+            await proc.stdin.drain()
+            await asyncio.sleep(0.5)
     except Exception as exc:
         print(exc)
     print("consumer_handler end")
 
 
-async def adb_connect(pubsub: any, ADB_HOST: str, ADB_PORT: int, CHANNEL_NAME: str):
+async def adb_connect(conn: any, ADB_HOST: str, ADB_PORT: int, CHANNEL_NAME: str):
     queue = asyncio.Queue()
 
     print("adb_devices")
@@ -68,8 +78,8 @@ async def adb_connect(pubsub: any, ADB_HOST: str, ADB_PORT: int, CHANNEL_NAME: s
     print("create task")
     read_stderr_task = asyncio.create_task(read_stderr(proc.stderr, queue))
     read_stdout_task = asyncio.create_task(read_stdout(proc.stdout, queue))
-    process_log_task = asyncio.create_task(process_log_queue(queue))
-    consumer_task = asyncio.create_task(consumer_adb_handler(pubsub=pubsub, 
+    process_log_task = asyncio.create_task(process_log_queue(queue, conn, CHANNEL_NAME))
+    consumer_task = asyncio.create_task(consumer_adb_handler(conn=conn, 
                                                              proc=proc, CHANNEL_NAME=CHANNEL_NAME, queue=queue))
     print("start task")
     done, pending = await asyncio.wait(

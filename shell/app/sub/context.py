@@ -16,10 +16,9 @@ SSH_USERNAME = os.getenv("SSH_USERNAME", "nextlab")
 SSH_PASSWORD = os.getenv("SSH_PASSWORD", ".nextlab1@")
 SSH_PORT = os.getenv("SSH_PORT", 22)
 
-SHELL_TYPE = os.getenv("SHELL_TYPE", "ssh")  # adb, ssh
+SHELL_TYPE = os.getenv("SHELL_TYPE", "adb")  # adb, ssh
 
 
 async def get_redis_pool():
     return await redis.Redis(
         host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, password=REDIS_PASSWORD, decode_responses=True)
-

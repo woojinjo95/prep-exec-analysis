@@ -1,10 +1,11 @@
 import sys
+import json
 import asyncio
 from typing import Optional
 import asyncssh
 from .utils import log
 from .log import process_log_queue
-
+from .message import check_skip_message
 
 class QAASClientSession(asyncssh.SSHClientSession):
     def set_queue(self, queue: asyncio.Queue):
@@ -27,24 +28,32 @@ class QAASSSHClient(asyncssh.SSHClient):
         print('Authentication successful.')
 
 
-async def consumer_ssh_handler(pubsub: any, channel: any, CHANNEL_NAME: str, queue: asyncio.Queue):
+async def consumer_ssh_handler(conn: any, channel: any, CHANNEL_NAME: str, queue: asyncio.Queue):
     print(f"subscribe {CHANNEL_NAME}")
+    pubsub = conn.pubsub()
     await pubsub.subscribe(CHANNEL_NAME)
     try:
         while True:
-            message = await pubsub.get_message(ignore_subscribe_messages=True)
-            if message:
-                print(message)
-                data = message.pop('data')
-                channel.writelines([data])
-                queue.put_nowait(log(data, "stdin"))
-                await asyncio.sleep(0.5)
+            raw = await pubsub.get_message(ignore_subscribe_messages=True)
+            # 필요없는 메시지는 여기서 걸러줌
+            if raw and isinstance(raw, dict):
+                message = json.loads(raw['data'])
+            else:
+                continue
+            if not check_skip_message(message):
+                continue
+
+            print(message)
+            data = f"{message.pop('data')}\n"
+            channel.writelines([data])
+            queue.put_nowait(log(data, "stdin"))
+            await asyncio.sleep(0.5)
     except Exception as exc:
         print(exc)
     print("consumer_handler end")
 
 
-async def ssh_connect(pubsub: any, SSH_HOST: str, SSH_PORT: int, SSH_USERNAME: str, SSH_PASSWORD: str, CHANNEL_NAME: str):
+async def ssh_connect(conn: any, SSH_HOST: str, SSH_PORT: int, SSH_USERNAME: str, SSH_PASSWORD: str, CHANNEL_NAME: str):
     queue = asyncio.Queue()
 
     connection, client = await asyncssh.create_connection(QAASSSHClient, host=SSH_HOST, port=SSH_PORT,
@@ -54,10 +63,10 @@ async def ssh_connect(pubsub: any, SSH_HOST: str, SSH_PORT: int, SSH_USERNAME: s
         channel, session = await connection.create_session(QAASClientSession)
         session.set_queue(queue)
 
-        consumer_task = asyncio.create_task(consumer_ssh_handler(pubsub=pubsub,
+        consumer_task = asyncio.create_task(consumer_ssh_handler(conn=conn,
                                                                  channel=channel,
                                                                  CHANNEL_NAME=CHANNEL_NAME, queue=queue))
-        process_log_task = asyncio.create_task(process_log_queue(queue))
+        process_log_task = asyncio.create_task(process_log_queue(queue, conn, CHANNEL_NAME))
         # await channel.wait_closed()
         done, pending = await asyncio.wait(
             [consumer_task, process_log_task], return_when=asyncio.FIRST_COMPLETED,
