@@ -1,6 +1,6 @@
 import logging
 
-from scripts.configs.constant import RedisChannel
+from scripts.configs.constant import RedisChannel, ServiceType
 from scripts.connection.mongo_db.crud import load_one_from_mongodb
 from scripts.connection.redis_pubsub import (Subscribe,
                                              get_strict_redis_connection,
@@ -18,13 +18,8 @@ class BlockManager:
 
     def init_scenario(self):
         scenario = load_one_from_mongodb(col='scenario')
-        # TODO 타입에 맞게 변경 db에 저장하지말고 그때그때 변경되도록.
-        service_dict = {
-            'adb': 'network',  # TODO enum 화
-            'RCU': 'test'
-        }
         self.block_list = [
-            {**block, service_dict[block['type']]: 'start'}
+            {**block, getattr(ServiceType, block['type']): 'start'}
             for item in scenario.get('block_group', [])
             for _ in range(item['repeat_cnt'])
             for block in item['block']
@@ -45,15 +40,16 @@ class BlockManager:
 
     def update_progress_index(self):
         self.progress_index += 1
-# end 하고 next가 이상한데?
+
 
 @handle_errors
 def command_parser(block_manager, command: dict):
     args = command.get('replay', None)
 
     if args == 'run':
-        logger.info('start!!!!')
         block_manager.init_scenario()
+        logger.info(f'start!!!!')
+
         with get_strict_redis_connection() as src:
             publish(src, 'command', block_manager.get_block(block_manager.progress_index))
 
