@@ -1,5 +1,9 @@
 from enum import Enum
+
 from app.core.config import settings
+
+RemoconEnum = Enum('MeasureDirectionEnum', [(r, r) for r
+                                            in settings.REMOCON_COMPANY.split(',')])
 
 
 class ExtendedEnum(Enum):
@@ -41,13 +45,13 @@ class AnalysisTypeEnum(ExtendedEnum):
 
 
 class LogLevelFinderTargetEnum(ExtendedEnum):
-    logcat_f = "logcat_f"
-    logcat_e = "logcat_e"
-    logcat_s = "logcat_s"
-    logcat_w = "logcat_w"
-    logcat_i = "logcat_i"
-    logcat_d = "logcat_d"
-    logcat_v = "logcat_v"
+    V: "V" # verbose
+    D: "D" # debug
+    I: "I" # info
+    W: "W" # warning
+    E: "E" # error
+    F: "F" # fatal
+    S: "S" # silent
 
 
 class ChannelChangeTimeTargetEnum(ExtendedEnum):
@@ -56,5 +60,7 @@ class ChannelChangeTimeTargetEnum(ExtendedEnum):
     previous_channel = "previous_channel"
 
 
-RemoconEnum = Enum('MeasureDirectionEnum', [(r, r) for r
-                                            in settings.REMOCON_COMPANY.split(',')])
+class BlockTypeEnum(ExtendedEnum):
+    rcu = "rcu"
+    config = "config"
+    shell = "shell"

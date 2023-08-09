@@ -154,7 +154,7 @@ class SerialDevice:
                     remocon_event_time = start_time + transmit_time + self.time_offset
                     return remocon_event_time
         except Exception as e:
-            logger.debug(f'serial write raise error => {e}')
+            logger.error(f'serial write raise error => {e}')
             remocon_event_time = start_time + 0.007
             if self.use_control_board:
                 logger.error(f'Failed to parse value!! real value is in this range: {remocon_event_time} +- 0.001')
