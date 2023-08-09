@@ -13,7 +13,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 /**
  * 버튼 컴포넌트
  *
- * @param variant 버튼 스타일
+ * @param isRoundedFull 모서리 둥글기, true면 완전히 동그래짐. false면 기본 rounded
  */
 const Button: React.FC<ButtonProps> = ({
   children,
