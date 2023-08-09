@@ -1,8 +1,8 @@
 import logging
 import asyncio
-from .context import get_redis_pool, SHELL_TYPE, ADB_HOST, ADB_PORT, SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD
-from .adb import adb_connect
-from .ssh import ssh_connect
+from sub.context import get_redis_pool, SHELL_TYPE, ADB_HOST, ADB_PORT, SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD, CHANNEL_NAME
+from sub.adb import adb_connect
+from sub.ssh import ssh_connect
 
 logger = logging.getLogger(__name__)
 
@@ -17,13 +17,15 @@ async def main():
     # 데이터 로깅 Mongodb 등록
     # 규정된 메시지 처리
 
-    while True:
-        try:
-            if SHELL_TYPE == 'adb':
-                await adb_connect(pubsub, ADB_HOST, ADB_PORT)
-            if SHELL_TYPE == 'ssh':
-                await ssh_connect(pubsub, SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD)
-        except Exception as e:
-            print(e)
+    # while True:
+    try:
+        if SHELL_TYPE == 'adb':
+            await adb_connect(pubsub, ADB_HOST, ADB_PORT, CHANNEL_NAME)
+        if SHELL_TYPE == 'ssh':
+            await ssh_connect(pubsub, SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD, CHANNEL_NAME)
+    except Exception as e:
+        print(e)
+    print('try reconnect')
+    await asyncio.sleep(3)
 
 asyncio.run(main())

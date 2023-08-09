@@ -37,13 +37,13 @@ async def consumer_ssh_handler(pubsub: any, channel: any, CHANNEL_NAME: str):
     print("consumer_handler end")
 
 
-async def ssh_connect(pubsub: any, SSH_HOST: str, SSH_PORT: int, SSH_USERNAME: str, SSH_PASSWORD: str):
+async def ssh_connect(pubsub: any, SSH_HOST: str, SSH_PORT: int, SSH_USERNAME: str, SSH_PASSWORD: str, CHANNEL_NAME: str):
     connection, client = await asyncssh.create_connection(QAASSSHClient, host=SSH_HOST, port=SSH_PORT,
                                                           username=SSH_USERNAME, password=SSH_PASSWORD,
                                                           known_hosts=None)
     async with connection:
         channel, session = await connection.create_session(QAASClientSession)
-        consumer_task = asyncio.create_task(consumer_ssh_handler(pubsub=pubsub, channel=channel))
+        consumer_task = asyncio.create_task(consumer_ssh_handler(pubsub=pubsub, channel=channel, CHANNEL_NAME=CHANNEL_NAME))
         # await channel.wait_closed()
         done, pending = await asyncio.wait(
             [consumer_task], return_when=asyncio.FIRST_COMPLETED,

@@ -22,18 +22,26 @@ async def read_stderr(stderr):
     print('read_stderr end')
 
 
-async def adb_connect(pubsub: any, ADB_HOST: str, ADB_PORT: int):
+async def adb_connect(pubsub: any, ADB_HOST: str, ADB_PORT: int, CHANNEL_NAME: str):
+    print(f"adb_connect {ADB_HOST}:{ADB_PORT}")
     # 1. 연결된 디바이스가 하나임
-    await asyncio.create_subprocess_shell(f"adb connect {ADB_HOST}:{ADB_PORT}", shell=True)
+    adb_devices = await asyncio.create_subprocess_shell("adb devices", shell=True)
+    await adb_devices.wait()
+    print(f"adb_connect {ADB_HOST}:{ADB_PORT}")
+    adb_connect = await asyncio.create_subprocess_shell(f"adb connect {ADB_HOST}:{ADB_PORT}", shell=True)
+    await adb_connect.wait()
+
+    print("adb_shell")
     proc = await asyncio.create_subprocess_shell('adb shell', shell=True,
                                                  stdin=subprocess.PIPE,
                                                  stdout=subprocess.PIPE,
                                                  stderr=subprocess.PIPE)
 
+    print("create task")
     read_stderr_task = asyncio.create_task(read_stderr(proc.stderr))
     read_stdout_task = asyncio.create_task(read_stdout(proc.stdout))
-    consumer_task = asyncio.create_task(consumer_adb_handler(pubsub=pubsub, proc=proc))
-
+    consumer_task = asyncio.create_task(consumer_adb_handler(pubsub=pubsub, proc=proc, CHANNEL_NAME=CHANNEL_NAME))
+    print("start task")
     done, pending = await asyncio.wait(
         [read_stderr_task, read_stdout_task, consumer_task], return_when=asyncio.FIRST_COMPLETED,
     )
