@@ -28,8 +28,11 @@ class BlockManager:
     def get_block(self, idx: int):
         # TODO 타입에 맞게 변경
         if len(self.block_list) <= idx:
-            self.progress_index = 0
             res = None
+            # ------ 이어서 진행하려면
+            if len(self.block_list) != 0:
+                self.progress_index = 0
+            # ------
         else:
             res = self.block_list[idx]
         return res
@@ -40,13 +43,12 @@ class BlockManager:
     def update_progress_index(self):
         self.progress_index += 1
 
-# 현재 초기화 되는 것으로 작업됨
+
 @handle_errors
 def command_parser(block_manager, command: dict):
     args = command.get('replay', None)
 
     if args == 'run':
-        # TODO 이어서 하려면
         block_manager.init_scenario()
         with get_strict_redis_connection() as src:
             publish(src, 'command', block_manager.get_block(block_manager.progress_index))
