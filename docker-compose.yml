@@ -96,11 +96,12 @@ services:
     build:
       context: ./network
     environment:
-      REDIS_HOST: redis
+      REDIS_HOST: localhost
       REDIS_PORT: 6379
       REDIS_PASSWORD:
       USER: ${USER}
     privileged: true
+    network_mode: host
     volumes:
       - "$HOME/.ssh:/app/static/keys"
     extra_hosts:
