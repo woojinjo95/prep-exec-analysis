@@ -4,7 +4,7 @@ import { useMutation } from 'react-query'
 import { Button, Divider, Input, OptionItem, Select, Title } from '@global/ui'
 import { IPRegex } from '@global/constant'
 import { useHardwareConfiguration } from '../../api/hook'
-import { postHardwareConfigurationSTBConnection, putHardwareConfigurationSTBConnection } from '../../api/func'
+import { putHardwareConfigurationSTBConnection } from '../../api/func'
 import { HardwareConfiguration } from '../../api/entity'
 
 const validateIP = (ip: string) => {
@@ -51,11 +51,6 @@ const DeviceInfo: React.FC = () => {
       setPassword(data.stb_connection?.password || '')
     },
   })
-  const { mutate: createSTBConnection } = useMutation(postHardwareConfigurationSTBConnection, {
-    onSuccess: () => {
-      refetch()
-    },
-  })
   const { mutate: updateSTBConnection } = useMutation(putHardwareConfigurationSTBConnection, {
     onSuccess: () => {
       refetch()
@@ -92,12 +87,6 @@ const DeviceInfo: React.FC = () => {
     }
 
     if (isNotValid) return
-
-    if (type !== hardwareConfiguration?.stb_connection?.type) {
-      createSTBConnection(stbConnection)
-      return
-    }
-
     updateSTBConnection(stbConnection)
   }
 

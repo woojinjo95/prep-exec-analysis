@@ -46,18 +46,6 @@ export const putHardwareConfiguration = async (
 }
 
 /**
- * 하드웨어 설정 - STB 연결 설정 생성 api
- */
-export const postHardwareConfigurationSTBConnection = async (data: HardwareConfiguration['stb_connection']) => {
-  try {
-    await API.post(`${apiUrls.hardware_configuration}/stb_connection`, data)
-  } catch (err) {
-    const er = err as AxiosError
-    throw er
-  }
-}
-
-/**
  * 하드웨어 설정 - STB 연결 설정 수정 api
  */
 export const putHardwareConfigurationSTBConnection = async (data: HardwareConfiguration['stb_connection']) => {
