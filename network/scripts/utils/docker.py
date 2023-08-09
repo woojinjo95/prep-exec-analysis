@@ -1,13 +1,15 @@
 import os
-import logging
-
-logger = logging.Logger("connection")
 
 def is_running_in_docker():
     try:
-        return os.environ['DOCKER_RUNNING'] == 'true'
-    except Exception as e:
-        logger.error(f"Docker is not running. = {e}")
+        folder_path = '/proc'
+        folder_list = os.listdir(folder_path)
+        if "docker" in folder_list: # mac os
+            return True
+        else: #linux
+            return True
+    except FileNotFoundError:
+        return False
 
 
 def convert_if_docker_localhost(url: str) -> str:

@@ -63,7 +63,6 @@ services:
       REDIS_PORT: 6379
       REDIS_PASSWORD:
       USER: ${USER}
-      DOCKER_RUNNIG: true
     devices:
       - "/dev/video0:/dev/video0"
     privileged: true
@@ -83,7 +82,6 @@ services:
       REDIS_PORT: 6379
       REDIS_PASSWORD:
       USER: ${USER}
-      DOCKER_RUNNIG: true
     devices:
       - "/dev/ttyUSB0:/dev/ttyUSB0"
       - "/dev/ttyUSB1:/dev/ttyUSB1"
@@ -103,7 +101,6 @@ services:
       REDIS_PORT: 6379
       REDIS_PASSWORD:
       USER: ${USER}
-      DOCKER_RUNNIG: true
     privileged: true
     volumes:
       - "$HOME/.ssh:/app/static/keys"
