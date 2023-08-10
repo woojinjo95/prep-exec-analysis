@@ -64,3 +64,14 @@ class BlockTypeEnum(ExtendedEnum):
     rcu = "rcu"
     config = "config"
     shell = "shell"
+
+
+class LogModuleEnum(ExtendedEnum):
+    stdin = "stdin" # 입력
+    stdout = "stdout" # 출력
+    stderr = "stderr" # 에러
+
+
+class ShellTypeEnum(ExtendedEnum):
+    adb = "adb"
+    ssh = "ssh"
