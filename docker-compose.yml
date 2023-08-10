@@ -181,12 +181,12 @@ services:
     image: registry.dev-nextlab.com/qaas-shell:dev-2
     command: python -u process.py
     build:
-      context: ./shell
+      context: ./shell_service
       dockerfile: Dockerfile.dev.m32dev4
     ports:
       - 5005:80
     volumes:
-      - ./shell/app:/app
+      - ./shell_service/app:/app
       - "adb-rsa:/root/.android"
 volumes:
   mongodb_data: {}
