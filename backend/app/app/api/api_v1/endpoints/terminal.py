@@ -1,8 +1,7 @@
 import logging
-from datetime import datetime
 
 from app import schemas
-from app.crud.base import (load_from_mongodb, aggregate_from_mongodb)
+from app.crud.base import load_from_mongodb
 from fastapi import APIRouter, Query
 
 logger = logging.getLogger(__name__)
