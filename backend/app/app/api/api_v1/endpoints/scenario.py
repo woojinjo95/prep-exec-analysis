@@ -66,11 +66,11 @@ def create_scenario(
     Create new scenario.
     """
     scenario_in = schemas.ScenarioBase(
-        id=str(uuid.uuid4()),
-        name=time.time(),
+        id=uuid.uuid4(),
         updated_at=time.time(),
-        tags=[],
         block_group=[],
+        name=scenario_in.name if scenario_in.name else time.time(),
+        tags=scenario_in.tags if scenario_in.tags else [],
     )
     insert_one_to_mongodb(col='scenario', data=jsonable_encoder(scenario_in))
     return {'msg': 'Create new scenario', 'id': scenario_in.id}
