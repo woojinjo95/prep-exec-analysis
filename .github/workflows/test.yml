@@ -23,7 +23,7 @@ jobs:
           - run: docker build -t registry.dev-nextlab.com/qaas-stblog:dev-${{github.run_id}}${{github.run_number}} -f ./stb_log/Dockerfile ./stb_log
             shell: bash
     build-dev-watcher:
-        runs-on: [self-hosted, docker, Linux, ndev8]
+        runs-on: [self-hosted, docker, Linux]
         steps:
           - run: docker build -t registry.dev-nextlab.com/qaas-watcher:dev-${{github.run_id}}${{github.run_number}} -f ./watcher/dockerfile ./watcher
             shell: bash
