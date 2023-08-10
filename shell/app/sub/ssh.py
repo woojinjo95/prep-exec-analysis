@@ -71,7 +71,7 @@ async def ssh_connect(conn: any, SSH_HOST: str, SSH_PORT: int, SSH_USERNAME: str
         consumer_task = asyncio.create_task(consumer_ssh_handler(conn=conn,
                                                                  channel=channel,
                                                                  CHANNEL_NAME=CHANNEL_NAME, queue=queue))
-        process_log_task = asyncio.create_task(process_log_queue(queue, conn, CHANNEL_NAME))
+        process_log_task = asyncio.create_task(process_log_queue(queue, conn, CHANNEL_NAME, "ssh"))
         # await channel.wait_closed()
         done, pending = await asyncio.wait(
             [consumer_task, process_log_task], return_when=asyncio.FIRST_COMPLETED,

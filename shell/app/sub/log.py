@@ -5,7 +5,7 @@ from .mongodb import get_collection
 from .utils import timestamp
 
 
-async def process_log_queue(queue: asyncio.Queue, conn: any, CHANNEL_NAME: str):
+async def process_log_queue(queue: asyncio.Queue, conn: any, CHANNEL_NAME: str, mode: str):
     list = []
     sec = 0
     collection = get_collection()
@@ -15,7 +15,7 @@ async def process_log_queue(queue: asyncio.Queue, conn: any, CHANNEL_NAME: str):
         _sec = int(data['timestamp'][-13])
         if sec != _sec and len(list) > 0:
             # 저장
-            ret = collection.insert_one({'time': data['timestamp'][:-6], 'lines': list})
+            ret = collection.insert_one({'time': data['timestamp'][:-6], 'mode': mode, 'lines': list})
             print(f"insert_to_mongodb: {sec} != {_sec} / {len(list)}: {ret.inserted_id}")
             list = []
             sec = _sec

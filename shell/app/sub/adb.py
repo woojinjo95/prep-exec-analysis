@@ -81,7 +81,7 @@ async def adb_connect(conn: any, ADB_HOST: str, ADB_PORT: int, CHANNEL_NAME: str
     print("create task")
     read_stderr_task = asyncio.create_task(read_stderr(proc.stderr, queue))
     read_stdout_task = asyncio.create_task(read_stdout(proc.stdout, queue))
-    process_log_task = asyncio.create_task(process_log_queue(queue, conn, CHANNEL_NAME))
+    process_log_task = asyncio.create_task(process_log_queue(queue, conn, CHANNEL_NAME, "adb"))
     consumer_task = asyncio.create_task(consumer_adb_handler(conn=conn, 
                                                              proc=proc, CHANNEL_NAME=CHANNEL_NAME, queue=queue))
     print("start task")
