@@ -1,4 +1,5 @@
 import logging
+import time
 import uuid
 
 from app import schemas
@@ -23,7 +24,9 @@ def create_block(
     """
     scenario = load_one_from_mongodb('scenario', {"_id": 1, "block_group": 1})
     if scenario is None:
-        insert_one_to_mongodb(col='scenario', data={"block_group": []})
+        insert_one_to_mongodb(col='scenario', data={"name":"Blocks",
+                                                    "updated_at":time.time(),
+                                                    "block_group": []}) # TODO
     block_in = schemas.Block(id=str(uuid.uuid4()),
                              type=block_in.type,
                              name=block_in.name,
@@ -68,6 +71,7 @@ def delete_blocks(
     delete_part_to_mongodb(col='scenario',
                            param={'block_group.block': {'$size': 0}},
                            data={'block_group': {'block': {'$size': 0}}})
+    update_many_to_mongodb(col='scenario', data={"updated_at":time.time()})
     return {'msg': 'Delete blocks.'}
 
 
@@ -99,6 +103,7 @@ def update_block(
     if res.matched_count == 0:
         raise HTTPException(
             status_code=406, detail="No items have been updated.")
+    update_many_to_mongodb(col='scenario', data={"updated_at":time.time()})
     return {'msg': 'Update a block', 'id': block_id}
 
 
@@ -124,6 +129,7 @@ def update_block_group(
 
     update_data = {f"block_group.$.{key}": value
                    for key, value in jsonable_encoder(block_group_in).items() if value is not None}
+    update_data['updated_at'] = time.time()
     res = update_to_mongodb(col='scenario',
                             param=param,
                             data=update_data)

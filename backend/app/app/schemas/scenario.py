@@ -5,6 +5,13 @@ from pydantic import BaseModel
 
 
 class ScenarioBase(BaseModel):
+    name: str
+    tags: Optional[List[str]]
+    updated_at: float
+    block_group: List[BlockGroup]
+
+
+class ScenarioUpdate(BaseModel):
     block_group: List[BlockGroup]
 
 
