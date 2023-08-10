@@ -84,7 +84,7 @@ const NetworkTrace: React.FC = () => {
       <Button className="absolute top-0 right-6 border-none bg-black">
         <span className="text-base">Search</span>
       </Button>
-      <Button className="absolute bottom-4 right-6 w-[132px] h-12 bg-[#4E525A] rounded-3xl">
+      <Button className="absolute bottom-4 right-6 w-[132px] h-12 bg-charcoal rounded-3xl">
         <span className="text-base">Download</span>
       </Button>
     </div>
