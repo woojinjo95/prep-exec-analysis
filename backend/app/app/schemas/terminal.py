@@ -5,12 +5,13 @@ from pydantic import BaseModel
 
 class Terminal(BaseModel):
     class log(BaseModel):
-        created_at: str
-        command: str
-        response: str
+        timestamp: str
+        module: str
+        message: str
 
-    name: str
-    logs: List[log]
+    time: str
+    mode: str
+    lines: List[log]
 
 
 class TerminalLogList(BaseModel):
