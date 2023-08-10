@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 
 class BlockCreate(BaseModel):
+    scenario_id: str
     type: BlockTypeEnum
     name: str
     value: str
@@ -12,11 +13,16 @@ class BlockCreate(BaseModel):
 
 
 class BlockDelete(BaseModel):
+    scenario_id: str
     block_ids: List[str]
 
 
-class Block(BlockCreate):
+class Block(BaseModel):
     id: str
+    type: BlockTypeEnum
+    name: str
+    value: str
+    delay_time: float = 3000
 
 
 class BlockUpdate(BaseModel):

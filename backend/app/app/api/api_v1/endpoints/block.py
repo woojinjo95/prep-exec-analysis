@@ -4,9 +4,8 @@ import uuid
 
 from app import schemas
 from app.crud.base import (delete_part_to_mongodb, get_mongodb_collection,
-                           insert_one_to_mongodb, load_from_mongodb,
-                           load_one_from_mongodb, update_many_to_mongodb,
-                           update_to_mongodb)
+                           load_by_id_from_mongodb, load_from_mongodb,
+                           update_by_id_to_mongodb, update_to_mongodb)
 from fastapi import APIRouter, HTTPException
 from fastapi.encoders import jsonable_encoder
 
@@ -22,17 +21,19 @@ def create_block(
     """
     Create new block.
     """
-    scenario = load_one_from_mongodb('scenario', {"_id": 1, "block_group": 1})
+    scenario_id = block_in.scenario_id
+    scenario = load_by_id_from_mongodb('scenario', scenario_id)
     if scenario is None:
-        insert_one_to_mongodb(col='scenario', data={"name":"Blocks",
-                                                    "updated_at":time.time(),
-                                                    "block_group": []}) # TODO
+        if not scenario:
+            raise HTTPException(
+                status_code=404, detail="The scenario with this id does not exist in the system.")
+        
     block_in = schemas.Block(id=str(uuid.uuid4()),
                              type=block_in.type,
                              name=block_in.name,
                              value=block_in.value,
                              delay_time=block_in.delay_time)
-    block_group = load_one_from_mongodb('scenario').get('block_group', [])
+    block_group = scenario.get('block_group', [])
 
     if len(block_group) == 0:
         new_last_block_group = [{"id": str(uuid.uuid4()),
@@ -48,8 +49,9 @@ def create_block(
         new_last_block_group.append({"id": last_block_group.get('id', ''),
                                      "repeat_cnt": last_block_group.get('repeat_cnt', 0),
                                      "block": new_blocks})
-    res = update_many_to_mongodb(col='scenario',
-                                     data={'block_group': new_last_block_group})
+    res = update_by_id_to_mongodb(col='scenario',
+                                  id=scenario_id,
+                                  data={'block_group': new_last_block_group})
     if res.matched_count == 0:
         raise HTTPException(
             status_code=406, detail="No items have been updated.")
@@ -63,21 +65,24 @@ def delete_blocks(
     """
     Delete blocks.
     """
+    scenario_id = block_in.scenario_id
     for block_id in block_in.block_ids:
         delete_part_to_mongodb(col='scenario',
-                               param={'block_group': {
-                                   '$elemMatch': {'block.id': block_id}}},
+                               param={'id': scenario_id,
+                                      'block_group': {'$elemMatch': {'block.id': block_id}}},
                                data={'block_group.$.block': {'id': block_id}})
     delete_part_to_mongodb(col='scenario',
-                           param={'block_group.block': {'$size': 0}},
+                           param={'id': scenario_id,
+                                  'block_group.block': {'$size': 0}},
                            data={'block_group': {'block': {'$size': 0}}})
-    update_many_to_mongodb(col='scenario', data={"updated_at":time.time()})
+    update_by_id_to_mongodb(col='scenario', id=scenario_id, data={"updated_at":time.time()})
     return {'msg': 'Delete blocks.'}
 
 
-@router.put("/{block_id}", response_model=schemas.MsgWithId)
+@router.put("/{scenario_id}/{block_id}", response_model=schemas.MsgWithId)
 def update_block(
     *,
+    scenario_id: str,
     block_id: str,
     block_in: schemas.BlockUpdate,
 ) -> schemas.MsgWithId:
@@ -85,8 +90,8 @@ def update_block(
     Update a block.
     """
     block = load_from_mongodb(col='scenario',
-                              param={"block_group": {
-                                  "$elemMatch": {"block.id": block_id}}},
+                              param={"id": scenario_id,
+                                     "block_group": {"$elemMatch": {"block.id": block_id}}},
                               proj={"_id": 1})
     if not block:
         raise HTTPException(
@@ -96,30 +101,31 @@ def update_block(
                    for key, value in jsonable_encoder(block_in).items() if value is not None}
 
     col = get_mongodb_collection('scenario')
-    res = col.update_one({"block_group.block.id": block_id},
+    res = col.update_one({"id": scenario_id, "block_group.block.id": block_id},
                          {'$set': update_data},
                          array_filters=[{"elem.id": block_id}],
                          upsert=False)
     if res.matched_count == 0:
         raise HTTPException(
             status_code=406, detail="No items have been updated.")
-    update_many_to_mongodb(col='scenario', data={"updated_at":time.time()})
+    update_by_id_to_mongodb(col='scenario', id=scenario_id, data={"updated_at":time.time()})
     return {'msg': 'Update a block', 'id': block_id}
 
 
 router_detail = APIRouter()
 
 
-@router_detail.put("/{block_group_id}", response_model=schemas.MsgWithId)
+@router_detail.put("/{scenario_id}/{block_group_id}", response_model=schemas.MsgWithId)
 def update_block_group(
     *,
+    scenario_id: str,
     block_group_id: str,
     block_group_in: schemas.BlockGroupUpdate,
 ) -> schemas.MsgWithId:
     """
     Update a block_group.
     """
-    param = {"block_group.id": block_group_id}
+    param = {"id": scenario_id, "block_group.id": block_group_id}
     block_group = load_from_mongodb(col='scenario',
                                     param=param,
                                     proj={"_id": 1})
