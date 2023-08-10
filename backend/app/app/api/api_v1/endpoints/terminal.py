@@ -19,12 +19,13 @@ def get_terminal_modes() -> schemas.TerminalList:
 @router.get("/logs", response_model=schemas.TerminalLogList)
 def get_terminal_logs(
     terminal_mode: str,
+    shell_id: str,
     start_time: str = Query(..., description="ex.2009-02-13T23:31:30"),
     end_time: str = Query(..., description="ex.2009-02-13T23:31:30"),
     ) -> schemas.TerminalLogList:
     """
     터미널별 일정기간 로그 조회
     """
-    param = {'time': {'$gte': start_time, '$lte': end_time}, 'mode': terminal_mode}
+    param = {'time': {'$gte': start_time, '$lte': end_time}, 'mode': terminal_mode, 'shell_id': shell_id}
     result = load_from_mongodb(col="shell_log", param=param, proj={'_id': 0, 'lines': 1})
     return {'items': result if result == [] else result[0]['lines']}
