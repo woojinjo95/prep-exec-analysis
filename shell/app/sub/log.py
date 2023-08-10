@@ -21,9 +21,12 @@ async def process_log_queue(queue: asyncio.Queue, conn: any, CHANNEL_NAME: str, 
             sec = _sec
         # print(data)
         await conn.publish(CHANNEL_NAME, json.dumps({
-            "name": "shell",
+            "msg": "shell",
             "level": "debug",
-            "msg": data,
+            "data": {
+                "mode": mode,
+                "data": data
+            },
             "service": "shell",
             "time": timestamp()
         }))
