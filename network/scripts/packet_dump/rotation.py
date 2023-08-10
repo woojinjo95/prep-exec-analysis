@@ -30,7 +30,7 @@ class RotationFileManager:
         self.path = network_capture_configs['real_time_packet_path']
         self.segment_interval = network_capture_configs['segment_interval']
         self.rotation_interval = network_capture_configs['rotation_interval']
-        self.file_count = self.segment_interval // self.segment_interval + 5
+        self.file_count = self.rotation_interval // self.segment_interval + 5
         self.files_deque = deque(maxlen=self.file_count)
         self.preserved_list = []
         self.index = 0

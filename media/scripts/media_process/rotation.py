@@ -75,7 +75,7 @@ class RotationFileManager:
         self.path = recording_config['real_time_video_path']
         self.segment_interval = recording_config['segment_interval']
         self.rotation_interval = recording_config['rotation_interval']
-        self.file_count = self.segment_interval // self.segment_interval + 5
+        self.file_count = self.rotation_interval // self.segment_interval + 5
         self.files_deque = deque(maxlen=self.file_count)
         self.preserved_list = []
         self.index = 0
