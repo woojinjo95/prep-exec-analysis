@@ -73,7 +73,7 @@ const VideoSnapshot: React.FC<VideoSnapshotProps> = ({ src, translateX }) => {
     <img
       src={dataURI}
       alt="snapshot"
-      className="h-[100px] aspect-video absolute top-0"
+      className="h-16 aspect-video absolute top-0"
       style={{
         transform: `translateX(${translateX}px)`,
       }}
