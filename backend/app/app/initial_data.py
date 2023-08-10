@@ -27,14 +27,15 @@ def init() -> None:
         },
         'common': {
             'timezone': 'Asia/Seoul',
-            'workspace_path': './data/workspace',
-            'testrun_path': f'/testruns/{datetime.now().strftime("%Y_%m_%d_%H%M%S.%f")}'
+            'workspace_path': './data/workspace/testruns',
+            'testrun_dir': f'{datetime.now().strftime("%Y_%m_%d_%H%M%S.%f")}'
         }
     }
 
-    if RedisClient.hget('common', 'testrun_path') is None:
-        os.makedirs(f'/app/workspace{configs["common"]["testrun_path"]}/raw')
-        os.makedirs(f'/app/workspace{configs["common"]["testrun_path"]}/analysis')
+    if RedisClient.hget('common', 'testrun_dir') is None:
+        testrun_dir = f'/app/workspace/testruns/{configs["common"]["testrun_dir"]}'
+        os.makedirs(f'{testrun_dir}/raw')
+        os.makedirs(f'{testrun_dir}/analysis')
 
     for key, fields in configs.items():
         for field, value in fields.items():
