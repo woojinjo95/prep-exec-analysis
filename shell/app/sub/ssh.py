@@ -7,6 +7,7 @@ from .utils import log
 from .log import process_log_queue
 from .message import check_skip_message
 
+
 class QAASClientSession(asyncssh.SSHClientSession):
     def set_queue(self, queue: asyncio.Queue):
         self._queue = queue

@@ -8,7 +8,7 @@ MONGODB_PORT = os.getenv("MONGODB_PORT", 27017)
 MONGODB_NAME = os.getenv("MONGODB_NAME", "prep-exec-analysis")
 MONGODB_AUTHENTICATION_SOURCE = os.getenv("MONGODB_AUTHENTICATION_SOURCE", "admin")
 
-MONGODB_COLLECTION_NAME = os.getenv("MONGODB_COLLECTION_NAME", "shelllog")
+MONGODB_COLLECTION_NAME = os.getenv("MONGODB_COLLECTION_NAME", "shell_log")
 
 
 def conn_mongodb():

@@ -1,5 +1,7 @@
 
 import traceback
+
+
 def check_skip_message(message: any):
     try:
         level = message.pop('level')
@@ -21,4 +23,3 @@ def check_skip_message(message: any):
         print(e)
         print(traceback.format_exc())
         return False
-
