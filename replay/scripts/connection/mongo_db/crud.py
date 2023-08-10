@@ -29,7 +29,7 @@ def insert_to_mongodb(col: str, data: dict) -> Tuple[bool, str]:
     return acknowledged, inserted_id
 
 
-def load_one_from_mongodb(col: str, proj: dict = None):
-    mongo_client = get_mongodb_collection(col)
-    res = mongo_client.find_one(projection=proj)
+def load_by_id_from_mongodb(col, id, proj=None):
+    col = get_mongodb_collection(col)
+    res = col.find_one({'id': id}, proj)
     return res
