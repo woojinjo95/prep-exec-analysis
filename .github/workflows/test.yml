@@ -17,8 +17,18 @@ jobs:
         steps:
           - run: docker build -t registry.dev-nextlab.com/qaas-media:dev-${{github.run_id}}${{github.run_number}} -f ./media/dockerfile.dev.m32dev4 ./media
             shell: bash
-    build-dev-m32dev4-stblog:
+    build-dev-stblog:
         runs-on: [self-hosted, docker, Linux]
         steps:
           - run: docker build -t registry.dev-nextlab.com/qaas-stblog:dev-${{github.run_id}}${{github.run_number}} -f ./stb_log/Dockerfile ./stb_log
+            shell: bash
+    build-dev-watcher:
+        runs-on: [self-hosted, docker, Linux]
+        steps:
+          - run: docker build -t registry.dev-nextlab.com/qaas-watcher:dev-${{github.run_id}}${{github.run_number}} -f ./watcher/dockerfile ./watcher
+            shell: bash
+    build-dev-shell:
+        runs-on: [self-hosted, docker, Linux]
+        steps:
+          - run: docker build -t registry.dev-nextlab.com/qaas-shell:dev-${{github.run_id}}${{github.run_number}} -f ./shell/Dockerfile ./shell
             shell: bash
