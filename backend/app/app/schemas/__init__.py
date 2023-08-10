@@ -11,7 +11,8 @@ from .msg import Msg, MsgWithId
 from .remocon import (Remocon, RemoconCustomKeyCreate,
                       RemoconCustomKeyCreateBase, RemoconCustomKeyUpdate,
                       RemoconCustomKeyUpdateMulti, RemoconRead, RemoconUpdate)
-from .scenario import Scenario, ScenarioBase
-from .trace import ReadLogcat, ReadNetwork 
-from .terminal import Terminal, TerminalLogList, TerminalList
+from .scenario import (Scenario, ScenarioBase, ScenarioCreate, ScenarioPage,
+                       ScenarioUpdate)
+from .terminal import Terminal, TerminalList, TerminalLogList
+from .trace import ReadLogcat, ReadNetwork
 from .utility import Timezone
