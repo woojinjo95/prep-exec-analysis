@@ -1,6 +1,6 @@
 import React from 'react'
 import { useQuery } from 'react-query'
-import { Text } from '@global/ui'
+import { Button, Text } from '@global/ui'
 import { Scrollbars } from 'react-custom-scrollbars-2'
 import { Network } from '../api/entity'
 import { getNetwork } from '../api/func'
@@ -27,11 +27,11 @@ const NetworkTrace: React.FC = () => {
   )
 
   return (
-    <div className="w-full flex flex-col overflow-y-auto h-full overflow-x-hidden">
-      <Scrollbars>
+    <div className="w-full flex flex-col overflow-y-auto h-full overflow-x-hidden relative">
+      <Scrollbars renderThumbVertical={({ ...props }) => <div {...props} className="bg-[#4E525A] w-2 rounded-[5px]" />}>
         {networks && (
           <>
-            <div className="w-full grid grid-cols-[15%_9%_10%_6%_5%_55%] gap-x-2 text-[#8F949E] ">
+            <div className="w-[calc(100%-40px)] grid grid-cols-[15%_9%_10%_6%_5%_55%] gap-x-2 text-[#8F949E] ">
               <Text size="sm" colorScheme="grey">
                 Timestamp
               </Text>
@@ -55,7 +55,7 @@ const NetworkTrace: React.FC = () => {
               {networks.map((network) => (
                 <div
                   key={`network${network.timestamp}`}
-                  className="w-full grid grid-cols-[15%_9%_10%_6%_5%_55%] gap-x-2 text-[#8F949E] text-sm"
+                  className="w-[calc(100%-40px)] grid grid-cols-[15%_9%_10%_6%_5%_55%] gap-x-2 text-[#8F949E] text-sm"
                 >
                   <Text size="sm" colorScheme="grey">
                     {network.timestamp.substring(0, network.timestamp.length - 6)}
@@ -81,6 +81,12 @@ const NetworkTrace: React.FC = () => {
           </>
         )}
       </Scrollbars>
+      <Button className="absolute top-0 right-6 border-none bg-black">
+        <span className="text-base">Search</span>
+      </Button>
+      <Button className="absolute bottom-4 right-6 w-[132px] h-12 bg-[#4E525A] rounded-3xl">
+        <span className="text-base">Download</span>
+      </Button>
     </div>
   )
 }
