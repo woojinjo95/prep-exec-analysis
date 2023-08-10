@@ -14,10 +14,9 @@ def get_terminal_modes() -> schemas.TerminalList:
     """
     터미널 목록
     """
-    pipeline = [{'$project': {'_id': 0, 'mode': 1, 'shell_id': 1}},
-                {'$group': {'_id': {'mode': '$mode', 'shell_id': '$shell_id'}, 'documents': {'$addToSet': '$$ROOT'}}},
-                {'$replaceRoot': {'newRoot': {'$arrayElemAt': ['$documents', 0]}}}]
-    return {'items': aggregate_from_mongodb(col="shell_log", pipeline=pipeline)}
+    pipeline = [{'$group': {'_id': {'mode': '$mode', 'shell_id': '$shell_id'}}},
+                {'$replaceRoot': {'newRoot': "$_id"}}]
+    return{'items': aggregate_from_mongodb(col="shell_log", pipeline=pipeline)}
 
 
 
