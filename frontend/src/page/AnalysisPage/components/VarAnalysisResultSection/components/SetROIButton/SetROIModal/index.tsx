@@ -11,8 +11,7 @@ import {
 } from '@chakra-ui/react'
 import { range } from 'd3'
 
-import { useQuery } from 'react-query'
-import video from './video.mp4'
+// import video from './video.mp4'
 import CropBox from './CropBox'
 import VideoTimeSlider from './VideoTimeSlider'
 import VideoSnapshot from './CropBox/VideoSnapshot'
@@ -59,7 +58,7 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose }) => {
           >
             <video
               ref={videoRef}
-              src={video}
+              // src={video}
               onLoadedData={(e) => {
                 setVideoWidth(e.currentTarget.videoWidth)
                 setVideoHeight(e.currentTarget.videoHeight)
@@ -79,11 +78,11 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose }) => {
             )}
           </div>
 
-          <div className="relative h-[100px]">
+          {/* <div className="relative h-[100px]">
             {range(0, 1000, 10).map((num) => (
               <VideoSnapshot key={`snapshot-${num}`} src={video} translateX={num} />
             ))}
-          </div>
+          </div> */}
 
           {duration !== null && (
             <VideoTimeSlider
