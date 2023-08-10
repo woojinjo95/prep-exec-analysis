@@ -19,9 +19,10 @@ async def main():
     # while True:
     try:
         if SHELL_TYPE == 'adb':
-            await adb_connect(conn, ADB_HOST, ADB_PORT, CHANNEL_NAME)
+            await adb_connect(conn=conn, shell_id=1, ADB_HOST=ADB_HOST, ADB_PORT=ADB_PORT, CHANNEL_NAME=CHANNEL_NAME)
         if SHELL_TYPE == 'ssh':
-            await ssh_connect(conn, SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD, CHANNEL_NAME)
+            await ssh_connect(conn=conn, shell_id=2, SSH_HOST=SSH_HOST, SSH_PORT=SSH_PORT, SSH_USERNAME=SSH_USERNAME,
+                              SSH_PASSWORD=SSH_PASSWORD, CHANNEL_NAME=CHANNEL_NAME)
     except Exception as e:
         print(e)
     print('try reconnect')
