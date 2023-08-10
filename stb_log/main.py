@@ -1,17 +1,13 @@
 import logging
-from multiprocessing import Queue
 
-from scripts.log_service.log_helper import LogHelper, init_log_helper, terminate_log_helper
 from scripts.log_service.logcat.log_manager import LogcatManager
 from scripts.log_service.dumpsys.manager import DumpsysManager
 from scripts.connection.redis_conn import get_strict_redis_connection
 from scripts.connection.redis_pubsub import Subscribe
 from scripts.config.constant import RedisChannel, RedisDB
+from scripts.log_service.log_organizer import LogOrganizer
 
 
-log_queue = Queue(maxsize=10000)
-log_helper = LogHelper()
-init_log_helper(log_helper, log_queue)
 logger = logging.getLogger('main')
 
 
@@ -90,11 +86,24 @@ def command_parser(command: dict):
             logger.warning(f'Unknown streaming args: {streaming_arg}')
 
 
-
-if __name__ == '__main__':
-
+def main():
     with get_strict_redis_connection(RedisDB.hardware) as src:
         for command in Subscribe(src, RedisChannel.command):
             command_parser(command)
 
-    terminate_log_helper(log_helper, log_queue)
+
+if __name__ == '__main__':
+    try:
+        log_organizer = LogOrganizer(name='stb_log')
+        log_organizer.set_stream_logger('main')
+        log_organizer.set_stream_logger('connection')
+        log_organizer.set_stream_logger('collector')
+        log_organizer.set_stream_logger('logcat')
+        log_organizer.set_stream_logger('dumpsys')
+        logger.info('Start stb_log container')
+
+        main()
+
+    finally:
+        logger.info('Close stb_log container')
+        log_organizer.close()

@@ -9,9 +9,12 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react'
-import video from './video.mp4'
+// import { range } from 'd3'
+
+// import video from './video.mp4'
 import CropBox from './CropBox'
 import VideoTimeSlider from './VideoTimeSlider'
+// import VideoSnapshot from './CropBox/VideoSnapshot'
 
 interface SetROIModalProps {
   isOpen: boolean
@@ -55,7 +58,7 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose }) => {
           >
             <video
               ref={videoRef}
-              src={video}
+              // src={video}
               onLoadedData={(e) => {
                 setVideoWidth(e.currentTarget.videoWidth)
                 setVideoHeight(e.currentTarget.videoHeight)
@@ -74,6 +77,12 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose }) => {
               />
             )}
           </div>
+
+          {/* <div className="relative h-16">
+            {range(0, 100, 10).map((num) => (
+              <VideoSnapshot key={`snapshot-${num}`} src={video} translateX={num * 6} />
+            ))}
+          </div> */}
 
           {duration !== null && (
             <VideoTimeSlider
