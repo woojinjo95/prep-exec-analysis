@@ -16,6 +16,10 @@ type BlocksRef = {
 }
 
 const ActionBlockArea = (): JSX.Element => {
+  // current scenarioId
+  // TODO: 나중에 진입 시에 scenario_id를 받을 수 있어야함
+  const scenarioId = '0'
+
   // 전체 블럭
   const [blocks, setBlocks] = useState<Block[] | null>(null)
 
@@ -83,6 +87,7 @@ const ActionBlockArea = (): JSX.Element => {
 
     putScenarioMutate({
       block_group: [newBlockGroup],
+      scenario_id: scenarioId,
     })
   }
 
@@ -263,11 +268,17 @@ const ActionBlockArea = (): JSX.Element => {
 
   useEffect(() => {
     const remoconButtonSubscribe$ = remoconService.onButton$().subscribe((blockEvent: BlockEvent) => {
-      postBlockMutate({ newBlock: { type: blockEvent.type, value: blockEvent.value, delay_time: 3000 } })
+      postBlockMutate({
+        newBlock: { type: blockEvent.type, value: blockEvent.value, delay_time: 3000 },
+        scenario_id: scenarioId,
+      })
     })
 
     const remoconCustomKeySubscribe$ = remoconService.onCustomKey$().subscribe((blockEvent: BlockEvent) => {
-      postBlockMutate({ newBlock: { type: blockEvent.type, value: blockEvent.value, delay_time: 3000 } })
+      postBlockMutate({
+        newBlock: { type: blockEvent.type, value: blockEvent.value, delay_time: 3000 },
+        scenario_id: scenarioId,
+      })
     })
 
     return () => {
