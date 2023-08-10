@@ -37,22 +37,25 @@ async def consumer_adb_handler(conn: any, proc: any, CHANNEL_NAME: str, queue: a
     await pubsub.subscribe(CHANNEL_NAME)
     try:
         while True:
-            raw = await pubsub.get_message(ignore_subscribe_messages=True)
-            # 필요없는 메시지는 여기서 걸러줌
-            if raw and isinstance(raw, dict):
-                message = json.loads(raw['data'])
-            else:
-                continue
-            if not check_skip_message(message):
-                continue
+            try:  # 루프 깨지지 않도록 예외처리
+                raw = await pubsub.get_message(ignore_subscribe_messages=True)
+                # 필요없는 메시지는 여기서 걸러줌
+                if raw and isinstance(raw, dict):
+                    message = json.loads(raw['data'])
+                else:
+                    continue
+                if not check_skip_message(message):
+                    continue
 
-            print(message)
-            data = message.pop('data')
-            proc.stdin.write(f"{data}\n".encode('utf-8'))
-            print(f"stderr: {data}")
-            queue.put_nowait(log(data, "stdin"))
-            await proc.stdin.drain()
-            await asyncio.sleep(0.5)
+                print(message)
+                data = message.pop('data')
+                proc.stdin.write(f"{data}\n".encode('utf-8'))
+                print(f"stderr: {data}")
+                queue.put_nowait(log(data, "stdin"))
+                await proc.stdin.drain()
+                await asyncio.sleep(0.5)
+            except Exception as e:
+                print(e)
     except Exception as exc:
         print(exc)
     print("consumer_handler end")
