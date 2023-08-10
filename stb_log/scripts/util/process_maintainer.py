@@ -4,7 +4,7 @@ import gc
 from multiprocessing import Event, Process
 
 
-logger = logging.getLogger('connection')
+logger = logging.getLogger('main')
 
 
 class ProcessMaintainer:

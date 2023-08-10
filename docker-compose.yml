@@ -8,6 +8,7 @@ services:
       context: ./backend
       dockerfile: dockerfile.dev
     command: /start-reload.sh
+    platform: linux/amd64
     ports:
       - 5000:80
     volumes:
@@ -68,6 +69,7 @@ services:
     volumes:
       - "$HOME/.ssh:/app/static/keys"
       - "./data/videos:/app/videos"
+      - "./logs:/app/logs"
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -87,6 +89,7 @@ services:
     privileged: true
     volumes:
       - "$HOME/.ssh:/app/static/keys"
+      - "./logs:/app/logs"
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -103,8 +106,37 @@ services:
     privileged: true
     volumes:
       - "$HOME/.ssh:/app/static/keys"
+      - "./logs:/app/logs"
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
+  watcher:
+    image: registry.dev-nextlab.com/prep-exec-watcher:dev-0
+    restart: always
+    build:
+      context: ./watcher
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD:
+      USER: ${USER}
+    volumes:
+      - "./logs:/app/logs"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  replay:
+    container_name: replay
+    image: registry.dev-nextlab.com/prep-exec-replay:dev-0
+    restart: always
+    build:
+      context: ./replay
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD:
+      USER: ${USER}
+    privileged: true
 
   adminer:
     container_name: adminer
@@ -114,6 +146,7 @@ services:
 
   redis:
     container_name: redis
+    restart: always
     image: redis:7.0.4
     ports:
       - 6379:6379
@@ -122,7 +155,9 @@ services:
 
   redis-commander:
     container_name: redis-commander
+    restart: always
     image: rediscommander/redis-commander:latest
+    platform: linux/amd64
     environment:
       - REDIS_HOSTS=hardware:redis:6379:0
         collector:redis:6379:3
@@ -139,7 +174,20 @@ services:
     command: python -u main.py
     volumes:
       - "adb-rsa:/root/.android"
-
+      - "./logs:/app/logs"
+  
+  shell:
+    container_name: shell
+    image: registry.dev-nextlab.com/qaas-shell:dev-2
+    command: python -u process.py
+    build:
+      context: ./shell
+      dockerfile: Dockerfile.dev.m32dev4
+    ports:
+      - 5005:80
+    volumes:
+      - ./shell/app:/app
+      - "adb-rsa:/root/.android"
 volumes:
   mongodb_data: {}
   redis_data: {}

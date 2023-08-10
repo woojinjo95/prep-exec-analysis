@@ -3,9 +3,9 @@ import cx from 'classnames'
 import { Portal } from '..'
 
 /**
- * 리스트와 Select 버튼 사이의 간격
+ * 리스트와 상위컴포넌트 사이의 간격
  */
-const SPACE = 8
+const SPACE = 4
 
 interface OptionListProps extends React.HTMLAttributes<HTMLUListElement> {
   children: React.ReactNode
@@ -20,10 +20,14 @@ interface OptionListProps extends React.HTMLAttributes<HTMLUListElement> {
  * 옵션 리스트 컴포넌트
  *
  * OptionItem 컴포넌트와 같이 사용
+ *
+ * FIXME: 스크롤 시 닫히도록
+ *
+ * FIXME: 위아래 고정 옵션
  */
 const OptionList: React.ForwardRefExoticComponent<OptionListProps & React.RefAttributes<HTMLUListElement>> =
   React.forwardRef<HTMLUListElement, OptionListProps>(
-    ({ children, colorScheme = 'charcoal', isVisible, widthOption, wrapperRef, ...props }, ref) => {
+    ({ children, colorScheme = 'charcoal', isVisible, widthOption = 'fit-wrapper', wrapperRef, ...props }, ref) => {
       const createDefaultStyle = useCallback((ref: React.MutableRefObject<HTMLDivElement | null>) => {
         if (!ref.current) return {}
 

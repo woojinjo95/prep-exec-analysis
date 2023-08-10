@@ -1,8 +1,8 @@
-import React, { useCallback, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import classnames from 'classnames/bind'
 
 import { ReactComponent as DropdownIcon } from '@assets/images/select_arrow.svg'
-import { OptionList, Portal, Text } from '@global/ui'
+import { OptionList, Text } from '@global/ui'
 import useOutsideClick from '@global/hook/useOutsideClick'
 import styles from './Select.module.scss'
 

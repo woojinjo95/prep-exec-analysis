@@ -1,12 +1,14 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List
 
+from app.schemas.enum import LogLevelFinderTargetEnum
 from pydantic import BaseModel
+
 
 class Logcat(BaseModel):
     timestamp: datetime
     module: str
-    log_level: str
+    log_level: LogLevelFinderTargetEnum
     process_name: str
     pid: int
     tid: int

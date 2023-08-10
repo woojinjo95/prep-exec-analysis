@@ -131,7 +131,7 @@ class RemoconProcess(ProcessUtil):
                 logger.info(
                     f'Command number: {total_key_number}, unique count: {unique_key_number}')
                 unique_keys_list = group_duplicated_value_in_dict(self.remocon_commands)
-                logger.info('Keys: \n' + '\n'.join([f'{idx + 1:{math.ceil(math.log(len(unique_keys_list), 10))}d}: ' + ', '.join(keys)
+                logger.debug('Keys: \n' + '\n'.join([f'{idx + 1:{math.ceil(math.log(len(unique_keys_list), 10))}d}: ' + ', '.join(keys)
                             for idx, keys in enumerate(unique_keys_list)]))
             else:
                 logger.error(f'Remocon id {remocon_id} has no remocon valid key in list.')

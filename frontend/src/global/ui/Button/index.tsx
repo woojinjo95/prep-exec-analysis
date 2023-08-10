@@ -6,15 +6,22 @@ import Text from '../Text'
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode
   colorScheme?: 'dark' | 'charcoal' | 'grey' | 'primary'
+  className?: string
   isRoundedFull?: boolean
 }
 
 /**
  * 버튼 컴포넌트
  *
- * @param variant 버튼 스타일
+ * @param isRoundedFull 모서리 둥글기, true면 완전히 동그래짐. false면 기본 rounded
  */
-const Button: React.FC<ButtonProps> = ({ children, colorScheme = 'charcoal', isRoundedFull = true, ...props }) => {
+const Button: React.FC<ButtonProps> = ({
+  children,
+  colorScheme = 'charcoal',
+  isRoundedFull = true,
+  className,
+  ...props
+}) => {
   return (
     <button
       // eslint-disable-next-line react/button-has-type
@@ -29,7 +36,7 @@ const Button: React.FC<ButtonProps> = ({ children, colorScheme = 'charcoal', isR
           'rounded-full': isRoundedFull,
           'rounded-lg': !isRoundedFull,
         },
-        props.className,
+        className,
       )}
       {...props}
     >
