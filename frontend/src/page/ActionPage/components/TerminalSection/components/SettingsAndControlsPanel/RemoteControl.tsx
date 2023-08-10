@@ -22,7 +22,7 @@ const RemoteControl: React.FC = () => {
 
   return (
     <div className="bg-light-black p-5 rounded-lg h-fit">
-      <Title as="h3" colorScheme="light">
+      <Title as="h3" colorScheme="light" className="px-1">
         Remote Control
       </Title>
 

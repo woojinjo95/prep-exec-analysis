@@ -1,6 +1,6 @@
 import React from 'react'
 import { Tabs } from '@global/ui'
-import SetROIButton from './SetROIButton'
+import SetROIButton from './components/SetROIButton'
 
 /**
  * 분석변수 설정 및 결과 영역
