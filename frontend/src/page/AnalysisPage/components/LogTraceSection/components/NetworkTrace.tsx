@@ -1,6 +1,7 @@
 import React from 'react'
 import { useQuery } from 'react-query'
 import { Text } from '@global/ui'
+import { Scrollbars } from 'react-custom-scrollbars-2'
 import { Network } from '../api/entity'
 import { getNetwork } from '../api/func'
 
@@ -27,57 +28,59 @@ const NetworkTrace: React.FC = () => {
 
   return (
     <div className="w-full flex flex-col overflow-y-auto h-full overflow-x-hidden">
-      {networks && (
-        <>
-          <div className="w-full grid grid-cols-[15%_9%_10%_6%_5%_55%] gap-x-2 text-[#8F949E] ">
-            <Text size="sm" colorScheme="grey">
-              Timestamp
-            </Text>
-            <Text size="sm" colorScheme="grey">
-              Source
-            </Text>
-            <Text size="sm" colorScheme="grey">
-              Destination
-            </Text>
-            <Text size="sm" colorScheme="grey">
-              Protocol
-            </Text>
-            <Text size="sm" colorScheme="grey">
-              Length
-            </Text>
-            <Text size="sm" colorScheme="grey">
-              Info
-            </Text>
-          </div>
-          <div className="flex flex-col w-full mt-1">
-            {networks.map((network) => (
-              <div
-                key={`network${network.timestamp}`}
-                className="w-full grid grid-cols-[15%_9%_10%_6%_5%_55%] gap-x-2 text-[#8F949E] text-sm"
-              >
-                <Text size="sm" colorScheme="grey">
-                  {network.timestamp.substring(0, network.timestamp.length - 6)}
-                </Text>
-                <Text size="sm" colorScheme="grey">
-                  {network.source}
-                </Text>
-                <Text size="sm" colorScheme="grey">
-                  {network.destination}
-                </Text>
-                <Text size="sm" colorScheme="grey">
-                  {network.protocol}
-                </Text>
-                <Text size="sm" colorScheme="grey">
-                  {network.length}
-                </Text>
-                <Text size="sm" colorScheme="grey" className="whitespace-pre-wrap">
-                  {network.info}
-                </Text>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
+      <Scrollbars>
+        {networks && (
+          <>
+            <div className="w-full grid grid-cols-[15%_9%_10%_6%_5%_55%] gap-x-2 text-[#8F949E] ">
+              <Text size="sm" colorScheme="grey">
+                Timestamp
+              </Text>
+              <Text size="sm" colorScheme="grey">
+                Source
+              </Text>
+              <Text size="sm" colorScheme="grey">
+                Destination
+              </Text>
+              <Text size="sm" colorScheme="grey">
+                Protocol
+              </Text>
+              <Text size="sm" colorScheme="grey">
+                Length
+              </Text>
+              <Text size="sm" colorScheme="grey">
+                Info
+              </Text>
+            </div>
+            <div className="flex flex-col w-full mt-1">
+              {networks.map((network) => (
+                <div
+                  key={`network${network.timestamp}`}
+                  className="w-full grid grid-cols-[15%_9%_10%_6%_5%_55%] gap-x-2 text-[#8F949E] text-sm"
+                >
+                  <Text size="sm" colorScheme="grey">
+                    {network.timestamp.substring(0, network.timestamp.length - 6)}
+                  </Text>
+                  <Text size="sm" colorScheme="grey">
+                    {network.source}
+                  </Text>
+                  <Text size="sm" colorScheme="grey">
+                    {network.destination}
+                  </Text>
+                  <Text size="sm" colorScheme="grey">
+                    {network.protocol}
+                  </Text>
+                  <Text size="sm" colorScheme="grey">
+                    {network.length}
+                  </Text>
+                  <Text size="sm" colorScheme="grey" className="whitespace-pre-wrap">
+                    {network.info}
+                  </Text>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </Scrollbars>
     </div>
   )
 }
