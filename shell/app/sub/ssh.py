@@ -1,12 +1,12 @@
 import sys
 import json
 import asyncio
+import traceback
 from typing import Optional
 import asyncssh
 from .utils import log
 from .log import process_log_queue
 from .message import check_skip_message
-
 
 class QAASClientSession(asyncssh.SSHClientSession):
     def set_queue(self, queue: asyncio.Queue):
@@ -47,11 +47,12 @@ async def consumer_ssh_handler(conn: any, channel: any, CHANNEL_NAME: str, queue
 
                 print(message)
                 data = f"{message.pop('data')}\n"
-                channel.writelines([data])
+                channel.write(data)
                 queue.put_nowait(log(data, "stdin"))
                 await asyncio.sleep(0.5)
             except Exception as e:
                 print(e)
+                print(traceback.format_exc())
 
     except Exception as exc:
         print(exc)
