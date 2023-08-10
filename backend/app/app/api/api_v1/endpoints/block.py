@@ -27,11 +27,11 @@ def create_block(
         if not scenario:
             raise HTTPException(
                 status_code=404, detail="The scenario with this id does not exist in the system.")
-        
+
     block_in = schemas.Block(id=str(uuid.uuid4()),
                              type=block_in.type,
                              name=block_in.name,
-                             value=block_in.value,
+                             args=block_in.args,
                              delay_time=block_in.delay_time)
     block_group = scenario.get('block_group', [])
 

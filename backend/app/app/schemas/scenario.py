@@ -13,10 +13,11 @@ class ScenarioBase(BaseModel):
 
 
 class ScenarioCreate(BaseModel):
-    pass
+    name: Optional[str]
+    tags: Optional[List[str]]
 
 
-class ScenarioUpdate(BaseModel):
+class ScenarioUpdate(ScenarioCreate):
     block_group: List[BlockGroup]
 
 
