@@ -13,15 +13,15 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.post("", response_model=schemas.MsgWithId)
+@router.post("/{scenario_id}", response_model=schemas.MsgWithId)
 def create_block(
     *,
+    scenario_id: str,
     block_in: schemas.BlockCreate,
 ) -> schemas.MsgWithId:
     """
     Create new block.
     """
-    scenario_id = block_in.scenario_id
     scenario = load_by_id_from_mongodb('scenario', scenario_id)
     if scenario is None:
         if not scenario:
@@ -58,14 +58,14 @@ def create_block(
     return {'msg': 'Create new block', 'id': block_in.id}
 
 
-@router.delete("", response_model=schemas.Msg)
+@router.delete("/{scenario_id}", response_model=schemas.Msg)
 def delete_blocks(
+    scenario_id: str,
     block_in: schemas.BlockDelete,
 ) -> schemas.Msg:
     """
     Delete blocks.
     """
-    scenario_id = block_in.scenario_id
     for block_id in block_in.block_ids:
         delete_part_to_mongodb(col='scenario',
                                param={'id': scenario_id,
