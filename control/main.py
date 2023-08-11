@@ -7,7 +7,7 @@ from scripts.connection.redis_pubsub import (Subscribe,
 from scripts.device.remocon.remocon_process import RemoconProcess
 from scripts.device.serial.serial_device import (SerialDevice,
                                                  initial_serial_devices)
-from scripts.device.serial_control import init_dut_state, change_dut_state
+from scripts.device.serial_control import change_dut_state, init_dut_state
 from scripts.log_organizer import LogOrganizer
 from scripts.utils._exceptions import handle_errors
 
@@ -18,34 +18,32 @@ logger = logging.getLogger('main')
 def init(serial_device: SerialDevice, remocon_process: RemoconProcess):
     # TODO change it to first loaded remocon id
     power_state, hdmi_state, wan_state = init_dut_state(serial_device)
-    remocon_id = RemoconSetting.default_remocon_id
-    remocon_process.set_remocon_id(remocon_id)
-    logger.info(f'Init first state: vac: {power_state} / hpd: {hdmi_state} / lan: {wan_state} / remocon_id: {remocon_id}')
+    logger.info(f'Init first state: vac: {power_state} / hpd: {hdmi_state} / lan: {wan_state}')
 
 
 @handle_errors
 def command_parser(command: dict, serial_device: SerialDevice, remocon_process: RemoconProcess):
-    if command.get('remocon'):
-        remocon_args = command.get('remocon')
+    if command.get('msg') == 'remocon_transmit':
+        remocon_args = command.get('data')
         key = remocon_args.get('key')
         remocon_type = remocon_args.get('type', 'ir')
         press_time = remocon_args.get('press_time', 0)
-        remocon_id = remocon_args.get('id')
+        remocon_name = remocon_args.get('name')
 
-        if remocon_id is not None and remocon_id != remocon_process.remocon_id_pointer.value:
-            remocon_process.set_remocon_id(int(remocon_id))
+        if remocon_name is not None and remocon_name != remocon_process.configs['remocon_name']:
+            remocon_process.set_remocon_model(remocon_name)
 
         remocon_process.put_command(key=key, _type=remocon_type, press_time=press_time)
 
-    if command.get('remocon_model'):
-        remocon_type_args = command.get('remocon_model')
-        remocon_id = remocon_type_args.get('id')
-        remocon_process.set_remocon_id(int(remocon_id))
+    if command.get('msg') == 'remocon_name':
+        remocon_type_args = command.get('data')
+        remocon_name = remocon_type_args.get('name')
+        remocon_process.set_remocon_model(remocon_name)
 
     if command.get('on_off_control'):
         on_off_control_args = command.get('on_off_control')
         change_dut_state(serial_device, on_off_control_args)
-        
+
 
 @handle_errors
 def main():
