@@ -30,9 +30,3 @@ class RedisDBEnum:
 class RedisChannel:
     command = 'command'
     loudness = 'loudness'
-
-
-class ServiceType:
-    rcu = 'remocon'
-    config = 'on_off_control'
-    shell = 'network'
