@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class LogLevelFinderBase(BaseModel):
-    timestamp: str
+    time: str
     log_level: str
 
 
