@@ -1,6 +1,7 @@
 import logging
 
 from app import schemas
+from app.crud.base import load_from_mongodb, aggregate_from_mongodb
 from app.db.redis_session import RedisClient
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import StreamingResponse
@@ -10,15 +11,23 @@ router = APIRouter()
 
 
 @router.get("/video")
-def read_video_file() -> StreamingResponse:
+def read_video_file(
+    scenario_id: str
+):
+# ) -> StreamingResponse:
     """
     비디오 파일 재생
     """
-    # TODO: 비디오 파일에 대한 정보는 어디에..
-    video_file_name = 'temp_video_file.mp4'
-    video_file_path = RedisClient.hget("common", "testrun_path")
-
+    pipeline = [{'$match': {'id': scenario_id}},
+                {'$project': {'_id': 0, 'videos': '$testrun.raw.videos'}},
+                ]
+    video_info = aggregate_from_mongodb(col='scenario', pipeline=pipeline)
+    if not video_info:
+        raise HTTPException(status_code=404, detail="Scenario data not found")
+    video_info = video_info[0]['videos'][0]
+    video_file_path = video_info.get('path', '')
+    video_file_path = video_file_path.replace('./data', '/app')
     def iterfile():
-        with open(f"{video_file_path}/{video_file_name}", mode="rb") as video_file:
+        with open(f"{video_file_path}", mode="rb") as video_file:
             yield from video_file
     return StreamingResponse(iterfile(), media_type="video/mp4")
