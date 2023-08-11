@@ -16,29 +16,10 @@ def read_logcat(
     """
     Logcat 로그 조회
     """
-    pipeline = [
-        {
-            '$match': {
-                'time': {
-                    '$gte': start_time, 
-                    '$lte': end_time
-                }
-            }
-        }, {
-            '$unwind': {
-                'path': '$lines'
-            }
-        }, {
-            '$group': {
-                '_id': None,
-                'items': {
-                    '$push': '$lines'
-                }
-            }
-        }, {
-            '$project': {'_id': 0}
-        }
-    ]
+    pipeline = [{'$match': {'time': {'$gte': start_time, '$lte': end_time}}},
+                {'$unwind': {'path': '$lines'}},
+                {'$group': {'_id': None, 'items': {'$push': '$lines'}}},
+                ]
     aggregation_result = aggregate_from_mongodb(col='stb_log', pipeline=pipeline)
     log_list = aggregation_result[0].get('items', []) if aggregation_result != [] else aggregation_result
     return {"items": log_list}
@@ -52,29 +33,10 @@ def read_network(
     """
     Network 조회
     """
-    pipeline = [
-        {
-            '$match': {
-                'time': {
-                    '$gte': start_time, 
-                    '$lte': end_time
-                }
-            }
-        }, {
-            '$unwind': {
-                'path': '$lines'
-            }
-        }, {
-            '$group': {
-                '_id': None,
-                'items': {
-                    '$push': '$lines'
-                }
-            }
-        }, {
-            '$project': {'_id': 0}
-        }
-    ]
+    pipeline = [{'$match': {'time': {'$gte': start_time, '$lte': end_time}}},
+                {'$unwind': {'path': '$lines'}},
+                {'$group': {'_id': None,'items': {'$push': '$lines'}}},
+                ]
     aggregation_result = aggregate_from_mongodb(col='network', pipeline=pipeline)
     log_list = aggregation_result[0].get('items', []) if aggregation_result != [] else aggregation_result
     return {"items": log_list}
