@@ -153,6 +153,8 @@ class SerialDevice:
                     transmit_time = self.cal_counter(counter_hex)
                     remocon_event_time = start_time + transmit_time + self.time_offset
                     return 'ok', remocon_event_time
+                else:
+                    return 'ok', None
         except Exception as e:
             logger.error(f'serial write raise error => {e}')
             remocon_event_time = start_time + 0.007
@@ -195,7 +197,7 @@ class SerialDevice:
         return log, event_time
 
     # 기타 제어
-    def set_packet(self, status: str = None, irbtrcv: str = None, hpd: str = None, lan: str = None, vac: str = None, log=True) -> None:
+    def set_packet(self, status: str = None, irbtrcv: str = None, hpd: str = None, lan: str = None, vac: str = None, log=True) -> str:
         """_summary_
         set control board with packet 
         Args:
@@ -236,7 +238,7 @@ class SerialDevice:
 
         # set packet
         hex_string = set_packet(**current_packet)
-        self.transmit(hex_string)
+        log, _ = self.transmit(hex_string)
         if log:
             logger.info(f'set packet. prev: {self.prev_packet.copy()} -> current: {current_packet}')
         else:
@@ -245,6 +247,8 @@ class SerialDevice:
         # dump current to prev
         for key, value in current_packet.items():
             self.prev_packet[key] = value
+
+        return log
 
     def counter_setting(self, control: str) -> str:
         """_summary_

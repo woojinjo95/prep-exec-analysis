@@ -40,8 +40,8 @@ def command_parser(command: dict, serial_device: SerialDevice, remocon_process: 
         remocon_name = remocon_type_args.get('name')
         remocon_process.set_remocon_model(remocon_name)
 
-    if command.get('on_off_control'):
-        on_off_control_args = command.get('on_off_control')
+    if command.get('msg') == 'on_off_control':
+        on_off_control_args = command.get('data')
         change_dut_state(serial_device, on_off_control_args)
 
 
