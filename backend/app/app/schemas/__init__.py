@@ -14,3 +14,4 @@ from .remocon import (Remocon, RemoconCustomKeyCreate,
 from .scenario import Scenario, ScenarioBase
 from .trace import ReadLogcat, ReadNetwork 
 from .terminal import Terminal, TerminalLogList, TerminalList
+from .utility import Timezone

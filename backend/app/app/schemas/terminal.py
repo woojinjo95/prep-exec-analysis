@@ -1,16 +1,19 @@
 from typing import List
 
 from pydantic import BaseModel
+from app.schemas.enum import LogModuleEnum
 
 
 class Terminal(BaseModel):
     class log(BaseModel):
-        created_at: str
-        command: str
-        response: str
+        timestamp: str
+        module: LogModuleEnum
+        message: str
 
-    name: str
-    logs: List[log]
+    time: str
+    mode: str
+    shell_id: str
+    lines: List[log]
 
 
 class TerminalLogList(BaseModel):

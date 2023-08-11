@@ -8,7 +8,7 @@ from scripts.configs.default import init_configs
 from scripts.connection.redis_pubsub import (Subscribe,
                                              get_strict_redis_connection)
 from scripts.log_organizer import LogOrganizer
-from scripts.media_process.capture import streaming
+from scripts.media_process.capture import refresh_capture_board, streaming
 from scripts.media_process.loudness import test_audio_redis_update
 from scripts.media_process.rotation import MakeVideo
 from scripts.utils._exceptions import handle_errors
@@ -56,11 +56,17 @@ def command_parser(command: dict, streaming_stop_event: Event):
             logger.warning(f'Unknown streaming args: {streaming_arg}')
 
     if command.get('recording'):
-        interval = command.get('record', {}).get('interval', 30)
-        start_time = command.get('record', {}).get('start_time', None)
-        end_time = command.get('record', {}).get('end_time', None)
+        recording_args = command.get('record', {})
+        interval = recording_args.get('interval', 30)
+        start_time = recording_args.get('start_time', None)
+        end_time = recording_args.get('end_time', None)
         new_video = MakeVideo(start_time, end_time, interval)
         new_video.run()
+
+    if command.get('capture'):
+        capture_board_args = command.get('capture')
+        if capture_board_args.get('refresh'):
+            refresh_capture_board()
 
 
 @handle_errors
@@ -74,7 +80,7 @@ def main():
 
 if __name__ == '__main__':
     try:
-        log_organizer = LogOrganizer()
+        log_organizer = LogOrganizer(name='media')
         log_organizer.set_stream_logger('main')
         log_organizer.set_stream_logger('video')
         log_organizer.set_stream_logger('audio')

@@ -3,6 +3,7 @@ import logging
 from functools import wraps
 import dataclasses
 import json
+from pathlib import Path
 
 from dotenv import dotenv_values
 
@@ -42,3 +43,8 @@ def convert_to_dict(data):
 def write_json(json_path: str, result: dict):
     with open(json_path, 'w') as f:
         json.dump(result, f, indent=4, ensure_ascii=False)
+
+
+def get_parents_path(path: str, level: int = 0):
+    path_object = Path(path)
+    return path_object.parents[level]

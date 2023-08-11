@@ -1,11 +1,9 @@
 import React, { useRef, useState } from 'react'
-import { Input, OptionItem, Select } from '@global/ui'
+import { Input, OptionItem, Select, Text } from '@global/ui'
 
 import { IPLimit } from '../../../api/entity'
 
 const Protocols: readonly IPLimit['protocol'][] = ['all', 'tcp', 'udp'] as const
-
-// const regexIP = /^((d{1,2}|1dd|2[0-4]d|25[0-5]).){3}(d{1,2}|1dd|2[0-4]d|25[0-5])$/
 
 interface IPLimitItemProps {
   ip?: IPLimit['ip']
@@ -55,7 +53,7 @@ const IPLimitItem: React.FC<IPLimitItemProps> = ({
 
   return (
     <div className="grid grid-cols-[80%_20%] pb-3">
-      <div className="grid grid-cols-[45%_20%_30%] gap-x-1 items-center">
+      <div className="grid grid-cols-[45%_20%_30%] gap-x-2 items-center">
         <Input
           colorScheme="charcoal"
           ref={(ref) => {
@@ -101,18 +99,30 @@ const IPLimitItem: React.FC<IPLimitItemProps> = ({
       </div>
 
       {isEditing ? (
-        <button
-          ref={(ref) => {
-            if (!ref) return
-            focusableRefs.current[3] = ref
-          }}
-          type="button"
-          onClick={cancelAddIPLimit}
-        >
-          cancel
-        </button>
+        <div className="grid grid-cols-1 justify-center">
+          <button type="button" onClick={cancelAddIPLimit}>
+            <Text colorScheme="light">save</Text>
+          </button>
+          <button
+            ref={(ref) => {
+              if (!ref) return
+              focusableRefs.current[3] = ref
+            }}
+            type="button"
+            onClick={cancelAddIPLimit}
+          >
+            <Text colorScheme="light">cancel</Text>
+          </button>
+        </div>
       ) : (
-        <button type="button">delete</button>
+        <div className="grid grid-cols-1 justify-center">
+          <button type="button" onClick={() => setIsEditing(true)}>
+            <Text colorScheme="light">modify</Text>
+          </button>
+          <button type="button">
+            <Text colorScheme="light">delete</Text>
+          </button>
+        </div>
       )}
     </div>
   )
