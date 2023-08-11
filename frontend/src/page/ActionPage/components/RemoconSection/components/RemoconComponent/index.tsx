@@ -23,11 +23,20 @@ const RemoconComponent: React.FC<RemoconProps> = ({ remocon, keyEvent }) => {
   const remoconRef = useRef<HTMLImageElement | null>(null)
   const [isLoadedRemoconImage, setIsLoadedRemoconImage] = useState<boolean>(false)
   const [isAddCustomModalOpen, setIsAddCustomModalOpen] = useState<boolean>(false)
+  const [isRendered, setIsRendered] = useState<boolean>(false)
+
+  useEffect(() => {
+    setIsRendered(true)
+  }, [])
 
   useEffect(() => {
     // remocon의 name이 변경되면 (즉 다른 remocon을 선택했을 때)
-    setIsLoadedRemoconImage(false)
-  }, [remocon.name])
+    if (isRendered) {
+      setIsLoadedRemoconImage(false)
+    }
+  }, [remocon.name, setIsRendered])
+
+  console.log(isLoadedRemoconImage)
 
   return (
     <>
