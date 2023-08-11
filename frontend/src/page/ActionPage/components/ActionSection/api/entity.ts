@@ -1,6 +1,9 @@
+import { PaginationResponse } from '@global/api/entity'
+
 export interface Block {
   type: string
-  value: string
+  args: { key: string; value: string | number }[]
+  name: string
   delay_time: number
   id: string
 }
@@ -12,7 +15,15 @@ export interface BlockGroup {
 }
 
 export interface Scenario {
-  items: {
-    block_group: BlockGroup[]
-  }
+  id: string
+  block_group: BlockGroup[]
 }
+
+export interface ScenarioSummary {
+  id: string
+  name: string
+  tags: string[]
+  updated_at: number
+}
+
+export type ScenarioSummaryResponse = PaginationResponse<ScenarioSummary[]>
