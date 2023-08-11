@@ -1,6 +1,4 @@
 import logging
-import os
-from datetime import datetime
 
 from app.core.config import settings
 from app.db.redis_session import RedisClient
@@ -23,19 +21,17 @@ def init() -> None:
             'packet_bandwidth': 0,
             'packet_delay': 0.0,
             'packet_loss': 0.0,
-            'stb_connection': 'null'
+            'stb_connection': 'null',
         },
         'common': {
             'timezone': 'Asia/Seoul',
+        },
+        'testrun': {
             'workspace_path': './data/workspace/testruns',
-            'testrun_dir': f'{datetime.now().strftime("%Y_%m_%d_%H%M%S.%f")}'
+            'dir': 'null',
+            'scenario_id': 'null',
         }
     }
-
-    if RedisClient.hget('common', 'testrun_dir') is None:
-        testrun_dir = f'/app/workspace/testruns/{configs["common"]["testrun_dir"]}'
-        os.makedirs(f'{testrun_dir}/raw')
-        os.makedirs(f'{testrun_dir}/analysis')
 
     for key, fields in configs.items():
         for field, value in fields.items():
