@@ -132,6 +132,7 @@ def update_stb_connection(
                      'stb_connection', json.dumps({k: v for k, v
                                                    in jsonable_encoder(stb_connection_in).items()
                                                    if v is not None}))
+    # TODO 메세지 보내기
     return {'msg': f'Update {stb_connection_in.type} stb_connection.'}
 
 

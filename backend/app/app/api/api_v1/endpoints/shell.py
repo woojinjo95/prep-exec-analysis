@@ -29,7 +29,6 @@ def get_shell_logs(
     """
     터미널별 일정기간 로그 조회
     """
-
     pipeline = [{'$match': {'time': {'$gte': start_time, '$lte': end_time}, 'mode': shell_mode.value, 'shell_id': shell_id}},
                 {'$project': {'_id': 0, 'lines': 1}},
                 {'$unwind': {'path': '$lines'}},
@@ -43,7 +42,7 @@ def connect_shell() -> schemas.Msg:
     """
     Connect shell.
     """
-    # 메세지 보내기
+    # TODO 메세지 보내기
     return {'msg': 'Connect shell'}
 
 
@@ -52,5 +51,5 @@ def disconnect_shell() -> schemas.Msg:
     """
     Disconnect shell.
     """
-    # 메세지 보내기
+    # TODO 메세지 보내기
     return {'msg': 'Disconnect shell'}
