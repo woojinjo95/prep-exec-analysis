@@ -8,7 +8,6 @@ from .utils import log
 from .log import process_log_queue
 from .message import check_skip_message
 
-
 class QAASClientSession(asyncssh.SSHClientSession):
     def set_queue(self, queue: asyncio.Queue):
         self._queue = queue
@@ -38,6 +37,7 @@ async def consumer_ssh_handler(conn: any, channel: any, shell_id: int, CHANNEL_N
         while True:
             try:  # 루프 깨지지 않도록 예외처리
                 raw = await pubsub.get_message(ignore_subscribe_messages=True)
+                await asyncio.sleep(0.001)
                 # 필요없는 메시지는 여기서 걸러줌
                 if raw is None:
                     continue
@@ -51,7 +51,7 @@ async def consumer_ssh_handler(conn: any, channel: any, shell_id: int, CHANNEL_N
                     command = f"{message['data']['command']}\n"
                     channel.write(command)
                     queue.put_nowait(log(command, "stdin"))
-                    await asyncio.sleep(0.5)
+                
             except Exception as e:
                 print(e)
                 print(traceback.format_exc())

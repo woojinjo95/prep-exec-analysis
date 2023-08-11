@@ -6,7 +6,7 @@ import { ReactComponent as MoreButton } from '@assets/images/button_more.svg'
 
 import { KeyEvent } from '@page/ActionPage/types'
 
-import { remoconService } from '@global/service/RemoconService'
+import { remoconService } from '@global/service/RemoconService/RemoconService'
 import { Remocon } from '../../api/entity'
 import RemoconButtons from './RemoconButtons'
 import styles from './RemoconComponent.module.scss'
@@ -67,7 +67,7 @@ const RemoconComponent: React.FC<RemoconProps> = ({ remocon, keyEvent }) => {
                     className="h-[32px] w-full bg-white border-[1px] border-[#707070] rounded-[38px] mb-[5px] font-[500] flex pl-[10px] hover:bg-gray-200"
                     key={`custom_keys_${custom_key.id}`}
                     onClick={() => {
-                      remoconService.customKeyClick(custom_key.name)
+                      // remoconService.customKeyClick(custom_key.name)
                     }}
                   >
                     {custom_key.custom_code.join('')}
