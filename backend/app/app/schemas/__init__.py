@@ -12,7 +12,8 @@ from .remocon import (Remocon, RemoconCustomKeyCreate,
                       RemoconCustomKeyCreateBase, RemoconCustomKeyUpdate,
                       RemoconCustomKeyUpdateMulti, RemoconRead, RemoconUpdate)
 from .scenario import (Scenario, ScenarioBase, ScenarioCreate, ScenarioPage,
-                       ScenarioUpdate)
+                       ScenarioUpdate, Testrun, TestrunAnalysis, TestrunRaw,
+                       TestrunVideo)
 from .terminal import Terminal, TerminalList, TerminalLogList
 from .trace import ReadLogcat, ReadNetwork
 from .utility import Timezone
