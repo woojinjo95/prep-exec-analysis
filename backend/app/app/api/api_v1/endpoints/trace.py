@@ -1,10 +1,8 @@
 import logging
 
-from datetime import datetime, timedelta
 from app import schemas
 from app.crud.base import aggregate_from_mongodb
-from app.api.utility import get_multi_or_paginate_by_res
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Query
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
