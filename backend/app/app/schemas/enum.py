@@ -18,11 +18,6 @@ class RemoteControlTypeEnum(ExtendedEnum):
     bluetooth = "bluetooth"
 
 
-class StbConnectionTypeEnum(ExtendedEnum):
-    ssh = "ssh"
-    adb = "adb"
-
-
 class ProtocolEnum(ExtendedEnum):
     all = "all"
     tcp = "tcp"
@@ -45,13 +40,13 @@ class AnalysisTypeEnum(ExtendedEnum):
 
 
 class LogLevelFinderTargetEnum(ExtendedEnum):
-    V = "V" # verbose 가장 낮은 우선 순위 
-    D = "D" # debug
-    I = "I" # info
-    W = "W" # warning
-    E = "E" # error
-    F = "F" # fatal
-    S = "S" # silent 가장 높은 우선 순위
+    V = "V"  # verbose 가장 낮은 우선 순위
+    D = "D"  # debug
+    I = "I"  # info
+    W = "W"  # warning
+    E = "E"  # error
+    F = "F"  # fatal
+    S = "S"  # silent 가장 높은 우선 순위
 
 
 class ChannelChangeTimeTargetEnum(ExtendedEnum):
@@ -66,11 +61,11 @@ class BlockTypeEnum(ExtendedEnum):
 
 
 class LogModuleEnum(ExtendedEnum):
-    stdin = "stdin" # 입력
-    stdout = "stdout" # 출력
-    stderr = "stderr" # 에러
+    stdin = "stdin"  # 입력
+    stdout = "stdout"  # 출력
+    stderr = "stderr"  # 에러
 
 
-class ShellTypeEnum(ExtendedEnum):
+class ShellModeEnum(ExtendedEnum):
     adb = "adb"
     ssh = "ssh"
