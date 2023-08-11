@@ -60,8 +60,8 @@ class SerialRemocon(AbstractRemocon):
             error_level = 'error' if self.error_count < 3 else 'critical'
 
             publish(self.redis_connection, RedisChannel.command, {'msg': 'remocon_response',
+                                                                  'level': error_level,
                                                                   'data': {"key": key,
-                                                                           'level': error_level,
                                                                            "type": "ir",
                                                                            "press_time": press_time,
                                                                            "log": log}})
