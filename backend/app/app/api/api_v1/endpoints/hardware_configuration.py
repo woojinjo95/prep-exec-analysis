@@ -128,11 +128,21 @@ def update_stb_connection(
     """
     Update stb_connection.
     """
+    conn_info = jsonable_encoder(stb_connection_in)
     RedisClient.hset('hardware_configuration',
                      'stb_connection', json.dumps({k: v for k, v
-                                                   in jsonable_encoder(stb_connection_in).items()
+                                                   in conn_info.items()
                                                    if v is not None}))
-    # TODO 메세지 보내기
+    RedisClient.publish('command', json.dumps({
+        "msg": "config",
+        "data": {
+            "mode": conn_info.get('type', None),
+            "host": conn_info.get('ip', None),
+            "port": conn_info.get('port', None),
+            "username": conn_info.get('username', None),
+            "password": conn_info.get('password', None),
+        }
+    }))
     return {'msg': f'Update {stb_connection_in.type} stb_connection.'}
 
 

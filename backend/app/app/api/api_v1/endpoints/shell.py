@@ -1,9 +1,11 @@
+import json
 import logging
 
 from app import schemas
 from app.crud.base import aggregate_from_mongodb
+from app.db.redis_session import RedisClient
 from app.schemas.enum import ShellModeEnum
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, HTTPException, Query
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -42,7 +44,24 @@ def connect_shell() -> schemas.Msg:
     """
     Connect shell.
     """
-    # TODO 메세지 보내기
+    conn_info = RedisClient.hget('hardware_configuration', 'stb_connection')
+    if conn_info is None:
+        raise HTTPException(
+            status_code=404, detail="The stb_connection does not exist in the system.")
+
+    conn_info = json.loads(conn_info)
+    RedisClient.publish('command', json.dumps({
+        "msg": "command_shell",
+        "data": {
+            "mode": conn_info.get('type', None),
+            "host": conn_info.get('ip', None),
+            "port": conn_info.get('port', None),
+            "username": conn_info.get('username', None),
+            "password": conn_info.get('password', None),
+        }
+    }))
+
+    # TODO shell 응답
     return {'msg': 'Connect shell'}
 
 
@@ -51,5 +70,7 @@ def disconnect_shell() -> schemas.Msg:
     """
     Disconnect shell.
     """
-    # TODO 메세지 보내기
+    RedisClient.publish('command', json.dumps({"msg": "disconnect_shell"}))
+
+    # TODO shell 응답
     return {'msg': 'Disconnect shell'}
