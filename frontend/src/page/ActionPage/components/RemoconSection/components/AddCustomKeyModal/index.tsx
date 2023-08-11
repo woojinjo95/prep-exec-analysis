@@ -79,7 +79,7 @@ const AddCustomKeyModal = ({ remocon, isOpen, close, keyEvent }: AddCustomKeyMod
 
   return (
     <div
-      className={cx('absolute top-[10px] right-3.5 h-auto', {
+      className={cx('absolute top-[10px] right-3.5 h-auto z-10', {
         left: customKeyModalRef.current && customKeyModalRef.current.getBoundingClientRect().left,
       })}
       ref={customKeyModalRef}
