@@ -1,7 +1,7 @@
 import logging
 import time
 
-from scripts.configs.constant import RedisChannel, ServiceType
+from scripts.configs.constant import RedisChannel
 from scripts.connection.mongo_db.crud import load_by_id_from_mongodb
 from scripts.connection.redis_pubsub import (Subscribe,
                                              get_strict_redis_connection,
