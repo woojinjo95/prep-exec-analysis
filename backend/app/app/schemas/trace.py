@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 
 class Logcat(BaseModel):
-    timestamp: datetime
+    time: datetime
     module: str
     log_level: LogLevelFinderTargetEnum
     process_name: str
@@ -20,7 +20,7 @@ class ReadLogcat(BaseModel):
 
 
 class Network(BaseModel):
-    timestamp: datetime
+    time: datetime
     source: str
     destination: str
     protocol: str
