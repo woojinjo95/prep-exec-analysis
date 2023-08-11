@@ -1,11 +1,9 @@
 import json
 import logging
 import uuid
-import json
 
 from app import schemas
 from app.api.utility import parse_bytes_to_value
-from app.crud.base import insert_by_id_to_mongodb_array, load_from_mongodb
 from app.db.redis_session import RedisClient
 from app.schemas.enum import RemoconEnum
 from fastapi import APIRouter, HTTPException

@@ -21,7 +21,7 @@ def get_data_of_log_level_finder(
         {'$match': {'time': {'$gte': start_time, '$lte': end_time}}}, 
         {'$project': {'_id': 0, 'lines': 1}},
         {'$unwind': {'path': '$lines'}},
-        {'$project': {'time': '$lines.time', 'log_level': '$lines.log_level'}}
+        {'$project': {'timestamp': '$lines.timestamp', 'log_level': '$lines.log_level'}}
     ]
     log_level_finder = aggregate_from_mongodb(col='stb_log', pipeline=log_level_finder_pipeline)
     return {"items": log_level_finder}
@@ -36,7 +36,7 @@ def get_data_of_cpu_and_memory(
     """
     Cpu, Memory 데이터 조회
     """
-    time_range_param = {'time': {'$gte': start_time, '$lte': end_time}}
+    time_range_param = {'timestamp': {'$gte': start_time, '$lte': end_time}}
     cpu_and_memory = load_from_mongodb(col="stb_info", param=time_range_param, proj={'_id': 0})
     return {"items": cpu_and_memory}
 
