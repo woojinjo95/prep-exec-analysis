@@ -49,7 +49,7 @@ class BlockManager:
 def command_parser(block_manager, command: dict):
     msg = command.get('msg', None)
 
-    if msg == 'scenario_run':
+    if msg == 'run_scenario':
         block_manager.init_scenario(id=command.get('data', {}).get('scenario_id', ''))
         block = block_manager.get_block(block_manager.progress_index)
         if block:
@@ -58,14 +58,14 @@ def command_parser(block_manager, command: dict):
                 publish(src, 'command', {
                     "service": "replay",
                     "level": "info",
-                    "msg": getattr(ServiceType, block['type']),
+                    "msg": block['type'],
                     "data": block,
                     "time": time.time()
                 })
         elif block is None:
             logger.info('scenario does not exist')
 
-    elif msg == 'scenario_next':
+    elif msg == 'next_block':
         block_manager.update_progress_index()
         next_block = block_manager.get_block(block_manager.progress_index)
         if next_block:
@@ -73,7 +73,7 @@ def command_parser(block_manager, command: dict):
                 publish(src, 'command', {
                     "service": "replay",
                     "level": "info",
-                    "msg": getattr(ServiceType, next_block['type']),
+                    "msg": next_block['type'],
                     "data": next_block,
                     "time": time.time()
                 })
