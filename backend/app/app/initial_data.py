@@ -1,8 +1,8 @@
 import logging
+import os
+from datetime import datetime
 
 from app.core.config import settings
-from app.crud.base import (insert_many_to_mongodb, insert_one_to_mongodb,
-                           load_one_from_mongodb)
 from app.db.redis_session import RedisClient
 from app.remocon_ir_preset import remocon_preset
 from app.schemas.enum import RemoteControlTypeEnum
@@ -11,7 +11,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def init_hardware_configuration():
+def init() -> None:
+    remocon_preset(settings.REMOCON_COMPANY.split(','))
     configs = {
         'hardware_configuration': {
             'remote_control_type': RemoteControlTypeEnum.ir.value,
@@ -24,23 +25,21 @@ def init_hardware_configuration():
             'packet_loss': 0.0,
             'stb_connection': 'null'
         },
-        'common': {'timezone': 'Asia/Seoul'}
+        'common': {
+            'timezone': 'Asia/Seoul',
+            'workspace_path': './data/workspace/testruns',
+            'testrun_dir': f'{datetime.now().strftime("%Y_%m_%d_%H%M%S.%f")}'
+        }
     }
+
+    if RedisClient.hget('common', 'testrun_dir') is None:
+        testrun_dir = f'/app/workspace/testruns/{configs["common"]["testrun_dir"]}'
+        os.makedirs(f'{testrun_dir}/raw')
+        os.makedirs(f'{testrun_dir}/analysis')
 
     for key, fields in configs.items():
         for field, value in fields.items():
-            if RedisClient.hget(key, field) is None:
-                RedisClient.hset(key, field, value)
-
-
-def init_remocon_registration():
-    remocon_preset(settings.REMOCON_COMPANY.split(','))
-    logger.info('Remote control preset process completed')
-
-
-def init() -> None:
-    init_hardware_configuration()
-    init_remocon_registration()
+            RedisClient.hsetnx(key, field, value)
 
 
 def main() -> None:
