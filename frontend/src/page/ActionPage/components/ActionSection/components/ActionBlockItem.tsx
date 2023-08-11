@@ -15,6 +15,7 @@ interface ActionBlockItemProps {
   setModifyingBlockId: React.Dispatch<React.SetStateAction<string | null>>
   modifyingBlockId: string | null
   blockRefetch: () => void
+  scenarioId: string
 }
 
 const ActionBlockItem = ({
@@ -25,6 +26,7 @@ const ActionBlockItem = ({
   setModifyingBlockId,
   modifyingBlockId,
   blockRefetch,
+  scenarioId,
 }: ActionBlockItemProps): JSX.Element => {
   const handleDragStart = (e: React.MouseEvent<HTMLDivElement>) => {
     // 부모 컴포넌트의 onMouseDown 이벤트 발생을 막기 위해서
@@ -69,6 +71,7 @@ const ActionBlockItem = ({
           ...block,
           delay_time: changeMinSecMsToMs(Number(changedMin), Number(changedSec), Number(changedMSec)),
         },
+        scenario_id: scenarioId,
       })
       setModifyingBlockId(null)
     }
@@ -127,7 +130,7 @@ const ActionBlockItem = ({
               userSelect: 'none',
             }}
           >
-            {block.type} : {block.value}
+            {block.name}
           </div>
         </div>
         <div className={cx('flex items-center justify-end')}>

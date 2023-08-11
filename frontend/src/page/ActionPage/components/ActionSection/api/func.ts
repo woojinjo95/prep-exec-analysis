@@ -1,11 +1,22 @@
 import API from '@global/api'
 import { AxiosError } from 'axios'
-import { Block, BlockGroup, Scenario } from '@page/ActionPage/components/ActionSection/api/entity'
+import {
+  Block,
+  BlockGroup,
+  Scenario,
+  ScenarioSummaryResponse,
+} from '@page/ActionPage/components/ActionSection/api/entity'
+import { Response } from '@global/api/entity'
 import apiUrls from './url'
 
-export const getScenario = async () => {
+export const getScenario = async ({ page, page_size }: { page: number; page_size: number }) => {
   try {
-    const result = await API.get<Scenario>(apiUrls.scenario)
+    const result = await API.get<ScenarioSummaryResponse>(apiUrls.scenario, {
+      params: {
+        page,
+        page_size,
+      },
+    })
 
     return result.data
   } catch (err) {
@@ -16,9 +27,9 @@ export const getScenario = async () => {
 
 export const getScenarioById = async ({ scenario_id }: { scenario_id: string }) => {
   try {
-    const result = await API.get<Scenario>(`${apiUrls.scenario}/${scenario_id}`)
+    const result = await API.get<Response<Scenario>>(`${apiUrls.scenario}/${scenario_id}`)
 
-    return result.data
+    return result.data.items
   } catch (err) {
     const er = err as AxiosError
     throw er
@@ -35,6 +46,9 @@ export const putScenario = async ({ block_group, scenario_id }: { block_group: B
     throw er
   }
 }
+
+// post scenario
+// TODO: 추후 구현 필요
 
 // export const postScenario = async ({ newBlock }: { newBlock: Omit<Block, 'id'> }) => {
 //   try {
