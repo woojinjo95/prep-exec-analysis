@@ -21,9 +21,8 @@ def get_data_of_log_level_finder(
     log_level_finder_pipeline = [
         {'$match': {'time': {'$gte': start_time, '$lte': end_time}}}, 
         {'$project': {'_id': 0, 'lines': 1}},
-        {'$unwind': {'path': '$lines'}}, 
-        {'$replaceRoot': {'newRoot': '$lines'}}, 
-        {'$project': {'timestamp': 1, 'log_level': 1}}
+        {'$unwind': {'path': '$lines'}},
+        {'$project': {'timestamp': '$lines.timestamp', 'log_level': '$lines.log_level'}}
     ]
     log_level_finder = aggregate_from_mongodb(col='stb_log', pipeline=log_level_finder_pipeline)
     return {"items": log_level_finder}
