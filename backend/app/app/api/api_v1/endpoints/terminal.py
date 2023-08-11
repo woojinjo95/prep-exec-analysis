@@ -1,7 +1,7 @@
 import logging
 
 from app import schemas
-from app.crud.base import load_from_mongodb
+from app.crud.base import aggregate_from_mongodb
 from app.schemas.enum import ShellTypeEnum
 from fastapi import APIRouter, Query
 
@@ -14,7 +14,10 @@ def get_terminal_modes() -> schemas.TerminalList:
     """
     터미널 목록
     """
-    return {"items": load_from_mongodb(col="shell_log", proj={'_id': 0, 'lines': 0, 'time': 0})}
+    pipeline = [{'$group': {'_id': {'mode': '$mode', 'shell_id': '$shell_id'}}},
+                {'$replaceRoot': {'newRoot': "$_id"}}]
+    return{'items': aggregate_from_mongodb(col="shell_log", pipeline=pipeline)}
+
 
 
 @router.get("/logs", response_model=schemas.TerminalLogList)
@@ -27,6 +30,10 @@ def get_terminal_logs(
     """
     터미널별 일정기간 로그 조회
     """
-    param = {'time': {'$gte': start_time, '$lte': end_time}, 'mode': terminal_mode.value, 'shell_id': shell_id}
-    result = load_from_mongodb(col="shell_log", param=param, proj={'_id': 0, 'lines': 1})
+
+    pipeline = [{'$match': {'time': {'$gte': start_time, '$lte': end_time}, 'mode': terminal_mode.value, 'shell_id': shell_id}},
+                {'$project': {'_id': 0, 'lines': 1}},
+                {'$unwind': {'path': '$lines'}},
+                {'$group': {'_id': None, 'lines': {'$push': '$lines'}}}]
+    result = aggregate_from_mongodb(col="shell_log", pipeline=pipeline)
     return {'items': result if result == [] else result[0]['lines']}
