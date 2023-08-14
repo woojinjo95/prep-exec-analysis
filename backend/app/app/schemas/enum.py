@@ -29,12 +29,12 @@ class ResumeRecognizingKeyEventEnum(ExtendedEnum):
 
 
 class ResumeTypeEnum(ExtendedEnum):
-    image_maching = "image_maching"
+    image_matching = "image_matching"
     screen_change_rate = "screen_change_rate"
 
 
 class BootTypeEnum(ExtendedEnum):
-    image_maching = "image_maching"
+    image_matching = "image_matching"
     screen_change_rate = "screen_change_rate"
 
 

@@ -44,10 +44,10 @@ def init() -> None:
             "loudness": {},
             "resume": {
                 "recognizing_key_event": ResumeRecognizingKeyEventEnum.power.value,
-                "type": ResumeTypeEnum.image_maching.value,
+                "type": ResumeTypeEnum.image_matching.value,
             },
             "boot": {
-                "type": BootTypeEnum.image_maching.value,
+                "type": BootTypeEnum.image_matching.value,
             },
             "channel_change_time": {
                 "targets": f'["{ChannelChangeTimeTargetEnum.adjoint_channel.value}"]'
