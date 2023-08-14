@@ -91,6 +91,7 @@ def read_scenario_by_id(
         # 워크스페이스 변경
         RedisClient.hset('testrun', 'dir', scenario.get('testrun', {}).get('dir', 'null'))
         RedisClient.hset('testrun', 'scenario_id', scenario.get('id', 'null'))
+        # TODO 변경 메세지
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'items': scenario}
