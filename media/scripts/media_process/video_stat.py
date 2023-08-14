@@ -104,7 +104,7 @@ def summerize_merged_video_info(requested_start_time: float, output_json_path: s
     first_video_time = info['timestamps'][0]
     if requested_start_time < first_video_time:
         diff = first_video_time - requested_start_time
-        log = f'Video is not exist before {first_video_time}, first {diff:.3f} seconds missed.'
+        log = f'Video is not exist before {first_video_time}, first {diff:.3f} seconds is missed.'
         logger.warning(log)
         info['logs'].append(('warning', log))
 
