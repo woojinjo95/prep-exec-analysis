@@ -6,7 +6,8 @@ from datetime import datetime
 
 from app import schemas
 from app.api.utility import get_multi_or_paginate_by_res
-from app.crud.base import (insert_one_to_mongodb, load_by_id_from_mongodb,
+from app.crud.base import (aggregate_from_mongodb, get_mongodb_collection,
+                           insert_one_to_mongodb, load_by_id_from_mongodb,
                            update_by_id_to_mongodb)
 from app.db.redis_session import RedisClient
 from fastapi import APIRouter, HTTPException, Query
@@ -14,6 +15,54 @@ from fastapi.encoders import jsonable_encoder
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+
+@router.get("/tag", response_model=schemas.ScenarioTag)
+def read_scenario_tags() -> schemas.ScenarioTag:
+    """
+    Retrieve scenario tags.
+    """
+    pipeline = [
+        {'$unwind': '$tags'},
+        {'$group': {'_id': None, 'tags': {'$addToSet': '$tags'}}},
+        {'$project': {'_id': 0, 'tags': 1}}
+    ]
+    res = aggregate_from_mongodb(col='scenario', pipeline=pipeline)
+    return {'items': {} if len(res) == 0 else {'tags': sorted(res[0]['tags'])}}
+
+
+@router.put("/tag/{tag}", response_model=schemas.Msg)
+def update_scenario_tag(
+    *,
+    tag: str,
+    tag_in: schemas.ScenarioTagUpdate,
+) -> schemas.Msg:
+    """
+    Update a scenario tag.
+    """
+    col = get_mongodb_collection('scenario')
+    col.update_many(
+        {"tags": tag},
+        {"$set": {"tags.$[elem]": tag_in.tag}},
+        array_filters=[{"elem": tag}]
+    )
+    return {'msg': 'Update a scenario tag.'}
+
+
+@router.delete("/tag/{tag}", response_model=schemas.Msg)
+def delete_scenario_tag(
+    *,
+    tag: str,
+) -> schemas.Msg:
+    """
+    Delete a scenario tag.
+    """
+    col = get_mongodb_collection('scenario')
+    col.update_many(
+        {"tags": tag},
+        {"$pull": {"tags": tag}}
+    )
+    return {'msg': 'Delete a scenario tag.'}
 
 
 @router.get("/{scenario_id}", response_model=schemas.Scenario)
