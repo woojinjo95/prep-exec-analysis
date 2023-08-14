@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 from app import schemas
 from app.crud.base import aggregate_from_mongodb
@@ -19,13 +20,14 @@ def read_timezone() -> schemas.Timezone:
 
 
 @router.get("/video")
-def read_video_file() -> StreamingResponse:
+def read_video_file(
+    scenario_id: Optional[str] = RedisClient.hget('testrun', 'scenario_id')
+) -> StreamingResponse:
     """
     비디오 파일 재생
     """
-    scenario_id = RedisClient.hget('testrun', 'scenario_id')
     if scenario_id is None:
-        raise HTTPException(status_code=404, detail="Scenario data not found")
+        raise HTTPException(status_code=404, detail="Scenario id not found")
     pipeline = [{'$match': {'id': scenario_id}},
                 {'$project': {'_id': 0, 'videos': '$testrun.raw.videos'}},
                 ]
