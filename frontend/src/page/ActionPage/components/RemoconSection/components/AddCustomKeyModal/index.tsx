@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
-import useOutSideRef from '@global/hook/useOutsideRef'
-import cx from 'classnames'
-import { KeyEvent } from '@page/ActionPage/types'
 import { useMutation, useQuery } from 'react-query'
+import cx from 'classnames'
+import useOutSideRef from '@global/hook/useOutsideRef'
+import AppURL from '@global/constant/appURL'
+import { KeyEvent } from '@page/ActionPage/types'
 import { Remocon } from '../../api/entity'
 import AddCustomKeyModalRemoconButtons from './AddCustomKeyModalRemoconButtons'
 import { getRemocon, postCustomKey } from '../../api/func'
@@ -14,7 +15,12 @@ interface AddCustomKeyModalProps {
   keyEvent: KeyEvent | null
 }
 
-const AddCustomKeyModal = ({ remocon, isOpen, close, keyEvent }: AddCustomKeyModalProps): JSX.Element => {
+const AddCustomKeyModal: React.FC<AddCustomKeyModalProps> = ({
+  remocon,
+  isOpen,
+  close,
+  keyEvent,
+}: AddCustomKeyModalProps) => {
   // 리모컨 입력 확인을 위한 임시 string
   const [remoconInput, setRemoconInput] = useState<string[]>([])
 
@@ -94,9 +100,7 @@ const AddCustomKeyModal = ({ remocon, isOpen, close, keyEvent }: AddCustomKeyMod
                 onLoad={() => {
                   setIsLoadedRemoconImage(true)
                 }}
-                src={`${
-                  import.meta.env.VITE_BACKEND_URL || `${window.location.protocol}//${window.location.hostname}:5000`
-                }${remocon.image_path}`}
+                src={`${AppURL.baseURL}${remocon.image_path}`}
                 alt="remocon"
                 className="w-full"
               />

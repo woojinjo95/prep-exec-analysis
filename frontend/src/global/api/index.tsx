@@ -1,7 +1,8 @@
+import AppURL from '@global/constant/appURL'
 import axios, { AxiosError } from 'axios'
 
 const API = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_URL || `${window.location.protocol}//${window.location.hostname}:5000`,
+  baseURL: AppURL.baseURL,
 })
 
 API.interceptors.response.use(
