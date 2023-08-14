@@ -23,13 +23,17 @@ def read_scenario_tags() -> schemas.ScenarioTag:
     """
     Retrieve scenario tags.
     """
-    pipeline = [
-        {'$unwind': '$tags'},
-        {'$group': {'_id': None, 'tags': {'$addToSet': '$tags'}}},
-        {'$project': {'_id': 0, 'tags': 1}}
-    ]
-    res = aggregate_from_mongodb(col='scenario', pipeline=pipeline)
-    return {'items': {} if len(res) == 0 else {'tags': sorted(res[0]['tags'])}}
+    try:
+        pipeline = [
+            {'$unwind': '$tags'},
+            {'$group': {'_id': None, 'tags': {'$addToSet': '$tags'}}},
+            {'$project': {'_id': 0, 'tags': 1}}
+        ]
+        mongo_res = aggregate_from_mongodb(col='scenario', pipeline=pipeline)
+        res = {} if len(mongo_res) == 0 else {'tags': sorted(mongo_res[0]['tags'])}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return {'items': res}
 
 
 @router.put("/tag/{tag}", response_model=schemas.Msg)
@@ -41,12 +45,15 @@ def update_scenario_tag(
     """
     Update a scenario tag.
     """
-    col = get_mongodb_collection('scenario')
-    col.update_many(
-        {"tags": tag},
-        {"$set": {"tags.$[elem]": tag_in.tag}},
-        array_filters=[{"elem": tag}]
-    )
+    try:
+        col = get_mongodb_collection('scenario')
+        col.update_many(
+            {"tags": tag},
+            {"$set": {"tags.$[elem]": tag_in.tag}},
+            array_filters=[{"elem": tag}]
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Update a scenario tag.'}
 
 
@@ -58,11 +65,14 @@ def delete_scenario_tag(
     """
     Delete a scenario tag.
     """
-    col = get_mongodb_collection('scenario')
-    col.update_many(
-        {"tags": tag},
-        {"$pull": {"tags": tag}}
-    )
+    try:
+        col = get_mongodb_collection('scenario')
+        col.update_many(
+            {"tags": tag},
+            {"$pull": {"tags": tag}}
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Delete a scenario tag.'}
 
 
@@ -97,8 +107,8 @@ def update_scenario(
     """
     try:
         res = update_by_id_to_mongodb(col='scenario',
-                                    id=scenario_id,
-                                    data={'block_group': jsonable_encoder(scenario_in.block_group),
+                                      id=scenario_id,
+                                      data={'block_group': jsonable_encoder(scenario_in.block_group),
                                             "updated_at": time.time()})
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
