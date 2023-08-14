@@ -79,13 +79,16 @@ def summerize_merged_video_info(requested_start_time: float, output_json_path: s
     # video #1 ~ video #last-1
     # 첫번째 ~ 마지막에서 두번째 영상은 만들어진 시간 편차를 실제 프레임 수로 나누어서 각각의 간격을 계산
     # 웬만하면 가장 마지막 수정 시각으로 계산해도 ~3 ms 이하의 오차를 보이나, 시간이 뒤집히지 않도록 양쪽 데이터를 맞춤
-    for prev_info, current_info in zip(video_infos, video_infos[1:]):
-        start_time = prev_info['created_time']
-        calculated_interval = current_info['created_time'] - prev_info['created_time']
-        inter_calculated_fps = prev_info['frame_count'] / calculated_interval
+    if len(video_infos) >= 2:
+        for prev_info, current_info in zip(video_infos, video_infos[1:]):
+            start_time = prev_info['created_time']
+            calculated_interval = current_info['created_time'] - prev_info['created_time']
+            inter_calculated_fps = prev_info['frame_count'] / calculated_interval
 
-        error_logging(primary_data, info, start_time, calculated_interval, inter_calculated_fps)
-        info['timestamps'] += [round(start_time + idx / inter_calculated_fps, 6) for idx in range(prev_info['frame_count'])]
+            error_logging(primary_data, info, start_time, calculated_interval, inter_calculated_fps)
+            info['timestamps'] += [round(start_time + idx / inter_calculated_fps, 6) for idx in range(prev_info['frame_count'])]
+    else:
+        current_info = video_infos[0]
 
     # video #last
     # 마지막 영상은 다음 영상이 없으므로, 자신의 가장 마지막 수정 시각 이용
@@ -101,7 +104,7 @@ def summerize_merged_video_info(requested_start_time: float, output_json_path: s
     first_video_time = info['timestamps'][0]
     if requested_start_time < first_video_time:
         diff = first_video_time - requested_start_time
-        log = f'Video is not exist before {first_video_time}, first {diff} seconds missed.'
+        log = f'Video is not exist before {first_video_time}, first {diff:.3f} seconds missed.'
         logger.warning(log)
         info['logs'].append(('warning', log))
 
@@ -125,10 +128,10 @@ def error_logging(primary_data: Dict, info: Dict, start_time: float, calculated_
     fps_ratio = inter_calculated_fps / primary_data['fps']
     if abs(fps_ratio - 1) > 0.01:
         if abs(fps_ratio - 1) > 0.1:
-            log = f'Local FPS ratio diff is over 10%! ({fps_ratio}), {start_time} to {calculated_interval}: Normal analysis cannot be done.'
+            log = f'Local FPS ratio diff is over 10%! ({fps_ratio:.3f}), {start_time:.6f} to {calculated_interval:.3f}: Normal analysis cannot be done.'
             logger.error(log)
             info['logs'].append(('error', log))
         else:
-            log = f'Local FPS ratio diff is over 1%! ({fps_ratio}), {start_time} to {calculated_interval}: check device settings.'
+            log = f'Local FPS ratio diff is over 1%! ({fps_ratio:.3f}), {start_time:.6f} to {calculated_interval:.3f}: check device settings.'
             logger.warning(log)
             info['logs'].append(('warning', log))
