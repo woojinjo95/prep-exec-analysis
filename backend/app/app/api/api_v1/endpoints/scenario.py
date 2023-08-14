@@ -80,8 +80,8 @@ def create_scenario(
         name=scenario_in.name if scenario_in.name else time.time(),
         tags=scenario_in.tags if scenario_in.tags else [],
         testrun=schemas.Testrun(dir=dir,
-                                raw=schemas.TestrunRaw(video=[]),
-                                analysis=schemas.TestrunAnalysis(video=[])))
+                                raw=schemas.TestrunRaw(videos=[]),
+                                analysis=schemas.TestrunAnalysis(videos=[])))
     # 시나리오 등록
     insert_one_to_mongodb(col='scenario', data=jsonable_encoder(scenario_in))
 
