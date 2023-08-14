@@ -24,8 +24,18 @@ class ProtocolEnum(ExtendedEnum):
     udp = "udp"
 
 
-class ResumeMeasurementRecognizingKeyEventEnum(ExtendedEnum):
+class ResumeRecognizingKeyEventEnum(ExtendedEnum):
     power = "power"
+
+
+class ResumeTypeEnum(ExtendedEnum):
+    image_maching = "image_maching"
+    screen_change_rate = "screen_change_rate"
+
+
+class BootTypeEnum(ExtendedEnum):
+    image_maching = "image_maching"
+    screen_change_rate = "screen_change_rate"
 
 
 class AnalysisTypeEnum(ExtendedEnum):
@@ -37,6 +47,8 @@ class AnalysisTypeEnum(ExtendedEnum):
     channel_change_time = "channel_change_time"
     log_level_finder = "log_level_finder"
     log_pattern_matching = "log_pattern_matching"
+    process_lifecycle_analysis = "process_lifecycle_analysis"
+    network_filter = "network_filter"
 
 
 class LogLevelFinderTargetEnum(ExtendedEnum):
@@ -52,7 +64,6 @@ class LogLevelFinderTargetEnum(ExtendedEnum):
 class ChannelChangeTimeTargetEnum(ExtendedEnum):
     adjoint_channel = "adjoint_channel"
     nonadjoint_channel = "nonadjoint_channel"
-    previous_channel = "previous_channel"
 
 
 class BlockTypeEnum(ExtendedEnum):
