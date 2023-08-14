@@ -1,4 +1,4 @@
-from app.api.api_v1.endpoints import item, remocon, scenario, hardware_configuration, block, file, client, analysis_config, trace, shell, utility, analysis_result, workspace
+from app.api.api_v1.endpoints import item, remocon, scenario, hardware_configuration, block, file, client, analysis_config, trace, shell, utility, analysis_result
 from fastapi import APIRouter
 
 api_router = APIRouter()
@@ -20,4 +20,3 @@ api_router.include_router(analysis_result.router, prefix="/analysis_result", tag
 api_router.include_router(utility.router, tags=["utility"])
 api_router.include_router(file.router, prefix="/file", tags=["utility"])
 api_router.include_router(client.router, prefix="/client", tags=["utility"])
-api_router.include_router(workspace.router, prefix="/workspace", tags=["workspace"])
