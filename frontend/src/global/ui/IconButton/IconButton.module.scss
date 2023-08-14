@@ -1,0 +1,17 @@
+.icon-button-icon {
+  svg {
+    @apply h-4;
+  }
+  &.charcoal {
+    path,
+    polygon {
+      @apply fill-white;
+    }
+  }
+  &.light {
+    path,
+    polygon {
+      @apply fill-black;
+    }
+  }
+}
