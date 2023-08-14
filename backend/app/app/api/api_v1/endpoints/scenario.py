@@ -72,7 +72,7 @@ def create_scenario(
     """
     Create new scenario.
     """
-    dir = datetime.now().strftime("%Y_%m_%d_%H%M%S.%f")
+    dir = datetime.now().strftime("%Y-%m-%dT%H%M%SF%f")
     scenario_in = schemas.ScenarioBase(
         id=str(uuid.uuid4()),
         updated_at=time.time(),
