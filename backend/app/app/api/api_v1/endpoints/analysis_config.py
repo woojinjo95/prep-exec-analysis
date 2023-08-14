@@ -5,7 +5,7 @@ from app import schemas
 from app.api.utility import parse_bytes_to_value
 from app.db.redis_session import RedisClient
 from app.schemas.enum import AnalysisTypeEnum
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from fastapi.encoders import jsonable_encoder
 
 logger = logging.getLogger(__name__)
@@ -37,21 +37,3 @@ def update_analysis_config(
             for k, v in val.items():
                 RedisClient.hset(f'analysis_config:{key}', k, json.dumps(v))
     return {'msg': 'Update analysis_config'}
-
-
-@router.delete("/{analysis_type}", response_model=schemas.Msg)
-def delete_analysis_config(
-    *,
-    analysis_type: AnalysisTypeEnum,
-) -> schemas.Msg:
-    """
-    Delete analysis_config.
-    """
-    analysis_type = analysis_type.value
-    name = f'analysis_config:{analysis_type}'
-    if not RedisClient.hgetall(name=name):
-        raise HTTPException(
-            status_code=404, detail=f"The analysis_config with this {analysis_type} does not exist in the system.")
-
-    RedisClient.delete(name)
-    return {'msg': f'Delete {analysis_type} analysis_config'}
