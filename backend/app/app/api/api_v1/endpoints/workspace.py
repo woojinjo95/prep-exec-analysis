@@ -27,7 +27,7 @@ def read_video_file(
     video_info = video_info[0]['videos'][0]
     video_file_path = video_info.get('path', '')
     video_file_path = video_file_path.replace('./data', '/app')
-    def iterfile():
+    def video_file_open():
         with open(f"{video_file_path}", mode="rb") as video_file:
             yield from video_file
-    return StreamingResponse(iterfile(), media_type="video/mp4")
+    return StreamingResponse(video_file_open(), media_type="video/mp4")
