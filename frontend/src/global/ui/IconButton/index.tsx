@@ -22,10 +22,12 @@ const IconButton: React.FC<IconButtonProps> = ({
       // eslint-disable-next-line react/button-has-type
       type={type}
       className={cx(
-        'w-[52px] h-10 rounded-full flex justify-center items-center border',
+        'w-[52px] h-10 rounded-full flex justify-center items-center border transition-all',
         {
           'bg-charcoal': colorScheme === 'charcoal',
           'border-light-charcoal': colorScheme === 'charcoal',
+          'hover:brightness-110': colorScheme === 'charcoal',
+          'active:brightness-95': colorScheme === 'charcoal',
           'bg-white': colorScheme === 'light',
           'border-light-grey': colorScheme === 'light',
         },
