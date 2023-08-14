@@ -23,7 +23,6 @@ def init() -> None:
             'packet_bandwidth': 0,
             'packet_delay': 0.0,
             'packet_loss': 0.0,
-            'stb_connection': 'null',
         },
         'common': {
             'timezone': 'Asia/Seoul',
