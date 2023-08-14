@@ -222,4 +222,4 @@ class MakeVideo:
             logger.error(f'Error in update mongodb: {e}')
             logger.debug(traceback.format_exc())
 
-        logger.info(f'Video info created, {subscribe_count} listener get data, saved mongodb document "videos", {scenario_id}, with info: {video_info}')
+        logger.info(f'Video info created, {subscribe_count} listener get data, saved mongodb document {scenario_id}, with info: {video_info}')
