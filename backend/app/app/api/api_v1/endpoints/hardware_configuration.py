@@ -1,5 +1,6 @@
 import json
 import logging
+import traceback
 import uuid
 
 from app import schemas
@@ -31,26 +32,28 @@ def read_hardware_configuration() -> schemas.HardwareConfigurationBase:
     """
     Retrieve hardware_configuration.
     """
-    hardware_configuration = RedisClient.hgetall(f'hardware_configuration')
-    config = {field: parse_bytes_to_value(value)
-              for field, value in hardware_configuration.items()}
-    stb_conn = RedisClient.hget(f'hardware_configuration',
-                                'stb_connection')
-    config['stb_connection'] = json.loads(stb_conn) if stb_conn else None
+    try:
+        hardware_configuration = RedisClient.hgetall(f'hardware_configuration')
+        config = {field: parse_bytes_to_value(value)
+                  for field, value in hardware_configuration.items()}
+        stb_conn = RedisClient.hget(f'hardware_configuration',
+                                    'stb_connection')
+        config['stb_connection'] = json.loads(stb_conn) if stb_conn else None
 
-    ip_limit_list = []
-    matching_keys = RedisClient.scan_iter(
-        match="hardware_configuration_ip_limit:*")
-    for key in matching_keys:
-        res = RedisClient.hgetall(key)
-        ip_limit_list.append({
-            'id': key.split(':')[1],
-            'ip': res.get('ip', ''),
-            'port': res.get('port', ''),
-            'protocol': res.get('protocol', ''),
-        })
-    config['ip_limit'] = sorted(
-        ip_limit_list, key=lambda x: x['ip']) if ip_limit_list else None
+        ip_limit_list = []
+        matching_keys = RedisClient.scan_iter(
+            match="hardware_configuration_ip_limit:*")
+        for key in matching_keys:
+            res = RedisClient.hgetall(key)
+            ip_limit_list.append({
+                'id': key.split(':')[1],
+                'ip': res.get('ip', ''),
+                'port': res.get('port', ''),
+                'protocol': res.get('protocol', ''),
+            })
+        config['ip_limit'] = sorted(ip_limit_list, key=lambda x: x['ip']) if ip_limit_list else None
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'items': config}
 
 
@@ -128,21 +131,24 @@ def update_stb_connection(
     """
     Update stb_connection.
     """
-    conn_info = jsonable_encoder(stb_connection_in)
-    RedisClient.hset('hardware_configuration',
-                     'stb_connection', json.dumps({k: v for k, v
-                                                   in conn_info.items()
-                                                   if v is not None}))
-    RedisClient.publish('command', json.dumps({
-        "msg": "config",
-        "data": {
-            "mode": conn_info.get('type', None),
-            "host": conn_info.get('ip', None),
-            "port": conn_info.get('port', None),
-            "username": conn_info.get('username', None),
-            "password": conn_info.get('password', None),
-        }
-    }))
+    try:
+        conn_info = jsonable_encoder(stb_connection_in)
+        RedisClient.hset('hardware_configuration',
+                        'stb_connection', json.dumps({k: v for k, v
+                                                    in conn_info.items()
+                                                    if v is not None}))
+        RedisClient.publish('command', json.dumps({
+            "msg": "config",
+            "data": {
+                "mode": conn_info.get('type', None),
+                "host": conn_info.get('ip', None),
+                "port": conn_info.get('port', None),
+                "username": conn_info.get('username', None),
+                "password": conn_info.get('password', None),
+            }
+        }))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': f'Update {stb_connection_in.type} stb_connection.'}
 
 

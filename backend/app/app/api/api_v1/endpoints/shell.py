@@ -1,7 +1,9 @@
 import json
 import logging
+import traceback
 
 from app import schemas
+from app.api.utility import parse_bytes_to_value
 from app.crud.base import aggregate_from_mongodb
 from app.db.redis_session import RedisClient
 from app.schemas.enum import ShellModeEnum
@@ -45,23 +47,25 @@ def connect_shell() -> schemas.Msg:
     Connect shell.
     """
     conn_info = RedisClient.hget('hardware_configuration', 'stb_connection')
-    if conn_info is None:
+    if conn_info is None or parse_bytes_to_value(conn_info) is None:
         raise HTTPException(
             status_code=404, detail="The stb_connection does not exist in the system.")
-
-    conn_info = json.loads(conn_info)
-    RedisClient.publish('command', json.dumps({
-        "msg": "command_shell",
-        "data": {
-            "mode": conn_info.get('type', None),
-            "host": conn_info.get('ip', None),
-            "port": conn_info.get('port', None),
-            "username": conn_info.get('username', None),
-            "password": conn_info.get('password', None),
-        }
-    }))
-
-    # TODO shell 응답
+    try:
+        conn_info = json.loads(conn_info)
+        RedisClient.publish('command', json.dumps({
+            "msg": "command_shell",
+            "data": {
+                "mode": conn_info.get('type', None),
+                "host": conn_info.get('ip', None),
+                "port": conn_info.get('port', None),
+                "username": conn_info.get('username', None),
+                "password": conn_info.get('password', None),
+            }
+        }))
+        # TODO shell 응답
+    except Exception as e:
+        pass
+        # raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Connect shell'}
 
 
@@ -70,7 +74,10 @@ def disconnect_shell() -> schemas.Msg:
     """
     Disconnect shell.
     """
-    RedisClient.publish('command', json.dumps({"msg": "disconnect_shell"}))
-
+    try:
+        RedisClient.publish('command', json.dumps({"msg": "disconnect_shell"}))
     # TODO shell 응답
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+
     return {'msg': 'Disconnect shell'}

@@ -1,6 +1,7 @@
 import logging
 import os
 import time
+import traceback
 import uuid
 from datetime import datetime
 
@@ -27,10 +28,12 @@ def read_scenario_by_id(
     if not scenario:
         raise HTTPException(
             status_code=404, detail="The scenario with this id does not exist in the system.")
-
-    # 워크스페이스 변경
-    RedisClient.hset('testrun', 'dir', scenario.get('testrun', {}).get('dir', 'null'))
-    RedisClient.hset('testrun', 'scenario_id', scenario.get('id', 'null'))
+    try:
+        # 워크스페이스 변경
+        RedisClient.hset('testrun', 'dir', scenario.get('testrun', {}).get('dir', 'null'))
+        RedisClient.hset('testrun', 'scenario_id', scenario.get('id', 'null'))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'items': scenario}
 
 
@@ -43,13 +46,13 @@ def update_scenario(
     """
     Update a scenario.
     """
-    res = update_by_id_to_mongodb(col='scenario',
-                                  id=scenario_id,
-                                  data={'block_group': jsonable_encoder(scenario_in.block_group),
-                                        "updated_at": time.time()})
-    if res.matched_count == 0:
-        raise HTTPException(
-            status_code=406, detail="No items have been updated.")
+    try:
+        res = update_by_id_to_mongodb(col='scenario',
+                                    id=scenario_id,
+                                    data={'block_group': jsonable_encoder(scenario_in.block_group),
+                                            "updated_at": time.time()})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Update a scenario.'}
 
 
@@ -72,26 +75,28 @@ def create_scenario(
     """
     Create new scenario.
     """
-    dir = datetime.now().strftime("%Y-%m-%dT%H%M%SF%f")
-    scenario_in = schemas.ScenarioBase(
-        id=str(uuid.uuid4()),
-        updated_at=time.time(),
-        block_group=[],
-        name=scenario_in.name if scenario_in.name else time.time(),
-        tags=scenario_in.tags if scenario_in.tags else [],
-        testrun=schemas.Testrun(dir=dir,
-                                raw=schemas.TestrunRaw(videos=[]),
-                                analysis=schemas.TestrunAnalysis(videos=[])))
-    # 시나리오 등록
-    insert_one_to_mongodb(col='scenario', data=jsonable_encoder(scenario_in))
+    try:
+        dir = datetime.now().strftime("%Y-%m-%dT%H%M%SF%f")
+        scenario_in = schemas.ScenarioBase(
+            id=str(uuid.uuid4()),
+            updated_at=time.time(),
+            block_group=[],
+            name=scenario_in.name if scenario_in.name else time.time(),
+            tags=scenario_in.tags if scenario_in.tags else [],
+            testrun=schemas.Testrun(dir=dir,
+                                    raw=schemas.TestrunRaw(videos=[]),
+                                    analysis=schemas.TestrunAnalysis(videos=[])))
+        # 시나리오 등록
+        insert_one_to_mongodb(col='scenario', data=jsonable_encoder(scenario_in))
 
-    # 워크스페이스 변경
-    RedisClient.hset('testrun', 'dir', dir)
-    RedisClient.hset('testrun', 'scenario_id', scenario_in.id)
+        # 워크스페이스 변경
+        RedisClient.hset('testrun', 'dir', dir)
+        RedisClient.hset('testrun', 'scenario_id', scenario_in.id)
 
-    # 폴더 생성
-    path = f'/app/workspace/testruns/{dir}'
-    os.makedirs(f'{path}/raw')
-    os.makedirs(f'{path}/analysis')
-
+        # 폴더 생성
+        path = f'/app/workspace/testruns/{dir}'
+        os.makedirs(f'{path}/raw')
+        os.makedirs(f'{path}/analysis')
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Create new scenario', 'id': scenario_in.id}
