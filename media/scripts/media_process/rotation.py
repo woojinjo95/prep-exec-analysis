@@ -6,6 +6,7 @@ import shutil
 import subprocess
 import tempfile
 import time
+import traceback
 from collections import deque
 from copy import deepcopy
 from glob import glob
@@ -14,8 +15,9 @@ from typing import List, Tuple
 import cv2
 
 from ..configs.config import RedisDBEnum, get_value
-from ..connection.mongo_db.create import insert_to_mongodb
-from ..connection.redis_pubsub import publish, get_strict_redis_connection
+from ..configs.constant import RedisChannel
+from ..connection.mongo_db.update import update_to_mongodb
+from ..connection.redis_pubsub import get_strict_redis_connection, publish
 from ..utils._timezone import timestamp_to_datetime_with_timezone_str
 from ..utils.file_manage import JsonManager, substitute_path_extension
 
@@ -75,7 +77,7 @@ class RotationFileManager:
         self.path = recording_config['real_time_video_path']
         self.segment_interval = recording_config['segment_interval']
         self.rotation_interval = recording_config['rotation_interval']
-        self.file_count = self.segment_interval // self.segment_interval + 5
+        self.file_count = self.rotation_interval // self.segment_interval + 5
         self.files_deque = deque(maxlen=self.file_count)
         self.preserved_list = []
         self.index = 0
@@ -117,20 +119,24 @@ class MakeVideo:
         self.root_file_path = get_value('common', 'root_file_path', './data')
         recording_config = get_value('recording')
         self.path = recording_config['real_time_video_path']
-        self.output_path = recording_config['output_video_path']
         self.temp_path = 'temp_videos'
         self.now = time.time()
         self.start_time = self.now - interval if start_time is None else start_time
         self.end_time = self.start_time + interval if end_time is None else end_time is None
 
+        self.workspace_info = get_value('testrun', db=RedisDBEnum.hardware)
+        scenario_dirname = str(self.workspace_info['dir'])
+        output_path = os.path.join('/app/workspace/testruns', scenario_dirname, 'raw', 'videos')
+        self.mounted_output_path = os.path.join(self.workspace_info['workspace_path'], scenario_dirname, 'raw', 'videos')
+
         os.makedirs(self.temp_path, exist_ok=True)
-        os.makedirs(self.output_path, exist_ok=True)
+        os.makedirs(output_path, exist_ok=True)
         time_info = timestamp_to_datetime_with_timezone_str(self.start_time, format="%Y-%m-%dT%H%M%SF%f%z", timezone=get_value('common', 'timezone', db=RedisDBEnum.hardware))
-        self.output_video_name = os.path.join(self.output_path, f'video_{time_info}_{interval}.mp4')
+        self.output_video_path = os.path.join(output_path, f'video_{time_info}_{interval}.mp4')
         self.video_name_list = []
         self.json_name_list = []
 
-        logger.info(f'Make new video: {self.output_video_name}, {self.start_time} to {self.end_time}')
+        logger.info(f'Make new video: {self.output_video_path}, {self.start_time} to {self.end_time}')
         self.state = 'writing'
 
     def copy_files(self):
@@ -156,20 +162,20 @@ class MakeVideo:
         video_name_list = sorted(list(set(self.video_name_list)))
 
         if len(video_name_list) == 0:
-            logger.error(f'Failed to make {self.output_video_name}, no available live video for that time')
+            logger.error(f'Failed to make {self.output_video_path}, no available live video for that time')
         else:
             with tempfile.NamedTemporaryFile(delete=False, mode='w+t') as f:
                 for video in video_name_list:
                     f.write(f"file '{os.path.abspath(video)}'\n")
                 temp_filename = f.name
 
-            ffmpeg_command = f"ffmpeg -f concat -safe 0 -i {temp_filename} -c copy {self.output_video_name} -loglevel panic -hide_banner"
+            ffmpeg_command = f"ffmpeg -f concat -safe 0 -i {temp_filename} -c copy {self.output_video_path} -loglevel panic -hide_banner"
             logger.info(f'Concat ffmpeg command: {ffmpeg_command}')
             subprocess.call(ffmpeg_command, shell=True)
 
             json_name_list = sorted(list(set(self.json_name_list)))
-
-            with JsonManager(substitute_path_extension(self.output_video_name, 'mp4_stat')) as jf:
+            self.output_json_path = substitute_path_extension(self.output_video_path, 'mp4_stat')
+            with JsonManager(self.output_json_path) as jf:
                 video_infos = []
                 for json_file in json_name_list:
                     with open(json_file, 'r') as f:
@@ -185,7 +191,7 @@ class MakeVideo:
 
             # remove the temporary file
             os.unlink(temp_filename)
-            logger.info(f'New video save completed: {self.output_video_name}')
+            logger.info(f'New video save completed: {self.output_video_path}')
 
         self.state = 'end'
 
@@ -194,13 +200,26 @@ class MakeVideo:
             self.copy_files()
             time.sleep(1)
         self.concat_file()
+
+        scenario_id = self.workspace_info['scenario_id']
+
+        video_basename = os.path.basename(self.output_video_path)
+        json_basenmae = os.path.basename(self.output_json_path)
+
         video_info = {'created': timestamp_to_datetime_with_timezone_str(),
-                      'path': os.path.join(self.root_file_path, self.output_video_name),
-                      'name': os.path.basename(self.output_video_name),
+                      'path': os.path.join(self.mounted_output_path, video_basename),
+                      'name': video_basename,
+                      'stat_path':  os.path.join(self.mounted_output_path, json_basenmae),
                       # length.. or something
                       }
-        with get_strict_redis_connection() as src:
-            subscribe_count = publish(src, 'videos', video_info)
-        _, id = insert_to_mongodb('videos', video_info)
 
-        logger.info(f'Video info created, {subscribe_count} listener get data, saved mongodb document "videos", {id}, with info: {video_info}')
+        with get_strict_redis_connection() as src:
+            subscribe_count = publish(src, RedisChannel.command, video_info)
+
+        try:
+            update_to_mongodb('scenario', scenario_id, {'testrun.raw.videos': [video_info]})
+        except Exception as e:
+            logger.error(f'Error in update mongodb: {e}')
+            logger.debug(traceback.format_exc())
+
+        logger.info(f'Video info created, {subscribe_count} listener get data, saved mongodb document {scenario_id}, with info: {video_info}')

@@ -69,7 +69,7 @@ services:
     privileged: true
     volumes:
       - "$HOME/.ssh:/app/static/keys"
-      - "./data/videos:/app/videos"
+      - ./data/workspace:/app/workspace
       - "./logs:/app/logs"
     extra_hosts:
       - "host.docker.internal:host-gateway"
