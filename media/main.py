@@ -42,6 +42,7 @@ def command_parser(command: dict, streaming_stop_event: Event):
             if get_value('state', 'streaming') == 'idle':
                 streaming_stop_event.clear()
                 streaming(streaming_stop_event)
+                log = 'Start streaming service'
             else:
                 log_level = 'warning'
                 log = 'Already streaming service Started'
@@ -53,9 +54,11 @@ def command_parser(command: dict, streaming_stop_event: Event):
                 log = 'Already streaming service stopped'
             else:
                 streaming_stop_event.set()
+                log = 'Stop streaming service'
                 time.sleep(2)
 
         elif action == 'restart':
+            log = 'Restart streaming service'
             streaming_stop_event.set()
             time.sleep(2)
             streaming_stop_event.clear()
