@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class LogLevelFinderBase(BaseModel):
-    time: str
+    timestamp: str
     log_level: str
 
 
@@ -13,9 +13,9 @@ class LogLevelFinder(BaseModel):
 
 
 class CpuAndMemoryBase(BaseModel):
-    time: str
-    cpu_usage: int
-    memory_usage: int
+    timestamp: str
+    cpu_usage: float
+    memory_usage: float
 
 
 class CpuAndMemory(BaseModel):
