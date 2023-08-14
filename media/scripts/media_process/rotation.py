@@ -217,7 +217,7 @@ class MakeVideo:
             subscribe_count = publish(src, RedisChannel.command, video_info)
 
         try:
-            update_to_mongodb('scenario', scenario_id, {'testrun.raw.videos': [video_info]})
+            update_to_mongodb('scenario', scenario_id, {'testrun.raw.videos': video_info})
         except Exception as e:
             logger.error(f'Error in update mongodb: {e}')
             logger.debug(traceback.format_exc())
