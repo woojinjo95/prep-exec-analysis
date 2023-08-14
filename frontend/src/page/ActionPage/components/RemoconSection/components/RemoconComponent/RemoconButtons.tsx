@@ -79,11 +79,11 @@ const RemoconButtons: React.FC<RemoconButtonsProps> = ({
             }}
             onClick={() => {
               console.log(
-                `{ "msg": "remocon_transmit", "data": { "key": "${code.code_name}", "type": "ir", "press_time": 0, "name": ${remocon.name} } }`,
+                `{ "msg": "remocon_transmit", "data": { "key": "${code.code_name}", "type": "ir", "press_time": 0, "name": "${remocon.name}" } }`,
               )
 
               ws.send(
-                `{ "msg": "remocon_transmit", "data": { "key": "${code.code_name}", "type": "ir", "press_time": 0, "name": ${remocon.name} } }`,
+                `{ "msg": "remocon_transmit", "data": { "key": "${code.code_name}", "type": "ir", "press_time": 0, "name": "${remocon.name}" } }`,
               )
               remoconService.buttonClick({
                 msg: 'remocon_transmit',

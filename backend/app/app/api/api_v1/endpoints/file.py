@@ -1,19 +1,19 @@
 import logging
 import os
-
 from uuid import uuid4
+
 from app import schemas
-from app.crud.base import insert_one_to_mongodb, load_from_mongodb
-from app.core.config import settings
 from app.api.utility import classify_file_type
-from fastapi import APIRouter, HTTPException, File, UploadFile
+from app.core.config import settings
+from app.crud.base import insert_one_to_mongodb, load_from_mongodb
+from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.post("/upload", response_model=schemas.MsgWithId)
+# @router.post("/upload", response_model=schemas.MsgWithId)
 async def file_upload(
     file: UploadFile = File(...)
 ) -> schemas.MsgWithId:
@@ -33,7 +33,7 @@ async def file_upload(
             'id': file_uuid}
 
 
-@router.get('/download/{file_id}', response_class=FileResponse)
+# @router.get('/download/{file_id}', response_class=FileResponse)
 async def file_download(
     file_id: str
 ) -> FileResponse:
