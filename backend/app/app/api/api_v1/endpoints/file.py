@@ -61,7 +61,7 @@ async def system_file_download(
     return FileResponse(path=file_dir, filename=file_name)
 
 
-@router.get('/workspace_video', response_class=FileResponse)
+@router.get('/video', response_class=FileResponse)
 async def workspace_video_file_download(
     scenario_id: Optional[str] = None
 ) -> FileResponse:
