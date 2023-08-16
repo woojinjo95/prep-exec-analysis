@@ -59,7 +59,7 @@ def check_skip_message(raw: any):
         return False
 
 
-async def consumer_adb_handler(conn: any, CHANNEL_NAME: str):
+async def consumer_handler(conn: any, CHANNEL_NAME: str):
     print(f"subscribe {CHANNEL_NAME}")
     pubsub = conn.pubsub()
     await pubsub.subscribe(CHANNEL_NAME)
@@ -92,12 +92,13 @@ async def main():
     # 수행해야 하는 블럭 정보는 몽고DB를 통해 받아야 함
     # 수행해야 하는 시나리오 정보는 redis의 키를 통해 몽고DB에서 조회해야 함
 
-
     try:
+        consumer_task = asyncio.create_task(consumer_handler(conn=conn, CHANNEL_NAME=CHANNEL_NAME))
+    
         # 시작 또는 중단 메시지를 받는 레디스 핸들러
         print("Start task")
         done, pending = await asyncio.wait(
-            [redis_message_task], return_when=asyncio.FIRST_COMPLETED,
+            [consumer_task], return_when=asyncio.FIRST_COMPLETED,
         )
 
         print(f"Done task: {done}")
