@@ -19,3 +19,7 @@ def timestamp_to_datetime_with_timezone_str(timestamp: float = 0, timezone: str 
         return datetime_obj.isoformat()
     else:
         return datetime.datetime.strftime(datetime_obj, format)
+
+
+def get_utc_datetime(timestamp: float) -> datetime.datetime:
+    return datetime.datetime.utcfromtimestamp(timestamp)

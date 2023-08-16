@@ -4,19 +4,14 @@ import time
 from apscheduler.schedulers.blocking import BlockingScheduler
 from typing import Dict
 
-from scripts.config.constant import RedisDB
 from scripts.connection.mongo_db.crud import insert_to_mongodb
-from scripts.connection.redis_conn import get_value
-from scripts.util._timezone import timestamp_to_datetime_with_timezone_str
-from scripts.config.config import get_setting_with_env
+from scripts.util._timezone import get_utc_datetime
 from .cpu_info import parse_cpu_info
 from .memory_info import parse_memory_info
 
 
 
 logger = logging.getLogger('dumpsys')
-
-timezone = get_value('common', 'timezone', db=RedisDB.hardware)
 
 
 def postprocess(connection_info: Dict):
@@ -37,9 +32,9 @@ def insert_to_db(connection_info: Dict):
 
 
 def construct_json_data(cpu_usage: str, memory_usage: str) -> Dict:
-    cur_time = timestamp_to_datetime_with_timezone_str(time.time(), timezone)
+    cur_time = time.time()
     return {
-        'time': re.sub(r'.\d{6}', '', cur_time),
+        'timestamp': get_utc_datetime(re.sub(r'.\d{6}', '', cur_time)),
         'cpu_usage': cpu_usage,
         'memory_usage': memory_usage,
     }
