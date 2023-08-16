@@ -134,9 +134,9 @@ def update_stb_connection(
     try:
         conn_info = jsonable_encoder(stb_connection_in)
         RedisClient.hset('hardware_configuration',
-                        'stb_connection', json.dumps({k: v for k, v
-                                                    in conn_info.items()
-                                                    if v is not None}))
+                         'stb_connection', json.dumps({k: v for k, v
+                                                      in conn_info.items()
+                                                      if v is not None}))
         RedisClient.publish('command', json.dumps({
             "msg": "config",
             "data": {
@@ -149,7 +149,7 @@ def update_stb_connection(
         }))
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return {'msg': f'Update {stb_connection_in.type} stb_connection.'}
+    return {'msg': f'Update {stb_connection_in.type.value} stb_connection.'}
 
 
 @router.delete("/stb_connection", response_model=schemas.Msg)
@@ -163,6 +163,5 @@ def delete_stb_connection() -> schemas.Msg:
         raise HTTPException(
             status_code=404, detail="The hardware_configuration with this stb_connection does not exist in the system.")
 
-    RedisClient.hdel('hardware_configuration',
-                     'stb_connection')
+    RedisClient.hdel('hardware_configuration', 'stb_connection')
     return {'msg': 'Delete stb_connection.'}
