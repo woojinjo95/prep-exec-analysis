@@ -15,9 +15,8 @@ from .msg import Msg, MsgWithId
 from .remocon import (Remocon, RemoconCustomKeyCreate,
                       RemoconCustomKeyCreateBase, RemoconCustomKeyUpdate,
                       RemoconCustomKeyUpdateMulti, RemoconRead, RemoconUpdate)
-from .scenario import (Scenario, ScenarioBase, ScenarioCreate, ScenarioPage,
-                       ScenarioTag, ScenarioTagUpdate, ScenarioUpdate, Testrun,
-                       TestrunAnalysis, TestrunRaw, TestrunVideo)
+from .scenario import (Scenario, ScenarioCreate, ScenarioPage, ScenarioTag,
+                       ScenarioTagUpdate, ScenarioUpdate)
 from .shell import Shell, ShellList, ShellLogList
 from .trace import ReadLogcat, ReadNetwork
 from .utility import Timezone

@@ -3,6 +3,7 @@ import math
 import os
 import time
 from ast import literal_eval
+from datetime import datetime
 
 from app.core.config import settings
 from app.crud.base import load_from_mongodb, load_paginate_from_mongodb
@@ -84,3 +85,10 @@ def set_redis_pub_msg(msg: str, data: dict = {}, service: str = 'backend', level
         "msg": msg,
         "data": data
     })
+
+
+def get_utc_datetime(timestamp: float, remove_float_point: bool = False) -> datetime:
+    dt_obj = datetime.utcfromtimestamp(timestamp)
+    if remove_float_point:
+        dt_obj = dt_obj.replace(microsecond=0)
+    return dt_obj
