@@ -13,6 +13,7 @@ logger = logging.getLogger('main')
 
 logcat_manager = None
 dumpsys_manager = None
+connection_info = {}
 
 
 def start_logcat_manager(connection_info: dict):
@@ -61,16 +62,9 @@ def command_parser(command: dict):
     ''' 
     start: PUBLISH command '{"streaming": "start"}'
     stop: PUBLISH command '{"streaming": "stop"}'
+    connection info: PUBLISH command '{"msg": "config", "data": {"mode": "adb", "host": "192.168.30.30", "port": "5555", "username": "root", "password": ""}}'
     '''
-
-    # TODO: get connection_info from redis subscriber with args
-    connection_info = {
-        'host': '192.168.30.30',
-        'port': 5555,
-        'username': 'root',
-        'password': '',
-        'connection_mode': 'adb',
-    }
+    global connection_info
 
     if command.get('streaming'):
         streaming_arg = command.get('streaming')
@@ -84,6 +78,14 @@ def command_parser(command: dict):
             stop_dumpsys_manager()
         else:
             logger.warning(f'Unknown streaming args: {streaming_arg}')
+
+    if command.get('msg'):
+        if command.get('msg') == 'config':
+            data = command.get('data')
+            data['connection_mode'] = data['mode']
+            del data['mode']
+            connection_info = data
+            logger.info(f'connection_info: {connection_info}')
 
 
 def main():
