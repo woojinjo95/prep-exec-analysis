@@ -5,8 +5,8 @@ from pydantic import BaseModel
 
 
 class StbConnection(BaseModel):
-    type: ShellModeEnum
-    ip: str
+    mode: ShellModeEnum
+    host: str
     port: str
     username: Optional[str]
     password: Optional[str]
@@ -17,7 +17,7 @@ class StbConnectionBase(BaseModel):
 
 
 class HardwareConfigurationIpLimitCreate(BaseModel):
-    ip: Optional[str]
+    host: Optional[str]
     port: Optional[str]
     protocol: ProtocolEnum
 

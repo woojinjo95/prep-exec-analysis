@@ -26,7 +26,7 @@ const ActionBlockArea = (): JSX.Element => {
   // TODO: 나중에 진입 시에 scenario_id를 받을 수 있어야함
   const [scenarioId, setScenarioId] = useState<string | null>(null)
 
-  const { data: scenarioSummary } = useQuery<ScenarioSummaryResponse>(
+  useQuery<ScenarioSummaryResponse>(
     ['scenario_summary'],
     () =>
       getScenario({
@@ -356,9 +356,9 @@ const ActionBlockArea = (): JSX.Element => {
 
   return (
     <div className="h-full w-full">
-      <div className="grid grid-rows-[auto_56px] h-full">
+      <div className="grid grid-rows-[1fr_auto] h-full bg-[#F1F2F4]">
         <div
-          className="h-full w-full pt-[30px] overflow-y-auto bg-repeat-y"
+          className="h-full w-full pt-3 overflow-y-auto bg-repeat-y"
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
@@ -368,7 +368,7 @@ const ActionBlockArea = (): JSX.Element => {
           }}
         >
           {blocks && blockDummys && blocks.length > 0 && scenarioId && (
-            <div className="w-full h-full pl-[30px] pr-[30px] overflow-y-auto pt-[2px] pb-[2px]">
+            <div className="w-full h-full pl-3 pr-3 overflow-y-auto pt-[2px] pb-[2px]">
               <DragDropContext onDragEnd={handleDragEnd}>
                 <Droppable droppableId="droppable">
                   {(provided) => (
