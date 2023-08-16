@@ -1,6 +1,6 @@
 import pymongo
 from pymongo.collection import Collection
-from typing import Tuple
+from typing import Tuple, List, Dict
 
 from .config import Settings
 
@@ -19,7 +19,7 @@ def get_mongodb_collection(col: str) -> Collection:
     return target_collection
 
 
-def insert_to_mongodb(col: str, data: dict) -> Tuple[bool, str]:
+def insert_to_mongodb(col: str, data: Dict) -> Tuple[bool, str]:
     mongo_client = get_mongodb_collection(col)
     res = mongo_client.insert_one(data)
     # type(res) == pymongo.results.InsertOneResult
