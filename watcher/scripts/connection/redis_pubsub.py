@@ -15,6 +15,9 @@ logger = logging.getLogger('connection')
 process_pubsub_error_dict = {'stack_count': 0, 'last_occured_time': time.time()}
 
 
+service = 'watcher'
+
+
 def publish(redis_client: StrictRedis, channel: str, payload: dict) -> int:
     """_summary_
     redis_client 상 channel로 payload를 JSON 으로 덤프하여 보내는 함수
@@ -25,7 +28,14 @@ def publish(redis_client: StrictRedis, channel: str, payload: dict) -> int:
     Returns:
         count: 메시지를 수신한 subscriber 개수, 수신한 게 없으면 0
     """
-    data = json.dumps(payload)
+    pub_payload = {
+        'service': service,
+        'level': 'info',
+        'time': time.time(),
+    }
+    pub_payload.update(payload)
+
+    data = json.dumps(pub_payload)
     return redis_client.publish(channel, data)
 
 
@@ -46,7 +56,7 @@ def Subscribe(redis_client: StrictRedis, channel: str, stop_event: Event = Event
     while not stop_event.is_set():
         try:
             message = pubsub.get_message(ignore_subscribe_messages=True, timeout=None)
-            logger.debug(f'sub: {message}')
+            # logger.debug(f'sub: {message}')
             # message : {'type': 'message', 'pattern': None, 'channel': b'test', 'data': b'{"test": 1}'}
             if isinstance(message, dict):
                 payload = json.loads(message['data'])

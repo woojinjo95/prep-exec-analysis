@@ -1,9 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import * as d3 from 'd3'
 
+import { Text } from '@global/ui'
 import AreaChart from './components/AreaChart'
 import HorizontalScrollBar from './components/HorizontalScrollBar'
 import { AreaChartData } from './types'
+import PointChart from './components/PointChart'
+import { CHART_HEIGHT } from './constant'
 
 function getRandomInt(_min: number, _max: number) {
   const min = Math.ceil(_min)
@@ -53,32 +56,45 @@ const TimelineSection: React.FC = () => {
   }, [])
 
   return (
-    <section className="h-full bg-black grid grid-cols-1 grid-rows-[auto_1fr_auto] gap-1 p-2">
+    <section className="h-full bg-black grid grid-cols-1 grid-rows-[auto_1fr_auto]">
       {/* time */}
       <div className="text-white">time</div>
 
-      {/* chart */}
-      <div className="grid grid-cols-1 gap-y-2 overflow-y-auto overflow-x-hidden">
-        <AreaChart
-          chartWrapperRef={chartWrapperRef}
-          chartWidth={chartWidth}
-          scaleX={scrollbarScaleX}
-          data={sampleData}
-        />
-        <AreaChart
-          chartWrapperRef={chartWrapperRef}
-          chartWidth={chartWidth}
-          scaleX={scrollbarScaleX}
-          data={sampleData}
-        />
+      <div className="grid grid-cols-[auto_1fr] grid-rows-1 overflow-y-auto overflow-x-hidden">
+        <div className="w-48 z-10">
+          {['Video', 'Color Reference', 'Event Log', 'CPU', 'Memory'].map((title, index) => (
+            <div
+              key={`timeline-chart-title-${title}-${index}`}
+              className="border-b-[1px] border-light-charcoal bg-charcoal py-2 px-5"
+              style={{ height: CHART_HEIGHT }}
+            >
+              <Text colorScheme="grey" weight="medium">
+                {title}
+              </Text>
+            </div>
+          ))}
+        </div>
+
+        {/* chart */}
+        <div className="border-l-[0.5px] border-r-[0.5px] border-[#37383E]" ref={chartWrapperRef}>
+          <AreaChart chartWidth={chartWidth} scaleX={scrollbarScaleX} data={sampleData} />
+          <AreaChart chartWidth={chartWidth} scaleX={scrollbarScaleX} data={sampleData} />
+          <PointChart data={sampleData.map(({ date }) => date)} scaleX={scrollbarScaleX} color="#E93535" />
+          <AreaChart chartWidth={chartWidth} scaleX={scrollbarScaleX} data={sampleData} />
+          <AreaChart chartWidth={chartWidth} scaleX={scrollbarScaleX} data={sampleData} />
+        </div>
       </div>
 
-      {/* horizontal scrollbar */}
-      <HorizontalScrollBar
-        chartWidth={chartWidth}
-        scrollBarTwoPosX={scrollBarTwoPosX}
-        setScrollBarTwoPosX={setScrollBarTwoPosX}
-      />
+      <div className="grid grid-cols-[auto_1fr]">
+        <div className="w-48" />
+
+        {/* horizontal scrollbar */}
+        <HorizontalScrollBar
+          chartWidth={chartWidth}
+          scrollBarTwoPosX={scrollBarTwoPosX}
+          setScrollBarTwoPosX={setScrollBarTwoPosX}
+        />
+      </div>
     </section>
   )
 }

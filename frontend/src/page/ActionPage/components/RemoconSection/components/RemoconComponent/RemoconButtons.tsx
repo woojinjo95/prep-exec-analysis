@@ -2,7 +2,7 @@ import { KeyEvent } from '@page/ActionPage/types'
 import React, { useEffect, useMemo, useState } from 'react'
 import cx from 'classnames'
 import ws from '@global/module/websocket'
-import { remoconService } from '@global/service/RemoconService'
+import { remoconService } from '@global/service/RemoconService/RemoconService'
 import { Remocon } from '../../api/entity'
 
 interface RemoconButtonsProps {
@@ -78,9 +78,17 @@ const RemoconButtons: React.FC<RemoconButtonsProps> = ({
                 leftTop.left * (dimension.buttonWidth / dimension.remoconImageWidth),
             }}
             onClick={() => {
-              console.log(`{"remocon": {"key": "${code.code_name}"}}`)
-              ws.send(`{"remocon": {"key": "${code.code_name}"}}`)
-              remoconService.buttonClick(code.code_name)
+              console.log(
+                `{ "msg": "remocon_transmit", "data": { "key": "${code.code_name}", "type": "ir", "press_time": 0, "name": "${remocon.name}" } }`,
+              )
+
+              ws.send(
+                `{ "msg": "remocon_transmit", "data": { "key": "${code.code_name}", "type": "ir", "press_time": 0, "name": "${remocon.name}" } }`,
+              )
+              remoconService.buttonClick({
+                msg: 'remocon_transmit',
+                data: { key: code.code_name, type: 'ir', press_time: 0, name: remocon.name },
+              })
             }}
           />
         )

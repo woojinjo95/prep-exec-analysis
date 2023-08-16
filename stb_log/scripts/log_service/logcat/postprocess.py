@@ -8,24 +8,17 @@ from datetime import datetime
 from multiprocessing import Event
 from typing import Dict, List, Tuple, Union
 
-from scripts.config.constant import RedisDB
 from scripts.connection.mongo_db.crud import insert_many_to_mongodb
-from scripts.connection.redis_conn import get_value
-from scripts.util._timezone import timestamp_to_datetime_with_timezone_str
-
+from scripts.util._timezone import get_utc_datetime
 from .db_connection import LogManagerDBConnection
+from scripts.config.mongo import get_scenario_id
 
 logger = logging.getLogger('logcat')
 
 db_conn = LogManagerDBConnection()
 
 log_prefix_pattern = r'<Collector:\s(\d+\.\d+)>'
-# log_chunk_pattern = r"\[\s(?P<timestamp>\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})\s(?P<pid>\d+):(?P<tid>\d+)\s(?P<log_level>[\w])\/(?P<module>.+?)\s\]\n(?P<message>.*)\n"
-# log_chunk_pattern = r"\[\s(?P<timestamp>\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})\s*(?P<pid>\d+)\s*:\s*(?P<tid>\d+)\s*(?P<log_level>[\w])\/(?P<module>.*)\s*\](?:\n(?P<message>.*))?"
 log_chunk_pattern = r"\[\s(?P<timestamp>\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})\s*(?P<pid>\d+)\s*:\s*(?P<tid>\d+)\s*(?P<log_level>[\w])\/(?P<module>.*)\s*\]\n(?P<message>.*)"
-
-
-timezone = get_value('common', 'timezone', db=RedisDB.hardware)
 
 
 def postprocess(log_type: str, stop_event: Event):
@@ -116,23 +109,25 @@ def LogBatchGenerator(file_path: str, no_time_count_limit: int = 10000):
         if last_time is not None:
             batches.append({
                 **parsed_chunk,
-                'timestamp': timestamp_to_datetime_with_timezone_str(last_time.timestamp(), timezone=timezone),
+                'timestamp': last_time.timestamp(),
             })
 
     yield batches
 
 
 def insert_to_db(file_path: str):
-    json_datas = [construct_json_data(log_batch) for log_batch in LogBatchGenerator(file_path)]
+    scenario_id = get_scenario_id()
+    json_datas = [construct_json_data(log_batch, scenario_id) for log_batch in LogBatchGenerator(file_path)]
     logger.info(f'insert {len(json_datas)} datas to db')
     insert_many_to_mongodb('stb_log', json_datas)
 
 
-def construct_json_data(log_batch: List[Tuple[float, str]]) -> Dict:
+def construct_json_data(log_batch: List[Tuple[float, str]], scenario_id: str) -> Dict:
     return {
-        'time': re.sub(r'.\d{6}', '', log_batch[0]['timestamp']),
+        'scenario_id': scenario_id,
+        'timestamp': get_utc_datetime(log_batch[0]['timestamp'], remove_float_point=True),
         'lines': [{
-            'timestamp': log_chunk['timestamp'],
+            'timestamp': get_utc_datetime(log_chunk['timestamp']),
             'module': str(log_chunk['module']).rstrip().replace('\n', ' '),
             'log_level': log_chunk['log_level'],
             'process_name': log_chunk['pid'],

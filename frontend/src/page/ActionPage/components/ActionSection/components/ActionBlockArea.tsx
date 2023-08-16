@@ -2,20 +2,49 @@ import React, { useEffect, useRef, useState } from 'react'
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd'
 import cx from 'classnames'
 
-import { Block, BlockGroup, Scenario } from '@page/ActionPage/components/ActionSection/api/entity'
+import {
+  Block,
+  BlockGroup,
+  Scenario,
+  ScenarioSummaryResponse,
+} from '@page/ActionPage/components/ActionSection/api/entity'
 import { useMutation, useQuery } from 'react-query'
 import BackgroundImage from '@assets/images/background_pattern.svg'
-import { remoconService } from '@global/service/RemoconService'
-import { BlockEvent } from '@global/service/type'
+import { remoconService } from '@global/service/RemoconService/RemoconService'
+import { RemoconTransmit } from '@global/service/RemoconService/type'
+import { PAGE_SIZE_FIFTEEN } from '@global/constant'
 import ActionBlockItem from './ActionBlockItem'
 import BlockControls from './BlockControls'
-import { getScenario, postBlock, putScenario } from '../api/func'
+import { getScenario, getScenarioById, postBlock, putScenario } from '../api/func'
 
 type BlocksRef = {
   [id: string]: HTMLDivElement | null
 }
 
 const ActionBlockArea = (): JSX.Element => {
+  // current scenarioId
+  // TODO: 나중에 진입 시에 scenario_id를 받을 수 있어야함
+  const [scenarioId, setScenarioId] = useState<string | null>(null)
+
+  useQuery<ScenarioSummaryResponse>(
+    ['scenario_summary'],
+    () =>
+      getScenario({
+        page: 1,
+        page_size: PAGE_SIZE_FIFTEEN,
+      }),
+    {
+      onSuccess: (res) => {
+        if (res && res.items.length > 0) {
+          setScenarioId(res.items[0].id)
+        }
+      },
+      onError: (err) => {
+        console.error(err)
+      },
+    },
+  )
+
   // 전체 블럭
   const [blocks, setBlocks] = useState<Block[] | null>(null)
 
@@ -26,15 +55,24 @@ const ActionBlockArea = (): JSX.Element => {
    */
   const [blockDummys, setBlockDummys] = useState<Block[][]>([])
 
-  const { data: scenario, refetch: blockRefetch } = useQuery<Scenario>(['scenario'], () => getScenario(), {
-    onSuccess: (res) => {
-      if (res && res.items.block_group.length > 0) {
-        const newBlocks: Block[] = res.items.block_group[0].block
-        setBlocks(newBlocks)
-        setBlockDummys(newBlocks.map((block) => [block]))
-      }
+  const { data: scenario, refetch: blockRefetch } = useQuery<Scenario>(
+    ['scenario', scenarioId],
+    () => getScenarioById({ scenario_id: scenarioId! }),
+    {
+      onSuccess: (res) => {
+        console.log(res)
+        if (res && res.block_group.length > 0) {
+          const newBlocks: Block[] = res.block_group[0].block
+          setBlocks(newBlocks)
+          setBlockDummys(newBlocks.map((block) => [block]))
+        }
+      },
+      onError: (err) => {
+        console.error(err)
+      },
+      enabled: !!scenarioId,
     },
-  })
+  )
 
   const { mutate: putScenarioMutate } = useMutation(putScenario, {
     onSuccess: () => {
@@ -79,11 +117,14 @@ const ActionBlockArea = (): JSX.Element => {
 
     // 전체 blocks 최신화
 
-    const newBlockGroup: BlockGroup = { ...scenario.items.block_group[0], block: updatedBlockDummys.flat() }
+    const newBlockGroup: BlockGroup = { ...scenario.block_group[0], block: updatedBlockDummys.flat() }
 
-    putScenarioMutate({
-      block_group: [newBlockGroup],
-    })
+    if (scenarioId) {
+      putScenarioMutate({
+        block_group: [newBlockGroup],
+        scenario_id: scenarioId,
+      })
+    }
   }
 
   /**
@@ -262,25 +303,62 @@ const ActionBlockArea = (): JSX.Element => {
   })
 
   useEffect(() => {
-    const remoconButtonSubscribe$ = remoconService.onButton$().subscribe((blockEvent: BlockEvent) => {
-      postBlockMutate({ newBlock: { type: blockEvent.type, value: blockEvent.value, delay_time: 3000 } })
+    const remoconButtonSubscribe$ = remoconService.onButton$().subscribe((remoconTransmit: RemoconTransmit) => {
+      if (scenarioId) {
+        postBlockMutate({
+          newBlock: {
+            type: remoconTransmit.msg,
+            args: [
+              {
+                key: 'key',
+                value: remoconTransmit.data.key,
+              },
+              {
+                key: 'type',
+                value: remoconTransmit.data.type,
+              },
+              {
+                key: 'press_time',
+                value: remoconTransmit.data.press_time,
+              },
+              {
+                key: 'name',
+                value: remoconTransmit.data.name,
+              },
+            ],
+            delay_time: 3000,
+            name: `${remoconTransmit.msg} : ${remoconTransmit.data.key}`,
+          },
+          scenario_id: scenarioId,
+        })
+      }
     })
 
-    const remoconCustomKeySubscribe$ = remoconService.onCustomKey$().subscribe((blockEvent: BlockEvent) => {
-      postBlockMutate({ newBlock: { type: blockEvent.type, value: blockEvent.value, delay_time: 3000 } })
-    })
+    // const remoconCustomKeySubscribe$ = remoconService.onCustomKey$().subscribe((blockEvent: RemoconBlockEvent) => {
+    //   if (scenarioId) {
+    //     postBlockMutate({
+    //       newBlock: {
+    //         type: blockEvent.type,
+    //         value: blockEvent.value,
+    //         delay_time: 3000,
+    //         name: `${blockEvent.type} : ${blockEvent.value}`,
+    //       },
+    //       scenario_id: scenarioId,
+    //     })
+    //   }
+    // })
 
     return () => {
       remoconButtonSubscribe$.unsubscribe()
-      remoconCustomKeySubscribe$.unsubscribe()
+      // remoconCustomKeySubscribe$.unsubscribe()
     }
-  }, [])
+  }, [scenarioId])
 
   return (
     <div className="h-full w-full">
-      <div className="grid grid-rows-[auto_56px] h-full">
+      <div className="grid grid-rows-[1fr_auto] h-full bg-[#F1F2F4]">
         <div
-          className="h-full w-full pt-[30px] overflow-y-auto bg-repeat-y"
+          className="h-full w-full pt-3 overflow-y-auto bg-repeat-y"
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
@@ -289,8 +367,8 @@ const ActionBlockArea = (): JSX.Element => {
             backgroundSize: '100%',
           }}
         >
-          {blocks && blockDummys && blocks.length > 0 && (
-            <div className="w-full h-full pl-[30px] pr-[30px] overflow-y-auto pt-[2px] pb-[2px]">
+          {blocks && blockDummys && blocks.length > 0 && scenarioId && (
+            <div className="w-full h-full pl-3 pr-3 overflow-y-auto pt-[2px] pb-[2px]">
               <DragDropContext onDragEnd={handleDragEnd}>
                 <Droppable droppableId="droppable">
                   {(provided) => (
@@ -330,6 +408,7 @@ const ActionBlockArea = (): JSX.Element => {
                                         blockRefetch={() => {
                                           blockRefetch()
                                         }}
+                                        scenarioId={scenarioId}
                                       />
                                     </div>
                                   )

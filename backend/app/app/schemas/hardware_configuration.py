@@ -1,13 +1,12 @@
 from typing import List, Optional
 
-from app.schemas.enum import (ProtocolEnum, RemoteControlTypeEnum,
-                              StbConnectionTypeEnum)
+from app.schemas.enum import ProtocolEnum, RemoteControlTypeEnum, ShellModeEnum
 from pydantic import BaseModel
 
 
 class StbConnection(BaseModel):
-    type: StbConnectionTypeEnum
-    ip: str
+    mode: ShellModeEnum
+    host: str
     port: str
     username: Optional[str]
     password: Optional[str]
@@ -18,7 +17,7 @@ class StbConnectionBase(BaseModel):
 
 
 class HardwareConfigurationIpLimitCreate(BaseModel):
-    ip: Optional[str]
+    host: Optional[str]
     port: Optional[str]
     protocol: ProtocolEnum
 
