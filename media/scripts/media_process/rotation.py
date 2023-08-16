@@ -10,16 +10,16 @@ import traceback
 from collections import deque
 from copy import deepcopy
 from glob import glob
+from operator import attrgetter
 from typing import List, Tuple
-
-import cv2
 
 from ..configs.config import RedisDBEnum, get_value
 from ..configs.constant import RedisChannel
 from ..connection.mongo_db.update import update_to_mongodb
 from ..connection.redis_pubsub import get_strict_redis_connection, publish
 from ..utils._timezone import timestamp_to_datetime_with_timezone_str
-from ..utils.file_manage import JsonManager, substitute_path_extension
+from ..utils.file_manage import substitute_path_extension
+from .video_stat import summerize_merged_video_info, process_video_info
 
 logger = logging.getLogger('main')
 
@@ -33,41 +33,6 @@ def get_file_creation_time(line: str) -> Tuple[str, float]:
             pass
     else:
         return None
-
-
-def process_video_info(file_info: dict) -> dict:
-    name = file_info['name']
-    created_time = file_info['created']
-    index = file_info['index']
-
-    # Get video info
-    cap = cv2.VideoCapture(name)
-    last_modified = os.path.getmtime(name)
-    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    fourcc = int(cap.get(cv2.CAP_PROP_FOURCC))
-    fps = cap.get(cv2.CAP_PROP_FPS)
-    cap.release()
-
-    calculated_fps = round(frame_count / (last_modified - created_time), 4)
-
-    video_info = {'frame_count': frame_count,
-                  'fps': fps,
-                  'width': width,
-                  'height': height,
-                  'fourcc': fourcc,
-                  'index': index,
-                  'created_time': created_time,
-                  'last_modified': last_modified,
-                  'calculated_fps': calculated_fps}
-
-    json_file_name = substitute_path_extension(name, 'mp4_stat')
-
-    with open(json_file_name, 'w', encoding='utf-8') as metadata:
-        metadata.write(json.dumps(video_info, ensure_ascii=False, indent=4))
-
-    return video_info
 
 
 class RotationFileManager:
@@ -136,7 +101,12 @@ class MakeVideo:
         self.video_name_list = []
         self.json_name_list = []
 
-        logger.info(f'Make new video: {self.output_video_path}, {self.start_time} to {self.end_time}')
+        log = f'Make new video: {self.output_video_path}, {self.start_time} to {self.end_time}'
+        logger.info(log)
+        with get_strict_redis_connection() as redis_connection:
+            publish(redis_connection, RedisChannel.command, {'msg': 'recording_response',
+                                                             'data': {'log': log}})
+
         self.state = 'writing'
 
     def copy_files(self):
@@ -175,12 +145,7 @@ class MakeVideo:
 
             json_name_list = sorted(list(set(self.json_name_list)))
             self.output_json_path = substitute_path_extension(self.output_video_path, 'mp4_stat')
-            with JsonManager(self.output_json_path) as jf:
-                video_infos = []
-                for json_file in json_name_list:
-                    with open(json_file, 'r') as f:
-                        video_infos.append(json.loads(f.read()))
-                jf.change('data', video_infos)
+            summerize_merged_video_info(self.start_time, self.output_json_path, json_name_list)
 
             for video in video_name_list:
                 try:
@@ -196,30 +161,37 @@ class MakeVideo:
         self.state = 'end'
 
     def run(self):
-        while self.state == 'writing':
-            self.copy_files()
-            time.sleep(1)
-        self.concat_file()
+        if get_value('state', 'streaming') == 'idle':
+            log = 'Streaming service is not started'
+            log_level = 'error'
+        else:
+            while self.state == 'writing':
+                self.copy_files()
+                time.sleep(1)
+            self.concat_file()
 
-        scenario_id = self.workspace_info['scenario_id']
+            scenario_id = self.workspace_info['scenario_id']
 
-        video_basename = os.path.basename(self.output_video_path)
-        json_basenmae = os.path.basename(self.output_json_path)
+            video_basename = os.path.basename(self.output_video_path)
+            json_basenmae = os.path.basename(self.output_json_path)
 
-        video_info = {'created': timestamp_to_datetime_with_timezone_str(),
-                      'path': os.path.join(self.mounted_output_path, video_basename),
-                      'name': video_basename,
-                      'stat_path':  os.path.join(self.mounted_output_path, json_basenmae),
-                      # length.. or something
-                      }
+            video_info = {'created': timestamp_to_datetime_with_timezone_str(),
+                          'path': os.path.join(self.mounted_output_path, video_basename),
+                          'name': video_basename,
+                          'stat_path':  os.path.join(self.mounted_output_path, json_basenmae),
+                          # length.. or something
+                          }
 
-        with get_strict_redis_connection() as src:
-            subscribe_count = publish(src, RedisChannel.command, video_info)
+            with get_strict_redis_connection() as src:
+                subscribe_count = publish(src, RedisChannel.command, video_info)
 
-        try:
-            update_to_mongodb('scenario', scenario_id, {'testrun.raw.videos': video_info})
-        except Exception as e:
-            logger.error(f'Error in update mongodb: {e}')
-            logger.debug(traceback.format_exc())
+            try:
+                update_to_mongodb('scenario', scenario_id, {'testrun.raw.videos': video_info})
+            except Exception as e:
+                logger.error(f'Error in update mongodb: {e}')
+                logger.debug(traceback.format_exc())
 
-        logger.info(f'Video info created, {subscribe_count} listener get data, saved mongodb document {scenario_id}, with info: {video_info}')
+            log = f'Video info created, {subscribe_count} listener get data, saved mongodb document {scenario_id}, with info: {video_info}'
+            log_level = 'info'
+
+        attrgetter(log_level)(logger)(log)

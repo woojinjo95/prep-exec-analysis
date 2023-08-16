@@ -4,7 +4,7 @@ import traceback
 import uuid
 
 from app import schemas
-from app.api.utility import parse_bytes_to_value
+from app.api.utility import parse_bytes_to_value, set_redis_pub_msg
 from app.db.redis_session import RedisClient
 from fastapi import APIRouter, HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -134,22 +134,18 @@ def update_stb_connection(
     try:
         conn_info = jsonable_encoder(stb_connection_in)
         RedisClient.hset('hardware_configuration',
-                        'stb_connection', json.dumps({k: v for k, v
-                                                    in conn_info.items()
-                                                    if v is not None}))
-        RedisClient.publish('command', json.dumps({
-            "msg": "config",
-            "data": {
-                "mode": conn_info.get('type', None),
-                "host": conn_info.get('ip', None),
-                "port": conn_info.get('port', None),
-                "username": conn_info.get('username', None),
-                "password": conn_info.get('password', None),
-            }
-        }))
+                         'stb_connection', json.dumps({k: v for k, v
+                                                      in conn_info.items()
+                                                      if v is not None}))
+        RedisClient.publish('command', set_redis_pub_msg(msg="config",
+                                                         data={"mode": conn_info.get('type', None),
+                                                               "host": conn_info.get('ip', None),
+                                                               "port": conn_info.get('port', None),
+                                                               "username": conn_info.get('username', None),
+                                                               "password": conn_info.get('password', None)}))
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return {'msg': f'Update {stb_connection_in.type} stb_connection.'}
+    return {'msg': f'Update {stb_connection_in.type.value} stb_connection.'}
 
 
 @router.delete("/stb_connection", response_model=schemas.Msg)
@@ -163,6 +159,5 @@ def delete_stb_connection() -> schemas.Msg:
         raise HTTPException(
             status_code=404, detail="The hardware_configuration with this stb_connection does not exist in the system.")
 
-    RedisClient.hdel('hardware_configuration',
-                     'stb_connection')
+    RedisClient.hdel('hardware_configuration', 'stb_connection')
     return {'msg': 'Delete stb_connection.'}
