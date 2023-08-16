@@ -1,5 +1,4 @@
 import datetime
-import pytz
 
 
 def get_utc_datetime(timestamp: float, remove_float_point: bool=False) -> datetime.datetime:
