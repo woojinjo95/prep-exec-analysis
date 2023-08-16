@@ -100,7 +100,7 @@ const AddCustomKeyModal: React.FC<AddCustomKeyModalProps> = ({
                 onLoad={() => {
                   setIsLoadedRemoconImage(true)
                 }}
-                src={`${AppURL.baseURL}${remocon.image_path}`}
+                src={`${AppURL.backendURL}${remocon.image_path}`}
                 alt="remocon"
                 className="w-full"
               />

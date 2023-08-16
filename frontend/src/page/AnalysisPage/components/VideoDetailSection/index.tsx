@@ -92,7 +92,7 @@ const VideoDetailSection: React.FC = () => {
         <video
           ref={videoRef}
           className="h-full aspect-video"
-          src={`${AppURL.baseURL}/api/v1/video?scenario_id=d70eede7-2faa-4345-aa46-ba36e1ab40fd`}
+          src={`${AppURL.backendURL}/api/v1/video?scenario_id=d70eede7-2faa-4345-aa46-ba36e1ab40fd`}
           muted
           controls
           loop={false}

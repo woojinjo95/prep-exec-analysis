@@ -2,7 +2,7 @@ import AppURL from '@global/constant/appURL'
 import axios, { AxiosError } from 'axios'
 
 const API = axios.create({
-  baseURL: AppURL.baseURL,
+  baseURL: AppURL.backendURL,
 })
 
 API.interceptors.response.use(

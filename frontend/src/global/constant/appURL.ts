@@ -13,7 +13,7 @@ const config = {
 } as const
 
 const AppURL = {
-  baseURL: `${config.backend.protocol}://${config.backend.hostname}:${config.backend.port}`,
+  backendURL: `${config.backend.protocol}://${config.backend.hostname}:${config.backend.port}`,
   websocketURL: {
     client: `ws://${config.backend.hostname}:${config.backend.port}/api/v1/client/ws`,
   },
