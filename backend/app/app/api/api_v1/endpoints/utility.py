@@ -2,7 +2,7 @@ import logging
 
 from app import schemas
 from app.db.redis_session import RedisClient
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

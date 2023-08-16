@@ -37,7 +37,7 @@ const Select: React.ForwardRefExoticComponent<SelectProps & React.RefAttributes<
         type="button"
         aria-label="select"
         className={cx(
-          'flex justify-between items-center border rounded-lg py-3 px-4 w-full',
+          'flex justify-between items-center border rounded-lg py-3 px-4 w-full transition-colors',
           {
             'bg-white': colorScheme === 'light',
             'border-light-grey': colorScheme === 'light',
@@ -55,7 +55,7 @@ const Select: React.ForwardRefExoticComponent<SelectProps & React.RefAttributes<
         }}
         {...props}
       >
-        <Text size="sm" weight="bold" colorScheme={colorScheme === 'light' ? 'dark' : 'light'}>
+        <Text weight="bold" colorScheme={colorScheme === 'light' ? 'dark' : 'light'}>
           {value || defaultValue}
         </Text>
         <DropdownIcon className={cx('w-[10px]', colorScheme)} />

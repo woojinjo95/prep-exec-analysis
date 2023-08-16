@@ -1,10 +1,10 @@
 from typing import List
 
-from pydantic import BaseModel
 from app.schemas.enum import LogModuleEnum
+from pydantic import BaseModel
 
 
-class Terminal(BaseModel):
+class Shell(BaseModel):
     class log(BaseModel):
         timestamp: str
         module: LogModuleEnum
@@ -16,9 +16,9 @@ class Terminal(BaseModel):
     lines: List[log]
 
 
-class TerminalLogList(BaseModel):
-    items: List[Terminal.log]
+class ShellLogList(BaseModel):
+    items: List[Shell.log]
 
 
-class TerminalList(BaseModel):
+class ShellList(BaseModel):
     items: List[dict]

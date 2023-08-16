@@ -64,3 +64,15 @@ class ScenarioPage(BaseModel):
     prev: Optional[int]
     next: Optional[int]
     items: List[ScenarioSummary]
+
+
+class ScenarioTagBase(BaseModel):
+    tags: Optional[List[str]]
+
+
+class ScenarioTag(BaseModel):
+    items: ScenarioTagBase
+
+
+class ScenarioTagUpdate(BaseModel):
+    tag: str

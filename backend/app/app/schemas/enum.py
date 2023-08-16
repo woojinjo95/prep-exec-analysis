@@ -18,19 +18,24 @@ class RemoteControlTypeEnum(ExtendedEnum):
     bluetooth = "bluetooth"
 
 
-class StbConnectionTypeEnum(ExtendedEnum):
-    ssh = "ssh"
-    adb = "adb"
-
-
 class ProtocolEnum(ExtendedEnum):
     all = "all"
     tcp = "tcp"
     udp = "udp"
 
 
-class ResumeMeasurementRecognizingKeyEventEnum(ExtendedEnum):
+class ResumeRecognizingKeyEventEnum(ExtendedEnum):
     power = "power"
+
+
+class ResumeTypeEnum(ExtendedEnum):
+    image_matching = "image_matching"
+    screen_change_rate = "screen_change_rate"
+
+
+class BootTypeEnum(ExtendedEnum):
+    image_matching = "image_matching"
+    screen_change_rate = "screen_change_rate"
 
 
 class AnalysisTypeEnum(ExtendedEnum):
@@ -42,22 +47,23 @@ class AnalysisTypeEnum(ExtendedEnum):
     channel_change_time = "channel_change_time"
     log_level_finder = "log_level_finder"
     log_pattern_matching = "log_pattern_matching"
+    process_lifecycle_analysis = "process_lifecycle_analysis"
+    network_filter = "network_filter"
 
 
 class LogLevelFinderTargetEnum(ExtendedEnum):
-    V = "V" # verbose 가장 낮은 우선 순위 
-    D = "D" # debug
-    I = "I" # info
-    W = "W" # warning
-    E = "E" # error
-    F = "F" # fatal
-    S = "S" # silent 가장 높은 우선 순위
+    V = "V"  # verbose 가장 낮은 우선 순위
+    D = "D"  # debug
+    I = "I"  # info
+    W = "W"  # warning
+    E = "E"  # error
+    F = "F"  # fatal
+    S = "S"  # silent 가장 높은 우선 순위
 
 
 class ChannelChangeTimeTargetEnum(ExtendedEnum):
     adjoint_channel = "adjoint_channel"
     nonadjoint_channel = "nonadjoint_channel"
-    previous_channel = "previous_channel"
 
 
 class BlockTypeEnum(ExtendedEnum):
@@ -66,11 +72,11 @@ class BlockTypeEnum(ExtendedEnum):
 
 
 class LogModuleEnum(ExtendedEnum):
-    stdin = "stdin" # 입력
-    stdout = "stdout" # 출력
-    stderr = "stderr" # 에러
+    stdin = "stdin"  # 입력
+    stdout = "stdout"  # 출력
+    stderr = "stderr"  # 에러
 
 
-class ShellTypeEnum(ExtendedEnum):
+class ShellModeEnum(ExtendedEnum):
     adb = "adb"
     ssh = "ssh"

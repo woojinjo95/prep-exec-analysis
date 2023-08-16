@@ -1,6 +1,7 @@
 import logging
 import os
 from ast import literal_eval
+from typing import List
 
 from redis import StrictRedis
 
@@ -50,3 +51,8 @@ def hset_value(sr_connection: StrictRedis, key: str, field: str, value: any):
     if value == 'None' or value == None:
         logger.warning(f'Nonetype or string "None" is interpreted as key is not exist.')
     value = sr_connection.hset(key, field, str(value))
+
+
+def get_redis_key_list(sr_connection: StrictRedis, pattern: str = '*') -> List[str]:
+    key_name_list = [parse_bytes_to_value(v) for v in sr_connection.keys(pattern)]
+    return key_name_list
