@@ -63,10 +63,10 @@ def check_skip_message(raw: any):
             return False, None
 
         # msg가 start or stop이 아닌 모든 메시지 스킵
-        msg = message['msg']
-        if msg != 'start' and msg != 'stop':
-            print(f"check_skip_message shell: {msg}")
-            return False, None
+        # msg = message['msg']
+        # if msg != 'start' and msg != 'stop':
+        #     print(f"check_skip_message shell: {msg}")
+        #     return False, None
 
         # data = message['data']
         # if data is None:
