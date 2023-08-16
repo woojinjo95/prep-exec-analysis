@@ -1,6 +1,6 @@
-import json
 import logging
 import traceback
+from datetime import datetime
 
 from app import schemas
 from app.api.utility import parse_bytes_to_value, set_redis_pub_msg
@@ -27,13 +27,18 @@ def get_shell_modes() -> schemas.ShellList:
 def get_shell_logs(
     shell_mode: ShellModeEnum,
     shell_id: str,
-    start_time: str = Query(..., description="ex.2009-02-13T23:31:30"),
-    end_time: str = Query(..., description="ex.2009-02-13T23:31:30"),
+    start_time: str = Query(..., description="ex.2009-02-13T23:31:30+00:00"),
+    end_time: str = Query(..., description="ex.2009-02-13T23:31:30+00:00"),
 ) -> schemas.ShellLogList:
     """
     터미널별 일정기간 로그 조회
     """
-    pipeline = [{'$match': {'time': {'$gte': start_time, '$lte': end_time}, 'mode': shell_mode.value, 'shell_id': shell_id}},
+    if 'Z' in start_time or 'Z' in end_time:
+        start_time = start_time.replace('Z', '+00:00')
+        end_time = end_time.replace('Z', '+00:00')
+
+    pipeline = [{'$match': {'timestamp': {'$gte': datetime.fromisoformat(start_time), '$lte': datetime.fromisoformat(end_time)},
+                            'mode': shell_mode.value, 'shell_id': shell_id}},
                 {'$project': {'_id': 0, 'lines': 1}},
                 {'$unwind': {'path': '$lines'}},
                 {'$group': {'_id': None, 'lines': {'$push': '$lines'}}}]

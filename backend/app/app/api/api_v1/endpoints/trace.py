@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 from app import schemas
 from app.crud.base import aggregate_from_mongodb
@@ -12,11 +13,15 @@ router = APIRouter()
 def read_logcat(
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00')
-    ) -> schemas.ReadLogcat:
+) -> schemas.ReadLogcat:
     """
     Logcat 로그 조회
     """
-    pipeline = [{'$match': {'time': {'$gte': start_time, '$lte': end_time}}},
+    if 'Z' in start_time or 'Z' in end_time:
+        start_time = start_time.replace('Z', '+00:00')
+        end_time = end_time.replace('Z', '+00:00')
+
+    pipeline = [{'$match': {'timestamp': {'$gte': datetime.fromisoformat(start_time), '$lte': datetime.fromisoformat(end_time)}}},
                 {'$unwind': {'path': '$lines'}},
                 {'$group': {'_id': None, 'items': {'$push': '$lines'}}},
                 ]
@@ -29,15 +34,18 @@ def read_logcat(
 def read_network(
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00')
-    ) -> schemas.ReadNetwork:
+) -> schemas.ReadNetwork:
     """
     Network 조회
     """
-    pipeline = [{'$match': {'time': {'$gte': start_time, '$lte': end_time}}},
+    if 'Z' in start_time or 'Z' in end_time:
+        start_time = start_time.replace('Z', '+00:00')
+        end_time = end_time.replace('Z', '+00:00')
+
+    pipeline = [{'$match': {'timestamp': {'$gte': datetime.fromisoformat(start_time), '$lte': datetime.fromisoformat(end_time)}}},
                 {'$unwind': {'path': '$lines'}},
-                {'$group': {'_id': None,'items': {'$push': '$lines'}}},
+                {'$group': {'_id': None, 'items': {'$push': '$lines'}}},
                 ]
     aggregation_result = aggregate_from_mongodb(col='network', pipeline=pipeline)
     log_list = aggregation_result[0].get('items', []) if aggregation_result != [] else aggregation_result
     return {"items": log_list}
-
