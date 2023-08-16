@@ -21,13 +21,13 @@ def read_timezone() -> schemas.Timezone:
 
 @router.get("/video")
 def read_video_file(
-    scenario_id: Optional[str] = RedisClient.hget('testrun', 'scenario_id')
+    scenario_id: Optional[str] = None
 ) -> StreamingResponse:
     """
     비디오 파일 재생
     """
     if scenario_id is None:
-        raise HTTPException(status_code=404, detail="Scenario id not found")
+        scenario_id = RedisClient.hget('testrun', 'scenario_id')
     pipeline = [{'$match': {'id': scenario_id}},
                 {'$project': {'_id': 0, 'videos': '$testrun.raw.videos'}},
                 ]
