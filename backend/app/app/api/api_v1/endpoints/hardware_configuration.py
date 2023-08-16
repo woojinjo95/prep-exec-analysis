@@ -4,7 +4,7 @@ import traceback
 import uuid
 
 from app import schemas
-from app.api.utility import parse_bytes_to_value
+from app.api.utility import parse_bytes_to_value, set_redis_pub_msg
 from app.db.redis_session import RedisClient
 from fastapi import APIRouter, HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -137,16 +137,12 @@ def update_stb_connection(
                          'stb_connection', json.dumps({k: v for k, v
                                                       in conn_info.items()
                                                       if v is not None}))
-        RedisClient.publish('command', json.dumps({
-            "msg": "config",
-            "data": {
-                "mode": conn_info.get('type', None),
-                "host": conn_info.get('ip', None),
-                "port": conn_info.get('port', None),
-                "username": conn_info.get('username', None),
-                "password": conn_info.get('password', None),
-            }
-        }))
+        RedisClient.publish('command', set_redis_pub_msg(msg="config",
+                                                         data={"mode": conn_info.get('type', None),
+                                                               "host": conn_info.get('ip', None),
+                                                               "port": conn_info.get('port', None),
+                                                               "username": conn_info.get('username', None),
+                                                               "password": conn_info.get('password', None)}))
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': f'Update {stb_connection_in.type.value} stb_connection.'}

@@ -1,4 +1,3 @@
-import json
 import logging
 import os
 import time
@@ -7,7 +6,7 @@ import uuid
 from datetime import datetime
 
 from app import schemas
-from app.api.utility import get_multi_or_paginate_by_res
+from app.api.utility import get_multi_or_paginate_by_res, set_redis_pub_msg
 from app.crud.base import (aggregate_from_mongodb, get_mongodb_collection,
                            insert_one_to_mongodb, load_by_id_from_mongodb,
                            update_by_id_to_mongodb)
@@ -94,12 +93,10 @@ def read_scenario_by_id(
         dir = scenario.get('testrun', {}).get('dir', 'null')
         RedisClient.hset('testrun', 'dir', dir)
         RedisClient.hset('testrun', 'scenario_id', scenario_id)
-        RedisClient.publish('command', json.dumps({"msg": "workspace",
-                                                   "data": {
-                                                       "workspace_path": workspace_path,
-                                                       "testrun_dir": dir,
-                                                       "scenario_id": scenario_id
-                                                   }}))
+        RedisClient.publish('command', set_redis_pub_msg(msg="workspace",
+                                                         data={"workspace_path": workspace_path,
+                                                               "testrun_dir": dir,
+                                                               "scenario_id": scenario_id}))
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'items': scenario}
