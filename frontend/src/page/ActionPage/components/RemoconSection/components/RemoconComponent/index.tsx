@@ -6,7 +6,6 @@ import { ReactComponent as MoreButton } from '@assets/images/button_more.svg'
 
 import { KeyEvent } from '@page/ActionPage/types'
 
-import { remoconService } from '@global/service/RemoconService/RemoconService'
 import AppURL from '@global/constant/appURL'
 import { Remocon } from '../../api/entity'
 import RemoconButtons from './RemoconButtons'

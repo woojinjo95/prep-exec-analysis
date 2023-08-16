@@ -92,3 +92,9 @@ def get_utc_datetime(timestamp: float, remove_float_point: bool = False) -> date
     if remove_float_point:
         dt_obj = dt_obj.replace(microsecond=0)
     return dt_obj
+
+
+def convert_iso_format(input_str: str):
+    if 'Z' in input_str:
+        input_str = input_str.replace('Z', '+00:00')
+    return datetime.fromisoformat(input_str)
