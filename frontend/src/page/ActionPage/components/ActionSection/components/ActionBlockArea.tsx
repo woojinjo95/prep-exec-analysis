@@ -26,7 +26,7 @@ const ActionBlockArea = (): JSX.Element => {
   // TODO: 나중에 진입 시에 scenario_id를 받을 수 있어야함
   const [scenarioId, setScenarioId] = useState<string | null>(null)
 
-  const { data: scenarioSummary } = useQuery<ScenarioSummaryResponse>(
+  useQuery<ScenarioSummaryResponse>(
     ['scenario_summary'],
     () =>
       getScenario({
