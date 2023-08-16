@@ -8,7 +8,7 @@ from scripts.connection.mongo_db.crud import insert_to_mongodb
 from scripts.util._timezone import get_utc_datetime
 from .cpu_info import parse_cpu_info
 from .memory_info import parse_memory_info
-
+from scripts.config.mongo import get_scenario_id
 
 
 logger = logging.getLogger('dumpsys')
@@ -33,6 +33,7 @@ def insert_to_db(connection_info: Dict):
 
 def construct_json_data(cpu_usage: str, memory_usage: str) -> Dict:
     return {
+        'scenario_id': get_scenario_id(),
         'timestamp': get_utc_datetime(time.time(), remove_float_point=True),
         'cpu_usage': cpu_usage,
         'memory_usage': memory_usage,

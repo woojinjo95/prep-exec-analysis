@@ -11,6 +11,7 @@ from typing import Dict, List, Tuple, Union
 from scripts.connection.mongo_db.crud import insert_many_to_mongodb
 from scripts.util._timezone import get_utc_datetime
 from .db_connection import LogManagerDBConnection
+from scripts.config.mongo import get_scenario_id
 
 logger = logging.getLogger('logcat')
 
@@ -115,13 +116,15 @@ def LogBatchGenerator(file_path: str, no_time_count_limit: int = 10000):
 
 
 def insert_to_db(file_path: str):
-    json_datas = [construct_json_data(log_batch) for log_batch in LogBatchGenerator(file_path)]
+    scenario_id = get_scenario_id()
+    json_datas = [construct_json_data(log_batch, scenario_id) for log_batch in LogBatchGenerator(file_path)]
     logger.info(f'insert {len(json_datas)} datas to db')
     insert_many_to_mongodb('stb_log', json_datas)
 
 
-def construct_json_data(log_batch: List[Tuple[float, str]]) -> Dict:
+def construct_json_data(log_batch: List[Tuple[float, str]], scenario_id: str) -> Dict:
     return {
+        'scenario_id': scenario_id,
         'timestamp': get_utc_datetime(log_batch[0]['timestamp'], remove_float_point=True),
         'lines': [{
             'timestamp': get_utc_datetime(log_chunk['timestamp']),
