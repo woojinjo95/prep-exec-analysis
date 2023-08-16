@@ -22,11 +22,8 @@ def timestamp_to_datetime_with_timezone_str(timestamp: float = 0, timezone: str 
         return datetime.datetime.strftime(datetime_obj, format)
 
 
-def get_utc_datetime(timestamp: float) -> datetime.datetime:
-    return datetime.datetime.utcfromtimestamp(timestamp)
-
-
-def remove_floating_point(timestamp: float) -> float:
-    return float(re.sub(r'.\d{6}', '', str(timestamp)))
-
-                 
+def get_utc_datetime(timestamp: float, remove_float_point: bool=False) -> datetime.datetime:
+    dt_obj = datetime.datetime.utcfromtimestamp(timestamp)
+    if remove_float_point:
+        dt_obj = dt_obj.replace(microsecond=0)
+    return dt_obj
