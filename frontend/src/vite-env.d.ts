@@ -34,9 +34,14 @@ declare global {
     export = value
   }
   interface ImportMetaEnv {
-    readonly VITE_BACKEND_URL?: string
-    readonly VITE_BACKEND_WEBSOCKET_URL?: string
-    readonly VITE_STREAMING_URL?: string
+    readonly VITE_BACKEND_PROTOCOL?: string
+    readonly VITE_BACKEND_HOSTNAME?: string
+    readonly VITE_BACKEND_PORT: string
+
+    readonly VITE_STREAMING_PROTOCOL?: string
+    readonly VITE_STREAMING_HOSTNAME?: string
+    readonly VITE_STREAMING_PORT: string
+    readonly VITE_STREAMING_PATHNAME: string
   }
   interface ImportMeta {
     readonly env: ImportMetaEnv

@@ -2,49 +2,24 @@ import React, { useEffect, useRef, useState } from 'react'
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd'
 import cx from 'classnames'
 
-import {
-  Block,
-  BlockGroup,
-  Scenario,
-  ScenarioSummaryResponse,
-} from '@page/ActionPage/components/ActionSection/api/entity'
+import { Block, BlockGroup, Scenario } from '@page/ActionPage/components/ActionSection/api/entity'
 import { useMutation, useQuery } from 'react-query'
 import BackgroundImage from '@assets/images/background_pattern.svg'
 import { remoconService } from '@global/service/RemoconService/RemoconService'
 import { RemoconTransmit } from '@global/service/RemoconService/type'
-import { PAGE_SIZE_FIFTEEN } from '@global/constant'
+
 import ActionBlockItem from './ActionBlockItem'
-import BlockControls from './BlockControls'
-import { getScenario, getScenarioById, postBlock, putScenario } from '../api/func'
+import { getScenarioById, postBlock, putScenario } from '../api/func'
 
 type BlocksRef = {
   [id: string]: HTMLDivElement | null
 }
 
-const ActionBlockArea = (): JSX.Element => {
-  // current scenarioId
-  // TODO: 나중에 진입 시에 scenario_id를 받을 수 있어야함
-  const [scenarioId, setScenarioId] = useState<string | null>(null)
+interface ActionBlockAreaProps {
+  scenarioId: string | null
+}
 
-  const { data: scenarioSummary } = useQuery<ScenarioSummaryResponse>(
-    ['scenario_summary'],
-    () =>
-      getScenario({
-        page: 1,
-        page_size: PAGE_SIZE_FIFTEEN,
-      }),
-    {
-      onSuccess: (res) => {
-        if (res && res.items.length > 0) {
-          setScenarioId(res.items[0].id)
-        }
-      },
-      onError: (err) => {
-        console.error(err)
-      },
-    },
-  )
-
+const ActionBlockArea = ({ scenarioId }: ActionBlockAreaProps): JSX.Element => {
   // 전체 블럭
   const [blocks, setBlocks] = useState<Block[] | null>(null)
 
@@ -60,7 +35,6 @@ const ActionBlockArea = (): JSX.Element => {
     () => getScenarioById({ scenario_id: scenarioId! }),
     {
       onSuccess: (res) => {
-        console.log(res)
         if (res && res.block_group.length > 0) {
           const newBlocks: Block[] = res.block_group[0].block
           setBlocks(newBlocks)
@@ -355,97 +329,92 @@ const ActionBlockArea = (): JSX.Element => {
   }, [scenarioId])
 
   return (
-    <div className="h-full w-full">
-      <div className="grid grid-rows-[auto_56px] h-full">
-        <div
-          className="h-full w-full pt-[30px] overflow-y-auto bg-repeat-y"
-          onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
-          onMouseMove={handleMouseMove}
-          style={{
-            backgroundImage: `url(${BackgroundImage})`,
-            backgroundSize: '100%',
-          }}
-        >
-          {blocks && blockDummys && blocks.length > 0 && scenarioId && (
-            <div className="w-full h-full pl-[30px] pr-[30px] overflow-y-auto pt-[2px] pb-[2px]">
-              <DragDropContext onDragEnd={handleDragEnd}>
-                <Droppable droppableId="droppable">
-                  {(provided) => (
-                    <div ref={provided.innerRef} {...provided.droppableProps} className="flex flex-col">
-                      {blockDummys.map((dummy, dummyIdx) => {
-                        return (
-                          <Draggable
-                            key={dummyIdx}
-                            draggableId={`dummy-${dummyIdx}`}
-                            index={dummyIdx}
-                            isDragDisabled={
-                              !!(modifyingBlockId && dummy.find((block) => block.id === modifyingBlockId))
-                            }
-                          >
-                            {(provided) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                className={cx('w-full cursor-grab ', {})}
-                              >
-                                {dummy.map((block) => {
-                                  return (
-                                    <div
-                                      key={block.id}
-                                      ref={(ele) => {
-                                        blocksRef.current[block.id] = ele
+    <div className="w-full h-full">
+      <div
+        className="h-full bg-[#F1F2F4] w-full pt-3 overflow-y-auto bg-repeat-y"
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onMouseMove={handleMouseMove}
+        style={{
+          backgroundImage: `url(${BackgroundImage})`,
+          backgroundSize: '100%',
+        }}
+      >
+        {blocks && blockDummys && blocks.length > 0 && scenarioId && (
+          <div className="w-full h-full pl-3 pr-3 overflow-y-auto pt-[2px] pb-[2px]">
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="droppable">
+                {(provided) => (
+                  <div ref={provided.innerRef} {...provided.droppableProps} className="flex flex-col">
+                    {blockDummys.map((dummy, dummyIdx) => {
+                      return (
+                        <Draggable
+                          key={dummyIdx}
+                          draggableId={`dummy-${dummyIdx}`}
+                          index={dummyIdx}
+                          isDragDisabled={!!(modifyingBlockId && dummy.find((block) => block.id === modifyingBlockId))}
+                        >
+                          {(provided) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className={cx('w-full cursor-grab ', {})}
+                            >
+                              {dummy.map((block) => {
+                                return (
+                                  <div
+                                    key={block.id}
+                                    ref={(ele) => {
+                                      blocksRef.current[block.id] = ele
+                                    }}
+                                  >
+                                    <ActionBlockItem
+                                      actionStatus="normal"
+                                      block={block}
+                                      selectedBlockIds={selectedBlockIds}
+                                      handleBlockClick={handleBlockClick}
+                                      setModifyingBlockId={setModifyingBlockId}
+                                      modifyingBlockId={modifyingBlockId}
+                                      blockRefetch={() => {
+                                        blockRefetch()
                                       }}
-                                    >
-                                      <ActionBlockItem
-                                        actionStatus="normal"
-                                        block={block}
-                                        selectedBlockIds={selectedBlockIds}
-                                        handleBlockClick={handleBlockClick}
-                                        setModifyingBlockId={setModifyingBlockId}
-                                        modifyingBlockId={modifyingBlockId}
-                                        blockRefetch={() => {
-                                          blockRefetch()
-                                        }}
-                                        scenarioId={scenarioId}
-                                      />
-                                    </div>
-                                  )
-                                })}
-                              </div>
-                            )}
-                          </Draggable>
-                        )
-                      })}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </DragDropContext>
-            </div>
-          )}
+                                      scenarioId={scenarioId}
+                                    />
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          )}
+                        </Draggable>
+                      )
+                    })}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
+          </div>
+        )}
 
-          {blocks && blockDummys && blocks.length === 0 && (
-            <div className="h-full w-full justify-center items-center">
-              <p className="text-xl">No Blocks</p>
-              <p className="text-base">Start action about device control and adb/ssh access</p>
-            </div>
-          )}
+        {blocks && blockDummys && blocks.length === 0 && (
+          <div className="h-full w-full justify-center items-center">
+            <p className="text-xl">No Blocks</p>
+            <p className="text-base">Start action about device control and adb/ssh access</p>
+          </div>
+        )}
 
-          {dragSelection && (
-            <div
-              className="absolute border border-blue-500 bg-blue-200 opacity-50"
-              style={{
-                top: Math.min(dragSelection.startY, dragSelection.endY),
-                left: Math.min(dragSelection.startX, dragSelection.endX),
-                width: Math.abs(dragSelection.endX - dragSelection.startX),
-                height: Math.abs(dragSelection.endY - dragSelection.startY),
-              }}
-            />
-          )}
-        </div>
-        <BlockControls />
+        {dragSelection && (
+          <div
+            className="absolute border border-blue-500 bg-blue-200 opacity-50"
+            style={{
+              top: Math.min(dragSelection.startY, dragSelection.endY),
+              left: Math.min(dragSelection.startX, dragSelection.endX),
+              width: Math.abs(dragSelection.endX - dragSelection.startX),
+              height: Math.abs(dragSelection.endY - dragSelection.startY),
+            }}
+          />
+        )}
       </div>
       {modifyingBlockId && <div className="absolute top-0 left-0 h-full z-10 w-full bg-gray-100 opacity-50" />}
     </div>

@@ -1,7 +1,8 @@
 import { KeyEvent } from '@page/ActionPage/types'
 import React, { useEffect, useMemo, useState } from 'react'
 import cx from 'classnames'
-import ws from '@global/module/websocket'
+
+import useWebsocket from '@global/module/websocket'
 import { Remocon } from '../../api/entity'
 
 interface AddCustomKeyModalRemoconButtonsProps {
@@ -17,6 +18,7 @@ const AddCustomKeyModalRemoconButtons: React.FC<AddCustomKeyModalRemoconButtonsP
   remocon,
   setRemoconInput,
 }: AddCustomKeyModalRemoconButtonsProps) => {
+  const { ws } = useWebsocket()
   const [isSquareVisible, setIsSquareVisible] = useState<boolean>(false)
   const [windowSize, setWindowSize] = useState<{ width: number; height: number }>({
     width: window.innerWidth,

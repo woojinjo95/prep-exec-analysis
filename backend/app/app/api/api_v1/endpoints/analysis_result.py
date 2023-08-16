@@ -1,9 +1,11 @@
 import logging
+from datetime import datetime
 from typing import Optional
 
 from app import schemas
-from app.db.redis_session import RedisClient
+from app.api.utility import convert_iso_format
 from app.crud.base import aggregate_from_mongodb, load_from_mongodb
+from app.db.redis_session import RedisClient
 from fastapi import APIRouter, Query
 
 logger = logging.getLogger(__name__)
@@ -16,14 +18,15 @@ def get_data_of_log_level_finder(
     scenario_id: Optional[str] = None,
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    ):
+):
     """
     로그 레벨 데이터 조회
     """
     if scenario_id is None:
         scenario_id = RedisClient.hget('testrun', 'scenario_id')
     log_level_finder_pipeline = [
-        {'$match': {'scenario_id': scenario_id, 'timestamp': {'$gte': start_time, '$lte': end_time}}}, 
+        {'$match': {'scenario_id': scenario_id,
+                    'timestamp': {'$gte': convert_iso_format(start_time), '$lte': convert_iso_format(end_time)}}},
         {'$project': {'_id': 0, 'lines': 1}},
         {'$unwind': {'path': '$lines'}},
         {'$project': {'timestamp': '$lines.timestamp', 'log_level': '$lines.log_level'}}
@@ -38,13 +41,14 @@ def get_data_of_cpu_and_memory(
     scenario_id: Optional[str] = None,
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    ):
+):
     """
     Cpu, Memory 데이터 조회
     """
     if scenario_id is None:
         scenario_id = RedisClient.hget('testrun', 'scenario_id')
-    time_range_param = {'scenario_id': scenario_id, 'timestamp': {'$gte': start_time, '$lte': end_time}}
+    time_range_param = {'scenario_id': scenario_id,
+                        'timestamp': {'$gte': convert_iso_format(start_time), '$lte': convert_iso_format(end_time)}}
     cpu_and_memory = load_from_mongodb(col="stb_info", param=time_range_param, proj={'_id': 0})
     return {"items": cpu_and_memory}
 
@@ -55,7 +59,7 @@ def get_data_of_color_reference(
     scenario_id: Optional[str] = None,
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    ):
+):
     """
     컬러 레퍼런스 데이터 조회
     """
@@ -71,7 +75,7 @@ def get_data_of_event_log(
     scenario_id: Optional[str] = None,
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    ):
+):
     """
     이벤트 로그 데이터 조회
     """
@@ -87,7 +91,7 @@ def get_data_of_video_analysis_result(
     scenario_id: Optional[str] = None,
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    ):
+):
     """
     비디오 분석 결과 데이터 조회
     """
@@ -103,7 +107,7 @@ def get_data_of_log_pattern_matching(
     scenario_id: Optional[str] = None,
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    ):
+):
     """
     로그 패턴 매칭 데이터 조회
     """
@@ -119,7 +123,7 @@ def get_data_of_measurement(
     scenario_id: Optional[str] = None,
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    ):
+):
     """
     분석 데이터 조회
     """
@@ -135,7 +139,7 @@ def get_data_of_process_lifecycle(
     scenario_id: Optional[str] = None,
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    ):
+):
     """
     프로세스 활동주기 데이터 조회
     """
@@ -151,7 +155,7 @@ def get_data_of_network_filter(
     scenario_id: Optional[str] = None,
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    ):
+):
     """
     네트워크 필터 데이터 조회
     """
@@ -159,4 +163,3 @@ def get_data_of_network_filter(
         scenario_id = RedisClient.hget('testrun', 'scenario_id')
     network_filter = load_from_mongodb()
     return {"items": network_filter}
-
