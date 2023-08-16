@@ -6,10 +6,16 @@ import { ReactComponent as PlayIcon } from '@assets/images/icon_play.svg'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
 import { ReactComponent as StopIcon } from '@assets/images/icon_stop.svg'
 
-import ws from '@global/module/websocket'
 import { IconButton, Text } from '@global/ui'
+import useWebsocket from '@global/module/websocket'
 
-const BlockControls: React.FC = () => {
+interface BlockControlsProps {
+  scenarioId: string | null
+}
+
+const BlockControls: React.FC<BlockControlsProps> = ({ scenarioId }) => {
+  const { sendMessage } = useWebsocket()
+
   return (
     <div className="flex flex-wrap items-center px-3 py-2 gap-y-2 border-t border-[#DFE0EE] bg-white">
       <div className="flex items-center">
@@ -26,14 +32,24 @@ const BlockControls: React.FC = () => {
         <IconButton
           icon={<StopIcon />}
           onClick={() => {
-            ws.send('{"streaming": "stop"}')
+            sendMessage({
+              level: 'info',
+              msg: 'stop_scenario',
+              time: new Date().getTime(),
+            })
           }}
         />
         <IconButton icon={<RecordIcon className="fill-red" />} />
         <IconButton
           icon={<PlayIcon />}
           onClick={() => {
-            ws.send('{"streaming": "start"}')
+            if (!scenarioId) return
+            sendMessage({
+              level: 'info',
+              msg: 'run_scenario',
+              data: { scenario_id: scenarioId },
+              time: new Date().getTime(),
+            })
           }}
         />
         <IconButton icon={<TrashIcon />} />

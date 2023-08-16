@@ -1,8 +1,8 @@
 import { KeyEvent } from '@page/ActionPage/types'
 import React, { useEffect, useMemo, useState } from 'react'
 import cx from 'classnames'
-import ws from '@global/module/websocket'
 import { remoconService } from '@global/service/RemoconService/RemoconService'
+import useWebsocket from '@global/module/websocket'
 import { Remocon } from '../../api/entity'
 
 interface RemoconButtonsProps {
@@ -16,6 +16,7 @@ const RemoconButtons: React.FC<RemoconButtonsProps> = ({
   remoconRef,
   remocon,
 }: RemoconButtonsProps): JSX.Element => {
+  const { ws } = useWebsocket()
   const [isSquareVisible, setIsSquareVisible] = useState<boolean>(false)
   const [windowSize, setWindowSize] = useState<{ width: number; height: number }>({
     width: window.innerWidth,

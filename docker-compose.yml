@@ -172,7 +172,7 @@ services:
     image: registry.dev-nextlab.com/prep-exec-analysis-stblog:dev-0
     build:
       context: ./stb_log
-      dockerfile: Dockerfile
+      dockerfile: dockerfile
     command: python -u main.py
     volumes:
       - "adb-rsa:/root/.android"
