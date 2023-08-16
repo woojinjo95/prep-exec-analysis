@@ -47,6 +47,7 @@ const HorizontalScrollBar: React.FC<HorizontalScrollBarProps> = ({
         }}
         onPointerDown={onPointerDownHandler}
         onPointerMove={(e) => {
+          e.preventDefault()
           if (!isDragging) return
 
           if (scrollBarTwoPosX[0] + e.movementX < 0) {
@@ -72,6 +73,7 @@ const HorizontalScrollBar: React.FC<HorizontalScrollBarProps> = ({
           }}
           onPointerDown={onPointerDownHandler}
           onPointerMove={(e) => {
+            e.preventDefault()
             e.stopPropagation()
             if (!isDragging) return
 
@@ -93,6 +95,7 @@ const HorizontalScrollBar: React.FC<HorizontalScrollBarProps> = ({
           }}
           onPointerDown={onPointerDownHandler}
           onPointerMove={(e) => {
+            e.preventDefault()
             e.stopPropagation()
             if (!isDragging) return
 
