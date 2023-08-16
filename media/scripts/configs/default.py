@@ -24,11 +24,8 @@ settings = {'capture': {'video_device': '/dev/video0',
                           'real_time_video_path': 'real_time_videos'},
             'state': {'streaming': 'idle'},
             'common': {'root_file_path': './data'},
-            'test': {'description': '''PUBLISH command '{"streaming": "start"}'
-PUBLISH command '{"streaming": "stop"}'
-PUBLISH command '{"streaming": "restart"}
-PUBLISH command '{"recording": {"interval": 20}}'
-PUBLISH command '{"recording": {"start_time": 1691046399.10611, "end_time":  1691046399.10611}}' ''', },
+            'test': {'description': '''publish command '{"msg": "streaming", "data": {"action": "start"}}'
+publish command '{"msg": "recording", "data": {"interval": 1800}}' ''', },
             }
 
 hardware_settings = {'hardware_configuration': {'ssh_port': 2345}}
