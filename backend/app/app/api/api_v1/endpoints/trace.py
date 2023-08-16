@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 
 from app import schemas
+from app.api.utility import convert_iso_format
 from app.crud.base import aggregate_from_mongodb
 from fastapi import APIRouter, Query
 
@@ -17,11 +18,7 @@ def read_logcat(
     """
     Logcat 로그 조회
     """
-    if 'Z' in start_time or 'Z' in end_time:
-        start_time = start_time.replace('Z', '+00:00')
-        end_time = end_time.replace('Z', '+00:00')
-
-    pipeline = [{'$match': {'timestamp': {'$gte': datetime.fromisoformat(start_time), '$lte': datetime.fromisoformat(end_time)}}},
+    pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time), '$lte': convert_iso_format(end_time)}}},
                 {'$unwind': {'path': '$lines'}},
                 {'$group': {'_id': None, 'items': {'$push': '$lines'}}},
                 ]
@@ -38,11 +35,7 @@ def read_network(
     """
     Network 조회
     """
-    if 'Z' in start_time or 'Z' in end_time:
-        start_time = start_time.replace('Z', '+00:00')
-        end_time = end_time.replace('Z', '+00:00')
-
-    pipeline = [{'$match': {'timestamp': {'$gte': datetime.fromisoformat(start_time), '$lte': datetime.fromisoformat(end_time)}}},
+    pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time), '$lte': convert_iso_format(end_time)}}},
                 {'$unwind': {'path': '$lines'}},
                 {'$group': {'_id': None, 'items': {'$push': '$lines'}}},
                 ]

@@ -3,7 +3,7 @@ import traceback
 from datetime import datetime
 
 from app import schemas
-from app.api.utility import parse_bytes_to_value, set_redis_pub_msg
+from app.api.utility import parse_bytes_to_value, set_redis_pub_msg, convert_iso_format
 from app.crud.base import aggregate_from_mongodb
 from app.db.redis_session import RedisClient
 from app.schemas.enum import ShellModeEnum
@@ -33,11 +33,7 @@ def get_shell_logs(
     """
     터미널별 일정기간 로그 조회
     """
-    if 'Z' in start_time or 'Z' in end_time:
-        start_time = start_time.replace('Z', '+00:00')
-        end_time = end_time.replace('Z', '+00:00')
-
-    pipeline = [{'$match': {'timestamp': {'$gte': datetime.fromisoformat(start_time), '$lte': datetime.fromisoformat(end_time)},
+    pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time), '$lte': convert_iso_format(end_time)},
                             'mode': shell_mode.value, 'shell_id': shell_id}},
                 {'$project': {'_id': 0, 'lines': 1}},
                 {'$unwind': {'path': '$lines'}},
