@@ -62,32 +62,32 @@ def stop_dumpsys_manager():
 
 def command_parser(command: dict):
     ''' 
-    start: PUBLISH command '{"streaming": "start"}'
-    stop: PUBLISH command '{"streaming": "stop"}'
+    start: PUBLISH command '{"msg": "stb_log", "data": {"control": "start"}}'
+    stop: PUBLISH command '{"msg": "stb_log", "data": {"control": "stop"}}'
     connection info: PUBLISH command '{"msg": "config", "data": {"mode": "adb", "host": "192.168.30.30", "port": "5555", "username": "root", "password": ""}}'
     '''
     global connection_info
 
-    if command.get('streaming'):
-        streaming_arg = command.get('streaming')
-        logger.info(f'command_parser: {streaming_arg}')
+    if command.get('msg') == 'stb_log':
+        arg = command.get('data', {})
+        logger.info(f'msg: stb_log. arg: {arg}')
 
-        if streaming_arg == 'start':
+        control = arg.get('control', '')
+        if control == 'start':
             start_logcat_manager(connection_info)
             start_dumpsys_manager(connection_info)
-        elif streaming_arg == 'stop':
+        elif control == 'stop':
             stop_logcat_manager()
             stop_dumpsys_manager()
         else:
-            logger.warning(f'Unknown streaming args: {streaming_arg}')
+            logger.warning(f'Unknown control: {control}')
 
-    if command.get('msg'):
-        if command.get('msg') == 'config':
-            data = command.get('data')
-            data['connection_mode'] = data['mode']
-            del data['mode']
-            connection_info = data
-            logger.info(f'connection_info: {connection_info}')
+    if command.get('msg') == 'config':
+        data = command.get('data')
+        data['connection_mode'] = data['mode']
+        del data['mode']
+        connection_info = data
+        logger.info(f'connection_info: {connection_info}')
 
 
 def main():
