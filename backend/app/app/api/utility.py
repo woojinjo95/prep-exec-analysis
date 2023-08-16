@@ -3,6 +3,7 @@ import math
 import os
 import time
 from ast import literal_eval
+from datetime import datetime
 
 from app.core.config import settings
 from app.crud.base import load_from_mongodb, load_paginate_from_mongodb
@@ -84,3 +85,9 @@ def set_redis_pub_msg(msg: str, data: dict = {}, service: str = 'backend', level
         "msg": msg,
         "data": data
     })
+
+
+def convert_iso_format(input_str: str):
+    if 'Z' in input_str:
+        input_str = input_str.replace('Z', '+00:00')
+    return datetime.fromisoformat(input_str)

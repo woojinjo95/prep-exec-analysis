@@ -81,7 +81,7 @@ def command_parser(command: dict, streaming_stop_event: Event):
         new_video = MakeVideo(start_time, end_time, interval)
         new_video.run()
 
-    if command.get('msg' == 'capture_board'):
+    if command.get('msg') == 'capture_board':
         capture_board_args = command.get('data')
         if capture_board_args.get('refresh'):
             refresh_capture_board()
