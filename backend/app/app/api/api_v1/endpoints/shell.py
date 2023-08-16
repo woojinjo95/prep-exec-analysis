@@ -52,7 +52,7 @@ def connect_shell() -> schemas.Msg:
             status_code=404, detail="The stb_connection does not exist in the system.")
     try:
         conn_info = json.loads(conn_info)
-        RedisClient.publish('command', set_redis_pub_msg(msg="command_shell",
+        RedisClient.publish('command', set_redis_pub_msg(msg="connect_shell",
                                                          data={"mode": conn_info.get('type', None),
                                                                "host": conn_info.get('ip', None),
                                                                "port": conn_info.get('port', None),
