@@ -1,15 +1,12 @@
 from typing import List, Optional
 
-from app.schemas.enum import (AnalysisTypeEnum, ChannelChangeTimeTargetEnum,
-                              LogLevelFinderTargetEnum,
-                              ResumeMeasurementRecognizingKeyEventEnum)
+from app.schemas.enum import (BootTypeEnum, ChannelChangeTimeTargetEnum,
+                              ResumeRecognizingKeyEventEnum, ResumeTypeEnum)
 from pydantic import BaseModel
 
 
-class CommonConfig(BaseModel):
-    save_video: bool
-    before_occurrence: int
-    after_occurrence: int
+class CommonBaseModel(BaseModel):
+    is_active: bool
 
 
 class Roi(BaseModel):
@@ -24,42 +21,49 @@ class Frame(BaseModel):
     roi: Roi
 
 
-class Freeze(CommonConfig):
-    analysis_type: AnalysisTypeEnum = AnalysisTypeEnum.freeze
+class Freeze(CommonBaseModel):
     duration: int
 
 
-class Macroblock(CommonConfig):
-    analysis_type: AnalysisTypeEnum = AnalysisTypeEnum.macroblock
+class Macroblock(CommonBaseModel):
+    frame_sampling_interval: int
+    threshold_score: float
 
 
-class Loudness(BaseModel):
-    analysis_type: AnalysisTypeEnum = AnalysisTypeEnum.loudness
+class Loudness(CommonBaseModel):
+    pass
 
 
-class Resume(CommonConfig):
-    analysis_type: AnalysisTypeEnum = AnalysisTypeEnum.resume
-    recognizing_key_event: ResumeMeasurementRecognizingKeyEventEnum
-    frame: Frame
+class Resume(CommonBaseModel):
+    recognizing_key_event: ResumeRecognizingKeyEventEnum
+    type: ResumeTypeEnum
+    frame: Optional[Frame]
 
 
-class Boot(CommonConfig):
-    analysis_type: AnalysisTypeEnum = AnalysisTypeEnum.boot
-    frame: Frame
+class Boot(CommonBaseModel):
+    type: BootTypeEnum
+    frame: Optional[Frame]
 
 
-class ChannelChangeTime(CommonConfig):
-    analysis_type: AnalysisTypeEnum = AnalysisTypeEnum.channel_change_time
+class ChannelChangeTime(CommonBaseModel):
     targets: List[ChannelChangeTimeTargetEnum]
 
 
-class LogLevelFinder(BaseModel):
-    analysis_type: AnalysisTypeEnum = AnalysisTypeEnum.log_level_finder
-    targets: List[LogLevelFinderTargetEnum]
+class LogLevelFinder(CommonBaseModel):
+    pass
+    # targets: List[LogLevelFinderTargetEnum]
 
 
-class LogPatternMatching(BaseModel):
-    analysis_type: AnalysisTypeEnum = AnalysisTypeEnum.log_pattern_matching
+class LogPatternMatching(CommonBaseModel):
+    pass
+
+
+class ProcessLifecycleAnalysis(CommonBaseModel):
+    pass
+
+
+class NetworkFilter(CommonBaseModel):
+    pass
 
 
 class AnalysisConfig(BaseModel):
@@ -71,6 +75,8 @@ class AnalysisConfig(BaseModel):
     channel_change_time: Optional[ChannelChangeTime]
     log_level_finder: Optional[LogLevelFinder]
     log_pattern_matching: Optional[LogPatternMatching]
+    process_lifecycle_analysis: Optional[ProcessLifecycleAnalysis]
+    network_filter: Optional[NetworkFilter]
 
 
 class AnalysisConfigBase(BaseModel):

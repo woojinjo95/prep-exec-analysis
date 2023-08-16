@@ -3,7 +3,9 @@ import logging
 from app.core.config import settings
 from app.db.redis_session import RedisClient
 from app.remocon_ir_preset import remocon_preset
-from app.schemas.enum import RemoteControlTypeEnum
+from app.schemas.enum import (BootTypeEnum, ChannelChangeTimeTargetEnum,
+                              RemoteControlTypeEnum,
+                              ResumeRecognizingKeyEventEnum, ResumeTypeEnum)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -21,7 +23,6 @@ def init() -> None:
             'packet_bandwidth': 0,
             'packet_delay': 0.0,
             'packet_loss': 0.0,
-            'stb_connection': 'null',
         },
         'common': {
             'timezone': 'Asia/Seoul',
@@ -30,12 +31,42 @@ def init() -> None:
             'workspace_path': './data/workspace/testruns',
             'dir': 'null',
             'scenario_id': 'null',
+        },
+        'analysis_config': {
+            "freeze": {
+                "duration": 0
+            },
+            "macroblock": {
+                "frame_sampling_interval": 0,
+                "threshold_score": 0
+            },
+            "loudness": {},
+            "resume": {
+                "recognizing_key_event": ResumeRecognizingKeyEventEnum.power.value,
+                "type": ResumeTypeEnum.image_matching.value,
+            },
+            "boot": {
+                "type": BootTypeEnum.image_matching.value,
+            },
+            "channel_change_time": {
+                "targets": f'["{ChannelChangeTimeTargetEnum.adjoint_channel.value}"]'
+            },
+            "log_level_finder": {},
+            "log_pattern_matching": {},
+            "process_lifecycle_analysis": {},
+            "network_filter": {}
         }
     }
 
     for key, fields in configs.items():
         for field, value in fields.items():
-            RedisClient.hsetnx(key, field, value)
+            if key == 'analysis_config':
+                _key = f'analysis_config:{field}'
+                RedisClient.hsetnx(_key, 'is_active', 'false')
+                for f, v in value.items():
+                    RedisClient.hsetnx(_key, f, v)
+            else:
+                RedisClient.hsetnx(key, field, value)
 
 
 def main() -> None:

@@ -1,11 +1,13 @@
 import logging
 import os
 from uuid import uuid4
+from typing import Optional
 
 from app import schemas
 from app.api.utility import classify_file_type
 from app.core.config import settings
-from app.crud.base import insert_one_to_mongodb, load_from_mongodb
+from app.crud.base import insert_one_to_mongodb, load_from_mongodb, aggregate_from_mongodb
+from app.db.redis_session import RedisClient
 from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 
@@ -50,7 +52,32 @@ async def file_download(
 async def system_file_download(
     file_name: str,
 ) -> FileResponse:
+    """
+    시스템 파일 다운로드
+    """
     file_dir = os.path.join(settings.FILES_PATH, 'system', file_name)
     if not os.path.isfile(path=file_dir):
         raise HTTPException(status_code=400, detail="No file")
     return FileResponse(path=file_dir, filename=file_name)
+
+
+@router.get('/video', response_class=FileResponse)
+async def workspace_video_file_download(
+    scenario_id: Optional[str] = None
+) -> FileResponse:
+    """
+    워크스페이스 비디오 파일 다운로드
+    """
+    if scenario_id is None:
+        scenario_id = RedisClient.hget('testrun', 'scenario_id')
+    pipeline = [{'$match': {'id': scenario_id}},
+                {'$project': {'_id': 0, 'videos': '$testrun.raw.videos'}},
+                ]
+    video_info = aggregate_from_mongodb(col='scenario', pipeline=pipeline)
+    if not video_info:
+        raise HTTPException(status_code=404, detail="Scenario data not found")
+    video_info = video_info[0]['videos'][0]
+    video_file_path = video_info.get('path', '')
+    video_file_path = video_file_path.replace('./data', '/app')
+    return FileResponse(path=video_file_path, media_type="video/mp4")
+
