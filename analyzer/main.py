@@ -10,9 +10,8 @@ from scripts.log_service.log_organizer import LogOrganizer
 logger = logging.getLogger('main')
 
 
-logcat_manager = None
 
-
+# TODO: module의 시작, 종료를 is_alive 기준으로 필요
 def start_logcat_manager():
     global logcat_manager
 
