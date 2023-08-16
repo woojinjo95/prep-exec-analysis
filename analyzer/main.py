@@ -1,7 +1,6 @@
 import logging
 
-from scripts.log_service.logcat.log_manager import LogcatManager
-from scripts.log_service.dumpsys.manager import DumpsysManager
+from scripts.modules.color_reference import ColorReference
 from scripts.connection.redis_conn import get_strict_redis_connection
 from scripts.connection.redis_pubsub import Subscribe
 from scripts.config.constant import RedisChannel, RedisDB
@@ -12,17 +11,15 @@ logger = logging.getLogger('main')
 
 
 logcat_manager = None
-dumpsys_manager = None
-connection_info = {}
 
 
-def start_logcat_manager(connection_info: dict):
+def start_logcat_manager():
     global logcat_manager
 
     if logcat_manager is not None:
         logger.warning('LogcatManager is already alive')
     else:
-        logcat_manager = LogcatManager(connection_info=connection_info)
+        logcat_manager = ColorReference()
         logcat_manager.start()
         logger.info('Start LogcatManager')
 
@@ -38,35 +35,10 @@ def stop_logcat_manager():
         logger.warning('LogcatManager is not alive')
 
 
-def start_dumpsys_manager(connection_info: dict):
-    global dumpsys_manager
-
-    if dumpsys_manager is not None:
-        logger.warning('DumpsysManager is already alive')
-    else:
-        dumpsys_manager = DumpsysManager(connection_info=connection_info)
-        dumpsys_manager.start()
-        logger.info('Start DumpsysManager')
-
-
-def stop_dumpsys_manager():
-    global dumpsys_manager
-
-    if dumpsys_manager is not None:
-        dumpsys_manager.stop()
-        dumpsys_manager = None
-        logger.info('Stop DumpsysManager')
-    else:
-        logger.warning('DumpsysManager is not alive')
-
-
+# TODO: 포맷 정의 필요
 def command_parser(command: dict):
     ''' 
-    start: PUBLISH command '{"msg": "stb_log", "data": {"control": "start"}}'
-    stop: PUBLISH command '{"msg": "stb_log", "data": {"control": "stop"}}'
-    connection info: PUBLISH command '{"msg": "config", "data": {"mode": "adb", "host": "192.168.30.30", "port": "5555", "username": "root", "password": ""}}'
     '''
-    global connection_info
 
     if command.get('msg') == 'stb_log':
         arg = command.get('data', {})
@@ -74,20 +46,11 @@ def command_parser(command: dict):
 
         control = arg.get('control', '')
         if control == 'start':
-            start_logcat_manager(connection_info)
-            start_dumpsys_manager(connection_info)
+            start_logcat_manager()
         elif control == 'stop':
             stop_logcat_manager()
-            stop_dumpsys_manager()
         else:
             logger.warning(f'Unknown control: {control}')
-
-    if command.get('msg') == 'config':
-        data = command.get('data')
-        data['connection_mode'] = data['mode']
-        del data['mode']
-        connection_info = data
-        logger.info(f'connection_info: {connection_info}')
 
 
 def main():
@@ -98,16 +61,13 @@ def main():
 
 if __name__ == '__main__':
     try:
-        log_organizer = LogOrganizer(name='stb_log')
+        log_organizer = LogOrganizer(name='analyzer')
         log_organizer.set_stream_logger('main')
-        log_organizer.set_stream_logger('connection')
-        log_organizer.set_stream_logger('collector')
-        log_organizer.set_stream_logger('logcat')
-        log_organizer.set_stream_logger('dumpsys')
-        logger.info('Start stb_log container')
+        log_organizer.set_stream_logger('color_reference')
+        logger.info('Start analyzer container')
 
         main()
 
     finally:
-        logger.info('Close stb_log container')
+        logger.info('Close analyzer container')
         log_organizer.close()

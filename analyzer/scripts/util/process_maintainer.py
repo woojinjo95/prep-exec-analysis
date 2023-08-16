@@ -44,6 +44,10 @@ class ProcessMaintainer:
             self.process.join(timeout=5)
             self.init_property()
 
+    def join(self):
+        if self.process:
+            self.process.join()
+
     # Periodic task when interval is given, also it can be done immediately without interval as needed
     def revive(self, interval=None):
         if not self.process.is_alive():
@@ -61,10 +65,7 @@ class ProcessMaintainer:
         gc.collect()
 
     def is_alive(self):
-        if self.process and self.process.is_alive():
-            return True
-        else:
-            return False
+        return self.process
 
     def __del__(self):
         self.terminate()
