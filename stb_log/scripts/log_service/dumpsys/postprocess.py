@@ -5,7 +5,7 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from typing import Dict
 
 from scripts.connection.mongo_db.crud import insert_to_mongodb
-from scripts.util._timezone import get_utc_datetime
+from scripts.util._timezone import get_utc_datetime, remove_floating_point
 from .cpu_info import parse_cpu_info
 from .memory_info import parse_memory_info
 
@@ -32,9 +32,8 @@ def insert_to_db(connection_info: Dict):
 
 
 def construct_json_data(cpu_usage: str, memory_usage: str) -> Dict:
-    cur_time = time.time()
     return {
-        'timestamp': get_utc_datetime(re.sub(r'.\d{6}', '', str(cur_time))),
+        'timestamp': get_utc_datetime(remove_floating_point(time.time())),
         'cpu_usage': cpu_usage,
         'memory_usage': memory_usage,
     }

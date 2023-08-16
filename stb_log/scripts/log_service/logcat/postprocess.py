@@ -9,7 +9,7 @@ from multiprocessing import Event
 from typing import Dict, List, Tuple, Union
 
 from scripts.connection.mongo_db.crud import insert_many_to_mongodb
-from scripts.util._timezone import get_utc_datetime
+from scripts.util._timezone import get_utc_datetime, remove_floating_point
 from .db_connection import LogManagerDBConnection
 
 logger = logging.getLogger('logcat')
@@ -122,7 +122,7 @@ def insert_to_db(file_path: str):
 
 def construct_json_data(log_batch: List[Tuple[float, str]]) -> Dict:
     return {
-        'timestamp': get_utc_datetime(re.sub(r'.\d{6}', '', str(log_batch[0]['timestamp']))),
+        'timestamp': get_utc_datetime(remove_floating_point(log_batch[0]['timestamp'])),
         'lines': [{
             'timestamp': log_chunk['timestamp'],
             'module': str(log_chunk['module']).rstrip().replace('\n', ' '),
