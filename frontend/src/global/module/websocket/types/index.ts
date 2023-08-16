@@ -17,9 +17,9 @@ export type PublishMessage = {
   time?: number
 } & (RunScenarioMessage | StopScenarioMessage | OnOffControlMessage)
 
-export type SubscribeMessage = {
+export type SubscribeMessage<T> = {
   level: 'debug' | 'info' | 'warning' | 'error' | 'critical' | 'fatal'
   time: number
   msg: string
-  data: JSON
+  data: T
 }
