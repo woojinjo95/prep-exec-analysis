@@ -62,45 +62,24 @@ const TimelineSection: React.FC = () => {
 
       <div className="grid grid-cols-[auto_1fr] grid-rows-1 overflow-y-auto overflow-x-hidden">
         <div className="w-48 z-10">
-          <div className="border-b-[1px] border-light-charcoal bg-charcoal py-2 px-5" style={{ height: CHART_HEIGHT }}>
-            <Text colorScheme="grey" weight="medium">
-              Video
-            </Text>
-          </div>
-          <div className="border-b-[1px] border-light-charcoal bg-charcoal py-2 px-5" style={{ height: CHART_HEIGHT }}>
-            <Text colorScheme="grey" weight="medium">
-              Video
-            </Text>
-          </div>
-          <div className="border-b-[1px] border-light-charcoal bg-charcoal py-2 px-5" style={{ height: CHART_HEIGHT }}>
-            <Text colorScheme="grey" weight="medium">
-              Video
-            </Text>
-          </div>
-          <div className="border-b-[1px] border-light-charcoal bg-charcoal py-2 px-5" style={{ height: CHART_HEIGHT }}>
-            <Text colorScheme="grey" weight="medium">
-              Video
-            </Text>
-          </div>
-          <div className="border-b-[1px] border-light-charcoal bg-charcoal py-2 px-5" style={{ height: CHART_HEIGHT }}>
-            <Text colorScheme="grey" weight="medium">
-              Video
-            </Text>
-          </div>
-          <div className="border-b-[1px] border-light-charcoal bg-charcoal py-2 px-5" style={{ height: CHART_HEIGHT }}>
-            <Text colorScheme="grey" weight="medium">
-              Video
-            </Text>
-          </div>
+          {['Video', 'Color Reference', 'Event Log', 'CPU', 'Memory'].map((title, index) => (
+            <div
+              key={`timeline-chart-title-${title}-${index}`}
+              className="border-b-[1px] border-light-charcoal bg-charcoal py-2 px-5"
+              style={{ height: CHART_HEIGHT }}
+            >
+              <Text colorScheme="grey" weight="medium">
+                {title}
+              </Text>
+            </div>
+          ))}
         </div>
 
         {/* chart */}
-
         <div className="border-l-[0.5px] border-r-[0.5px] border-[#37383E]" ref={chartWrapperRef}>
           <AreaChart chartWidth={chartWidth} scaleX={scrollbarScaleX} data={sampleData} />
           <AreaChart chartWidth={chartWidth} scaleX={scrollbarScaleX} data={sampleData} />
           <PointChart data={sampleData.map(({ date }) => date)} scaleX={scrollbarScaleX} color="#E93535" />
-          <AreaChart chartWidth={chartWidth} scaleX={scrollbarScaleX} data={sampleData} />
           <AreaChart chartWidth={chartWidth} scaleX={scrollbarScaleX} data={sampleData} />
           <AreaChart chartWidth={chartWidth} scaleX={scrollbarScaleX} data={sampleData} />
         </div>
