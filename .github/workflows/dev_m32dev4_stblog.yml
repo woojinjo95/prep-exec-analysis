@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v3  
         with:
             submodules: recursive
-      - run: docker build -t registry.dev-nextlab.com/qaas-stblog:dev-${{github.run_id}}${{github.run_number}} -f ./stb_log/Dockerfile ./stb_log
+      - run: docker build -t registry.dev-nextlab.com/qaas-stblog:dev-${{github.run_id}}${{github.run_number}} -f ./stb_log/dockerfile.dev.m32dev4 ./stb_log
         shell: bash
       - run: docker image push registry.dev-nextlab.com/qaas-stblog:dev-${{github.run_id}}${{github.run_number}}
         shell: bash
