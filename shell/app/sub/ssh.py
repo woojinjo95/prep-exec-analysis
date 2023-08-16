@@ -38,6 +38,7 @@ async def consumer_ssh_handler(conn: any, channel: any, shell_id: int, CHANNEL_N
             try:  # 루프 깨지지 않도록 예외처리
                 raw = await pubsub.get_message(ignore_subscribe_messages=True)
                 await asyncio.sleep(0.001)
+                
                 # 필요없는 메시지는 여기서 걸러줌
                 if raw is None:
                     continue

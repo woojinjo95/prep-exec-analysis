@@ -32,31 +32,32 @@ def check_skip_message(raw: any):
         service = message['service']
         if service == 'shell':
             print(f"check_skip_message service == {service}")
-            return False
+            return False, None
 
         level = message['level']
         # info가 아닌 모든 메시지 스킵
         if level != 'info':
             print(f"check_skip_message level: {level}")
             print(f"trace: {message}")
-            return False
+            return False, None
 
         # msg가 start or stop이 아닌 모든 메시지 스킵
         msg = message['msg']
         if msg != 'start' and msg != 'stop':
             print(f"check_skip_message shell: {msg}")
-            return False
+            return False, None
 
         # data = message['data']
         # if data is None:
         #     print(f"check_skip_message data: {data}")
         #     return False
 
-        return True
+        return True, message
     except Exception as e:
         print(e)
         print(traceback.format_exc())
         return False
+
 
 async def consumer_adb_handler(conn: any, CHANNEL_NAME: str):
     print(f"subscribe {CHANNEL_NAME}")
@@ -66,14 +67,24 @@ async def consumer_adb_handler(conn: any, CHANNEL_NAME: str):
     while True:
         try:  # 루프 깨지지 않도록 예외처리
             raw = await pubsub.get_message(ignore_subscribe_messages=True)
+            asyncio.sleep(0.001)
 
-            if not check_skip_message(raw):
+            check_skip, message = check_skip_message(raw)
+            if not check_skip:
                 continue
-
+            command = message['data']['command']
+            if command == "start":
+                print("start")
+            if command == "stop":
+                print("stop")
+            
         except Exception as e:
-            print(exc)
-            print(traceback.format_exc()
-    print("consumer_handler end")
+            print(e)
+            print(traceback.format_exc())
+        finally:
+            print("consumer_handler end")
+
+
 async def main():
     conn = await get_redis_pool()
 
