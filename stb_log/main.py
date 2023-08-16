@@ -59,13 +59,13 @@ def stop_dumpsys_manager():
 
 def command_parser(command: dict):
     ''' 
-    PUBLISH command '{"streaming": "start"}'
-    PUBLISH command '{"streaming": "stop"}'
+    start: PUBLISH command '{"streaming": "start"}'
+    stop: PUBLISH command '{"streaming": "stop"}'
     '''
 
     # TODO: get connection_info from redis subscriber with args
     connection_info = {
-        'host': '192.168.30.25',
+        'host': '192.168.30.30',
         'port': 5555,
         'username': 'root',
         'password': '',

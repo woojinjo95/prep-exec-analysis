@@ -34,7 +34,7 @@ def insert_to_db(connection_info: Dict):
 def construct_json_data(cpu_usage: str, memory_usage: str) -> Dict:
     cur_time = time.time()
     return {
-        'timestamp': get_utc_datetime(re.sub(r'.\d{6}', '', cur_time)),
+        'timestamp': get_utc_datetime(re.sub(r'.\d{6}', '', str(cur_time))),
         'cpu_usage': cpu_usage,
         'memory_usage': memory_usage,
     }

@@ -122,7 +122,7 @@ def insert_to_db(file_path: str):
 
 def construct_json_data(log_batch: List[Tuple[float, str]]) -> Dict:
     return {
-        'timestamp': get_utc_datetime(re.sub(r'.\d{6}', '', log_batch[0]['timestamp'])),
+        'timestamp': get_utc_datetime(re.sub(r'.\d{6}', '', str(log_batch[0]['timestamp']))),
         'lines': [{
             'timestamp': log_chunk['timestamp'],
             'module': str(log_chunk['module']).rstrip().replace('\n', ' '),
