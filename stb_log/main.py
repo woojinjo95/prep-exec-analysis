@@ -19,7 +19,7 @@ connection_info = {}
 def start_logcat_manager(connection_info: dict):
     global logcat_manager
 
-    if logcat_manager and logcat_manager.is_alive():
+    if logcat_manager:
         logger.warning('LogcatManager is already alive')
     else:
         logcat_manager = LogcatManager(connection_info=connection_info)
@@ -30,14 +30,18 @@ def start_logcat_manager(connection_info: dict):
 def stop_logcat_manager():
     global logcat_manager
 
-    logcat_manager.stop()
-    logger.info('Stop LogcatManager')
+    if logcat_manager:
+        logcat_manager.stop()
+        logcat_manager = None
+        logger.info('Stop LogcatManager')
+    else:
+        logger.warning('LogcatManager is not alive')
 
 
 def start_dumpsys_manager(connection_info: dict):
     global dumpsys_manager
 
-    if dumpsys_manager and dumpsys_manager.is_alive():
+    if dumpsys_manager:
         logger.warning('DumpsysManager is already alive')
     else:
         dumpsys_manager = DumpsysManager(connection_info=connection_info)
@@ -48,8 +52,12 @@ def start_dumpsys_manager(connection_info: dict):
 def stop_dumpsys_manager():
     global dumpsys_manager
 
-    dumpsys_manager.stop()
-    logger.info('Stop DumpsysManager')
+    if dumpsys_manager:
+        dumpsys_manager.stop()
+        dumpsys_manager = None
+        logger.info('Stop DumpsysManager')
+    else:
+        logger.warning('DumpsysManager is not alive')
 
 
 def command_parser(command: dict):
