@@ -24,7 +24,7 @@ jobs:
         runs-on: [self-hosted, docker, Linux]
         steps:
           - uses: actions/checkout@v3  
-          - run: docker build -t registry.dev-nextlab.com/qaas-stblog:dev-${{github.run_id}}${{github.run_number}} -f ./stb_log/Dockerfile ./stb_log
+          - run: docker build -t registry.dev-nextlab.com/qaas-stblog:dev-${{github.run_id}}${{github.run_number}} -f ./stb_log/dockerfile ./stb_log
             shell: bash
     build-dev-watcher:
         runs-on: [self-hosted, docker, Linux]
@@ -44,3 +44,9 @@ jobs:
           - uses: actions/checkout@v3  
           - run: docker build -t registry.dev-nextlab.com/qaas-replay:dev-${{github.run_id}}${{github.run_number}} -f ./replay/dockerfile.dev.m32dev4 ./replay
             shell: bash
+    build-dev-control:
+      runs-on: [self-hosted, docker, Linux]
+      steps:
+        - uses: actions/checkout@v3  
+        - run: docker build -t registry.dev-nextlab.com/qaas-control:dev-${{github.run_id}}${{github.run_number}} -f ./control/dockerfile.dev.m32dev4 ./replay
+          shell: bash

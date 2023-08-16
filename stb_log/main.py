@@ -13,12 +13,13 @@ logger = logging.getLogger('main')
 
 logcat_manager = None
 dumpsys_manager = None
+connection_info = {}
 
 
 def start_logcat_manager(connection_info: dict):
     global logcat_manager
 
-    if logcat_manager and logcat_manager.is_alive():
+    if logcat_manager is not None:
         logger.warning('LogcatManager is already alive')
     else:
         logcat_manager = LogcatManager(connection_info=connection_info)
@@ -29,8 +30,9 @@ def start_logcat_manager(connection_info: dict):
 def stop_logcat_manager():
     global logcat_manager
 
-    if logcat_manager and logcat_manager.is_alive():
+    if logcat_manager is not None:
         logcat_manager.stop()
+        logcat_manager = None
         logger.info('Stop LogcatManager')
     else:
         logger.warning('LogcatManager is not alive')
@@ -39,7 +41,7 @@ def stop_logcat_manager():
 def start_dumpsys_manager(connection_info: dict):
     global dumpsys_manager
 
-    if dumpsys_manager and dumpsys_manager.is_alive():
+    if dumpsys_manager is not None:
         logger.warning('DumpsysManager is already alive')
     else:
         dumpsys_manager = DumpsysManager(connection_info=connection_info)
@@ -50,8 +52,9 @@ def start_dumpsys_manager(connection_info: dict):
 def stop_dumpsys_manager():
     global dumpsys_manager
 
-    if dumpsys_manager and dumpsys_manager.is_alive():
+    if dumpsys_manager is not None:
         dumpsys_manager.stop()
+        dumpsys_manager = None
         logger.info('Stop DumpsysManager')
     else:
         logger.warning('DumpsysManager is not alive')
@@ -59,31 +62,32 @@ def stop_dumpsys_manager():
 
 def command_parser(command: dict):
     ''' 
-    PUBLISH command '{"streaming": "start"}'
-    PUBLISH command '{"streaming": "stop"}'
+    start: PUBLISH command '{"msg": "stb_log", "data": {"control": "start"}}'
+    stop: PUBLISH command '{"msg": "stb_log", "data": {"control": "stop"}}'
+    connection info: PUBLISH command '{"msg": "config", "data": {"mode": "adb", "host": "192.168.30.30", "port": "5555", "username": "root", "password": ""}}'
     '''
+    global connection_info
 
-    # TODO: get connection_info from redis subscriber with args
-    connection_info = {
-        'host': '192.168.30.25',
-        'port': 5555,
-        'username': 'root',
-        'password': '',
-        'connection_mode': 'adb',
-    }
+    if command.get('msg') == 'stb_log':
+        arg = command.get('data', {})
+        logger.info(f'msg: stb_log. arg: {arg}')
 
-    if command.get('streaming'):
-        streaming_arg = command.get('streaming')
-        logger.info(f'command_parser: {streaming_arg}')
-
-        if streaming_arg == 'start':
+        control = arg.get('control', '')
+        if control == 'start':
             start_logcat_manager(connection_info)
             start_dumpsys_manager(connection_info)
-        elif streaming_arg == 'stop':
+        elif control == 'stop':
             stop_logcat_manager()
             stop_dumpsys_manager()
         else:
-            logger.warning(f'Unknown streaming args: {streaming_arg}')
+            logger.warning(f'Unknown control: {control}')
+
+    if command.get('msg') == 'config':
+        data = command.get('data')
+        data['connection_mode'] = data['mode']
+        del data['mode']
+        connection_info = data
+        logger.info(f'connection_info: {connection_info}')
 
 
 def main():

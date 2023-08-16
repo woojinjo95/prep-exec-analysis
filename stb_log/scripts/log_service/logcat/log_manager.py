@@ -45,8 +45,10 @@ class LogcatManager:
 
     def stop(self):
         self.local_stop_event.set()
-        self.log_collector.terminate()
-        self.log_postprocessor.terminate()
+        if self.log_collector:
+            self.log_collector.terminate()
+        if self.log_postprocessor:
+            self.log_postprocessor.terminate()
         logger.info('LogcatManager stop')
 
     def is_alive(self):

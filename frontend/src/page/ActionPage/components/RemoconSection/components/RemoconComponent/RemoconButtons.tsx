@@ -1,8 +1,8 @@
 import { KeyEvent } from '@page/ActionPage/types'
 import React, { useEffect, useMemo, useState } from 'react'
 import cx from 'classnames'
-import ws from '@global/module/websocket'
 import { remoconService } from '@global/service/RemoconService/RemoconService'
+import useWebsocket from '@global/module/websocket'
 import { Remocon } from '../../api/entity'
 
 interface RemoconButtonsProps {
@@ -16,6 +16,7 @@ const RemoconButtons: React.FC<RemoconButtonsProps> = ({
   remoconRef,
   remocon,
 }: RemoconButtonsProps): JSX.Element => {
+  const { ws } = useWebsocket()
   const [isSquareVisible, setIsSquareVisible] = useState<boolean>(false)
   const [windowSize, setWindowSize] = useState<{ width: number; height: number }>({
     width: window.innerWidth,
@@ -79,11 +80,11 @@ const RemoconButtons: React.FC<RemoconButtonsProps> = ({
             }}
             onClick={() => {
               console.log(
-                `{ "msg": "remocon_transmit", "data": { "key": "${code.code_name}", "type": "ir", "press_time": 0, "name": ${remocon.name} } }`,
+                `{ "msg": "remocon_transmit", "data": { "key": "${code.code_name}", "type": "ir", "press_time": 0, "name": "${remocon.name}" } }`,
               )
 
               ws.send(
-                `{ "msg": "remocon_transmit", "data": { "key": "${code.code_name}", "type": "ir", "press_time": 0, "name": ${remocon.name} } }`,
+                `{ "msg": "remocon_transmit", "data": { "key": "${code.code_name}", "type": "ir", "press_time": 0, "name": "${remocon.name}" } }`,
               )
               remoconService.buttonClick({
                 msg: 'remocon_transmit',

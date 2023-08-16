@@ -55,21 +55,24 @@ async def ws_voting_endpoint(websocket: WebSocket):
     await websocket.accept()
     await redis_connector(websocket)
 
+
 async def redis_connector(websocket: WebSocket):
     async def consumer_handler(conn: redis, ws: WebSocket):
         try:
             while True:
                 message = await ws.receive_text()
-                if message is not None: #command:로 시작하는 메시지를 control 채널로 발행함
+                await asyncio.sleep(0.001)
+                if message is not None:  # command:로 시작하는 메시지를 control 채널로 발행함
                     await conn.publish(CHANNEL_NAME, message)
         except WebSocketDisconnect as exc:
             logger.error(exc)
 
     async def producer_handler(pubsub: redis, ws: WebSocket):
-        await pubsub.subscribe(CHANNEL_NAME) #control 채널을 수신함 
+        await pubsub.subscribe(CHANNEL_NAME)  # control 채널을 수신함 
         try:
             while True:
                 message = await pubsub.get_message(ignore_subscribe_messages=True)
+                await asyncio.sleep(0.001)
                 if message:
                     await ws.send_text(message.get('data'))
         except Exception as exc:
@@ -87,6 +90,7 @@ async def redis_connector(websocket: WebSocket):
     for task in pending:
         logger.debug(f"Canceling task: {task}")
         task.cancel()
+
 
 async def get_redis_pool():
     return await redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB, password=settings.REDIS_PASSWORD, decode_responses=True)
