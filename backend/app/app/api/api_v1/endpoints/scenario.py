@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import time
@@ -89,9 +90,16 @@ def read_scenario_by_id(
             status_code=404, detail="The scenario with this id does not exist in the system.")
     try:
         # 워크스페이스 변경
-        RedisClient.hset('testrun', 'dir', scenario.get('testrun', {}).get('dir', 'null'))
-        RedisClient.hset('testrun', 'scenario_id', scenario.get('id', 'null'))
-        # TODO 변경 메세지
+        workspace_path = RedisClient.hget('testrun', 'workspace_path')
+        dir = scenario.get('testrun', {}).get('dir', 'null')
+        RedisClient.hset('testrun', 'dir', dir)
+        RedisClient.hset('testrun', 'scenario_id', scenario_id)
+        RedisClient.publish('command', json.dumps({"msg": "workspace",
+                                                   "data": {
+                                                       "workspace_path": workspace_path,
+                                                       "testrun_dir": dir,
+                                                       "scenario_id": scenario_id
+                                                   }}))
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'items': scenario}
