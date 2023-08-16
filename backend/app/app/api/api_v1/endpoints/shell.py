@@ -46,22 +46,20 @@ def connect_shell() -> schemas.Msg:
     """
     Connect shell.
     """
-    conn_info = RedisClient.hget('hardware_configuration', 'stb_connection')
+    conn_info = RedisClient.hgetall('stb_connection')
     if conn_info is None or parse_bytes_to_value(conn_info) is None:
         raise HTTPException(
             status_code=404, detail="The stb_connection does not exist in the system.")
     try:
-        conn_info = json.loads(conn_info)
         RedisClient.publish('command', set_redis_pub_msg(msg="connect_shell",
-                                                         data={"mode": conn_info.get('type', None),
-                                                               "host": conn_info.get('ip', None),
+                                                         data={"mode": conn_info.get('mode', None),
+                                                               "host": conn_info.get('host', None),
                                                                "port": conn_info.get('port', None),
                                                                "username": conn_info.get('username', None),
                                                                "password": conn_info.get('password', None)}))
         # TODO shell 응답
     except Exception as e:
-        pass
-        # raise HTTPException(status_code=500, detail=traceback.format_exc())
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Connect shell'}
 
 
@@ -75,5 +73,4 @@ def disconnect_shell() -> schemas.Msg:
     # TODO shell 응답
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-
     return {'msg': 'Disconnect shell'}
