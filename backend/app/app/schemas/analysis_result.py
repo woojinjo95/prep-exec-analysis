@@ -1,11 +1,20 @@
 from typing import List
-from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, root_validator
+from pydantic.datetime_parse import parse_datetime
 
 
-class LogLevelFinderBase(BaseModel):
-    timestamp: datetime
+class TimestampBaseModel(BaseModel):
+    timestamp: str
+
+    @root_validator(pre=True)
+    def convert_timestamp_with_timezone(cls, values):
+        if "timestamp" in values:
+            values["timestamp"] = parse_datetime(values["timestamp"]).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        return values
+
+
+class LogLevelFinderBase(TimestampBaseModel):
     log_level: str
 
 
@@ -13,8 +22,7 @@ class LogLevelFinder(BaseModel):
     items: List[LogLevelFinderBase]
 
 
-class CpuAndMemoryBase(BaseModel):
-    timestamp: datetime
+class CpuAndMemoryBase(TimestampBaseModel):
     cpu_usage: str
     memory_usage: str
 
@@ -23,8 +31,7 @@ class CpuAndMemory(BaseModel):
     items: List[CpuAndMemoryBase]
 
 
-class EventLogBase(BaseModel):
-    timestamp: datetime
+class EventLogBase(TimestampBaseModel):
     service: str
     msg: str
     data: dict
