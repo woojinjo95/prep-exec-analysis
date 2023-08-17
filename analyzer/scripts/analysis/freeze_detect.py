@@ -1,11 +1,14 @@
 import numpy as np
 import cv2
 from typing import Dict
+import logging
 
 from scripts.analysis.image import (calc_diff_rate, calc_image_value_rate, 
                                     calc_image_whole_stdev, is_similar_by_match_template)
 from scripts.util.static import get_static_image
 
+
+logger = logging.getLogger('freeze_detect')
 
 class FreezeDetector:
     def __init__(self, fps: float, sampling_rate: int, min_interval: float, min_color_depth_diff: int, 
@@ -54,6 +57,7 @@ class FreezeDetector:
                         min_interval: float, frame_stdev_thres: float,
                         min_color_depth_diff: int, min_diff_rate: float) -> dict:
 
+        min_freeze_count = int(min_interval * fps)
         result = {'occured': False, 'skip': False}
 
         if prev_info['frame'] is None:
@@ -75,13 +79,15 @@ class FreezeDetector:
             else:
                 prev_info['freeze_count'] = 0
 
-            if prev_info['freeze_count'] == min_interval * fps:
+            if prev_info['freeze_count'] == min_freeze_count:
                 result['occured'] = True
                 result['interval'] = min_interval
                 result['event_time'] = timestamp - min_interval
                 result['freeze_type'] = self.get_freeze_type(frame, frame_stdev_thres)
             else:
                 pass
+
+            # logger.info(f'freeze_count: {prev_info["freeze_count"]}, diff_rate: {diff_rate}, is_frame_freezed: {is_frame_freezed}, min_freeze_count: {min_freeze_count}')
 
         prev_info['index'] += 1
 
