@@ -10,7 +10,7 @@ const CommandInput = ({
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
   const { sendMessage } = useWebsocket<ShellMessage>({
     onMessage: (msg) => {
-      if (msg.data && msg.msg === 'shell' && textareaRef.current) {
+      if (msg.data && msg.msg === 'shell' && textareaRef.current && msg.service === 'shell') {
         textareaRef.current.focus()
       }
     },

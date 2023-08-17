@@ -1,13 +1,9 @@
 import { Button, Text } from '@global/ui'
 import React, { useEffect, useRef, useState } from 'react'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
-import classNames from 'classnames/bind'
 import useWebsocket from '@global/module/websocket'
-import styles from './TerminalPanel.module.scss'
 import TerminalShell from './TerminalShell'
 import { ShellMessage, Terminal } from '../../types'
-
-const cx = classNames.bind(styles)
 
 /**
  * Terminal 탭의 패널
@@ -28,7 +24,7 @@ const TerminalPanel: React.FC = () => {
 
   useWebsocket<ShellMessage>({
     onMessage: (msg) => {
-      if (msg.data && msg.msg === 'shell' && scrollContainerRef.current) {
+      if (msg.data && msg.msg === 'shell' && msg.service === 'shell' && scrollContainerRef.current) {
         scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight
       }
     },
