@@ -36,11 +36,11 @@ const RemoteControl: React.FC = () => {
           IR
         </GroupButton>
         <GroupButton
-          isActive={hardwareConfiguration?.remote_control_type === 'bluetooth'}
+          isActive={hardwareConfiguration?.remote_control_type === 'bt'}
           icon={<BluetoothIcon />}
           onClick={() => {
-            if (hardwareConfiguration?.remote_control_type === 'bluetooth') return
-            sendMessage({ msg: 'remocon_properties', data: { type: 'bluetooth' } })
+            if (hardwareConfiguration?.remote_control_type === 'bt') return
+            sendMessage({ msg: 'remocon_properties', data: { type: 'bt' } })
           }}
         >
           Bluetooth

@@ -24,6 +24,7 @@ interface TimelineSectionProps {
 /**
  * 타임라인 차트 영역
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime, scenarioId }) => {
   const chartWrapperRef = useRef<HTMLDivElement | null>(null)
   const [chartWidth, setChartWidth] = useState<number | null>(null)
