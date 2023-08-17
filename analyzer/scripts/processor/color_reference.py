@@ -35,6 +35,7 @@ def postprocess():
             idx += 1
         
         cap.release()
+        logger.info(f"end color_reference postprocess")
 
     except Exception as err:
         logger.error(f"error in color_reference postprocess: {err}")

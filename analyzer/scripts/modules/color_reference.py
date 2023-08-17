@@ -1,6 +1,6 @@
 import logging
 
-from scripts.util.process_maintainer import ProcessMaintainer
+from multiprocessing import Process
 from scripts.processor.color_reference import postprocess
 
 
@@ -12,8 +12,8 @@ class ColorReference:
         self.processor = None
 
     def __start_processor(self):
-        self.processor = ProcessMaintainer(target=postprocess, kwargs={
-        }, daemon=True, revive_interval=10)
+        self.processor = Process(target=postprocess, kwargs={
+        }, daemon=True)
         self.processor.start()
 
     def __stop_processor(self):
