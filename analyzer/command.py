@@ -28,7 +28,8 @@ class CommandExecutor:
         self.freeze_detect_module.stop()
 
     def execute(self, command: Dict):
-        # freeze_detect start:  PUBLISH command '{"msg": "analysis", "data": {"measurement": ['freeze']}}'
+        # freeze_detect start:  PUBLISH command '{"msg": "analysis", "data": {"measurement": ["freeze"]}}'
+
 
         # if command.get('msg') == 'color_reference':
         #     arg = command.get('data', {})
