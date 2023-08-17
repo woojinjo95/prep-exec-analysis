@@ -1,6 +1,6 @@
 import React from 'react'
-import { PointChartData } from '../types'
-import { CHART_HEIGHT } from '../constant'
+import { CHART_HEIGHT } from '@global/constant'
+import { PointChartData } from '@global/types'
 
 interface PointChartProps {
   data: PointChartData

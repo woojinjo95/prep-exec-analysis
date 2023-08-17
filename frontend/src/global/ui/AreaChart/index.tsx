@@ -1,14 +1,16 @@
 import React, { useEffect, useRef, useMemo } from 'react'
 import * as d3 from 'd3'
 
-import { AreaChartGenerator } from '../usecase'
-import { AreaChartData } from '../types'
-import { CHART_HEIGHT } from '../constant'
+import { AreaChartData } from '@global/types'
+import { CHART_HEIGHT } from '@global/constant'
+import { AreaChartGenerator } from './usecase'
 
 interface AreaChartProps {
   chartWidth: number | null
   scaleX: d3.ScaleTime<number, number, never> | null
   data: AreaChartData
+  minValue?: number
+  maxValue?: number
 }
 
 /**
@@ -16,16 +18,19 @@ interface AreaChartProps {
  *
  * TODO: resizing event
  */
-const AreaChart: React.FC<AreaChartProps> = ({ chartWidth, scaleX, data }) => {
+const AreaChart: React.FC<AreaChartProps> = ({ chartWidth, scaleX, data, minValue, maxValue }) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
 
   const scaleY: d3.ScaleLinear<number, number, never> | null = useMemo(
     () =>
       d3
         .scaleLinear()
-        .domain([Math.min(...data.map(({ value }) => value)), Math.max(...data.map(({ value }) => value))])
+        .domain([
+          minValue !== undefined ? minValue : Math.min(...data.map(({ value }) => value)),
+          maxValue !== undefined ? maxValue : Math.max(...data.map(({ value }) => value)),
+        ])
         .range([CHART_HEIGHT, 0]),
-    [data],
+    [data, minValue, maxValue],
   )
 
   useEffect(() => {

@@ -2,30 +2,20 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import * as d3 from 'd3'
 
 import { Text } from '@global/ui'
-import AreaChart from './components/AreaChart'
+import { CHART_HEIGHT } from '@global/constant'
 import HorizontalScrollBar from './components/HorizontalScrollBar'
-import { AreaChartData } from './types'
-import PointChart from './components/PointChart'
-import { CHART_HEIGHT } from './constant'
+import CPUChart from './components/CPUChart'
+import MemoryChart from './components/MemoryChart'
 
-function getRandomInt(_min: number, _max: number) {
-  const min = Math.ceil(_min)
-  const max = Math.floor(_max)
-  return Math.floor(Math.random() * (max - min)) + min
+interface TimelineSectionProps {
+  startTime: Date
+  endTime: Date
 }
-
-const sampleData: AreaChartData = new Array(1000)
-  .fill(0)
-  .map(() => ({
-    date: new Date(new Date().getTime() + getRandomInt(0, 1000)),
-    value: getRandomInt(0, 100),
-  }))
-  .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
 /**
  * 타임라인 차트 영역
  */
-const TimelineSection: React.FC = () => {
+const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime }) => {
   const chartWrapperRef = useRef<HTMLDivElement | null>(null)
   const [chartWidth, setChartWidth] = useState<number | null>(null)
   const [scrollBarTwoPosX, setScrollBarTwoPosX] = useState<[number, number] | null>(null)
@@ -35,9 +25,9 @@ const TimelineSection: React.FC = () => {
     if (!chartWidth) return null
     return d3
       .scaleTime()
-      .domain([sampleData[0].date, sampleData[sampleData.length - 1].date])
+      .domain([new Date(startTime), new Date(endTime)])
       .range([0, chartWidth])
-  }, [chartWidth, sampleData])
+  }, [chartWidth, startTime, endTime])
 
   // FIXME: 전체 차트에서 변화대상 데이터가 1000개 이상일 경우 debounce 적용
   const scrollbarScaleX: d3.ScaleTime<number, number, never> | null = useMemo(() => {
@@ -62,7 +52,7 @@ const TimelineSection: React.FC = () => {
 
       <div className="grid grid-cols-[auto_1fr] grid-rows-1 overflow-y-auto overflow-x-hidden">
         <div className="w-48 z-10">
-          {['Video', 'Color Reference', 'Event Log', 'CPU', 'Memory'].map((title, index) => (
+          {['CPU', 'Memory'].map((title, index) => (
             <div
               key={`timeline-chart-title-${title}-${index}`}
               className="border-b-[1px] border-light-charcoal bg-charcoal py-2 px-5"
@@ -77,11 +67,8 @@ const TimelineSection: React.FC = () => {
 
         {/* chart */}
         <div className="border-l-[0.5px] border-r-[0.5px] border-[#37383E]" ref={chartWrapperRef}>
-          <AreaChart chartWidth={chartWidth} scaleX={scrollbarScaleX} data={sampleData} />
-          <AreaChart chartWidth={chartWidth} scaleX={scrollbarScaleX} data={sampleData} />
-          <PointChart data={sampleData.map(({ date }) => date)} scaleX={scrollbarScaleX} color="#E93535" />
-          <AreaChart chartWidth={chartWidth} scaleX={scrollbarScaleX} data={sampleData} />
-          <AreaChart chartWidth={chartWidth} scaleX={scrollbarScaleX} data={sampleData} />
+          <CPUChart chartWidth={chartWidth} scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
+          <MemoryChart chartWidth={chartWidth} scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
         </div>
       </div>
 

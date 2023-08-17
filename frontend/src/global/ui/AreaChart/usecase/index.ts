@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
+import { AreaChartData } from '@global/types'
 import { useScale } from '../hook'
-import { AreaChartData } from '../types'
 
 /**
  * svg를 이용한 영역 차트 생성기
