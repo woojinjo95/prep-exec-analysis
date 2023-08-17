@@ -18,21 +18,21 @@ const TerminalPanel: React.FC = () => {
   // backend에 현재 해당 config로 connect할 수 있는지에 대한 api 요청 후 허용 되면 terminal 생성 가능
   const [terminals, setTerminals] = useState<Terminal[]>([])
 
-  const [curTerminal, setCurTerminal] = useState<Terminal | null>(null)
+  const [currentTerminal, setCurrentTerminal] = useState<Terminal | null>(null)
 
   useEffect(() => {
     if (terminals.length > 0) {
-      setCurTerminal(terminals[terminals.length - 1])
+      setCurrentTerminal(terminals[terminals.length - 1])
     }
   }, [terminals])
 
   return (
     <div className="grid grid-cols-[4.5fr_1fr]">
       <div>
-        {curTerminal &&
+        {currentTerminal &&
           terminals &&
           terminals.map((terminal) => (
-            <TerminalShell terminal={terminal} curTerminal={curTerminal} key={`terminal_${terminal.id}`} />
+            <TerminalShell terminal={terminal} currentTerminal={currentTerminal} key={`terminal_${terminal.id}`} />
           ))}
       </div>
       <div className="flex flex-col justify-center p-5">
@@ -43,14 +43,14 @@ const TerminalPanel: React.FC = () => {
         >
           Add Terminal
         </Button>
-        <div className="flex flex-col w-full mt-3">
+        <div className="flex flex-col w-full mt-3 h-full">
           {terminals &&
             terminals.map((terminal, idx) => {
               return (
                 <div
                   className="w-full flex justify-between h-10 items-center mb-1 cursor-pointer"
                   key={`terminal_${idx}`}
-                  onClick={() => setCurTerminal(terminal)}
+                  onClick={() => setCurrentTerminal(terminal)}
                 >
                   <Text colorScheme="light" className="text-[15px]">
                     Adb #{idx}

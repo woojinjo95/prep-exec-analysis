@@ -7,14 +7,22 @@ interface StopScenarioMessage {
   msg: 'stop_scenario'
 }
 
-export type PublishMessage = {
-  level: 'debug' | 'info' | 'warning' | 'error' | 'critical' | 'fatal'
-  time: number
-} & (RunScenarioMessage | StopScenarioMessage)
+interface CommandMessage {
+  msg: 'shell'
+  data: {
+    command: string
+    shell_id: 1 | 2
+  }
+}
 
-export type SubscribeMessage = {
+export type PublishMessage = {
+  level?: 'debug' | 'info' | 'warning' | 'error' | 'critical' | 'fatal'
+  time?: number
+} & (RunScenarioMessage | StopScenarioMessage | CommandMessage)
+
+export type SubscribeMessage<T> = {
   level: 'debug' | 'info' | 'warning' | 'error' | 'critical' | 'fatal'
   time: number
   msg: string
-  data: JSON
+  data: T
 }

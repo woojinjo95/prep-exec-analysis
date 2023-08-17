@@ -14,6 +14,5 @@ export interface Message {
     mode: 'adb' | 'ssh'
     data: { timestamp: string; module: 'stdin' | 'stdout' | 'stderr'; message: string }
   }
-  service: string
   time: string
 }
