@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import * as d3 from 'd3'
 
-import { Text } from '@global/ui'
+import { Text, VideoSnapshots } from '@global/ui'
 import { CHART_HEIGHT } from '@global/constant'
+import AppURL from '@global/constant/appURL'
 import HorizontalScrollBar from './components/HorizontalScrollBar'
 import CPUChart from './components/CPUChart'
 import MemoryChart from './components/MemoryChart'
@@ -11,12 +12,13 @@ import EventLogChart from './components/EventLogChart'
 interface TimelineSectionProps {
   startTime: Date
   endTime: Date
+  scenarioId: string | null
 }
 
 /**
  * 타임라인 차트 영역
  */
-const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime }) => {
+const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime, scenarioId }) => {
   const chartWrapperRef = useRef<HTMLDivElement | null>(null)
   const [chartWidth, setChartWidth] = useState<number | null>(null)
   const [scrollBarTwoPosX, setScrollBarTwoPosX] = useState<[number, number] | null>(null)
@@ -53,7 +55,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
 
       <div className="grid grid-cols-[auto_1fr] grid-rows-1 overflow-y-auto overflow-x-hidden">
         <div className="w-48 z-10">
-          {['Event Log', 'CPU', 'Memory'].map((title, index) => (
+          {['Video', 'Event Log', 'CPU', 'Memory'].map((title, index) => (
             <div
               key={`timeline-chart-title-${title}-${index}`}
               className="border-b-[1px] border-light-charcoal bg-charcoal py-2 px-5"
@@ -68,6 +70,9 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
 
         {/* chart */}
         <div className="border-l-[0.5px] border-r-[0.5px] border-[#37383E]" ref={chartWrapperRef}>
+          {scenarioId && (
+            <VideoSnapshots src={`${AppURL.backendURL}/api/v1/file/video?scenario_id=${scenarioId}`} tickCount={10} />
+          )}
           <EventLogChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
           <CPUChart chartWidth={chartWidth} scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
           <MemoryChart chartWidth={chartWidth} scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />

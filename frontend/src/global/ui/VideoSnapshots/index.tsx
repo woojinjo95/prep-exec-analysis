@@ -9,6 +9,7 @@ interface VideoSnapshotsProps {
   src: string
   // TODO: startTime
   // TODO: endTime
+  tickCount?: number
 }
 
 /**
@@ -16,7 +17,7 @@ interface VideoSnapshotsProps {
  *
  * @param src 비디오 주소
  */
-const VideoSnapshots: React.FC<VideoSnapshotsProps> = ({ src }) => {
+const VideoSnapshots: React.FC<VideoSnapshotsProps> = ({ src, tickCount = 10 }) => {
   const divRef = useRef<HTMLDivElement | null>(null)
   const { isLoadedVideo, videoRef } = useCreateVideo({ src, currentTime: 0 })
   // 비디오 스냅샷 넓이
@@ -33,8 +34,8 @@ const VideoSnapshots: React.FC<VideoSnapshotsProps> = ({ src }) => {
   }, [isLoadedVideo])
 
   return (
-    <div ref={divRef} className="relative mt-1" style={{ height: VIDEO_SNAPSHOT_HEIGHT }}>
-      {scaleX?.ticks(10).map((currentTime) => {
+    <div ref={divRef} className="relative" style={{ height: VIDEO_SNAPSHOT_HEIGHT }}>
+      {scaleX?.ticks(tickCount).map((currentTime) => {
         return (
           <VideoSnapshot
             key={`snapshot-${currentTime}`}
