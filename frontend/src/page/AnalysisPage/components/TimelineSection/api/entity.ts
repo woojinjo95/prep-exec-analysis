@@ -13,3 +13,16 @@ export interface EventLog {
   msg: string
   data: object
 }
+
+export interface ColorReference {
+  /**
+   * @format timestamp
+   */
+  timestamp: string
+
+  /**
+   * @min 0
+   * @max 8
+   */
+  color_reference: number
+}

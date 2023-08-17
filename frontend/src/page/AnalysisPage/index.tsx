@@ -12,7 +12,7 @@ import VarAnalysisResultSection from './components/VarAnalysisResultSection'
  */
 const AnalysisPage: React.FC = () => {
   const [startTime] = useState<Date>(new Date('2023-08-17T04:47:53.733Z'))
-  const [endTime] = useState<Date>(new Date('2023-08-17T04:50:53.733Z'))
+  const [endTime] = useState<Date>(new Date('2023-08-17T05:00:53.733Z'))
   const [scenarioId, setScenarioId] = useState<string | null>('e8e15536-d3d5-4944-b39e-f91bda5e126f')
 
   useScenarios({
