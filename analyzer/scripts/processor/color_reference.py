@@ -1,8 +1,7 @@
 import logging
-import time
 from typing import Dict
-import json
 import cv2
+import traceback
 
 from scripts.connection.mongo_db.crud import insert_to_mongodb
 from scripts.config.mongo import construct_report_data
@@ -15,30 +14,37 @@ logger = logging.getLogger('color_reference')
 
 
 def postprocess():
-    logger.info(f"start color_reference postprocess")
-    data = load_input()
-    skip_frame = get_setting_with_env('COLOR_REFERENCE_SKIP_FRAME', 60)
-    
-    cap = cv2.VideoCapture(data['video_path'])
-    idx = 0
+    try:
+        logger.info(f"start color_reference postprocess")
+        data = load_input()
+        skip_frame = get_setting_with_env('COLOR_REFERENCE_SKIP_FRAME', 60)
+        
+        cap = cv2.VideoCapture(data['video_path'])
+        logger.info(f"frame count: {cap.get(cv2.CAP_PROP_FRAME_COUNT)}")
 
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
-        if idx % skip_frame == 0:
-            color_entropy = calc_color_entropy(frame)
-            logger.info(f"color_entropy: {color_entropy}")
-            report_output(color_entropy)
-        idx += 1
-    
-    cap.release()
+        idx = 0
+
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break
+            if idx % skip_frame == 0:
+                color_entropy = calc_color_entropy(frame)
+                logger.info(f"idx: {idx}, color_entropy: {color_entropy}")
+                report_output(color_entropy)
+            idx += 1
+        
+        cap.release()
+
+    except Exception as err:
+        logger.error(f"error in color_reference postprocess: {err}")
+        logger.warning(traceback.format_exc())
 
 
 def load_input() -> Dict:
     # load data format to db
     data = {
-        "path": "/app/data/workspace/video_0_2023-08-16T113959F685527.mp4",
+        "path": "/app/workspace/video_0_2023-08-16T113959F685527.mp4",
         # "stat_path": "./data/workspace/testruns/2023-08-14T042445F738532/raw/videos/video_2023-08-14T181329F384025+0900_180.mp4_stat",
     }
     return {
