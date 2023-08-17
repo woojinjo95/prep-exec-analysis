@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 
 class ScenarioCreate(BaseModel):
+    is_active: bool
     name: Optional[str]
     tags: Optional[List[str]]
     block_group: Optional[List[BlockGroup]]

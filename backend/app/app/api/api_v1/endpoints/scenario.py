@@ -4,10 +4,11 @@ import time
 import traceback
 import uuid
 from datetime import datetime
+from typing import Optional
 
 from app import schemas
 from app.api.utility import (get_multi_or_paginate_by_res, get_utc_datetime,
-                             set_redis_pub_msg)
+                             set_ilike, set_redis_pub_msg)
 from app.crud.base import (aggregate_from_mongodb, get_mongodb_collection,
                            insert_one_to_mongodb, load_by_id_from_mongodb,
                            update_by_id_to_mongodb)
@@ -117,8 +118,9 @@ def update_scenario(
     try:
         update_by_id_to_mongodb(col='scenario',
                                 id=scenario_id,
-                                data={'block_group': jsonable_encoder(scenario_in.block_group),
-                                      "updated_at": get_utc_datetime(time.time())})
+                                data={'is_active': scenario_in.is_active,
+                                      'updated_at': get_utc_datetime(time.time()),
+                                      'block_group': jsonable_encoder(scenario_in.block_group), })
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Update a scenario.'}
@@ -126,14 +128,24 @@ def update_scenario(
 
 @router.get("", response_model=schemas.ScenarioPage)
 def read_scenarios(
-    page: int = Query(None, ge=1, description="Page number"),
-    page_size: int = Query(None, ge=1, le=100, description="Page size")
+    page: int = Query(None, ge=1),
+    page_size: int = Query(None, ge=1, le=100),
+    name: Optional[str] = None,
+    tag: Optional[str] = None,
 ) -> schemas.ScenarioPage:
     """
     Retrieve scenarios.
     """
-    # TODO 활성화된? 저장된? 시나리오만 조회
-    return get_multi_or_paginate_by_res(col='scenario', page=page, page_size=page_size, sorting_keyword='name')
+    param = {'is_active': True}
+    if name:
+        param['name'] = set_ilike(name)
+    if tag:
+        param['tags'] = {'$elemMatch': set_ilike(tag)}
+    return get_multi_or_paginate_by_res(col='scenario',
+                                        page=page,
+                                        page_size=page_size,
+                                        sorting_keyword='name',
+                                        param=param)
 
 
 @router.post("", response_model=schemas.MsgWithId)
@@ -148,6 +160,7 @@ def create_scenario(
         id = str(uuid.uuid4())
         dir = datetime.now().strftime("%Y-%m-%dT%H%M%SF%f")
         data = {'id': str(uuid.uuid4()),
+                'is_active': scenario_in.is_active,
                 'updated_at': get_utc_datetime(time.time()),
                 'block_group': jsonable_encoder(scenario_in.block_group) if scenario_in.block_group else [],
                 'name': scenario_in.name if scenario_in.name else str(time.time()),
