@@ -18,8 +18,8 @@ export interface HardwareConfiguration {
   packet_delay: number
   packet_loss: number
   stb_connection?: {
-    type: 'adb' | 'ssh' // TODO: mode
-    ip: string | null // TODO: host
+    mode: 'adb' | 'ssh'
+    host: string | null
     port: string | null
     username?: string | null
     password?: string | null

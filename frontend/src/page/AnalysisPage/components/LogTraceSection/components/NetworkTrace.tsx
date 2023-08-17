@@ -17,9 +17,6 @@ const NetworkTrace: React.FC = () => {
         end_time: new Date(tempTime.getTime() + 5 * 1000).toISOString(),
       }),
     {
-      onSuccess: (res) => {
-        console.log(res)
-      },
       onError: (err) => {
         console.error(err)
       },

@@ -29,7 +29,7 @@ def init() -> None:
         },
         'testrun': {
             'workspace_path': './data/workspace/testruns',
-            'dir': 'null',
+            'id': 'null',
             'scenario_id': 'null',
         },
         'analysis_config': {
