@@ -21,7 +21,8 @@ def detect_freeze():
         data = load_input()
         cap = cv2.VideoCapture(data['video_path'])
         fps = cap.get(cv2.CAP_PROP_FPS)
-        logger.info(f"fps: {fps}, frame count: {cap.get(cv2.CAP_PROP_FRAME_COUNT)}")
+        logger.info(f'data load completed. video_path: {data["video_path"]}, fps: {fps}, frame count: {int(cap.get(cv2.CAP_PROP_FRAME_COUNT))}')
+        logger.info(f'json data timestamp length: {len(data["json_data"]["data"]["timestamps"])}')
 
         sampling_rate = get_setting_with_env('FREEZE_DETECT_SKIP_FRAME', 6)
         min_interval = get_setting_with_env('FREEZE_DETECT_MIN_INTERVAL', 5)
