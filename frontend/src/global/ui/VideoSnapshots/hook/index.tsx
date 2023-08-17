@@ -17,6 +17,7 @@ export const useCreateVideo = ({ src, currentTime }: { src: string; currentTime:
     video.src = src
     video.currentTime = currentTime
     video.muted = false
+    video.crossOrigin = 'Anonymous'
     video.addEventListener('loadeddata', onLoadedVideo(video))
 
     return () => {

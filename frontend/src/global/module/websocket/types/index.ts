@@ -14,7 +14,7 @@ interface OnOffControlMessage {
 
 interface RemoteControlMessage {
   msg: 'remocon_properties'
-  data: { name?: string; type: 'ir' | 'bt' }
+  data: { name?: string; type: 'ir' | 'bluetooth' }
 }
 
 export type PublishMessage = {

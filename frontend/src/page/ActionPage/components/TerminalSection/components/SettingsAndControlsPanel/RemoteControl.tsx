@@ -40,7 +40,7 @@ const RemoteControl: React.FC = () => {
           icon={<BluetoothIcon />}
           onClick={() => {
             if (hardwareConfiguration?.remote_control_type === 'bluetooth') return
-            sendMessage({ msg: 'remocon_properties', data: { type: 'bt' } }) // FIXME: bt -> bluetooth로 바뀔수도 있음
+            sendMessage({ msg: 'remocon_properties', data: { type: 'bluetooth' } })
           }}
         >
           Bluetooth
