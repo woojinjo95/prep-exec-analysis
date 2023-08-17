@@ -99,7 +99,7 @@ def read_scenario_by_id(
         RedisClient.publish('command',
                             set_redis_pub_msg(msg="workspace",
                                               data={"workspace_path": RedisClient.hget('testrun', 'workspace_path'),
-                                                    "id": testrun_id,
+                                                    "testrun_id": testrun_id,
                                                     "scenario_id": scenario_id}))
 
         # 로그 수집시작 메세지 전송
