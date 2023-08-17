@@ -52,24 +52,23 @@ const TerminalPanel: React.FC = () => {
           Add Terminal
         </Button>
         <div className="flex flex-col w-full mt-3 h-full">
-          {terminals &&
-            terminals.map((terminal, idx) => {
-              return (
-                <div
-                  className="w-full flex justify-between h-10 items-center mb-1 cursor-pointer"
-                  key={`terminal_${idx}`}
-                  onClick={() => setCurrentTerminal(terminal)}
-                >
-                  <Text colorScheme="light" className="text-[15px]">
-                    Adb #{idx}
-                  </Text>
-                  <div className="flex">
-                    <TrashIcon className={cx('trash-icon', 'h-5 w-5 mr-3')} />
-                    <TrashIcon className={cx('trash-icon', 'h-5 w-5')} />
-                  </div>
+          {terminals?.map((terminal, idx) => {
+            return (
+              <div
+                className="w-full flex justify-between h-10 items-center mb-1 cursor-pointer"
+                key={`terminal_${idx}`}
+                onClick={() => setCurrentTerminal(terminal)}
+              >
+                <Text colorScheme="light" className="text-[15px]">
+                  Adb #{idx}
+                </Text>
+                <div className="flex">
+                  <TrashIcon className="h-5 w-5 mr-3 fill-white" />
+                  <TrashIcon className="h-5 w-5 fill-white" />
                 </div>
-              )
-            })}
+              </div>
+            )
+          })}
         </div>
       </div>
     </div>

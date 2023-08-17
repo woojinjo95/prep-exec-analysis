@@ -21,7 +21,6 @@ const CommandInput = ({
 
   const handleResizeHeight = () => {
     if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto'
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`
 
       setValue(defaultValue + textareaRef.current.value.substring(defaultValue.length))
@@ -35,9 +34,7 @@ const CommandInput = ({
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             sendMessage({
-              level: 'info',
               msg: 'shell',
-              time: new Date().getTime(),
               data: { command: `${value.substring(defaultValue.length)}`, shell_id: 2 },
             })
 

@@ -74,7 +74,7 @@ export const postConnect = async () => {
 /**
  * 터미널 - 쉘 연결
  */
-export const postDisConnect = async () => {
+export const postDisconnect = async () => {
   try {
     const result = await API.post<{ msg: string }>(apiUrls.disconnect)
 
