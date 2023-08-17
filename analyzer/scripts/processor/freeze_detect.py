@@ -25,7 +25,7 @@ def detect_freeze():
 
         freeze_detector = FreezeDetector(
             fps=fps,
-            sampling_rate=get_setting_with_env('FREEZE_DETECT_SKIP_FRAME', 60),
+            sampling_rate=get_setting_with_env('FREEZE_DETECT_SKIP_FRAME', 6),
             min_interval=get_setting_with_env('FREEZE_DETECT_MIN_INTERVAL', 5),
             min_color_depth_diff=get_setting_with_env('FREEZE_DETECT_MIN_COLOR_DEPTH_DIFF', 10),
             min_diff_rate=get_setting_with_env('FREEZE_DETECT_MIN_DIFF_RATE', 0.0001),
@@ -56,7 +56,7 @@ def detect_freeze():
 def load_input() -> Dict:
     # load data format to db
     data = {
-        "path": "/app/workspace/video_2023-08-04T152424F626855+0900_30.mp4",
+        "path": "/app/workspace/video_0_2023-08-11T115819F817772.mp4",
         # "stat_path": "./data/workspace/testruns/2023-08-14T042445F738532/raw/videos/video_2023-08-14T181329F384025+0900_180.mp4_stat",
     }
     return {
