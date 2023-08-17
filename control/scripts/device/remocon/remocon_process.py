@@ -70,12 +70,12 @@ class RemoconProcess(ProcessUtil):
 
             publish(self.redis_connection, RedisChannel.command, result)
 
-    def put_command(self, key: str, _type: str, code: str = '', sleep: float = 0, press_time: float = 0) -> str:
+    def put_command(self, key: str, _type: str = 'ir', code: str = '', sleep: float = 0, press_time: float = 0) -> str:
         if key.lower() not in self.remocon_commands:
             publish(self.redis_connection, RedisChannel.command, {'msg': 'remocon_response',
                                                                   'level': 'error',
                                                                   'data': {"key": key,
-                                                                           "type": "ir",
+                                                                           "type": _type,
                                                                            "press_time": press_time,
                                                                            "log": f'{key} is not exist on list'}})
 

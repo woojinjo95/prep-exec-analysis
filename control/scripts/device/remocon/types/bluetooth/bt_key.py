@@ -13,11 +13,11 @@ from scripts.device.remocon.types.bluetooth.bt_lib import (press, press_consumer
 
 
 
-def paring(ser, padding, duration):
+def pairing(ser, padding, duration):
     start(ser)
 
 
-def unparing(ser, padding, duration):
+def unpairing(ser, padding, duration):
     stop(ser)
 
 
@@ -244,8 +244,8 @@ def playkey(ser, keyname, duration):
 
 
 btnPageRemoconKey = {
-    "paring": paring,
-    "unparing": unparing,
+    "pairing": pairing,
+    "unpairing": unpairing,
     "num0": _numberkey,
     "num1": _numberkey,
     "num2": _numberkey,

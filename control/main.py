@@ -26,7 +26,7 @@ def command_parser(command: dict, serial_device: SerialDevice, remocon_process: 
     if command.get('msg') == 'remocon_transmit':
         remocon_args = command.get('data')
         key = remocon_args.get('key')
-        remocon_type = remocon_args.get('type', 'ir')
+        remocon_type = remocon_args.get('type', '').lower()
         press_time = remocon_args.get('press_time', 0)
         remocon_name = remocon_args.get('name')
 
