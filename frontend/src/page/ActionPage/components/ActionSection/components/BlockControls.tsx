@@ -35,7 +35,6 @@ const BlockControls: React.FC<BlockControlsProps> = ({ scenarioId }) => {
             sendMessage({
               level: 'info',
               msg: 'stop_scenario',
-              time: new Date().getTime(),
             })
           }}
         />
@@ -48,7 +47,6 @@ const BlockControls: React.FC<BlockControlsProps> = ({ scenarioId }) => {
               level: 'info',
               msg: 'run_scenario',
               data: { scenario_id: scenarioId },
-              time: new Date().getTime(),
             })
           }}
         />

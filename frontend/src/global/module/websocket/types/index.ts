@@ -17,10 +17,20 @@ interface RemoteControlMessage {
   data: { name?: string; type: 'ir' | 'bluetooth' }
 }
 
+interface RemoconTransmitMessage {
+  msg: 'remocon_transmit'
+  data: {
+    key: string
+    type: 'ir' | 'bt'
+    press_time: number
+    name: string
+  }
+}
+
 export type PublishMessage = {
   level?: 'debug' | 'info' | 'warning' | 'error' | 'critical' | 'fatal'
   time?: number
-} & (RunScenarioMessage | StopScenarioMessage | OnOffControlMessage | RemoteControlMessage)
+} & (RunScenarioMessage | StopScenarioMessage | OnOffControlMessage | RemoteControlMessage | RemoconTransmitMessage)
 
 export type SubscribeMessage<T> = {
   level: 'debug' | 'info' | 'warning' | 'error' | 'critical' | 'fatal'
