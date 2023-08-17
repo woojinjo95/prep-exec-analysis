@@ -146,16 +146,20 @@ def read_scenarios(
     """
     Retrieve scenarios.
     """
-    param = {'is_active': True}
-    if name:
-        param['name'] = set_ilike(name)
-    if tag:
-        param['tags'] = {'$elemMatch': set_ilike(tag)}
-    return get_multi_or_paginate_by_res(col='scenario',
+    try:
+        param = {'is_active': True}
+        if name:
+            param['name'] = set_ilike(name)
+        if tag:
+            param['tags'] = {'$elemMatch': set_ilike(tag)}
+        res = get_multi_or_paginate_by_res(col='scenario',
                                         page=page,
                                         page_size=page_size,
                                         sorting_keyword='name',
                                         param=param)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return res
 
 
 @router.post("", response_model=schemas.MsgWithId)
