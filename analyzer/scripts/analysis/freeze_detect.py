@@ -75,13 +75,13 @@ class FreezeDetector:
             else:
                 prev_info['freeze_count'] = 0
 
-            if prev_info['freeze_count'] < min_interval * fps:
-                pass
-            else:
+            if prev_info['freeze_count'] == min_interval * fps:
                 result['occured'] = True
                 result['interval'] = min_interval
                 result['event_time'] = timestamp - min_interval
                 result['freeze_type'] = self.get_freeze_type(frame, frame_stdev_thres)
+            else:
+                pass
 
         prev_info['index'] += 1
 
