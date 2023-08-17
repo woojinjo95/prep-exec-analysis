@@ -7,16 +7,18 @@ import { ReactComponent as GoToLastIcon } from '@assets/images/icon_go_to_last_w
 import { ReactComponent as StopIcon } from '@assets/images/icon_stop.svg'
 import { Button, IconButton, Text } from '@global/ui'
 import AppURL from '@global/constant/appURL'
-import { useScenarios } from '@global/api/hook'
+
+interface VideoDetailSectionProps {
+  scenarioId: string | null
+}
 
 /**
  * 결과영상 및 정보 영역
  */
-const VideoDetailSection: React.FC = () => {
+const VideoDetailSection: React.FC<VideoDetailSectionProps> = ({ scenarioId }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [isPlaying, setIsPlaying] = useState<boolean>(false)
   const [currentTime, setCurrentTime] = useState<number>(0)
-  const [scenarioId, setScenarioId] = useState<string | null>(null)
   /**
    * @example 07:20.5
    */
@@ -27,14 +29,6 @@ const VideoDetailSection: React.FC = () => {
 
     return `${minute < 10 ? `0${minute}` : minute}:${second < 10 ? `0${second}` : second}.${millisecond}`
   }, [currentTime])
-
-  useScenarios({
-    onSuccess: (res) => {
-      if (res && res.items.length > 0) {
-        setScenarioId(res.items[0].id)
-      }
-    },
-  })
 
   return (
     <section className="bg-black text-white grid grid-rows-1 grid-cols-[1fr_1.5fr_1fr]">
@@ -103,7 +97,7 @@ const VideoDetailSection: React.FC = () => {
           <video
             ref={videoRef}
             className="h-full aspect-video"
-            src={`${AppURL.backendURL}/api/v1/video?scenario_id=${scenarioId}`}
+            src={`${AppURL.backendURL}/api/v1/file/video?scenario_id=${scenarioId}`}
             muted
             controls
             loop={false}

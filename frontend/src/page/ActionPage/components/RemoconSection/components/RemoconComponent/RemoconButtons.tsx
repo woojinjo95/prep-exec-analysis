@@ -16,7 +16,7 @@ const RemoconButtons: React.FC<RemoconButtonsProps> = ({
   remoconRef,
   remocon,
 }: RemoconButtonsProps): JSX.Element => {
-  const { ws } = useWebsocket()
+  const { sendMessage } = useWebsocket()
   const [isSquareVisible, setIsSquareVisible] = useState<boolean>(false)
   const [windowSize, setWindowSize] = useState<{ width: number; height: number }>({
     width: window.innerWidth,
@@ -79,13 +79,17 @@ const RemoconButtons: React.FC<RemoconButtonsProps> = ({
                 leftTop.left * (dimension.buttonWidth / dimension.remoconImageWidth),
             }}
             onClick={() => {
-              ws.send(
-                `{ "msg": "remocon_transmit", "data": { "key": "${code.code_name}", "type": "ir", "press_time": 0, "name": "${remocon.name}" } }`,
-              )
-              remoconService.buttonClick({
+              const message = {
                 msg: 'remocon_transmit',
-                data: { key: code.code_name, type: 'ir', press_time: 0, name: remocon.name },
-              })
+                data: {
+                  key: code.code_name,
+                  type: 'ir', // TODO: hardware configuration 읽기
+                  press_time: 0,
+                  name: remocon.name,
+                },
+              } as const
+              sendMessage(message)
+              remoconService.buttonClick(message)
             }}
           />
         )
