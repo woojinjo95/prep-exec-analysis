@@ -15,7 +15,7 @@ class ExtendedEnum(Enum):
 
 class RemoteControlTypeEnum(ExtendedEnum):
     ir = "ir"
-    bluetooth = "bluetooth"
+    bt = "bt"
 
 
 class ProtocolEnum(ExtendedEnum):
