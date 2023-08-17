@@ -39,3 +39,11 @@ export interface Freeze {
    */
   timestamp: string
 }
+
+export interface LogLevelFinder {
+  /**
+   * @format timestamp
+   */
+  timestamp: string
+  log_level: string
+}
