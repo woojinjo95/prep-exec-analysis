@@ -1,17 +1,17 @@
-import time
-from socket import IPPROTO_IGMP, IPPROTO_UDP
 import logging
+import time
 from collections import defaultdict
+from pprint import pformat
+from socket import IPPROTO_IGMP, IPPROTO_UDP
 
-from .model.local import check_valid_multicast_ip
-from .analysis import (check_iso_iec_structure,
-                       check_rtp_sequence)
+from ...capture.parser import check_base_info, parse_pcap_file
+from ...epg.epg import get_channel_info
+from .analysis import check_iso_iec_structure, check_rtp_sequence
 from .common import ETHERNET_IPV4_TYPE, convert_ip_bytes_string
+from .model.local import check_valid_multicast_ip
 from .protocols.igmp import IGMPConst, igmp_parser
 from .protocols.mpeg2ts import mpeg2_ts_parser
-from .rtp_stream import (calc_bitrate, calc_jitter,
-                         get_default_ip_info)
-from ...capture.parser import check_base_info, parse_pcap_file
+from .rtp_stream import calc_bitrate, calc_jitter, get_default_ip_info
 
 GIGA = 10 ** 9
 
@@ -64,7 +64,9 @@ def run_analysis(stream_dict: dict, timestamp: float, protocol: int, ip: bytes,
         if ip_dict['leave_time'] == 0:
             if protocol == IPPROTO_IGMP:
                 if info == IGMPConst.join and ip_dict['join_time'] == 0:
-                    logger.info(f'UDP stream joined: {convert_ip_bytes_string(ip)} in {timestamp}')
+                    ip_str = convert_ip_bytes_string(ip)
+                    channel_info = get_channel_info(ip_str)
+                    logger.info(f'UDP stream joined: {ip_str} ({channel_info}) in {timestamp}')
                     ip_dict['join_time'] = timestamp
             else:
                 ip_dict['joined'] = True
@@ -76,10 +78,13 @@ def run_analysis(stream_dict: dict, timestamp: float, protocol: int, ip: bytes,
         else:
             if info == IGMPConst.join:
                 # IPPROTO_IGMP and already left state but re join -> re init ip_dict and archive previous state
-                logger.info(f'UDP stream re joined: {convert_ip_bytes_string(ip)} in {timestamp}')
+                ip_str = convert_ip_bytes_string(ip)
+                channel_info = get_channel_info(ip_str)
+                logger.info(f'UDP stream re joined: {ip_str} ({channel_info}) in {timestamp}')
                 if archived_stream_dict is not None and type(archived_stream_dict) == defaultdict:
                     ip_dict['active'] = False
                     archived_stream_dict[ip].append(ip_dict)
+                    logger.info(f'Stream Archived!: {pformat(ip_dict, width=120)}')
                 add_new_stream_ip(stream_dict, timestamp, protocol, ip, info)
                 stream_dict[ip]['join_time'] = timestamp
             else:
@@ -88,7 +93,9 @@ def run_analysis(stream_dict: dict, timestamp: float, protocol: int, ip: bytes,
 
     else:
         if protocol == IPPROTO_IGMP and info == IGMPConst.leave:
-            logger.info(f'UDP stream leaved: {convert_ip_bytes_string(ip)} in {timestamp}')
+            ip_str = convert_ip_bytes_string(ip)
+            channel_info = get_channel_info(ip_str)
+            logger.info(f'UDP stream leaved: {ip_str} ({channel_info}) in {timestamp}')
             ip_dict['joined'] = False
             ip_dict['leave_time'] = timestamp
 
@@ -128,8 +135,9 @@ def read_pcap_and_update_dict(stream_dict: dict, path: str, archived_stream_dict
             add_new_stream_ip(stream_dict, timestamp, protocol, ip, info)
         run_analysis(stream_dict, timestamp, protocol, ip, info, packet_bytes, archived_stream_dict)
 
-        if index % 1000 == 0:
+        if index % 100 == 0:
             change_stale_stream_state(timestamp, stream_dict)
+
     change_stale_stream_state(timestamp, stream_dict)
 
     return stream_dict

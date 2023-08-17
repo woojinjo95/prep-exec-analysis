@@ -8,7 +8,9 @@ from glob import glob
 from threading import Thread
 from typing import List
 
+from multiprocessing import Event
 from scripts.control.command import get_pid_list, kill_process
+from ..utils.docker import is_running_in_docker
 
 logger = logging.getLogger('capture')
 
@@ -42,7 +44,7 @@ def remove_old_pcap_file(max_count: int = 100):
 
 
 def start_capture(interface: str, interval: int, dump_interval: int = 5, clear: bool = True,
-                  rotating_file_count: int = ROTATING_FILE_COUNT, state: dict = {}):
+                  rotating_file_count: int = ROTATING_FILE_COUNT, state: dict = {}, stop_event: Event = Event()):
     file_path = os.path.join(DIRNAME, FILENAME)
     if clear:
         clear_pcap_file()
@@ -53,13 +55,20 @@ def start_capture(interface: str, interval: int, dump_interval: int = 5, clear: 
     else:
         interval_option = ''
 
+    if is_running_in_docker():
+        # https://bugzilla.redhat.com/show_bug.cgi?id=214377
+        # 버그가 아니라 고치지 않겠다는 선언
+        docker_option = '-Z root'
+    else:
+        docker_option = ''
+
     start_time = time.time()
-    cmd = f'{TCPDUMP} -i "{interface}" -G {dump_interval} {interval_option} -w {file_path}'
+    cmd = f'{TCPDUMP} -i "{interface}" -G {dump_interval} {interval_option} -w {file_path} {docker_option}'
     logger.info(f'Dump : {cmd}')
 
     with subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
         time.sleep(1)  # wait for tcpdump process start.
-        while process.returncode is None and get_pid_list('tcpdump'):
+        while not stop_event.is_set() and process.returncode is None:
             # rotating file manager
             remove_old_pcap_file(rotating_file_count)
             time.sleep(dump_interval / 5)
@@ -71,6 +80,8 @@ def start_capture(interface: str, interval: int, dump_interval: int = 5, clear: 
                 logger.warning('Capture process is not completed by 10% offset. kill process.')
                 break
 
+    logger.info(f'Capture parse process ended')
+
     stdout = stdout_pipe.decode() if stderr_pipe is not None else ''
     stderr = stderr_pipe.decode() if stderr_pipe is not None else ''
     stdout = stdout + '\n' + stderr
@@ -81,7 +92,7 @@ def start_capture(interface: str, interval: int, dump_interval: int = 5, clear: 
             # tcpdump only if tshark function added, this one need to update.
             for line in line.split('\n'):
                 if 'captured' in line:
-                    captured_count =  int(re.search('\d+', line).group())
+                    captured_count = int(re.search('\d+', line).group())
                 if 'dropped' in line:
                     dropped_count = int(re.search('\d+', line).group())
                     break

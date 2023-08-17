@@ -4,6 +4,11 @@ from typing import List
 
 from .parser import parse_epg_pcapfile, ChannelInfo
 from .getter import join_multicast_and_dump_pcap
+from .utils import check_ipv4
+
+import logging
+
+logger = logging.getLogger('epg')
 
 
 def ip_address_to_hex(ip_address: str) -> str:
@@ -11,6 +16,12 @@ def ip_address_to_hex(ip_address: str) -> str:
 
 
 def get_epg_data(epg_ip: str, epg_port: int, duration: int = 10, dump_path: str = '', remove_dumped: bool = False) -> List[ChannelInfo]:
+
+    logger.info(f'Get epg data from {epg_ip}:{epg_port} for {duration} seconds')
+
+    if not check_ipv4(epg_ip) or not 0 < epg_port < 65536:
+        return []
+
     dump_path = dump_path if dump_path else os.path.dirname(__file__)
     abs_dump_path = os.path.abspath(dump_path)
     start_time = int(time.time())

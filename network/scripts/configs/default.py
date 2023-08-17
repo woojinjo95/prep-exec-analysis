@@ -3,10 +3,10 @@ from ..connection.redis_connection import (get_strict_redis_connection,
 from .constant import RedisDBEnum
 
 settings = {'network': {
-    'nic': 'enx00e09900866a',
-    'real_time_packet_path': 'real_time_packet',
+    'target_nic': 'enx00e09900866a',
     'segment_interval': 10,
     'rotation_interval': 1800,
+    'provider': 'sk',
 }}
 
 hardware_settings = {'hardware_configuration': {'ssh_port': 2345}}

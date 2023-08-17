@@ -7,10 +7,11 @@ from .utils import check_base_info, check_ipv4, convert_ip_bytes_string, parse_p
 
 
 ChannelInfo = namedtuple("ChannelInfo", ["channel_id",
-                                         "channel_name",
                                          "channel_number",
-                                         "ip_port",
                                          "provider",
+                                         "ip",
+                                         "port",
+                                         "channel_name",
                                          "region_id"])
 
 

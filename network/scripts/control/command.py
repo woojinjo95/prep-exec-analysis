@@ -1,6 +1,7 @@
 from typing import Tuple
 import subprocess
 import os
+import signal
 
 
 def get_stdout(cmd: str) -> str:
@@ -18,6 +19,6 @@ def kill_process(name: str):
     try:
         pids = get_pid_list(name)
         for pid in pids:
-            os.kill(pid)
+            os.kill(pid, signal.SIGTERM)
     except Exception as e:
         print(str(e).encode())

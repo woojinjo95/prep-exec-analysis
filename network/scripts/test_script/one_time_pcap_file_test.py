@@ -1,5 +1,6 @@
 import sys
 sys.path.append('../')
+from multiprocessing import Event
 
 from scripts.analysis.packet_analyzer import (init_archived_stream_dict,
                                               pprint_archived_stream_dict,
@@ -11,11 +12,13 @@ from scripts.capture.parser import (TCPDUMP, get_completed_pcap_chunck_files,
 from simple_logger import simple_logger
 
 
+
 logger = simple_logger('analysis')
 simple_logger('capture')
 
 
-def main(interval: int = 30, dump_interval: int = 5) -> tuple:
+def main(interval: int = 45, dump_interval: int = 5) -> tuple:
+    stop_event = Event()
     stream_dict = {}
     archived_stream_dict = init_archived_stream_dict()
     # archived_stream_dict = None
@@ -23,7 +26,7 @@ def main(interval: int = 30, dump_interval: int = 5) -> tuple:
     
     dump_state = {} # dump state
 
-    thread_info = start_capture_thread('enx00e09900866a', interval, dump_interval=dump_interval, state=dump_state)
+    thread_info = start_capture_thread('enx00e09900866a', interval, dump_interval=dump_interval, state=dump_state, stop_event=stop_event)
     start_time = thread_info['start_time']
     capture_thread = thread_info['thread']
 
@@ -32,6 +35,7 @@ def main(interval: int = 30, dump_interval: int = 5) -> tuple:
             read_pcap_and_update_dict(stream_dict, path, archived_stream_dict)
             read_path_list.append(path)
 
+    s = time.time()
     time.sleep(dump_interval + 1)  # wait for first dump end.
     while capture_thread.is_alive():
         for path in get_completed_pcap_chunck_files(start_time, dump_interval):

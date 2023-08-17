@@ -39,9 +39,9 @@ def get_stale_pcap_chunck_files() -> List[str]:
     return get_pcap_file_list(os.path.join(dirpath, 'pcaps'))
 
 
-def init_read_path_list() -> Iterable:
+def init_read_path_list(rotation_file_count: int = ROTATING_FILE_COUNT) -> Iterable:
     # padding: 10
-    return deque(maxlen=(ROTATING_FILE_COUNT + 10))
+    return deque(maxlen=(rotation_file_count + 10))
 
 
 def get_timestamp_from_pcap_file_name(file_path: str) -> float:
