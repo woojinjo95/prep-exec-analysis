@@ -15,8 +15,8 @@ class LogLevelFinder(BaseModel):
 
 class CpuAndMemoryBase(BaseModel):
     timestamp: datetime
-    cpu_usage: float
-    memory_usage: float
+    cpu_usage: str
+    memory_usage: str
 
 
 class CpuAndMemory(BaseModel):

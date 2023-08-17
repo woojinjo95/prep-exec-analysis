@@ -74,6 +74,7 @@ def get_data_of_event_log(
     ]
     event_log = aggregate_from_mongodb(col='event_log', pipeline=event_log_pipeline)
     return {"items": event_log}
+    # TODO: 리턴에 무엇이 필요한지 확인하여 불필요한 항목 덜어내기
 
 
 # Color Reference
