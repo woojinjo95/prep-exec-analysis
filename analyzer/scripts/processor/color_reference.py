@@ -32,7 +32,7 @@ def process():
                 color_entropy = calc_color_entropy(frame)
                 logger.info(f"idx: {idx}, color_entropy: {color_entropy}")
                 report_output({
-                    'color_entropy': color_entropy,
+                    'color_reference': color_entropy,
                 })
             idx += 1
         
