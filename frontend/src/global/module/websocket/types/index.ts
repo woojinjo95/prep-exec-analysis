@@ -7,14 +7,24 @@ interface StopScenarioMessage {
   msg: 'stop_scenario'
 }
 
-export type PublishMessage = {
-  level: 'debug' | 'info' | 'warning' | 'error' | 'critical' | 'fatal'
-  time: number
-} & (RunScenarioMessage | StopScenarioMessage)
+interface OnOffControlMessage {
+  msg: 'on_off_control'
+  data: { [key in 'enable_dut_power' | 'enable_hdmi' | 'enable_dut_wan']?: boolean }
+}
 
-export type SubscribeMessage = {
+interface RemoteControlMessage {
+  msg: 'remocon_properties'
+  data: { name?: string; type: 'ir' | 'bt' }
+}
+
+export type PublishMessage = {
+  level?: 'debug' | 'info' | 'warning' | 'error' | 'critical' | 'fatal'
+  time?: number
+} & (RunScenarioMessage | StopScenarioMessage | OnOffControlMessage | RemoteControlMessage)
+
+export type SubscribeMessage<T> = {
   level: 'debug' | 'info' | 'warning' | 'error' | 'critical' | 'fatal'
   time: number
   msg: string
-  data: JSON
+  data: T
 }

@@ -24,3 +24,10 @@ export interface PaginationResponse<T> extends Response<T> {
   prev: number
   total: number
 }
+
+export interface ScenarioSummary {
+  id: string
+  name: string
+  tags: string[]
+  updated_at: number
+}

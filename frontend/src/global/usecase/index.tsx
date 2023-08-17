@@ -87,6 +87,5 @@ export const changeMsToMinSecMs = (_ms: number) => {
  * 분, 초, ms를 ms로 변환해주는 함수
  */
 export const changeMinSecMsToMs = (m: number, s: number, ms: number) => {
-  console.log(m, s, ms)
   return m * MILLISECONDS_PER_MINUTE + s * MILLISECONDS_PER_SECOND + ms
 }

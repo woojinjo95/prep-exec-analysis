@@ -1,29 +1,8 @@
 import API from '@global/api'
 import { AxiosError } from 'axios'
-import {
-  Block,
-  BlockGroup,
-  Scenario,
-  ScenarioSummaryResponse,
-} from '@page/ActionPage/components/ActionSection/api/entity'
+import { Block, BlockGroup, Scenario } from '@page/ActionPage/components/ActionSection/api/entity'
 import { Response } from '@global/api/entity'
 import apiUrls from './url'
-
-export const getScenario = async ({ page, page_size }: { page: number; page_size: number }) => {
-  try {
-    const result = await API.get<ScenarioSummaryResponse>(apiUrls.scenario, {
-      params: {
-        page,
-        page_size,
-      },
-    })
-
-    return result.data
-  } catch (err) {
-    const er = err as AxiosError
-    throw er
-  }
-}
 
 export const getScenarioById = async ({ scenario_id }: { scenario_id: string }) => {
   try {
