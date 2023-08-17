@@ -1,5 +1,6 @@
 from datetime import datetime
 from dataclasses import dataclass
+from enum import Enum
 
 
 @dataclass
@@ -17,3 +18,13 @@ class ReportData:
 @dataclass
 class ColorReferenceReport(ReportData):
     color_reference: float
+
+
+@dataclass
+class FreezeReport(ReportData):
+    freeze_type: str
+
+
+class CollecionName(Enum):
+    COLOR_REFERENCE = 'an_color_reference'
+    FREEZE = 'an_freeze'

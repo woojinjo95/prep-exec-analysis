@@ -7,7 +7,7 @@ from scripts.connection.mongo_db.crud import insert_to_mongodb
 from scripts.connection.external import construct_report_data
 from scripts.analysis.color_reference import calc_color_entropy
 from scripts.config.config import get_setting_with_env
-from scripts.format import ColorReferenceReport
+from scripts.format import ColorReferenceReport, CollecionName
 
 
 logger = logging.getLogger('color_reference')
@@ -57,7 +57,7 @@ def load_input() -> Dict:
 def report_output(color_entropy: float):
     report = construct_report(color_entropy).__dict__
     logger.info(f'insert {report} to db')
-    insert_to_mongodb('color_reference', report)
+    insert_to_mongodb(CollecionName.COLOR_REFERENCE.value, report)
 
 
 def construct_report(color_entropy: float) -> ColorReferenceReport:
