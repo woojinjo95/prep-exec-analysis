@@ -9,6 +9,7 @@ from scripts.connection.redis_pubsub import (Subscribe,
 from scripts.log_organizer import LogOrganizer
 from scripts.utils._exceptions import handle_errors
 from scripts.utils._multi_process import ProcessMaintainer
+from scripts.mongo_db_update import InsertToMongoDB
 
 
 logger = logging.getLogger('main')
@@ -21,10 +22,13 @@ log_level_values = {'debug': 0,
                     'critical': 40,
                     'fatal': 50}
 
+
 @handle_errors
 def commander_watcher(channel: str) -> ProcessMaintainer:
     logger = logging.getLogger(channel)
-    def log_process(channel: str, stop_event: Event, run_state_event: Event):
+    mongodb_worker = InsertToMongoDB()
+
+    def log_process(channel: str, mongodb_worker: InsertToMongoDB, stop_event: Event, run_state_event: Event):
         with get_strict_redis_connection() as src:
             for command in Subscribe(src, channel):
                 try:
@@ -40,7 +44,9 @@ def commander_watcher(channel: str) -> ProcessMaintainer:
                 else:
                     attrgetter(log_level)(error_logger)(f'{log_level} in {channel}: {command}')
 
-    proc = ProcessMaintainer(func=log_process, args=(channel, ), daemon=True, revive_interval=1)
+                mongodb_worker.put(command)
+
+    proc = ProcessMaintainer(func=log_process, args=(channel, mongodb_worker), daemon=True, revive_interval=1)
     proc.start()
     return proc
 
@@ -54,7 +60,6 @@ def main(log_organizer: LogOrganizer):
         proc = commander_watcher(channel)
         process_list.append(proc)
 
-
     while not proc.stop_event.is_set():
         for proc in process_list:
             proc.process.join()
@@ -65,6 +70,7 @@ if __name__ == '__main__':
         log_organizer = LogOrganizer(name='watcher')
         log_organizer.set_stream_logger('main')
         log_organizer.set_stream_logger('connection')
+        log_organizer.set_stream_logger('mongodb')
         log_organizer.set_stream_logger('error', 10)
         logger.info('Start watcher container')
 
