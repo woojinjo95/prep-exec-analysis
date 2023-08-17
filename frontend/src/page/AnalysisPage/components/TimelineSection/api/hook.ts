@@ -1,5 +1,5 @@
 import { useQuery } from 'react-query'
-import { getCPUAndMemory, getColorReferences, getEventLogs } from './func'
+import { getCPUAndMemory, getColorReferences, getEventLogs, getFreeze } from './func'
 
 /**
  * CPU, Memory 사용률 리스트 조회 hook
@@ -26,4 +26,13 @@ export const useColorReferences = (params: Parameters<typeof getColorReferences>
   const { data, isLoading, refetch } = useQuery(['color_reference', params], () => getColorReferences(params))
 
   return { colorReferences: data, isLoading, refetch }
+}
+
+/**
+ * Color Reference 리스트 조회 hook
+ */
+export const useFreeze = (params: Parameters<typeof getFreeze>[0]) => {
+  const { data, isLoading, refetch } = useQuery(['freeze', params], () => getFreeze(params))
+
+  return { freeze: data, isLoading, refetch }
 }
