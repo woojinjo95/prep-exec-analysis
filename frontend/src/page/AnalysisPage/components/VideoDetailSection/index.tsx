@@ -7,6 +7,7 @@ import { ReactComponent as GoToLastIcon } from '@assets/images/icon_go_to_last_w
 import { ReactComponent as StopIcon } from '@assets/images/icon_stop.svg'
 import { Button, IconButton, Text } from '@global/ui'
 import AppURL from '@global/constant/appURL'
+import { useScenarios } from '@global/api/hook'
 
 /**
  * 결과영상 및 정보 영역
@@ -15,6 +16,7 @@ const VideoDetailSection: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [isPlaying, setIsPlaying] = useState<boolean>(false)
   const [currentTime, setCurrentTime] = useState<number>(0)
+  const [scenarioId, setScenarioId] = useState<string | null>(null)
   /**
    * @example 07:20.5
    */
@@ -25,6 +27,14 @@ const VideoDetailSection: React.FC = () => {
 
     return `${minute < 10 ? `0${minute}` : minute}:${second < 10 ? `0${second}` : second}.${millisecond}`
   }, [currentTime])
+
+  useScenarios({
+    onSuccess: (res) => {
+      if (res && res.items.length > 0) {
+        setScenarioId(res.items[0].id)
+      }
+    },
+  })
 
   return (
     <section className="bg-black text-white grid grid-rows-1 grid-cols-[1fr_1.5fr_1fr]">
@@ -89,24 +99,26 @@ const VideoDetailSection: React.FC = () => {
       </div>
 
       <div className="aspect-video">
-        <video
-          ref={videoRef}
-          className="h-full aspect-video"
-          src={`${AppURL.backendURL}/api/v1/video?scenario_id=d70eede7-2faa-4345-aa46-ba36e1ab40fd`}
-          muted
-          controls
-          loop={false}
-          onPlay={() => setIsPlaying(true)}
-          onPause={() => setIsPlaying(false)}
-          onLoadedData={() => {
-            if (!videoRef.current) return
-            setCurrentTime(videoRef.current.currentTime)
-          }}
-          onTimeUpdate={() => {
-            if (!videoRef.current) return
-            setCurrentTime(videoRef.current.currentTime)
-          }}
-        />
+        {scenarioId && (
+          <video
+            ref={videoRef}
+            className="h-full aspect-video"
+            src={`${AppURL.backendURL}/api/v1/video?scenario_id=${scenarioId}`}
+            muted
+            controls
+            loop={false}
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+            onLoadedData={() => {
+              if (!videoRef.current) return
+              setCurrentTime(videoRef.current.currentTime)
+            }}
+            onTimeUpdate={() => {
+              if (!videoRef.current) return
+              setCurrentTime(videoRef.current.currentTime)
+            }}
+          />
+        )}
       </div>
 
       {/* FIXME: 버튼의 의미(동영상 다운로드?) */}

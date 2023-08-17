@@ -1,12 +1,14 @@
 import logging
 import os
-from uuid import uuid4
+import traceback
 from typing import Optional
+from uuid import uuid4
 
 from app import schemas
 from app.api.utility import classify_file_type
 from app.core.config import settings
-from app.crud.base import insert_one_to_mongodb, load_from_mongodb, aggregate_from_mongodb
+from app.crud.base import (aggregate_from_mongodb, insert_one_to_mongodb,
+                           load_from_mongodb)
 from app.db.redis_session import RedisClient
 from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
@@ -76,8 +78,11 @@ async def workspace_video_file_download(
     video_info = aggregate_from_mongodb(col='scenario', pipeline=pipeline)
     if not video_info:
         raise HTTPException(status_code=404, detail="Scenario data not found")
-    video_info = video_info[0]['videos'][0]
-    video_file_path = video_info.get('path', '')
-    video_file_path = video_file_path.replace('./data', '/app')
+    try:
+        video_info = video_info[0]['videos'][0]
+        video_file_path = video_info.get('path', '')
+        video_file_path = video_file_path.replace('./data', '/app')
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
     return FileResponse(path=video_file_path, media_type="video/mp4")
 
