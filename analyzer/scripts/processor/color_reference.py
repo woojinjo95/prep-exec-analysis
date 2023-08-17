@@ -4,7 +4,7 @@ import cv2
 import traceback
 
 from scripts.connection.mongo_db.crud import insert_to_mongodb
-from scripts.config.mongo import construct_report_data
+from scripts.connection.external import construct_report_data
 from scripts.analysis.color_reference import calc_color_entropy
 from scripts.config.config import get_setting_with_env
 from scripts.format import ColorReferenceReport
