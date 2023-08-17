@@ -6,9 +6,10 @@ import { VIDEO_SNAPSHOT_HEIGHT } from '@global/ui/VideoSnapshots/constant'
 import VideoSnapshot from './components/VideoSnapshot'
 
 interface VideoSnapshotsProps {
-  src: string
+  src: string | null
   // TODO: startTime
   // TODO: endTime
+  tickCount?: number
 }
 
 /**
@@ -16,7 +17,7 @@ interface VideoSnapshotsProps {
  *
  * @param src 비디오 주소
  */
-const VideoSnapshots: React.FC<VideoSnapshotsProps> = ({ src }) => {
+const VideoSnapshots: React.FC<VideoSnapshotsProps> = ({ src, tickCount = 10 }) => {
   const divRef = useRef<HTMLDivElement | null>(null)
   const { isLoadedVideo, videoRef } = useCreateVideo({ src, currentTime: 0 })
   // 비디오 스냅샷 넓이
@@ -32,9 +33,10 @@ const VideoSnapshots: React.FC<VideoSnapshotsProps> = ({ src }) => {
       .range([0, divRef.current.clientWidth - videoSnapshotWidth])
   }, [isLoadedVideo])
 
+  if (!src) return <div />
   return (
-    <div ref={divRef} className="relative mt-1" style={{ height: VIDEO_SNAPSHOT_HEIGHT }}>
-      {scaleX?.ticks(10).map((currentTime) => {
+    <div ref={divRef} className="relative" style={{ height: VIDEO_SNAPSHOT_HEIGHT }}>
+      {scaleX?.ticks(tickCount).map((currentTime) => {
         return (
           <VideoSnapshot
             key={`snapshot-${currentTime}`}
@@ -44,9 +46,6 @@ const VideoSnapshots: React.FC<VideoSnapshotsProps> = ({ src }) => {
           />
         )
       })}
-      {/* {range(0, 100, 10).map((num) => (
-        <VideoSnapshot key={`snapshot-${num}`} src={src} translateX={num * 6} />
-      ))} */}
     </div>
   )
 }

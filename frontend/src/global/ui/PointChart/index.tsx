@@ -1,11 +1,11 @@
 import React from 'react'
-import { PointChartData } from '../types'
-import { CHART_HEIGHT } from '../constant'
+import { CHART_HEIGHT } from '@global/constant'
+import { PointChartData } from '@global/types'
 
 interface PointChartProps {
   data: PointChartData
   scaleX: d3.ScaleTime<number, number, never> | null
-  color: string
+  color?: string
 }
 
 /**
@@ -13,7 +13,7 @@ interface PointChartProps {
  *
  * TODO: resizing event
  */
-const PointChart: React.FC<PointChartProps> = ({ data, scaleX, color }) => {
+const PointChart: React.FC<PointChartProps> = ({ data, scaleX, color = '#269' }) => {
   if (!scaleX) return <div />
   return (
     <div className="w-full relative">
