@@ -56,7 +56,7 @@ def detect_freeze():
 def load_input() -> Dict:
     # load data format to db
     data = {
-        "path": "/app/workspace/video_0_2023-08-11T115819F817772.mp4",
+        "path": "/app/workspace/test.mp4",
         # "stat_path": "./data/workspace/testruns/2023-08-14T042445F738532/raw/videos/video_2023-08-14T181329F384025+0900_180.mp4_stat",
     }
     return {
