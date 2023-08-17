@@ -84,7 +84,6 @@ const AddCustomKeyModalRemoconButtons: React.FC<AddCustomKeyModalRemoconButtonsP
             }}
             onClick={() => {
               setRemoconInput((prev) => [...prev, code.code_name])
-              console.log(`{"remocon": {"key": "${code.code_name}"}}`)
               ws.send(`{"remocon": {"key": "${code.code_name}"}}`)
             }}
           />

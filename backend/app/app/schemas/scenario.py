@@ -1,8 +1,8 @@
-from datetime import datetime
 from typing import List, Optional
 
 from app.schemas.block import BlockGroup
-from pydantic import BaseModel
+from pydantic import BaseModel, root_validator
+from pydantic.datetime_parse import parse_datetime
 
 
 class ScenarioCreate(BaseModel):
@@ -29,7 +29,13 @@ class ScenarioSummary(BaseModel):
     id: str
     name: str
     tags: Optional[List[str]]
-    updated_at: datetime
+    updated_at: str
+
+    @root_validator(pre=True)
+    def convert_timestamp_with_timezone(cls, values):
+        if "updated_at" in values:
+            values["updated_at"] = parse_datetime(values["updated_at"]).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        return values
 
 
 class ScenarioPage(BaseModel):

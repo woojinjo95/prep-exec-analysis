@@ -1,19 +1,26 @@
 import React from 'react'
+
 import { ToggleButton, Text, Divider, Title } from '@global/ui'
-import { useToast } from '@chakra-ui/react'
-import { useMutation } from 'react-query'
+import useWebsocket from '@global/module/websocket'
 import { useHardwareConfiguration } from '../../api/hook'
-import { putHardwareConfiguration } from '../../api/func'
+
+type OnOffControlSubscribeMessage = {
+  service: string
+  level: string
+  time: number
+  msg: string
+  data: {
+    vac: 'on' | 'off'
+  }
+}
 
 const OnOffControl: React.FC = () => {
-  const toast = useToast({ duration: 3000, isClosable: true })
   const { hardwareConfiguration, refetch } = useHardwareConfiguration()
-  const { mutate: updateHardwareConfiguration } = useMutation(putHardwareConfiguration, {
-    onSuccess: () => {
-      refetch()
-    },
-    onError: () => {
-      toast({ status: 'error', title: 'An error has occurred. Please try again.' })
+  const { sendMessage } = useWebsocket<OnOffControlSubscribeMessage>({
+    onMessage: (message) => {
+      if (message.msg === 'on_off_control_response') {
+        refetch()
+      }
     },
   })
 
@@ -30,21 +37,27 @@ const OnOffControl: React.FC = () => {
           <Text weight="medium">DUT Power</Text>
           <ToggleButton
             isOn={!!hardwareConfiguration?.enable_dut_power}
-            onClick={(isOn) => updateHardwareConfiguration({ enable_dut_power: isOn })}
+            onClick={(isOn) => {
+              sendMessage({ msg: 'on_off_control', data: { enable_dut_power: isOn } })
+            }}
           />
         </li>
         <li className="flex items-center justify-between">
           <Text weight="medium">HDMI(HPD)</Text>
           <ToggleButton
             isOn={!!hardwareConfiguration?.enable_hdmi}
-            onClick={(isOn) => updateHardwareConfiguration({ enable_hdmi: isOn })}
+            onClick={(isOn) => {
+              sendMessage({ msg: 'on_off_control', data: { enable_hdmi: isOn } })
+            }}
           />
         </li>
         <li className="flex items-center justify-between">
           <Text weight="medium">DUT WAN</Text>
           <ToggleButton
             isOn={!!hardwareConfiguration?.enable_dut_wan}
-            onClick={(isOn) => updateHardwareConfiguration({ enable_dut_wan: isOn })}
+            onClick={(isOn) => {
+              sendMessage({ msg: 'on_off_control', data: { enable_dut_wan: isOn } })
+            }}
           />
         </li>
       </ul>
