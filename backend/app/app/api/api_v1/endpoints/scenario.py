@@ -101,6 +101,16 @@ def read_scenario_by_id(
                                               data={"workspace_path": RedisClient.hget('testrun', 'workspace_path'),
                                                     "testrun_dir": dir,
                                                     "scenario_id": scenario_id}))
+
+        # 로그 수집시작 메세지 전송
+        RedisClient.publish('command',
+                            set_redis_pub_msg(msg="stb_log",
+                                              data={"control": "start"}))
+
+        # 스트리밍 시작 메세지 전송
+        RedisClient.publish('command',
+                            set_redis_pub_msg(msg="streaming",
+                                              data={"action": "start"}))
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'items': scenario}
@@ -177,26 +187,6 @@ def create_scenario(
         os.makedirs(f'{path}/raw')
         os.makedirs(f'{path}/analysis')
 
-        # 워크스페이스 변경
-        RedisClient.hset('testrun', 'dir', dir)
-        RedisClient.hset('testrun', 'scenario_id', id)
-
-        # 워크스페이스 변경 메세지 전송
-        RedisClient.publish('command',
-                            set_redis_pub_msg(msg="workspace",
-                                              data={"workspace_path": RedisClient.hget('testrun', 'workspace_path'),
-                                                    "testrun_dir": dir,
-                                                    "scenario_id": id}))
-
-        # 로그 수집시작 메세지 전송
-        RedisClient.publish('command',
-                            set_redis_pub_msg(msg="stb_log",
-                                              data={"control": "start"}))
-
-        # 스트리밍 시작 메세지 전송
-        RedisClient.publish('command',
-                            set_redis_pub_msg(msg="streaming",
-                                              data={"action": "start"}))
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Create new scenario', 'id': id}
