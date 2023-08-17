@@ -9,7 +9,7 @@ from scripts.connection.external import construct_report_data
 from scripts.config.config import get_setting_with_env
 from scripts.analysis.freeze_detect import FreezeDetector
 from scripts.format import FreezeReport, CollecionName
-
+from scripts.connection.external import load_input
 
 logger = logging.getLogger('freeze_detect')
 
@@ -51,18 +51,6 @@ def detect_freeze():
     except Exception as err:
         logger.error(f"error in detect_freeze postprocess: {err}")
         logger.warning(traceback.format_exc())
-
-
-def load_input() -> Dict:
-    # load data format to db
-    data = {
-        "path": "/app/workspace/test.mp4",
-        # "stat_path": "./data/workspace/testruns/2023-08-14T042445F738532/raw/videos/video_2023-08-14T181329F384025+0900_180.mp4_stat",
-    }
-    return {
-        'video_path': data['path'],
-        # 'json_data': json.load(open(data['stat_path'], 'r'))
-    }
 
 
 def report_output(freeze_type: str):

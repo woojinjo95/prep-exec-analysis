@@ -1,7 +1,7 @@
 import logging
 
 from multiprocessing import Process
-from scripts.processor.color_reference import postprocess
+from scripts.processor.color_reference import process
 
 
 logger = logging.getLogger('color_reference')
@@ -12,7 +12,7 @@ class ColorReference:
         self.processor = None
 
     def __start_processor(self):
-        self.processor = Process(target=postprocess, kwargs={
+        self.processor = Process(target=process, kwargs={
         }, daemon=True)
         self.processor.start()
 

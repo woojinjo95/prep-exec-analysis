@@ -8,14 +8,14 @@ from scripts.connection.external import construct_report_data
 from scripts.analysis.color_reference import calc_color_entropy
 from scripts.config.config import get_setting_with_env
 from scripts.format import ColorReferenceReport, CollecionName
-
+from scripts.connection.external import load_input
 
 logger = logging.getLogger('color_reference')
 
 
-def postprocess():
+def process():
     try:
-        logger.info(f"start color_reference postprocess")
+        logger.info(f"start color_reference process")
         data = load_input()
         skip_frame = get_setting_with_env('COLOR_REFERENCE_SKIP_FRAME', 60)
         
@@ -35,23 +35,11 @@ def postprocess():
             idx += 1
         
         cap.release()
-        logger.info(f"end color_reference postprocess")
+        logger.info(f"end color_reference process")
 
     except Exception as err:
-        logger.error(f"error in color_reference postprocess: {err}")
+        logger.error(f"error in color_reference process: {err}")
         logger.warning(traceback.format_exc())
-
-
-def load_input() -> Dict:
-    # load data format to db
-    data = {
-        "path": "/app/workspace/video_2023-08-04T152424F626855+0900_30.mp4",
-        # "stat_path": "./data/workspace/testruns/2023-08-14T042445F738532/raw/videos/video_2023-08-14T181329F384025+0900_180.mp4_stat",
-    }
-    return {
-        'video_path': data['path'],
-        # 'json_data': json.load(open(data['stat_path'], 'r'))
-    }
 
 
 def report_output(color_entropy: float):
