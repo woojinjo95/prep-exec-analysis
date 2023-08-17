@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react'
 import { AreaChart } from '@global/ui'
+import useWebsocket from '@global/module/websocket'
 import { useColorReferences } from '../api/hook'
 
 interface ColorReferenceChartProps {
@@ -13,9 +14,16 @@ interface ColorReferenceChartProps {
  * Color Reference 차트
  */
 const ColorReferenceChart: React.FC<ColorReferenceChartProps> = ({ scaleX, chartWidth, startTime, endTime }) => {
-  const { colorReferences } = useColorReferences({
+  const { colorReferences, refetch } = useColorReferences({
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
+  })
+  useWebsocket({
+    onMessage: (message) => {
+      if (message.msg === 'analysis_response') {
+        refetch()
+      }
+    },
   })
 
   const colorReferenceData = useMemo(() => {

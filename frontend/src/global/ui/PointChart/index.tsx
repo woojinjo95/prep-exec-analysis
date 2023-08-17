@@ -17,7 +17,10 @@ const PointChart: React.FC<PointChartProps> = ({ data, scaleX, color = '#269' })
   if (!scaleX) return <div />
   return (
     <div className="w-full relative">
-      <div className="flex justify-center items-center" style={{ height: CHART_HEIGHT }}>
+      <div
+        className="flex justify-center items-center border-b border-t border-[#37383E]"
+        style={{ height: CHART_HEIGHT }}
+      >
         <div className="h-[0.5px] w-full bg-[#37383E]" />
       </div>
 

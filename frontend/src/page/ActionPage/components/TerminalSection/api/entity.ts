@@ -9,7 +9,7 @@ export interface IPLimit {
  * 하드웨어 설정
  */
 export interface HardwareConfiguration {
-  remote_control_type: 'ir' | 'bluetooth'
+  remote_control_type: 'ir' | 'bt'
   enable_dut_power: boolean
   enable_hdmi: boolean
   enable_dut_wan: boolean

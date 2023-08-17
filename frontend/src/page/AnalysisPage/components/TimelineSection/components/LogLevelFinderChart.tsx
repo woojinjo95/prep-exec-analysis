@@ -1,5 +1,6 @@
 import { PointChart } from '@global/ui'
 import React, { useMemo } from 'react'
+import useWebsocket from '@global/module/websocket'
 import { useLogLevelFinders } from '../api/hook'
 
 interface LogLevelFinderChartProps {
@@ -12,9 +13,16 @@ interface LogLevelFinderChartProps {
  * Log Level Finder 차트
  */
 const LogLevelFinderChart: React.FC<LogLevelFinderChartProps> = ({ scaleX, startTime, endTime }) => {
-  const { logLevelFinders } = useLogLevelFinders({
+  const { logLevelFinders, refetch } = useLogLevelFinders({
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
+  })
+  useWebsocket({
+    onMessage: (message) => {
+      if (message.msg === 'analysis_response') {
+        refetch()
+      }
+    },
   })
 
   const logLevelFinderData = useMemo(() => {
