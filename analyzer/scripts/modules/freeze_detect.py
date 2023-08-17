@@ -12,7 +12,7 @@ class FreezeDetect:
 
     def __start_processor(self):
         self.processor = Process(target=detect_freeze, kwargs={
-        }, daemon=True, revive_interval=10)
+        }, daemon=True)
         self.processor.start()
 
     def __stop_processor(self):
