@@ -41,12 +41,20 @@ class EventLog(BaseModel):
     items: List[EventLogBase]
 
 
-class ColorReferenceBase(BaseModel):
-    pass
+class ColorReferenceBase(TimestampBaseModel):
+    color_reference: float
 
 
 class ColorReference(BaseModel):
     items: List[ColorReferenceBase]
+
+
+class FreezeBase(TimestampBaseModel):
+    pass
+
+
+class Freeze(BaseModel):
+    items: List[FreezeBase]
 
 
 class VideoAnalysisResultBase(BaseModel):
