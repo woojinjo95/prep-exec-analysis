@@ -26,7 +26,7 @@ def command_parser(command: dict, serial_device: SerialDevice, remocon_process: 
     if command.get('msg') == 'remocon_transmit':
         remocon_args = command.get('data')
         key = remocon_args.get('key')
-        remocon_type = remocon_args.get('type', 'ir')
+        remocon_type = remocon_args.get('type', 'default')
         press_time = remocon_args.get('press_time', 0)
         remocon_name = remocon_args.get('name')
 
@@ -35,10 +35,16 @@ def command_parser(command: dict, serial_device: SerialDevice, remocon_process: 
 
         remocon_process.put_command(key=key, _type=remocon_type, press_time=press_time)
 
-    if command.get('msg') == 'remocon_name':
+    if command.get('msg') == 'remocon_properties':
         remocon_type_args = command.get('data')
         remocon_name = remocon_type_args.get('name')
-        remocon_process.set_remocon_model(remocon_name)
+        remocon_type = remocon_type_args.get('type')
+
+        if remocon_name is not None:
+            remocon_process.set_remocon_model(remocon_name)
+
+        if remocon_type is not None:
+            remocon_process.set_default_remocon_type(remocon_type)
 
     if command.get('msg') == 'on_off_control':
         on_off_control_args = command.get('data')
