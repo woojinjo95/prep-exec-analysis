@@ -9,7 +9,7 @@ from scripts.connection.external import construct_report_data
 from scripts.config.config import get_setting_with_env
 from scripts.analysis.freeze_detect import FreezeDetector
 from scripts.format import FreezeReport, CollecionName
-from scripts.connection.external import load_input
+from scripts.connection.external import load_input, publish_msg
 
 logger = logging.getLogger('freeze_detect')
 
@@ -59,9 +59,11 @@ def detect_freeze():
             idx += 1
         
         cap.release()
+        publish_msg({'measurement': ['freeze']}, 'analysis_response')
         logger.info(f"end detect_freeze process")
 
     except Exception as err:
+        publish_msg({'measurement': ['freeze']}, 'analysis_response', level='error')
         logger.error(f"error in detect_freeze postprocess: {err}")
         logger.warning(traceback.format_exc())
 

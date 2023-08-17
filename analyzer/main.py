@@ -22,6 +22,7 @@ if __name__ == '__main__':
     try:
         log_organizer = LogOrganizer(name='analyzer')
         log_organizer.set_stream_logger('main')
+        log_organizer.set_stream_logger('connection')
         log_organizer.set_stream_logger('color_reference')
         log_organizer.set_stream_logger('freeze_detect')
         logger.info('Start analyzer container')

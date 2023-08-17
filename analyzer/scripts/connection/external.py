@@ -4,7 +4,9 @@ import json
 
 from scripts.connection.redis_conn import get_value
 from scripts.util._timezone import get_utc_datetime
-from scripts.config.constant import RedisDB
+from scripts.config.constant import RedisDB, RedisChannel
+from scripts.connection.redis_conn import get_strict_redis_connection
+from scripts.connection.redis_pubsub import publish
 
 
 def get_scenario_info() -> Dict:
@@ -33,3 +35,12 @@ def load_input() -> Dict:
         'video_path': data['path'],
         # 'json_data': json.load(open(data['stat_path'], 'r'))
     }
+
+
+def publish_msg(data: Dict, msg: str, level: str = 'info'):
+    with get_strict_redis_connection(RedisDB.hardware) as src:
+        publish(src, RedisChannel.command, {
+            'data': data,
+            'msg': msg,
+            'level': level,
+        })
