@@ -1,8 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useState } from 'react'
 import { Text } from '@global/ui'
 import useWebsocket from '@global/module/websocket'
-import { SubscribeMessage } from '@global/module/websocket/types'
-import { History, Message, ShellMessage, Terminal } from '../../types'
+import { History, ShellMessage, Terminal } from '../../types'
 import CommandInput from './CommandInput'
 
 interface TerminalShellProps {
@@ -30,6 +29,7 @@ const TerminalShell: React.FC<TerminalShellProps> = ({ terminal, currentTerminal
     <div className="w-full h-full flex flex-col" style={{ display: currentTerminal.id !== terminal.id ? 'none' : '' }}>
       {historys.map((history, idx) => (
         <div key={`history_${idx}_${terminal.id}`} className="flex">
+          {/* 명령어 history면 CommandInput처럼 표기 */}
           {history.type === 'command' && (
             <Text className="whitespace-pre">
               {`${terminal.id}: / $`}

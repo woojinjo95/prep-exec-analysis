@@ -14,8 +14,6 @@ const cx = classNames.bind(styles)
  */
 
 const TerminalPanel: React.FC = () => {
-  // config type은 어떻게 될지 모르겠음
-  // backend에 현재 해당 config로 connect할 수 있는지에 대한 api 요청 후 허용 되면 terminal 생성 가능
   const [terminals, setTerminals] = useState<Terminal[]>([])
 
   const [currentTerminal, setCurrentTerminal] = useState<Terminal | null>(null)

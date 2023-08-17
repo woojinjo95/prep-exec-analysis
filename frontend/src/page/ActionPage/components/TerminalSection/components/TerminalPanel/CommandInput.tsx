@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import useWebsocket from '@global/module/websocket'
 import { ShellMessage, Terminal } from '../../types'
 
@@ -34,14 +34,12 @@ const CommandInput = ({
         onChange={handleResizeHeight}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
-            console.log('enter')
             sendMessage({
               level: 'info',
               msg: 'shell',
               time: new Date().getTime(),
               data: { command: `${value.substring(defaultValue.length)}`, shell_id: 2 },
             })
-            // setCurCommand(value.substring(defaultValue.length))
 
             if (textareaRef.current) {
               textareaRef.current.blur()
@@ -54,6 +52,8 @@ const CommandInput = ({
         className="w-full whitespace-pre-wrap bg-transparent text-white border-none h-auto outline-none"
         rows={1}
         value={value}
+        // 크기 조절 ui 제거
+        style={{ resize: 'none' }}
       />
     </div>
   )
