@@ -16,7 +16,7 @@ router = APIRouter()
 @router.get("/log_level_finder", response_model=schemas.LogLevelFinder)
 def get_data_of_log_level_finder(
     scenario_id: Optional[str] = None,
-    # dir: Optional[str] = None, # TODO: dir 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
+    # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
 ):
@@ -43,7 +43,7 @@ def get_data_of_log_level_finder(
 @router.get("/cpu_and_memory", response_model=schemas.CpuAndMemory)
 def get_data_of_cpu_and_memory(
     scenario_id: Optional[str] = None,
-    # dir: Optional[str] = None, # TODO: dir 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
+    # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
 ):
@@ -66,7 +66,7 @@ def get_data_of_cpu_and_memory(
 @router.get("/event_log", response_model=schemas.EventLog)
 def get_data_of_event_log(
     scenario_id: Optional[str] = None,
-    # dir: Optional[str] = None, # TODO: dir 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
+    # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
 ):
@@ -95,7 +95,7 @@ def get_data_of_event_log(
 @router.get("/color_reference", response_model=schemas.ColorReference)
 def get_data_of_color_reference(
     scenario_id: Optional[str] = None,
-    # dir: Optional[str] = None, # TODO: dir 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
+    # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
 ):
@@ -120,7 +120,7 @@ def get_data_of_color_reference(
 @router.get("/freeze", response_model=schemas.Freeze)
 def get_data_of_freeze(
     scenario_id: Optional[str] = None,
-    # dir: Optional[str] = None, # TODO: dir 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
+    # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
 ):
@@ -142,7 +142,7 @@ def get_data_of_freeze(
 @router.get("/video", response_model=schemas.VideoAnalysisResult)
 def get_data_of_video(
     scenario_id: Optional[str] = None,
-    # dir: Optional[str] = None, # TODO: dir 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
+    # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
 ):
@@ -162,7 +162,7 @@ def get_data_of_video(
 @router.get("/log_pattern_matching", response_model=schemas.LogPatternMatching)
 def get_data_of_log_pattern_matching(
     scenario_id: Optional[str] = None,
-    # dir: Optional[str] = None, # TODO: dir 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
+    # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
 ):
@@ -182,7 +182,7 @@ def get_data_of_log_pattern_matching(
 @router.get("/measurement", response_model=schemas.Measurement)
 def get_data_of_measurement(
     scenario_id: Optional[str] = None,
-    # dir: Optional[str] = None, # TODO: dir 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
+    # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
 ):
@@ -202,7 +202,7 @@ def get_data_of_measurement(
 @router.get("/process_lifecycle", response_model=schemas.ProcessLifecycle)
 def get_data_of_process_lifecycle(
     scenario_id: Optional[str] = None,
-    # dir: Optional[str] = None, # TODO: dir 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
+    # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
 ):
@@ -222,7 +222,7 @@ def get_data_of_process_lifecycle(
 @router.get("/network_filter", response_model=schemas.NetworkFilter)
 def get_data_of_network_filter(
     scenario_id: Optional[str] = None,
-    # dir: Optional[str] = None, # TODO: dir 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
+    # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
 ):
