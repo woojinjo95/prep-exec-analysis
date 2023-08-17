@@ -40,7 +40,7 @@ def command_parser(command: dict, packet_capture_stop_event: Event):
         log = ''
 
         if action == 'start':
-            state = 'streaming'
+            state = 'capturing'
             if get_value('state', 'packet_capture') == 'idle':
                 packet_capture_stop_event.clear()
                 real_time_packet_capture(packet_capture_stop_event)
@@ -61,7 +61,7 @@ def command_parser(command: dict, packet_capture_stop_event: Event):
                 time.sleep(2)
         else:
             log_level = 'warning'
-            log = f'Unknown streaming action args: {packet_capture_args}'
+            log = f'Unknown capturing action args: {packet_capture_args}'
 
         attrgetter(log_level)(logger)(log)
         with get_strict_redis_connection() as redis_connection:

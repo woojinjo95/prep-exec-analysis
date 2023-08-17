@@ -15,7 +15,6 @@ logger = logging.getLogger('main')
 
 
 def start_capture(stop_event: Event):
-    set_value('state', 'packet_capture', 'dumping')
     interval = 3600 * 24 * 2  # 2 days
     segmnet_interval = get_value('network', 'segment_interval', 10)
     rotation_interval = get_value('network', 'rotation_interval', 1800)
@@ -47,8 +46,6 @@ def start_capture(stop_event: Event):
     time.sleep(1)                  # wait for last dump end.
     if path is not None:
         read_process(stream_dict, archived_stream_dict, read_path_list, path)
-
-    set_value('state', 'packet_capture', 'idle')
 
 
 def real_time_packet_capture(stop_event: Event = Event()) -> Event:
