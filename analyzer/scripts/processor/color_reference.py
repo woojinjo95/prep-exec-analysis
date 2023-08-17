@@ -31,7 +31,9 @@ def process():
             if idx % skip_frame == 0:
                 color_entropy = calc_color_entropy(frame)
                 logger.info(f"idx: {idx}, color_entropy: {color_entropy}")
-                report_output(color_entropy)
+                report_output({
+                    'color_entropy': color_entropy,
+                })
             idx += 1
         
         cap.release()
@@ -42,17 +44,10 @@ def process():
         logger.warning(traceback.format_exc())
 
 
-def report_output(color_entropy: float):
-    report = construct_report(color_entropy).__dict__
+def report_output(additional_data: Dict):
+    report = ColorReferenceReport(
+        **construct_report_data(),
+        **additional_data
+    ).__dict__
     logger.info(f'insert {report} to db')
     insert_to_mongodb(CollecionName.COLOR_REFERENCE.value, report)
-
-
-def construct_report(color_entropy: float) -> ColorReferenceReport:
-    report_data = construct_report_data()
-    return ColorReferenceReport(
-        **report_data,
-        color_reference=color_entropy
-    )
-
- 
