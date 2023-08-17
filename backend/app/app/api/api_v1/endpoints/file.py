@@ -82,7 +82,7 @@ async def workspace_video_file_download(
         video_file_path = video_file_path.replace('./data', '/app')
         with open(video_file_path, "rb") as video:
             headers = {'Accept-Ranges': 'bytes'}
-            return Response(video.read(), status_code=206, headers=headers, media_type="video/mp4")
+            return Response(video.read(), headers=headers, media_type="video/mp4")
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
 
