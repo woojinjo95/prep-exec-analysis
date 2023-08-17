@@ -1,11 +1,11 @@
-import ws from '@global/module/websocket'
 import { Button, Text } from '@global/ui'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
 import classNames from 'classnames/bind'
+import useWebsocket from '@global/module/websocket'
 import styles from './TerminalPanel.module.scss'
 import TerminalShell from './TerminalShell'
-import { Terminal } from '../../types'
+import { ShellMessage, Terminal } from '../../types'
 
 const cx = classNames.bind(styles)
 
@@ -20,22 +20,32 @@ const TerminalPanel: React.FC = () => {
 
   const [currentTerminal, setCurrentTerminal] = useState<Terminal | null>(null)
 
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null)
+
   useEffect(() => {
     if (terminals.length > 0) {
       setCurrentTerminal(terminals[terminals.length - 1])
     }
   }, [terminals])
 
+  useWebsocket<ShellMessage>({
+    onMessage: (msg) => {
+      if (msg.data && msg.msg === 'shell' && scrollContainerRef.current) {
+        scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight
+      }
+    },
+  })
+
   return (
-    <div className="grid grid-cols-[4.5fr_1fr]">
-      <div>
+    <div className="grid grid-cols-[4.5fr_1fr] h-full">
+      <div className="h-full overflow-y-auto" ref={scrollContainerRef}>
         {currentTerminal &&
           terminals &&
           terminals.map((terminal) => (
             <TerminalShell terminal={terminal} currentTerminal={currentTerminal} key={`terminal_${terminal.id}`} />
           ))}
       </div>
-      <div className="flex flex-col justify-center p-5">
+      <div className="flex flex-col justify-center p-5 h-full">
         <Button
           colorScheme="grey"
           onClick={() => setTerminals((prev) => [...prev, { id: `${terminals.length}` }])}

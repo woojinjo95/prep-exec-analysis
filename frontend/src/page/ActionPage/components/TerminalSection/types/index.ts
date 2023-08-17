@@ -16,3 +16,9 @@ export interface Message {
   }
   time: string
 }
+
+export interface ShellMessage {
+  shell_id: 1 | 2
+  mode: 'adb' | 'ssh'
+  data: { timestamp: string; module: 'stdin' | 'stdout' | 'stderr'; message: string }
+}
