@@ -13,11 +13,11 @@ const config = {
 } as const
 
 const AppURL = {
-  backendURL: `${config.backend.protocol}://${config.backend.hostname}:${config.backend.port}`,
+  backendURL: `${config.backend.protocol}//${config.backend.hostname}:${config.backend.port}`,
   websocketURL: {
     client: `ws://${config.backend.hostname}:${config.backend.port}/api/v1/client/ws`,
   },
-  streamingURL: `${config.streaming.protocol}://${config.streaming.hostname}:${config.streaming.port}${config.streaming.pathname}`,
+  streamingURL: `${config.streaming.protocol}//${config.streaming.hostname}:${config.streaming.port}${config.streaming.pathname}`,
 }
 
 export default AppURL
