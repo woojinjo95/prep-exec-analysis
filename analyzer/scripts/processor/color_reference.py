@@ -63,8 +63,7 @@ def report_output(color_entropy: float):
 def construct_report(color_entropy: float) -> ColorReferenceReport:
     report_data = construct_report_data()
     return ColorReferenceReport(
-        scenario_id=report_data.scenario_id,
-        timestamp=report_data.timestamp,
+        **report_data,
         color_reference=color_entropy
     )
 

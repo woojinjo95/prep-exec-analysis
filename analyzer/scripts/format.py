@@ -12,6 +12,7 @@ class VideoData:
 @dataclass
 class ReportData:
     scenario_id: str
+    testrun_id: str
     timestamp: datetime
 
 

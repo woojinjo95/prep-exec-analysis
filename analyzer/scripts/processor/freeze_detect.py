@@ -74,7 +74,6 @@ def report_output(freeze_type: str):
 def construct_report(freeze_type: str) -> FreezeReport:
     report_data = construct_report_data()
     return FreezeReport(
-        scenario_id=report_data.scenario_id,
-        timestamp=report_data.timestamp,
+        **report_data,
         freeze_type=freeze_type
     )
