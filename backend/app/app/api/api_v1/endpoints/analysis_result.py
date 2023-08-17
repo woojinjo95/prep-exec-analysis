@@ -139,8 +139,8 @@ def get_data_of_freeze(
 
 
 # Video Analysis Result
-@router.get("/video_analysis_result", response_model=schemas.VideoAnalysisResult)
-def get_data_of_video_analysis_result(
+@router.get("/video", response_model=schemas.VideoAnalysisResult)
+def get_data_of_video(
     scenario_id: Optional[str] = None,
     # dir: Optional[str] = None, # TODO: dir 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
