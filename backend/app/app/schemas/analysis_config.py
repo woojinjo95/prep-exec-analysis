@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 class CommonBaseModel(BaseModel):
     is_active: bool
+    color: str
 
 
 class Roi(BaseModel):
