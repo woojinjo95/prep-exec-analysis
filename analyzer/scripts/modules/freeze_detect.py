@@ -1,5 +1,6 @@
 import logging
 from multiprocessing import Process
+from scripts.processor.freeze_detect import detect_freeze
 
 
 logger = logging.getLogger('freeze_detect')
