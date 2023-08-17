@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useQuery } from 'react-query'
 import { PAGE_SIZE_FIFTEEN } from '@global/constant'
 import { getScenarios } from './func'
@@ -22,6 +23,12 @@ export const useScenarios = ({
       onError,
     },
   )
+
+  useEffect(() => {
+    if (data) {
+      onSuccess?.(data)
+    }
+  }, [data])
 
   return { scenarios: data, isLoading, refetch }
 }
