@@ -38,7 +38,7 @@ def detect_freeze():
             if not ret:
                 break
 
-            if idx % 60*60 == 0:
+            if idx % 60*60*60 == 0:
                 logger.info(f'freeze detect heartbeat')
 
             result = freeze_detector.update(frame, time.time())
