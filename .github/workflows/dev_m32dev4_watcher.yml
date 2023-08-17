@@ -32,7 +32,7 @@ jobs:
           password: .nextlab1@
       - run: docker image pull registry.dev-nextlab.com/prep-exec-watcher:dev-${{github.run_id}}${{github.run_number}}
         shell: bash
-      - run: sed -i "s|\b/qaas-watcher:dev-.*\b|/prep-exec-watcher:dev-${{github.run_id}}${{github.run_number}}|g" /home/jade-m32-07/service/watcher.yml
+      - run: sed -i "s|\b/prep-exec-watcher:dev-.*\b|/prep-exec-watcher:dev-${{github.run_id}}${{github.run_number}}|g" /home/jade-m32-07/service/watcher.yml
         shell: bash
       - run: docker-compose --project-directory /home/jade-m32-07/service -f /home/jade-m32-07/service/watcher.yml up -d
         shell: bash
