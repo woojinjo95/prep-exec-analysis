@@ -3,6 +3,7 @@ import math
 import os
 import time
 from ast import literal_eval
+from datetime import datetime
 
 from app.core.config import settings
 from app.crud.base import load_from_mongodb, load_paginate_from_mongodb
@@ -39,7 +40,8 @@ def paginate_from_mongodb(col, page, page_size=None, param={}, sorting_keyword=N
 def get_multi_or_paginate_by_res(col, page, page_size, sorting_keyword=None, is_descending=None, proj=None, param={}):
     if page:
         res_dict = paginate_from_mongodb(col=col,
-                                         page=page, page_size=page_size,
+                                         page=page,
+                                         page_size=page_size,
                                          param=param,
                                          sorting_keyword=sorting_keyword,
                                          is_descending=is_descending,
@@ -84,3 +86,21 @@ def set_redis_pub_msg(msg: str, data: dict = {}, service: str = 'backend', level
         "msg": msg,
         "data": data
     })
+
+
+def get_utc_datetime(timestamp: float, remove_float_point: bool = False) -> datetime:
+    dt_obj = datetime.utcfromtimestamp(timestamp)
+    if remove_float_point:
+        dt_obj = dt_obj.replace(microsecond=0)
+    return dt_obj
+
+
+def convert_iso_format(input_str: str):
+    if 'Z' in input_str:
+        input_str = input_str.replace('Z', '+00:00')
+    return datetime.fromisoformat(input_str)
+
+
+def set_ilike(param):
+    item = param.replace("(", "\\(").replace(")", "\\)")
+    return {'$regex': item, '$options': 'i'}

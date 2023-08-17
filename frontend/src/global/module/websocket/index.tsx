@@ -1,5 +1,5 @@
 import AppURL from '@global/constant/appURL'
-import { useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { PublishMessage, SubscribeMessage } from './types'
 
 const ws = new WebSocket(AppURL.websocketURL.client)
@@ -10,11 +10,21 @@ ws.onmessage = (message: MessageEvent<string>) => {
 
 // FIXME: 모듈화!!!, 예외처리 등등등
 const useWebsocket = <T extends object>({ onMessage }: { onMessage?: (message: SubscribeMessage<T>) => void } = {}) => {
-  const ws = new WebSocket(AppURL.websocketURL.client)
+  const ws = useMemo(() => new WebSocket(AppURL.websocketURL.client), [])
 
-  const sendMessage = (message: PublishMessage) => {
-    ws.send(JSON.stringify({ level: 'info', service: 'frontend', time: new Date().getTime() / 1000, ...message }))
-  }
+  /**
+   * websocket 메시지 전송 함수
+   *
+   * @default level 'info'
+   * @default service 'frontend'
+   * @default time new Date().getTime() / 1000
+   */
+  const sendMessage = useCallback(
+    (message: PublishMessage) => {
+      ws.send(JSON.stringify({ level: 'info', service: 'frontend', time: new Date().getTime() / 1000, ...message }))
+    },
+    [ws],
+  )
 
   useEffect(() => {
     ws.onmessage = (message: MessageEvent<string>) => {

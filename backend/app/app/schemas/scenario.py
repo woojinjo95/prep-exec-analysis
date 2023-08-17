@@ -1,41 +1,15 @@
 from typing import List, Optional
 
 from app.schemas.block import BlockGroup
-from pydantic import BaseModel
-
-
-class TestrunVideo(BaseModel):
-    created_at: float
-    path: str
-    name: str
-
-
-class TestrunRaw(BaseModel):
-    videos: Optional[List[TestrunVideo]]
-
-
-class TestrunAnalysis(BaseModel):
-    videos: Optional[List[TestrunVideo]]
-
-
-class Testrun(BaseModel):
-    dir: str
-    raw: TestrunRaw
-    analysis: TestrunAnalysis
-
-
-class ScenarioBase(BaseModel):
-    id: str
-    name: str
-    tags: Optional[List[str]]
-    updated_at: float
-    block_group: List[BlockGroup]
-    testrun: Testrun
+from pydantic import BaseModel, root_validator
+from pydantic.datetime_parse import parse_datetime
 
 
 class ScenarioCreate(BaseModel):
+    is_active: bool
     name: Optional[str]
     tags: Optional[List[str]]
+    block_group: Optional[List[BlockGroup]]
 
 
 class ScenarioUpdate(ScenarioCreate):
@@ -55,7 +29,13 @@ class ScenarioSummary(BaseModel):
     id: str
     name: str
     tags: Optional[List[str]]
-    updated_at: float
+    updated_at: str
+
+    @root_validator(pre=True)
+    def convert_timestamp_with_timezone(cls, values):
+        if "updated_at" in values:
+            values["updated_at"] = parse_datetime(values["updated_at"]).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        return values
 
 
 class ScenarioPage(BaseModel):
