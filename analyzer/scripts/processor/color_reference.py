@@ -45,7 +45,7 @@ def postprocess():
 def load_input() -> Dict:
     # load data format to db
     data = {
-        "path": "/app/workspace/video_0_2023-08-16T113959F685527.mp4",
+        "path": "/app/workspace/video_2023-08-04T152424F626855+0900_30.mp4",
         # "stat_path": "./data/workspace/testruns/2023-08-14T042445F738532/raw/videos/video_2023-08-14T181329F384025+0900_180.mp4_stat",
     }
     return {
