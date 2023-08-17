@@ -21,7 +21,17 @@ const MemoryChart: React.FC<MemoryChartProps> = ({ chartWidth, scaleX, startTime
   }, [cpuAndMemory])
 
   if (!memoryUsage) return <div />
-  return <AreaChart chartWidth={chartWidth} scaleX={scaleX} data={memoryUsage} minValue={0} maxValue={100} />
+  return (
+    <AreaChart
+      chartWidth={chartWidth}
+      scaleX={scaleX}
+      data={memoryUsage}
+      minValue={0}
+      maxValue={100}
+      strokeColor="#fa70d8"
+      fillColor="#fa70d8"
+    />
+  )
 }
 
 export default MemoryChart

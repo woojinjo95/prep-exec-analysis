@@ -10,8 +10,8 @@ import VarAnalysisResultSection from './components/VarAnalysisResultSection'
  * 분석 조회 페이지
  */
 const AnalysisPage: React.FC = () => {
-  const [startTime] = useState<Date>(new Date('2023-08-16T09:32:13'))
-  const [endTime] = useState<Date>(new Date('2023-08-17T03:09:42+00:00'))
+  const [startTime] = useState<Date>(new Date('2023-08-17T04:47:53.733Z'))
+  const [endTime] = useState<Date>(new Date('2023-08-17T05:47:53.733Z'))
 
   return (
     <PageContainer className="grid grid-cols-[65%_35%] grid-rows-[40%_25%_calc(35%-28px)_28px]">

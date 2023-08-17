@@ -15,13 +15,23 @@ interface CPUChartProps {
 const CPUChart: React.FC<CPUChartProps> = ({ chartWidth, scaleX, startTime, endTime }) => {
   const { cpuAndMemory } = useCPUAndMemory({ start_time: startTime.toISOString(), end_time: endTime.toISOString() })
 
-  const cpuUsage = useMemo(() => {
+  const cpuData = useMemo(() => {
     if (!cpuAndMemory) return null
     return cpuAndMemory.map(({ timestamp, cpu_usage }) => ({ date: new Date(timestamp), value: cpu_usage }))
   }, [cpuAndMemory])
 
-  if (!cpuUsage) return <div />
-  return <AreaChart chartWidth={chartWidth} scaleX={scaleX} data={cpuUsage} minValue={0} maxValue={100} />
+  if (!cpuData) return <div />
+  return (
+    <AreaChart
+      chartWidth={chartWidth}
+      scaleX={scaleX}
+      data={cpuData}
+      minValue={0}
+      maxValue={100}
+      strokeColor="#f29213"
+      fillColor="#f29213"
+    />
+  )
 }
 
 export default CPUChart

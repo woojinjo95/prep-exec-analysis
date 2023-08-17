@@ -6,6 +6,7 @@ import { CHART_HEIGHT } from '@global/constant'
 import HorizontalScrollBar from './components/HorizontalScrollBar'
 import CPUChart from './components/CPUChart'
 import MemoryChart from './components/MemoryChart'
+import EventLogChart from './components/EventLogChart'
 
 interface TimelineSectionProps {
   startTime: Date
@@ -52,7 +53,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
 
       <div className="grid grid-cols-[auto_1fr] grid-rows-1 overflow-y-auto overflow-x-hidden">
         <div className="w-48 z-10">
-          {['CPU', 'Memory'].map((title, index) => (
+          {['Event Log', 'CPU', 'Memory'].map((title, index) => (
             <div
               key={`timeline-chart-title-${title}-${index}`}
               className="border-b-[1px] border-light-charcoal bg-charcoal py-2 px-5"
@@ -67,6 +68,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
 
         {/* chart */}
         <div className="border-l-[0.5px] border-r-[0.5px] border-[#37383E]" ref={chartWrapperRef}>
+          <EventLogChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
           <CPUChart chartWidth={chartWidth} scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
           <MemoryChart chartWidth={chartWidth} scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
         </div>
