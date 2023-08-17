@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-export const useCreateVideo = ({ src, currentTime }: { src: string; currentTime: number }) => {
+export const useCreateVideo = ({ src, currentTime }: { src: string | null; currentTime: number }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [isLoadedVideo, setIsLoadedVideo] = useState<boolean>(false)
 
@@ -13,6 +13,8 @@ export const useCreateVideo = ({ src, currentTime }: { src: string; currentTime:
   )
 
   useEffect(() => {
+    if (!src) return undefined
+
     const video = document.createElement('video')
     video.src = src
     video.currentTime = currentTime

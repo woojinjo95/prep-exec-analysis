@@ -70,9 +70,10 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime, s
 
         {/* chart */}
         <div className="border-l-[0.5px] border-r-[0.5px] border-[#37383E]" ref={chartWrapperRef}>
-          {scenarioId && (
-            <VideoSnapshots src={`${AppURL.backendURL}/api/v1/file/video?scenario_id=${scenarioId}`} tickCount={10} />
-          )}
+          <VideoSnapshots
+            src={scenarioId ? `${AppURL.backendURL}/api/v1/file/video?scenario_id=${scenarioId}` : null}
+            tickCount={20}
+          />
           <EventLogChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
           <CPUChart chartWidth={chartWidth} scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
           <MemoryChart chartWidth={chartWidth} scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />

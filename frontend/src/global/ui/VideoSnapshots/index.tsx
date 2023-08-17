@@ -6,7 +6,7 @@ import { VIDEO_SNAPSHOT_HEIGHT } from '@global/ui/VideoSnapshots/constant'
 import VideoSnapshot from './components/VideoSnapshot'
 
 interface VideoSnapshotsProps {
-  src: string
+  src: string | null
   // TODO: startTime
   // TODO: endTime
   tickCount?: number
@@ -33,6 +33,7 @@ const VideoSnapshots: React.FC<VideoSnapshotsProps> = ({ src, tickCount = 10 }) 
       .range([0, divRef.current.clientWidth - videoSnapshotWidth])
   }, [isLoadedVideo])
 
+  if (!src) return <div />
   return (
     <div ref={divRef} className="relative" style={{ height: VIDEO_SNAPSHOT_HEIGHT }}>
       {scaleX?.ticks(tickCount).map((currentTime) => {
@@ -45,9 +46,6 @@ const VideoSnapshots: React.FC<VideoSnapshotsProps> = ({ src, tickCount = 10 }) 
           />
         )
       })}
-      {/* {range(0, 100, 10).map((num) => (
-        <VideoSnapshot key={`snapshot-${num}`} src={src} translateX={num * 6} />
-      ))} */}
     </div>
   )
 }
