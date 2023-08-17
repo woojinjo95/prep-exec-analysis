@@ -132,6 +132,7 @@ def read_scenarios(
     """
     Retrieve scenarios.
     """
+    # TODO 활성화된? 저장된? 시나리오만 조회
     return get_multi_or_paginate_by_res(col='scenario', page=page, page_size=page_size, sorting_keyword='name')
 
 
@@ -144,6 +145,7 @@ def create_scenario(
     Create new scenario.
     """
     try:
+        # TODO 포멧이 다름 2023-08-16T08:01:34.250132 -> 2023-08-16T08:12:02.635Z
         id = str(uuid.uuid4())
         dir = datetime.now().strftime("%Y-%m-%dT%H%M%SF%f")
         data = {'id': str(uuid.uuid4()),
@@ -179,7 +181,7 @@ def create_scenario(
                             set_redis_pub_msg(msg="stb_log",
                                               data={"control": "start"}))
 
-        # 로그 수집시작 메세지 전송
+        # 스트리밍 시작 메세지 전송
         RedisClient.publish('command',
                             set_redis_pub_msg(msg="streaming",
                                               data={"action": "start"}))
