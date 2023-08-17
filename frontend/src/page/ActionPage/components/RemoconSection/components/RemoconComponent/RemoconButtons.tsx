@@ -79,10 +79,6 @@ const RemoconButtons: React.FC<RemoconButtonsProps> = ({
                 leftTop.left * (dimension.buttonWidth / dimension.remoconImageWidth),
             }}
             onClick={() => {
-              console.log(
-                `{ "msg": "remocon_transmit", "data": { "key": "${code.code_name}", "type": "ir", "press_time": 0, "name": "${remocon.name}" } }`,
-              )
-
               ws.send(
                 `{ "msg": "remocon_transmit", "data": { "key": "${code.code_name}", "type": "ir", "press_time": 0, "name": "${remocon.name}" } }`,
               )

@@ -28,19 +28,19 @@ const validatePassword = (password?: string | null) => {
 
 const ConnectionTypes = ['adb', 'ssh'] as const
 type STBConnection = {
-  type?: NonNullable<HardwareConfiguration['stb_connection']>['type'] | null
-  ip?: NonNullable<HardwareConfiguration['stb_connection']>['ip'] | null
+  mode?: NonNullable<HardwareConfiguration['stb_connection']>['mode'] | null
+  host?: NonNullable<HardwareConfiguration['stb_connection']>['host'] | null
   port?: NonNullable<HardwareConfiguration['stb_connection']>['port'] | null
   username?: NonNullable<HardwareConfiguration['stb_connection']>['username'] | null
   password?: NonNullable<HardwareConfiguration['stb_connection']>['password'] | null
 }
-const DefaultSTBConnection = { type: null, ip: '', port: '', username: '', password: '' } as const
-const DefaultWarningMessage = { ip: '', port: '', username: '', password: '' } as const
+const DefaultSTBConnection = { mode: null, ip: '', port: '', username: '', password: '' } as const
+const DefaultWarningMessage = { host: '', port: '', username: '', password: '' } as const
 
 const DeviceInfo: React.FC = () => {
   const [stbConnection, setSTBConnection] = useState<STBConnection>(DefaultSTBConnection)
   const [warningMessage, setWarningMessage] = useState<{
-    ip: string
+    host: string
     port: string
     username: string
     password: string
@@ -50,8 +50,8 @@ const DeviceInfo: React.FC = () => {
     onSuccess: (data) => {
       setWarningMessage(DefaultWarningMessage)
       setSTBConnection({
-        type: data.stb_connection?.type,
-        ip: data.stb_connection?.ip,
+        mode: data.stb_connection?.mode,
+        host: data.stb_connection?.host,
         port: data.stb_connection?.port,
         username: data.stb_connection?.username,
         password: data.stb_connection?.password,
@@ -74,20 +74,20 @@ const DeviceInfo: React.FC = () => {
   })
 
   const onClickSubmit = () => {
-    const { type, ip, port, username, password } = stbConnection
-    if (!type) return
+    const { mode, host, port, username, password } = stbConnection
+    if (!mode) return
 
     const data: Partial<HardwareConfiguration['stb_connection']> =
-      type === 'adb' ? { type, ip, port } : { type, ip, port, username, password }
+      mode === 'adb' ? { mode, host, port } : { mode, host, port, username, password }
     let isNotValid = false
 
-    setWarningMessage((prev) => ({ ...prev, ip: validateIP(ip) }))
-    if (validateIP(ip)) isNotValid = true
+    setWarningMessage((prev) => ({ ...prev, host: validateIP(host) }))
+    if (validateIP(host)) isNotValid = true
 
     setWarningMessage((prev) => ({ ...prev, port: validatePort(port) }))
     if (validatePort(port)) isNotValid = true
 
-    if (type === 'ssh') {
+    if (mode === 'ssh') {
       setWarningMessage((prev) => ({ ...prev, username: validateUsername(username) }))
       if (validateUsername(username)) isNotValid = true
 
@@ -108,32 +108,32 @@ const DeviceInfo: React.FC = () => {
       <Divider />
 
       <div className="grid grid-cols-1 gap-y-4 px-1">
-        <Select colorScheme="charcoal" value={stbConnection.type || 'Type'}>
+        <Select colorScheme="charcoal" value={stbConnection.mode || 'Type'}>
           {ConnectionTypes.map((connectionType) => (
             <OptionItem
               colorScheme="charcoal"
-              key={`device-info-select-connection-type-${connectionType}`}
+              key={`device-info-select-connection-mode-${connectionType}`}
               onClick={() => {
-                if (stbConnection.type !== connectionType) {
-                  setSTBConnection({ ...DefaultSTBConnection, type: connectionType })
+                if (stbConnection.mode !== connectionType) {
+                  setSTBConnection({ ...DefaultSTBConnection, mode: connectionType })
                   setWarningMessage(DefaultWarningMessage)
                 }
               }}
-              isActive={connectionType === stbConnection.type}
+              isActive={connectionType === stbConnection.mode}
             >
               {connectionType}
             </OptionItem>
           ))}
         </Select>
 
-        {!!stbConnection.type && (
+        {!!stbConnection.mode && (
           <>
             <div className="grid grid-rows-1 grid-cols-[2fr_1fr] gap-x-2">
               <Input
                 placeholder="IP"
-                value={stbConnection.ip || ''}
-                onChange={(e) => setSTBConnection((prev) => ({ ...prev, ip: e.target.value }))}
-                warningMessage={warningMessage.ip}
+                value={stbConnection.host || ''}
+                onChange={(e) => setSTBConnection((prev) => ({ ...prev, host: e.target.value }))}
+                warningMessage={warningMessage.host}
               />
               <Input
                 placeholder="Port"
@@ -143,7 +143,7 @@ const DeviceInfo: React.FC = () => {
               />
             </div>
 
-            {stbConnection.type === 'ssh' && (
+            {stbConnection.mode === 'ssh' && (
               <>
                 <Input
                   placeholder="Username"
