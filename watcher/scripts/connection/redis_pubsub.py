@@ -56,7 +56,7 @@ def Subscribe(redis_client: StrictRedis, channel: str, stop_event: Event = Event
     while not stop_event.is_set():
         try:
             message = pubsub.get_message(ignore_subscribe_messages=True, timeout=None)
-            logger.debug(f'sub: {message}')
+            # logger.debug(f'sub: {message}')
             # message : {'type': 'message', 'pattern': None, 'channel': b'test', 'data': b'{"test": 1}'}
             if isinstance(message, dict):
                 payload = json.loads(message['data'])
