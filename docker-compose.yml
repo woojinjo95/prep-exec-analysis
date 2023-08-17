@@ -190,6 +190,18 @@ services:
     volumes:
       - ./shell/app:/app
       - "adb-rsa:/root/.android"
+
+  analyzer:
+    container_name: analyzer
+    restart: always
+    image: registry.dev-nextlab.com/qaas-analyzer:dev-0
+    command: python -u main.py
+    build:
+      context: ./analyzer
+      dockerfile: dockerfile
+    volumes:
+      - ./data/workspace:/app/workspace
+
 volumes:
   mongodb_data: {}
   redis_data: {}

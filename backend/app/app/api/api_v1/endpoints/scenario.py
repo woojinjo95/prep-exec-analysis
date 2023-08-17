@@ -4,9 +4,11 @@ import time
 import traceback
 import uuid
 from datetime import datetime
+from typing import Optional
 
 from app import schemas
-from app.api.utility import get_multi_or_paginate_by_res, set_redis_pub_msg
+from app.api.utility import (get_multi_or_paginate_by_res, get_utc_datetime,
+                             set_ilike, set_redis_pub_msg)
 from app.crud.base import (aggregate_from_mongodb, get_mongodb_collection,
                            insert_one_to_mongodb, load_by_id_from_mongodb,
                            update_by_id_to_mongodb)
@@ -89,14 +91,26 @@ def read_scenario_by_id(
             status_code=404, detail="The scenario with this id does not exist in the system.")
     try:
         # 워크스페이스 변경
-        workspace_path = RedisClient.hget('testrun', 'workspace_path')
         dir = scenario.get('testrun', {}).get('dir', 'null')
         RedisClient.hset('testrun', 'dir', dir)
         RedisClient.hset('testrun', 'scenario_id', scenario_id)
-        RedisClient.publish('command', set_redis_pub_msg(msg="workspace",
-                                                         data={"workspace_path": workspace_path,
-                                                               "testrun_dir": dir,
-                                                               "scenario_id": scenario_id}))
+
+        # 워크스페이스 변경 메세지 전송
+        RedisClient.publish('command',
+                            set_redis_pub_msg(msg="workspace",
+                                              data={"workspace_path": RedisClient.hget('testrun', 'workspace_path'),
+                                                    "testrun_dir": dir,
+                                                    "scenario_id": scenario_id}))
+
+        # 로그 수집시작 메세지 전송
+        RedisClient.publish('command',
+                            set_redis_pub_msg(msg="stb_log",
+                                              data={"control": "start"}))
+
+        # 스트리밍 시작 메세지 전송
+        RedisClient.publish('command',
+                            set_redis_pub_msg(msg="streaming",
+                                              data={"action": "start"}))
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'items': scenario}
@@ -112,10 +126,11 @@ def update_scenario(
     Update a scenario.
     """
     try:
-        res = update_by_id_to_mongodb(col='scenario',
-                                      id=scenario_id,
-                                      data={'block_group': jsonable_encoder(scenario_in.block_group),
-                                            "updated_at": time.time()})
+        update_by_id_to_mongodb(col='scenario',
+                                id=scenario_id,
+                                data={'is_active': scenario_in.is_active,
+                                      'updated_at': get_utc_datetime(time.time()),
+                                      'block_group': jsonable_encoder(scenario_in.block_group), })
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Update a scenario.'}
@@ -123,13 +138,28 @@ def update_scenario(
 
 @router.get("", response_model=schemas.ScenarioPage)
 def read_scenarios(
-    page: int = Query(None, ge=1, description="Page number"),
-    page_size: int = Query(None, ge=1, le=100, description="Page size")
+    page: int = Query(None, ge=1),
+    page_size: int = Query(None, ge=1, le=100),
+    name: Optional[str] = None,
+    tag: Optional[str] = None,
 ) -> schemas.ScenarioPage:
     """
     Retrieve scenarios.
     """
-    return get_multi_or_paginate_by_res(col='scenario', page=page, page_size=page_size, sorting_keyword='name')
+    try:
+        param = {'is_active': True}
+        if name:
+            param['name'] = set_ilike(name)
+        if tag:
+            param['tags'] = {'$elemMatch': set_ilike(tag)}
+        res = get_multi_or_paginate_by_res(col='scenario',
+                                        page=page,
+                                        page_size=page_size,
+                                        sorting_keyword='name',
+                                        param=param)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return res
 
 
 @router.post("", response_model=schemas.MsgWithId)
@@ -141,27 +171,26 @@ def create_scenario(
     Create new scenario.
     """
     try:
+        id = str(uuid.uuid4())
         dir = datetime.now().strftime("%Y-%m-%dT%H%M%SF%f")
-        scenario_in = schemas.ScenarioBase(
-            id=str(uuid.uuid4()),
-            updated_at=time.time(),
-            block_group=[],
-            name=scenario_in.name if scenario_in.name else time.time(),
-            tags=scenario_in.tags if scenario_in.tags else [],
-            testrun=schemas.Testrun(dir=dir,
-                                    raw=schemas.TestrunRaw(videos=[]),
-                                    analysis=schemas.TestrunAnalysis(videos=[])))
-        # 시나리오 등록
-        insert_one_to_mongodb(col='scenario', data=jsonable_encoder(scenario_in))
+        data = {'id': str(uuid.uuid4()),
+                'is_active': scenario_in.is_active,
+                'updated_at': get_utc_datetime(time.time()),
+                'block_group': jsonable_encoder(scenario_in.block_group) if scenario_in.block_group else [],
+                'name': scenario_in.name if scenario_in.name else str(time.time()),
+                'tags': scenario_in.tags if scenario_in.tags else [],
+                'testrun': {'dir': dir,
+                            'raw': {'videos': []},
+                            'analysis': {'videos': []}}}
 
-        # 워크스페이스 변경
-        RedisClient.hset('testrun', 'dir', dir)
-        RedisClient.hset('testrun', 'scenario_id', scenario_in.id)
+        # 시나리오 등록
+        insert_one_to_mongodb(col='scenario', data=data)
 
         # 폴더 생성
         path = f'/app/workspace/testruns/{dir}'
         os.makedirs(f'{path}/raw')
         os.makedirs(f'{path}/analysis')
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return {'msg': 'Create new scenario', 'id': scenario_in.id}
+    return {'msg': 'Create new scenario', 'id': id}

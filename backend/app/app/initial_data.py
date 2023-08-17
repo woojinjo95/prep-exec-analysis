@@ -63,6 +63,7 @@ def init() -> None:
             if key == 'analysis_config':
                 _key = f'analysis_config:{field}'
                 RedisClient.hsetnx(_key, 'is_active', 'false')
+                RedisClient.hsetnx(_key, 'color', '#000000')
                 for f, v in value.items():
                     RedisClient.hsetnx(_key, f, v)
             else:
