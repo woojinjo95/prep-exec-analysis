@@ -14,7 +14,7 @@ const TerminalShell: React.FC<TerminalShellProps> = ({ terminal, currentTerminal
 
   useWebsocket<ShellMessage>({
     onMessage: (msg) => {
-      if (msg.data && msg.msg === 'shell') {
+      if (msg.data && msg.msg === 'shell' && msg.service === 'shell') {
         const newHistory: History = {
           type: msg.data.data.module === 'stdin' ? 'command' : 'response',
           message: msg.data.data.message,
@@ -37,7 +37,7 @@ const TerminalShell: React.FC<TerminalShellProps> = ({ terminal, currentTerminal
             </Text>
           )}
 
-          <Text>{history.message}</Text>
+          <Text className="whitespace-pre">{history.message}</Text>
         </div>
       ))}
       <CommandInput terminal={terminal} />

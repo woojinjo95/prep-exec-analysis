@@ -35,4 +35,5 @@ export type SubscribeMessage<T> = {
   time: number
   msg: string
   data: T
+  service: string
 }
