@@ -4,7 +4,7 @@ from scripts.connection.redis_conn import get_strict_redis_connection
 from scripts.connection.redis_pubsub import Subscribe
 from scripts.config.constant import RedisChannel, RedisDB
 from scripts.log_service.log_organizer import LogOrganizer
-from .command import CommandExecutor
+from command import CommandExecutor
 
 
 logger = logging.getLogger('main')
