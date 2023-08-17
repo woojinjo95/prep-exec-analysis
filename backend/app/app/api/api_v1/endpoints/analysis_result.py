@@ -54,7 +54,8 @@ def get_data_of_cpu_and_memory(
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
         time_range_param = {'scenario_id': scenario_id,
-                            'timestamp': {'$gte': convert_iso_format(start_time), '$lte': convert_iso_format(end_time)}}
+                            'timestamp': {'$gte': convert_iso_format(start_time),
+                                          '$lte': convert_iso_format(end_time)}}
         cpu_and_memory = load_from_mongodb(col="stb_info", param=time_range_param, proj={'_id': 0})
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
@@ -76,9 +77,10 @@ def get_data_of_event_log(
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
         event_log_pipeline = [
-            {'$match': {'scenario_id': scenario_id, 
-                        'timestamp': {'$gte': convert_iso_format(start_time), '$lte': convert_iso_format(end_time)}}},
-            {'$project': {'_id': 0, 'lines': 1}}, 
+            {'$match': {'scenario_id': scenario_id,
+                        'timestamp': {'$gte': convert_iso_format(start_time),
+                                      '$lte': convert_iso_format(end_time)}}},
+            {'$project': {'_id': 0, 'lines': 1}},
             {'$unwind': {'path': '$lines'}},
             {'$replaceRoot': {'newRoot': '$lines'}}
         ]
@@ -100,11 +102,17 @@ def get_data_of_color_reference(
     """
     컬러 레퍼런스 데이터 조회
     """
-    if scenario_id is None:
-        scenario_id = RedisClient.hget('testrun', 'scenario_id')
-    color_reference_param = {'scenario_id': scenario_id,
-                             'timestamp': {'$gte': convert_iso_format(start_time), '$lte': convert_iso_format(end_time)}}
-    color_reference = load_from_mongodb(col="color_reference", param=color_reference_param, proj={'_id': 0, 'timestamp': 1, 'color_reference': 1})
+    try:
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        color_reference_param = {'scenario_id': scenario_id,
+                                 'timestamp': {'$gte': convert_iso_format(start_time),
+                                               '$lte': convert_iso_format(end_time)}}
+        color_reference = load_from_mongodb(col="color_reference",
+                                            param=color_reference_param,
+                                            proj={'_id': 0, 'timestamp': 1, 'color_reference': 1})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {"items": color_reference}
 
 
@@ -119,11 +127,14 @@ def get_data_of_freeze(
     """
     화면 멈춤 데이터 조회
     """
-    if scenario_id is None:
-        scenario_id = RedisClient.hget('testrun', 'scenario_id')
-    freeze_param = {'scenario_id': scenario_id,
-                    'timestamp': {'$gte': convert_iso_format(start_time), '$lte': convert_iso_format(end_time)}}
-    freeze = load_from_mongodb(col="freeze", param=freeze_param, proj={'_id': 0, 'timestamp': 1})
+    try:
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        freeze_param = {'scenario_id': scenario_id,
+                        'timestamp': {'$gte': convert_iso_format(start_time), '$lte': convert_iso_format(end_time)}}
+        freeze = load_from_mongodb(col="freeze", param=freeze_param, proj={'_id': 0, 'timestamp': 1})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {"items": freeze}
 
 
