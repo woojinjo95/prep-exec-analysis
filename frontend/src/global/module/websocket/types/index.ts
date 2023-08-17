@@ -17,14 +17,23 @@ interface RemoteControlMessage {
   data: { name?: string; type: 'ir' | 'bt' }
 }
 
+interface CommandMessage {
+  msg: 'shell'
+  data: {
+    command: string
+    shell_id: 1 | 2
+  }
+}
+
 export type PublishMessage = {
   level?: 'debug' | 'info' | 'warning' | 'error' | 'critical' | 'fatal'
   time?: number
-} & (RunScenarioMessage | StopScenarioMessage | OnOffControlMessage | RemoteControlMessage)
+} & (RunScenarioMessage | StopScenarioMessage | OnOffControlMessage | RemoteControlMessage | CommandMessage)
 
 export type SubscribeMessage<T> = {
   level: 'debug' | 'info' | 'warning' | 'error' | 'critical' | 'fatal'
   time: number
   msg: string
   data: T
+  service: string
 }
