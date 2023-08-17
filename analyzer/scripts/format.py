@@ -9,6 +9,11 @@ class VideoData:
     stat_path: str
 
 
+class CollecionName(Enum):
+    COLOR_REFERENCE = 'an_color_reference'
+    FREEZE = 'an_freeze'
+
+
 @dataclass
 class ReportData:
     scenario_id: str
@@ -24,8 +29,3 @@ class ColorReferenceReport(ReportData):
 @dataclass
 class FreezeReport(ReportData):
     freeze_type: str
-
-
-class CollecionName(Enum):
-    COLOR_REFERENCE = 'an_color_reference'
-    FREEZE = 'an_freeze'
