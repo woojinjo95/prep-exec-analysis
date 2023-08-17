@@ -1,9 +1,9 @@
-import json
 import logging
 import traceback
+from datetime import datetime
 
 from app import schemas
-from app.api.utility import parse_bytes_to_value, set_redis_pub_msg
+from app.api.utility import parse_bytes_to_value, set_redis_pub_msg, convert_iso_format
 from app.crud.base import aggregate_from_mongodb
 from app.db.redis_session import RedisClient
 from app.schemas.enum import ShellModeEnum
@@ -27,13 +27,14 @@ def get_shell_modes() -> schemas.ShellList:
 def get_shell_logs(
     shell_mode: ShellModeEnum,
     shell_id: str,
-    start_time: str = Query(..., description="ex.2009-02-13T23:31:30"),
-    end_time: str = Query(..., description="ex.2009-02-13T23:31:30"),
+    start_time: str = Query(..., description="ex.2009-02-13T23:31:30+00:00"),
+    end_time: str = Query(..., description="ex.2009-02-13T23:31:30+00:00"),
 ) -> schemas.ShellLogList:
     """
     터미널별 일정기간 로그 조회
     """
-    pipeline = [{'$match': {'time': {'$gte': start_time, '$lte': end_time}, 'mode': shell_mode.value, 'shell_id': shell_id}},
+    pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time), '$lte': convert_iso_format(end_time)},
+                            'mode': shell_mode.value, 'shell_id': shell_id}},
                 {'$project': {'_id': 0, 'lines': 1}},
                 {'$unwind': {'path': '$lines'}},
                 {'$group': {'_id': None, 'lines': {'$push': '$lines'}}}]

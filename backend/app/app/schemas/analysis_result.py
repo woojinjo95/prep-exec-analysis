@@ -1,10 +1,11 @@
 from typing import List
+from datetime import datetime
 
 from pydantic import BaseModel
 
 
 class LogLevelFinderBase(BaseModel):
-    timestamp: str
+    timestamp: datetime
     log_level: str
 
 
@@ -13,13 +14,24 @@ class LogLevelFinder(BaseModel):
 
 
 class CpuAndMemoryBase(BaseModel):
-    timestamp: str
-    cpu_usage: float
-    memory_usage: float
+    timestamp: datetime
+    cpu_usage: str
+    memory_usage: str
 
 
 class CpuAndMemory(BaseModel):
     items: List[CpuAndMemoryBase]
+
+
+class EventLogBase(BaseModel):
+    timestamp: datetime
+    service: str
+    msg: str
+    data: dict
+
+
+class EventLog(BaseModel):
+    items: List[EventLogBase]
 
 
 class ColorReferenceBase(BaseModel):
@@ -28,14 +40,6 @@ class ColorReferenceBase(BaseModel):
 
 class ColorReference(BaseModel):
     items: List[ColorReferenceBase]
-
-
-class EventLogBase(BaseModel):
-    pass
-
-
-class EventLog(BaseModel):
-    items: List[EventLogBase]
 
 
 class VideoAnalysisResultBase(BaseModel):
