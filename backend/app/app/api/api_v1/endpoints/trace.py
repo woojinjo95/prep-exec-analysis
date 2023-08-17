@@ -1,10 +1,10 @@
 import logging
-from datetime import datetime
+import traceback
 
 from app import schemas
 from app.api.utility import convert_iso_format
 from app.crud.base import aggregate_from_mongodb
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, HTTPException, Query
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -18,12 +18,15 @@ def read_logcat(
     """
     Logcat 로그 조회
     """
-    pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time), '$lte': convert_iso_format(end_time)}}},
-                {'$unwind': {'path': '$lines'}},
-                {'$group': {'_id': None, 'items': {'$push': '$lines'}}},
-                ]
-    aggregation_result = aggregate_from_mongodb(col='stb_log', pipeline=pipeline)
-    log_list = aggregation_result[0].get('items', []) if aggregation_result != [] else aggregation_result
+    try:
+        pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time), '$lte': convert_iso_format(end_time)}}},
+                    {'$unwind': {'path': '$lines'}},
+                    {'$group': {'_id': None, 'items': {'$push': '$lines'}}},
+                    ]
+        aggregation_result = aggregate_from_mongodb(col='stb_log', pipeline=pipeline)
+        log_list = aggregation_result[0].get('items', []) if aggregation_result != [] else aggregation_result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {"items": log_list}
 
 
@@ -35,10 +38,13 @@ def read_network(
     """
     Network 조회
     """
-    pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time), '$lte': convert_iso_format(end_time)}}},
-                {'$unwind': {'path': '$lines'}},
-                {'$group': {'_id': None, 'items': {'$push': '$lines'}}},
-                ]
-    aggregation_result = aggregate_from_mongodb(col='network', pipeline=pipeline)
-    log_list = aggregation_result[0].get('items', []) if aggregation_result != [] else aggregation_result
+    try:
+        pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time), '$lte': convert_iso_format(end_time)}}},
+                    {'$unwind': {'path': '$lines'}},
+                    {'$group': {'_id': None, 'items': {'$push': '$lines'}}},
+                    ]
+        aggregation_result = aggregate_from_mongodb(col='network', pipeline=pipeline)
+        log_list = aggregation_result[0].get('items', []) if aggregation_result != [] else aggregation_result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {"items": log_list}

@@ -1,9 +1,9 @@
 import logging
 import traceback
-from datetime import datetime
 
 from app import schemas
-from app.api.utility import parse_bytes_to_value, set_redis_pub_msg, convert_iso_format
+from app.api.utility import (convert_iso_format, parse_bytes_to_value,
+                             set_redis_pub_msg)
 from app.crud.base import aggregate_from_mongodb
 from app.db.redis_session import RedisClient
 from app.schemas.enum import ShellModeEnum
@@ -18,9 +18,13 @@ def get_shell_modes() -> schemas.ShellList:
     """
     터미널 목록
     """
-    pipeline = [{'$group': {'_id': {'mode': '$mode', 'shell_id': '$shell_id'}}},
-                {'$replaceRoot': {'newRoot': "$_id"}}]
-    return {'items': aggregate_from_mongodb(col="shell_log", pipeline=pipeline)}
+    try:
+        pipeline = [{'$group': {'_id': {'mode': '$mode', 'shell_id': '$shell_id'}}},
+                    {'$replaceRoot': {'newRoot': "$_id"}}]
+        res = aggregate_from_mongodb(col="shell_log", pipeline=pipeline)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return {'items': res}
 
 
 @router.get("/logs", response_model=schemas.ShellLogList)
@@ -33,13 +37,19 @@ def get_shell_logs(
     """
     터미널별 일정기간 로그 조회
     """
-    pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time), '$lte': convert_iso_format(end_time)},
-                            'mode': shell_mode.value, 'shell_id': shell_id}},
-                {'$project': {'_id': 0, 'lines': 1}},
-                {'$unwind': {'path': '$lines'}},
-                {'$group': {'_id': None, 'lines': {'$push': '$lines'}}}]
-    result = aggregate_from_mongodb(col="shell_log", pipeline=pipeline)
-    return {'items': result if result == [] else result[0]['lines']}
+    try:
+        pipeline = [{'$match':
+                     {'timestamp': {'$gte': convert_iso_format(start_time),
+                                    '$lte': convert_iso_format(end_time)},
+                      'mode': shell_mode.value, 'shell_id': shell_id}},
+                    {'$project': {'_id': 0, 'lines': 1}},
+                    {'$unwind': {'path': '$lines'}},
+                    {'$group': {'_id': None, 'lines': {'$push': '$lines'}}}]
+        result = aggregate_from_mongodb(col="shell_log", pipeline=pipeline)
+        res = result if result == [] else result[0]['lines']
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return {'items': res}
 
 
 @router.post("/connect", response_model=schemas.Msg)
