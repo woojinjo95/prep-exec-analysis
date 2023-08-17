@@ -11,6 +11,8 @@ interface AreaChartProps {
   data: AreaChartData
   minValue?: number
   maxValue?: number
+  strokeColor?: string
+  fillColor?: string
 }
 
 /**
@@ -18,7 +20,15 @@ interface AreaChartProps {
  *
  * TODO: resizing event
  */
-const AreaChart: React.FC<AreaChartProps> = ({ chartWidth, scaleX, data, minValue, maxValue }) => {
+const AreaChart: React.FC<AreaChartProps> = ({
+  chartWidth,
+  scaleX,
+  data,
+  minValue,
+  maxValue,
+  strokeColor,
+  fillColor,
+}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
 
   const scaleY: d3.ScaleLinear<number, number, never> | null = useMemo(
@@ -36,7 +46,16 @@ const AreaChart: React.FC<AreaChartProps> = ({ chartWidth, scaleX, data, minValu
   useEffect(() => {
     if (!chartRef.current || !chartWidth || !scaleX || !scaleY) return
 
-    const chart = new AreaChartGenerator(chartRef.current, data, chartWidth, CHART_HEIGHT, scaleX, scaleY)
+    const chart = new AreaChartGenerator(
+      chartRef.current,
+      data,
+      chartWidth,
+      CHART_HEIGHT,
+      scaleX,
+      scaleY,
+      strokeColor,
+      fillColor,
+    )
     chart.createChart()
   }, [chartWidth, scaleX, scaleY])
 
