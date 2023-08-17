@@ -90,7 +90,7 @@ class MakeVideo:
         self.end_time = self.start_time + interval if end_time is None else end_time is None
 
         self.workspace_info = get_value('testrun', db=RedisDBEnum.hardware)
-        scenario_dirname = str(self.workspace_info['dir'])
+        scenario_dirname = str(self.workspace_info['id'])
         output_path = os.path.join('/app/workspace/testruns', scenario_dirname, 'raw', 'videos')
         self.mounted_output_path = os.path.join(self.workspace_info['workspace_path'], scenario_dirname, 'raw', 'videos')
 

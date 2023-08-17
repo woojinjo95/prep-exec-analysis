@@ -11,7 +11,7 @@ from app.crud.base import (aggregate_from_mongodb, insert_one_to_mongodb,
                            load_from_mongodb)
 from app.db.redis_session import RedisClient
 from fastapi import APIRouter, File, HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -23,16 +23,14 @@ async def file_upload(
 ) -> schemas.MsgWithId:
     if file is None:
         raise HTTPException(status_code=400, detail="No upload file")
-    
     file_uuid = str(uuid4())
-    insert_one_to_mongodb(col='file', data={'file_id':file_uuid, "file_name":file.filename})
+    insert_one_to_mongodb(col='file', data={'file_id': file_uuid, "file_name": file.filename})
 
     file_dir = classify_file_type(file.filename)
     if not os.path.isdir(file_dir):
         os.mkdir(file_dir)
     with open(os.path.join(file_dir, file_uuid), 'wb') as f:
         f.write(file.file.read())
-    
     return {'msg': f'{file.filename} uploaded successfully',
             'id': file_uuid}
 
@@ -82,7 +80,9 @@ async def workspace_video_file_download(
         video_info = video_info[0]['videos'][0]
         video_file_path = video_info.get('path', '')
         video_file_path = video_file_path.replace('./data', '/app')
+        with open(video_file_path, "rb") as video:
+            headers = {'Accept-Ranges': 'bytes'}
+            return Response(video.read(), headers=headers, media_type="video/mp4")
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return FileResponse(path=video_file_path, media_type="video/mp4")
 

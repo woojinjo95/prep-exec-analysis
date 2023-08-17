@@ -91,15 +91,15 @@ def read_scenario_by_id(
             status_code=404, detail="The scenario with this id does not exist in the system.")
     try:
         # 워크스페이스 변경
-        dir = scenario.get('testrun', {}).get('dir', 'null')
-        RedisClient.hset('testrun', 'dir', dir)
+        testrun_id = scenario.get('testrun', {}).get('id', 'null')
+        RedisClient.hset('testrun', 'id', testrun_id)
         RedisClient.hset('testrun', 'scenario_id', scenario_id)
 
         # 워크스페이스 변경 메세지 전송
         RedisClient.publish('command',
                             set_redis_pub_msg(msg="workspace",
                                               data={"workspace_path": RedisClient.hget('testrun', 'workspace_path'),
-                                                    "testrun_dir": dir,
+                                                    "testrun_id": testrun_id,
                                                     "scenario_id": scenario_id}))
 
         # 로그 수집시작 메세지 전송
@@ -153,10 +153,10 @@ def read_scenarios(
         if tag:
             param['tags'] = {'$elemMatch': set_ilike(tag)}
         res = get_multi_or_paginate_by_res(col='scenario',
-                                        page=page,
-                                        page_size=page_size,
-                                        sorting_keyword='name',
-                                        param=param)
+                                           page=page,
+                                           page_size=page_size,
+                                           sorting_keyword='name',
+                                           param=param)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return res
@@ -171,15 +171,15 @@ def create_scenario(
     Create new scenario.
     """
     try:
-        id = str(uuid.uuid4())
-        dir = datetime.now().strftime("%Y-%m-%dT%H%M%SF%f")
-        data = {'id': str(uuid.uuid4()),
+        scenario_id = str(uuid.uuid4())
+        testrun_id = datetime.now().strftime("%Y-%m-%dT%H%M%SF%f")
+        data = {'id': scenario_id,
                 'is_active': scenario_in.is_active,
                 'updated_at': get_utc_datetime(time.time()),
                 'block_group': jsonable_encoder(scenario_in.block_group) if scenario_in.block_group else [],
                 'name': scenario_in.name if scenario_in.name else str(time.time()),
                 'tags': scenario_in.tags if scenario_in.tags else [],
-                'testrun': {'dir': dir,
+                'testrun': {'id': testrun_id,
                             'raw': {'videos': []},
                             'analysis': {'videos': []}}}
 
@@ -187,10 +187,10 @@ def create_scenario(
         insert_one_to_mongodb(col='scenario', data=data)
 
         # 폴더 생성
-        path = f'/app/workspace/testruns/{dir}'
+        path = f'/app/workspace/testruns/{testrun_id}'
         os.makedirs(f'{path}/raw')
         os.makedirs(f'{path}/analysis')
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return {'msg': 'Create new scenario', 'id': id}
+    return {'msg': 'Create new scenario', 'id': scenario_id}

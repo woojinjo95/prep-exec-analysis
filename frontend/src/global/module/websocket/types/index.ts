@@ -27,14 +27,30 @@ interface RemoconTransmitMessage {
   }
 }
 
+interface CommandMessage {
+  msg: 'shell'
+  data: {
+    command: string
+    shell_id: 1 | 2
+  }
+}
+
 export type PublishMessage = {
   level?: 'debug' | 'info' | 'warning' | 'error' | 'critical' | 'fatal'
   time?: number
-} & (RunScenarioMessage | StopScenarioMessage | OnOffControlMessage | RemoteControlMessage | RemoconTransmitMessage)
+} & (
+  | RunScenarioMessage
+  | StopScenarioMessage
+  | OnOffControlMessage
+  | RemoteControlMessage
+  | RemoconTransmitMessage
+  | CommandMessage
+)
 
 export type SubscribeMessage<T> = {
   level: 'debug' | 'info' | 'warning' | 'error' | 'critical' | 'fatal'
   time: number
   msg: string
   data: T
+  service: string
 }
