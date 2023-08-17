@@ -39,7 +39,6 @@ class COMMAND:
         return json.dumps(self.__dict__, default=str)
 
 
-
 def check_skip_message(raw: any):
     try:
         if raw is None:

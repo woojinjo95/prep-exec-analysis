@@ -1,11 +1,12 @@
 import os
+import copy
 import pymongo
 from bson.objectid import ObjectId
 
 
 MONGODB_USERNAME = os.getenv("MONGODB_USERNAME", "admin")
 MONGODB_PASSWORD = os.getenv("MONGODB_PASSWORD", ".nextlab6318!")
-MONGODB_SERVER = os.getenv("MONGODB_SERVER", "localhost")
+MONGODB_SERVER = os.getenv("MONGODB_SERVER", "192.168.1.45")
 MONGODB_PORT = os.getenv("MONGODB_PORT", 27017)
 MONGODB_NAME = os.getenv("MONGODB_NAME", "prep-exec-analysis")
 MONGODB_AUTHENTICATION_SOURCE = os.getenv("MONGODB_AUTHENTICATION_SOURCE", "admin")
@@ -43,18 +44,28 @@ def get_collection(collection=MONGODB_COLLECTION_NAME) -> pymongo.collection.Col
 #     repeat_cnt: int -> 신규 / 데이터구조가 아니라 실행시 반복 설정일 수 있음
 
 
-
 if __name__ == '__main__':
-    col: pymongo.collection.Collection = get_collection()
-    res = col.find_one({'_id': ObjectId('64d9bf3caeb91b6a6ef87810')})
+    # scenario: pymongo.collection.Collection = get_collection('scenario')
+    blockrun: pymongo.collection.Collection = get_collection('blockrun')
+    # res = col.find_one({'_id': ObjectId('64d9bf3caeb91b6a6ef87810')})
+    # res = scenario.find_one({'id': '5e731960-616a-436e-9cad-84fdbb39bbf4'})
 
-    exec_block_plan = []
-    for loop_cnt in range(res['repeat_cnt']):
-        print(f"name: {res['name']} loop_cnt: {loop_cnt}")
-        for block_group in res['block_group']:
-            for block_loop_cnt in range(block_group['repeat_cnt']):
-                for block_item in block_group['block']:
-                    print(f"block: {block_item['name']} block_loop_cnt: {block_loop_cnt}")
-                    exec_block_plan.append(block_item)
-    
-    print(len(exec_block_plan))
+
+
+    # # print(len(exec_block_plan))
+
+    # # # print(block['name'])
+    # blockrun.insert_one({
+    #     "testrun": '2023-08-14T054428F718593',
+    #     "scenario": "5e731960-616a-436e-9cad-84fdbb39bbf4",
+    #     "blocks": exec_block_plan
+    # })
+
+    res = blockrun.find_one({'scenario': '5e731960-616a-436e-9cad-84fdbb39bbf4'})
+    for block in res['blocks']:
+        print(block)
+        ret = blockrun.update_one(
+            { "scenario": '5e731960-616a-436e-9cad-84fdbb39bbf4', "blocks.idx": block['idx']},
+            { "$set": { "blocks.$.run": True}}
+        )
+        print(ret.matched_count)
