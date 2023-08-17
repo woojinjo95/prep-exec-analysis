@@ -13,7 +13,7 @@ import VarAnalysisResultSection from './components/VarAnalysisResultSection'
 const AnalysisPage: React.FC = () => {
   const [startTime] = useState<Date>(new Date('2023-08-17T04:47:53.733Z'))
   const [endTime] = useState<Date>(new Date('2023-08-17T05:00:53.733Z'))
-  const [scenarioId] = useState<string | null>('e8e15536-d3d5-4944-b39e-f91bda5e126f')
+  const [scenarioId] = useState<string | null>('4cfd0616-4f5c-4eac-8261-65147bdc63f5') // FIXME: 페이지 진입 시 설정되도록 변경필요
 
   useScenarios({
     onSuccess: (res) => {

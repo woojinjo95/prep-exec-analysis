@@ -1,7 +1,7 @@
 import React from 'react'
 import { Tabs } from '@global/ui'
 import SettingsAndControlsPanel from './components/SettingsAndControlsPanel'
-import TerminalPanel from './components/TerminalPanel'
+import TerminalPanel from './components/TerminalPanel/TerminalPanel'
 
 /**
  * 터미널 영역

@@ -56,3 +56,31 @@ export const putHardwareConfigurationSTBConnection = async (data: HardwareConfig
     throw er
   }
 }
+
+/**
+ * 터미널 - 쉘 연결
+ */
+export const postConnect = async () => {
+  try {
+    const result = await API.post<{ msg: string }>(apiUrls.connect)
+
+    return result.data
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
+/**
+ * 터미널 - 쉘 연결
+ */
+export const postDisconnect = async () => {
+  try {
+    const result = await API.post<{ msg: string }>(apiUrls.disconnect)
+
+    return result.data
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}

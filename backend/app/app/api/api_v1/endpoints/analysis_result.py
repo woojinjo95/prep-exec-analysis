@@ -108,7 +108,7 @@ def get_data_of_color_reference(
         color_reference_param = {'scenario_id': scenario_id,
                                  'timestamp': {'$gte': convert_iso_format(start_time),
                                                '$lte': convert_iso_format(end_time)}}
-        color_reference = load_from_mongodb(col="color_reference",
+        color_reference = load_from_mongodb(col="an_color_reference",
                                             param=color_reference_param,
                                             proj={'_id': 0, 'timestamp': 1, 'color_reference': 1})
     except Exception as e:
@@ -131,8 +131,9 @@ def get_data_of_freeze(
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
         freeze_param = {'scenario_id': scenario_id,
-                        'timestamp': {'$gte': convert_iso_format(start_time), '$lte': convert_iso_format(end_time)}}
-        freeze = load_from_mongodb(col="freeze", param=freeze_param, proj={'_id': 0, 'timestamp': 1})
+                        'timestamp': {'$gte': convert_iso_format(start_time),
+                                      '$lte': convert_iso_format(end_time)}}
+        freeze = load_from_mongodb(col="an_freeze", param=freeze_param, proj={'_id': 0, 'timestamp': 1})
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {"items": freeze}
