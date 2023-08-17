@@ -8,7 +8,7 @@ from scripts.connection.mongo_db.crud import insert_to_mongodb
 from scripts.connection.external import construct_report_data
 from scripts.config.config import get_setting_with_env
 from scripts.analysis.freeze_detect import FreezeDetector
-from scripts.format import FreezeReport, CollecionName
+from scripts.format import FreezeReport, CollectionName
 from scripts.connection.external import load_input, publish_msg
 
 logger = logging.getLogger('freeze_detect')
@@ -74,4 +74,4 @@ def report_output(additional_data: Dict):
         **additional_data,
     ).__dict__
     logger.info(f'insert {report} to db')
-    insert_to_mongodb(CollecionName.FREEZE.value, report)
+    insert_to_mongodb(CollectionName.FREEZE.value, report)

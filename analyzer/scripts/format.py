@@ -9,7 +9,7 @@ class VideoData:
     stat_path: str
 
 
-class CollecionName(Enum):
+class CollectionName(Enum):
     COLOR_REFERENCE = 'an_color_reference'
     FREEZE = 'an_freeze'
 
