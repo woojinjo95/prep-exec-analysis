@@ -145,12 +145,11 @@ def create_scenario(
     Create new scenario.
     """
     try:
-        # TODO 포멧이 다름 2023-08-16T08:01:34.250132 -> 2023-08-16T08:12:02.635Z
         id = str(uuid.uuid4())
         dir = datetime.now().strftime("%Y-%m-%dT%H%M%SF%f")
         data = {'id': str(uuid.uuid4()),
                 'updated_at': get_utc_datetime(time.time()),
-                'block_group': scenario_in.block_group if scenario_in.block_group else [],
+                'block_group': jsonable_encoder(scenario_in.block_group) if scenario_in.block_group else [],
                 'name': scenario_in.name if scenario_in.name else str(time.time()),
                 'tags': scenario_in.tags if scenario_in.tags else [],
                 'testrun': {'dir': dir,
@@ -158,7 +157,7 @@ def create_scenario(
                             'analysis': {'videos': []}}}
 
         # 시나리오 등록
-        insert_one_to_mongodb(col='scenario', data=jsonable_encoder(data))
+        insert_one_to_mongodb(col='scenario', data=data)
 
         # 폴더 생성
         path = f'/app/workspace/testruns/{dir}'
