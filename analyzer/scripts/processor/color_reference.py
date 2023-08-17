@@ -38,12 +38,12 @@ def postprocess():
 def load_input() -> Dict:
     # load data format to db
     data = {
-        "path": "./data/workspace/testruns/2023-08-14T042445F738532/raw/videos/video_2023-08-14T181329F384025+0900_180.mp4",
-        "stat_path": "./data/workspace/testruns/2023-08-14T042445F738532/raw/videos/video_2023-08-14T181329F384025+0900_180.mp4_stat",
+        "path": "/app/data/workspace/video_0_2023-08-16T113959F685527.mp4",
+        # "stat_path": "./data/workspace/testruns/2023-08-14T042445F738532/raw/videos/video_2023-08-14T181329F384025+0900_180.mp4_stat",
     }
     return {
         'video_path': data['path'],
-        'json_data': json.load(open(data['stat_path'], 'r'))
+        # 'json_data': json.load(open(data['stat_path'], 'r'))
     }
 
 
