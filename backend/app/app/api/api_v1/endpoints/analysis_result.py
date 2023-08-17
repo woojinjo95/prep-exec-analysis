@@ -53,6 +53,30 @@ def get_data_of_cpu_and_memory(
     return {"items": cpu_and_memory}
 
 
+# Event Log
+@router.get("/event_log", response_model=schemas.EventLog)
+def get_data_of_event_log(
+    scenario_id: Optional[str] = None,
+    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+):
+    """
+    이벤트 로그 데이터 조회
+    """
+    if scenario_id is None:
+        scenario_id = RedisClient.hget('testrun', 'scenario_id')
+    event_log_pipeline = [
+        {'$match': {'scenario_id': scenario_id, 
+                    'timestamp': {'$gte': convert_iso_format(start_time), '$lte': convert_iso_format(end_time)}}},
+        {'$project': {'_id': 0, 'lines': 1}}, 
+        {'$unwind': {'path': '$lines'}},
+        {'$replaceRoot': {'newRoot': '$lines'}}
+    ]
+    event_log = aggregate_from_mongodb(col='event_log', pipeline=event_log_pipeline)
+    return {"items": event_log}
+    # TODO: 리턴에 무엇이 필요한지 확인하여 불필요한 항목 덜어내기
+
+
 # Color Reference
 @router.get("/color_reference", response_model=schemas.ColorReference)
 def get_data_of_color_reference(
@@ -67,22 +91,6 @@ def get_data_of_color_reference(
         scenario_id = RedisClient.hget('testrun', 'scenario_id')
     color_reference = load_from_mongodb()
     return {"items": color_reference}
-
-
-# Event Log
-@router.get("/event_log", response_model=schemas.EventLog)
-def get_data_of_event_log(
-    scenario_id: Optional[str] = None,
-    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-):
-    """
-    이벤트 로그 데이터 조회
-    """
-    if scenario_id is None:
-        scenario_id = RedisClient.hget('testrun', 'scenario_id')
-    event_log = load_from_mongodb()
-    return {"items": event_log}
 
 
 # Video Analysis Result
