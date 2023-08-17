@@ -41,7 +41,9 @@ def detect_freeze():
             result = freeze_detector.update(frame, time.time())
             if result['detect']:
                 logger.info(f"freeze detected at {idx}")
-                report_output(result['freeze_type'])
+                report_output({
+                    'freeze_type': result['freeze_type']
+                })
 
             idx += 1
         
@@ -53,15 +55,10 @@ def detect_freeze():
         logger.warning(traceback.format_exc())
 
 
-def report_output(freeze_type: str):
-    report = construct_report(freeze_type).__dict__
+def report_output(additional_data: Dict):
+    report = FreezeReport(
+        **construct_report_data(),
+        **additional_data,
+    ).__dict__
     logger.info(f'insert {report} to db')
     insert_to_mongodb(CollecionName.FREEZE.value, report)
-
-
-def construct_report(freeze_type: str) -> FreezeReport:
-    report_data = construct_report_data()
-    return FreezeReport(
-        **report_data,
-        freeze_type=freeze_type
-    )
