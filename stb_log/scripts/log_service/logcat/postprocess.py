@@ -6,12 +6,9 @@ from typing import Dict, List, Tuple
 
 from scripts.connection.mongo_db.crud import insert_to_mongodb
 from scripts.util._timezone import get_utc_datetime
-from .db_connection import LogManagerDBConnection
-from scripts.config.mongo import get_scenario_info
+from scripts.connection.external import get_scenario_info
 
 logger = logging.getLogger('logcat')
-
-db_conn = LogManagerDBConnection()
 
 log_chunk_pattern = r"\[\s(?P<timestamp>\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})\s*(?P<pid>\d+)\s*:\s*(?P<tid>\d+)\s*(?P<log_level>[\w])\/(?P<module>.*)\s*\]\n(?P<message>.*)"
 

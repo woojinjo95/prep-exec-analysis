@@ -4,9 +4,9 @@ from typing import Dict
 
 from scripts.connection.mongo_db.crud import insert_to_mongodb
 from scripts.util._timezone import get_utc_datetime
+from scripts.connection.external import get_scenario_info
 from .cpu_info import parse_cpu_info
 from .memory_info import parse_memory_info
-from scripts.config.mongo import get_scenario_info
 
 
 logger = logging.getLogger('dumpsys')
