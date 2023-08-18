@@ -22,6 +22,7 @@ def detect_freeze():
         data = load_input()
         cap = cv2.VideoCapture(data['video_path'])
         fps = cap.get(cv2.CAP_PROP_FPS)
+        
         frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         logger.info(f'data load completed. video_path: {data["video_path"]}, fps: {fps}, frame count: {frame_count}')
         timestamps = data["json_data"]["data"]["timestamps"]
@@ -29,22 +30,7 @@ def detect_freeze():
         if frame_count != len(timestamps):
             raise Exception(f'frame count and timestamp length are not matched. frame count: {frame_count}, timestamp length: {len(timestamps)}')
 
-        sampling_rate = get_setting_with_env('FREEZE_DETECT_SKIP_FRAME', 6)
-        min_interval = get_setting_with_env('FREEZE_DETECT_MIN_INTERVAL', 5)
-        min_color_depth_diff = get_setting_with_env('FREEZE_DETECT_MIN_COLOR_DEPTH_DIFF', 10)
-        min_diff_rate = get_setting_with_env('FREEZE_DETECT_MIN_DIFF_RATE', 0.0001)
-        frame_stdev_thres = get_setting_with_env('FREEZE_DETECT_FRAME_STDEV_THRES', 0.01)
-
-        freeze_detector = FreezeDetector(
-            fps=fps,
-            sampling_rate=sampling_rate,
-            min_interval=min_interval,
-            min_color_depth_diff=min_color_depth_diff,
-            min_diff_rate=min_diff_rate,
-            frame_stdev_thres=frame_stdev_thres,
-        )
-
-        logger.info(f"start detect freeze. sampling rate: {sampling_rate}, min interval: {min_interval}, min color depth diff: {min_color_depth_diff}, min diff rate: {min_diff_rate}, frame stdev thres: {frame_stdev_thres}")
+        freeze_detector = set_freeze_detector(fps)
 
         for frame_index in range(frame_count):
             ret, frame = cap.read()
@@ -77,3 +63,23 @@ def report_output(additional_data: Dict):
     report = FreezeReport(**merged_data).__dict__
     logger.info(f'insert {report} to db')
     insert_to_mongodb(CollectionName.FREEZE.value, report)
+
+
+def set_freeze_detector(fps: float) -> FreezeDetector:
+    sampling_rate = get_setting_with_env('FREEZE_DETECT_SKIP_FRAME', 6)
+    min_interval = get_setting_with_env('FREEZE_DETECT_MIN_INTERVAL', 5)
+    min_color_depth_diff = get_setting_with_env('FREEZE_DETECT_MIN_COLOR_DEPTH_DIFF', 10)
+    min_diff_rate = get_setting_with_env('FREEZE_DETECT_MIN_DIFF_RATE', 0.0001)
+    frame_stdev_thres = get_setting_with_env('FREEZE_DETECT_FRAME_STDEV_THRES', 0.01)
+
+    freeze_detector = FreezeDetector(
+        fps=fps,
+        sampling_rate=sampling_rate,
+        min_interval=min_interval,
+        min_color_depth_diff=min_color_depth_diff,
+        min_diff_rate=min_diff_rate,
+        frame_stdev_thres=frame_stdev_thres,
+    )
+
+    logger.info(f"start detect freeze. sampling rate: {sampling_rate}, min interval: {min_interval}, min color depth diff: {min_color_depth_diff}, min diff rate: {min_diff_rate}, frame stdev thres: {frame_stdev_thres}")
+    return freeze_detector
