@@ -41,7 +41,7 @@ export const useScenarios = ({
  */
 export const useHardwareConfiguration = ({ onSuccess }: { onSuccess?: (data: HardwareConfiguration) => void } = {}) => {
   const { data, isLoading, refetch } = useQuery<HardwareConfiguration>(
-    ['hardware-configuration'],
+    ['hardware_configuration'],
     getHardwareConfiguration,
     {
       onSuccess,
