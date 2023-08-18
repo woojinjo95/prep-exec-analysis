@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "postinstall": "patch-package",
     "start:local": "vite --mode localhost",
     "start:dev": "vite --mode development",
     "start:prod": "vite --mode production",
@@ -49,6 +50,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.1",
     "framer-motion": "^10.12.21",
+    "patch-package": "^8.0.0",
     "postcss": "^8.4.25",
     "prettier": "^3.0.0",
     "sass": "^1.63.6",
