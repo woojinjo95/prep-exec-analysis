@@ -27,8 +27,7 @@ def postprocess(stop_event: Event, queue: Queue):
             insert_to_mongodb('stb_log', json_data)
             logger.info(f'insert datas to db')
         except Exception as err:
-            logger.warning(f'error in insert. Cause => {err}')
-            logger.warning(traceback.format_exc())
+            logger.warning(f'error in insert logcat data to db. Cause => {err}')
 
     logger.info(f"finish log postprocess")
 

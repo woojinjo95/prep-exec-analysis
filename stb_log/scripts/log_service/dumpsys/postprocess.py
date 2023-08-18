@@ -1,7 +1,5 @@
 import logging
-import re
 import time
-from apscheduler.schedulers.blocking import BlockingScheduler
 from typing import Dict
 
 from scripts.connection.mongo_db.crud import insert_to_mongodb
@@ -16,10 +14,12 @@ logger = logging.getLogger('dumpsys')
 
 def postprocess(connection_info: Dict):
     logger.info(f"start cpu and memory postprocess")
-
-    scheduler = BlockingScheduler()
-    scheduler.add_job(insert_to_db, 'interval', args=[connection_info], seconds=30)
-    scheduler.start()
+    while True:
+        time.sleep(30)
+        try:
+            insert_to_db(connection_info)
+        except Exception as err:
+            logger.warning(f'error in insert dumpsys data to db. Cause => {err}')
 
 
 def insert_to_db(connection_info: Dict):
