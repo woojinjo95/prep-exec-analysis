@@ -4,7 +4,19 @@ import { useHardwareConfiguration } from '@global/api/hook'
 import { Text } from '@global/ui'
 import { History, ShellMessage, Terminal } from '../../types'
 
-const CommandInput = ({ terminal, historys }: { terminal: Terminal; historys: History[] }): JSX.Element => {
+interface CommandInputProps {
+  terminal: Terminal
+  historys: History[]
+  isShellClicked: boolean
+  setIsShellClicked: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+const CommandInput: React.FC<CommandInputProps> = ({
+  terminal,
+  historys,
+  isShellClicked,
+  setIsShellClicked,
+}): JSX.Element => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
   const { sendMessage } = useWebsocket<ShellMessage>({
     onMessage: (msg) => {
@@ -30,11 +42,16 @@ const CommandInput = ({ terminal, historys }: { terminal: Terminal; historys: Hi
     }
   }, [commandHistory])
 
-  // useEffect(() => {
-  //   if (textareaRef.current) {
+  useEffect(() => {
+    if (!textareaRef.current) {
+      return
+    }
 
-  //   }
-  // }, [currentHistoryIdx])
+    if (isShellClicked) {
+      textareaRef.current.focus()
+      setIsShellClicked(false)
+    }
+  }, [isShellClicked])
 
   const handleResizeHeight = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (textareaRef.current) {
