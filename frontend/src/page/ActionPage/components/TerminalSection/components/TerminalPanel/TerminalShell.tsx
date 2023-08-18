@@ -30,17 +30,12 @@ const TerminalShell: React.FC<TerminalShellProps> = ({ terminal, currentTerminal
       {historys.map((history, idx) => (
         <div key={`history_${idx}_${terminal.id}`} className="flex">
           {/* 명령어 history면 CommandInput처럼 표기 */}
-          {history.type === 'command' && (
-            <Text className="whitespace-pre">
-              {`${terminal.id}: / $`}
-              {`    `}
-            </Text>
-          )}
+          {history.type === 'command' && <Text className="whitespace-pre mr-[10px]">{`${terminal.id}: / $`}</Text>}
 
           <Text className="whitespace-pre">{history.message}</Text>
         </div>
       ))}
-      <CommandInput terminal={terminal} />
+      <CommandInput terminal={terminal} historys={historys} />
     </div>
   )
 }
