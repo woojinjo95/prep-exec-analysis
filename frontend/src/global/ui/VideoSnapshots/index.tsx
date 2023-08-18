@@ -36,16 +36,17 @@ const VideoSnapshots: React.FC<VideoSnapshotsProps> = ({ src, tickCount = 10 }) 
   if (!src) return <div />
   return (
     <div ref={divRef} className="relative" style={{ height: VIDEO_SNAPSHOT_HEIGHT }}>
-      {scaleX?.ticks(tickCount).map((currentTime) => {
-        return (
-          <VideoSnapshot
-            key={`snapshot-${currentTime}`}
-            src={src}
-            currentTime={currentTime}
-            translateX={scaleX(currentTime)}
-          />
-        )
-      })}
+      {isLoadedVideo &&
+        scaleX?.ticks(tickCount).map((currentTime) => {
+          return (
+            <VideoSnapshot
+              key={`snapshot-${currentTime}`}
+              currentTime={currentTime}
+              translateX={scaleX(currentTime)}
+              videoRef={videoRef}
+            />
+          )
+        })}
     </div>
   )
 }
