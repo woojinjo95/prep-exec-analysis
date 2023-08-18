@@ -7,7 +7,7 @@ from typing import Dict, List, Tuple
 from scripts.connection.mongo_db.crud import insert_to_mongodb
 from scripts.util._timezone import get_utc_datetime
 from .db_connection import LogManagerDBConnection
-from scripts.config.mongo import get_scenario_id
+from scripts.config.mongo import get_scenario_info
 
 logger = logging.getLogger('logcat')
 
@@ -69,8 +69,10 @@ def LogBatchGenerator(queue: Queue):
 
 
 def construct_json_data(log_batch: List[Tuple[float, str]]) -> Dict:
+    scenario_info = get_scenario_info()
     return {
-        'scenario_id': get_scenario_id(),
+        'scenario_id': scenario_info['scenario_id'],
+        'testrun_id': scenario_info['testrun_id'],
         'timestamp': get_utc_datetime(log_batch[0]['timestamp'], remove_float_point=True),
         'lines': [{
             'timestamp': get_utc_datetime(log_chunk['timestamp']),
