@@ -117,7 +117,13 @@ def LogBatchGenerator(file_path: str, no_time_count_limit: int = 10000):
 
 def insert_to_db(file_path: str):
     scenario_id = get_scenario_id()
-    json_datas = [construct_json_data(log_batch, scenario_id) for log_batch in LogBatchGenerator(file_path)]
+    json_datas = []
+    for log_batch in LogBatchGenerator(file_path):
+        try:
+            json_datas.append(construct_json_data(log_batch, scenario_id))
+        except Exception as err:
+            logger.warning(err)
+
     logger.info(f'insert {len(json_datas)} datas to db')
     insert_many_to_mongodb('stb_log', json_datas)
 
