@@ -3,7 +3,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 # install fundamental
 RUN apt update 
-RUN apt install lsof ffmpeg -y 
+RUN apt install lsof net-tools tcpdump tshark ethtool traceroute iperf3 -y 
 
 # install pip & python
 RUN ln -s /usr/bin/python3 /usr/bin/python

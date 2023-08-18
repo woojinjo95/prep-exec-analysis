@@ -2,9 +2,12 @@ from ..connection.redis_connection import (get_strict_redis_connection,
                                            hget_value, hset_value)
 from .constant import RedisDBEnum
 
-settings = {'devices': {'serial_baud_rate': 115200,
-                        'ir_remocon_port': '/dev/ttyUSB1',
-                        'bt_remocon_port': '/dev/ttyUSB0'}}
+settings = {'network': {
+    'target_nic': 'enx00e09900866a',
+    'segment_interval': 10,
+    'rotation_interval': 1800,
+    'provider': 'sk',
+}}
 
 hardware_settings = {'hardware_configuration': {'ssh_port': 2345}}
 
