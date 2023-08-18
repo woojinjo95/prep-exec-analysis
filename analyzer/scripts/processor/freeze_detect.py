@@ -26,6 +26,8 @@ def detect_freeze():
         logger.info(f'data load completed. video_path: {data["video_path"]}, fps: {fps}, frame count: {frame_count}')
         timestamps = data["json_data"]["data"]["timestamps"]
         logger.info(f'json data timestamp length: {len(timestamps)}')
+        if frame_count != len(timestamps):
+            raise Exception(f'frame count and timestamp length are not matched. frame count: {frame_count}, timestamp length: {len(timestamps)}')
 
         sampling_rate = get_setting_with_env('FREEZE_DETECT_SKIP_FRAME', 6)
         min_interval = get_setting_with_env('FREEZE_DETECT_MIN_INTERVAL', 5)
