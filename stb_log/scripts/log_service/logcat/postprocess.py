@@ -5,7 +5,7 @@ import re
 import time
 import traceback
 from datetime import datetime
-from multiprocessing import Event
+from multiprocessing import Event, Queue
 from typing import Dict, List, Tuple, Union
 
 from scripts.connection.mongo_db.crud import insert_many_to_mongodb
@@ -21,34 +21,34 @@ log_prefix_pattern = r'<Collector:\s(\d+\.\d+)>'
 log_chunk_pattern = r"\[\s(?P<timestamp>\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})\s*(?P<pid>\d+)\s*:\s*(?P<tid>\d+)\s*(?P<log_level>[\w])\/(?P<module>.*)\s*\]\n(?P<message>.*)"
 
 
-def postprocess(log_type: str, stop_event: Event):
+def postprocess(log_type: str, stop_event: Event, queue: Queue):
     logger.info(f"start log postprocess")
-    completed_log_dir = os.path.join('datas', 'stb_logs', log_type, 'completed_logs')
-    os.makedirs(completed_log_dir, exist_ok=True)
 
-    while not stop_event.is_set():
-        try:
-            file_paths = sorted(glob.glob(os.path.join(completed_log_dir, '*.log')))
-            if len(file_paths) > 0:
-                postprocess_log(file_paths[0])
-        except Exception as e:
-            logger.info(traceback.format_exc())
-        finally:
-            time.sleep(1)
+    # while not stop_event.is_set():
+        # log_cell = queue.get()
+
+        # try:
+        #     file_paths = sorted(glob.glob(os.path.join(completed_log_dir, '*.log')))
+        #     if len(file_paths) > 0:
+        #         postprocess_log(file_paths[0])
+        # except Exception as e:
+        #     logger.info(traceback.format_exc())
+        # finally:
+        #     time.sleep(1)
     logger.info(f"finish log postprocess")
 
 
-def postprocess_log(file_path: str):
-    try:
-        with open(file_path, 'rb') as f:
-            logger.info(f'{file_path} try to postprocess.')
-            insert_to_db(file_path)
-            logger.info(f'{file_path} postprocess complete.')
-    except Exception as e:
-        logger.info(traceback.format_exc())
-    finally:
-        os.remove(file_path)
-        logger.info(f'{file_path} remove complete.')
+# def postprocess_log(file_path: str):
+#     try:
+#         with open(file_path, 'rb') as f:
+#             logger.info(f'{file_path} try to postprocess.')
+#             insert_to_db(file_path)
+#             logger.info(f'{file_path} postprocess complete.')
+#     except Exception as e:
+#         logger.info(traceback.format_exc())
+#     finally:
+#         os.remove(file_path)
+#         logger.info(f'{file_path} remove complete.')
 
 
 def parse_log_chunk(chunk: str) -> Dict:
@@ -60,22 +60,25 @@ def parse_log_chunk(chunk: str) -> Dict:
 
 
 def LogChunkGenerator(filename, delimiter_pattern) -> Tuple[str, Union[datetime, None]]:
-    with open(filename, 'r') as f:
-        buf = ""
-        while True:
-            match = re.search(delimiter_pattern, buf)
-            if match:
-                pos = match.start()
-                time_data = datetime.fromtimestamp(float(match.group(1)))
-                yield buf[:pos], time_data
-                buf = buf[match.end():]
-            else:
-                chunk = f.read(4096)
-                if not chunk:
-                    # end of file
-                    yield buf, None
-                    break
-                buf += chunk
+    while True:
+        chunk = queue.get()
+
+    # with open(filename, 'r') as f:
+    #     buf = ""
+    #     while True:
+    #         match = re.search(delimiter_pattern, buf)
+    #         if match:
+    #             pos = match.start()
+    #             time_data = datetime.fromtimestamp(float(match.group(1)))
+    #             yield buf[:pos], time_data
+    #             buf = buf[match.end():]
+    #         else:
+    #             chunk = f.read(4096)
+    #             if not chunk:
+    #                 # end of file
+    #                 yield buf, None
+    #                 break
+    #             buf += chunk
 
 
 def LogBatchGenerator(file_path: str, no_time_count_limit: int = 10000):

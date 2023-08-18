@@ -1,4 +1,4 @@
-from multiprocessing import Event
+from multiprocessing import Event, Queue
 import logging
 import time
 
@@ -17,6 +17,7 @@ class LogcatManager:
         self.local_stop_event = Event()
         self.log_collector = None
         self.log_postprocessor = None
+        self.log_queue = Queue()
 
     # Log Collector
     def __start_log_collector(self):
@@ -25,7 +26,8 @@ class LogcatManager:
             'command_script': 'logcat -c; logcat -v long',
             'log_type': self.log_type,
             'stop_event': self.local_stop_event,
-            }, daemon=True, revive_interval=10)
+            'queue': self.log_queue,
+        }, daemon=True, revive_interval=10)
         self.log_collector.start()
 
     # Log Postprocessor
@@ -33,12 +35,14 @@ class LogcatManager:
         self.log_postprocessor = ProcessMaintainer(target=postprocess, kwargs={
             'log_type': self.log_type,
             'stop_event': self.local_stop_event,
+            'queue': self.log_queue,
         }, daemon=True, revive_interval=10)
         self.log_postprocessor.start()
 
     # Control
     def start(self):
         self.local_stop_event.clear()
+        self.log_queue = Queue()
         self.__start_log_collector()
         self.__start_log_postprocessor()
         logger.info('LogcatManager start')
