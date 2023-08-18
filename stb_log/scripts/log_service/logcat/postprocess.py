@@ -122,10 +122,12 @@ def insert_to_db(file_path: str):
         try:
             json_datas.append(construct_json_data(log_batch, scenario_id))
         except Exception as err:
-            logger.warning(err)
-
-    logger.info(f'insert {len(json_datas)} datas to db')
-    insert_many_to_mongodb('stb_log', json_datas)
+            logger.warning(f'error in construct_json_data. Cause => {err}')
+    try:
+        insert_many_to_mongodb('stb_log', json_datas)
+        logger.info(f'insert {len(json_datas)} datas to db')
+    except Exception as err:
+        logger.warning(f'error in insert_many_to_mongodb. Cause => {err}')
 
 
 def construct_json_data(log_batch: List[Tuple[float, str]], scenario_id: str) -> Dict:
