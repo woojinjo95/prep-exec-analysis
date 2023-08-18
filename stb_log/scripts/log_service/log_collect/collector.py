@@ -12,10 +12,8 @@ from .config import CollectorConfig
 logger = logging.getLogger('collector')
 
 
-def put_log_cell(queue: Queue, line: str):
-    cur_time = time.time()
-    new_line = f'<Collector: {cur_time}> {line}'
-    queue.put(new_line)
+def put_log_cell(queue: Queue, cell: str):
+    queue.put((time.time(), cell))
 
 
 def collect(connection_info: dict, command_script: str, log_type: str, stop_event: Event, queue: Queue):
