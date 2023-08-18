@@ -13,7 +13,10 @@ logger = logging.getLogger('collector')
 
 
 def put_log_cell(queue: Queue, cell: str):
-    queue.put((time.time(), cell))
+    if queue.qsize() < CollectorConfig.LOG_QUEUE_MAX_SIZE:
+        queue.put((time.time(), cell))
+    else:
+        logger.warning(f"log queue is full. queue size: {queue.qsize()}")
 
 
 def collect(connection_info: dict, command_script: str, log_type: str, stop_event: Event, queue: Queue):
