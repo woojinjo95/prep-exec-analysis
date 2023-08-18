@@ -1,7 +1,5 @@
-import json
 import logging
 import traceback
-import uuid
 
 from app import schemas
 from app.api.utility import parse_bytes_to_value, set_redis_pub_msg
@@ -75,6 +73,8 @@ def delete_stb_connection() -> schemas.Msg:
     if not stb_connection:
         raise HTTPException(
             status_code=404, detail="The stb_connection does not exist in the system.")
-
-    RedisClient.delete('stb_connection')
+    try:
+        RedisClient.delete('stb_connection')
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Delete stb_connection.'}

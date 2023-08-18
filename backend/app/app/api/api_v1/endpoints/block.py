@@ -4,6 +4,7 @@ import traceback
 import uuid
 
 from app import schemas
+from app.api.utility import get_utc_datetime
 from app.crud.base import (delete_part_to_mongodb, get_mongodb_collection,
                            load_by_id_from_mongodb, load_from_mongodb,
                            update_by_id_to_mongodb, update_to_mongodb)
@@ -49,9 +50,10 @@ def create_block(
             new_last_block_group.append({"id": last_block_group.get('id', ''),
                                         "repeat_cnt": last_block_group.get('repeat_cnt', 0),
                                         "block": new_blocks})
-        res = update_by_id_to_mongodb(col='scenario',
-                                    id=scenario_id,
-                                    data={'block_group': new_last_block_group})
+        update_by_id_to_mongodb(col='scenario',
+                                id=scenario_id,
+                                data={'block_group': new_last_block_group,
+                                      'updated_at': get_utc_datetime(time.time())})
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Create new block', 'id': block_in.id}
@@ -75,7 +77,7 @@ def delete_blocks(
                             param={'id': scenario_id,
                                     'block_group.block': {'$size': 0}},
                             data={'block_group': {'block': {'$size': 0}}})
-        update_by_id_to_mongodb(col='scenario', id=scenario_id, data={"updated_at":time.time()})
+        update_by_id_to_mongodb(col='scenario', id=scenario_id, data={"updated_at":get_utc_datetime(time.time())})
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Delete blocks.'}
@@ -104,11 +106,11 @@ def update_block(
                     for key, value in jsonable_encoder(block_in).items() if value is not None}
 
         col = get_mongodb_collection('scenario')
-        res = col.update_one({"id": scenario_id, "block_group.block.id": block_id},
-                            {'$set': update_data},
-                            array_filters=[{"elem.id": block_id}],
-                            upsert=False)
-        update_by_id_to_mongodb(col='scenario', id=scenario_id, data={"updated_at":time.time()})
+        col.update_one({"id": scenario_id, "block_group.block.id": block_id},
+                        {'$set': update_data},
+                        array_filters=[{"elem.id": block_id}],
+                        upsert=False)
+        update_by_id_to_mongodb(col='scenario', id=scenario_id, data={"updated_at":get_utc_datetime(time.time())})
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Update a block', 'id': block_id}
@@ -137,10 +139,10 @@ def update_block_group(
     try:
         update_data = {f"block_group.$.{key}": value
                     for key, value in jsonable_encoder(block_group_in).items() if value is not None}
-        update_data['updated_at'] = time.time()
-        res = update_to_mongodb(col='scenario',
-                                param=param,
-                                data=update_data)
+        update_data['updated_at'] = get_utc_datetime(time.time())
+        update_to_mongodb(col='scenario',
+                        param=param,
+                        data=update_data)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Update a block_group', 'id': block_group_id}

@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
+import { AreaChartData } from '@global/types'
 import { useScale } from '../hook'
-import { AreaChartData } from '../types'
 
 /**
  * svg를 이용한 영역 차트 생성기
@@ -15,6 +15,8 @@ export class AreaChartGenerator {
     private height: number,
     private scaleX: NonNullable<ReturnType<typeof useScale>['scaleX']>,
     private scaleY: NonNullable<ReturnType<typeof useScale>['scaleY']>,
+    private strokeColor?: string,
+    private fillColor?: string,
   ) {}
 
   public createChart() {
@@ -82,7 +84,7 @@ export class AreaChartGenerator {
       .append('path')
       .datum(this.data)
       .attr('fill', 'none')
-      .attr('stroke', '#269')
+      .attr('stroke', this.strokeColor || '#269')
       .attr('stroke-width', 1)
       .attr('stroke-linejoin', 'round')
       .attr('stroke-linecap', 'round')
@@ -99,6 +101,11 @@ export class AreaChartGenerator {
       .x((d) => this.scaleX(d.date))
       .y0(this.scaleY(0))
       .y1((d) => this.scaleY(d.value))
-    this.svg.append('path').datum(this.data).attr('fill', 'steelblue').attr('opacity', '50%').attr('d', area)
+    this.svg
+      .append('path')
+      .datum(this.data)
+      .attr('fill', this.fillColor || 'steelblue')
+      .attr('opacity', '50%')
+      .attr('d', area)
   }
 }

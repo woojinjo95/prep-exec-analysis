@@ -75,3 +75,5 @@ class InsertToMongoDB:
             except Exception as e:
                 logger.error(f'Comsumeing log to upload mongodb failed: {e}')
                 logger.info(traceback.format_exc())
+                # drop too many erros
+                time.sleep(0.5)

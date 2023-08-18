@@ -9,7 +9,7 @@ from scripts.device.serial.serial_device import SerialDevice
 from scripts.utils._multi_process import ProcessUtil
 from scripts.utils.common import group_duplicated_value_in_dict
 
-from ...configs.config import get_value
+from ...configs.config import get_value, set_value
 from ...configs.constant import RedisChannel, RedisDBEnum
 from ...connection.redis_connection import (get_redis_key_list,
                                             get_strict_redis_connection)
@@ -60,7 +60,7 @@ class RemoconProcess(ProcessUtil):
 
     def set_remocon_model(self, remocon_name: str):
         if self.configs['remocon_name'] != remocon_name:
-            result = {'msg': 'remocon_name_response', 'data': {'name': remocon_name}}
+            result = {'msg': 'remocon_properties_response', 'data': {'name': remocon_name}}
             if self.load_remocon_commands_from_name(remocon_name):
                 self.configs['remocon_name'] = remocon_name
             else:
@@ -70,7 +70,18 @@ class RemoconProcess(ProcessUtil):
 
             publish(self.redis_connection, RedisChannel.command, result)
 
-    def put_command(self, key: str, _type: str = 'ir', code: str = '', sleep: float = 0, press_time: float = 0) -> str:
+    def set_default_remocon_type(self, remocon_type: str):
+        result = {'msg': 'remocon_properties_response', 'data': {'type': remocon_type}}
+        if remocon_type in self.remocon_types.keys():
+            set_value('hardware_configuration', 'remote_control_type', remocon_type, db=RedisDBEnum.hardware)
+        else:
+            result['data'].update({'type': get_value('hardware_configuration', 'remote_control_type', db=RedisDBEnum.hardware),
+                                   'log': f'{remocon_type} is not supported'})
+            result['level'] = 'error'
+
+        publish(self.redis_connection, RedisChannel.command, result)
+
+    def put_command(self, key: str, _type: str, code: str = '', sleep: float = 0, press_time: float = 0) -> str:
         if key.lower() not in self.remocon_commands:
             publish(self.redis_connection, RedisChannel.command, {'msg': 'remocon_response',
                                                                   'level': 'error',
@@ -80,6 +91,9 @@ class RemoconProcess(ProcessUtil):
                                                                            "log": f'{key} is not exist on list'}})
 
             return None
+
+        if _type == 'default':
+            _type = get_value('hardware_configuration', 'remote_control_type', db=RedisDBEnum.hardware)
 
         _id = f'{_type}_{perf_counter_ns()}'
 

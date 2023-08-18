@@ -19,8 +19,11 @@ def read_remocon() -> schemas.RemoconRead:
     """
     리모컨 조회
     """
-    remocon_list = [{k: parse_bytes_to_value(v) for k, v in RedisClient.hgetall(key).items()}
-                    for key in RedisClient.scan_iter(match='remocon:*')]
+    try:
+        remocon_list = [{k: parse_bytes_to_value(v) for k, v in RedisClient.hgetall(key).items()}
+                        for key in RedisClient.scan_iter(match='remocon:*')]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'items': remocon_list}
 
 

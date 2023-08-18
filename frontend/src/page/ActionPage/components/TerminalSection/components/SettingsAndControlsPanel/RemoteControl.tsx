@@ -1,22 +1,18 @@
 import React from 'react'
-import { useMutation } from 'react-query'
-import { useToast } from '@chakra-ui/react'
 
 import { ReactComponent as IRIcon } from '@assets/images/icon_remote_ir_w.svg'
 import { ReactComponent as BluetoothIcon } from '@assets/images/icon_remote_bt_w.svg'
 import { ButtonGroup, Divider, GroupButton, Title } from '@global/ui'
+import useWebsocket from '@global/module/websocket'
 import { useHardwareConfiguration } from '../../api/hook'
-import { putHardwareConfiguration } from '../../api/func'
 
 const RemoteControl: React.FC = () => {
-  const toast = useToast({ duration: 3000, isClosable: true })
   const { hardwareConfiguration, refetch } = useHardwareConfiguration()
-  const { mutate: updateHardwareConfiguration } = useMutation(putHardwareConfiguration, {
-    onSuccess: () => {
-      refetch()
-    },
-    onError: () => {
-      toast({ status: 'error', title: 'An error has occurred. Please try again.' })
+  const { sendMessage } = useWebsocket({
+    onMessage: (message) => {
+      if (message.msg === 'remocon_properties_response') {
+        refetch()
+      }
     },
   })
 
@@ -34,7 +30,7 @@ const RemoteControl: React.FC = () => {
           icon={<IRIcon />}
           onClick={() => {
             if (hardwareConfiguration?.remote_control_type === 'ir') return
-            updateHardwareConfiguration({ remote_control_type: 'ir' })
+            sendMessage({ msg: 'remocon_properties', data: { type: 'ir' } })
           }}
         >
           IR
@@ -44,7 +40,7 @@ const RemoteControl: React.FC = () => {
           icon={<BluetoothIcon />}
           onClick={() => {
             if (hardwareConfiguration?.remote_control_type === 'bluetooth') return
-            updateHardwareConfiguration({ remote_control_type: 'bluetooth' })
+            sendMessage({ msg: 'remocon_properties', data: { type: 'bluetooth' } })
           }}
         >
           Bluetooth
