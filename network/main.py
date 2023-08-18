@@ -42,6 +42,7 @@ def command_parser(command: dict, packet_capture_stop_event: Event):
         if action == 'start':
             state = 'capturing'
             if get_value('state', 'packet_capture') == 'idle':
+                set_value('state', 'packet_capture', 'capturing')
                 packet_capture_stop_event.clear()
                 real_time_packet_capture(packet_capture_stop_event)
                 log = 'Start packet capture service'
@@ -55,6 +56,7 @@ def command_parser(command: dict, packet_capture_stop_event: Event):
                 log_level = 'warning'
                 log = 'Already packet capture service stopped'
             else:
+                set_value('state', 'packet_capture', 'idle')
                 stop_capture()
                 packet_capture_stop_event.set()
                 log = 'Stop packet capture service'
@@ -94,6 +96,7 @@ if __name__ == '__main__':
         log_organizer.set_stream_logger('main')
         log_organizer.set_stream_logger('capture')
         log_organizer.set_stream_logger('analysis')
+        log_organizer.set_stream_logger('network_control')
         log_organizer.set_stream_logger('epg')
         log_organizer.set_stream_logger('file')
         log_organizer.set_stream_logger('connection')
