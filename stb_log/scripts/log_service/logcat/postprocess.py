@@ -57,14 +57,15 @@ def LogBatchGenerator(queue: Queue):
             logger.warning(f'Invalid log chunk: {chunk}')
             continue
 
+        if last_time is not None and int(log_time) != int(last_time): 
+            yield batches
+            batches = []
+
         batches.append({
             **parsed_chunk,
             'timestamp': log_time,
         })
         
-        if last_time is not None and int(log_time) != int(last_time): 
-            yield batches
-            batches = []
         last_time = log_time
 
 
