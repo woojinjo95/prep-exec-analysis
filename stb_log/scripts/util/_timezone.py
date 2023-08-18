@@ -1,6 +1,5 @@
 import datetime
 import pytz
-import re
 
 
 def timestamp_to_datetime_with_timezone_str(timestamp: float = 0, timezone: str = '', timedelta: float = 0, format: str = 'isoformat') -> str:
