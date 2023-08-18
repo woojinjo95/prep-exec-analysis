@@ -133,7 +133,7 @@ def get_data_of_freeze(
         freeze_param = {'scenario_id': scenario_id,
                         'timestamp': {'$gte': convert_iso_format(start_time),
                                       '$lte': convert_iso_format(end_time)}}
-        freeze = load_from_mongodb(col="an_freeze", param=freeze_param, proj={'_id': 0, 'timestamp': 1})
+        freeze = load_from_mongodb(col="an_freeze", param=freeze_param, proj={'_id': 0, 'timestamp': 1, 'freeze_type': 1})
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {"items": freeze}
