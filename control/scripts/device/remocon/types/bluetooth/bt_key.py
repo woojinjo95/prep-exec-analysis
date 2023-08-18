@@ -148,7 +148,26 @@ def powerkey(ser, keyname, duration):
 
 
 def _numberkey(ser, keyname, duration):
-    write_string(ser, keyname[-1])
+    if keyname == 'num1':
+        write(ser, MEDIAKeyCodes.KEY_MEDIA_NUM_1)
+    elif keyname == 'num2':
+        write(ser, MEDIAKeyCodes.KEY_MEDIA_NUM_2)
+    elif keyname == 'num3':
+        write(ser, MEDIAKeyCodes.KEY_MEDIA_NUM_3)
+    elif keyname == 'num4':
+        write(ser, MEDIAKeyCodes.KEY_MEDIA_NUM_4)
+    elif keyname == 'num5':
+        write(ser, MEDIAKeyCodes.KEY_MEDIA_NUM_5)
+    elif keyname == 'num6':
+        write(ser, MEDIAKeyCodes.KEY_MEDIA_NUM_6)
+    elif keyname == 'num7':
+        write(ser, MEDIAKeyCodes.KEY_MEDIA_NUM_7)
+    elif keyname == 'num8':
+        write(ser, MEDIAKeyCodes.KEY_MEDIA_NUM_8)
+    elif keyname == 'num9':
+        write(ser, MEDIAKeyCodes.KEY_MEDIA_NUM_9)
+    else:
+        write(ser, MEDIAKeyCodes.KEY_MEDIA_NUM_0)
 
 
 def _sharpkey(ser, keyname, duration):
