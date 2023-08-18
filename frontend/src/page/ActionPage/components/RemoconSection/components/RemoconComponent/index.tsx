@@ -38,7 +38,7 @@ const RemoconComponent: React.FC<RemoconProps> = ({ remocon, keyEvent }) => {
 
   return (
     <>
-      <div className="h-[calc(100%-30px)] grid grid-cols-2 grid-rows-1">
+      <div className="h-[calc(100%-62px)] grid grid-cols-2 grid-rows-1">
         <div className={cx('w-full h-full flex items-start overflow-y-auto relative', 'remocon-container')}>
           <img
             ref={remoconRef}
