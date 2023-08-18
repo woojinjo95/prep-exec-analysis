@@ -36,8 +36,6 @@ const RemoconComponent: React.FC<RemoconProps> = ({ remocon, keyEvent }) => {
     }
   }, [remocon.name, setIsRendered])
 
-  console.log(isLoadedRemoconImage)
-
   return (
     <>
       <div className="h-[calc(100%-30px)] grid grid-cols-2 grid-rows-1">

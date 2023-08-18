@@ -29,7 +29,7 @@ const RemoconSection: React.FC<RemoconSectionProps> = ({ keyEvent }) => {
           setSelectedRemocon(res[0])
         }
 
-        const newSelectedRemocon = res.find((remocon) => remocon.name === selectedRemocon!.name)
+        const newSelectedRemocon = res.find((remocon) => remocon.name === selectedRemocon?.name)
 
         if (newSelectedRemocon) {
           setSelectedRemocon(newSelectedRemocon)

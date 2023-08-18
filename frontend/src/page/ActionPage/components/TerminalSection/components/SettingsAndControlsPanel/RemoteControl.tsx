@@ -4,7 +4,7 @@ import { ReactComponent as IRIcon } from '@assets/images/icon_remote_ir_w.svg'
 import { ReactComponent as BluetoothIcon } from '@assets/images/icon_remote_bt_w.svg'
 import { ButtonGroup, Divider, GroupButton, Title } from '@global/ui'
 import useWebsocket from '@global/module/websocket'
-import { useHardwareConfiguration } from '../../api/hook'
+import { useHardwareConfiguration } from '@global/api/hook'
 
 const RemoteControl: React.FC = () => {
   const { hardwareConfiguration, refetch } = useHardwareConfiguration()

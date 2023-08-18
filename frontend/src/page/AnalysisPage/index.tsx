@@ -12,8 +12,8 @@ import VarAnalysisResultSection from './components/VarAnalysisResultSection'
  */
 const AnalysisPage: React.FC = () => {
   // TODO: rxjs? recoil? 고민
-  const [startTime] = useState<Date>(new Date('2023-08-16T04:47:53.733Z'))
-  const [endTime] = useState<Date>(new Date('2023-08-19T05:00:53.733Z'))
+  const [startTime] = useState<Date>(new Date('2023-08-17T08:33:51.733Z'))
+  const [endTime] = useState<Date>(new Date('2023-08-17T08:38:02.733Z'))
   const [scenarioId] = useState<string | null>('4cfd0616-4f5c-4eac-8261-65147bdc63f5') // FIXME: 페이지 진입 시 설정되도록 변경필요
 
   useScenarios({
