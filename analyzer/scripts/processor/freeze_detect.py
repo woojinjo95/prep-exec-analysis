@@ -64,9 +64,10 @@ def detect_freeze():
         logger.info(f"end detect_freeze process")
 
     except Exception as err:
-        publish_msg({'measurement': ['freeze']}, 'analysis_response', level='error')
+        error_detail = traceback.format_exc()
+        publish_msg({'measurement': ['freeze']}, error_detail, level='error')
         logger.error(f"error in detect_freeze postprocess: {err}")
-        logger.warning(traceback.format_exc())
+        logger.warning(error_detail)
 
 
 def report_output(additional_data: Dict):
