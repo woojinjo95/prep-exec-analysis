@@ -1,12 +1,10 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import useWebsocket from '@global/module/websocket'
-import { ShellMessage, Terminal } from '../../types'
+import { useHardwareConfiguration } from '@global/api/hook'
+import { Text } from '@global/ui'
+import { History, ShellMessage, Terminal } from '../../types'
 
-const CommandInput = ({
-  terminal, // sendMessage,
-}: {
-  terminal: Terminal
-}): JSX.Element => {
+const CommandInput = ({ terminal, historys }: { terminal: Terminal; historys: History[] }): JSX.Element => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
   const { sendMessage } = useWebsocket<ShellMessage>({
     onMessage: (msg) => {
@@ -16,37 +14,76 @@ const CommandInput = ({
     },
   })
 
-  const defaultValue = `${terminal.id}: / $    `
-  const [value, setValue] = useState<string>(defaultValue)
+  const { hardwareConfiguration } = useHardwareConfiguration()
 
-  const handleResizeHeight = () => {
+  const [value, setValue] = useState<string>('')
+
+  const commandHistory: string[] = useMemo(() => {
+    return historys.filter((history) => history.type === 'command').map((data) => data.message)
+  }, [historys])
+
+  const [currentHistoryIdx, setCurrentHistoryIdx] = useState<number>(0)
+
+  useEffect(() => {
+    if (commandHistory && commandHistory.length >= 1) {
+      setCurrentHistoryIdx(commandHistory.length)
+    }
+  }, [commandHistory])
+
+  // useEffect(() => {
+  //   if (textareaRef.current) {
+
+  //   }
+  // }, [currentHistoryIdx])
+
+  const handleResizeHeight = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (textareaRef.current) {
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`
 
-      setValue(defaultValue + textareaRef.current.value.substring(defaultValue.length))
+      setValue(e.currentTarget.value)
     }
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex">
+      <Text colorScheme="light" className="mr-[10px]">
+        {terminal.id} / ${' '}
+      </Text>
       <textarea
         onChange={handleResizeHeight}
         onKeyDown={(e) => {
-          if (e.key === 'Enter') {
+          if (e.key === 'Enter' && hardwareConfiguration && hardwareConfiguration.stb_connection) {
             sendMessage({
               msg: 'shell',
-              data: { command: `${value.substring(defaultValue.length)}`, shell_id: 2 },
+              data: {
+                command: `${value}`,
+                shell_id: hardwareConfiguration.stb_connection.mode === 'adb' ? 1 : 2,
+              },
             })
 
             if (textareaRef.current) {
               textareaRef.current.blur()
             }
 
-            setValue(defaultValue)
+            setValue('')
+          }
+
+          if (e.key === 'ArrowUp' && commandHistory) {
+            if (currentHistoryIdx !== 0) {
+              setValue(commandHistory[currentHistoryIdx - 1])
+              setCurrentHistoryIdx((prev) => prev - 1)
+            }
+          }
+
+          if (e.key === 'ArrowDown' && commandHistory) {
+            if (currentHistoryIdx !== commandHistory.length - 1) {
+              setValue(commandHistory[currentHistoryIdx + 1])
+              setCurrentHistoryIdx((prev) => prev + 1)
+            }
           }
         }}
         ref={textareaRef}
-        className="w-full whitespace-pre-wrap bg-transparent text-white border-none h-auto outline-none"
+        className="whitespace-pre-wrap bg-transparent text-white border-none h-auto outline-none flex-1"
         rows={1}
         value={value}
         // 크기 조절 ui 제거
