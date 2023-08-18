@@ -28,12 +28,14 @@ def construct_report_data() -> Dict:
 def load_input() -> Dict:
     # load data format to db
     data = {
-        "path": "/app/workspace/testruns/2023-08-17T082451F848091/raw/videos/video_2023-08-17T170801F542707+0900_1800.mp4",
-        "stat_path": "/app/workspace/testruns/2023-08-17T082451F848091/raw/videos/video_2023-08-17T170801F542707+0900_1800.mp4_stat",
+        "path": "/app/workspace/testruns/2023-08-14T054428F718593/raw/videos/video_2023-08-18T163309F381036+0900_1800.mp4",
+        "stat_path": "/app/workspace/testruns/2023-08-14T054428F718593/raw/videos/video_2023-08-18T163309F381036+0900_1800.mp4_stat",
     }
+    with open(data['stat_path'], 'r') as f:
+        json_data = json.load(f)
     return {
         'video_path': data['path'],
-        'json_data': json.load(open(data['stat_path'], 'r'))
+        'json_data': json_data
     }
 
 
