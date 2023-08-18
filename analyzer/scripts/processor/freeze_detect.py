@@ -10,6 +10,7 @@ from scripts.config.config import get_setting_with_env
 from scripts.analysis.freeze_detect import FreezeDetector
 from scripts.format import FreezeReport, CollectionName
 from scripts.connection.external import load_input, publish_msg
+from scripts.util._timezone import get_utc_datetime
 
 logger = logging.getLogger('freeze_detect')
 
@@ -21,8 +22,10 @@ def detect_freeze():
         data = load_input()
         cap = cv2.VideoCapture(data['video_path'])
         fps = cap.get(cv2.CAP_PROP_FPS)
-        logger.info(f'data load completed. video_path: {data["video_path"]}, fps: {fps}, frame count: {int(cap.get(cv2.CAP_PROP_FRAME_COUNT))}')
-        logger.info(f'json data timestamp length: {len(data["json_data"]["data"]["timestamps"])}')
+        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        logger.info(f'data load completed. video_path: {data["video_path"]}, fps: {fps}, frame count: {frame_count}')
+        timestamps = data["json_data"]["data"]["timestamps"]
+        logger.info(f'json data timestamp length: {len(timestamps)}')
 
         sampling_rate = get_setting_with_env('FREEZE_DETECT_SKIP_FRAME', 6)
         min_interval = get_setting_with_env('FREEZE_DETECT_MIN_INTERVAL', 5)
@@ -41,24 +44,21 @@ def detect_freeze():
 
         logger.info(f"start detect freeze. sampling rate: {sampling_rate}, min interval: {min_interval}, min color depth diff: {min_color_depth_diff}, min diff rate: {min_diff_rate}, frame stdev thres: {frame_stdev_thres}")
 
-        idx = 0
-        while True:
+        for frame_index in range(frame_count):
             ret, frame = cap.read()
             if not ret:
                 break
 
-            # if idx % 60*60*60*60 == 0:
-            #     logger.info(f'freeze detect heartbeat')
+            cur_time = timestamps[frame_index]
 
-            result = freeze_detector.update(frame, time.time())
+            result = freeze_detector.update(frame, cur_time)
             if result['detect']:
-                logger.info(f"freeze detected at {idx}")
+                logger.info(f"freeze detected at {frame_index}")
                 report_output({
-                    'freeze_type': result['freeze_type']
+                    'timestamp': get_utc_datetime(cur_time),
+                    'freeze_type': result['freeze_type'],
                 })
 
-            idx += 1
-        
         cap.release()
         publish_msg({'measurement': ['freeze']}, 'analysis_response')
         logger.info(f"end detect_freeze process")
@@ -70,9 +70,7 @@ def detect_freeze():
 
 
 def report_output(additional_data: Dict):
-    report = FreezeReport(
-        **construct_report_data(),
-        **additional_data,
-    ).__dict__
+    merged_data = {**construct_report_data(), **additional_data}
+    report = FreezeReport(**merged_data).__dict__
     logger.info(f'insert {report} to db')
     insert_to_mongodb(CollectionName.FREEZE.value, report)
