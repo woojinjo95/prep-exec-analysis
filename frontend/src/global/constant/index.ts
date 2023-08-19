@@ -17,3 +17,8 @@ export const PAGE_SIZE_TWENTY = 20
 export const PAGE_SIZE_FIFTEEN = 15
 export const PAGE_SIZE_TWELVE = 12
 export const PAGE_SIZE_TEN = 10
+
+/**
+ * AreaChart, PointChart 높이
+ */
+export const CHART_HEIGHT = 64

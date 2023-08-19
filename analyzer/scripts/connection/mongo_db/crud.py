@@ -1,7 +1,6 @@
 import pymongo
 from .config import Settings
 from typing import Dict, List
-from scripts.util.common import convert_to_dict
 
 
 def conn_mongodb():

@@ -17,6 +17,16 @@ interface RemoteControlMessage {
   data: { name?: string; type: 'ir' | 'bt' }
 }
 
+interface RemoconTransmitMessage {
+  msg: 'remocon_transmit'
+  data: {
+    key: string
+    type: 'ir' | 'bt'
+    press_time: number
+    name: string
+  }
+}
+
 interface CommandMessage {
   msg: 'shell'
   data: {
@@ -25,10 +35,36 @@ interface CommandMessage {
   }
 }
 
+interface AnalysisMessage {
+  msg: 'analysis'
+  data: {
+    measurement: (
+      | 'freeze'
+      | 'boot'
+      | 'channel_change_time'
+      | 'log_level_finder'
+      | 'log_pattern_matching'
+      | 'loudness'
+      | 'macroblock'
+      | 'network_filter'
+      | 'process_lifecycle_analysis'
+      | 'resume'
+    )[]
+  }
+}
+
 export type PublishMessage = {
   level?: 'debug' | 'info' | 'warning' | 'error' | 'critical' | 'fatal'
   time?: number
-} & (RunScenarioMessage | StopScenarioMessage | OnOffControlMessage | RemoteControlMessage | CommandMessage)
+} & (
+  | RunScenarioMessage
+  | StopScenarioMessage
+  | OnOffControlMessage
+  | RemoteControlMessage
+  | RemoconTransmitMessage
+  | CommandMessage
+  | AnalysisMessage
+)
 
 export type SubscribeMessage<T> = {
   level: 'debug' | 'info' | 'warning' | 'error' | 'critical' | 'fatal'
