@@ -1,13 +1,12 @@
 import { Button, Text } from '@global/ui'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
-import useWebsocket from '@global/module/websocket'
 import { useMutation } from 'react-query'
 import { useToast } from '@chakra-ui/react'
 import { useHardwareConfiguration } from '@global/api/hook'
-import TerminalShell from './TerminalShell'
-import { ShellMessage, Terminal } from '../../types'
-import { postConnect, postDisconnect } from '../../api/func'
+import TerminalShell from '@global/ui/Terminal/TerminalShell'
+import { Terminal } from '@global/types'
+import { postConnect, postDisconnect } from '@global/api/func'
 
 /**
  * Terminal 탭의 패널
@@ -19,8 +18,6 @@ const TerminalPanel: React.FC = () => {
   const [terminals, setTerminals] = useState<Terminal[]>([])
 
   const [currentTerminal, setCurrentTerminal] = useState<Terminal | null>(null)
-
-  const scrollContainerRef = useRef<HTMLDivElement | null>(null)
 
   const { hardwareConfiguration } = useHardwareConfiguration()
 
@@ -57,17 +54,9 @@ const TerminalPanel: React.FC = () => {
     }
   }, [terminals])
 
-  useWebsocket<ShellMessage>({
-    onMessage: (msg) => {
-      if (msg.data && msg.msg === 'shell' && msg.service === 'shell' && scrollContainerRef.current) {
-        scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight
-      }
-    },
-  })
-
   return (
     <div className="grid grid-cols-[4.5fr_1fr] h-full">
-      <div className="h-full overflow-y-auto" ref={scrollContainerRef}>
+      <div className="h-full min-h-full">
         {currentTerminal &&
           terminals &&
           terminals.map((terminal) => (
@@ -105,7 +94,23 @@ const TerminalPanel: React.FC = () => {
                   {terminal.mode} #{idx}
                 </Text>
                 <div className="flex">
-                  <TrashIcon className="h-5 w-5 mr-3 fill-white" />
+                  <TrashIcon
+                    className="h-5 w-5 mr-3 fill-white"
+                    onClick={() => {
+                      if (currentTerminal) {
+                        const width = 1000
+                        const height = 800
+                        const left = (window.innerWidth - width) / 2
+                        const top = (window.innerHeight - height) / 2
+                        const url = `/terminal?id=${currentTerminal.id}&mode=${currentTerminal.mode}`
+                        window.open(
+                          url,
+                          'test',
+                          `left=${left}, top=${top}, width=${width}, height=${height}, location=no, status=no, scrollbar=yes`,
+                        )
+                      }
+                    }}
+                  />
                   <TrashIcon
                     className="h-5 w-5 fill-white"
                     onClick={() => {
