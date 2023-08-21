@@ -1,7 +1,8 @@
 import datetime
+from typing import List, Dict
 
 
-res = {'items': [{'data': {'scenario_id': '5e731960-616a-436e-9cad-84fdbb39bbf4',
+event_result = {'items': [{'data': {'scenario_id': '5e731960-616a-436e-9cad-84fdbb39bbf4',
 'testrun_id': '2023-08-14T054428F718593',
 'workspace_path': './data/workspace/testruns'},
 'msg': 'workspace',
@@ -88,16 +89,20 @@ res = {'items': [{'data': {'scenario_id': '5e731960-616a-436e-9cad-84fdbb39bbf4'
 'timestamp': datetime.datetime(2023, 8, 21, 5, 36, 21, 515000)}]}
 
 
-remocon_times = []
-for item in res['items']:
-    service = item.get('service', '')
-    msg = item.get('msg', '')
-    data = item.get('data', {})
-    key = data.get('key', '')
-    if service == 'control' and msg == 'remocon_response' and key == 'Power':
-        try:
-            sensor_time = data['sensor_time']
-            remocon_times.append(sensor_time)
-        except KeyError:
-            pass
+def get_remocon_times(event_result: Dict) -> List[float]:
+    remocon_times = []
+    for item in event_result.get('items', []):
+        service = item.get('service', '')
+        msg = item.get('msg', '')
+        data = item.get('data', {})
+        key = data.get('key', '')
+        if service == 'control' and msg == 'remocon_response' and key == 'Power':
+            try:
+                sensor_time = data['sensor_time']
+                remocon_times.append(sensor_time)
+            except KeyError:
+                pass
+    return remocon_times
+
+remocon_times = get_remocon_times()
 print(f'remocon_times: {remocon_times}')
