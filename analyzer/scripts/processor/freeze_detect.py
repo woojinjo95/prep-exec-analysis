@@ -1,45 +1,38 @@
 import logging
-from typing import Dict
 import cv2
 import traceback
-import time
 
 from scripts.config.config import get_setting_with_env
 from scripts.analysis.freeze_detect import FreezeDetector
 from scripts.format import CollectionName
 from scripts.connection.external import load_input, report_output, publish_msg
 from scripts.util._timezone import get_utc_datetime
+from scripts.util.video import VideoCaptureContext
 
 logger = logging.getLogger('freeze_detect')
 
 
 def detect_freeze():
     try:
-        logger.info(f"start detect_freeze process")
-        
+        logger.info(f"start detect_freeze process")        
         args = load_input()
-        cap = cv2.VideoCapture(args.video_path)
-        fps = cap.get(cv2.CAP_PROP_FPS)
-        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
-        freeze_detector = set_freeze_detector(fps)
+        with VideoCaptureContext(args.video_path) as vc:
+            freeze_detector = set_freeze_detector(vc.fps)
+            for frame_index in range(vc.frame_count):
+                ret, frame = vc.cap.read()
+                if not ret:
+                    logger.warning(f"cannot read frame at {frame_index}")
+                    break
+                cur_time = args.timestamps[frame_index]
+                result = freeze_detector.update(frame, cur_time)
+                if result['detect']:
+                    logger.info(f"freeze detected at {frame_index}")
+                    report_output(CollectionName.FREEZE.value, {
+                        'timestamp': get_utc_datetime(cur_time),
+                        'freeze_type': result['freeze_type'],
+                    })
 
-        for frame_index in range(frame_count):
-            ret, frame = cap.read()
-            if not ret:
-                break
-
-            cur_time = args.timestamps[frame_index]
-
-            result = freeze_detector.update(frame, cur_time)
-            if result['detect']:
-                logger.info(f"freeze detected at {frame_index}")
-                report_output(CollectionName.FREEZE.value, {
-                    'timestamp': get_utc_datetime(cur_time),
-                    'freeze_type': result['freeze_type'],
-                })
-
-        cap.release()
         publish_msg({'measurement': ['freeze']}, 'analysis_response')
         logger.info(f"end detect_freeze process")
 
