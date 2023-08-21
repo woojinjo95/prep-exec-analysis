@@ -4,11 +4,15 @@ from typing import List, Dict
 
 from scripts.connection.mongo_db.crud import aggregate_from_mongodb
 from scripts.external.scenario import get_scenario_info
+from scripts.util._timezone import get_utc_datetime
 
 logger = logging.getLogger('connection')
 
 
-def get_data_of_event_log(start_time: datetime, end_time: datetime):
+def get_data_of_event_log(start_time: float, end_time: float):
+    start_time = get_utc_datetime(start_time)
+    end_time = get_utc_datetime(end_time)
+
     scenario_info = get_scenario_info()
     scenario_id = scenario_info['scenario_id']
     logger.info(f'get_data_of_event_log. scenario_id: {scenario_id}, start_time: {start_time}, end_time: {end_time}')
