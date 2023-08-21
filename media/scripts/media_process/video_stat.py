@@ -98,7 +98,7 @@ def summerize_merged_video_info(requested_start_time: float, output_json_path: s
     calculated_fps = last_video_info['frame_count'] / calculated_interval
 
     error_logging(primary_data, info, start_time, calculated_interval, calculated_fps)
-    info['timestamps'] += [round(start_time + idx / calculated_fps, 6) for idx in range(prev_info['frame_count'])]
+    info['timestamps'] += [round(start_time + idx / calculated_fps, 6) for idx in range(last_video_info['frame_count'])]
 
     # 비디오 평가
     first_video_time = info['timestamps'][0]
