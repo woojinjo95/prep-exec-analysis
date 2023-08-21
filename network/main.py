@@ -80,7 +80,6 @@ def command_parser(command: dict, packet_capture_stop_event: Event):
         provider = epg_args.get('provider', 'Unknown')
         ip = epg_args.get('ip')
         port = epg_args.get('port')
-        logger.info()
 
         get_epg_data_with_provider(provider, ip, port)
 
