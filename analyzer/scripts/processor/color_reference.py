@@ -16,10 +16,10 @@ logger = logging.getLogger('color_reference')
 def process():
     try:
         logger.info(f"start color_reference process")
-        data = load_input()
+        args = load_input()
         skip_frame = get_setting_with_env('COLOR_REFERENCE_SKIP_FRAME', 60)
         
-        cap = cv2.VideoCapture(data['video_path'])
+        cap = cv2.VideoCapture(args.video_path)
         logger.info(f"frame count: {cap.get(cv2.CAP_PROP_FRAME_COUNT)}")
 
         idx = 0

@@ -1,6 +1,7 @@
 from datetime import datetime
 from dataclasses import dataclass
 from enum import Enum
+from typing import List
 
 
 @dataclass
@@ -29,3 +30,9 @@ class ColorReferenceReport(ReportData):
 @dataclass
 class FreezeReport(ReportData):
     freeze_type: str
+
+
+@dataclass
+class InputData:
+    video_path: str
+    timestamps: List[float]

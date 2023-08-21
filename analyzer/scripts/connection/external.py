@@ -9,6 +9,7 @@ from scripts.util._timezone import get_utc_datetime
 from scripts.config.constant import RedisDB, RedisChannel
 from scripts.connection.redis_conn import get_strict_redis_connection
 from scripts.connection.redis_pubsub import publish
+from scripts.format import InputData
 
 
 logger = logging.getLogger('connection')
@@ -37,7 +38,7 @@ def load_data() -> Dict:
     }
 
 
-def load_input() -> Dict:
+def load_input() -> InputData:
     data = load_data()
 
     video_path = data['video_path']
@@ -54,10 +55,10 @@ def load_input() -> Dict:
     if frame_count != len(timestamps):
         raise Exception(f'frame count and timestamp length are not matched. frame count: {frame_count}, timestamp length: {len(timestamps)}')
 
-    return {
-        'video_path': video_path,
-        'timestamps': timestamps,
-    }
+    return InputData(
+        video_path=video_path,
+        timestamps=timestamps,
+    )
 
 
 def publish_msg(data: Dict, msg: str, level: str = 'info'):

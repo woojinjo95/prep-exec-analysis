@@ -19,11 +19,10 @@ def detect_freeze():
     try:
         logger.info(f"start detect_freeze process")
         
-        data = load_input()
-        cap = cv2.VideoCapture(data['video_path'])
+        args = load_input()
+        cap = cv2.VideoCapture(args.video_path)
         fps = cap.get(cv2.CAP_PROP_FPS)
         frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        timestamps = data["json_data"]["data"]["timestamps"]
 
         freeze_detector = set_freeze_detector(fps)
 
@@ -32,7 +31,7 @@ def detect_freeze():
             if not ret:
                 break
 
-            cur_time = timestamps[frame_index]
+            cur_time = args.timestamps[frame_index]
 
             result = freeze_detector.update(frame, cur_time)
             if result['detect']:
