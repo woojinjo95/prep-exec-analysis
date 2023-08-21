@@ -13,6 +13,7 @@ from scripts.log_organizer import LogOrganizer
 from scripts.packet_capture import real_time_packet_capture, stop_capture
 from scripts.utils._exceptions import handle_errors
 from scripts.epg.epg import get_epg_data_with_provider
+from scripts.control.emulation_function import apply_network_emulation_args
 
 
 logger = logging.getLogger('main')
@@ -29,6 +30,8 @@ def command_parser(command: dict, packet_capture_stop_event: Event):
     ''' 
     publish command '{"msg": "packet_capture", "data": {"action": "start"}}'
     publish command '{"msg": "epg_update", "data": {"provider": "sk", "ip": "239.192.60.43", "port": 49200}}'
+    publish command '{"msg": "network_emulation", "data": {"action": "start"}}'
+    publish command '{"msg": "network_emulation", "data": {"args": {}}}'
     '''
 
     if command.get('msg') == 'packet_capture':
@@ -79,6 +82,10 @@ def command_parser(command: dict, packet_capture_stop_event: Event):
         logger.info()
 
         get_epg_data_with_provider(provider, ip, port)
+
+    if command.get('msg') == 'network_emulation':
+        network_emulation_args = command.get('data', {})
+        apply_network_emulation_args(network_emulation_args)
 
 
 @handle_errors
