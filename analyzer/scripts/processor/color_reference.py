@@ -5,7 +5,8 @@ import traceback
 from scripts.analysis.color_reference import calc_color_entropy
 from scripts.config.config import get_setting_with_env
 from scripts.format import CollectionName
-from scripts.connection.external import load_input, report_output
+from scripts.external.data import load_input
+from scripts.external.report import report_output
 
 logger = logging.getLogger('color_reference')
 
