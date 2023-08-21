@@ -51,7 +51,7 @@ const CommandInput: React.FC<CommandInputProps> = ({
       textareaRef.current.focus()
       setIsShellClicked(false)
     }
-  }, [isShellClicked])
+  }, [isShellClicked, setIsShellClicked])
 
   const handleResizeHeight = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (textareaRef.current) {
