@@ -3,9 +3,9 @@ import { useMutation } from 'react-query'
 
 import { Button, Divider, Input, OptionItem, Select, Title } from '@global/ui'
 import { IPRegex } from '@global/constant'
-import { useHardwareConfiguration } from '../../api/hook'
+import { HardwareConfiguration } from '@global/api/entity'
+import { useHardwareConfiguration } from '@global/api/hook'
 import { putHardwareConfigurationSTBConnection } from '../../api/func'
-import { HardwareConfiguration } from '../../api/entity'
 
 const validateIP = (ip?: string | null) => {
   if (!ip) return 'Enter IP.'

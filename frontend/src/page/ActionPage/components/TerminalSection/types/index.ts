@@ -1,5 +1,6 @@
 export interface Terminal {
   id: string
+  mode: 'adb' | 'ssh'
 }
 
 export interface History {
