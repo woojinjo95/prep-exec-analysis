@@ -1,6 +1,7 @@
 import React from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { ChakraProvider } from '@chakra-ui/react'
+import { RecoilRoot } from 'recoil'
 import PageRouter from './router'
 
 /**
@@ -17,9 +18,11 @@ const client = new QueryClient({
 const App: React.FC = () => {
   return (
     <QueryClientProvider client={client}>
-      <ChakraProvider>
-        <PageRouter />
-      </ChakraProvider>
+      <RecoilRoot>
+        <ChakraProvider>
+          <PageRouter />
+        </ChakraProvider>
+      </RecoilRoot>
     </QueryClientProvider>
   )
 }

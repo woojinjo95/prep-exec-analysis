@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Text } from '@global/ui'
 import useWebsocket from '@global/module/websocket'
-import { History, ShellMessage, Terminal } from '../../types'
+import { History, ShellMessage, Terminal } from '@global/types'
 import CommandInput from './CommandInput'
 
 interface TerminalShellProps {
@@ -13,6 +13,8 @@ const TerminalShell: React.FC<TerminalShellProps> = ({ terminal, currentTerminal
   const [historys, setHistorys] = useState<History[]>([])
 
   const [isShellClicked, setIsShellClicked] = useState<boolean>(false)
+
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null)
 
   useWebsocket<ShellMessage>({
     onMessage: (msg) => {
@@ -27,14 +29,21 @@ const TerminalShell: React.FC<TerminalShellProps> = ({ terminal, currentTerminal
     },
   })
 
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight
+    }
+  }, [historys])
+
   return (
     <div
-      className="w-full h-full flex flex-col"
+      className="w-full h-full flex flex-col overflow-y-auto"
       style={{ display: currentTerminal.id !== terminal.id ? 'none' : '' }}
       onClick={(e) => {
         setIsShellClicked(true)
         e.preventDefault()
       }}
+      ref={scrollContainerRef}
     >
       {historys.map((history, idx) => (
         <div key={`history_${idx}_${terminal.id}`} className="flex">
