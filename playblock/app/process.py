@@ -5,8 +5,8 @@ import copy
 import json
 import datetime
 from sub.message import check_skip_message
-from playblock.app.sub.config import get_redis_pool, CHANNEL_NAME 
-from sub.mongodb import get_collection
+from playblock.app.sub.db import get_redis_pool, CHANNEL_NAME
+from sub.db import get_collection
 
 logger = logging.getLogger(__name__)
 
@@ -30,11 +30,14 @@ async def consumer_handler(conn: any, db_scenario: any, db_blocks: any, CHANNEL_
                 state = await conn.hget("testrun", "state")
                 if state == "run" or state is None:
                     # 이미 동작 수행중으로 보이면 무시함
+                    print("already running block")
                     continue
 
                 scenario_id = message['data']['scenario_id']
                 scenario_id = '5e731960-616a-436e-9cad-84fdbb39bbf4'  # test code
-                testrun_id = '2023-08-14T054428F718593'
+
+                testrun_id = message['data']['testrun_id']
+                testrun_id = '2023-08-14T054428F718593'  # test code
                 res = await db_scenario.find_one({'id': scenario_id})
 
                 blocks = []
@@ -46,7 +49,7 @@ async def consumer_handler(conn: any, db_scenario: any, db_blocks: any, CHANNEL_
                     print(f"name: {res['name']} loop_cnt: {loop_cnt}")
                     for block_group in res['block_group']:  # 개별 블록그룹 루프
                         for block_loop_cnt in range(block_group['repeat_cnt']):
-                            for block_item in block_group['block']:  # 그룹내 아이템 루프 
+                            for block_item in block_group['block']:  # 그룹내 아이템 루프
                                 _block_item = copy.deepcopy(block_item)
                                 print(f"block: {idx} / {_block_item['name']} block_loop_cnt: {block_loop_cnt}")
                                 _block_item['run'] = False
@@ -90,7 +93,7 @@ async def process_handler(conn: any, db_blocks: any, CHANNEL_NAME: str):
                 })
                 for block in testrun:
                     print(block)
-                    # 여기서 블럭 메시지 수행하면 됨. 
+                    # 여기서 블럭 메시지 수행하면 됨.
                     # 메시지 송신 -> 일단은 리모콘 메시지 1종만
                     message = json.dumps({
                         "msg": "remocon_transmit",
@@ -107,9 +110,9 @@ async def process_handler(conn: any, db_blocks: any, CHANNEL_NAME: str):
                     await asyncio.sleep(delay_time / 1000)
                     print("wait... message response")
                     # 완료 처리
-                    ret = db_blocks.update_one(
-                        { "scenario": scenario_id, "blocks.idx": block['idx']},
-                        { "$set": { "blocks.$.run": True}}
+                    db_blocks.update_one(
+                        {"scenario": scenario_id, "blocks.idx": block['idx']},
+                        {"$set": {"blocks.$.run": True}}
                     )
             await asyncio.sleep(1)  # 수행 루프는 1초 단위로
         except Exception as e:

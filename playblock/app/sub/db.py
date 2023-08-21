@@ -1,8 +1,17 @@
+
+
 import os
+import asyncio
+import redis.asyncio as redis
 import copy
 import pymongo
 from bson.objectid import ObjectId
 
+REDIS_HOST = os.getenv("REDIS_HOST", "192.168.1.45")
+REDIS_PORT = os.getenv("REDIS_PORT", 6379)
+REDIS_DB = os.getenv("REDIS_DB", 0)
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", '66b44dcb7f981904f8536b19e4464725')
+CHANNEL_NAME = os.getenv("CHANNEL_NAME", 'command')
 
 MONGODB_USERNAME = os.getenv("MONGODB_USERNAME", "admin")
 MONGODB_PASSWORD = os.getenv("MONGODB_PASSWORD", ".nextlab6318!")
@@ -13,6 +22,10 @@ MONGODB_AUTHENTICATION_SOURCE = os.getenv("MONGODB_AUTHENTICATION_SOURCE", "admi
 
 MONGODB_COLLECTION_NAME = os.getenv("MONGODB_COLLECTION_NAME", "scenario")
 
+
+async def get_redis_pool():
+    return await redis.Redis(
+        host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, password=REDIS_PASSWORD, decode_responses=True)
 
 def conn_mongodb():
     client = pymongo.MongoClient(
@@ -69,3 +82,13 @@ if __name__ == '__main__':
             { "$set": { "blocks.$.run": True}}
         )
         print(ret.matched_count)
+
+
+# async def main():
+#     rd = await redis.Redis(
+#         host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, password=REDIS_PASSWORD, decode_responses=True)
+
+#     print(await rd.hgetall("testrun"))
+
+
+# asyncio.run(main())
