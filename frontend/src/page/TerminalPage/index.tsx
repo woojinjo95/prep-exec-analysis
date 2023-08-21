@@ -4,7 +4,7 @@ import { Terminal } from '@global/types'
 import { useSearchParams } from 'react-router-dom'
 
 /**
- * Terminal 탭의 패널
+ * Terminal pop up page
  */
 
 const TerminalPage: React.FC = () => {

@@ -7,6 +7,7 @@ import { useHardwareConfiguration } from '@global/api/hook'
 import TerminalShell from '@global/ui/Terminal/TerminalShell'
 import { Terminal } from '@global/types'
 import { postConnect, postDisconnect } from '@global/api/func'
+import PagePath from '@global/constant/pagePath'
 
 /**
  * Terminal 탭의 패널
@@ -102,7 +103,7 @@ const TerminalPanel: React.FC = () => {
                         const height = 800
                         const left = (window.innerWidth - width) / 2
                         const top = (window.innerHeight - height) / 2
-                        const url = `/terminal?id=${currentTerminal.id}&mode=${currentTerminal.mode}`
+                        const url = `${PagePath.terminal}?id=${currentTerminal.id}&mode=${currentTerminal.mode}`
                         window.open(
                           url,
                           'test',
