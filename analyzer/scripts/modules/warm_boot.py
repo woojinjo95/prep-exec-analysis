@@ -3,7 +3,7 @@ import logging
 from .template import Module
 
 
-logger = logging.getLogger('warm_boot')
+logger = logging.getLogger('boot_test')
 
 
 class WarmBoot(Module):
