@@ -1,14 +1,11 @@
 import logging
-from typing import Dict
 import cv2
 import traceback
 
-from scripts.connection.mongo_db.crud import insert_to_mongodb
-from scripts.connection.external import construct_report_data
 from scripts.analysis.color_reference import calc_color_entropy
 from scripts.config.config import get_setting_with_env
-from scripts.format import ColorReferenceReport, CollectionName
-from scripts.connection.external import load_input
+from scripts.format import CollectionName
+from scripts.connection.external import load_input, report_output
 
 logger = logging.getLogger('color_reference')
 
@@ -31,7 +28,7 @@ def process():
             if idx % skip_frame == 0:
                 color_entropy = calc_color_entropy(frame)
                 logger.info(f"idx: {idx}, color_entropy: {color_entropy}")
-                report_output({
+                report_output(CollectionName.COLOR_REFERENCE.value, {
                     'color_reference': color_entropy,
                 })
             idx += 1
@@ -42,12 +39,3 @@ def process():
     except Exception as err:
         logger.error(f"error in color_reference process: {err}")
         logger.warning(traceback.format_exc())
-
-
-def report_output(additional_data: Dict):
-    report = ColorReferenceReport(
-        **construct_report_data(),
-        **additional_data
-    ).__dict__
-    logger.info(f'insert {report} to db')
-    insert_to_mongodb(CollectionName.COLOR_REFERENCE.value, report)

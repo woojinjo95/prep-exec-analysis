@@ -10,6 +10,7 @@ from scripts.config.constant import RedisDB, RedisChannel
 from scripts.connection.redis_conn import get_strict_redis_connection
 from scripts.connection.redis_pubsub import publish
 from scripts.format import InputData
+from scripts.connection.mongo_db.crud import insert_to_mongodb
 
 
 logger = logging.getLogger('connection')
@@ -59,6 +60,12 @@ def load_input() -> InputData:
         video_path=video_path,
         timestamps=timestamps,
     )
+
+
+def report_output(col_name: str, additional_data: Dict):
+    report = {**construct_report_data(), **additional_data}
+    logger.info(f'insert {report} to db')
+    insert_to_mongodb(col_name, report)
 
 
 def publish_msg(data: Dict, msg: str, level: str = 'info'):

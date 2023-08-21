@@ -4,12 +4,10 @@ import cv2
 import traceback
 import time
 
-from scripts.connection.mongo_db.crud import insert_to_mongodb
-from scripts.connection.external import construct_report_data
 from scripts.config.config import get_setting_with_env
 from scripts.analysis.freeze_detect import FreezeDetector
-from scripts.format import FreezeReport, CollectionName
-from scripts.connection.external import load_input, publish_msg
+from scripts.format import CollectionName
+from scripts.connection.external import load_input, report_output, publish_msg
 from scripts.util._timezone import get_utc_datetime
 
 logger = logging.getLogger('freeze_detect')
@@ -36,7 +34,7 @@ def detect_freeze():
             result = freeze_detector.update(frame, cur_time)
             if result['detect']:
                 logger.info(f"freeze detected at {frame_index}")
-                report_output({
+                report_output(CollectionName.FREEZE.value, {
                     'timestamp': get_utc_datetime(cur_time),
                     'freeze_type': result['freeze_type'],
                 })
@@ -50,13 +48,6 @@ def detect_freeze():
         publish_msg({'measurement': ['freeze']}, error_detail, level='error')
         logger.error(f"error in detect_freeze postprocess: {err}")
         logger.warning(error_detail)
-
-
-def report_output(additional_data: Dict):
-    merged_data = {**construct_report_data(), **additional_data}
-    report = FreezeReport(**merged_data).__dict__
-    logger.info(f'insert {report} to db')
-    insert_to_mongodb(CollectionName.FREEZE.value, report)
 
 
 def set_freeze_detector(fps: float) -> FreezeDetector:
