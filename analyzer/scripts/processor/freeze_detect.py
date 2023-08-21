@@ -1,5 +1,4 @@
 import logging
-import cv2
 import traceback
 
 from scripts.config.config import get_setting_with_env
