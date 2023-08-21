@@ -4,7 +4,7 @@ import os
 import subprocess
 from typing import Dict, List
 
-from util.common import seconds_to_time
+from scripts.util.common import seconds_to_time
 from scripts.format import CroppedInfo
 
 logger = logging.getLogger('main')
