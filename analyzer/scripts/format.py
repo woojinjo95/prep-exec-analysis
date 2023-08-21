@@ -16,23 +16,6 @@ class CollectionName(Enum):
 
 
 @dataclass
-class ReportData:
-    scenario_id: str
-    testrun_id: str
-    timestamp: datetime
-
-
-@dataclass
-class ColorReferenceReport(ReportData):
-    color_reference: float
-
-
-@dataclass
-class FreezeReport(ReportData):
-    freeze_type: str
-
-
-@dataclass
 class InputData:
     video_path: str
     timestamps: List[float]
