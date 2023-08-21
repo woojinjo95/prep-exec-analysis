@@ -19,3 +19,9 @@ class CollectionName(Enum):
 class InputData:
     video_path: str
     timestamps: List[float]
+
+
+@dataclass
+class CroppedInfo:
+    video_path: str
+    timestamps: List[float]

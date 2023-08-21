@@ -8,31 +8,21 @@ from scripts.analysis.image import get_cropped_image, calc_diff_rate, calc_color
 logger = logging.getLogger('boot_test')
 
 
-def task_boot_test_with_diff(video_path: str, timestamps: List[float], video_roi: List[int], event_time: float,
-                             trigger_count: int, min_color_depth_diff: float, min_rate: float) -> dict:
-    param = {'trigger_count': trigger_count,
-             'min_color_depth_diff': min_color_depth_diff,
-             'min_rate': min_rate}
-
-    # calculate ui reaction
+def task_boot_test_with_diff(video_path: str, timestamps: List[float], event_time: float) -> float:
     try:
         diff_time = measure_boot_with_diff(
             video_path=video_path,
             mode='start',
             timestamps=timestamps,
-            event_time=event_time,
-            roi=video_roi,
-            param=param)
+            event_time=event_time)
     except:
         logger.error(f'Error: {traceback.format_exc()}')
         diff_time = 0
 
-    diff_time = max(int((diff_time - event_time) * 1000), 0)
-    result = {'diff_start_time': diff_time}
-    return result
+    return diff_time
 
 
-def measure_boot_with_diff(video_path: str, mode: str, timestamps: list, event_time: float, roi: list, param: dict) -> float:
+def measure_boot_with_diff(video_path: str, mode: str, timestamps: list, event_time: float, roi: list = None, param: dict = {}) -> float:
     """
     ROI 내부에서의 변화 시작 감지
     Args:
@@ -46,9 +36,9 @@ def measure_boot_with_diff(video_path: str, mode: str, timestamps: list, event_t
     """
     prev_frame = None
 
-    trigger_threshold = param.get('trigger_count', 1)
-    min_color_depth_diff = param.get('min_color_depth_diff', 5)
-    min_rate = param.get('min_rate', 0.0001)
+    trigger_threshold = param.get('trigger_count', 20)
+    min_color_depth_diff = param.get('min_color_depth_diff', 8)
+    min_rate = param.get('min_rate', 0.0002)
     start_timestamp = param.get('start_timestamp', timestamps[0])
     entropy_thld = param.get('entropy_thld', 4.5)
     patience_thld = param.get('patience_thld', 3)
@@ -65,7 +55,8 @@ def measure_boot_with_diff(video_path: str, mode: str, timestamps: list, event_t
             idx += 1
             continue
 
-        frame = get_cropped_image(frame, roi)
+        if roi is not None:
+            frame = get_cropped_image(frame, roi)
 
         if prev_frame is not None:
             diff_rate = calc_diff_rate(prev_frame, frame, min_color_depth_diff=min_color_depth_diff)
