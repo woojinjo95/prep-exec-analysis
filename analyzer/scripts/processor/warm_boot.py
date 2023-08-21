@@ -21,6 +21,7 @@ def test_warm_boot():
         args = load_input()
 
         event_log = get_data_of_event_log(args.timestamps[0], args.timestamps[-1])
+        logger.info(f'event_log: {event_log}')
         remocon_times = get_remocon_times(event_log)
         logger.info(f'remocon_times: {remocon_times}')
 
