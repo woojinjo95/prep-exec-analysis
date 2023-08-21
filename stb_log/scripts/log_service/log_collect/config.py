@@ -8,3 +8,5 @@ class CollectorConfig:
     DUMP_TIME_LIMIT: float = get_setting_with_env("DUMP_TIME_LIMIT")
     LOG_CELL_SPLITER: Tuple[str] = ("[ ", "Timestamp")
     LOG_STREAM_TIMEOUT: int = 1
+    LOG_QUEUE_MAX_SIZE: int = 1000
+    

@@ -4,7 +4,7 @@ import { ReactComponent as IRIcon } from '@assets/images/icon_remote_ir_w.svg'
 import { ReactComponent as BluetoothIcon } from '@assets/images/icon_remote_bt_w.svg'
 import { ButtonGroup, Divider, GroupButton, Title } from '@global/ui'
 import useWebsocket from '@global/module/websocket'
-import { useHardwareConfiguration } from '../../api/hook'
+import { useHardwareConfiguration } from '@global/api/hook'
 
 const RemoteControl: React.FC = () => {
   const { hardwareConfiguration, refetch } = useHardwareConfiguration()
@@ -36,11 +36,11 @@ const RemoteControl: React.FC = () => {
           IR
         </GroupButton>
         <GroupButton
-          isActive={hardwareConfiguration?.remote_control_type === 'bluetooth'}
+          isActive={hardwareConfiguration?.remote_control_type === 'bt'}
           icon={<BluetoothIcon />}
           onClick={() => {
-            if (hardwareConfiguration?.remote_control_type === 'bluetooth') return
-            sendMessage({ msg: 'remocon_properties', data: { type: 'bt' } }) // FIXME: bt -> bluetooth로 바뀔수도 있음
+            if (hardwareConfiguration?.remote_control_type === 'bt') return
+            sendMessage({ msg: 'remocon_properties', data: { type: 'bt' } })
           }}
         >
           Bluetooth

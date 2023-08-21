@@ -15,7 +15,7 @@ logger = logging.getLogger('connection')
 process_pubsub_error_dict = {'stack_count': 0, 'last_occured_time': time.time()}
 
 
-service = 'stb_log'
+service = 'analysis'
 
 
 def publish(redis_client: StrictRedis, channel: str, payload: dict) -> int:
