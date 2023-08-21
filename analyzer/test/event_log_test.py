@@ -1,6 +1,6 @@
 from datetime import datetime
 import sys
-from scripts.connection.external import get_data_of_event_log
+from scripts.external.event import get_data_of_event_log
 
 
 def datetimestr_to_datetime_obj(datetimestr: str):
