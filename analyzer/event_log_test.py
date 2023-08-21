@@ -16,5 +16,5 @@ d2 = sys.argv[2]
 d1_obj = datetimestr_to_datetime_obj(d1)
 d2_obj = datetimestr_to_datetime_obj(d2)
 
-res = get_data_of_event_log(d1_obj, d2_obj)
+res = get_data_of_event_log(d1_obj.timestamp(), d2_obj.timestamp())
 print(res)
