@@ -2,9 +2,13 @@ from typing import Tuple
 import subprocess
 import os
 import signal
+import logging
+
+logger = logging.getLogger('shell')
 
 
 def get_stdout(cmd: str) -> str:
+    logger.info(cmd)
     with subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE) as process:
         stdout = process.stdout.read().decode()
         return stdout

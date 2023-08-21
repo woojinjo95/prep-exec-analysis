@@ -99,6 +99,7 @@ if __name__ == '__main__':
         log_organizer.set_stream_logger('network_control')
         log_organizer.set_stream_logger('epg')
         log_organizer.set_stream_logger('file')
+        log_organizer.set_stream_logger('shell')
         log_organizer.set_stream_logger('connection')
         log_organizer.set_stream_logger('error', 10)
         logger.info('Start network container')
