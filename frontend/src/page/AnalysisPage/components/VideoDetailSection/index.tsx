@@ -1,4 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react'
+import { useRecoilValue } from 'recoil'
 import { ReactComponent as GoToFirstIcon } from '@assets/images/icon_go_to_first_w.svg'
 import { ReactComponent as StepBackIcon } from '@assets/images/icon_step_back_1sec_w.svg'
 import { ReactComponent as PlayIcon } from '@assets/images/icon_play.svg'
@@ -6,17 +7,14 @@ import { ReactComponent as StepForwardIcon } from '@assets/images/icon_step_forw
 import { ReactComponent as GoToLastIcon } from '@assets/images/icon_go_to_last_w.svg'
 import { ReactComponent as StopIcon } from '@assets/images/icon_stop.svg'
 import { Button, IconButton, Text } from '@global/ui'
-import AppURL from '@global/constant/appURL'
-
-interface VideoDetailSectionProps {
-  scenarioId: string | null
-}
+import { videoBlobURLState } from '@global/atom'
 
 /**
  * 결과영상 및 정보 영역
  */
-const VideoDetailSection: React.FC<VideoDetailSectionProps> = ({ scenarioId }) => {
+const VideoDetailSection: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
+  const src = useRecoilValue(videoBlobURLState)
   const [isPlaying, setIsPlaying] = useState<boolean>(false)
   const [currentTime, setCurrentTime] = useState<number>(0)
   /**
@@ -93,11 +91,12 @@ const VideoDetailSection: React.FC<VideoDetailSectionProps> = ({ scenarioId }) =
       </div>
 
       <div className="aspect-video">
-        {scenarioId && (
+        {/* TODO: src가 없을 때 -> progress 표시 ? */}
+        {src && (
           <video
             ref={videoRef}
             className="h-full aspect-video"
-            src={`${AppURL.backendURL}/api/v1/file/video?scenario_id=${scenarioId}`}
+            src={src}
             muted
             controls
             loop={false}
