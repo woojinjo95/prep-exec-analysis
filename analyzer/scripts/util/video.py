@@ -1,5 +1,8 @@
 import cv2
 import logging
+import subprocess
+from typing import Dict
+from util.common import seconds_to_time
 
 logger = logging.getLogger('main')
 
@@ -35,3 +38,30 @@ def FrameGenerator(video_path: str, timestamps: list = None):
         yield frame, cur_time
 
     cap.release()
+
+
+def crop_video(video_path: str, output_path: str, start_time: float, end_time: float):
+    # start_time: absolute start time
+    # end_time: absolute end time
+    cmd = [
+        'ffmpeg', 
+        '-i', video_path,
+        '-ss', seconds_to_time(start_time),  # Start time, e.g., '00:00:10' for 10 seconds in
+        '-to', seconds_to_time(end_time),    # End time, e.g., '00:01:00' for 1 minute in
+        '-c:v', 'copy',     # Use the same codec for video
+        '-c:a', 'copy',     # Use the same codec for audio
+        '-y',
+        output_path
+    ]
+    subprocess.run(cmd)
+
+
+def get_video_info(video_path: str) -> Dict:
+    cap = cv2.VideoCapture(video_path)
+    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    cap.release()
+    return {
+        'frame_count': frame_count,
+        'fps': fps,
+    }

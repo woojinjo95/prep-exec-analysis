@@ -2,7 +2,7 @@ import logging
 import cv2
 import traceback
 
-from scripts.analysis.color_reference import calc_color_entropy
+from scripts.analysis.image import calc_color_entropy
 from scripts.config.config import get_setting_with_env
 from scripts.format import CollectionName
 from scripts.external.data import load_input
