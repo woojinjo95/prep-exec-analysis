@@ -1,13 +1,14 @@
 import React from 'react'
 import TerminalShell from '@global/ui/Terminal/TerminalShell'
 import { Terminal } from '@global/types'
+import { useSearchParams } from 'react-router-dom'
 
 /**
  * Terminal 탭의 패널
  */
 
 const TerminalPage: React.FC = () => {
-  const searchParams = new URLSearchParams(window.location.href)
+  const [searchParams] = useSearchParams()
 
   const currentTerminal: Terminal = {
     id: searchParams.get('id') as string,
