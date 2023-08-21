@@ -22,13 +22,8 @@ def detect_freeze():
         data = load_input()
         cap = cv2.VideoCapture(data['video_path'])
         fps = cap.get(cv2.CAP_PROP_FPS)
-        
         frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        logger.info(f'data load completed. video_path: {data["video_path"]}, fps: {fps}, frame count: {frame_count}')
         timestamps = data["json_data"]["data"]["timestamps"]
-        logger.info(f'json data timestamp length: {len(timestamps)}')
-        if frame_count != len(timestamps):
-            raise Exception(f'frame count and timestamp length are not matched. frame count: {frame_count}, timestamp length: {len(timestamps)}')
 
         freeze_detector = set_freeze_detector(fps)
 
