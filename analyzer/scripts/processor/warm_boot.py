@@ -28,8 +28,8 @@ def test_warm_boot():
         crop_videos = crop_video_with_timestamps(args.video_path, args.timestamps, remocon_times, output_dir, get_setting_with_env('WARM_BOOT_DURATION', 10))
 
         for crop_video in crop_videos:
-            diff_timestamp = task_boot_test_with_diff(crop_video.video_path, crop_video.timestamps, crop_video.timestamps[0])
-            logger.info(f'diff_timestamp: {diff_timestamp}')
+            result = task_boot_test_with_diff(crop_video.video_path, crop_video.timestamps, crop_video.timestamps[0])
+            logger.info(f'result: {result}')
 
         # publish_msg({'measurement': ['freeze']}, 'analysis_response')
         logger.info(f"end test_warm_boot process")

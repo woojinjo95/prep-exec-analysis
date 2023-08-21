@@ -10,16 +10,20 @@ logger = logging.getLogger('boot_test')
 
 def task_boot_test_with_diff(video_path: str, timestamps: List[float], event_time: float) -> float:
     try:
-        diff_time = measure_boot_with_diff(
+        diff_timestamp = measure_boot_with_diff(
             video_path=video_path,
             mode='start',
             timestamps=timestamps,
             event_time=event_time)
     except:
         logger.error(f'Error: {traceback.format_exc()}')
-        diff_time = 0
+        diff_timestamp = 0
 
-    return diff_time
+    diff_time = max(int((diff_timestamp - event_time) * 1000), 0)
+    return {
+        'diff_timestamp': diff_timestamp,
+        'diff_time': diff_time
+    }
 
 
 def measure_boot_with_diff(video_path: str, mode: str, timestamps: list, event_time: float, roi: list = None, param: dict = {}) -> float:
