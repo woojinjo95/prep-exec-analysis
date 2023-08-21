@@ -113,18 +113,22 @@ def apply_network_emulation_args(args: Dict):
             if block_args is not None:
                 if action == 'add':
                     add_packet_block(block_args)
+                    updated['add'] = block_args
                 elif action == 'del':
                     delete_packet_block(block_args)
+                    updated['del'] = block_args
 
         elif action == 'start':
             apply_network_emulation()
+            hset_value(src, HARDWARE_CONFIG, ENABLE, True)
 
         elif action == 'stop':
             reset_network_emulation()
+            hset_value(src, HARDWARE_CONFIG, ENABLE, False)
         else:
             log_level = 'warning'
             log = f'{action} is not valid'
 
-        publish(src, RedisChannel.command, {'msg': 'network_control_response',
+        publish(src, RedisChannel.command, {'msg': 'network_emulation_response',
                                             'level': log_level,
-                                            'data': {'updated': updated, 'log': log}})
+                                            'data': {'action': action, 'updated': updated, 'log': log}})
