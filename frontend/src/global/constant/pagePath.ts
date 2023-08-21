@@ -4,6 +4,7 @@
 const PagePath = {
   action: '/action',
   analysis: '/analysis',
+  terminal: '/terminal',
 } as const
 
 export default PagePath
