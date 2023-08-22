@@ -73,7 +73,8 @@ def crop_video(video_path: str, output_path: str, start_index: int, end_index: i
     logger.info(f'video_info: {video_info}')
 
     cap = cv2.VideoCapture(video_path)
-    out = cv2.VideoWriter(output_path, int(video_info['fourcc']), video_info['fps'], (video_info['width'], video_info['height']))
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    out = cv2.VideoWriter(output_path, fourcc, video_info['fps'], (video_info['width'], video_info['height']))
     cap.set(cv2.CAP_PROP_POS_FRAMES, start_index)
 
     cropped_timestamps = []
@@ -90,13 +91,14 @@ def crop_video(video_path: str, output_path: str, start_index: int, end_index: i
     
     if len(cropped_timestamps) != end_index - start_index:
         logger.warning(f'cropped_timestamps length mismatch. cropped_timestamps: {len(cropped_timestamps)}, start_index: {start_index}, end_index: {end_index}')
+    logger.info(f'video crop completed. output_path: {output_path}')
     return output_path, cropped_timestamps
 
 
 def crop_video_with_opencv(video_path: str, timestamps: List[float], target_times: List[float], 
                             output_dir: str, duration: float) -> List[CroppedInfo]:
     os.makedirs(output_dir, exist_ok=True)
-    
+
     crop_infos = []
     for target_time in target_times:
         start_index = find_nearest_index(timestamps, target_time)
@@ -111,7 +113,7 @@ def crop_video_with_opencv(video_path: str, timestamps: List[float], target_time
 
     cropped_videos = []
     for crop_info in crop_infos:
-        cropped_video_path, cropped_timestamps = crop_video(video_path, crop_info['cropped_video_path'], crop_info['start_index'], crop_info['end_index'])
+        cropped_video_path, cropped_timestamps = crop_video(video_path, crop_info['cropped_video_path'], crop_info['start_index'], crop_info['end_index'], timestamps)
         cropped_info = CroppedInfo(video_path=cropped_video_path, timestamps=cropped_timestamps)
         cropped_videos.append(cropped_info)
 
