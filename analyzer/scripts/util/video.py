@@ -115,11 +115,10 @@ def crop_video_with_opencv(video_path: str, timestamps: List[float], target_time
     cropped_videos = []
     for crop_info in crop_infos:
         cropped_video_path, cropped_timestamps = crop_video(video_path, crop_info['cropped_video_path'], crop_info['start_index'], crop_info['end_index'], timestamps)
-        cropped_info = CroppedInfo(video_path=cropped_video_path, timestamps=cropped_timestamps)
-        cropped_videos.append(cropped_info)
-
         frame_count, timestamp_length = get_video_info(cropped_video_path)['frame_count'], len(cropped_timestamps)
         logger.info(f'cropped video info. frame_count: {frame_count}, timestamp_length: {timestamp_length}')
         if frame_count != timestamp_length:
-            logger.error(f'cropped frame count and timestamps mismatch.')
+            logger.error(f'cropped frame count and timestamps mismatch. skip this video.')
+        else:
+            cropped_videos.append(CroppedInfo(video_path=cropped_video_path, timestamps=cropped_timestamps))
     return cropped_videos
