@@ -99,8 +99,6 @@ def crop_video(video_path: str, output_path: str, start_index: int, end_index: i
 
 def crop_video_with_opencv(video_path: str, timestamps: List[float], target_times: List[float], 
                             output_dir: str, duration: float) -> List[CroppedInfo]:
-    os.makedirs(output_dir, exist_ok=True)
-
     crop_infos = []
     for target_time in target_times:
         start_index = find_nearest_index(timestamps, target_time)
