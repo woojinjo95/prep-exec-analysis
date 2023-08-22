@@ -10,7 +10,7 @@ from app.core.config import settings
 from app.crud.base import (aggregate_from_mongodb, insert_one_to_mongodb,
                            load_from_mongodb)
 from app.db.redis_session import RedisClient
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, File, Header, HTTPException, UploadFile
 from fastapi.responses import FileResponse, Response
 
 logger = logging.getLogger(__name__)
@@ -63,7 +63,8 @@ async def system_file_download(
 
 @router.get('/video', response_class=FileResponse)
 async def workspace_video_file_download(
-    scenario_id: Optional[str] = None
+    scenario_id: Optional[str] = None,
+    range: str = Header(None)
 ) -> FileResponse:
     """
     워크스페이스 비디오 파일 다운로드
@@ -71,18 +72,39 @@ async def workspace_video_file_download(
     if scenario_id is None:
         scenario_id = RedisClient.hget('testrun', 'scenario_id')
     pipeline = [{'$match': {'id': scenario_id}},
-                {'$project': {'_id': 0, 'videos': '$testrun.raw.videos'}},
-                ]
+                {'$project': {'_id': 0, 'videos': '$testrun.raw.videos'}}]
     video_info = aggregate_from_mongodb(col='scenario', pipeline=pipeline)
     if not video_info:
         raise HTTPException(status_code=404, detail="Scenario data not found")
+
     try:
-        video_info = video_info[0]['videos'][0]
+        video_info = video_info[0].get('videos', [{}])[0]
         video_file_path = video_info.get('path', '')
         video_file_path = video_file_path.replace('./data', '/app')
-        with open(video_file_path, "rb") as video:
-            headers = {'Accept-Ranges': 'bytes'}
-            return Response(video.read(), headers=headers, media_type="video/mp4")
+
+        if not range:
+            return FileResponse(video_file_path)
+
+        CHUNK_SIZE = 1024*1024*5  # TODO 운영하면서 조절
+        start, end = range.replace("bytes=", "").split("-")
+        start = int(start)
+        end = int(end) if end else start + CHUNK_SIZE
+        video_size = os.path.getsize(video_file_path)
+        
+        if start < 0:
+            start = 0
+        if end >= video_size:
+            end = video_size - 1
+
+        with open(video_file_path, "rb") as video_file:
+            video_file.seek(start)
+            content = video_file.read(end - start + 1)
+
+        headers = {
+            "Content-Range": f"bytes {start}-{end}/{video_size}",
+            "Accept-Ranges": "bytes",
+        }
+        return Response(content, headers=headers, status_code=206, media_type="video/mp4")
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
 
