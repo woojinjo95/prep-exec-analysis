@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useRef, useState } from 'react'
 import {
   Button,
@@ -12,8 +13,11 @@ import {
 
 // import { VideoSnapshots } from '@global/ui'
 // import video from './video.mp4'
-import CropBox from './CropBox'
+import AppURL from '@global/constant/appURL'
+import { useRecoilValue } from 'recoil'
+import { scenarioIdState } from '@global/atom'
 import VideoTimeSlider from './VideoTimeSlider'
+// import CropBox from './CropBox'
 
 interface SetROIModalProps {
   isOpen: boolean
@@ -33,6 +37,8 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose }) => {
   const [videoHeight, setVideoHeight] = useState<number | null>(null)
   const [cropWidth, setCropWidth] = useState<number | null>(null)
   const [cropHeight, setCropHeight] = useState<number | null>(null)
+
+  const scenarioId = useRecoilValue(scenarioIdState)
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="3xl" isCentered>
@@ -55,26 +61,30 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose }) => {
               setCropHeight(ref.clientHeight / 2)
             }}
           >
-            <video
-              ref={videoRef}
-              // src={video}
-              onLoadedData={(e) => {
-                setVideoWidth(e.currentTarget.videoWidth)
-                setVideoHeight(e.currentTarget.videoHeight)
-                setDuration(e.currentTarget.duration)
-              }}
-            />
+            {scenarioId && (
+              <video
+                ref={videoRef}
+                src={`${AppURL.backendURL}/api/v1/file/video?scenario_id=${scenarioId}`}
+                onLoadedData={(e) => {
+                  setVideoWidth(e.currentTarget.videoWidth)
+                  setVideoHeight(e.currentTarget.videoHeight)
+                  setDuration(e.currentTarget.duration)
+                }}
+                controls
+              />
+            )}
+
             {/* background 영역, brightness 1/4배 어둡게 */}
-            <div className="absolute top-0 left-0 w-full h-full backdrop-brightness-[0.25]" />
+            {/* <div className="absolute top-0 left-0 w-full h-full backdrop-brightness-[0.25]" /> */}
             {/* crop 영역, brightness 4배 밝게 => 원본밝기 */}
-            {cropWidth !== null && cropHeight !== null && videoClientWidth !== null && videoClientHeight !== null && (
+            {/* {cropWidth !== null && cropHeight !== null && videoClientWidth !== null && videoClientHeight !== null && (
               <CropBox
                 clientWidth={videoClientWidth}
                 clientHeight={videoClientHeight}
                 cropTwoPosX={[0, cropWidth]}
                 cropTwoPosY={[0, cropHeight]}
               />
-            )}
+            )} */}
           </div>
 
           {/* <VideoSnapshots src={video} /> */}
