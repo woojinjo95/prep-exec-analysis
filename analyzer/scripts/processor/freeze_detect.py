@@ -10,6 +10,7 @@ from scripts.connection.redis_pubsub import publish_msg
 from scripts.util._timezone import get_utc_datetime
 from scripts.util.video import FrameGenerator, get_video_info
 from scripts.util.decorator import log_decorator
+from scripts.util.common import seconds_to_time
 
 logger = logging.getLogger('freeze_detect')
 
@@ -18,13 +19,17 @@ logger = logging.getLogger('freeze_detect')
 def detect_freeze():
     try:  
         args = load_input()
-
         video_info = get_video_info(args.video_path)
         freeze_detector = set_freeze_detector(video_info['fps'])
+        logger.info(f'start time: {get_utc_datetime(args.timestamps[0])}')
 
         for frame, cur_time in FrameGenerator(args.video_path, args.timestamps):
             result = freeze_detector.update(frame, cur_time)
+
             if result['detect']:
+                relative_time = result['start_time'] - args.timestamps[0]
+                logger.info(f'relative time: {seconds_to_time(relative_time)}')
+                
                 report_output(CollectionName.FREEZE.value, {
                     'timestamp': get_utc_datetime(result['start_time']),
                     'freeze_type': result['freeze_type'],
