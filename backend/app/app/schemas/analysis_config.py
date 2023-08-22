@@ -1,12 +1,11 @@
 from typing import List, Optional
 
 from app.schemas.enum import (BootTypeEnum, ChannelChangeTimeTargetEnum,
-                              ResumeRecognizingKeyEventEnum, ResumeTypeEnum)
+                              LogLevelEnum, ResumeTypeEnum)
 from pydantic import BaseModel
 
 
 class CommonBaseModel(BaseModel):
-    is_active: bool
     color: str
 
 
@@ -36,7 +35,6 @@ class Loudness(CommonBaseModel):
 
 
 class Resume(CommonBaseModel):
-    recognizing_key_event: ResumeRecognizingKeyEventEnum
     type: ResumeTypeEnum
     frame: Optional[Frame]
 
@@ -51,12 +49,18 @@ class ChannelChangeTime(CommonBaseModel):
 
 
 class LogLevelFinder(CommonBaseModel):
-    pass
-    # targets: List[LogLevelFinderTargetEnum]
+    targets: List[LogLevelEnum]
+
+
+class LogPatternMatchingItems(CommonBaseModel):
+    name: str
+    level: LogLevelEnum
+    regular_expression: str
+    color: str
 
 
 class LogPatternMatching(CommonBaseModel):
-    pass
+    items: List[LogPatternMatchingItems]
 
 
 class ProcessLifecycleAnalysis(CommonBaseModel):
@@ -69,15 +73,15 @@ class NetworkFilter(CommonBaseModel):
 
 class AnalysisConfig(BaseModel):
     freeze: Optional[Freeze]
-    macroblock: Optional[Macroblock]
+    # macroblock: Optional[Macroblock]
     loudness: Optional[Loudness]
     resume: Optional[Resume]
     boot: Optional[Boot]
     channel_change_time: Optional[ChannelChangeTime]
     log_level_finder: Optional[LogLevelFinder]
     log_pattern_matching: Optional[LogPatternMatching]
-    process_lifecycle_analysis: Optional[ProcessLifecycleAnalysis]
-    network_filter: Optional[NetworkFilter]
+    # process_lifecycle_analysis: Optional[ProcessLifecycleAnalysis]
+    # network_filter: Optional[NetworkFilter]
 
 
 class AnalysisConfigBase(BaseModel):

@@ -9,9 +9,9 @@ from typing import Optional
 from app import schemas
 from app.api.utility import (get_multi_or_paginate_by_res, get_utc_datetime,
                              set_ilike, set_redis_pub_msg)
-from app.crud.base import (aggregate_from_mongodb, get_mongodb_collection,
-                           insert_one_to_mongodb, load_by_id_from_mongodb,
-                           update_by_id_to_mongodb)
+from app.crud.base import (aggregate_from_mongodb, count_from_mongodb,
+                           get_mongodb_collection, insert_one_to_mongodb,
+                           load_by_id_from_mongodb, update_by_id_to_mongodb)
 from app.db.redis_session import RedisClient
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.encoders import jsonable_encoder
@@ -47,8 +47,11 @@ def update_scenario_tag(
     """
     Update a scenario tag.
     """
+    col = get_mongodb_collection('scenario')
+    if tag != tag_in.tag and col.count_documents({"tags": {"$in": [tag_in.tag]}}) > 0:
+        raise HTTPException(
+            status_code=406, detail="The scenario tag already exists in the system.")
     try:
-        col = get_mongodb_collection('scenario')
         col.update_many(
             {"tags": tag},
             {"$set": {"tags.$[elem]": tag_in.tag}},
@@ -125,12 +128,23 @@ def update_scenario(
     """
     Update a scenario.
     """
+    scenario = load_by_id_from_mongodb(col='scenario', id=scenario_id, proj={'_id': 0, 'name': 1})
+    if not scenario:
+        raise HTTPException(status_code=404,
+                            detail="The scenario with this id does not exist in the system")
+
+    if scenario['name'] != scenario_in.name\
+            and count_from_mongodb(col='scenario', param={"name": scenario_in.name}) > 0:
+        raise HTTPException(
+            status_code=406, detail="The scenario name already exists in the system.")
     try:
         update_by_id_to_mongodb(col='scenario',
                                 id=scenario_id,
                                 data={'is_active': scenario_in.is_active,
                                       'updated_at': get_utc_datetime(time.time()),
-                                      'block_group': jsonable_encoder(scenario_in.block_group), })
+                                      'name': scenario_in.name,
+                                      'tags': scenario_in.tags,
+                                      'block_group': jsonable_encoder(scenario_in.block_group)})
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Update a scenario.'}
@@ -170,6 +184,10 @@ def create_scenario(
     """
     Create new scenario.
     """
+    scenario_in.name = scenario_in.name if scenario_in.name else str(time.time())
+    if count_from_mongodb(col='scenario', param={"name": scenario_in.name}) > 0:
+        raise HTTPException(
+            status_code=406, detail="The scenario name already exists in the system.")
     try:
         scenario_id = str(uuid.uuid4())
         testrun_id = datetime.now().strftime("%Y-%m-%dT%H%M%SF%f")
@@ -177,7 +195,7 @@ def create_scenario(
                 'is_active': scenario_in.is_active,
                 'updated_at': get_utc_datetime(time.time()),
                 'block_group': jsonable_encoder(scenario_in.block_group) if scenario_in.block_group else [],
-                'name': scenario_in.name if scenario_in.name else str(time.time()),
+                'name': scenario_in.name,
                 'tags': scenario_in.tags if scenario_in.tags else [],
                 'testrun': {'id': testrun_id,
                             'raw': {'videos': []},
