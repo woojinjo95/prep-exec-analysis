@@ -16,14 +16,11 @@ class StbConnectionBase(BaseModel):
     items: List[StbConnection]
 
 
-class HardwareConfigurationIpLimitCreate(BaseModel):
-    host: Optional[str]
-    port: Optional[str]
-    protocol: ProtocolEnum
-
-
-class HardwareConfigurationIpLimit(HardwareConfigurationIpLimitCreate):
+class PacketBlock(BaseModel):
     id: str
+    ip: str
+    port: Optional[int]
+    protocol: Optional[ProtocolEnum] = ProtocolEnum.all
 
 
 class HardwareConfiguration(BaseModel):
@@ -36,7 +33,7 @@ class HardwareConfiguration(BaseModel):
     packet_delay: float
     packet_loss: float
     stb_connection: Optional[StbConnection]
-    ip_limit: Optional[List[HardwareConfigurationIpLimit]]
+    packet_block: Optional[List[PacketBlock]]
 
 
 class HardwareConfigurationBase(BaseModel):
