@@ -7,13 +7,14 @@ from scripts.config.config import get_setting_with_env
 from scripts.format import CollectionName
 from scripts.external.data import load_input
 from scripts.external.report import report_output
+from scripts.util.decorator import log_decorator
 
 logger = logging.getLogger('color_reference')
 
 
+@log_decorator(logger)
 def process():
     try:
-        logger.info(f"start color_reference process")
         args = load_input()
         skip_frame = get_setting_with_env('COLOR_REFERENCE_SKIP_FRAME', 60)
         
@@ -35,7 +36,6 @@ def process():
             idx += 1
         
         cap.release()
-        logger.info(f"end color_reference process")
 
     except Exception as err:
         logger.error(f"error in color_reference process: {err}")

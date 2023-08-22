@@ -9,13 +9,14 @@ from scripts.external.report import report_output
 from scripts.connection.redis_pubsub import publish_msg
 from scripts.util._timezone import get_utc_datetime
 from scripts.util.video import FrameGenerator, get_video_info
+from scripts.util.decorator import log_decorator
 
 logger = logging.getLogger('freeze_detect')
 
 
+@log_decorator(logger)
 def detect_freeze():
-    try:
-        logger.info(f"start detect_freeze process")        
+    try:  
         args = load_input()
 
         video_info = get_video_info(args.video_path)
@@ -30,7 +31,6 @@ def detect_freeze():
                 })
 
         publish_msg({'measurement': ['freeze']}, 'analysis_response')
-        logger.info(f"end detect_freeze process")
 
     except Exception as err:
         error_detail = traceback.format_exc()

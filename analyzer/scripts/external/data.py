@@ -2,6 +2,7 @@ from typing import Dict
 import json
 import cv2
 import logging
+import os
 
 from scripts.format import InputData
 
@@ -19,6 +20,9 @@ def load_input() -> InputData:
     data = load_data()
 
     video_path = data['video_path']
+    if not video_path or not video_path.endswith('.mp4') or not os.path.exists(video_path):
+        raise Exception(f'video path is invalid. video path: {video_path}')
+
     with open(data['stat_path'], 'r') as f:
         json_data = json.load(f)
 
