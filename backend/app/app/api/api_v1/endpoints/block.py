@@ -25,9 +25,8 @@ def create_block(
     Create new block.
     """
     scenario = load_by_id_from_mongodb('scenario', scenario_id)
-    if scenario is None:
-        if not scenario:
-            raise HTTPException(status_code=404, detail="The scenario with this id does not exist in the system.")
+    if not scenario:
+        raise HTTPException(status_code=404, detail="The scenario with this id does not exist in the system.")
     try:
         block_in = schemas.Block(id=str(uuid.uuid4()),
                                 type=block_in.type,
@@ -67,6 +66,9 @@ def delete_blocks(
     """
     Delete blocks.
     """
+    scenario = load_by_id_from_mongodb('scenario', scenario_id)
+    if not scenario:
+        raise HTTPException(status_code=404, detail="The scenario with this id does not exist in the system.")
     try:
         for block_id in block_in.block_ids:
             delete_part_to_mongodb(col='scenario',
