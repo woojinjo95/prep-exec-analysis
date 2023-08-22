@@ -69,8 +69,10 @@ def find_nearest_index(timestamps: List[float], target_time: float) -> float:
 
 
 def crop_video(video_path: str, output_path: str, start_index: int, end_index: int, timestamps: List[float]) -> Tuple[str, List[float]]:
+    logger.info(f'crop video start. output_path: {output_path}, start_index: {start_index}, end_index: {end_index}')
+
     video_info = get_video_info(video_path)
-    logger.info(f'video_info: {video_info}')
+    # logger.info(f'video_info: {video_info}')
 
     cap = cv2.VideoCapture(video_path)
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
@@ -90,7 +92,7 @@ def crop_video(video_path: str, output_path: str, start_index: int, end_index: i
     out.release()
     
     if len(cropped_timestamps) != end_index - start_index:
-        logger.warning(f'cropped_timestamps length mismatch. cropped_timestamps: {len(cropped_timestamps)}, start_index: {start_index}, end_index: {end_index}')
+        logger.warning(f'slicing in end of the video. cropped_timestamps: {len(cropped_timestamps)}, start_index: {start_index}, end_index: {end_index}')
     logger.info(f'video crop completed. output_path: {output_path}')
     return output_path, cropped_timestamps
 
@@ -104,7 +106,6 @@ def crop_video_with_opencv(video_path: str, timestamps: List[float], target_time
         start_index = find_nearest_index(timestamps, target_time)
         end_index = find_nearest_index(timestamps, target_time + duration)
         cropped_video_path = os.path.join(output_dir, f'{start_index}.mp4')
-        logger.info(f'cropped video path: {cropped_video_path}, start_index: {start_index}, end_index: {end_index}')
         crop_infos.append({
             'cropped_video_path': cropped_video_path,
             'start_index': start_index,
@@ -119,5 +120,5 @@ def crop_video_with_opencv(video_path: str, timestamps: List[float], target_time
 
         frame_count, timestamp_length = get_video_info(cropped_video_path)['frame_count'], len(cropped_timestamps)
         if frame_count != timestamp_length:
-            logger.error(f'frame count mismatch. frame_count: {frame_count}, timestamps: {timestamp_length}')
+            logger.error(f'cropped frame count and timestamps mismatch. frame_count: {frame_count}, timestamps: {timestamp_length}')
     return cropped_videos
