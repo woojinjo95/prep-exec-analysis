@@ -26,8 +26,9 @@ def detect_freeze():
             result = freeze_detector.update(frame, cur_time)
             if result['detect']:
                 report_output(CollectionName.FREEZE.value, {
-                    'timestamp': get_utc_datetime(cur_time),
+                    'timestamp': get_utc_datetime(result['start_time']),
                     'freeze_type': result['freeze_type'],
+                    'duration': result['duration'],
                 })
 
         publish_msg({'measurement': ['freeze']}, 'analysis_response')

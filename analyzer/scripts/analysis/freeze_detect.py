@@ -26,6 +26,7 @@ class FreezeDetector:
                 'frame': None,
                 'index': 0,
                 'freeze_count': 0, 
+                'start_time': 0,
             },
         }
 
@@ -45,6 +46,8 @@ class FreezeDetector:
         if freeze_state['occured']:
             return {
                 'detect': True,
+                'start_time': freeze_state['start_time'],
+                'duration': freeze_state['duration'],
                 'freeze_type': freeze_state['freeze_type'],
             }
         else:
@@ -73,19 +76,27 @@ class FreezeDetector:
             is_frame_freezed = diff_rate < min_diff_rate
             prev_info['frame'] = frame
 
-            # freeze_count is dict value
+            # manage freeze count and status
+            status = 'none'
             if is_frame_freezed:
+                if prev_info['freeze_count'] == 0:  # freeze count rising edge
+                    status = 'rising'
                 prev_info['freeze_count'] += 1
             else:
+                if prev_info['freeze_count'] > 0:  # freeze count falling edge
+                    status = 'falling'
+                    if prev_info['freeze_count'] >= min_freeze_count:
+                        status = 'occured'
                 prev_info['freeze_count'] = 0
 
-            if prev_info['freeze_count'] == min_freeze_count:
+            if status == 'rising':
+                prev_info['start_time'] = timestamp
+            elif status == 'occured':
                 result['occured'] = True
-                result['interval'] = min_interval
-                result['event_time'] = timestamp - min_interval
+                result['start_time'] = prev_info['start_time']
+                result['end_time'] = timestamp
+                result['duration'] = timestamp - prev_info['start_time']
                 result['freeze_type'] = self.get_freeze_type(frame, frame_stdev_thres)
-            else:
-                pass
 
             # logger.info(f'freeze_count: {prev_info["freeze_count"]}, diff_rate: {diff_rate}, is_frame_freezed: {is_frame_freezed}, min_freeze_count: {min_freeze_count}')
 
