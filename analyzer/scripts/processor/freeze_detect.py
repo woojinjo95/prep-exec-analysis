@@ -41,7 +41,7 @@ def detect_freeze():
 
 def set_freeze_detector(fps: float) -> FreezeDetector:
     sampling_rate = get_setting_with_env('FREEZE_DETECT_SKIP_FRAME', 6)
-    min_interval = get_setting_with_env('FREEZE_DETECT_MIN_INTERVAL', 5)
+    min_interval = get_setting_with_env('FREEZE_DETECT_MIN_INTERVAL', 3)
     min_color_depth_diff = get_setting_with_env('FREEZE_DETECT_MIN_COLOR_DEPTH_DIFF', 10)
     min_diff_rate = get_setting_with_env('FREEZE_DETECT_MIN_DIFF_RATE', 0.0001)
     frame_stdev_thres = get_setting_with_env('FREEZE_DETECT_FRAME_STDEV_THRES', 0.01)
