@@ -46,11 +46,9 @@ def FrameGenerator(video_path: str, timestamps: list = None):
     cap.release()
 
 
-def crop_video(video_path: str, output_path: str, start_time: float, end_time: float):
+def crop_video(video_path: str, output_path: str, start_time: str, end_time: str):
     # start_time: absolute start time
     # end_time: absolute end time
-    start_time = seconds_to_time(start_time)
-    end_time = seconds_to_time(end_time)
     logger.info(f'start time: {start_time}, end time: {end_time}')
 
     cmd = [
@@ -77,12 +75,14 @@ def crop_video_with_timestamps(video_path: str, timestamps: List[float], target_
         start_time = max(target_time - timestamps[0], 0)
         end_time = min(start_time + duration, max_time)
 
-        cropped_video_path = os.path.join(output_dir, f'{start_time}.mp4')
+        start_time_str = seconds_to_time(start_time)
+        end_time_str = seconds_to_time(end_time)
+        cropped_video_path = os.path.join(output_dir, f'{start_time_str}.mp4')
         logger.info(f'cropped video path: {cropped_video_path}')
         crop_video(video_path=video_path,
                     output_path=cropped_video_path,
-                    start_time=start_time,
-                    end_time=end_time)
+                    start_time=start_time_str,
+                    end_time=end_time_str)
         cropped_timestamp = [timestamp for timestamp in timestamps if start_timestamp <= timestamp <= end_timestamp]
         logger.info(f'video frame count: {get_video_info(cropped_video_path)["frame_count"]}, timestamp count: {len(cropped_timestamp)}')
 
