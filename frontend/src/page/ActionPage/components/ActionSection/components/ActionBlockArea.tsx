@@ -8,6 +8,8 @@ import BackgroundImage from '@assets/images/background_pattern.svg'
 import { remoconService } from '@global/service/RemoconService/RemoconService'
 import { RemoconTransmit } from '@global/service/RemoconService/type'
 
+import { terminalService } from '@global/service/TerminalService/TerminalService'
+import { CommandTransmit } from '@global/service/TerminalService/type'
 import ActionBlockItem from './ActionBlockItem'
 import { getScenarioById, postBlock, putScenario } from '../api/func'
 
@@ -316,6 +318,22 @@ const ActionBlockArea = ({ scenarioId }: ActionBlockAreaProps): JSX.Element => {
     //         value: blockEvent.value,
     //         delay_time: 3000,
     //         name: `${blockEvent.type} : ${blockEvent.value}`,
+    //       },
+    //       scenario_id: scenarioId,
+    //     })
+    //   }
+    // })
+
+    // const terminalButtonSubscribe$ = terminalService.onButton$().subscribe((commandTransmit: CommandTransmit) => {
+    //   if (scenarioId) {
+    //     postBlockMutate({
+    //       newBlock: {
+    //         type: commandTransmit.type,
+    //         args: [{
+    //           key:
+    //         }],
+    //         delay_time: 3000,
+    //         name: `${commandTransmit.type} : ${commandTransmit.data.command}`,
     //       },
     //       scenario_id: scenarioId,
     //     })
