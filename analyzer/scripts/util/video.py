@@ -1,8 +1,7 @@
 import cv2
 import logging
 import os
-import subprocess
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 from scripts.util.common import seconds_to_time
 from scripts.format import CroppedInfo
@@ -46,59 +45,77 @@ def FrameGenerator(video_path: str, timestamps: list = None):
     cap.release()
 
 
-def crop_video(video_path: str, output_path: str, start_time: str, end_time: str):
-    # start_time: absolute start time
-    # end_time: absolute end time
-    fps = get_video_info(video_path)['fps']
-    logger.info(f'start time: {start_time}, end time: {end_time}')
-
-    cmd = [
-        'ffmpeg', 
-        '-i', video_path,
-        '-r', str(fps),
-        '-ss', start_time,  # Start time, e.g., '00:00:10' for 10 seconds in
-        '-to', end_time,    # End time, e.g., '00:01:00' for 1 minute in
-        '-c:v', 'copy',     # Use the same codec for video
-        '-c:a', 'copy',     # Use the same codec for audio
-        '-y',
-        output_path
-    ]
-    subprocess.run(cmd)
-
-
-def crop_video_with_timestamps(video_path: str, timestamps: List[float], target_times: List[float], 
-                               output_dir: str, duration: float) -> List[CroppedInfo]:
-    os.makedirs(output_dir, exist_ok=True)
-    cropped_videos = []
-    max_time = timestamps[-1] - timestamps[0]
-    for target_time in target_times:
-        start_timestamp = max(target_time, timestamps[0])
-        end_timestamp = min(target_time + duration, timestamps[-1])
-        start_time = max(target_time - timestamps[0], 0)
-        end_time = min(start_time + duration, max_time)
-
-        start_time_str = seconds_to_time(start_time)
-        end_time_str = seconds_to_time(end_time)
-        cropped_video_path = os.path.join(output_dir, f'{start_time_str}.mp4')
-        logger.info(f'cropped video path: {cropped_video_path}')
-        crop_video(video_path=video_path,
-                    output_path=cropped_video_path,
-                    start_time=start_time_str,
-                    end_time=end_time_str)
-        cropped_timestamp = [timestamp for timestamp in timestamps if start_timestamp <= timestamp <= end_timestamp]
-        logger.info(f'video frame count: {get_video_info(cropped_video_path)["frame_count"]}, timestamp count: {len(cropped_timestamp)}')
-
-        cropped_info = CroppedInfo(video_path=cropped_video_path, timestamps=cropped_timestamp)
-        cropped_videos.append(cropped_info)
-    return cropped_videos
-
-
 def get_video_info(video_path: str) -> Dict:
     cap = cv2.VideoCapture(video_path)
     frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps = cap.get(cv2.CAP_PROP_FPS)
+    fourcc = cap.get(cv2.CAP_PROP_FOURCC)
     cap.release()
     return {
         'frame_count': frame_count,
+        'width': width,
+        'height': height,
         'fps': fps,
+        'fourcc': fourcc,
     }
+
+
+def find_nearest_index(timestamps: List[float], target_time: float) -> float:
+    differences = [abs(ts - target_time) for ts in timestamps]
+    nearest_index = differences.index(min(differences))
+    return nearest_index
+
+
+def crop_video(video_path: str, output_path: str, start_index: int, end_index: int, timestamps: List[float]) -> Tuple[str, List[float]]:
+    video_info = get_video_info(video_path)
+    logger.info(f'video_info: {video_info}')
+
+    cap = cv2.VideoCapture(video_path)
+    out = cv2.VideoWriter(output_path, int(video_info['fourcc']), video_info['fps'], (video_info['width'], video_info['height']))
+    cap.set(cv2.CAP_PROP_POS_FRAMES, start_index)
+
+    cropped_timestamps = []
+    for frame_index in range(start_index, end_index):
+        ret, frame = cap.read()
+        if not ret:
+            logger.warning(f"cannot read frame at {frame_index}")
+            break
+        out.write(frame)
+        cropped_timestamps.append(timestamps[frame_index])
+
+    cap.release()
+    out.release()
+    
+    if len(cropped_timestamps) != end_index - start_index:
+        logger.warning(f'cropped_timestamps length mismatch. cropped_timestamps: {len(cropped_timestamps)}, start_index: {start_index}, end_index: {end_index}')
+    return output_path, cropped_timestamps
+
+
+def crop_video_with_opencv(video_path: str, timestamps: List[float], target_times: List[float], 
+                            output_dir: str, duration: float) -> List[CroppedInfo]:
+    os.makedirs(output_dir, exist_ok=True)
+    
+    crop_infos = []
+    for target_time in target_times:
+        start_index = find_nearest_index(timestamps, target_time)
+        end_index = find_nearest_index(timestamps, target_time + duration)
+        cropped_video_path = os.path.join(output_dir, f'{start_index}.mp4')
+        logger.info(f'cropped video path: {cropped_video_path}, start_index: {start_index}, end_index: {end_index}')
+        crop_infos.append({
+            'cropped_video_path': cropped_video_path,
+            'start_index': start_index,
+            'end_index': end_index,
+        })
+
+    cropped_videos = []
+    for crop_info in crop_infos:
+        cropped_video_path, cropped_timestamps = crop_video(video_path, crop_info['cropped_video_path'], crop_info['start_index'], crop_info['end_index'])
+        cropped_info = CroppedInfo(video_path=cropped_video_path, timestamps=cropped_timestamps)
+        cropped_videos.append(cropped_info)
+
+        frame_count, timestamp_length = get_video_info(cropped_video_path)['frame_count'], len(cropped_timestamps)
+        if frame_count != timestamp_length:
+            logger.error(f'frame count mismatch. frame_count: {frame_count}, timestamps: {timestamp_length}')
+    return cropped_videos
