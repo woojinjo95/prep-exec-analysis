@@ -27,6 +27,7 @@ class FreezeDetector:
                 'index': 0,
                 'freeze_count': 0, 
                 'start_time': 0,
+                'freeze_type': 'none',
             },
         }
 
@@ -91,12 +92,13 @@ class FreezeDetector:
 
             if status == 'rising':
                 prev_info['start_time'] = timestamp
+                prev_info['freeze_type'] = self.get_freeze_type(frame, frame_stdev_thres)
             elif status == 'occured':
                 result['occured'] = True
                 result['start_time'] = prev_info['start_time']
                 result['end_time'] = timestamp
                 result['duration'] = timestamp - prev_info['start_time']
-                result['freeze_type'] = self.get_freeze_type(frame, frame_stdev_thres)
+                result['freeze_type'] = prev_info['freeze_type']
 
             # logger.info(f'freeze_count: {prev_info["freeze_count"]}, diff_rate: {diff_rate}, is_frame_freezed: {is_frame_freezed}, min_freeze_count: {min_freeze_count}')
 
