@@ -11,19 +11,18 @@ logger = logging.getLogger('boot_test')
 
 def task_boot_test_with_match(video_path: str, timestamps: List[float], video_roi: List[int], template: np.ndarray, template_roi: List[int],
                               event_time: float, continuity_count: int):
-    match_start_interval = None
-
+    match_start_timestamp = 0
     try:
         # ir event time ~ home ui find time
-        match_start_interval = calc_match_interval(
+        match_start_timestamp = calc_match_interval(
             video_path, timestamps, video_roi, template, template_roi, event_time, continuity_count, release=False)
     except:
         logger.error(f'Error: {traceback.format_exc()}')
-
-    match_start_interval = max(int(match_start_interval * 1000), 0) if match_start_interval else 0
+    match_start_interval = max(int(match_start_timestamp - event_time * 1000), 0) if match_start_timestamp else 0
 
     result = {
-        'match_start_time': match_start_interval,
+        'match_timestamp': match_start_timestamp,
+        'match_time': match_start_interval,
     }
     return result
 
@@ -69,9 +68,9 @@ def calc_match_interval(video_path: str, timestamps: list, video_roi: List[int],
         video_data.release()
         # return match index
         if matched_flag:
-            return timestamps[mid] - event_time
+            return timestamps[mid]
         else:  # 마지막까지 못찾으면 None 반환
-            return None
+            return 0
 
     # whole frame search
     else:
@@ -92,11 +91,9 @@ def calc_match_interval(video_path: str, timestamps: list, video_roi: List[int],
                 start_time = timestamp
 
             if match_cnt >= continuity_count:
-                end_time = timestamp
-                continuity_interval = end_time - start_time
-                return end_time - event_time - continuity_interval
+                return start_time
 
-        return None
+        return 0
 
 
 def find_start_event_time_index(timestamps: List[float], event_time: float) -> int:
