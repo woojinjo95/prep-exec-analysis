@@ -4,7 +4,7 @@ from collections import defaultdict
 from pprint import pformat
 from socket import IPPROTO_IGMP, IPPROTO_UDP
 
-from ...capture.parser import check_base_info, parse_pcap_file
+from ...capture.parser import get_base_info, parse_pcap_file
 from ...epg.epg import get_channel_info
 from .analysis import check_iso_iec_structure, check_rtp_sequence
 from .common import ETHERNET_IPV4_TYPE, convert_ip_bytes_string
@@ -12,6 +12,7 @@ from .model.local import check_valid_multicast_ip
 from .protocols.igmp import IGMPConst, igmp_parser
 from .protocols.mpeg2ts import mpeg2_ts_parser
 from .rtp_stream import calc_bitrate, calc_jitter, get_default_ip_info
+from ...mongo_db_update import InsertToMongoDB
 
 GIGA = 10 ** 9
 
@@ -26,7 +27,7 @@ def read_pcap_file(path: str):
     for timestamp_w_ns, packet_bytes in parse_pcap_file(path):
         index += 1
         timestamp = timestamp_w_ns / GIGA
-        iptype, protocol, ip_total_legnth = check_base_info(packet_bytes)
+        iptype, protocol, ip_total_legnth = get_base_info(packet_bytes)
         if iptype != ETHERNET_IPV4_TYPE:
             continue
         elif protocol == IPPROTO_IGMP:
@@ -49,8 +50,8 @@ def add_new_stream_ip(stream_dict: dict, timestamp: float, protocol: int, ip: by
     stream_dict[ip] = get_default_ip_info(timestamp, rtp_sequence)
 
 
-def run_analysis(stream_dict: dict, timestamp: float, protocol: int, ip: bytes,
-                 info: tuple, packet_bytes: bytes, archived_stream_dict: dict = None):
+def run_iptv_analysis(mongo_session: InsertToMongoDB, stream_dict: dict, timestamp: float, protocol: int, ip: bytes,
+                      info: tuple, packet_bytes: bytes, archived_stream_dict: dict = None):
     ip_dict = stream_dict[ip]
 
     if not check_valid_multicast_ip(ip):
@@ -81,10 +82,9 @@ def run_analysis(stream_dict: dict, timestamp: float, protocol: int, ip: bytes,
                 ip_str = convert_ip_bytes_string(ip)
                 channel_info = get_channel_info(ip_str)
                 logger.info(f'UDP stream re joined: {ip_str} ({channel_info}) in {timestamp}')
-                if archived_stream_dict is not None and type(archived_stream_dict) == defaultdict:
-                    ip_dict['active'] = False
-                    archived_stream_dict[ip].append(ip_dict)
-                    logger.info(f'Stream Archived!: {pformat(ip_dict, width=120)}')
+                ip_dict['active'] = False
+                archived_stream_dict[ip].append(ip_dict)
+                logger.info(f'Stream Archived!: {pformat(ip_dict, width=120)}')
                 add_new_stream_ip(stream_dict, timestamp, protocol, ip, info)
                 stream_dict[ip]['join_time'] = timestamp
             else:
@@ -114,30 +114,41 @@ def run_analysis(stream_dict: dict, timestamp: float, protocol: int, ip: bytes,
     ip_dict['timestamp'] = timestamp
 
 
-def change_stale_stream_state(current_timestamp: float, stream_dict: dict):
+def change_stale_stream_state(current_timestamp: float, stream_dict: dict, archived_stream_dict: dict):
     thres_time = 0.5
-    for ip_dict in stream_dict.values():
+    stale_ip_list = []
+    for ip, ip_dict in stream_dict.items():
         if ip_dict['active'] and ip_dict['timestamp'] + thres_time < current_timestamp:
             ip_dict['active'] = False
+            archived_stream_dict[ip].append(ip_dict)
+            logger.info(f'Stream Archived!: {pformat(ip_dict, width=120)}')
+            stale_ip_list.append(ip)
         else:
             pass
+
+    # avoid list length change event in for loop
+    for stale_ip in stale_ip_list:
+        del stream_dict[stale_ip]
 
 
 def init_archived_stream_dict() -> defaultdict:
     return defaultdict(list)
 
 
-def read_pcap_and_update_dict(stream_dict: dict, path: str, archived_stream_dict: dict = None) -> dict:
+def read_pcap_and_update_dict(mongo_session: InsertToMongoDB, stream_dict: dict, path: str, archived_stream_dict: dict = None) -> dict:
     index = 0
-    for timestamp, protocol, ip, info, packet_bytes in read_pcap_file(path):
+    for timestamp, protocol, ip_target, info, packet_bytes in read_pcap_file(path):
         index += 1
-        if ip not in stream_dict.keys():
-            add_new_stream_ip(stream_dict, timestamp, protocol, ip, info)
-        run_analysis(stream_dict, timestamp, protocol, ip, info, packet_bytes, archived_stream_dict)
+        if ip_target not in stream_dict.keys():
+            add_new_stream_ip(stream_dict, timestamp, protocol, ip_target, info)
+
+        run_iptv_analysis(mongo_session, stream_dict, timestamp, protocol, ip_target, info, packet_bytes, archived_stream_dict)
 
         if index % 100 == 0:
-            change_stale_stream_state(timestamp, stream_dict)
+            change_stale_stream_state(timestamp, stream_dict, archived_stream_dict)
 
-    change_stale_stream_state(timestamp, stream_dict)
+    if index > 0:
+        # no valid packet
+        change_stale_stream_state(timestamp, stream_dict, archived_stream_dict)
 
     return stream_dict
