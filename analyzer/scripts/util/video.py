@@ -70,8 +70,8 @@ def crop_video_with_timestamps(video_path: str, timestamps: List[float], target_
     cropped_videos = []
     max_time = timestamps[-1] - timestamps[0]
     for target_time in target_times:
-        start_timestamp = target_time
-        end_timestamp = target_time + duration
+        start_timestamp = max(target_time, timestamps[0])
+        end_timestamp = min(target_time + duration, timestamps[-1])
         start_time = max(target_time - timestamps[0], 0)
         end_time = min(start_time + duration, max_time)
 
