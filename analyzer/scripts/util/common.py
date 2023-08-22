@@ -10,7 +10,7 @@ def get_parents_path(path: str, level: int = 0):
     return path_object.parents[level]
 
 
-def seconds_to_time(seconds):
+def seconds_to_time(seconds: float) -> str:
     hours = int(seconds // 3600)
     minutes = int((seconds % 3600) // 60)
     seconds = int(seconds % 60)

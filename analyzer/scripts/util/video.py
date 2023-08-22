@@ -105,7 +105,8 @@ def crop_video_with_opencv(video_path: str, timestamps: List[float], target_time
     for target_time in target_times:
         start_index = find_nearest_index(timestamps, target_time)
         end_index = find_nearest_index(timestamps, target_time + duration)
-        cropped_video_path = os.path.join(output_dir, f'{start_index}.mp4')
+        video_name = seconds_to_time(start_index / get_video_info(video_path)['fps'])
+        cropped_video_path = os.path.join(output_dir, f'{video_name}.mp4')
         crop_infos.append({
             'cropped_video_path': cropped_video_path,
             'start_index': start_index,
