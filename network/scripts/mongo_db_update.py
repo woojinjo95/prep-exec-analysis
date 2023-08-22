@@ -5,6 +5,7 @@ import traceback
 from multiprocessing import Event, Queue, queues
 from typing import Dict
 
+from .capture.parser import get_packet_info
 from .configs.config import get_value
 from .configs.constant import RedisDBEnum
 from .connection.mongo_db.create import insert_to_mongodb
@@ -24,8 +25,8 @@ def format_subscribed_log(subscribed_log: Dict):
             'src': subscribed_log.get('src', ''),
             'dst': subscribed_log.get('dst', ''),
             'protocol': subscribed_log.get('protocol', ''),
-            'length': subscribed_log.get('dst', 0),
-            'info': subscribed_log.get('dst', ''),
+            'length': subscribed_log.get('length', 0),
+            'info': subscribed_log.get('info', ''),
             }
 
 
@@ -81,3 +82,28 @@ class InsertToMongoDB:
                 logger.info(traceback.format_exc())
                 # drop too many erros
                 time.sleep(0.5)
+
+
+class PacketMongoSession(InsertToMongoDB):
+
+    def __init__(self):
+        super().__init__()
+
+    def put_network_trace(self, timestamp: float, packet: bytes = None, info: str = ''):
+
+        data = {'time': timestamp,
+                'info': info,
+                }
+
+        if packet is not None:
+            src, dst, protocol, length = get_packet_info(packet)
+            data.update({'src': src,
+                         'dst': dst,
+                         'protocol': protocol,
+                         'length': length,
+                         })
+        else:
+            pass
+
+        logger.info(data)
+        super().put(data)

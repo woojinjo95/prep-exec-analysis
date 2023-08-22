@@ -12,7 +12,7 @@ from .model.local import check_valid_multicast_ip
 from .protocols.igmp import IGMPConst, igmp_parser
 from .protocols.mpeg2ts import mpeg2_ts_parser
 from .rtp_stream import calc_bitrate, calc_jitter, get_default_ip_info
-from ...mongo_db_update import InsertToMongoDB
+from ...mongo_db_update import PacketMongoSession
 
 GIGA = 10 ** 9
 
@@ -50,7 +50,7 @@ def add_new_stream_ip(stream_dict: dict, timestamp: float, protocol: int, ip: by
     stream_dict[ip] = get_default_ip_info(timestamp, rtp_sequence)
 
 
-def run_iptv_analysis(mongo_session: InsertToMongoDB, stream_dict: dict, timestamp: float, protocol: int, ip: bytes,
+def run_iptv_analysis(mongo_session: PacketMongoSession, stream_dict: dict, timestamp: float, protocol: int, ip: bytes,
                       info: tuple, packet_bytes: bytes, archived_stream_dict: dict = None):
     ip_dict = stream_dict[ip]
 
@@ -60,18 +60,20 @@ def run_iptv_analysis(mongo_session: InsertToMongoDB, stream_dict: dict, timesta
 
     ip_dict['count'] += 1
     ip_dict['bytes'] += len(packet_bytes)
+    ip_str = convert_ip_bytes_string(ip)
 
     if not ip_dict['joined']:
         if ip_dict['leave_time'] == 0:
             if protocol == IPPROTO_IGMP:
                 if info == IGMPConst.join and ip_dict['join_time'] == 0:
-                    ip_str = convert_ip_bytes_string(ip)
                     channel_info = get_channel_info(ip_str)
-                    logger.info(f'UDP stream joined: {ip_str} ({channel_info}) in {timestamp}')
+                    mongo_session.put_network_trace(timestamp, packet_bytes, f'UDP stream joined: {ip_str} ({channel_info}) in {timestamp}')
                     ip_dict['join_time'] = timestamp
             else:
                 ip_dict['joined'] = True
                 ip_dict['join_interval'] = timestamp - ip_dict['join_time'] if ip_dict['join_time'] != 0 else -1
+                channel_info = get_channel_info(ip_str)
+                mongo_session.put_network_trace(timestamp, packet_bytes, f'UDP stream detected {ip_str} ({channel_info}) in {timestamp}')
                 ip_dict['deltas'].appendleft(timestamp - ip_dict['timestamp'])
 
         elif protocol == IPPROTO_UDP:
@@ -79,12 +81,11 @@ def run_iptv_analysis(mongo_session: InsertToMongoDB, stream_dict: dict, timesta
         else:
             if info == IGMPConst.join:
                 # IPPROTO_IGMP and already left state but re join -> re init ip_dict and archive previous state
-                ip_str = convert_ip_bytes_string(ip)
                 channel_info = get_channel_info(ip_str)
-                logger.info(f'UDP stream re joined: {ip_str} ({channel_info}) in {timestamp}')
+                mongo_session.put_network_trace(timestamp, packet_bytes, f'UDP stream re joined: {ip_str} ({channel_info}) in {timestamp}')
                 ip_dict['active'] = False
                 archived_stream_dict[ip].append(ip_dict)
-                logger.info(f'Stream Archived!: {pformat(ip_dict, width=120)}')
+                mongo_session.put_network_trace(timestamp, packet_bytes, f'Stream Archived!: {pformat(ip_dict, width=120)}')
                 add_new_stream_ip(stream_dict, timestamp, protocol, ip, info)
                 stream_dict[ip]['join_time'] = timestamp
             else:
@@ -93,9 +94,8 @@ def run_iptv_analysis(mongo_session: InsertToMongoDB, stream_dict: dict, timesta
 
     else:
         if protocol == IPPROTO_IGMP and info == IGMPConst.leave:
-            ip_str = convert_ip_bytes_string(ip)
             channel_info = get_channel_info(ip_str)
-            logger.info(f'UDP stream leaved: {ip_str} ({channel_info}) in {timestamp}')
+            mongo_session.put_network_trace(timestamp, packet_bytes, f'UDP stream leaved: {ip_str} ({channel_info}) in {timestamp}')
             ip_dict['joined'] = False
             ip_dict['leave_time'] = timestamp
 
@@ -121,7 +121,7 @@ def change_stale_stream_state(current_timestamp: float, stream_dict: dict, archi
         if ip_dict['active'] and ip_dict['timestamp'] + thres_time < current_timestamp:
             ip_dict['active'] = False
             archived_stream_dict[ip].append(ip_dict)
-            logger.info(f'Stream Archived!: {pformat(ip_dict, width=120)}')
+            logger.info(f'Stream Archived!: {pformat(ip_dict, width=120)}') # update 
             stale_ip_list.append(ip)
         else:
             pass
@@ -135,7 +135,7 @@ def init_archived_stream_dict() -> defaultdict:
     return defaultdict(list)
 
 
-def read_pcap_and_update_dict(mongo_session: InsertToMongoDB, stream_dict: dict, path: str, archived_stream_dict: dict = None) -> dict:
+def read_pcap_and_update_dict(mongo_session: PacketMongoSession, stream_dict: dict, path: str, archived_stream_dict: dict = None) -> dict:
     index = 0
     for timestamp, protocol, ip_target, info, packet_bytes in read_pcap_file(path):
         index += 1

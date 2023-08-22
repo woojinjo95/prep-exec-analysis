@@ -8,12 +8,12 @@ from .capture.dumper import start_capture_thread, stop_capture
 from .capture.parser import (get_completed_pcap_chunck_files,
                              init_read_path_list)
 from .configs.config import get_value
-from .mongo_db_update import InsertToMongoDB
+from .mongo_db_update import PacketMongoSession
 
 logger = logging.getLogger('main')
 
 
-def start_capture(mongo_session: InsertToMongoDB, stop_event: Event):
+def start_capture(mongo_session: PacketMongoSession, stop_event: Event):
     interval = 3600 * 24 * 2  # 2 days
     segmnet_interval = get_value('network', 'segment_interval', 10)
     rotation_interval = get_value('network', 'rotation_interval', 1800)
@@ -48,7 +48,7 @@ def start_capture(mongo_session: InsertToMongoDB, stop_event: Event):
 
 
 def real_time_packet_capture(stop_event: Event = Event()) -> Event:
-    mongo_session = InsertToMongoDB()
+    mongo_session = PacketMongoSession()
     packet_capture_process = Process(target=start_capture, args=(mongo_session, stop_event, ), daemon=True)
     packet_capture_process.start()
     pass
