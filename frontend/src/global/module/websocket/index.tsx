@@ -1,16 +1,42 @@
 import AppURL from '@global/constant/appURL'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { PublishMessage, SubscribeMessage } from './types'
 
-const ws = new WebSocket(AppURL.websocketURL.client)
-ws.onmessage = (message: MessageEvent<string>) => {
-  const payload = JSON.parse(message.data) as SubscribeMessage<object>
-  console.info({ 보내온_모듈_URL: (message.target as WebSocket)?.url, ...payload, time: payload.time * 1000 })
+const ReadyState = {
+  CONNECTING: 0, // 소켓이 생성됐으나 연결은 아직 개방되지 않았습니다.
+  OPEN: 1, // 연결이 개방되어 통신할 수 있습니다.
+  CLOSING: 2, // 연결을 닫는 중입니다.
+  CLOSED: 3, // 연결이 닫혔거나, 개방할 수 없었습니다.
+} as const
+
+const delay = (sec: number) => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, sec * 1000)
+  })
 }
 
-// FIXME: 모듈화!!!, 예외처리 등등등
 const useWebsocket = <T extends object>({ onMessage }: { onMessage?: (message: SubscribeMessage<T>) => void } = {}) => {
-  const ws = useMemo(() => new WebSocket(AppURL.websocketURL.client), [])
+  const ws = useRef<WebSocket | null>(null)
+
+  const connect = useCallback(async (): Promise<WebSocket | null> => {
+    ws.current = null
+    return new Promise((resolve, reject) => {
+      ws.current = new WebSocket(AppURL.websocketURL.client)
+      ws.current.onopen = () => {
+        resolve(ws.current)
+      }
+
+      ws.current.onmessage = (message: MessageEvent<string>) => {
+        const payload = JSON.parse(message.data) as SubscribeMessage<T>
+        onMessage?.(payload)
+      }
+
+      ws.current.onerror = (e) => {
+        console.log('websocket error: ', e)
+        reject(e)
+      }
+    })
+  }, [])
 
   /**
    * websocket 메시지 전송 함수
@@ -19,21 +45,37 @@ const useWebsocket = <T extends object>({ onMessage }: { onMessage?: (message: S
    * @default service 'frontend'
    * @default time new Date().getTime() / 1000
    */
-  const sendMessage = useCallback(
-    (message: PublishMessage) => {
-      ws.send(JSON.stringify({ level: 'info', service: 'frontend', time: new Date().getTime() / 1000, ...message }))
-    },
-    [ws],
-  )
+  const sendMessage = useCallback(async (message: PublishMessage) => {
+    if (ws.current?.readyState === ReadyState.CONNECTING) {
+      console.log('websocket connecting')
+      await delay(1)
+      await sendMessage(message)
+    } else if (ws.current?.readyState === ReadyState.OPEN) {
+      ws.current.send(
+        JSON.stringify({ level: 'info', service: 'frontend', time: new Date().getTime() / 1000, ...message }),
+      )
+    } else {
+      console.log('no websocket, try reconnect')
+      await delay(1)
+      await connect()
+      await sendMessage(message)
+    }
+  }, [])
 
   useEffect(() => {
-    ws.onmessage = (message: MessageEvent<string>) => {
+    connect()
+  }, [])
+
+  useEffect(() => {
+    if (!ws.current) return
+
+    ws.current.onmessage = (message: MessageEvent<string>) => {
       const payload = JSON.parse(message.data) as SubscribeMessage<T>
       onMessage?.(payload)
     }
   }, [onMessage])
 
-  return { ws, sendMessage }
+  return { sendMessage }
 }
 
 export default useWebsocket
