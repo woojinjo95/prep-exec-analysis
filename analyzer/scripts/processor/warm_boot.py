@@ -31,13 +31,22 @@ def test_warm_boot():
         logger.info(f'remocon_times: {remocon_times}')
 
         output_dir = os.path.join('/tmp', 'video', 'warm_boot')
+        warm_boot_results = []
         crop_videos = crop_video_with_opencv(args.video_path, args.timestamps, remocon_times, output_dir, get_setting_with_env('WARM_BOOT_DURATION', 10))
         for crop_video in crop_videos:
             if not check_poweroff_video(crop_video.video_path):
                 continue
             result = task_boot_test_with_diff(crop_video.video_path, crop_video.timestamps, crop_video.timestamps[0])
             logger.info(f'result: {result}')
+            warm_boot_results.append(result)
         shutil.rmtree(output_dir)
+
+        for result in warm_boot_results:
+            if result['status'] == 'success':
+                report_output(CollectionName.WARM_BOOT, {
+                    'timestamp': get_utc_datetime(result['diff_timestamp']),
+                    'measure_time': result['diff_time'],
+                })
 
         publish_msg({'measurement': ['resume']}, 'analysis_response')
 

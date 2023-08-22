@@ -1,4 +1,4 @@
-from typing import List, Generator
+from typing import List, Generator, Dict
 import traceback
 import logging
 import cv2
@@ -10,7 +10,7 @@ logger = logging.getLogger('boot_test')
 
 
 @log_decorator(logger)
-def task_boot_test_with_diff(video_path: str, timestamps: List[float], event_time: float) -> float:
+def task_boot_test_with_diff(video_path: str, timestamps: List[float], event_time: float) -> Dict:
     try:
         diff_timestamp = measure_boot_with_diff(
             video_path=video_path,
@@ -20,9 +20,16 @@ def task_boot_test_with_diff(video_path: str, timestamps: List[float], event_tim
     except:
         logger.error(f'Error: {traceback.format_exc()}')
         diff_timestamp = 0
-
-    diff_time = max(int((diff_timestamp - event_time) * 1000), 0)
+    
+    if diff_timestamp != 0:
+        status = 'success'
+        diff_time = max(int((diff_timestamp - event_time) * 1000), 0)
+    else:
+        status = 'error'
+        diff_time = 0
+    
     return {
+        'status': status,
         'diff_timestamp': diff_timestamp,
         'diff_time': diff_time
     }

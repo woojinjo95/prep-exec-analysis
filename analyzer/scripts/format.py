@@ -13,6 +13,7 @@ class VideoData:
 class CollectionName(Enum):
     COLOR_REFERENCE = 'an_color_reference'
     FREEZE = 'an_freeze'
+    WARM_BOOT = 'an_warm_boot'
 
 
 @dataclass
