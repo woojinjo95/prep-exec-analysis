@@ -72,6 +72,8 @@ def crop_video_with_timestamps(video_path: str, timestamps: List[float], target_
     cropped_videos = []
     max_time = timestamps[-1] - timestamps[0]
     for target_time in target_times:
+        start_timestamp = target_time
+        end_timestamp = target_time + duration
         start_time = max(target_time - timestamps[0], 0)
         end_time = min(start_time + duration, max_time)
 
@@ -81,7 +83,7 @@ def crop_video_with_timestamps(video_path: str, timestamps: List[float], target_
                     output_path=cropped_video_path,
                     start_time=start_time,
                     end_time=end_time)
-        cropped_timestamp = [timestamp for timestamp in timestamps if start_time <= timestamp <= end_time]
+        cropped_timestamp = [timestamp for timestamp in timestamps if start_timestamp <= timestamp <= end_timestamp]
         logger.info(f'video frame count: {get_video_info(cropped_video_path)["frame_count"]}, timestamp count: {len(cropped_timestamp)}')
 
         cropped_info = CroppedInfo(video_path=cropped_video_path, timestamps=cropped_timestamp)

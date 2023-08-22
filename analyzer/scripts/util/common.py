@@ -11,7 +11,7 @@ def get_parents_path(path: str, level: int = 0):
 
 
 def seconds_to_time(seconds):
-    hours = seconds // 3600
-    minutes = (seconds % 3600) // 60
-    seconds = seconds % 60
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    seconds = int(seconds % 60)
     return f"{hours:02}:{minutes:02}:{seconds:02}"
