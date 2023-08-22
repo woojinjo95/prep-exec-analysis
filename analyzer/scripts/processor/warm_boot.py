@@ -43,7 +43,7 @@ def test_warm_boot():
 
         for result in warm_boot_results:
             if result['status'] == 'success':
-                report_output(CollectionName.WARM_BOOT, {
+                report_output(CollectionName.WARM_BOOT.value, {
                     'timestamp': get_utc_datetime(result['diff_timestamp']),
                     'measure_time': result['diff_time'],
                 })
