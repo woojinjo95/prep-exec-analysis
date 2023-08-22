@@ -42,12 +42,12 @@ def iso_iec_13818_1_format(iso_iec_13818_1_bytes: bytes):
 def mpeg2_ts_parser(packet_bytes: bytes):
     rtp_sequence_num = -1
     try:
-        ip = packet_bytes[30:34]
+        ip_dst = packet_bytes[30:34]
         payload = packet_bytes[42:]
         len_payload = len(payload)
 
         if len_payload < 1316:
-            return ip, (-1, None)
+            return ip_dst, (-1, None)
         elif len_payload == 1328:  # 12 + 7 * 188:
             rtp_diagram = payload[:12]
             rtp_sequence_num = rtp_diagram[2] * 0x100 + rtp_diagram[3] if rtp_diagram[1] == 0x21 else -1
@@ -55,7 +55,7 @@ def mpeg2_ts_parser(packet_bytes: bytes):
         elif len_payload == 1316:  # 7 * 188
             mpeg_ts_7 = payload
         else:
-            return ip, (-1, None)
+            return ip_dst, (-1, None)
 
         pid_values = (iso_iec_13818_1_format(mpeg_ts_7[0:188]),
                       iso_iec_13818_1_format(mpeg_ts_7[188:376]),
@@ -64,7 +64,7 @@ def mpeg2_ts_parser(packet_bytes: bytes):
                       iso_iec_13818_1_format(mpeg_ts_7[752:940]),
                       iso_iec_13818_1_format(mpeg_ts_7[940:1128]),
                       iso_iec_13818_1_format(mpeg_ts_7[1128:1316]))
-        return ip, (rtp_sequence_num, pid_values)
+        return ip_dst, (rtp_sequence_num, pid_values)
 
     except:
-        return ip, (rtp_sequence_num, None)  # not ts file
+        return ip_dst, (rtp_sequence_num, None)  # not ts file
