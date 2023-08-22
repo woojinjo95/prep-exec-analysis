@@ -49,11 +49,13 @@ def FrameGenerator(video_path: str, timestamps: list = None):
 def crop_video(video_path: str, output_path: str, start_time: str, end_time: str):
     # start_time: absolute start time
     # end_time: absolute end time
+    fps = get_video_info(video_path)['fps']
     logger.info(f'start time: {start_time}, end time: {end_time}')
 
     cmd = [
         'ffmpeg', 
         '-i', video_path,
+        '-r', str(fps),
         '-ss', start_time,  # Start time, e.g., '00:00:10' for 10 seconds in
         '-to', end_time,    # End time, e.g., '00:01:00' for 1 minute in
         '-c:v', 'copy',     # Use the same codec for video
