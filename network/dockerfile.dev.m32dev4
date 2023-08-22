@@ -3,7 +3,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 # install fundamental
 RUN apt update 
-RUN apt install lsof net-tools tcpdump tshark ethtool traceroute iperf3 -y 
+RUN apt install lsof ebtables net-tools tshark tcpdump ethtool traceroute iperf3 iproute2 -y 
 
 # install pip & python
 RUN ln -s /usr/bin/python3 /usr/bin/python
@@ -19,6 +19,13 @@ ENV REDIS_HOST redis
 ENV REDIS_PORT 6379
 ENV REDIS_DB 0
 ENV REDIS_PASSWORD 66b44dcb7f981904f8536b19e4464725
+
+ENV MONGODB_SERVER mongodb
+ENV MONGODB_NAME prep-exec-analysis
+ENV MONGODB_PORT 27017
+ENV MONGODB_USERNAME admin
+ENV MONGODB_PASSWORD .nextlab6318!
+ENV MONGODB_AUTHENTICATION_SOURCE admin
 
 ADD . ./
 

@@ -44,3 +44,21 @@ def update_analysis_config(
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Update analysis_config'}
+
+
+@router.delete("/{analysis_type}", response_model=schemas.Msg)
+def delete_analysis_config(
+    *,
+    analysis_type: AnalysisTypeEnum,
+) -> schemas.Msg:
+    """
+    Delete analysis_config.
+    """
+    analysis_type = analysis_type.value
+    name = f'analysis_config:{analysis_type}'
+    if not RedisClient.hgetall(name=name):
+        raise HTTPException(
+            status_code=404, detail=f"The analysis_config with this {analysis_type} does not exist in the system.")
+
+    RedisClient.delete(name)
+    return {'msg': f'Delete {analysis_type} analysis_config'}

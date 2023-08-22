@@ -6,13 +6,16 @@ from pydantic.datetime_parse import parse_datetime
 
 
 class ScenarioCreate(BaseModel):
-    is_active: bool
+    is_active: Optional[bool] = False
     name: Optional[str]
     tags: Optional[List[str]]
     block_group: Optional[List[BlockGroup]]
 
 
-class ScenarioUpdate(ScenarioCreate):
+class ScenarioUpdate(BaseModel):
+    is_active: bool
+    name: str
+    tags: Optional[List[str]] = []
     block_group: List[BlockGroup]
 
 

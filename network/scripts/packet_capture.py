@@ -19,7 +19,7 @@ def start_capture(stop_event: Event):
     segmnet_interval = get_value('network', 'segment_interval', 10)
     rotation_interval = get_value('network', 'rotation_interval', 1800)
     rotating_file_count = rotation_interval // segmnet_interval + 5
-    target_nic = get_value('network', 'target_nic', 'enx00e09900866a')
+    stb_nic = get_value('network', 'stb_nic', 'enx00e09900866a')
     stream_dict = {}
 
     logger.info(f'Start Packet capture, maximum interval: {interval} second, {segmnet_interval} segment time')
@@ -29,7 +29,7 @@ def start_capture(stop_event: Event):
 
     dump_state = {}  # dump state
 
-    thread_info = start_capture_thread(target_nic, interval, dump_interval=segmnet_interval, state=dump_state, rotating_file_count=rotating_file_count, stop_event=stop_event)
+    thread_info = start_capture_thread(stb_nic, interval, dump_interval=segmnet_interval, state=dump_state, rotating_file_count=rotating_file_count, stop_event=stop_event)
     start_time = thread_info['start_time']
     capture_thread = thread_info['thread']
     path = None

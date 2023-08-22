@@ -66,7 +66,7 @@ const TerminalPanel: React.FC = () => {
       </div>
       <div className="flex flex-col justify-center p-5 h-full">
         <Button
-          colorScheme="grey"
+          colorScheme="dark"
           onClick={() => {
             // terminal 1개만 고려
             if (hardwareConfiguration) {
@@ -79,7 +79,6 @@ const TerminalPanel: React.FC = () => {
               }
             }
           }}
-          className="h-12"
         >
           Add Terminal
         </Button>
