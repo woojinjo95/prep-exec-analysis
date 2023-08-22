@@ -35,8 +35,8 @@ def get_remocon_times(event_result: Dict) -> List[float]:
         service = item.get('service', '')
         msg = item.get('msg', '')
         data = item.get('data', {})
-        key = data.get('key', '')
-        if service == 'control' and msg == 'remocon_response' and key == 'Power':
+        key = str(data.get('key', ''))
+        if service == 'control' and msg == 'remocon_response' and key.lower() == 'power':
             try:
                 sensor_time = data['sensor_time']
                 remocon_times.append(sensor_time)
