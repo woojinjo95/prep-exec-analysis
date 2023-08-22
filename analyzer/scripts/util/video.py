@@ -68,8 +68,10 @@ def crop_video_with_timestamps(video_path: str, timestamps: List[float], target_
     cropped_videos = []
     for start_time in target_times:
         end_time = min(start_time + duration, timestamps[-1])
+        logger.info(f'start time: {start_time}, end time: {end_time}')
 
         cropped_video_path = os.path.join(output_dir, f'{start_time}.mp4')
+        logger.info(f'cropped video path: {cropped_video_path}')
         crop_video(video_path=video_path,
                     output_path=cropped_video_path,
                     start_time=start_time,
