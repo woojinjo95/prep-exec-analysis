@@ -5,10 +5,12 @@ import numpy as np
 import cv2
 
 from scripts.analysis.image import get_cropped_image, is_similar_by_match_template
+from scripts.util.decorator import log_decorator
 
 logger = logging.getLogger('boot_test')
 
 
+@log_decorator(logger)
 def task_boot_test_with_match(video_path: str, timestamps: List[float], video_roi: List[int], template: np.ndarray, template_roi: List[int],
                               event_time: float, continuity_count: int):
     match_start_timestamp = 0

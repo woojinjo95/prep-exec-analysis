@@ -4,10 +4,12 @@ import logging
 import cv2
 
 from scripts.analysis.image import get_cropped_image, calc_diff_rate, calc_color_entropy
+from scripts.util.decorator import log_decorator
 
 logger = logging.getLogger('boot_test')
 
 
+@log_decorator(logger)
 def task_boot_test_with_diff(video_path: str, timestamps: List[float], event_time: float) -> float:
     try:
         diff_timestamp = measure_boot_with_diff(
@@ -125,11 +127,9 @@ def measure_boot_with_diff(video_path: str, mode: str, timestamps: list, event_t
             return 0
         else:
             diff_time = timestamps[start_index]
-            logger.info(f'diff start time: {diff_time}')
             return diff_time
     elif mode == 'end':
         diff_time = timestamps[end_index]
-        logger.info(f'diff end time: {diff_time}')
         return diff_time
     else:
         logger.error(f'invalid mode => {mode}')
