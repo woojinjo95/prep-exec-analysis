@@ -69,19 +69,20 @@ def delete_packet_block(query: dict):
         if not isinstance(packet_block_list, list):
             packet_block_list = []
 
-        for item in packet_block_list:
-            for k, v in query.items():
-                if item[k] != v:
+        uuid = query.get('id', None)
+        if uuid is not None:
+            for item in packet_block_list:
+                if item.get('id') == uuid:
+                    deleted_item = item
                     break
-            else:
-                deleted_item = item
-                break
 
-        if deleted_item is not None:
-            logger.warning(f'{deleted_item} is deleted')
-            packet_block_list.remove(deleted_item)
+            if deleted_item is not None:
+                logger.info(f'{deleted_item} is deleted')
+                packet_block_list.remove(deleted_item)
+                hset_value(src, HARDWARE_CONFIG, PACKET_BLOCK, packet_block_list)
+                return
 
-        hset_value(src, HARDWARE_CONFIG, PACKET_BLOCK, packet_block_list)
+        logger.warning(f'{query} is not valid to remove')
 
 
 def apply_network_emulation_args(args: Dict):
