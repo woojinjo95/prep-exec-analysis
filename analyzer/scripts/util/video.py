@@ -49,11 +49,15 @@ def FrameGenerator(video_path: str, timestamps: list = None):
 def crop_video(video_path: str, output_path: str, start_time: float, end_time: float):
     # start_time: absolute start time
     # end_time: absolute end time
+    start_time = seconds_to_time(start_time)
+    end_time = seconds_to_time(end_time)
+    logger.info(f'start time: {start_time}, end time: {end_time}')
+
     cmd = [
         'ffmpeg', 
         '-i', video_path,
-        '-ss', seconds_to_time(start_time),  # Start time, e.g., '00:00:10' for 10 seconds in
-        '-to', seconds_to_time(end_time),    # End time, e.g., '00:01:00' for 1 minute in
+        '-ss', start_time,  # Start time, e.g., '00:00:10' for 10 seconds in
+        '-to', end_time,    # End time, e.g., '00:01:00' for 1 minute in
         '-c:v', 'copy',     # Use the same codec for video
         '-c:a', 'copy',     # Use the same codec for audio
         '-y',
@@ -70,7 +74,6 @@ def crop_video_with_timestamps(video_path: str, timestamps: List[float], target_
     for target_time in target_times:
         start_time = max(target_time - timestamps[0], 0)
         end_time = min(start_time + duration, max_time)
-        logger.info(f'start time: {start_time}, end time: {end_time}')
 
         cropped_video_path = os.path.join(output_dir, f'{start_time}.mp4')
         logger.info(f'cropped video path: {cropped_video_path}')
