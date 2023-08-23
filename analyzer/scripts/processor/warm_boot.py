@@ -7,7 +7,6 @@ import cv2
 
 from scripts.analysis.boot_test.diff import task_boot_test_with_diff
 from scripts.analysis.boot_test.match import task_boot_test_with_match
-from scripts.analysis.image import get_cropped_image
 from scripts.analysis.video import check_poweroff_video
 from scripts.config.config import get_setting_with_env
 from scripts.connection.redis_pubsub import publish_msg
