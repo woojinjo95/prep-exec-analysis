@@ -24,7 +24,7 @@ def get_testrun_info() -> Dict[str, str]:
     return testrun_info
 
 
-def format_subscribed_log(subscribed_log: Dict):
+def format_subscribed_log(subscribed_log: Dict) -> Dict:
     return {'timestamp': get_utc_datetime(subscribed_log.get('time', time.time())),
             'service': subscribed_log.get('service', 'Unknown'),
             'msg': subscribed_log.get('msg', 'Unknown'),
