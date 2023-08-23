@@ -1,6 +1,7 @@
 from datetime import datetime
 from dataclasses import dataclass
 from enum import Enum
+from typing import List
 
 
 @dataclass
@@ -12,20 +13,16 @@ class VideoData:
 class CollectionName(Enum):
     COLOR_REFERENCE = 'an_color_reference'
     FREEZE = 'an_freeze'
+    WARM_BOOT = 'an_warm_boot'
 
 
 @dataclass
-class ReportData:
-    scenario_id: str
-    testrun_id: str
-    timestamp: datetime
+class InputData:
+    video_path: str
+    timestamps: List[float]
 
 
 @dataclass
-class ColorReferenceReport(ReportData):
-    color_reference: float
-
-
-@dataclass
-class FreezeReport(ReportData):
-    freeze_type: str
+class CroppedInfo:
+    video_path: str
+    timestamps: List[float]
