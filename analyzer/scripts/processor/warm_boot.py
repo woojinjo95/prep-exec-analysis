@@ -102,7 +102,6 @@ def test_warm_boot_with_match():
 def get_template() -> np.ndarray:
     analysis_config = read_analysis_config()
     image_path = analysis_config['resume']['frame']['image_path']
-    # image_path = '/app/workspace/frame.png'
     image = cv2.imread(image_path)
     return image
 
@@ -111,5 +110,4 @@ def get_roi() -> Tuple[int, int, int, int]:
     analysis_config = read_analysis_config()
     roi_data = analysis_config['resume']['frame']['roi']
     roi = roi_data['x'], roi_data['y'], roi_data['w'], roi_data['h']
-    # roi = (1730, 150, 100, 100)
     return roi
