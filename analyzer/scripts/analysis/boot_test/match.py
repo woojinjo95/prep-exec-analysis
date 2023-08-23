@@ -13,7 +13,7 @@ logger = logging.getLogger('boot_test')
 @log_decorator(logger)
 def task_boot_test_with_match(video_path: str, timestamps: List[float], event_time: float, 
                               video_roi: List[int], template: np.ndarray, template_roi: List[int],
-                              continuity_count: int):
+                              continuity_count: int = 10):
     try:
         match_timestamp = calc_match_interval(
             video_path, timestamps, video_roi, template, template_roi, event_time, continuity_count, release=False)
