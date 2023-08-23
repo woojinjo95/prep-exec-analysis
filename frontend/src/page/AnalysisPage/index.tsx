@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { useSetRecoilState } from 'recoil'
+import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { PageContainer, Text } from '@global/ui'
 import { useScenarios } from '@global/api/hook'
 import AppURL from '@global/constant/appURL'
-import { videoBlobURLState } from '@global/atom'
+import { scenarioIdState, videoBlobURLState } from '@global/atom'
 
 import LogTraceSection from './components/LogTraceSection'
 import VideoDetailSection from './components/VideoDetailSection'
@@ -18,8 +18,7 @@ const AnalysisPage: React.FC = () => {
   // TODO: rxjs? recoil? 고민
   const [startTime] = useState<Date>(new Date('2023-08-18T07:59:28.731511+00:00'))
   const [endTime] = useState<Date>(new Date('2023-08-18T08:03:13.925471+00:00'))
-  const [scenarioId] = useState<string | null>('5e731960-616a-436e-9cad-84fdbb39bbf4') // FIXME: 페이지 진입 시 설정되도록 변경필요
-
+  const scenarioId = useRecoilValue(scenarioIdState)
   const setVideoBlobURL = useSetRecoilState(videoBlobURLState)
 
   useScenarios({
