@@ -1,0 +1,18 @@
+.light {
+  path {
+    @apply fill-black;
+  }
+}
+
+.dark,
+.charcoal {
+  path {
+    @apply fill-white;
+  }
+
+  &.not-openable {
+    path {
+      @apply fill-light-charcoal;
+    }
+  }
+}
