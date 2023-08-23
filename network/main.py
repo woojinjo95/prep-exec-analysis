@@ -32,7 +32,7 @@ def command_parser(command: dict, packet_capture_stop_event: Event):
     publish command '{"msg": "epg_update", "data": {"provider": "sk", "ip": "239.192.60.43", "port": 49200}}'
     publish command '{"msg": "network_emulation", "data": {"action": "start"}}'
     publish command '{"msg": "network_emulation", "data": {"action": "add", "packet_block": {"ip": "239.192.41.2"}}}'
-    publish command '{"msg": "network_emulation", "data": {"action": "add", "delay": 20}}'
+    publish command '{"msg": "network_emulation", "data": {"action": "add", "packet_delay": 20}}'
     '''
 
     if command.get('msg') == 'packet_capture':
