@@ -38,18 +38,7 @@ interface CommandMessage {
 interface AnalysisMessage {
   msg: 'analysis'
   data: {
-    measurement: (
-      | 'freeze'
-      | 'boot'
-      | 'channel_change_time'
-      | 'log_level_finder'
-      | 'log_pattern_matching'
-      // | 'loudness'
-      // | 'macroblock'
-      // | 'network_filter'
-      // | 'process_lifecycle_analysis'
-      | 'resume'
-    )[]
+    measurement: ('freeze' | 'boot' | 'channel_change_time' | 'log_level_finder' | 'log_pattern_matching' | 'resume')[]
   }
 }
 
