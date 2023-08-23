@@ -123,7 +123,7 @@ const FilesSection: React.FC = () => {
         <div className="flex">
           <span
             className={cx('text-[15px] mr-[23px] cursor-pointer', {
-              'text-[#00B1FF]': selectedMenu === 'Blocks',
+              'text-primary': selectedMenu === 'Blocks',
               'text-white': selectedMenu !== 'Blocks',
             })}
             onClick={() => {
@@ -134,7 +134,7 @@ const FilesSection: React.FC = () => {
           </span>
           <span
             className={cx('text-[15px] cursor-pointer', {
-              'text-[#00B1FF]': selectedMenu === 'Analysis Results',
+              'text-primary': selectedMenu === 'Analysis Results',
               'text-white': selectedMenu !== 'Analysis Results',
             })}
             onClick={() => {
@@ -148,13 +148,13 @@ const FilesSection: React.FC = () => {
       <div className="mt-5 flex w-full min-h-[calc(100%-100px)]">
         <div className="flex flex-col w-full">
           <div className="w-full grid grid-cols-[30%_40%_25%_5%] border-b-grey border-b-[1px] h-8 items-center">
-            <Text className="text-sm" colorScheme="light">
+            <Text className="text-sm" colorScheme="grey">
               Name
             </Text>
-            <Text className="text-sm" colorScheme="light">
+            <Text className="text-sm" colorScheme="grey">
               Tag
             </Text>
-            <Text className="text-sm" colorScheme="light">
+            <Text className="text-sm" colorScheme="grey">
               Last modified
             </Text>
             <div />
