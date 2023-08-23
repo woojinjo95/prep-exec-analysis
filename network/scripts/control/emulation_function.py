@@ -61,6 +61,26 @@ def add_packet_block(block_args: dict):
             logger.warning(f'{block_args} is already added')
 
 
+def update_packet_block(block_args: dict):
+    with get_strict_redis_connection(db=RedisDBEnum.hardware) as src:
+        packet_block_list = hget_value(src, HARDWARE_CONFIG, PACKET_BLOCK)
+
+        if not isinstance(packet_block_list, list):
+            packet_block_list = []
+
+        uuid = block_args.pop('id', None)
+        if uuid is not None:
+            for packet_block_item in packet_block_list:
+                if packet_block_item.get('id') == uuid:
+                    packet_block_item.clear()
+                    packet_block_item.update(block_args)
+                    packet_block_item['id'] = uuid
+                    hset_value(src, HARDWARE_CONFIG, PACKET_BLOCK, packet_block_list)
+                    break
+            else:
+                logger.warning(f'{block_args} is not valid to remove')
+
+
 def delete_packet_block(query: dict):
     with get_strict_redis_connection(db=RedisDBEnum.hardware) as src:
         deleted_item = None
@@ -93,7 +113,7 @@ def apply_network_emulation_args(args: Dict):
     updated = {}
 
     with get_strict_redis_connection(db=RedisDBEnum.hardware) as src:
-        if action in ('add', 'del'):
+        if action in ('create', 'delete', 'update'):
             bandwidth_args = args.get(BANDWIDTH)
             delay_args = args.get(DELAY)
             loss_args = args.get(LOSS)
@@ -112,12 +132,15 @@ def apply_network_emulation_args(args: Dict):
                 updated['loss'] = loss_args
 
             if block_args is not None:
-                if action == 'add':
+                if action == 'create':
                     add_packet_block(block_args)
-                    updated['add'] = block_args
-                elif action == 'del':
+                    updated['create'] = block_args
+                elif action == 'delete':
                     delete_packet_block(block_args)
-                    updated['del'] = block_args
+                    updated['delete'] = block_args
+                elif action == 'update':
+                    update_packet_block(block_args)
+                    updated['update'] = block_args
 
         elif action == 'start':
             apply_network_emulation()
