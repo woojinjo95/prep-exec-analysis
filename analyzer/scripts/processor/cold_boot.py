@@ -24,7 +24,8 @@ def test_cold_boot():
         args = load_input()
 
         event_log = get_data_of_event_log(args.timestamps[0], args.timestamps[-1])
-        power_times = get_dut_power_times(event_log)        
+        power_times = get_dut_power_times(event_log)
+        # power_times = [1692694635.952278] 
         logger.info(f'power_times: {power_times}')
 
         with tempfile.TemporaryDirectory(dir='/tmp') as output_dir:
