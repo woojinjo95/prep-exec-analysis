@@ -5,7 +5,6 @@ import traceback
 from multiprocessing import Event, Queue, queues
 from typing import Dict
 
-from .capture.parser import get_packet_info
 from .configs.config import get_value
 from .configs.constant import RedisDBEnum
 from .connection.mongo_db.create import insert_to_mongodb
@@ -27,12 +26,8 @@ def get_testrun_info() -> Dict[str, str]:
 
 def format_subscribed_log(subscribed_log: Dict) -> Dict:
     return {'timestamp': get_utc_datetime(subscribed_log.get('time', time.time())),
-            'src': subscribed_log.get('src', ''),
-            'dst': subscribed_log.get('dst', ''),
-            'protocol': subscribed_log.get('protocol', ''),
-            'length': subscribed_log.get('length', 0),
-            'info': subscribed_log.get('info', ''),
-            }
+            'M': subscribed_log.get('M', -90.0),
+            'I': subscribed_log.get('I', -90.0)}
 
 
 class InsertToMongoDB:
@@ -53,7 +48,6 @@ class InsertToMongoDB:
         # add filter
         # if log.get('msg') in target_msg:
         if True:
-            logger.info(log)
             self.log_queue.put(log)
 
     def consume(self, stop_event: Event, run_state_event: Event):
@@ -72,14 +66,14 @@ class InsertToMongoDB:
                     document['lines'].append(format_subscribed_log(log))
                 else:
                     # 이미 document가 있고 로그 초는 늘어남
-                    insert_to_mongodb('network_trace', document)
+                    insert_to_mongodb('loudness', document)
                     document = self.init_document(log_time, format_subscribed_log(log))
 
             except queues.Empty:
                 if document is not None:
                     # 1초가 지나고 document가 비지 않으면 업데이트
                     logger.info(f'Timeout for 1 second and update to mongodb')
-                    insert_to_mongodb('network_trace', document)
+                    insert_to_mongodb('loudness', document)
                     document = None
 
             except Exception as e:
@@ -87,28 +81,3 @@ class InsertToMongoDB:
                 logger.info(traceback.format_exc())
                 # drop too many erros
                 time.sleep(0.5)
-
-
-class PacketMongoSession(InsertToMongoDB):
-
-    def __init__(self):
-        super().__init__()
-
-    def put_network_trace(self, timestamp: float, packet: bytes = None, info: str = ''):
-
-        data = {'time': timestamp,
-                'info': info,
-                }
-
-        if packet is not None:
-            src, dst, protocol, length = get_packet_info(packet)
-            data.update({'src': src,
-                         'dst': dst,
-                         'protocol': protocol,
-                         'length': length,
-                         })
-        else:
-            pass
-
-        logger.info(data)
-        super().put(data)

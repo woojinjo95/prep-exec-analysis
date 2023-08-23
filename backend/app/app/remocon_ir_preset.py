@@ -350,7 +350,7 @@ remocons = [
                 "hotkey": []
             }
         ]
-    }
+    },
     {
         "name": "kt",
         "image_path": "/api/v1/file/system_file/remocon_image_kt.png",

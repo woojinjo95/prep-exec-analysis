@@ -11,7 +11,7 @@ from scripts.connection.redis_pubsub import (Subscribe,
                                              publish)
 from scripts.log_organizer import LogOrganizer
 from scripts.media_process.capture import refresh_capture_board, streaming
-from scripts.media_process.loudness import test_audio_redis_update
+from scripts.media_process.loudness import update_loudness_to_mongodb
 from scripts.media_process.rotation import MakeVideo
 from scripts.utils._exceptions import handle_errors
 
@@ -89,8 +89,10 @@ def command_parser(command: dict, streaming_stop_event: Event):
 
 @handle_errors
 def main():
+    global_stop_event = Event()
     streaming_stop_event = Event()
     init()
+    update_loudness_to_mongodb(global_stop_event)
     with get_strict_redis_connection() as src:
         for command in Subscribe(src, RedisChannel.command):
             command_parser(command, streaming_stop_event)
