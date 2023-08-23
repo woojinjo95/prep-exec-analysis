@@ -75,10 +75,14 @@ def update_packet_block(block_args: dict):
                     packet_block_item.clear()
                     packet_block_item.update(block_args)
                     packet_block_item['id'] = uuid
+                    logger.warning(f'{uuid}: {block_args} is updated')
+
                     hset_value(src, HARDWARE_CONFIG, PACKET_BLOCK, packet_block_list)
                     break
             else:
                 logger.warning(f'{block_args} is not valid to remove')
+        else:
+            logger.warning(f'No uuid is specified: {block_args}')
 
 
 def delete_packet_block(query: dict):
