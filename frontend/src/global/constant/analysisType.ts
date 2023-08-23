@@ -1,5 +1,5 @@
 /**
- * 측정 유형 enum
+ * 분석 타입 enum
  */
 const AnalysisType = {
   freeze: 'freeze',
