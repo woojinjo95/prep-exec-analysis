@@ -21,6 +21,7 @@ export default {
         yellow: '#FFDD00',
         navy: '#3A547D',
         green: '#97A442',
+        'light-red': '#EB0050',
 
         // default active 색상
         primary: '#00B1FF',

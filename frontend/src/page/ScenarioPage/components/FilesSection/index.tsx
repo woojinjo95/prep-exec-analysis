@@ -110,9 +110,7 @@ const FilesSection: React.FC = () => {
     <div className="flex flex-col w-full h-full p-7 min-h-full border-r-[1px] border-b-grey">
       <div className="min-h-[100px]">
         <div className="flex justify-between mt-5">
-          <Text className="text-[25px] mb-5" colorScheme="light">
-            Files
-          </Text>
+          <span className="text-[24px] mb-5 text-white">Files</span>
           <div className="flex">
             <Text size="md" className="mr-6 cursor-pointer">
               Search
