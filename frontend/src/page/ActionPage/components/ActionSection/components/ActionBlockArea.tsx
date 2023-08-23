@@ -347,7 +347,7 @@ const ActionBlockArea = ({ scenarioId }: ActionBlockAreaProps): JSX.Element => {
   }, [scenarioId])
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full min-h-full">
       <div
         className="h-full bg-[#F1F2F4] w-full pt-3 overflow-y-auto bg-repeat-y"
         onMouseDown={handleMouseDown}

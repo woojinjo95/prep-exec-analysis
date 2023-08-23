@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useRef, useState } from 'react'
 import {
   Button,
@@ -9,11 +10,13 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react'
+import { useRecoilValue } from 'recoil'
 
 // import { VideoSnapshots } from '@global/ui'
 // import video from './video.mp4'
-import CropBox from './CropBox'
+import { videoBlobURLState } from '@global/atom'
 import VideoTimeSlider from './VideoTimeSlider'
+import CropBox from './CropBox'
 
 interface SetROIModalProps {
   isOpen: boolean
@@ -33,6 +36,8 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose }) => {
   const [videoHeight, setVideoHeight] = useState<number | null>(null)
   const [cropWidth, setCropWidth] = useState<number | null>(null)
   const [cropHeight, setCropHeight] = useState<number | null>(null)
+
+  const src = useRecoilValue(videoBlobURLState)
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="3xl" isCentered>
@@ -55,15 +60,19 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose }) => {
               setCropHeight(ref.clientHeight / 2)
             }}
           >
-            <video
-              ref={videoRef}
-              // src={video}
-              onLoadedData={(e) => {
-                setVideoWidth(e.currentTarget.videoWidth)
-                setVideoHeight(e.currentTarget.videoHeight)
-                setDuration(e.currentTarget.duration)
-              }}
-            />
+            {src && (
+              <video
+                ref={videoRef}
+                src={src}
+                onLoadedData={(e) => {
+                  setVideoWidth(e.currentTarget.videoWidth)
+                  setVideoHeight(e.currentTarget.videoHeight)
+                  setDuration(e.currentTarget.duration)
+                }}
+                controls
+              />
+            )}
+
             {/* background 영역, brightness 1/4배 어둡게 */}
             <div className="absolute top-0 left-0 w-full h-full backdrop-brightness-[0.25]" />
             {/* crop 영역, brightness 4배 밝게 => 원본밝기 */}

@@ -3,6 +3,7 @@ import logging
 
 from scripts.modules.color_reference import ColorReference
 from scripts.modules.freeze_detect import FreezeDetect
+from scripts.modules.warm_boot import WarmBoot
 
 
 logger = logging.getLogger('main')
@@ -12,24 +13,10 @@ class CommandExecutor:
     def __init__(self):
         self.color_ref_module = ColorReference()
         self.freeze_detect_module = FreezeDetect()
-
-    # Color Reference
-    def start_color_ref_module(self):
-        self.color_ref_module.start()
-    
-    def stop_color_ref_module(self):
-        self.color_ref_module.stop()
-
-    # Freeze Detect
-    def start_freeze_detect_module(self):
-        self.freeze_detect_module.start()
-    
-    def stop_freeze_detect_module(self):
-        self.freeze_detect_module.stop()
+        self.warm_boot_module = WarmBoot()
 
     def execute(self, command: Dict):
         # freeze_detect start:  PUBLISH command '{"msg": "analysis", "data": {"measurement": ["freeze"]}}'
-
 
         # if command.get('msg') == 'color_reference':
         #     arg = command.get('data', {})
@@ -37,9 +24,9 @@ class CommandExecutor:
 
         #     control = arg.get('control', '')
         #     if control == 'start':
-        #         self.start_color_ref_module()
+        #         self.color_ref_module.start()
         #     elif control == 'stop':
-        #         self.stop_color_ref_module()
+        #         self.color_ref_module.stop()
         #     else:
         #         logger.warning(f'Unknown control: {control}')
         
@@ -49,7 +36,9 @@ class CommandExecutor:
 
             measurement = data.get('measurement', [])
             if 'freeze' in measurement:
-                self.start_freeze_detect_module()
+                self.freeze_detect_module.start()
+            elif 'resume' in measurement:
+                self.warm_boot_module.start()
 
         else:
             pass

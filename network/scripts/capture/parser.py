@@ -1,8 +1,9 @@
+import logging
 import os
+import socket
 import time
 from collections import deque
-from typing import List, Tuple, Iterable
-import logging
+from typing import Iterable, List, Tuple
 
 from pypacker import ppcap
 from pypacker.layer12 import ethernet
@@ -10,7 +11,6 @@ from pypacker.layer12 import ethernet
 from ..control.command import get_pid_list
 from .dumper import (FILENAME, ROTATING_FILE_COUNT, TCPDUMP, dirpath,
                      get_pcap_file_list)
-
 
 logger = logging.getLogger('capture')
 
@@ -21,7 +21,11 @@ def parse_pcap_file(path: str):
     return ppcap.Reader(filename=path)
 
 
-def check_base_info(packet_bytes: bytes) -> Tuple[int, int, int]:
+def convert_ip_bytes_string(ip_bytes: bytes):
+    return socket.inet_ntoa(ip_bytes)
+
+
+def get_base_info(packet_bytes: bytes) -> Tuple[int, int, int]:
     # mac_info = packet_bytes[:14]
     # ip_info = packet_bytes[14:34]
     # protocol = ip_info[9]
@@ -32,6 +36,14 @@ def check_base_info(packet_bytes: bytes) -> Tuple[int, int, int]:
     protocol = packet_bytes[23]
 
     return iptype, protocol, ip_total_legnth
+
+
+def get_packet_info(packet_bytes: bytes) -> Tuple[str, str, str, int]:
+    ip_src = convert_ip_bytes_string(packet_bytes[26:30])
+    ip_dst = convert_ip_bytes_string(packet_bytes[30:34])
+    protocol = packet_bytes[23]
+    length = len(packet_bytes)
+    return ip_src, ip_dst, protocol, length
 
 
 def get_stale_pcap_chunck_files() -> List[str]:
