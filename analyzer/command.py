@@ -39,9 +39,9 @@ class CommandExecutor:
             measurement = data.get('measurement', [])
             if 'freeze' in measurement:
                 self.freeze_detect_module.start()
-            elif 'resume' in measurement:
+            if 'resume' in measurement:
                 self.warm_boot_module.start()
-            elif 'boot' in measurement:
+            if 'boot' in measurement:
                 self.cold_boot_module.start()
 
         else:
