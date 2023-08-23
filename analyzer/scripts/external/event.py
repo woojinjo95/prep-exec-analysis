@@ -29,7 +29,7 @@ def get_data_of_event_log(start_time: float, end_time: float):
     return {"items": event_log}
 
 
-def get_remocon_times(event_result: Dict) -> List[float]:
+def get_power_key_times(event_result: Dict) -> List[float]:
     remocon_times = []
     for item in event_result.get('items', []):
         service = item.get('service', '')
@@ -43,3 +43,19 @@ def get_remocon_times(event_result: Dict) -> List[float]:
             except KeyError:
                 pass
     return remocon_times
+
+
+def get_dut_power_times(event_result: Dict) -> List[float]:
+    control_times = []
+    for item in event_result.get('items', []):
+        service = item.get('service', '')
+        msg = item.get('msg', '')
+        data = item.get('data', {})
+        dut_power_transition = data.get('enable_dut_power_transition', '')
+        if service == 'control' and msg == 'on_off_control_response' and dut_power_transition == 'rising':
+            try:
+                sensor_time = data['sensor_time']
+                control_times.append(sensor_time)
+            except KeyError:
+                pass
+    return control_times

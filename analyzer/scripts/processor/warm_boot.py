@@ -2,7 +2,6 @@ import logging
 import traceback
 import cv2
 import tempfile
-import os
 
 from scripts.format import CollectionName
 from scripts.external.data import load_input
@@ -10,7 +9,7 @@ from scripts.external.report import report_output
 from scripts.connection.redis_pubsub import publish_msg
 from scripts.util._timezone import get_utc_datetime
 from scripts.util.video import crop_video_with_opencv
-from scripts.external.event import get_data_of_event_log, get_remocon_times
+from scripts.external.event import get_data_of_event_log, get_power_key_times
 from scripts.config.config import get_setting_with_env
 from scripts.analysis.boot_test.diff import task_boot_test_with_diff
 from scripts.util.decorator import log_decorator
@@ -22,14 +21,11 @@ logger = logging.getLogger('boot_test')
 
 @log_decorator(logger)
 def test_warm_boot():
-    # power_mode: 'warm' or 'cold'
-    # processing_mode: 'match' or 'diff'
     try:  
         args = load_input()
 
         event_log = get_data_of_event_log(args.timestamps[0], args.timestamps[-1])
-        # logger.info(f'event_log: {event_log}')
-        remocon_times = get_remocon_times(event_log)
+        remocon_times = get_power_key_times(event_log)
         logger.info(f'remocon_times: {remocon_times}')
 
         with tempfile.TemporaryDirectory(dir='/tmp') as output_dir:
