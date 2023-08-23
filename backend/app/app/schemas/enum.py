@@ -65,6 +65,7 @@ class ChannelChangeTimeTargetEnum(ExtendedEnum):
 class BlockTypeEnum(ExtendedEnum):
     remocon_transmit = "remocon_transmit"
     on_off_control = "on_off_control"
+    shell = "shell"
 
 
 class LogModuleEnum(ExtendedEnum):
