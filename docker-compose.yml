@@ -49,6 +49,8 @@ services:
       - "8888:8888" # HLS
     volumes:
       - "./media/mediamtx.yml:/mediamtx.yml"
+      - "./media/server.crt:/server.crt"
+      - "./media/server.key:/server.key"
     logging:
       options:
         max-file: "3"

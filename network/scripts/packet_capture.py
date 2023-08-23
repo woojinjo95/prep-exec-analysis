@@ -3,18 +3,17 @@ import time
 from multiprocessing import Event, Process
 
 from .analysis.packet_analyzer import (init_archived_stream_dict,
-                                       pprint_archived_stream_dict,
-                                       pprint_stream_dict,
                                        read_pcap_and_update_dict)
 from .capture.dumper import start_capture_thread, stop_capture
-from .capture.parser import (TCPDUMP, get_completed_pcap_chunck_files,
+from .capture.parser import (get_completed_pcap_chunck_files,
                              init_read_path_list)
-from .configs.config import get_value, set_value
+from .configs.config import get_value
+from .mongo_db_update import PacketMongoSession
 
 logger = logging.getLogger('main')
 
 
-def start_capture(stop_event: Event):
+def start_capture(mongo_session: PacketMongoSession, stop_event: Event):
     interval = 3600 * 24 * 2  # 2 days
     segmnet_interval = get_value('network', 'segment_interval', 10)
     rotation_interval = get_value('network', 'rotation_interval', 1800)
@@ -36,7 +35,7 @@ def start_capture(stop_event: Event):
 
     def read_process(stream_dict: dict, archived_stream_dict: dict, read_path_list: list, path: str):
         if path not in read_path_list:
-            read_pcap_and_update_dict(stream_dict, path, archived_stream_dict)
+            read_pcap_and_update_dict(mongo_session, stream_dict, path, archived_stream_dict)
             read_path_list.append(path)
 
     time.sleep(segmnet_interval + 1)  # wait for first dump end.
@@ -49,6 +48,7 @@ def start_capture(stop_event: Event):
 
 
 def real_time_packet_capture(stop_event: Event = Event()) -> Event:
-    packet_capture_process = Process(target=start_capture, args=(stop_event, ), daemon=True)
+    mongo_session = PacketMongoSession()
+    packet_capture_process = Process(target=start_capture, args=(mongo_session, stop_event, ), daemon=True)
     packet_capture_process.start()
     pass

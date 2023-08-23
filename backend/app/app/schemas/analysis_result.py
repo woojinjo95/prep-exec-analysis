@@ -50,7 +50,7 @@ class ColorReference(BaseModel):
 
 
 class FreezeBase(TimestampBaseModel):
-    pass
+    freeze_type: str
 
 
 class Freeze(BaseModel):

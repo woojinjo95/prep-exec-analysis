@@ -3,12 +3,14 @@ import logging
 import time
 import traceback
 from multiprocessing import Event
-from typing import Generator
+from typing import Generator, Dict
 
 from redis.exceptions import ConnectionError as RedisConnectionError
 
 # get_strict_redis_connection is not used in this code, but it used when import with publish
 from .redis_conn import StrictRedis, get_strict_redis_connection
+from scripts.config.constant import RedisDB, RedisChannel
+
 
 logger = logging.getLogger('connection')
 
@@ -81,3 +83,12 @@ def Subscribe(redis_client: StrictRedis, channel: str, stop_event: Event = Event
             logger.error(f'Error in consume function: {e}')
             logger.info(traceback.format_exc())
             time.sleep(1)  # to avoid too many log
+
+
+def publish_msg(data: Dict, msg: str, level: str = 'info'):
+    with get_strict_redis_connection(RedisDB.hardware) as src:
+        publish(src, RedisChannel.command, {
+            'data': data,
+            'msg': msg,
+            'level': level,
+        })

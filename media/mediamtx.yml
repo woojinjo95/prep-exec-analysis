@@ -1,12 +1,18 @@
 ###############################################
 # General parameters
 
-logLevel: info
+logLevel: error
 logDestinations: [stdout]
 logFile: rtsp-simple-server.log
 readTimeout: 10s
 writeTimeout: 10s
-readBufferCount: 512
+
+# Number of read buffers.
+# A higher value allows a wider throughput, a lower value allows to save RAM.
+readBufferCount: 1024
+# Maximum size of payload of outgoing UDP packets.
+# This can be decreased to avoid fragmentation on networks with a low UDP MTU.
+udpMaxPayloadSize: 1472
 
 # HTTP URL to perform external authentication.
 # Every time a user wants to authenticate, the server calls this URL
@@ -26,8 +32,12 @@ externalAuthenticationURL:
 # Enable the HTTP API.
 api: yes
 apiAddress: :9997
+
+# Enable Prometheus-compatible metrics.
 metrics: yes
 metricsAddress: :9998
+
+# Enable pprof-compatible endpoint to monitor performances.
 pprof: no
 pprofAddress: 127.0.0.1:9999
 runOnConnect:
@@ -61,17 +71,32 @@ rtmpAddress: :1935
 hlsDisable: no
 hlsAddress: :8888
 hlsAlwaysRemux: yes # yes로 하면 단 1개의 세션도 없을 때 반응 속도가 빨라짐
-hlsSegmentCount: 10 # 개수가 클 수록 더 이전 값을 불러올 수 있음
+hlsSegmentCount: 7 # 개수가 클 수록 더 이전 값을 불러올 수 있음
 hlsSegmentDuration: 0.5s
-hlsSegmentMaxSize: 200M
-hlsAllowOrigin: '*'
-# LL-HLS parameters
-# hlsVariant: lowLatency
-# hlsEncryption: yes
-# hlsServerKey: server.key
-# hlsServerCert: server.crt
-# hlsPartDuration: 1000ms
+hlsSegmentMaxSize: 50M
+hlsAllowOrigin: "*"
 
+###############################################
+# LL-HLS parameters
+# Enable TLS/HTTPS on the HLS server.
+# This is required for Low-Latency HLS.
+# 아래 hls Encryption을 하지 않으면, low latency 설정이 되지 않습니다.
+hlsVariant: lowLatency
+
+# hlsEncryption: yes
+hlsEncryption: no
+
+###############################################
+
+hlsServerKey: server.key
+hlsServerCert: server.crt
+hlsPartDuration: 200ms
+
+###############################################
+# WebRTC parameters
+
+# Disable support for the WebRTC protocol.
+webrtcDisable: no
 
 ###############################################
 # Path parameters
@@ -89,14 +114,13 @@ paths:
     disablePublisherOverride: no
     fallback:
 
-    # publishUser: garnet
-    # publishPass: 9a2a2a
+    publishUser:
+    publishPass:
     publishIPs: []
 
-    # readUser: heliodor
-    # readUser: 
-    # readPass:
-    # readPass: ffdf00
+    readUser:
+    readPass:
+
     readIPs: []
     runOnInit:
     runOnInitRestart: no
@@ -107,6 +131,6 @@ paths:
 
     runOnReady:
     runOnReadyRestart: no
-   
+
     runOnRead:
     runOnReadRestart: no

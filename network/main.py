@@ -105,6 +105,7 @@ if __name__ == '__main__':
         log_organizer.set_stream_logger('analysis')
         log_organizer.set_stream_logger('network_control')
         log_organizer.set_stream_logger('epg')
+        log_organizer.set_stream_logger('mongodb')
         log_organizer.set_stream_logger('file')
         log_organizer.set_stream_logger('shell')
         log_organizer.set_stream_logger('connection')
