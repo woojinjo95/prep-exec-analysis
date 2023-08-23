@@ -73,12 +73,12 @@ def start_capture(interface: str, interval: int, dump_interval: int = 5, clear: 
             remove_old_pcap_file(rotating_file_count)
             time.sleep(dump_interval / 5)
 
-            stdout_pipe = process.stdout.read()
-            stderr_pipe = process.stderr.read()
-
             if interval > 0 and time.time() > start_time + interval + max(1, interval * 0.1):
                 logger.warning('Capture process is not completed by 10% offset. kill process.')
                 break
+
+        stdout_pipe = process.stdout.read()
+        stderr_pipe = process.stderr.read()
 
     logger.info(f'Capture parse process ended')
 
