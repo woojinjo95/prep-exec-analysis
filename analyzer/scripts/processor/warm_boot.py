@@ -48,6 +48,7 @@ def test_warm_boot_with_diff():
 
     event_log = get_data_of_event_log(args.timestamps[0], args.timestamps[-1])
     remocon_times = get_power_key_times(event_log)
+    # remocon_times = [1692673582.4239447, 1692673592.3466334, 1692673696.58994, 1692673703.0160654]
     logger.info(f'remocon_times: {remocon_times}')
 
     with tempfile.TemporaryDirectory(dir='/tmp') as output_dir:
@@ -76,6 +77,7 @@ def test_warm_boot_with_match():
 
     event_log = get_data_of_event_log(args.timestamps[0], args.timestamps[-1])
     remocon_times = get_power_key_times(event_log)
+    # remocon_times = [1692673582.4239447, 1692673592.3466334, 1692673696.58994, 1692673703.0160654]
     logger.info(f'remocon_times: {remocon_times}')
 
     with tempfile.TemporaryDirectory(dir='/tmp') as output_dir:
@@ -100,11 +102,14 @@ def test_warm_boot_with_match():
 def get_template() -> np.ndarray:
     analysis_config = read_analysis_config()
     image_path = analysis_config['resume']['frame']['image_path']
+    # image_path = '/app/workspace/frame.png'
     image = cv2.imread(image_path)
     return image
 
 
 def get_roi() -> Tuple[int, int, int, int]:
     analysis_config = read_analysis_config()
-    roi = analysis_config['resume']['frame']['roi']
-    return roi['x'], roi['y'], roi['w'], roi['h']
+    roi_data = analysis_config['resume']['frame']['roi']
+    roi = roi_data['x'], roi_data['y'], roi_data['w'], roi_data['h']
+    # roi = (1730, 150, 100, 100)
+    return roi
