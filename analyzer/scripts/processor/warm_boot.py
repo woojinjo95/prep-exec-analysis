@@ -1,6 +1,5 @@
 import logging
 import traceback
-import cv2
 import tempfile
 
 from scripts.format import CollectionName
@@ -13,8 +12,7 @@ from scripts.external.event import get_data_of_event_log, get_power_key_times
 from scripts.config.config import get_setting_with_env
 from scripts.analysis.boot_test.diff import task_boot_test_with_diff
 from scripts.util.decorator import log_decorator
-from scripts.util.static import get_static_image
-from scripts.analysis.image import is_similar_by_match_template
+from scripts.analysis.video import check_poweroff_video
 
 logger = logging.getLogger('boot_test')
 
@@ -52,21 +50,3 @@ def test_warm_boot():
         publish_msg({'measurement': ['resume']}, error_detail, level='error')
         logger.error(f"error in test_warm_boot: {err}")
         logger.warning(error_detail)
-
-
-def check_poweroff_video(video_path) -> bool:
-    cap = cv2.VideoCapture(video_path)
-    ret, frame = cap.read()
-    if not ret:
-        logger.warning("cannot read frame")
-        return False
-    cap.release()
-    
-    power_off_image = get_static_image('power_off', 'off_screen_magewell.png')
-    is_similar = is_similar_by_match_template(frame, power_off_image)
-    if is_similar:
-        logger.info(f'power off video: {video_path}')
-        return True
-    else:
-        logger.info(f'not power off video: {video_path}')
-        return False
