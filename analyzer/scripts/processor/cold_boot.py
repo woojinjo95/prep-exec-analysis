@@ -5,7 +5,6 @@ from typing import Tuple
 import numpy as np
 import cv2
 
-from scripts.analysis.boot_test.diff import task_boot_test_with_diff
 from scripts.analysis.boot_test.match import task_boot_test_with_match
 from scripts.analysis.video import check_poweroff_video
 from scripts.config.config import get_setting_with_env
