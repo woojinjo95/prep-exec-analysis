@@ -88,7 +88,7 @@ async def workspace_video_file_download(
 
 
 @router.get('/partial_video', response_class=FileResponse)
-async def partial_video_download(
+async def workspace_partial_video_file_download(
     scenario_id: Optional[str] = None,
     range: str = Header(None)
 ) -> FileResponse:
