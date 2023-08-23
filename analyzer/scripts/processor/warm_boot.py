@@ -49,7 +49,6 @@ def test_warm_boot_with_diff():
     event_log = get_data_of_event_log(args.timestamps[0], args.timestamps[-1])
     remocon_times = get_power_key_times(event_log)
     # remocon_times = [1692673582.4239447, 1692673592.3466334, 1692673696.58994, 1692673703.0160654]
-    logger.info(f'remocon_times: {remocon_times}')
 
     with tempfile.TemporaryDirectory(dir='/tmp') as output_dir:
         warm_boot_results = []
@@ -58,7 +57,6 @@ def test_warm_boot_with_diff():
             if not check_poweroff_video(crop_video.video_path):
                 continue
             result = task_boot_test_with_diff(crop_video.video_path, crop_video.timestamps, crop_video.timestamps[0])
-            logger.info(f'result: {result}')
             warm_boot_results.append(result)
 
     for result in warm_boot_results:
@@ -77,7 +75,6 @@ def test_warm_boot_with_match():
     event_log = get_data_of_event_log(args.timestamps[0], args.timestamps[-1])
     remocon_times = get_power_key_times(event_log)
     # remocon_times = [1692673582.4239447, 1692673592.3466334, 1692673696.58994, 1692673703.0160654]
-    logger.info(f'remocon_times: {remocon_times}')
 
     with tempfile.TemporaryDirectory(dir='/tmp') as output_dir:
         warm_boot_results = []
@@ -87,7 +84,6 @@ def test_warm_boot_with_match():
                 continue
             result = task_boot_test_with_match(crop_video.video_path, crop_video.timestamps, crop_video.timestamps[0],
                                                roi, template, roi)
-            logger.info(f'result: {result}')
             warm_boot_results.append(result)
 
     for result in warm_boot_results:

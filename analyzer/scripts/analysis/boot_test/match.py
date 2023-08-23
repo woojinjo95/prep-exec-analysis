@@ -28,11 +28,13 @@ def task_boot_test_with_match(video_path: str, timestamps: List[float], event_ti
         status = 'error'
         match_time = 0
 
-    return {
+    result = {
         'status': status,
         'match_timestamp': match_timestamp,
         'match_time': match_time,
     }
+    logger.info(f'result: {result}')
+    return result
 
 
 def calc_match_interval(video_path: str, timestamps: list, video_roi: List[int], template: np.ndarray, template_roi: list, event_time: float,

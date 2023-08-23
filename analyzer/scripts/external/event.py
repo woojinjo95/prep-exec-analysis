@@ -42,6 +42,7 @@ def get_power_key_times(event_result: Dict) -> List[float]:
                 remocon_times.append(sensor_time)
             except KeyError:
                 pass
+    logger.info(f'remocon_times: {remocon_times}')
     return remocon_times
 
 
@@ -58,4 +59,5 @@ def get_dut_power_times(event_result: Dict) -> List[float]:
                 control_times.append(sensor_time)
             except KeyError:
                 pass
+    logger.info(f'control_times: {control_times}')
     return control_times
