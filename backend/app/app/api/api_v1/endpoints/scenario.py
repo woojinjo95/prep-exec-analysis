@@ -105,15 +105,6 @@ def read_scenario_by_id(
                                                     "testrun_id": testrun_id,
                                                     "scenario_id": scenario_id}))
 
-        # 로그 수집시작 메세지 전송
-        RedisClient.publish('command',
-                            set_redis_pub_msg(msg="stb_log",
-                                              data={"control": "start"}))
-
-        # 스트리밍 시작 메세지 전송
-        RedisClient.publish('command',
-                            set_redis_pub_msg(msg="streaming",
-                                              data={"action": "start"}))
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'items': scenario}
