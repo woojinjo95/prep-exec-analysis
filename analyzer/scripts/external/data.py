@@ -13,12 +13,12 @@ logger = logging.getLogger('connection')
 
 
 def load_data() -> Dict:
-    scenario = load_scenario()
-    # logger.info(f'scenario: {scenario}')
-    video_path = scenario['testrun']['raw']['videos'][0]['path']
-    stat_path = scenario['testrun']['raw']['videos'][0]['stat_path']
-    # video_path = "/app/workspace/testruns/2023-08-14T054428F718593/raw/videos/video_2023-08-22T172921F075886+0900_1800.mp4"
-    # stat_path = "/app/workspace/testruns/2023-08-14T054428F718593/raw/videos/video_2023-08-22T172921F075886+0900_1800.mp4_stat"
+    # scenario = load_scenario()
+    # # logger.info(f'scenario: {scenario}')
+    # video_path = scenario['testrun']['raw']['videos'][0]['path']
+    # stat_path = scenario['testrun']['raw']['videos'][0]['stat_path']
+    video_path = "/app/workspace/testruns/2023-08-14T054428F718593/raw/videos/video_2023-08-22T172921F075886+0900_1800.mp4"
+    stat_path = "/app/workspace/testruns/2023-08-14T054428F718593/raw/videos/video_2023-08-22T172921F075886+0900_1800.mp4_stat"
     return {
         "video_path": video_path,
         "stat_path": stat_path,
