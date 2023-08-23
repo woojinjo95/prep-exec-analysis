@@ -1,19 +1,23 @@
 import logging
-import traceback
 import tempfile
+import traceback
+from typing import Tuple
+import numpy as np
+import cv2
 
-from scripts.format import CollectionName
-from scripts.external.data import load_input, read_analysis_config, get_roi
-from scripts.external.report import report_output
-from scripts.connection.redis_pubsub import publish_msg
-from scripts.util._timezone import get_utc_datetime
-from scripts.util.video import crop_video_with_opencv
-from scripts.external.event import get_data_of_event_log, get_power_key_times
-from scripts.config.config import get_setting_with_env
 from scripts.analysis.boot_test.diff import task_boot_test_with_diff
 from scripts.analysis.boot_test.match import task_boot_test_with_match
-from scripts.util.decorator import log_decorator
+from scripts.analysis.image import get_cropped_image
 from scripts.analysis.video import check_poweroff_video
+from scripts.config.config import get_setting_with_env
+from scripts.connection.redis_pubsub import publish_msg
+from scripts.external.data import load_input, read_analysis_config
+from scripts.external.event import get_data_of_event_log, get_power_key_times
+from scripts.external.report import report_output
+from scripts.format import CollectionName
+from scripts.util._timezone import get_utc_datetime
+from scripts.util.decorator import log_decorator
+from scripts.util.video import crop_video_with_opencv
 
 logger = logging.getLogger('boot_test')
 
@@ -66,6 +70,7 @@ def test_warm_boot_with_diff():
 
 def test_warm_boot_with_match():
     args = load_input()
+    template = get_template()
     roi = get_roi()
     logger.info(f'roi: {roi}')
 
@@ -79,13 +84,27 @@ def test_warm_boot_with_match():
         for crop_video in crop_videos:
             if not check_poweroff_video(crop_video.video_path):
                 continue
-            result = task_boot_test_with_match(crop_video.video_path, crop_video.timestamps, crop_video.timestamps[0])
+            result = task_boot_test_with_match(crop_video.video_path, crop_video.timestamps, crop_video.timestamps[0],
+                                               roi, template, roi)
             logger.info(f'result: {result}')
             warm_boot_results.append(result)
 
     for result in warm_boot_results:
         if result['status'] == 'success':
             report_output(CollectionName.WARM_BOOT.value, {
-                'timestamp': get_utc_datetime(result['diff_timestamp']),
-                'measure_time': result['diff_time'],
+                'timestamp': get_utc_datetime(result['match_timestamp']),
+                'measure_time': result['match_time'],
             })
+
+
+def get_template() -> np.ndarray:
+    analysis_config = read_analysis_config()
+    image_path = analysis_config['resume']['frame']['image_path']
+    image = cv2.imread(image_path)
+    return image
+
+
+def get_roi() -> Tuple[int, int, int, int]:
+    analysis_config = read_analysis_config()
+    roi = analysis_config['resume']['frame']['roi']
+    return roi['x'], roi['y'], roi['w'], roi['h']

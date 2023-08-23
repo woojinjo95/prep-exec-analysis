@@ -11,22 +11,28 @@ logger = logging.getLogger('boot_test')
 
 
 @log_decorator(logger)
-def task_boot_test_with_match(video_path: str, timestamps: List[float], video_roi: List[int], template: np.ndarray, template_roi: List[int],
-                              event_time: float, continuity_count: int):
-    match_start_timestamp = 0
+def task_boot_test_with_match(video_path: str, timestamps: List[float], event_time: float, 
+                              video_roi: List[int], template: np.ndarray, template_roi: List[int],
+                              continuity_count: int):
     try:
-        # ir event time ~ home ui find time
-        match_start_timestamp = calc_match_interval(
+        match_timestamp = calc_match_interval(
             video_path, timestamps, video_roi, template, template_roi, event_time, continuity_count, release=False)
     except:
         logger.error(f'Error: {traceback.format_exc()}')
-    match_start_interval = max(int(match_start_timestamp - event_time * 1000), 0) if match_start_timestamp else 0
+        match_timestamp = 0
 
-    result = {
-        'match_timestamp': match_start_timestamp,
-        'match_time': match_start_interval,
+    if match_timestamp != 0:
+        status = 'success'
+        match_time = max(int((match_timestamp - event_time) * 1000), 0)
+    else:
+        status = 'error'
+        match_time = 0
+
+    return {
+        'status': status,
+        'match_timestamp': match_timestamp,
+        'match_time': match_time,
     }
-    return result
 
 
 def calc_match_interval(video_path: str, timestamps: list, video_roi: List[int], template: np.ndarray, template_roi: list, event_time: float,

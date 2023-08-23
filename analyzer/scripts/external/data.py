@@ -52,9 +52,3 @@ def read_analysis_config() -> Dict:
             analysis_config[group] = {parse_bytes_to_value(k): parse_bytes_to_value(v)
                                         for k, v in src.hgetall(key).items()}
     return analysis_config
-
-
-def get_roi() -> Tuple[int, int, int, int]:
-    analysis_config = read_analysis_config()
-    roi = analysis_config['resume']['frame']['roi']
-    return roi['x'], roi['y'], roi['w'], roi['h']
