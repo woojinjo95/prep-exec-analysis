@@ -32,9 +32,7 @@ def test_warm_boot():
         remocon_times = get_remocon_times(event_log)
         logger.info(f'remocon_times: {remocon_times}')
 
-        base_dir = '/tmp/analysis/warm_boot'
-        os.makedirs(base_dir, exist_ok=True)
-        with tempfile.TemporaryDirectory(dir=base_dir) as output_dir:
+        with tempfile.TemporaryDirectory(dir='/tmp') as output_dir:
             warm_boot_results = []
             crop_videos = crop_video_with_opencv(args.video_path, args.timestamps, remocon_times, output_dir, get_setting_with_env('WARM_BOOT_DURATION', 10))
             for crop_video in crop_videos:
