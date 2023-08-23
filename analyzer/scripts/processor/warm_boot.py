@@ -2,6 +2,7 @@ import logging
 import traceback
 import cv2
 import tempfile
+import os
 
 from scripts.format import CollectionName
 from scripts.external.data import load_input
@@ -21,6 +22,8 @@ logger = logging.getLogger('boot_test')
 
 @log_decorator(logger)
 def test_warm_boot():
+    # power_mode: 'warm' or 'cold'
+    # processing_mode: 'match' or 'diff'
     try:  
         args = load_input()
 
@@ -29,7 +32,9 @@ def test_warm_boot():
         remocon_times = get_remocon_times(event_log)
         logger.info(f'remocon_times: {remocon_times}')
 
-        with tempfile.TemporaryDirectory(dir='/tmp') as output_dir:
+        base_dir = '/tmp/analysis/warm_boot'
+        os.makedirs(base_dir, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=base_dir) as output_dir:
             warm_boot_results = []
             crop_videos = crop_video_with_opencv(args.video_path, args.timestamps, remocon_times, output_dir, get_setting_with_env('WARM_BOOT_DURATION', 10))
             for crop_video in crop_videos:

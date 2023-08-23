@@ -11,8 +11,8 @@ logger = logging.getLogger('connection')
 
 def load_data() -> Dict:
     return {
-        "video_path": "/app/workspace/testruns/2023-08-14T054428F718593/raw/videos/video_2023-08-22T113901F361442+0900_1800.mp4",
-        "stat_path": "/app/workspace/testruns/2023-08-14T054428F718593/raw/videos/video_2023-08-22T113901F361442+0900_1800.mp4_stat",   
+        "video_path": "/app/workspace/testruns/2023-08-14T054428F718593/raw/videos/video_2023-08-22T172921F075886+0900_1800.mp4",
+        "stat_path": "/app/workspace/testruns/2023-08-14T054428F718593/raw/videos/video_2023-08-22T172921F075886+0900_1800.mp4_stat",   
     }
 
 
