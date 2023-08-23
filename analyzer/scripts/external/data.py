@@ -5,6 +5,8 @@ import logging
 import os
 
 from scripts.format import InputData
+from scripts.config.constant import RedisDB
+from scripts.connection.redis_conn import get_strict_redis_connection, parse_bytes_to_value
 
 logger = logging.getLogger('connection')
 
@@ -40,3 +42,12 @@ def load_input() -> InputData:
         video_path=video_path,
         timestamps=timestamps,
     )
+
+
+def read_analysis_config() -> Dict:
+    with get_strict_redis_connection(RedisDB.hardware) as src:
+        analysis_config = {}
+        for key in src.scan_iter(match="analysis_config:*"):
+            analysis_config[key.split(':')[1]] = {k: parse_bytes_to_value(v)
+                                                  for k, v in src.hgetall(key).items()}
+    return analysis_config
