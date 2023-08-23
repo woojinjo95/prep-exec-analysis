@@ -53,13 +53,21 @@ const Tabs: React.FC<TabsProps> = ({ header, children, className, colorScheme })
         ))}
       </div>
 
-      {React.Children.toArray(children).map((c, index) =>
-        index === activeIndex ? (
-          <div key={`tab-panel-${index}`} className={cx('tab-panel', 'overflow-hidden', colorScheme)}>
-            {c}
-          </div>
-        ) : null,
-      )}
+      {React.Children.toArray(children).map((c, index) => (
+        <div
+          key={`tab-panel-${index}`}
+          className={cx(
+            'tab-panel',
+            'overflow-hidden',
+            {
+              hidden: index !== activeIndex,
+            },
+            colorScheme,
+          )}
+        >
+          {c}
+        </div>
+      ))}
     </div>
   )
 }
