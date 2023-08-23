@@ -14,8 +14,8 @@ router = APIRouter()
 
 @router.get("/logcat", response_model=schemas.ReadLogcat)
 def read_logcat(
-    testrun_id: Optional[str] = None,
     scenario_id: Optional[str] = None,
+    # testrun_id: Optional[str] = None,
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00')
 ) -> schemas.ReadLogcat:
@@ -25,10 +25,9 @@ def read_logcat(
     try:
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        if testrun_id is None:
-            testrun_id = RedisClient.hget('testrun', 'id')
+        # if testrun_id is None:
+        #     testrun_id = RedisClient.hget('testrun', 'id')
         pipeline = [{'$match': {'scenario_id': scenario_id, 
-                                'testrun_id': testrun_id,
                                 'timestamp': {'$gte': convert_iso_format(start_time), '$lte': convert_iso_format(end_time)}}},
                     {'$unwind': {'path': '$lines'}},
                     {'$group': {'_id': None, 'items': {'$push': '$lines'}}},
@@ -43,7 +42,7 @@ def read_logcat(
 @router.get("/network", response_model=schemas.ReadNetwork)
 def read_network(
     scenario_id: Optional[str] = None,
-    testrun_id: Optional[str] = None, 
+    # testrun_id: Optional[str] = None, 
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00')
 ) -> schemas.ReadNetwork:
@@ -53,10 +52,9 @@ def read_network(
     try:
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        if testrun_id is None:
-            testrun_id = RedisClient.hget('testrun', 'id')
+        # if testrun_id is None:
+        #     testrun_id = RedisClient.hget('testrun', 'id')
         pipeline = [{'$match': {'scenario_id': scenario_id, 
-                                'testrun_id': testrun_id,
                                 'timestamp': {'$gte': convert_iso_format(start_time), '$lte': convert_iso_format(end_time)}}},
                     {'$unwind': {'path': '$lines'}},
                     {'$group': {'_id': None, 'items': {'$push': '$lines'}}},
