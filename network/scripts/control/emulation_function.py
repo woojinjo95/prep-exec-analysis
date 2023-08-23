@@ -55,7 +55,7 @@ def add_packet_block(block_args: dict):
         if {k: v for k, v in block_args.items() if k != 'id'} not in [{k: v for k, v in item.items() if k != 'id'} for item in packet_block_list]:
             logger.info(f'{block_args} is added to packet block list')
             block_args['id'] = str(uuid4())
-            updated_packet_block_list = packet_block_list + [block_args]
+            updated_packet_block_list = packet_block_list + [{k: v for k, v in block_args.items() if v != ''}]
             hset_value(src, HARDWARE_CONFIG, PACKET_BLOCK, updated_packet_block_list)
         else:
             logger.warning(f'{block_args} is already added')
@@ -73,7 +73,7 @@ def update_packet_block(block_args: dict):
             for packet_block_item in packet_block_list:
                 if packet_block_item.get('id') == uuid:
                     packet_block_item.clear()
-                    packet_block_item.update(block_args)
+                    packet_block_item.update({k: v for k, v in block_args.items() if v != ''})
                     packet_block_item['id'] = uuid
                     logger.warning(f'{uuid}: {block_args} is updated')
 
