@@ -7,14 +7,16 @@ import { ReactComponent as StepForwardIcon } from '@assets/images/icon_step_forw
 import { ReactComponent as GoToLastIcon } from '@assets/images/icon_go_to_last_w.svg'
 import { ReactComponent as StopIcon } from '@assets/images/icon_stop.svg'
 import { Button, IconButton, Text } from '@global/ui'
-import { videoBlobURLState } from '@global/atom'
+import { scenarioIdState } from '@global/atom'
+import AppURL from '@global/constant/appURL'
+import apiUrls from '@page/AnalysisPage/api/url'
 
 /**
  * 결과영상 및 정보 영역
  */
 const VideoDetailSection: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
-  const src = useRecoilValue(videoBlobURLState)
+  const scenarioId = useRecoilValue(scenarioIdState)
   const [isPlaying, setIsPlaying] = useState<boolean>(false)
   const [currentTime, setCurrentTime] = useState<number>(0)
   /**
@@ -91,12 +93,11 @@ const VideoDetailSection: React.FC = () => {
       </div>
 
       <div className="aspect-video">
-        {/* TODO: src가 없을 때 -> progress 표시 ? */}
-        {src && (
+        {scenarioId && (
           <video
             ref={videoRef}
             className="h-full aspect-video"
-            src={src}
+            src={`${AppURL.backendURL}${apiUrls.partial_video}?scenario_id=${scenarioId}`}
             muted
             controls
             loop={false}

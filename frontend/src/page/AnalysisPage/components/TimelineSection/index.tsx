@@ -88,6 +88,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
 
         {/* chart */}
         <div ref={chartWrapperRef} className="border-l-[0.5px] border-r-[0.5px] border-[#37383E]">
+          {/* TODO: src가 없을 때 -> progress 표시 ? */}
           <VideoSnapshots
             src={src}
             tickCount={15}
