@@ -14,9 +14,14 @@ from .utils._timezone import get_utc_datetime
 logger = logging.getLogger('mongodb')
 
 
-def get_scenario_id() -> str:
-    scenario_id = get_value('testrun', 'scenario_id', '', db=RedisDBEnum.hardware)
-    return scenario_id
+def get_testrun_info() -> Dict[str, str]:
+    all_testrun_info = get_value('testrun', db=RedisDBEnum.hardware)
+
+    testrun_info = {'scenario_id': all_testrun_info.get('scenario_id', 'unknown'),
+                    'testrun_id': all_testrun_info.get('id', 'unknown'),
+                    }
+
+    return testrun_info
 
 
 def format_subscribed_log(subscribed_log: Dict):
@@ -36,7 +41,7 @@ class InsertToMongoDB:
 
     def init_document(self, log_time: datetime.datetime, line: dict) -> Dict:
         document = {'timestamp': log_time.replace(microsecond=0),
-                    'scenario_id': get_scenario_id(),
+                    **get_testrun_info(),
                     'lines': [line]}
         return document
 
