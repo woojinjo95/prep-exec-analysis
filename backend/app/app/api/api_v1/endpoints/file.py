@@ -61,13 +61,13 @@ async def system_file_download(
     return FileResponse(path=file_dir, filename=file_name)
 
 
-@router.get('/video', response_class=FileResponse)
-async def workspace_video_file_download(
+@router.get('/partial_video', response_class=FileResponse)
+async def partial_video_download(
     scenario_id: Optional[str] = None,
     range: str = Header(None)
 ) -> FileResponse:
     """
-    워크스페이스 비디오 파일 다운로드
+    워크스페이스 비디오 파일 특정 범위 다운로드
     """
     if scenario_id is None:
         scenario_id = RedisClient.hget('testrun', 'scenario_id')
