@@ -37,7 +37,7 @@ const Accordion: React.FC<AccordionProps> = ({ header, children, colorScheme = '
       >
         <DropdownIcon
           className={cx(
-            'w-3',
+            'w-3 transition-transform',
             {
               'rotate-180': isOpen,
               'not-openable': !children,
