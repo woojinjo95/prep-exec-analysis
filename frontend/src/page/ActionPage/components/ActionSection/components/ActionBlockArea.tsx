@@ -326,6 +326,7 @@ const ActionBlockArea = ({ scenarioId }: ActionBlockAreaProps): JSX.Element => {
 
     const terminalButtonSubscribe$ = terminalService.onButton$().subscribe((commandTransmit: CommandTransmit) => {
       if (scenarioId) {
+        // #TODO: key, value, name에 대한 정확한 정의가 이루어져야 함
         postBlockMutate({
           newBlock: {
             type: commandTransmit.type,
