@@ -6,6 +6,7 @@ from multiprocessing import Event, Queue, queues
 from typing import Dict
 
 from .capture.parser import get_packet_info
+from .analysis.packet_analyzer.protocols.enum import convert_protocol_enum_to_str
 from .configs.config import get_value
 from .configs.constant import RedisDBEnum
 from .connection.mongo_db.create import insert_to_mongodb
@@ -29,7 +30,7 @@ def format_subscribed_log(subscribed_log: Dict) -> Dict:
     return {'timestamp': get_utc_datetime(subscribed_log.get('time', time.time())),
             'src': subscribed_log.get('src', ''),
             'dst': subscribed_log.get('dst', ''),
-            'protocol': subscribed_log.get('protocol', ''),
+            'protocol': convert_protocol_enum_to_str(subscribed_log.get('protocol', '')),
             'length': subscribed_log.get('length', 0),
             'info': subscribed_log.get('info', ''),
             }
