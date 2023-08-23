@@ -324,24 +324,28 @@ const ActionBlockArea = ({ scenarioId }: ActionBlockAreaProps): JSX.Element => {
     //   }
     // })
 
-    // const terminalButtonSubscribe$ = terminalService.onButton$().subscribe((commandTransmit: CommandTransmit) => {
-    //   if (scenarioId) {
-    //     postBlockMutate({
-    //       newBlock: {
-    //         type: commandTransmit.type,
-    //         args: [{
-    //           key:
-    //         }],
-    //         delay_time: 3000,
-    //         name: `${commandTransmit.type} : ${commandTransmit.data.command}`,
-    //       },
-    //       scenario_id: scenarioId,
-    //     })
-    //   }
-    // })
+    const terminalButtonSubscribe$ = terminalService.onButton$().subscribe((commandTransmit: CommandTransmit) => {
+      if (scenarioId) {
+        postBlockMutate({
+          newBlock: {
+            type: commandTransmit.type,
+            args: [
+              {
+                key: '',
+                value: '',
+              },
+            ],
+            delay_time: 3000,
+            name: `${commandTransmit.type} : ${commandTransmit.data.command}`,
+          },
+          scenario_id: scenarioId,
+        })
+      }
+    })
 
     return () => {
       remoconButtonSubscribe$.unsubscribe()
+      terminalButtonSubscribe$.unsubscribe()
       // remoconCustomKeySubscribe$.unsubscribe()
     }
   }, [scenarioId])
