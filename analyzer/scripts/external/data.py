@@ -48,8 +48,9 @@ def read_analysis_config() -> Dict:
     with get_strict_redis_connection(RedisDB.hardware) as src:
         analysis_config = {}
         for key in src.scan_iter(match="analysis_config:*"):
-            analysis_config[key.split(':')[1]] = {k: parse_bytes_to_value(v)
-                                                  for k, v in src.hgetall(key).items()}
+            group = parse_bytes_to_value(key).split(':')[1]
+            analysis_config[group] = {parse_bytes_to_value(k): parse_bytes_to_value(v)
+                                        for k, v in src.hgetall(key).items()}
     return analysis_config
 
 

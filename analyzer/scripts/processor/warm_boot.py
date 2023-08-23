@@ -22,7 +22,9 @@ logger = logging.getLogger('boot_test')
 def test_warm_boot():
     try:
         analysis_config = read_analysis_config()
+        # logger.info(f'analysis_config: {analysis_config}')
         processing_mode = analysis_config['resume']['type']
+        logger.info(f'processing_mode: {processing_mode}')
         if processing_mode == 'image_matching':
             test_warm_boot_with_match()
         elif processing_mode == 'screen_change_rate':
