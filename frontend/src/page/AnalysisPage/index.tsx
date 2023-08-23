@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useRecoilState, useSetRecoilState } from 'recoil'
+import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { PageContainer, Text } from '@global/ui'
 import { useScenarios } from '@global/api/hook'
 import AppURL from '@global/constant/appURL'
@@ -18,8 +18,7 @@ const AnalysisPage: React.FC = () => {
   // TODO: rxjs? recoil? 고민
   const [startTime] = useState<Date>(new Date('2023-08-18T07:59:28.731511+00:00'))
   const [endTime] = useState<Date>(new Date('2023-08-18T08:03:13.925471+00:00'))
-  const [scenarioId] = useRecoilState(scenarioIdState)
-
+  const scenarioId = useRecoilValue(scenarioIdState)
   const setVideoBlobURL = useSetRecoilState(videoBlobURLState)
 
   useScenarios({
