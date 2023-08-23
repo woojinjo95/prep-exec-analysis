@@ -1,6 +1,6 @@
 import cv2
 
-image_path = './frame_cold.jpg'
+image_path = '/home/jade-m32-05/projects/prep-exec-analysis/data/workspace/frame_warm.jpg'
 image = cv2.imread(image_path)
 
 # draw roi
