@@ -1,5 +1,6 @@
 import React from 'react'
 import { contentColors } from '@page/ScenarioPage/constants'
+import { Text } from '@global/ui'
 import VolumnBar from './VolumnBar'
 
 const storageItems: { name: string; volumn: number; fileNum: number }[] = [
@@ -28,18 +29,30 @@ const StorageSection: React.FC = () => {
     <div className="flex flex-col w-full h-full p-7">
       <div className="flex justify-between">
         <p className="text-[28px]">
-          <span className="text-[28px] mr-2 font-bold text-white">{used}</span>
-          <span className="text-[24px] font-bold text-white">GB</span>
+          <Text className="!text-[28px] mr-2" weight="bold" colorScheme="light">
+            {used}
+          </Text>
+          <Text className="!text-[24px]" weight="bold" colorScheme="light">
+            GB
+          </Text>
         </p>
         <p className="text-[28px]">
-          <span className="text-[28px] mr-2 text-grey font-bold">{storage}</span>
-          <span className="text-[23px] text-grey font-bold">GB</span>
+          <Text className="!text-[28px] mr-2" weight="bold" colorScheme="grey">
+            {storage}
+          </Text>
+          <Text className="!text-[24px]" weight="bold" colorScheme="grey">
+            GB
+          </Text>
         </p>
       </div>
 
       <div className="flex justify-between mb-4">
-        <span className="text-sm text-grey">Used</span>
-        <span className="text-sm text-grey">Storage</span>
+        <Text className="!text-sm" colorScheme="grey">
+          Used
+        </Text>
+        <Text className="!text-sm" colorScheme="grey">
+          Storage
+        </Text>
       </div>
 
       <VolumnBar storageItems={storageItems} total={storage} />
@@ -52,8 +65,10 @@ const StorageSection: React.FC = () => {
           >
             <div className={`bg-${contentColors[storageItem.name]}`} />
             <div className="text-white flex flex-col items-start justify-center">
-              <span className="text-white text-[18px] font-bold">{storageItem.name}</span>
-              <span className="text-white text-[14px]">{`${storageItem.fileNum} Files`}</span>
+              <Text className="!text-[18px]" weight="bold" colorScheme="light">
+                {storageItem.name}
+              </Text>
+              <Text className="!text-[14px]" colorScheme="light">{`${storageItem.fileNum} Files`}</Text>
             </div>
             <div className="text-white flex items-center justify-end text-[20px]">{`${storageItem.volumn} GB`}</div>
           </div>

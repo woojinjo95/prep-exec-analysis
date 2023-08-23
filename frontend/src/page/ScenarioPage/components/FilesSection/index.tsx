@@ -1,4 +1,4 @@
-import { Text } from '@global/ui'
+import { Text, Title } from '@global/ui'
 import React, { useState } from 'react'
 import cx from 'classnames'
 import { ReactComponent as MoreIcon } from '@assets/images/button_more.svg'
@@ -110,7 +110,9 @@ const FilesSection: React.FC = () => {
     <div className="flex flex-col w-full h-full p-7 min-h-full border-r-[1px] border-b-grey">
       <div className="min-h-[100px]">
         <div className="flex justify-between mt-5">
-          <span className="text-[24px] mb-5 text-white">Files</span>
+          <Title as="h1" className="mb-5 text-white">
+            Files
+          </Title>
           <div className="flex">
             <Text size="md" className="mr-6 cursor-pointer">
               Search
@@ -121,8 +123,8 @@ const FilesSection: React.FC = () => {
           </div>
         </div>
         <div className="flex">
-          <span
-            className={cx('text-[15px] mr-[23px] cursor-pointer', {
+          <Text
+            className={cx('!text-[15px] mr-[23px] cursor-pointer', {
               'text-primary': selectedMenu === 'Blocks',
               'text-white': selectedMenu !== 'Blocks',
             })}
@@ -131,9 +133,9 @@ const FilesSection: React.FC = () => {
             }}
           >
             Blocks
-          </span>
-          <span
-            className={cx('text-[15px] cursor-pointer', {
+          </Text>
+          <Text
+            className={cx('!text-[15px] cursor-pointer', {
               'text-primary': selectedMenu === 'Analysis Results',
               'text-white': selectedMenu !== 'Analysis Results',
             })}
@@ -142,7 +144,7 @@ const FilesSection: React.FC = () => {
             }}
           >
             Analysis Results
-          </span>
+          </Text>
         </div>
       </div>
       <div className="mt-5 flex w-full min-h-[calc(100%-100px)]">
