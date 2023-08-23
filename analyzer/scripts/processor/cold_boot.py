@@ -27,17 +27,17 @@ def test_cold_boot():
         power_times = get_dut_power_times(event_log)        
         logger.info(f'power_times: {power_times}')
 
-        # with tempfile.TemporaryDirectory(dir='/tmp') as output_dir:
-        #     warm_boot_results = []
-        #     crop_videos = crop_video_with_opencv(args.video_path, args.timestamps, remocon_times, output_dir, get_setting_with_env('WARM_BOOT_DURATION', 10))
-        #     for crop_video in crop_videos:
-        #         if not check_poweroff_video(crop_video.video_path):
-        #             continue
-        #         result = task_boot_test_with_diff(crop_video.video_path, crop_video.timestamps, crop_video.timestamps[0])
-        #         logger.info(f'result: {result}')
-        #         warm_boot_results.append(result)
+        with tempfile.TemporaryDirectory(dir='/tmp') as output_dir:
+            results = []
+            crop_videos = crop_video_with_opencv(args.video_path, args.timestamps, power_times, output_dir, get_setting_with_env('COLD_BOOT_DURATION', 90))
+            for crop_video in crop_videos:
+                if not check_poweroff_video(crop_video.video_path):
+                    continue
+                result = task_boot_test_with_diff(crop_video.video_path, crop_video.timestamps, crop_video.timestamps[0])
+                logger.info(f'result: {result}')
+                results.append(result)
 
-        # for result in warm_boot_results:
+        # for result in results:
         #     if result['status'] == 'success':
         #         report_output(CollectionName.WARM_BOOT.value, {
         #             'timestamp': get_utc_datetime(result['diff_timestamp']),
