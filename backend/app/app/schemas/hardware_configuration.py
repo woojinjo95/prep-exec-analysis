@@ -19,7 +19,7 @@ class StbConnectionBase(BaseModel):
 class PacketBlock(BaseModel):
     id: str
     ip: str
-    port: Optional[int]
+    port: Optional[str]
     protocol: Optional[ProtocolEnum] = ProtocolEnum.all
 
 
