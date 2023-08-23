@@ -31,24 +31,20 @@ const Select: React.ForwardRefExoticComponent<SelectProps & React.RefAttributes<
   const { ref: selectListRef } = useOutsideClick<HTMLUListElement>({ onClickOutside: () => setIsFocused(false) })
 
   return (
-    <div ref={divRef} className="relative">
+    <div ref={divRef} className={cx('relative', className)}>
       <button
         ref={ref}
         type="button"
         aria-label="select"
-        className={cx(
-          'flex justify-between items-center border rounded-lg py-3 px-4 w-full transition-colors',
-          {
-            'bg-white': colorScheme === 'light',
-            'border-light-grey': colorScheme === 'light',
-            'bg-charcoal': colorScheme === 'charcoal',
-            'border-light-charcoal': colorScheme === 'charcoal',
-            'bg-light-black': colorScheme === 'dark',
-            'border-charcoal': colorScheme === 'dark',
-            'border-primary': isFocused,
-          },
-          className,
-        )}
+        className={cx('flex justify-between items-center border rounded-lg py-3 px-4 w-full transition-colors', {
+          'bg-white': colorScheme === 'light',
+          'border-light-grey': colorScheme === 'light',
+          'bg-charcoal': colorScheme === 'charcoal',
+          'border-light-charcoal': colorScheme === 'charcoal',
+          'bg-light-black': colorScheme === 'dark',
+          'border-charcoal': colorScheme === 'dark',
+          'border-primary': isFocused,
+        })}
         onClick={(e) => {
           setIsFocused((prev) => !prev)
           props.onClick?.(e)
@@ -58,7 +54,7 @@ const Select: React.ForwardRefExoticComponent<SelectProps & React.RefAttributes<
         <Text weight="bold" colorScheme={colorScheme === 'light' ? 'dark' : 'light'}>
           {value || defaultValue}
         </Text>
-        <DropdownIcon className={cx('w-[10px]', colorScheme)} />
+        <DropdownIcon className={cx('w-3', colorScheme)} />
       </button>
 
       <OptionList

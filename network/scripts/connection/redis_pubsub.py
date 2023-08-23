@@ -35,6 +35,7 @@ def publish(redis_client: StrictRedis, channel: str, payload: dict) -> int:
     }
     pub_payload.update(payload)
 
+    logger.info(f'Publish: {pub_payload}')
     data = json.dumps(pub_payload)
     return redis_client.publish(channel, data)
 

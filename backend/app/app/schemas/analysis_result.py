@@ -57,6 +57,15 @@ class Freeze(BaseModel):
     items: List[FreezeBase]
 
 
+class LoudnessBase(TimestampBaseModel):
+    m: float # Momentary LKFS
+    i: float # Integrated LKFS
+
+
+class Loudness(BaseModel):
+    items: List[LoudnessBase]
+
+
 class VideoAnalysisResultBase(BaseModel):
     pass
 

@@ -1,9 +1,11 @@
 import logging
 import traceback
+from typing import Optional
 
 from app import schemas
 from app.api.utility import convert_iso_format
 from app.crud.base import aggregate_from_mongodb
+from app.db.redis_session import RedisClient
 from fastapi import APIRouter, HTTPException, Query
 
 logger = logging.getLogger(__name__)
@@ -12,6 +14,8 @@ router = APIRouter()
 
 @router.get("/logcat", response_model=schemas.ReadLogcat)
 def read_logcat(
+    scenario_id: Optional[str] = None,
+    # testrun_id: Optional[str] = None,
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00')
 ) -> schemas.ReadLogcat:
@@ -19,7 +23,12 @@ def read_logcat(
     Logcat 로그 조회
     """
     try:
-        pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time), '$lte': convert_iso_format(end_time)}}},
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        # if testrun_id is None:
+        #     testrun_id = RedisClient.hget('testrun', 'id')
+        pipeline = [{'$match': {'scenario_id': scenario_id, 
+                                'timestamp': {'$gte': convert_iso_format(start_time), '$lte': convert_iso_format(end_time)}}},
                     {'$unwind': {'path': '$lines'}},
                     {'$group': {'_id': None, 'items': {'$push': '$lines'}}},
                     ]
@@ -32,6 +41,8 @@ def read_logcat(
 
 @router.get("/network", response_model=schemas.ReadNetwork)
 def read_network(
+    scenario_id: Optional[str] = None,
+    # testrun_id: Optional[str] = None, 
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00')
 ) -> schemas.ReadNetwork:
@@ -39,11 +50,16 @@ def read_network(
     Network 조회
     """
     try:
-        pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time), '$lte': convert_iso_format(end_time)}}},
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        # if testrun_id is None:
+        #     testrun_id = RedisClient.hget('testrun', 'id')
+        pipeline = [{'$match': {'scenario_id': scenario_id, 
+                                'timestamp': {'$gte': convert_iso_format(start_time), '$lte': convert_iso_format(end_time)}}},
                     {'$unwind': {'path': '$lines'}},
                     {'$group': {'_id': None, 'items': {'$push': '$lines'}}},
                     ]
-        aggregation_result = aggregate_from_mongodb(col='network', pipeline=pipeline)
+        aggregation_result = aggregate_from_mongodb(col='network_trace', pipeline=pipeline)
         log_list = aggregation_result[0].get('items', []) if aggregation_result != [] else aggregation_result
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
