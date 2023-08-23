@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Tuple
 import json
 import cv2
 import logging
@@ -13,8 +13,8 @@ logger = logging.getLogger('connection')
 
 def load_data() -> Dict:
     return {
-        "video_path": "/app/workspace/testruns/2023-08-14T054428F718593/raw/videos/video_2023-08-22T172921F075886+0900_1800.mp4",
-        "stat_path": "/app/workspace/testruns/2023-08-14T054428F718593/raw/videos/video_2023-08-22T172921F075886+0900_1800.mp4_stat",   
+        "video_path": "/app/workspace/testruns/2023-08-14T054428F718593/raw/videos/video_2023-08-22T113901F361442+0900_1800.mp4",
+        "stat_path": "/app/workspace/testruns/2023-08-14T054428F718593/raw/videos/video_2023-08-22T113901F361442+0900_1800.mp4_stat",   
     }
 
 
@@ -51,3 +51,9 @@ def read_analysis_config() -> Dict:
             analysis_config[key.split(':')[1]] = {k: parse_bytes_to_value(v)
                                                   for k, v in src.hgetall(key).items()}
     return analysis_config
+
+
+def get_roi() -> Tuple[int, int, int, int]:
+    analysis_config = read_analysis_config()
+    roi = analysis_config['resume']['frame']['roi']
+    return roi['x'], roi['y'], roi['w'], roi['h']
