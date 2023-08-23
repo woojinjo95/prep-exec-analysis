@@ -21,6 +21,7 @@ class ScenarioUpdate(BaseModel):
 
 class ScenarioBlock(BaseModel):
     id: str
+    is_active: bool
     block_group: List[BlockGroup]
 
 
