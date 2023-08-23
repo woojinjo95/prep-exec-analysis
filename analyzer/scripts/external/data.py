@@ -7,15 +7,23 @@ import os
 from scripts.format import InputData
 from scripts.config.constant import RedisDB
 from scripts.connection.redis_conn import get_strict_redis_connection, parse_bytes_to_value
+from scripts.external.scenario import load_scenario
 
 logger = logging.getLogger('connection')
 
 
 def load_data() -> Dict:
+    scenario = load_scenario()
+    video_path = scenario.get['testrun']['raw']['videos'][0]['path']
+    stat_path = scenario.get['testrun']['raw']['videos'][0]['stat_path']
     return {
-        "video_path": "/app/workspace/testruns/2023-08-14T054428F718593/raw/videos/video_2023-08-22T113901F361442+0900_1800.mp4",
-        "stat_path": "/app/workspace/testruns/2023-08-14T054428F718593/raw/videos/video_2023-08-22T113901F361442+0900_1800.mp4_stat",   
+        "video_path": video_path,
+        "stat_path": stat_path,
     }
+    # return {
+    #     "video_path": "/app/workspace/testruns/2023-08-14T054428F718593/raw/videos/video_2023-08-22T172921F075886+0900_1800.mp4",
+    #     "stat_path": "/app/workspace/testruns/2023-08-14T054428F718593/raw/videos/video_2023-08-22T172921F075886+0900_1800.mp4_stat",   
+    # }
 
 
 def load_input() -> InputData:
