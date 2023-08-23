@@ -79,13 +79,6 @@ const CommandInput: React.FC<CommandInputProps> = ({
               },
             })
 
-            terminalService.buttonClick({
-              type: 'shell',
-              data: {
-                command: value,
-              },
-            })
-
             if (textareaRef.current) {
               textareaRef.current.blur()
             }
