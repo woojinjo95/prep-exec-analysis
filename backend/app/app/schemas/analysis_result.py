@@ -58,8 +58,8 @@ class Freeze(BaseModel):
 
 
 class LoudnessBase(TimestampBaseModel):
-    M: float # Momentary LKFS
-    I: float # Integrated LKFS
+    m: float # Momentary LKFS
+    i: float # Integrated LKFS
 
 
 class Loudness(BaseModel):

@@ -153,10 +153,11 @@ def get_data_of_loudness(
     try:
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        loudness_pipeline = [{'$match': {'scenario_id': 'd70eede7-2faa-4345-aa46-ba36e1ab40fd'}},
+        loudness_pipeline = [{'$match': {'scenario_id': scenario_id}},
                              {'$project': {'_id': 0, 'lines': 1}},
                              {'$unwind': {'path': '$lines'}},
-                             {'$replaceRoot': {'newRoot': '$lines'}}
+                             {'$replaceRoot': {'newRoot': '$lines'}},
+                             {'$project': {'timestamp': '$timestamp', 'm': '$M', 'i': '$I'}}
                              ]
         loudness = aggregate_from_mongodb(col='loudness', pipeline=loudness_pipeline)
     except Exception as e:
