@@ -153,7 +153,9 @@ def get_data_of_loudness(
     try:
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        loudness_pipeline = [{'$match': {'scenario_id': scenario_id}},
+        loudness_pipeline = [{'$match': {'scenario_id': scenario_id, 
+                                         'timestamp': {'$gte': convert_iso_format(start_time),
+                                                       '$lte': convert_iso_format(end_time)}}},
                              {'$project': {'_id': 0, 'lines': 1}},
                              {'$unwind': {'path': '$lines'}},
                              {'$replaceRoot': {'newRoot': '$lines'}},
