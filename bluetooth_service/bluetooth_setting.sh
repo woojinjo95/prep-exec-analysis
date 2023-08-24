@@ -7,7 +7,7 @@ cd /home/$USER/projects/prep-exec-analysis/bluetooth_service/
 unzip bluetooth_keyboard_esp32s3_ver05.zip && rm bluetooth_keyboard_esp32s3_ver05.zip
 
 cd bluetooth_keyboard_esp32s3_ver05/
-python get_device_name.py
+python3 get_device_name.py
 
 cd ..
 
@@ -37,14 +37,14 @@ cd /home/$USER/projects/prep-exec-analysis/bluetooth_service/
 # ./arduino-cli monitor -p /dev/ttyUSB0 -c baudrate=115200     # 모니터링 필요 시 사용
 
 cd /etc
-sudo mkdir -v bluetooth_service
+sudo mkdir -p bluetooth_service
 
 cd /home/$USER/projects/prep-exec-analysis/bluetooth_service/
-python bluetooth_register_service.py
+python3 bluetooth_register_service.py
 
 sudo mv -f bluetooth_auto_start.py /etc/bluetooth_service
 sudo mv -f BluetoothRemocon.service /etc/systemd/system
-sudo systemctl enable BluetoothRemocon.service
-sudo systemctl start BluetoothRemocon.service
-sudo systemctl status BluetoothRemocon
+sudo systemctl enable bluetooth-remocon.service
+sudo systemctl start bluetooth-remocon.service
+sudo systemctl status bluetooth-remocon
 

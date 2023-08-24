@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 import time
 
 
@@ -11,12 +11,12 @@ After=network-online.target
 RemainAfterExit=no
 Type=simple
 ExecStartPre=/usr/bin/sleep 30
-ExecStart=/usr/bin/python /etc/bluetooth_service/bluetooth_auto_start.py
+ExecStart=/usr/bin/python3 /etc/bluetooth_service/bluetooth_auto_start.py
 
 [Install]
 WantedBy=default.target
     '''
-    with open('BluetoothRemocon.service', 'w') as service_file:
+    with open('bluetooth-remocon.service', 'w') as service_file:
         service_file.write(info)
     service_file.close()
     time.sleep(2) # 파일 생성시간 고려, 대기 시간 추가
