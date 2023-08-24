@@ -1,13 +1,14 @@
 import logging
 import re
 import time
+import traceback
 from typing import Dict, List
 
+from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.data import load_input, read_analysis_config
 from scripts.external.log import get_data_of_log
 from scripts.external.report import report_output
 from scripts.format import CollectionName
-from scripts.util._timezone import get_utc_datetime
 from scripts.util.decorator import log_decorator
 
 logger = logging.getLogger('log_pattern')
@@ -15,18 +16,26 @@ logger = logging.getLogger('log_pattern')
 
 @log_decorator(logger)
 def match_log_pattern():
-    args = load_input()
-    # log_data = get_data_of_log(args.timestamps[0], args.timestamps[-1])
-    log_data = get_data_of_log(time.time() - 600, time.time() - 300)
+    try:
+        args = load_input()
+        log_data = get_data_of_log(args.timestamps[0], args.timestamps[-1])
+        # log_data = get_data_of_log(time.time() - 600, time.time() - 300)
+        target_items = get_target_from_config()
 
-    target_items = get_target_from_config()
+        for log in log_data['items']:
+            if check_log_pattern_match(log, target_items):
+                # logger.info(f'log: {log}')
+                report_output(CollectionName.LOG_PATTERN.value, {
+                    **log,
+                })
 
-    for log in log_data['items']:
-        if check_log_pattern_match(log, target_items):
-            # logger.info(f'log: {log}')
-            report_output(CollectionName.LOG_PATTERN.value, {
-                **log,
-            })
+        publish_msg({'measurement': ['log_pattern_matching']}, 'analysis_response')
+
+    except Exception as err:
+        error_detail = traceback.format_exc()
+        publish_msg({'measurement': ['log_pattern_matching']}, error_detail, level='error')
+        logger.error(f"error in match_log_pattern: {err}")
+        logger.warning(error_detail)
 
 
 def get_target_from_config() -> List[Dict]:
