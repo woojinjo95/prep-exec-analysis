@@ -68,8 +68,8 @@ def test_warm_boot_with_diff():
 
 def test_warm_boot_with_match():
     args = load_input()
-    template = get_template()
-    roi = get_roi()
+    template = get_template_from_config()
+    roi = get_roi_from_config()
 
     event_log = get_data_of_event_log(args.timestamps[0], args.timestamps[-1])
     remocon_times = get_power_key_times(event_log)
@@ -93,7 +93,7 @@ def test_warm_boot_with_match():
             })
 
 
-def get_template() -> np.ndarray:
+def get_template_from_config() -> np.ndarray:
     analysis_config = read_analysis_config()
     image_path = analysis_config['resume']['frame']['image_path']
     image = cv2.imread(image_path)
@@ -101,7 +101,7 @@ def get_template() -> np.ndarray:
     return image
 
 
-def get_roi() -> Tuple[int, int, int, int]:
+def get_roi_from_config() -> Tuple[int, int, int, int]:
     analysis_config = read_analysis_config()
     roi_data = analysis_config['resume']['frame']['roi']
     roi = roi_data['x'], roi_data['y'], roi_data['w'], roi_data['h']
