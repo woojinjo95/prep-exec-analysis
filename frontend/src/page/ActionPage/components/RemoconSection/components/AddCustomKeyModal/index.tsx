@@ -4,6 +4,7 @@ import cx from 'classnames'
 import useOutSideRef from '@global/hook/useOutsideRef'
 import AppURL from '@global/constant/appURL'
 import { KeyEvent } from '@page/ActionPage/types'
+import { Text } from '@global/ui'
 import { Remocon } from '../../api/entity'
 import AddCustomKeyModalRemoconButtons from './AddCustomKeyModalRemoconButtons'
 import { getRemocon, postCustomKey } from '../../api/func'
@@ -83,6 +84,24 @@ const AddCustomKeyModal: React.FC<AddCustomKeyModalProps> = ({
     },
   })
 
+  const [remoconWidth, setRemoconWidth] = useState<number | null>(null)
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (remoconRef.current) {
+        setRemoconWidth(remoconRef.current.offsetWidth)
+      }
+    }
+
+    handleResize()
+
+    window.addEventListener('resize', handleResize)
+
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
+
   return (
     <div
       className={cx('absolute top-[10px] right-3.5 h-auto z-10', {
@@ -90,33 +109,51 @@ const AddCustomKeyModal: React.FC<AddCustomKeyModalProps> = ({
       })}
       ref={customKeyModalRef}
     >
-      <div className="flex flex-col h-[95vh] w-[700px] bg-[#323339] rounded-[10px] pt-7 pl-[72px] pr-[72px] pb-7 items-center justify-between">
+      <div className="flex flex-col h-[95vh] w-[700px] bg-[#323339] rounded-[10px] pt-7 pl-[72px] pr-[72px] pb-7 items-center justify-between relative">
         <div className="flex flex-col items-center">
           <p className="text-white text-lg">Press the Keys in order and press the [Submit] button</p>
-          <div className="mt-[15px] w-[150px]">
-            <div className={cx('w-full h-full flex relative')}>
-              <img
-                ref={remoconRef}
-                onLoad={() => {
-                  setIsLoadedRemoconImage(true)
-                }}
-                src={`${AppURL.backendURL}${remocon.image_path}`}
-                alt="remocon"
-                className="w-full"
-              />
-              {isLoadedRemoconImage && (
-                <AddCustomKeyModalRemoconButtons
-                  keyEvent={keyEvent}
-                  remoconRef={remoconRef}
-                  remocon={remocon}
-                  setRemoconInput={setRemoconInput}
+          <div>
+            <div className="mt-[15px] h-[75vh]">
+              <div className={cx('w-full h-full flex relative')}>
+                <img
+                  ref={remoconRef}
+                  onLoad={() => {
+                    setIsLoadedRemoconImage(true)
+                  }}
+                  src={`${AppURL.backendURL}${remocon.image_path}`}
+                  alt="remocon"
+                  className="w-full"
                 />
-              )}
+                {isLoadedRemoconImage && (
+                  <AddCustomKeyModalRemoconButtons
+                    keyEvent={keyEvent}
+                    remoconRef={remoconRef}
+                    remocon={remocon}
+                    setRemoconInput={setRemoconInput}
+                  />
+                )}
+              </div>
             </div>
+            {remoconWidth && (
+              <div
+                className="absolute top-[100px] flex flex-col"
+                style={{ left: 400 + remoconWidth / 2, width: 350 - remoconWidth / 2 }}
+              >
+                <div className="w-full flex flex-col">
+                  <Text colorScheme="grey" className="!text-[18px] mb-3" weight="bold">
+                    Pressed Key
+                  </Text>
+                  {remoconInput.map((input, idx) => (
+                    <Text colorScheme="light" className="!text-[16px]" key={`remocon-input-${input}-${idx}`}>
+                      {input}
+                    </Text>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
         <div className="flex flex-col items-center">
-          <div className="text-white mb-5">{remoconInput.join(',')}</div>
           <div className="flex">
             <button
               type="button"
