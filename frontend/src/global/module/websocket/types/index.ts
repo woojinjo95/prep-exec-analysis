@@ -24,21 +24,52 @@ interface OnOffControlMessage {
 }
 
 /**
+ * 환경설정 - Network Emulation On 메시지 Body
+ */
+interface NetworkEmulationOnMessageBody {
+  action: 'start'
+}
+
+/**
+ * 환경설정 - Network Emulation Off 메시지 Body
+ */
+interface NetworkEmulationOffMessageBody {
+  action: 'stop'
+}
+
+/**
+ * 환경설정 - Network Emulation - Packet Control 변경 메시지 Body
+ */
+interface PacketControlMessageBody {
+  action: 'update'
+  packet_bandwidth?: number
+  packet_delay?: number
+  packet_loss?: number
+}
+
+/**
+ * 환경설정 - Network Emulation - IP 제한 변경 메시지 Body
+ */
+interface ConfiguringIPLimitMessageBody {
+  action: 'create' | 'update' | 'delete'
+  packet_block?: {
+    id?: string
+    ip?: string
+    port?: string | number
+    protocol?: IPLimitProtocol
+  }
+}
+
+/**
  * 환경설정 - network emulation 변경 publish 메시지
  */
 interface NetworkEmulationMessage {
   msg: 'network_emulation'
-  data: {
-    action: 'start' | 'stop' | 'add' | 'del'
-    packet_bandwidth?: number
-    packet_delay?: number
-    packet_loss?: number
-    packet_block?: {
-      ip?: string
-      port?: string | number
-      protocol?: IPLimitProtocol
-    }
-  }
+  data:
+    | NetworkEmulationOnMessageBody
+    | NetworkEmulationOffMessageBody
+    | PacketControlMessageBody
+    | ConfiguringIPLimitMessageBody
 }
 
 /**

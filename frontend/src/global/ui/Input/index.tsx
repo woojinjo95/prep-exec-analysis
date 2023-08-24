@@ -6,6 +6,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   className?: string
   colorScheme?: 'dark' | 'charcoal' | 'light'
   warningMessage?: string
+  isDisabled?: boolean
 }
 
 /**
@@ -14,7 +15,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 const Input: React.ForwardRefExoticComponent<InputProps & React.RefAttributes<HTMLInputElement>> = React.forwardRef<
   HTMLInputElement,
   InputProps
->(({ className, colorScheme = 'charcoal', warningMessage, ...props }, ref) => {
+>(({ className, colorScheme = 'charcoal', warningMessage, isDisabled, ...props }, ref) => {
   const [isFocused, setIsFocused] = useState<boolean>(false)
   return (
     <div
@@ -36,7 +37,7 @@ const Input: React.ForwardRefExoticComponent<InputProps & React.RefAttributes<HT
             'border-charcoal': colorScheme === 'dark',
             'border-light-charcoal': colorScheme === 'charcoal',
             'border-light-grey': colorScheme === 'light',
-            'border-primary': isFocused,
+            'border-primary': isFocused && !isDisabled,
             'border-orange': !!warningMessage,
           },
           className,
@@ -50,6 +51,7 @@ const Input: React.ForwardRefExoticComponent<InputProps & React.RefAttributes<HT
           setIsFocused(false)
           props.onBlur?.(e)
         }}
+        disabled={isDisabled}
         // TODO: esc key 누를 시 -> input blur
       />
       {!!warningMessage && (

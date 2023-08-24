@@ -66,5 +66,5 @@ export interface HardwareConfiguration {
     username?: string | null
     password?: string | null
   }
-  ip_limit?: IPLimit[]
+  packet_block?: IPLimit[]
 }

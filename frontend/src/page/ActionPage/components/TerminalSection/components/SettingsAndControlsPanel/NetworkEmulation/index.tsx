@@ -49,7 +49,7 @@ const NetworkEmulation: React.FC = () => {
         sendMessage({
           msg: 'network_emulation',
           data: {
-            action: 'add',
+            action: 'update',
             [`packet_${key}`]: key === 'bandwidth' ? 1000 : 0,
           },
         })
@@ -88,7 +88,7 @@ const NetworkEmulation: React.FC = () => {
       sendMessage({
         msg: 'network_emulation',
         data: {
-          action: 'add',
+          action: 'update',
           [`packet_${key}`]: newValue,
         },
       })
@@ -232,10 +232,10 @@ const NetworkEmulation: React.FC = () => {
           Configuring IP Limit
         </Text>
 
-        {isAddingIPLimit && <IPLimitItem isFocusDefault cancelAddIPLimit={() => setIsAddingIPLimit(false)} />}
-        {hardwareConfiguration?.ip_limit?.map(({ id, ip, port, protocol }) => (
-          <IPLimitItem key={`hardware-configuration-ip-limit-${id}`} ip={ip} port={port} protocol={protocol} />
+        {hardwareConfiguration?.packet_block?.map(({ id, ip, port, protocol }) => (
+          <IPLimitItem key={`hardware-configuration-ip-limit-${id}`} id={id} ip={ip} port={port} protocol={protocol} />
         ))}
+        {isAddingIPLimit && <IPLimitItem isCreating close={() => setIsAddingIPLimit(false)} />}
 
         {!isAddingIPLimit && (
           <Button type="button" colorScheme="charcoal" onClick={() => setIsAddingIPLimit(true)}>
