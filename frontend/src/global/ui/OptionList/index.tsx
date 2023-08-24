@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import cx from 'classnames'
 import { Portal } from '..'
 
@@ -47,6 +47,7 @@ const OptionList: React.ForwardRefExoticComponent<OptionListProps & React.RefAtt
       }, [])
 
       if (!isVisible) return null
+
       return (
         <Portal>
           <ul
