@@ -8,6 +8,7 @@ from ..connection.redis_pubsub import get_strict_redis_connection, publish
 from .network_control.network_functions import (change_packet_block,
                                                 change_traffic_control,
                                                 reset_network)
+from .network_control.value_rules import DefaultValues
 
 HARDWARE_CONFIG = 'hardware_configuration'
 ENABLE = 'enable_network_emulation'
@@ -117,7 +118,18 @@ def apply_network_emulation_args(args: Dict):
     updated = {}
 
     with get_strict_redis_connection(db=RedisDBEnum.hardware) as src:
-        if action in ('create', 'delete', 'update'):
+        if action == 'reset':
+            hset_value(src, HARDWARE_CONFIG, BANDWIDTH, DefaultValues.bandwidth)
+            hset_value(src, HARDWARE_CONFIG, DELAY, DefaultValues.delay)
+            hset_value(src, HARDWARE_CONFIG, LOSS, DefaultValues.loss)
+            hset_value(src, HARDWARE_CONFIG, PACKET_BLOCK, [])
+
+            updated.update({BANDWIDTH: DefaultValues.bandwidth,
+                            DELAY: DefaultValues.delay,
+                            LOSS: DefaultValues.loss,
+                            PACKET_BLOCK: []})
+
+        elif action in ('create', 'delete', 'update'):
             bandwidth_args = args.get(BANDWIDTH)
             delay_args = args.get(DELAY)
             loss_args = args.get(LOSS)
@@ -127,15 +139,15 @@ def apply_network_emulation_args(args: Dict):
                 # 아래 3개 값은 추가/삭제되지 않고 수정만 된다.
                 if bandwidth_args is not None:
                     hset_value(src, HARDWARE_CONFIG, BANDWIDTH, bandwidth_args)
-                    updated['bandwidth'] = bandwidth_args
+                    updated[BANDWIDTH] = bandwidth_args
 
                 if delay_args is not None:
                     hset_value(src, HARDWARE_CONFIG, DELAY, delay_args)
-                    updated['delay'] = delay_args
+                    updated[DELAY] = delay_args
 
                 if loss_args is not None:
                     hset_value(src, HARDWARE_CONFIG, LOSS, loss_args)
-                    updated['loss'] = loss_args
+                    updated[LOSS] = loss_args
 
             if block_args is not None:
                 # packet_block은 추가/삭제/변경이 가능하며 각각마다 다른 함수를 적용해야한다.
