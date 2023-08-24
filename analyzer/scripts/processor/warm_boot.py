@@ -17,8 +17,9 @@ from scripts.format import CollectionName
 from scripts.util._timezone import get_utc_datetime
 from scripts.util.decorator import log_decorator
 from scripts.util.video import crop_video_with_opencv
+from scripts.format import LogName
 
-logger = logging.getLogger('boot_test')
+logger = logging.getLogger(LogName.BOOT_TEST.value)
 
 
 @log_decorator(logger)

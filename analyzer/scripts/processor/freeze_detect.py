@@ -11,8 +11,9 @@ from scripts.util._timezone import get_utc_datetime
 from scripts.util.video import FrameGenerator, get_video_info
 from scripts.util.decorator import log_decorator
 from scripts.util.common import seconds_to_time
+from scripts.format import LogName
 
-logger = logging.getLogger('freeze_detect')
+logger = logging.getLogger(LogName.FREEZE_DETECT.value)
 
 
 @log_decorator(logger)

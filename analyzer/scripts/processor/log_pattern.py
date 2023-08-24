@@ -10,8 +10,9 @@ from scripts.external.log import get_data_of_log
 from scripts.external.report import report_output
 from scripts.format import CollectionName
 from scripts.util.decorator import log_decorator
+from scripts.format import LogName
 
-logger = logging.getLogger('log_pattern')
+logger = logging.getLogger(LogName.LOG_PATTERN.value)
 
 
 @log_decorator(logger)

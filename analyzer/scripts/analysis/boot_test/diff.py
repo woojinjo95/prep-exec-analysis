@@ -5,8 +5,9 @@ import cv2
 
 from scripts.analysis.image import get_cropped_image, calc_diff_rate, calc_color_entropy
 from scripts.util.decorator import log_decorator
+from scripts.format import LogName
 
-logger = logging.getLogger('boot_test')
+logger = logging.getLogger(LogName.BOOT_TEST.value)
 
 
 @log_decorator(logger)
