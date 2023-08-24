@@ -27,3 +27,18 @@ class InputData:
 class CroppedInfo:
     video_path: str
     timestamps: List[float]
+
+
+class LogName(Enum):
+    COLOR_REFERENCE = 'color_reference'
+    FREEZE_DETECT = 'freeze_detect'
+    BOOT_TEST = 'boot_test'
+    LOG_PATTERN = 'log_pattern'
+    
+
+class Command(Enum):
+    FREEZE = 'freeze'
+    RESUME = 'resume'
+    BOOT = 'boot'
+    LOG_PATTERN_MATCHING = 'log_pattern_matching'
+

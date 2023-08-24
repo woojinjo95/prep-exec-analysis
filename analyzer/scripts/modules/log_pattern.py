@@ -2,9 +2,9 @@ import logging
 
 from .template import Module
 from scripts.processor.log_pattern import match_log_pattern
+from scripts.format import LogName
 
-
-logger = logging.getLogger('log_pattern')
+logger = logging.getLogger(LogName.LOG_PATTERN.value)
 
 
 class LogPattern(Module):

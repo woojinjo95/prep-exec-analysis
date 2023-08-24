@@ -11,8 +11,9 @@ from scripts.util._timezone import get_utc_datetime
 from scripts.util.video import FrameGenerator, get_video_info
 from scripts.util.decorator import log_decorator
 from scripts.util.common import seconds_to_time
+from scripts.format import LogName, Command
 
-logger = logging.getLogger('freeze_detect')
+logger = logging.getLogger(LogName.FREEZE_DETECT.value)
 
 
 @log_decorator(logger)
@@ -36,11 +37,11 @@ def detect_freeze():
                     'duration': result['duration'],
                 })
 
-        publish_msg({'measurement': ['freeze']}, 'analysis_response')
+        publish_msg({'measurement': [Command.FREEZE.value]}, 'analysis_response')
 
     except Exception as err:
         error_detail = traceback.format_exc()
-        publish_msg({'measurement': ['freeze']}, error_detail, level='error')
+        publish_msg({'measurement': [Command.FREEZE.value]}, error_detail, level='error')
         logger.error(f"error in detect_freeze postprocess: {err}")
         logger.warning(error_detail)
 
