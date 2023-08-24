@@ -15,30 +15,6 @@ logger = logging.getLogger('connection')
 process_pubsub_error_dict = {'stack_count': 0, 'last_occured_time': time.time()}
 
 
-service = 'watcher'
-
-
-def publish(redis_client: StrictRedis, channel: str, payload: dict) -> int:
-    """_summary_
-    redis_client 상 channel로 payload를 JSON 으로 덤프하여 보내는 함수
-    Args:
-        redis_client (StrictRedis): 레디스 클라이언트 
-        channel (str): 채널명
-        payload (dict): JSON serialize가 가능한 dictionary
-    Returns:
-        count: 메시지를 수신한 subscriber 개수, 수신한 게 없으면 0
-    """
-    pub_payload = {
-        'service': service,
-        'level': 'info',
-        'time': time.time(),
-    }
-    pub_payload.update(payload)
-
-    data = json.dumps(pub_payload)
-    return redis_client.publish(channel, data)
-
-
 def Subscribe(redis_client: StrictRedis, channel: str, stop_event: Event = Event()) -> Generator[dict, None, None]:
     """_summary_
     redis_client 상 channel에서 JSON 값을 가져옴
