@@ -4,7 +4,7 @@ import { useToast } from '@chakra-ui/react'
 
 import { ReactComponent as RefreshIcon } from '@assets/images/icon_refresh_w.svg'
 import { Input, Title, ToggleButton, Text, Divider, Button } from '@global/ui'
-import { useHardwareConfiguration } from '../../../api/hook'
+import { useHardwareConfiguration } from '@global/api/hook'
 import { putHardwareConfiguration } from '../../../api/func'
 import IPLimitItem from './IPLimitItem'
 

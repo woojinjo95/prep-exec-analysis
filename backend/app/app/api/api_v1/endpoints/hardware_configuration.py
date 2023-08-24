@@ -23,18 +23,6 @@ def read_hardware_configuration() -> schemas.HardwareConfigurationBase:
         stb_conn = RedisClient.hgetall('stb_connection')
         config['stb_connection'] = {field: parse_bytes_to_value(value)
                                     for field, value in stb_conn.items()} if stb_conn else None
-
-        ip_limit_list = []
-        matching_keys = RedisClient.scan_iter(match="hardware_configuration_ip_limit:*")
-        for key in matching_keys:
-            res = RedisClient.hgetall(key)
-            ip_limit_list.append({
-                'id': key.split(':')[1],
-                'host': res.get('host', ''),
-                'port': res.get('port', ''),
-                'protocol': res.get('protocol', ''),
-            })
-        config['ip_limit'] = sorted(ip_limit_list, key=lambda x: x['host']) if ip_limit_list else None
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'items': config}

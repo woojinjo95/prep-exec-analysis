@@ -8,7 +8,7 @@ const useCaptureVideoFrame = ({
   format = 'jpeg',
   quality = 0.92,
 }: {
-  src: string
+  src: string | null
   currentTime: number
   format?: 'png' | 'jpeg'
   quality?: number
@@ -35,7 +35,7 @@ const useCaptureVideoFrame = ({
 }
 
 interface VideoSnapshotProps {
-  src: string
+  src: string | null
   currentTime: number
   translateX: number
 }

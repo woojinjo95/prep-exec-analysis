@@ -1,7 +1,6 @@
 import pymongo
 from .config import Settings
 from typing import Dict, List
-from scripts.util.common import convert_to_dict
 
 
 def conn_mongodb():
@@ -28,3 +27,8 @@ def insert_many_to_mongodb(col, data_list: List[Dict]) -> pymongo.results.Insert
     col = get_mongodb_collection(col)
     res = col.insert_many(data_list)
     return res
+
+
+def aggregate_from_mongodb(col, pipeline):
+    col = get_mongodb_collection(col)
+    return list(col.aggregate(pipeline))

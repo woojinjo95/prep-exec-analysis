@@ -3,7 +3,8 @@ import cx from 'classnames'
 
 import Text from '../Text'
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps
+  extends React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement> {
   children: React.ReactNode
   colorScheme?: 'dark' | 'charcoal' | 'grey' | 'primary'
   className?: string
@@ -27,7 +28,7 @@ const Button: React.FC<ButtonProps> = ({
       // eslint-disable-next-line react/button-has-type
       type="button"
       className={cx(
-        'py-3 px-10',
+        'py-3 px-10 h-fit',
         {
           'bg-light-black': colorScheme === 'dark',
           'bg-light-charcoal': colorScheme === 'charcoal',

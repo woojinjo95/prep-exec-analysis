@@ -1,6 +1,6 @@
 from typing import List
 
-from app.schemas.enum import LogLevelFinderTargetEnum
+from app.schemas.enum import LogLevelEnum
 from pydantic import BaseModel, root_validator
 from pydantic.datetime_parse import parse_datetime
 
@@ -13,10 +13,11 @@ class TimestampBaseModel(BaseModel):
         if "timestamp" in values:
             values["timestamp"] = parse_datetime(values["timestamp"]).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
         return values
-    
+
+
 class Logcat(TimestampBaseModel):
     module: str
-    log_level: LogLevelFinderTargetEnum
+    log_level: LogLevelEnum
     process_name: str
     pid: int
     tid: int
@@ -28,8 +29,8 @@ class ReadLogcat(BaseModel):
 
 
 class Network(TimestampBaseModel):
-    source: str
-    destination: str
+    src: str
+    dst: str
     protocol: str
     length: int
     info: str

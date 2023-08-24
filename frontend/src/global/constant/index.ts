@@ -3,7 +3,7 @@ import PagePath from './pagePath'
 /**
  * 웹사이트 접속 시 메인페이지
  */
-export const DEFAULT_PAGE_PATH = PagePath.action
+export const DEFAULT_PAGE_PATH = PagePath.scenario
 
 export const MILLISECONDS_PER_SECOND = 1000
 export const MILLISECONDS_PER_MINUTE = 60 * MILLISECONDS_PER_SECOND
@@ -22,3 +22,8 @@ export const PAGE_SIZE_TEN = 10
  * AreaChart, PointChart 높이
  */
 export const CHART_HEIGHT = 64
+
+/**
+ * 월 영어 이름
+ */
+export const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']

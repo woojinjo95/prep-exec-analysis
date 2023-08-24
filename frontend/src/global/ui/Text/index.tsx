@@ -7,7 +7,18 @@ interface TextProps extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLSpa
   size?: 'xs' | 'sm' | 'md'
   weight?: 'regular' | 'medium' | 'bold'
   isActive?: boolean
-  colorScheme?: 'dark' | 'light' | 'pink' | 'red' | 'orange' | 'yellow' | 'navy' | 'green' | 'grey'
+  colorScheme?:
+    | 'dark'
+    | 'light'
+    | 'pink'
+    | 'red'
+    | 'orange'
+    | 'yellow'
+    | 'navy'
+    | 'green'
+    | 'grey'
+    | 'dark-grey'
+    | 'light-orange'
   invertBackground?: boolean
 }
 
@@ -65,6 +76,8 @@ const Text: React.FC<TextProps> = ({
           'bg-navy': colorScheme === 'navy',
           'bg-green': colorScheme === 'green',
           'bg-grey': colorScheme === 'grey',
+          'bg-dark-grey': colorScheme === 'dark-grey',
+          'bg-light-orange': colorScheme === 'light-orange',
         },
         className,
       )}

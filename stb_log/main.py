@@ -1,4 +1,5 @@
 import logging
+import time
 
 from scripts.log_service.logcat.log_manager import LogcatManager
 from scripts.log_service.dumpsys.manager import DumpsysManager
@@ -60,6 +61,17 @@ def stop_dumpsys_manager():
         logger.warning('DumpsysManager is not alive')
 
 
+def start(connection_info: dict):
+    start_logcat_manager(connection_info)
+    start_dumpsys_manager(connection_info)
+
+
+def stop():
+    stop_logcat_manager()
+    stop_dumpsys_manager()
+    time.sleep(0.1)
+
+
 def command_parser(command: dict):
     ''' 
     start: PUBLISH command '{"msg": "stb_log", "data": {"control": "start"}}'
@@ -74,11 +86,9 @@ def command_parser(command: dict):
 
         control = arg.get('control', '')
         if control == 'start':
-            start_logcat_manager(connection_info)
-            start_dumpsys_manager(connection_info)
+            start(connection_info)
         elif control == 'stop':
-            stop_logcat_manager()
-            stop_dumpsys_manager()
+            stop()
         else:
             logger.warning(f'Unknown control: {control}')
 
@@ -88,6 +98,10 @@ def command_parser(command: dict):
         del data['mode']
         connection_info = data
         logger.info(f'connection_info: {connection_info}')
+
+        # restart
+        stop()
+        start(connection_info)
 
 
 def main():

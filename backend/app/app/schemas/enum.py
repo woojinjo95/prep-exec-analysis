@@ -24,10 +24,6 @@ class ProtocolEnum(ExtendedEnum):
     udp = "udp"
 
 
-class ResumeRecognizingKeyEventEnum(ExtendedEnum):
-    power = "power"
-
-
 class ResumeTypeEnum(ExtendedEnum):
     image_matching = "image_matching"
     screen_change_rate = "screen_change_rate"
@@ -35,23 +31,21 @@ class ResumeTypeEnum(ExtendedEnum):
 
 class BootTypeEnum(ExtendedEnum):
     image_matching = "image_matching"
-    screen_change_rate = "screen_change_rate"
 
 
 class AnalysisTypeEnum(ExtendedEnum):
     freeze = "freeze"
-    macroblock = "macroblock"
-    loudness = "loudness"
+    # macroblock = "macroblock"
     resume = "resume"
     boot = "boot"
     channel_change_time = "channel_change_time"
     log_level_finder = "log_level_finder"
     log_pattern_matching = "log_pattern_matching"
-    process_lifecycle_analysis = "process_lifecycle_analysis"
-    network_filter = "network_filter"
+    # process_lifecycle_analysis = "process_lifecycle_analysis"
+    # network_filter = "network_filter"
 
 
-class LogLevelFinderTargetEnum(ExtendedEnum):
+class LogLevelEnum(ExtendedEnum):
     V = "V"  # verbose 가장 낮은 우선 순위
     D = "D"  # debug
     I = "I"  # info
@@ -69,6 +63,7 @@ class ChannelChangeTimeTargetEnum(ExtendedEnum):
 class BlockTypeEnum(ExtendedEnum):
     remocon_transmit = "remocon_transmit"
     on_off_control = "on_off_control"
+    shell = "shell"
 
 
 class LogModuleEnum(ExtendedEnum):
@@ -80,3 +75,10 @@ class LogModuleEnum(ExtendedEnum):
 class ShellModeEnum(ExtendedEnum):
     adb = "adb"
     ssh = "ssh"
+
+
+class ServiceStateEnum(ExtendedEnum):
+    idle = "idle"
+    streaming = "streaming"
+    playblock = "playblock"
+    analysis = "analysis"

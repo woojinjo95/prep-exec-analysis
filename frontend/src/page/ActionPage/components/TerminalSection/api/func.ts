@@ -1,23 +1,8 @@
 import { AxiosError } from 'axios'
 
 import API from '@global/api'
-import { Response } from '@global/api/entity'
+import { HardwareConfiguration } from '@global/api/entity'
 import apiUrls from './url'
-import { HardwareConfiguration } from './entity'
-
-/**
- * 하드웨어 설정 조회 api
- */
-export const getHardwareConfiguration = async () => {
-  try {
-    const result = await API.get<Response<HardwareConfiguration>>(apiUrls.hardware_configuration)
-
-    return result.data.items
-  } catch (err) {
-    const er = err as AxiosError
-    throw er
-  }
-}
 
 /**
  * 하드웨어 설정 수정 api
@@ -51,34 +36,6 @@ export const putHardwareConfiguration = async (
 export const putHardwareConfigurationSTBConnection = async (data: HardwareConfiguration['stb_connection']) => {
   try {
     await API.put(`${apiUrls.hardware_configuration}/stb_connection`, data)
-  } catch (err) {
-    const er = err as AxiosError
-    throw er
-  }
-}
-
-/**
- * 터미널 - 쉘 연결
- */
-export const postConnect = async () => {
-  try {
-    const result = await API.post<{ msg: string }>(apiUrls.connect)
-
-    return result.data
-  } catch (err) {
-    const er = err as AxiosError
-    throw er
-  }
-}
-
-/**
- * 터미널 - 쉘 연결
- */
-export const postDisconnect = async () => {
-  try {
-    const result = await API.post<{ msg: string }>(apiUrls.disconnect)
-
-    return result.data
   } catch (err) {
     const er = err as AxiosError
     throw er
