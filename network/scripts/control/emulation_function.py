@@ -123,19 +123,23 @@ def apply_network_emulation_args(args: Dict):
             loss_args = args.get(LOSS)
             block_args = args.get(PACKET_BLOCK)
 
-            if bandwidth_args is not None:
-                hset_value(src, HARDWARE_CONFIG, BANDWIDTH, bandwidth_args)
-                updated['bandwidth'] = bandwidth_args
+            if action == 'update':
+                # 아래 3개 값은 추가/삭제되지 않고 수정만 된다.
+                if bandwidth_args is not None:
+                    hset_value(src, HARDWARE_CONFIG, BANDWIDTH, bandwidth_args)
+                    updated['bandwidth'] = bandwidth_args
 
-            if delay_args is not None:
-                hset_value(src, HARDWARE_CONFIG, DELAY, delay_args)
-                updated['delay'] = delay_args
+                if delay_args is not None:
+                    hset_value(src, HARDWARE_CONFIG, DELAY, delay_args)
+                    updated['delay'] = delay_args
 
-            if loss_args is not None:
-                hset_value(src, HARDWARE_CONFIG, LOSS, loss_args)
-                updated['loss'] = loss_args
+                if loss_args is not None:
+                    hset_value(src, HARDWARE_CONFIG, LOSS, loss_args)
+                    updated['loss'] = loss_args
 
             if block_args is not None:
+                # packet_block은 추가/삭제/변경이 가능하며 각각마다 다른 함수를 적용해야한다.
+                # 다만 모든 action에서 packet block이 포함되지 않고, 위 3개 값과 구조가 다르니 따로 처리
                 if action == 'create':
                     add_packet_block(block_args)
                     updated['create'] = block_args
