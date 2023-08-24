@@ -118,7 +118,7 @@ def apply_network_emulation_args(args: Dict):
     updated = {}
 
     with get_strict_redis_connection(db=RedisDBEnum.hardware) as src:
-        if action == 'default':
+        if action == 'reset':
             hset_value(src, HARDWARE_CONFIG, BANDWIDTH, DefaultValues.bandwidth)
             hset_value(src, HARDWARE_CONFIG, DELAY, DefaultValues.delay)
             hset_value(src, HARDWARE_CONFIG, LOSS, DefaultValues.loss)
