@@ -31,13 +31,11 @@ class ResumeTypeEnum(ExtendedEnum):
 
 class BootTypeEnum(ExtendedEnum):
     image_matching = "image_matching"
-    screen_change_rate = "screen_change_rate"
 
 
 class AnalysisTypeEnum(ExtendedEnum):
     freeze = "freeze"
     # macroblock = "macroblock"
-    loudness = "loudness"
     resume = "resume"
     boot = "boot"
     channel_change_time = "channel_change_time"
@@ -65,6 +63,7 @@ class ChannelChangeTimeTargetEnum(ExtendedEnum):
 class BlockTypeEnum(ExtendedEnum):
     remocon_transmit = "remocon_transmit"
     on_off_control = "on_off_control"
+    shell = "shell"
 
 
 class LogModuleEnum(ExtendedEnum):
@@ -76,3 +75,10 @@ class LogModuleEnum(ExtendedEnum):
 class ShellModeEnum(ExtendedEnum):
     adb = "adb"
     ssh = "ssh"
+
+
+class ServiceStateEnum(ExtendedEnum):
+    idle = "idle"
+    streaming = "streaming"
+    playblock = "playblock"
+    analysis = "analysis"

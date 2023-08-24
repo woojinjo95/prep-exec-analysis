@@ -123,7 +123,7 @@ def get_data_of_freeze(
     # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-):
+    ):
     """
     화면 멈춤 데이터 조회
     """
@@ -137,6 +137,34 @@ def get_data_of_freeze(
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {"items": freeze}
+
+
+# Loudness
+@router.get("/loudness", response_model=schemas.Loudness)
+def get_data_of_loudness(
+    scenario_id: Optional[str] = None,
+    # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
+    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    ):
+    """
+    Loudness 데이터 조회
+    """
+    try:
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        loudness_pipeline = [{'$match': {'scenario_id': scenario_id, 
+                                         'timestamp': {'$gte': convert_iso_format(start_time),
+                                                       '$lte': convert_iso_format(end_time)}}},
+                             {'$project': {'_id': 0, 'lines': 1}},
+                             {'$unwind': {'path': '$lines'}},
+                             {'$replaceRoot': {'newRoot': '$lines'}},
+                             {'$project': {'timestamp': '$timestamp', 'm': '$M', 'i': '$I'}}
+                             ]
+        loudness = aggregate_from_mongodb(col='loudness', pipeline=loudness_pipeline)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return {"items": loudness}
 
 
 # Video Analysis Result

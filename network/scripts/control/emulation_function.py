@@ -55,10 +55,34 @@ def add_packet_block(block_args: dict):
         if {k: v for k, v in block_args.items() if k != 'id'} not in [{k: v for k, v in item.items() if k != 'id'} for item in packet_block_list]:
             logger.info(f'{block_args} is added to packet block list')
             block_args['id'] = str(uuid4())
-            updated_packet_block_list = packet_block_list + [block_args]
+            updated_packet_block_list = packet_block_list + [{k: v for k, v in block_args.items() if v != ''}]
             hset_value(src, HARDWARE_CONFIG, PACKET_BLOCK, updated_packet_block_list)
         else:
             logger.warning(f'{block_args} is already added')
+
+
+def update_packet_block(block_args: dict):
+    with get_strict_redis_connection(db=RedisDBEnum.hardware) as src:
+        packet_block_list = hget_value(src, HARDWARE_CONFIG, PACKET_BLOCK)
+
+        if not isinstance(packet_block_list, list):
+            packet_block_list = []
+
+        uuid = block_args.pop('id', None)
+        if uuid is not None:
+            for packet_block_item in packet_block_list:
+                if packet_block_item.get('id') == uuid:
+                    packet_block_item.clear()
+                    packet_block_item.update({k: v for k, v in block_args.items() if v != ''})
+                    packet_block_item['id'] = uuid
+                    logger.warning(f'{uuid}: {block_args} is updated')
+
+                    hset_value(src, HARDWARE_CONFIG, PACKET_BLOCK, packet_block_list)
+                    break
+            else:
+                logger.warning(f'{block_args} is not valid to remove')
+        else:
+            logger.warning(f'No uuid is specified: {block_args}')
 
 
 def delete_packet_block(query: dict):
@@ -93,31 +117,38 @@ def apply_network_emulation_args(args: Dict):
     updated = {}
 
     with get_strict_redis_connection(db=RedisDBEnum.hardware) as src:
-        if action in ('add', 'del'):
+        if action in ('create', 'delete', 'update'):
             bandwidth_args = args.get(BANDWIDTH)
             delay_args = args.get(DELAY)
             loss_args = args.get(LOSS)
             block_args = args.get(PACKET_BLOCK)
 
-            if bandwidth_args is not None:
-                hset_value(src, HARDWARE_CONFIG, BANDWIDTH, bandwidth_args)
-                updated['bandwidth'] = bandwidth_args
+            if action == 'update':
+                # 아래 3개 값은 추가/삭제되지 않고 수정만 된다.
+                if bandwidth_args is not None:
+                    hset_value(src, HARDWARE_CONFIG, BANDWIDTH, bandwidth_args)
+                    updated['bandwidth'] = bandwidth_args
 
-            if delay_args is not None:
-                hset_value(src, HARDWARE_CONFIG, DELAY, delay_args)
-                updated['delay'] = delay_args
+                if delay_args is not None:
+                    hset_value(src, HARDWARE_CONFIG, DELAY, delay_args)
+                    updated['delay'] = delay_args
 
-            if loss_args is not None:
-                hset_value(src, HARDWARE_CONFIG, LOSS, loss_args)
-                updated['loss'] = loss_args
+                if loss_args is not None:
+                    hset_value(src, HARDWARE_CONFIG, LOSS, loss_args)
+                    updated['loss'] = loss_args
 
             if block_args is not None:
-                if action == 'add':
+                # packet_block은 추가/삭제/변경이 가능하며 각각마다 다른 함수를 적용해야한다.
+                # 다만 모든 action에서 packet block이 포함되지 않고, 위 3개 값과 구조가 다르니 따로 처리
+                if action == 'create':
                     add_packet_block(block_args)
-                    updated['add'] = block_args
-                elif action == 'del':
+                    updated['create'] = block_args
+                elif action == 'delete':
                     delete_packet_block(block_args)
-                    updated['del'] = block_args
+                    updated['delete'] = block_args
+                elif action == 'update':
+                    update_packet_block(block_args)
+                    updated['update'] = block_args
 
         elif action == 'start':
             apply_network_emulation()

@@ -4,6 +4,7 @@ import logging
 from scripts.modules.color_reference import ColorReference
 from scripts.modules.freeze_detect import FreezeDetect
 from scripts.modules.warm_boot import WarmBoot
+from scripts.modules.cold_boot import ColdBoot
 
 
 logger = logging.getLogger('main')
@@ -14,6 +15,7 @@ class CommandExecutor:
         self.color_ref_module = ColorReference()
         self.freeze_detect_module = FreezeDetect()
         self.warm_boot_module = WarmBoot()
+        self.cold_boot_module = ColdBoot()
 
     def execute(self, command: Dict):
         # freeze_detect start:  PUBLISH command '{"msg": "analysis", "data": {"measurement": ["freeze"]}}'
@@ -37,8 +39,10 @@ class CommandExecutor:
             measurement = data.get('measurement', [])
             if 'freeze' in measurement:
                 self.freeze_detect_module.start()
-            elif 'resume' in measurement:
+            if 'resume' in measurement:
                 self.warm_boot_module.start()
+            if 'boot' in measurement:
+                self.cold_boot_module.start()
 
         else:
             pass

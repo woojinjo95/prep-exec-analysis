@@ -32,3 +32,9 @@ def insert_many_to_mongodb(col, data_list: List[Dict]) -> pymongo.results.Insert
 def aggregate_from_mongodb(col, pipeline):
     col = get_mongodb_collection(col)
     return list(col.aggregate(pipeline))
+
+
+def load_by_id_from_mongodb(col, id, proj=None):
+    col = get_mongodb_collection(col)
+    res = col.find_one({'id': id}, proj)
+    return res

@@ -29,8 +29,8 @@ class ReadLogcat(BaseModel):
 
 
 class Network(TimestampBaseModel):
-    source: str
-    destination: str
+    src: str
+    dst: str
     protocol: str
     length: int
     info: str
