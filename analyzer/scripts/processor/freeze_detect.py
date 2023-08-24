@@ -4,7 +4,7 @@ import traceback
 from scripts.config.config import get_setting_with_env
 from scripts.analysis.freeze_detect import FreezeDetector
 from scripts.format import CollectionName
-from scripts.external.data import load_input
+from scripts.external.data import load_input, read_analysis_config
 from scripts.external.report import report_output
 from scripts.connection.redis_pubsub import publish_msg
 from scripts.util._timezone import get_utc_datetime
@@ -21,13 +21,14 @@ def detect_freeze():
     try:  
         args = load_input()
         video_info = get_video_info(args.video_path)
-        freeze_detector = set_freeze_detector(video_info['fps'])
+        min_duration = get_duration_from_config()
+        freeze_detector = set_freeze_detector(video_info['fps'], min_duration)
         logger.info(f'start time: {get_utc_datetime(args.timestamps[0])}')
 
         for frame, cur_time in FrameGenerator(args.video_path, args.timestamps):
             result = freeze_detector.update(frame, cur_time)
 
-            if result['detect']:
+            if result['detect'] and result['duration'] > min_duration:
                 relative_time = result['start_time'] - args.timestamps[0]
                 logger.info(f'relative time: {seconds_to_time(relative_time)}')
                 
@@ -46,9 +47,9 @@ def detect_freeze():
         logger.warning(error_detail)
 
 
-def set_freeze_detector(fps: float) -> FreezeDetector:
+def set_freeze_detector(fps: float, min_duration: float) -> FreezeDetector:
     sampling_rate = get_setting_with_env('FREEZE_DETECT_SKIP_FRAME', 6)
-    min_interval = get_setting_with_env('FREEZE_DETECT_MIN_INTERVAL', 3)
+    min_interval = min_duration
     min_color_depth_diff = get_setting_with_env('FREEZE_DETECT_MIN_COLOR_DEPTH_DIFF', 10)
     min_diff_rate = get_setting_with_env('FREEZE_DETECT_MIN_DIFF_RATE', 0.0001)
     frame_stdev_thres = get_setting_with_env('FREEZE_DETECT_FRAME_STDEV_THRES', 0.01)
@@ -64,3 +65,10 @@ def set_freeze_detector(fps: float) -> FreezeDetector:
 
     logger.info(f"start detect freeze. sampling rate: {sampling_rate}, min interval: {min_interval}, min color depth diff: {min_color_depth_diff}, min diff rate: {min_diff_rate}, frame stdev thres: {frame_stdev_thres}")
     return freeze_detector
+
+
+def get_duration_from_config() -> float:
+    analysis_config = read_analysis_config()
+    duration = analysis_config['freeze']['duration']
+    logger.info(f'duration: {duration}')
+    return duration
