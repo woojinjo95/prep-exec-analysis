@@ -1,6 +1,7 @@
 import logging
 import re
 import traceback
+import threading
 from multiprocessing import Event, Queue
 from typing import Dict, List, Tuple
 
@@ -20,14 +21,8 @@ def postprocess(connection_info: Dict, stop_event: Event, queue: Queue):
     for log_batch in LogBatchGenerator(queue):
         if stop_event.is_set():
             break
-        try:
-            pids = list(set([int(log_chunk['pid']) for log_chunk in log_batch]))
-            pid_name_dict = get_process_names(pids, connection_info)
-            json_data = construct_json_data(log_batch, pid_name_dict)
-            insert_to_mongodb('stb_log', json_data)
-            logger.info(f'insert datas to db')
-        except Exception as err:
-            logger.warning(f'error in insert logcat data to db. Cause => {err}')
+        th = threading.Thread(target=process_batch, args=(log_batch, connection_info), daemon=True)
+        th.start()
 
     logger.info(f"finish log postprocess")
 
@@ -99,3 +94,14 @@ def get_process_names(pids: List[int], connection_info: Dict) -> Dict[int, str]:
         name = parts[-1]
         pid_name_dict[pid] = name
     return pid_name_dict
+
+
+def process_batch(log_batch: List[Tuple[float, str]], connection_info: Dict):
+    try:
+        pids = list(set([int(log_chunk['pid']) for log_chunk in log_batch]))
+        pid_name_dict = get_process_names(pids, connection_info)
+        json_data = construct_json_data(log_batch, pid_name_dict)
+        insert_to_mongodb('stb_log', json_data)
+        logger.info(f'insert datas to db')
+    except Exception as err:
+        logger.warning(f'error in insert logcat data to db. Cause => {err}')
