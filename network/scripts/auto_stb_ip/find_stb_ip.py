@@ -9,6 +9,7 @@ from .network_info import get_ethernet_state, get_private_ip
 
 logger = logging.getLogger('main')
 TIMEOUT = 0.1
+UNIT_DELAY = 10
 
 
 class STBIPFinder:
@@ -33,13 +34,13 @@ class STBIPFinder:
 
                 original = brute_ping_ipv4(private_ip, timeout=TIMEOUT)
                 original_delay = get_value('hardware_configuration', 'packet_delay', db=RedisDBEnum.hardware)
-                traffic_change(nic=stb_nic, delay=original_delay + 10)
+                traffic_change(nic=stb_nic, delay=original_delay + UNIT_DELAY)
                 plus_fifty = brute_ping_ipv4(private_ip, timeout=TIMEOUT)
                 traffic_change(nic=stb_nic, delay=original_delay)
 
                 original_values = {k: v for k, v in original}
                 for ip, ping_value in plus_fifty[::-1]:
-                    if ping_value - original_values.get(ip, TIMEOUT) > (10 * 0.9) / 1000:
+                    if ping_value - original_values.get(ip, TIMEOUT) > (UNIT_DELAY * 0.9) / 1000:
                         stb_ip = ip
                         logger.info(f'STB: {stb_ip}')
                         break
