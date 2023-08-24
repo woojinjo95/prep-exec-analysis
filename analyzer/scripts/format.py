@@ -1,4 +1,3 @@
-from datetime import datetime
 from dataclasses import dataclass
 from enum import Enum
 from typing import List
@@ -15,6 +14,7 @@ class CollectionName(Enum):
     FREEZE = 'an_freeze'
     WARM_BOOT = 'an_warm_boot'
     COLD_BOOT = 'an_cold_boot'
+    LOG_PATTERN = 'an_log_pattern'
 
 
 @dataclass
