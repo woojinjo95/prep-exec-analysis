@@ -1,4 +1,5 @@
 import logging
+from typing import Dict, List
 from scripts.connection.mongo_db.crud import aggregate_from_mongodb
 from scripts.external.scenario import get_scenario_info
 from scripts.util._timezone import get_utc_datetime
@@ -6,7 +7,7 @@ from scripts.util._timezone import get_utc_datetime
 logger = logging.getLogger('connection')
 
 
-def get_data_of_log_level_finder(start_time: float, end_time: float):
+def get_data_of_log_level_finder(start_time: float, end_time: float) -> List[Dict]:
     start_time = get_utc_datetime(start_time)
     end_time = get_utc_datetime(end_time)
     scenario_info = get_scenario_info()
