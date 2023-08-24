@@ -22,12 +22,15 @@ def match_log_pattern():
         # log_data = get_data_of_log(time.time() - 600, time.time() - 300)
         target_items = get_target_from_config()
 
+        count = 0
         for log in log_data['items']:
             if check_log_pattern_match(log, target_items):
                 # logger.info(f'log: {log}')
                 report_output(CollectionName.LOG_PATTERN.value, {
                     **log,
                 })
+                count += 1
+        logger.info(f'matched log count: {count}')
 
         publish_msg({'measurement': ['log_pattern_matching']}, 'analysis_response')
 
