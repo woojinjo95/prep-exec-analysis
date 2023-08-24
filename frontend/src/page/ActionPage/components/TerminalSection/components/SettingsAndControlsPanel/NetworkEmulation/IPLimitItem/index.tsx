@@ -175,17 +175,17 @@ const IPLimitItem: React.FC<IPLimitItemProps> = ({
           autoFocus={isCreating}
           placeholder="IP"
           value={ip || ''}
-          isDisabled={!isEditing}
+          disabled={!isEditing}
           onChange={(e) => setIP(e.target.value)}
         />
         <Input
           colorScheme="charcoal"
           placeholder="Port"
           value={port || ''}
-          isDisabled={!isEditing}
+          disabled={!isEditing}
           onChange={(e) => setPort(e.target.value)}
         />
-        <Select colorScheme="charcoal" value={protocol} isDisabled={!isEditing}>
+        <Select colorScheme="charcoal" value={protocol} disabled={!isEditing}>
           {Protocols.map((p) => (
             <OptionItem
               colorScheme="charcoal"
