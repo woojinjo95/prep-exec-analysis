@@ -21,7 +21,7 @@ def change_packet_block(nic: str, packet_blocks: List[Dict]) -> List[Dict]:
         port = packet_block.get('port')
         protocol = packet_block.get('protocol', 'all')
         filter_type = packet_block.get('filter_type', 'source')
-        if check_valid_multicast_ip(socket.inet_aton(ip)):
+        if ip and check_valid_multicast_ip(socket.inet_aton(ip)):
             filter_type = 'destination'
         command = packet_block.get('command', 'add')
         result.append(ebtables_block(nic, ip, port, protocol, filter_type, command))
