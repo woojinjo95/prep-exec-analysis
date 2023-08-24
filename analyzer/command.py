@@ -5,7 +5,7 @@ from scripts.modules.color_reference import ColorReference
 from scripts.modules.freeze_detect import FreezeDetect
 from scripts.modules.warm_boot import WarmBoot
 from scripts.modules.cold_boot import ColdBoot
-from scripts.modules.log_level import LogLevel
+from scripts.modules.log_pattern import LogPattern
 
 
 logger = logging.getLogger('main')
@@ -17,7 +17,7 @@ class CommandExecutor:
         self.freeze_detect_module = FreezeDetect()
         self.warm_boot_module = WarmBoot()
         self.cold_boot_module = ColdBoot()
-        self.log_level_module = LogLevel()
+        self.log_pattern_module = LogPattern()
 
     def execute(self, command: Dict):
         # freeze_detect start:  PUBLISH command '{"msg": "analysis", "data": {"measurement": ["freeze"]}}'
@@ -45,8 +45,8 @@ class CommandExecutor:
                 self.warm_boot_module.start()
             if 'boot' in measurement:
                 self.cold_boot_module.start()
-            if 'log_level_finder' in measurement:
-                self.log_level_module.start()
+            if 'log_pattern_matching' in measurement:
+                self.log_pattern_module.start()
 
         else:
             pass

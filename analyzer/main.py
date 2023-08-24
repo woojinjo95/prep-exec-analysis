@@ -26,6 +26,7 @@ if __name__ == '__main__':
         log_organizer.set_stream_logger('color_reference')
         log_organizer.set_stream_logger('freeze_detect')
         log_organizer.set_stream_logger('boot_test')
+        log_organizer.set_stream_logger('log_pattern')
         logger.info('Start analyzer container')
         
         main()
