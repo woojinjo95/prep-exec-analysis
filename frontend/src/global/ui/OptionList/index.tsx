@@ -12,8 +12,9 @@ interface OptionListProps extends React.HTMLAttributes<HTMLUListElement> {
 
   colorScheme?: 'dark' | 'charcoal' | 'light'
   isVisible?: boolean
-  widthOption?: 'fit-content' | 'fit-wrapper'
   wrapperRef: React.MutableRefObject<HTMLDivElement | null>
+  widthOption?: 'fit-content' | 'fit-wrapper'
+  positionX?: 'left' | 'right'
 }
 
 /**
@@ -21,30 +22,57 @@ interface OptionListProps extends React.HTMLAttributes<HTMLUListElement> {
  *
  * OptionItem 컴포넌트와 같이 사용
  *
+ * @param colorScheme 컬러 테마
+ * @param isVisible OptionList 컴포넌트 표시여부
+ * @param wrapperRef OptionList의 상위 엘리먼트 ref. 위치를 잡기위해 사용
+ * @param widthOption 넓이 옵션. fit-wrapper: wrapperRef의 넓이를 사용 / fit-content: OptionList의 하위 엘리먼트 넓이 사용
+ * @param positionX 위치 옵션. widthOption이 fit-content일 경우에만 사용가능. left: wrapperRef의 왼쪽으로 붙음 / right: wrapperRef의 오른쪽으로 붙음
+ *
+ *
  * FIXME: 스크롤 시 닫히도록
  *
  * FIXME: 위아래 고정 옵션
  */
 const OptionList: React.ForwardRefExoticComponent<OptionListProps & React.RefAttributes<HTMLUListElement>> =
   React.forwardRef<HTMLUListElement, OptionListProps>(
-    ({ children, colorScheme = 'charcoal', isVisible, widthOption = 'fit-wrapper', wrapperRef, ...props }, ref) => {
-      const createDefaultStyle = useCallback((ref: React.MutableRefObject<HTMLDivElement | null>) => {
-        if (!ref.current) return {}
+    (
+      {
+        children,
+        colorScheme = 'charcoal',
+        isVisible,
+        widthOption = 'fit-wrapper',
+        wrapperRef,
+        positionX = 'left',
+        ...props
+      },
+      ref,
+    ) => {
+      const createDefaultStyle = useCallback(
+        (_wrapperRef: React.MutableRefObject<HTMLDivElement | null>) => {
+          if (!_wrapperRef.current) return {}
 
-        const styles: React.CSSProperties = {}
-        const dimensions = ref.current.getBoundingClientRect()
+          const styles: React.CSSProperties = {}
+          const dimensions = _wrapperRef.current.getBoundingClientRect()
 
-        styles.left = dimensions.left
-        if (widthOption === 'fit-wrapper') styles.width = dimensions.width
+          if (widthOption === 'fit-content' && positionX === 'left') {
+            styles.left = dimensions.left
+          }
+          if (widthOption === 'fit-content' && positionX === 'right') {
+            styles.right = window.innerWidth - dimensions.left - dimensions.width
+          }
 
-        if (dimensions.top < window.innerHeight / 2) {
-          styles.top = dimensions.top + dimensions.height + SPACE
-        } else {
-          styles.bottom = window.innerHeight - dimensions.top + SPACE
-        }
+          if (widthOption === 'fit-wrapper') styles.width = dimensions.width
 
-        return styles
-      }, [])
+          if (dimensions.top < window.innerHeight / 2) {
+            styles.top = dimensions.top + dimensions.height + SPACE
+          } else {
+            styles.bottom = window.innerHeight - dimensions.top + SPACE
+          }
+
+          return styles
+        },
+        [positionX, widthOption],
+      )
 
       if (!isVisible) return null
 
