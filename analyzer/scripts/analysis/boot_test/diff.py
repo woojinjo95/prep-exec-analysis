@@ -11,6 +11,7 @@ logger = logging.getLogger('boot_test')
 
 @log_decorator(logger)
 def task_boot_test_with_diff(video_path: str, timestamps: List[float], event_time: float) -> Dict:
+    logger.info(f'event_time: {event_time}')
     try:
         diff_timestamp = measure_boot_with_diff(
             video_path=video_path,
@@ -28,11 +29,13 @@ def task_boot_test_with_diff(video_path: str, timestamps: List[float], event_tim
         status = 'error'
         diff_time = 0
     
-    return {
+    result = {
         'status': status,
         'diff_timestamp': diff_timestamp,
         'diff_time': diff_time
     }
+    logger.info(f'result: {result}')
+    return result
 
 
 def measure_boot_with_diff(video_path: str, mode: str, timestamps: list, event_time: float, roi: list = None, param: dict = {}) -> float:

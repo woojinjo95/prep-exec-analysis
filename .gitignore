@@ -17,3 +17,6 @@ total.log.*
 *.db
 *.db-shm
 *.db-wal
+
+# analyzer
+analyzer/test/images/
