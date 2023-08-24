@@ -17,19 +17,16 @@ logger = logging.getLogger('log_pattern')
 def match_log_pattern():
     args = load_input()
     # log_data = get_data_of_log(args.timestamps[0], args.timestamps[-1])
-    log_data = get_data_of_log(time.time() - 180, time.time())
+    log_data = get_data_of_log(time.time() - 600, time.time() - 300)
 
     target_items = get_target_from_config()
 
     for log in log_data['items']:
         if check_log_pattern_match(log, target_items):
-            logger.info(f'log: {log}')
-    #     if log['log_level'] in target_levels:
-    #         logger.info(f'log: {log}')
-    #         # report_output(CollectionName.LOG_LEVEL.value, {
-    #         #     'timestamp': get_utc_datetime(log['timestamp'].timestamp()),
-                
-    #         # })
+            # logger.info(f'log: {log}')
+            report_output(CollectionName.LOG_PATTERN.value, {
+                **log,
+            })
 
 
 def get_target_from_config() -> List[Dict]:
