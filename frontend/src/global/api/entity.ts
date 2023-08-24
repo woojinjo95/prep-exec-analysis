@@ -35,6 +35,8 @@ export interface ScenarioSummary {
   updated_at: number
 }
 
+export type IPLimitProtocol = 'all' | 'tcp' | 'udp'
+
 /**
  * 하드웨어 설정 - IP 제한
  */
@@ -42,7 +44,7 @@ export interface IPLimit {
   id: string
   ip?: string
   port?: string
-  protocol: 'all' | 'tcp' | 'udp'
+  protocol: IPLimitProtocol
 }
 
 /**
@@ -64,5 +66,5 @@ export interface HardwareConfiguration {
     username?: string | null
     password?: string | null
   }
-  ip_limit?: IPLimit[]
+  packet_block?: IPLimit[]
 }

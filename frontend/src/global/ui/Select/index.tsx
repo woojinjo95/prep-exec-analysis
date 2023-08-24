@@ -43,7 +43,7 @@ const Select: React.ForwardRefExoticComponent<SelectProps & React.RefAttributes<
           'border-light-charcoal': colorScheme === 'charcoal',
           'bg-light-black': colorScheme === 'dark',
           'border-charcoal': colorScheme === 'dark',
-          'border-primary': isFocused,
+          'border-primary': isFocused && !props.disabled,
         })}
         onClick={(e) => {
           setIsFocused((prev) => !prev)

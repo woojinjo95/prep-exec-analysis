@@ -36,7 +36,7 @@ const Input: React.ForwardRefExoticComponent<InputProps & React.RefAttributes<HT
             'border-charcoal': colorScheme === 'dark',
             'border-light-charcoal': colorScheme === 'charcoal',
             'border-light-grey': colorScheme === 'light',
-            'border-primary': isFocused,
+            'border-primary': isFocused && !props.disabled,
             'border-orange': !!warningMessage,
           },
           className,
