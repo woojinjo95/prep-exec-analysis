@@ -35,3 +35,10 @@ class LogName(Enum):
     BOOT_TEST = 'boot_test'
     LOG_PATTERN = 'log_pattern'
     
+
+class Command(Enum):
+    FREEZE = 'freeze'
+    RESUME = 'resume'
+    BOOT = 'boot'
+    LOG_PATTERN_MATCHING = 'log_pattern_matching'
+

@@ -16,7 +16,7 @@ from scripts.format import CollectionName
 from scripts.util._timezone import get_utc_datetime
 from scripts.util.decorator import log_decorator
 from scripts.util.video import crop_video_with_opencv
-from scripts.format import LogName
+from scripts.format import LogName, Command
 
 logger = logging.getLogger(LogName.BOOT_TEST.value)
 
@@ -32,11 +32,11 @@ def test_cold_boot():
         elif processing_mode == 'screen_change_rate':
             raise NotImplementedError
 
-        publish_msg({'measurement': ['boot']}, 'analysis_response')
+        publish_msg({'measurement': [Command.BOOT.value]}, 'analysis_response')
 
     except Exception as err:
         error_detail = traceback.format_exc()
-        publish_msg({'measurement': ['boot']}, error_detail, level='error')
+        publish_msg({'measurement': [Command.BOOT.value]}, error_detail, level='error')
         logger.error(f"error in test_cold_boot: {err}")
         logger.warning(error_detail)
 
