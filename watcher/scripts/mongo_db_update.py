@@ -41,7 +41,7 @@ def check_valid_event_log(subscribed_log: Dict) -> bool:
     if subscribed_log.get('service') in ('control', 'media', 'network', 'stb_log', 'shell'):
         result = True
     else:
-        # backend, replay, analyzer log
+        # backend, replay, analysis log
         pass
 
     return result
