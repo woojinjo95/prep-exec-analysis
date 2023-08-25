@@ -31,10 +31,6 @@ const Select: React.ForwardRefExoticComponent<SelectProps & React.RefAttributes<
   const [isFocused, setIsFocused] = useState<boolean>(false)
   const { ref: selectListRef } = useOutsideClick<HTMLUListElement>({ onClickOutside: () => setIsFocused(false) })
 
-  if (selectListRef.current) {
-    console.log(selectListRef.current.offsetHeight)
-  }
-
   return (
     <div ref={divRef} className={cx('relative', className)}>
       <button

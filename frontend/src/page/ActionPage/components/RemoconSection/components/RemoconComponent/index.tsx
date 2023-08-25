@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import classNames from 'classnames/bind'
 
 // import { ReactComponent as AddIcon } from '@assets/images/add.svg'
@@ -24,8 +24,6 @@ interface RemoconProps {
   keyEvent: KeyEvent | null
 }
 
-const dropdownMenu = ['Add', 'Modify', 'Delete']
-
 const RemoconComponent: React.FC<RemoconProps> = ({ remocon, keyEvent }) => {
   const remoconRef = useRef<HTMLImageElement | null>(null)
   const [isLoadedRemoconImage, setIsLoadedRemoconImage] = useState<boolean>(false)
@@ -35,6 +33,10 @@ const RemoconComponent: React.FC<RemoconProps> = ({ remocon, keyEvent }) => {
   const { hardwareConfiguration } = useHardwareConfiguration()
 
   const { sendMessage } = useWebsocket()
+
+  const dropdownMenu = useMemo(() => {
+    return ['Add', 'Modify', 'Delete']
+  }, [])
 
   useEffect(() => {
     setIsRendered(true)
