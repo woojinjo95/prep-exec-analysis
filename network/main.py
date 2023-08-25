@@ -14,7 +14,7 @@ from scripts.packet_capture import real_time_packet_capture, stop_capture
 from scripts.utils._exceptions import handle_errors
 from scripts.epg.epg import get_epg_data_with_provider
 from scripts.control.emulation_function import apply_network_emulation_args, reset_network_emulation
-from scripts.auto_stb_ip.find_stb_ip import STBIPFinder
+from scripts.state.find_stb_ip import STBIPFinder
 
 logger = logging.getLogger('main')
 
