@@ -51,7 +51,7 @@ export const postConnect = async () => {
 }
 
 /**
- * 터미널 - 쉘 연결
+ * 터미널 - 쉘 연결 해제
  */
 export const postDisconnect = async () => {
   try {
