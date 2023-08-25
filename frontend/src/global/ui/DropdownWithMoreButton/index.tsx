@@ -25,10 +25,11 @@ const DropdownWithMoreButton: React.FC<DropdownWithMoreButtonProps> = ({ positio
       />
 
       <OptionList
-        //   ref={selectListRef}
+        ref={selectListRef}
         isVisible={isButtonClicked}
         wrapperRef={divRef}
         widthOption="fit-content"
+        positionX="right"
         onClick={() => {
           setIsButtonClicked(false)
         }}

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback } from 'react'
 import cx from 'classnames'
 import { Portal } from '..'
 
@@ -61,7 +61,10 @@ const OptionList: React.ForwardRefExoticComponent<OptionListProps & React.RefAtt
             styles.right = window.innerWidth - dimensions.left - dimensions.width
           }
 
-          if (widthOption === 'fit-wrapper') styles.width = dimensions.width
+          if (widthOption === 'fit-wrapper') {
+            styles.left = dimensions.left
+            styles.width = dimensions.width
+          }
 
           if (dimensions.top < window.innerHeight / 2) {
             styles.top = dimensions.top + dimensions.height + SPACE
