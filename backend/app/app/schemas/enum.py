@@ -22,6 +22,9 @@ class ProtocolEnum(ExtendedEnum):
     all = "all"
     tcp = "tcp"
     udp = "udp"
+    ip = "ip"
+    icmp = "icmp"
+    igmp = "igmp"
 
 
 class ResumeTypeEnum(ExtendedEnum):
