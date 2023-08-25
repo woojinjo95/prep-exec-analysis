@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import classNames from 'classnames/bind'
 
-import { ReactComponent as MoreButton } from '@assets/images/button_more.svg'
 // import { ReactComponent as AddIcon } from '@assets/images/add.svg'
 
 import { KeyEvent } from '@page/ActionPage/types'
@@ -9,6 +8,10 @@ import { KeyEvent } from '@page/ActionPage/types'
 import AppURL from '@global/constant/appURL'
 import DropdownWithMoreButton from '@global/ui/DropdownWithMoreButton'
 import { Button, OptionItem } from '@global/ui'
+import { useHardwareConfiguration } from '@global/api/hook'
+import useWebsocket from '@global/module/websocket'
+import { remoconService } from '@global/service/RemoconService/RemoconService'
+import { CustomKeyTransmit, RemoconTransmit } from '@global/service/RemoconService/type'
 import { Remocon } from '../../api/entity'
 import RemoconButtons from './RemoconButtons'
 import styles from './RemoconComponent.module.scss'
@@ -29,6 +32,10 @@ const RemoconComponent: React.FC<RemoconProps> = ({ remocon, keyEvent }) => {
   const [isAddCustomModalOpen, setIsAddCustomModalOpen] = useState<boolean>(false)
   const [isRendered, setIsRendered] = useState<boolean>(false)
 
+  const { hardwareConfiguration } = useHardwareConfiguration()
+
+  const { sendMessage } = useWebsocket()
+
   useEffect(() => {
     setIsRendered(true)
   }, [])
@@ -39,6 +46,8 @@ const RemoconComponent: React.FC<RemoconProps> = ({ remocon, keyEvent }) => {
       setIsLoadedRemoconImage(false)
     }
   }, [remocon.name, setIsRendered])
+
+  if (!hardwareConfiguration) return <div />
 
   return (
     <>
@@ -83,10 +92,35 @@ const RemoconComponent: React.FC<RemoconProps> = ({ remocon, keyEvent }) => {
                     className="h-[40px] w-full border-[1px] border-[#707070] mb-[5px] flex justify-center"
                     key={`custom_keys_${custom_key.id}`}
                     onClick={() => {
-                      // remoconService.customKeyClick(custom_key.name)
+                      const message: CustomKeyTransmit = {
+                        msg: 'remocon_transmit',
+                        data: custom_key.custom_code.map((code) => {
+                          return {
+                            key: code,
+                            type: hardwareConfiguration.remote_control_type,
+                            press_time: 0,
+                            name: remocon.name,
+                          }
+                        }),
+                      } as const
+                      remoconService.customKeyClick(message)
+
+                      custom_key.custom_code.forEach((code) => {
+                        const message: RemoconTransmit = {
+                          msg: 'remocon_transmit',
+                          data: {
+                            key: code,
+                            type: hardwareConfiguration.remote_control_type,
+                            press_time: 0,
+                            name: remocon.name,
+                          },
+                        }
+
+                        sendMessage(message)
+                      })
                     }}
                   >
-                    {custom_key.custom_code.join('')}
+                    {custom_key.name}
                   </Button>
                 ))}
             </div>

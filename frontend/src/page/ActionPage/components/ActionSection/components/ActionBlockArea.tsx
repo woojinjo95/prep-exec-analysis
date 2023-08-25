@@ -6,7 +6,7 @@ import { Block, BlockGroup, Scenario } from '@page/ActionPage/components/ActionS
 import { useMutation, useQuery } from 'react-query'
 import BackgroundImage from '@assets/images/background_pattern.svg'
 import { remoconService } from '@global/service/RemoconService/RemoconService'
-import { RemoconTransmit } from '@global/service/RemoconService/type'
+import { CustomKeyTransmit, RemoconTransmit } from '@global/service/RemoconService/type'
 
 import ActionBlockItem from './ActionBlockItem'
 import { getScenarioById, postBlock, putScenario } from '../api/func'
@@ -301,30 +301,50 @@ const ActionBlockArea = ({ scenarioId }: ActionBlockAreaProps): JSX.Element => {
               },
             ],
             delay_time: 3000,
-            name: `${remoconTransmit.msg} : ${remoconTransmit.data.key}`,
+            name: `RCU (${remoconTransmit.data.type}) : ${remoconTransmit.data.key}`,
           },
           scenario_id: scenarioId,
         })
       }
     })
 
-    // const remoconCustomKeySubscribe$ = remoconService.onCustomKey$().subscribe((blockEvent: RemoconBlockEvent) => {
-    //   if (scenarioId) {
-    //     postBlockMutate({
-    //       newBlock: {
-    //         type: blockEvent.type,
-    //         value: blockEvent.value,
-    //         delay_time: 3000,
-    //         name: `${blockEvent.type} : ${blockEvent.value}`,
-    //       },
-    //       scenario_id: scenarioId,
-    //     })
-    //   }
-    // })
+    const remoconCustomKeySubscribe$ = remoconService
+      .onCustomKey$()
+      .subscribe((customKeyTransmit: CustomKeyTransmit) => {
+        if (scenarioId) {
+          // 여러개의 블록 생성 요청
+          // postBlockMutate({
+          //   newBlock: {
+          //     type: customKeyTransmit.msg,
+          //     args: [
+          //       {
+          //         key: 'key',
+          //         value: remoconTransmit.data.key,
+          //       },
+          //       {
+          //         key: 'type',
+          //         value: remoconTransmit.data.type,
+          //       },
+          //       {
+          //         key: 'press_time',
+          //         value: remoconTransmit.data.press_time,
+          //       },
+          //       {
+          //         key: 'name',
+          //         value: remoconTransmit.data.name,
+          //       },
+          //     ],
+          //     delay_time: remoconTransmit.data.press_time,
+          //     name: `RCU (${remoconTransmit.data.type}) : ${remoconTransmit.data.key}`,
+          //   },
+          //   scenario_id: scenarioId,
+          // })
+        }
+      })
 
     return () => {
       remoconButtonSubscribe$.unsubscribe()
-      // remoconCustomKeySubscribe$.unsubscribe()
+      remoconCustomKeySubscribe$.unsubscribe()
     }
   }, [scenarioId])
 
