@@ -25,14 +25,6 @@ def check_percent(value: float) -> bool:
         return False
 
 
-def check_ipv4(ip_str: str) -> bool:
-    try:
-        socket.inet_pton(socket.AF_INET, ip_str)
-        return True
-    except socket.error:
-        return False
-
-
 def check_port(port_value: any) -> bool:
     if isinstance(port_value, str):
         port_value = port_value.strip("'\"")
