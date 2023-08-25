@@ -2,7 +2,7 @@ import logging
 import time
 from multiprocessing import Event, Process
 
-from ..configs.config import RedisDBEnum, get_value
+from ..configs.config import RedisDBEnum, get_value, set_value, RedisDBField
 from ..control.network_control.command_executor import traffic_change
 from .brute_ping import brute_ping_ipv4
 from ..info.network_info import get_ethernet_state, get_private_ip, EthernetState
@@ -11,6 +11,14 @@ logger = logging.getLogger('main')
 TIMEOUT = 0.1
 STABLE_DELAY = 5
 UNIT_DELAY = 10
+
+
+def get_dut_ip() -> str:
+    return get_value(RedisDBField.hardware_config, 'dut_ip', '', db=RedisDBEnum.hardware)
+
+
+def set_dut_ip(dut_ip: str):
+    set_value(RedisDBField.hardware_config, 'dut_ip', dut_ip, db=RedisDBEnum.hardware)
 
 
 class STBIPFinder:
@@ -25,11 +33,11 @@ class STBIPFinder:
         stb_nic = get_value('network', 'stb_nic')
         private_ip = get_private_ip()
         prev_state = EthernetState.down
-        stb_ip = None
 
         while not self.stop_event.is_set():
             current_state = get_ethernet_state(stb_nic)
-            if (stb_ip is None or prev_state == EthernetState.down) and current_state == EthernetState.up:
+            dut_ip = get_dut_ip()
+            if (dut_ip == '' or prev_state == EthernetState.down) and current_state == EthernetState.up:
                 logger.info(f'New stb nic conection detected! wait {STABLE_DELAY} seconds for stable connection')
                 time.sleep(STABLE_DELAY)
 
@@ -43,8 +51,9 @@ class STBIPFinder:
 
                 for ip, ping_value in list(augmented_ip_values.items())[::-1]:
                     if ping_value - original_ip_values.get(ip, TIMEOUT) > (UNIT_DELAY * 0.9) / 1000:
-                        stb_ip = ip
-                        logger.info(f'STB: {stb_ip}')
+                        dut_ip = ip
+                        logger.info(f'STB: {dut_ip}')
+                        set_dut_ip(dut_ip)
                         break
                 else:
                     logger.error('Failed to find STB. maybe STB is not reachable')
@@ -53,7 +62,8 @@ class STBIPFinder:
             else:
                 time.sleep(0.5)
             if current_state == EthernetState.down:
-                stb_ip = None
+                dut_ip = ''
+                set_dut_ip(dut_ip)
 
             prev_state = current_state
 
