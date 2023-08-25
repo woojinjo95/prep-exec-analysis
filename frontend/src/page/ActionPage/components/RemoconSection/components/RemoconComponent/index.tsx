@@ -68,7 +68,7 @@ const RemoconComponent: React.FC<RemoconProps> = ({ remocon, keyEvent }) => {
           <div className="grid grid-rows-[1fr_8fr] overflow-y-auto">
             <div className="flex flex-row justify-between mt-[20px] items-center">
               <p className="font-medium text-[18px]">Custom Key</p>
-              <DropdownWithMoreButton position="bottomRight">
+              <DropdownWithMoreButton>
                 {dropdownMenu?.map((menu) => (
                   <OptionItem
                     colorScheme="light"
