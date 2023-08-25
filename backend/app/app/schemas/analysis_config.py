@@ -35,7 +35,7 @@ class Loudness(CommonBaseModel):
 
 
 class Resume(CommonBaseModel):
-    type: List[ResumeTypeEnum]
+    type: ResumeTypeEnum
     frame: Optional[Frame]
 
 
