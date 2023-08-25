@@ -1,8 +1,8 @@
 import React, { useRef, useState } from 'react'
-import { ReactComponent as MoreButton } from '@assets/images/button_more.svg'
+import { ReactComponent as MoreIcon } from '@assets/images/button_more.svg'
 import useOutsideClick from '@global/hook/useOutsideClick'
-import cx from 'classnames'
 import OptionList from '../OptionList'
+import { IconButton } from '..'
 
 interface DropdownWithMoreButtonProps {
   position?: 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight'
@@ -17,11 +17,12 @@ const DropdownWithMoreButton: React.FC<DropdownWithMoreButtonProps> = ({ positio
 
   return (
     <div className="relative" ref={divRef}>
-      <MoreButton
-        className="w-[20px] h-[20px] cursor-pointer"
+      <IconButton
+        className="w-[50px] h-[32px] "
         onClick={() => {
           setIsButtonClicked((prev) => !prev)
         }}
+        icon={<MoreIcon className="w-[20px] h-[20px] cursor-pointer" />}
       />
 
       <OptionList
