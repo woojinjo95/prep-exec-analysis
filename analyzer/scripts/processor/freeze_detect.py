@@ -17,7 +17,7 @@ logger = logging.getLogger(LogName.FREEZE_DETECT.value)
 
 
 @log_decorator(logger)
-def detect_freeze():
+def test_freeze_detection():
     try:  
         args = load_input()
         video_info = get_video_info(args.video_path)

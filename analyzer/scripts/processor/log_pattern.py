@@ -16,7 +16,7 @@ logger = logging.getLogger(LogName.LOG_PATTERN.value)
 
 
 @log_decorator(logger)
-def match_log_pattern():
+def test_log_pattern_matching():
     try:
         args = load_input()
         log_data = get_data_of_log(args.timestamps[0], args.timestamps[-1])
