@@ -50,13 +50,13 @@ const Accordion: React.FC<AccordionProps> = ({ header, children, colorScheme = '
 
       {isOpen && (
         <div
-          className={cx('border border-t-0 rounded-b-lg p-6 pt-0', {
+          className={cx('border border-t-0 rounded-b-lg p-5 pt-0', {
             'bg-light-black': colorScheme === 'dark',
             'border-charcoal': colorScheme === 'dark',
           })}
         >
           <div className="w-full h-[0.5px] bg-light-charcoal mb-3" />
-          {children}
+          <div className="px-1">{children}</div>
         </div>
       )}
     </div>
