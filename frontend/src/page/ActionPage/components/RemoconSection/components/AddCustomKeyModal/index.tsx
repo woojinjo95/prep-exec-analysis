@@ -1,13 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { useMutation, useQuery } from 'react-query'
 import cx from 'classnames'
-import useOutSideRef from '@global/hook/useOutsideRef'
 import AppURL from '@global/constant/appURL'
 import { KeyEvent } from '@page/ActionPage/types'
-import { Text } from '@global/ui'
+import { Button, Text } from '@global/ui'
+import Modal from '@global/ui/Modal'
 import { Remocon } from '../../api/entity'
 import AddCustomKeyModalRemoconButtons from './AddCustomKeyModalRemoconButtons'
-import { getRemocon, postCustomKey } from '../../api/func'
+import SaveCustomKeyModal from '../SaveCustomKeyModal'
 
 interface AddCustomKeyModalProps {
   remocon: Remocon
@@ -25,20 +24,16 @@ const AddCustomKeyModal: React.FC<AddCustomKeyModalProps> = ({
   // 리모컨 입력 확인을 위한 임시 string
   const [remoconInput, setRemoconInput] = useState<string[]>([])
 
-  const { ref: customKeyModalRef } = useOutSideRef({
-    isOpen,
-    closeHook: () => {
-      setRemoconInput([])
-      close()
-    },
-  })
-
   const firstFocusableElementRef = useRef<HTMLButtonElement>(null)
   const lastFocusableElementRef = useRef<HTMLButtonElement>(null)
 
   const remoconRef = useRef<HTMLImageElement | null>(null)
   const [isLoadedRemoconImage, setIsLoadedRemoconImage] = useState<boolean>(false)
 
+  /**
+   * Submit 버튼을 눌렀는지 여부
+   * 추가 리모콘 모달은 isSubmitted 여부에 따라 렌더링 결정 (isSubmitted 이후에는 최종 추가 모달이 생성)
+   */
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false)
 
   useEffect(() => {
@@ -71,21 +66,6 @@ const AddCustomKeyModal: React.FC<AddCustomKeyModalProps> = ({
     }
   }, [])
 
-  const { refetch } = useQuery<Remocon[]>(['remocon'], () => getRemocon(), {
-    onError: (err) => {
-      console.error(err)
-    },
-  })
-
-  const { mutate: postCustomKeyMutate } = useMutation(postCustomKey, {
-    onSuccess: () => {
-      refetch()
-    },
-    onError: (err) => {
-      console.error(err)
-    },
-  })
-
   const [remoconWidth, setRemoconWidth] = useState<number | null>(null)
 
   useEffect(() => {
@@ -106,93 +86,100 @@ const AddCustomKeyModal: React.FC<AddCustomKeyModalProps> = ({
 
   return (
     <>
-      <div
-        className={cx('absolute top-[10px] right-3.5 h-auto z-10', {
-          left: customKeyModalRef.current && customKeyModalRef.current.getBoundingClientRect().left,
-        })}
-        ref={customKeyModalRef}
-      >
-        <div className="flex flex-col h-[95vh] w-[700px] bg-[#323339] rounded-[10px] pt-7 pl-[72px] pr-[72px] pb-7 items-center justify-between relative">
-          <div className="flex flex-col items-center">
-            <p className="text-white text-lg">Press the Keys in order and press the [Submit] button</p>
-            <div>
-              <div className="mt-[15px] h-[75vh]">
-                <div className={cx('w-full h-full flex relative')}>
-                  <img
-                    ref={remoconRef}
-                    onLoad={() => {
-                      setIsLoadedRemoconImage(true)
-                    }}
-                    src={`${AppURL.backendURL}${remocon.image_path}`}
-                    alt="remocon"
-                    className="w-full"
-                  />
-                  {isLoadedRemoconImage && (
-                    <AddCustomKeyModalRemoconButtons
-                      keyEvent={keyEvent}
-                      remoconRef={remoconRef}
-                      remocon={remocon}
-                      setRemoconInput={setRemoconInput}
+      {!isSubmitted && (
+        <Modal
+          isOpen
+          close={() => {
+            setRemoconInput([])
+            close()
+          }}
+          mode="normal"
+          className={cx('top-[10px] right-3.5')}
+        >
+          <div className="flex flex-col h-[95vh] w-[700px] bg-[#323339] rounded-[10px] pt-7 pl-[72px] pr-[72px] pb-7 items-center justify-between relative">
+            <div className="flex flex-col items-center">
+              <p className="text-white text-lg">Press the Keys in order and press the [Submit] button</p>
+              <div>
+                <div className="mt-[15px] h-[75vh]">
+                  <div className={cx('w-full h-full flex relative')}>
+                    <img
+                      ref={remoconRef}
+                      onLoad={() => {
+                        setIsLoadedRemoconImage(true)
+                      }}
+                      src={`${AppURL.backendURL}${remocon.image_path}`}
+                      alt="remocon"
+                      className="w-full"
                     />
-                  )}
-                </div>
-              </div>
-              {remoconWidth && (
-                <div
-                  className="absolute top-[100px] flex flex-col"
-                  style={{ left: 400 + remoconWidth / 2, width: 350 - remoconWidth / 2 }}
-                >
-                  <div className="w-full flex flex-col">
-                    <Text colorScheme="grey" className="!text-[18px] mb-3" weight="bold">
-                      Pressed Key
-                    </Text>
-                    {remoconInput.map((input, idx) => (
-                      <Text colorScheme="light" className="!text-[16px]" key={`remocon-input-${input}-${idx}`}>
-                        {input}
-                      </Text>
-                    ))}
+                    {isLoadedRemoconImage && (
+                      <AddCustomKeyModalRemoconButtons
+                        keyEvent={keyEvent}
+                        remoconRef={remoconRef}
+                        remocon={remocon}
+                        setRemoconInput={setRemoconInput}
+                      />
+                    )}
                   </div>
                 </div>
-              )}
+                {remoconWidth && (
+                  <div
+                    className="absolute top-[100px] flex flex-col"
+                    style={{ left: 400 + remoconWidth / 2, width: 350 - remoconWidth / 2 }}
+                  >
+                    <div className="w-full flex flex-col">
+                      <Text colorScheme="grey" className="!text-[18px] mb-3" weight="bold">
+                        Pressed Key
+                      </Text>
+                      {remoconInput.map((input, idx) => (
+                        <Text colorScheme="light" className="!text-[16px]" key={`remocon-input-${input}-${idx}`}>
+                          {input}
+                        </Text>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="flex">
+                <Button
+                  colorScheme="primary"
+                  className="w-[132px] h-[48px] mr-3 text-white rounded-3xl"
+                  // ref={firstFocusableElementRef}
+                  onClick={() => {
+                    setIsSubmitted(true)
+                  }}
+                >
+                  Submit
+                </Button>
+                <Button
+                  colorScheme="grey"
+                  className="w-[132px] h-[48px] text-white rounded-3xl"
+                  // ref={lastFocusableElementRef}
+                  onClick={() => {
+                    setRemoconInput([])
+                    close()
+                  }}
+                >
+                  Cancel
+                </Button>
+              </div>
             </div>
           </div>
-          <div className="flex flex-col items-center">
-            <div className="flex">
-              <button
-                type="button"
-                className="bg-[#00B1FF] w-[132px] h-[48px] mr-3 text-white rounded-3xl"
-                ref={firstFocusableElementRef}
-                onClick={() => {
-                  // postCustomKeyMutate({
-                  //   newCustomKey: { name: remoconInput.join(','), custom_code: remoconInput, remocon_name: remocon.name },
-                  // })
-                  // setRemoconInput([])
-                  // close()
-                  setIsSubmitted(true)
-                }}
-              >
-                Submit
-              </button>
-              <button
-                type="button"
-                className="bg-[#8F949E] w-[132px] h-[48px] text-white rounded-3xl"
-                ref={lastFocusableElementRef}
-                onClick={() => {
-                  setRemoconInput([])
-                  close()
-                }}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      {isSubmitted && <div>test</div>}
-      <div
-        className={cx('hidden fixed top-0 left-0 w-full h-full z-[5] bg-black opacity-[0.6]')}
-        style={{ display: isOpen ? 'block' : 'none' }}
-      />
+        </Modal>
+      )}
+
+      {isSubmitted && (
+        <SaveCustomKeyModal
+          isOpen={isSubmitted}
+          close={() => {
+            setIsSubmitted(false)
+            close()
+          }}
+          remoconInput={remoconInput}
+          remocon={remocon}
+        />
+      )}
     </>
   )
 }
