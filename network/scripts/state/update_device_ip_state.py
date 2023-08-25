@@ -53,4 +53,4 @@ def device_network_state_finder(stop_event: Event, run_state_event: Event):
 def device_network_state_process() -> ProcessMaintainer:
     process = ProcessMaintainer(func=device_network_state_finder, revive_interval=1)
     process.start()
-    return ProcessMaintainer
+    return process
