@@ -3,7 +3,7 @@ import traceback
 from typing import Optional
 
 from app import schemas
-from app.api.utility import convert_iso_format
+from app.api.utility import convert_iso_format, parse_bytes_to_value
 from app.crud.base import aggregate_from_mongodb, load_from_mongodb
 from app.db.redis_session import RedisClient
 from fastapi import APIRouter, HTTPException, Query
@@ -28,7 +28,7 @@ def get_data_of_log_level_finder(
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if log_level is None:
-            log_level = eval(RedisClient.hget('analysis_config:log_level_finder', 'targets'))
+            log_level = parse_bytes_to_value(RedisClient.hget('analysis_config:log_level_finder', 'targets'))
         else:
             log_level = log_level.split(',')
         log_level_finder_pipeline = [{'$match': {'scenario_id': scenario_id,
