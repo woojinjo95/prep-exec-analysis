@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.post("/upload", response_model=schemas.MsgWithId)
+# @router.post("/upload", response_model=schemas.MsgWithId)
 async def file_upload(
     file: UploadFile = File(...)
 ) -> schemas.MsgWithId:
@@ -35,7 +35,7 @@ async def file_upload(
             'id': file_uuid}
 
 
-@router.get('/download/{file_id}', response_class=FileResponse)
+# @router.get('/download/{file_id}', response_class=FileResponse)
 async def file_download(
     file_id: str
 ) -> FileResponse:
@@ -79,7 +79,7 @@ async def workspace_video_file_download(
     try:
         video_info = video_info[0]['videos'][0]
         video_file_path = video_info.get('path', '')
-        video_file_path = video_file_path.replace('./data', '/app')
+        video_file_path = video_file_path.replace(settings.CONTAINER_PATH, settings.HOST_PATH)
         with open(video_file_path, "rb") as video:
             headers = {'Accept-Ranges': 'bytes'}
             return Response(video.read(), headers=headers, media_type="video/mp4")
@@ -106,7 +106,7 @@ async def workspace_partial_video_file_download(
     try:
         video_info = video_info[0].get('videos', [{}])[0]
         video_file_path = video_info.get('path', '')
-        video_file_path = video_file_path.replace('./data', '/app')
+        video_file_path = video_file_path.replace(settings.CONTAINER_PATH, settings.HOST_PATH)
 
         if not range:
             return FileResponse(video_file_path)
@@ -116,7 +116,7 @@ async def workspace_partial_video_file_download(
         start = int(start)
         end = int(end) if end else start + CHUNK_SIZE
         video_size = os.path.getsize(video_file_path)
-        
+
         if start < 0:
             start = 0
         if end >= video_size:
@@ -133,4 +133,3 @@ async def workspace_partial_video_file_download(
         return Response(content, headers=headers, status_code=206, media_type="video/mp4")
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-
