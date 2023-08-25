@@ -82,46 +82,46 @@ def get_gateway_ip(nic: str):
 
 @handle_none_return(str)
 @handle_errors
-def get_gateway_mac_address() -> str:
-    arp_info = get_stdout('arp _gateway')
+def get_mac_address(target: str = '_gateway') -> str:
+    arp_info = get_stdout(f'arp {target}')
     upper_mac_re = re.search(r'ether\s+(?P<mac>.{2}:.{2}:.{2}:.{2}:.{2}:.{2})', arp_info)
     upper_mac = upper_mac_re['mac'] if upper_mac_re else '00:00:00:00:00:00'
 
     return upper_mac
 
 
-@handle_errors
-def get_detail_ip_info(dump_file_name: str = 'ipinfo.json') -> dict:
-    info = JsonManager(dump_file_name)
-    info.load()
-    result = info.data
-    ip = get_public_ip()
-    if ip != result.get('ip'):
-        # 1k per month requests for free.
-        result = {'ip': None, 'city': 'Seoul', 'loc': "37.5602,127.0401", 'country': 'KR', 'line': 'KT'}
+# @handle_errors
+# def get_detail_ip_info(dump_file_name: str = 'ipinfo.json') -> dict:
+#     info = JsonManager(dump_file_name)
+#     info.load()
+#     result = info.data
+#     ip = get_public_ip()
+#     if ip != result.get('ip'):
+#         # 1k per month requests for free.
+#         result = {'ip': None, 'city': 'Seoul', 'loc': "37.5602,127.0401", 'country': 'KR', 'line': 'KT'}
 
-        logger.info('Get ip info from 3rd party program')
-        res = requests.post('http://ipinfo.io', timeout=5)
-        res_result = res.json()
-        isp = res_result['org'].lower()
-        if 'korea telecom' in isp:
-            res_result['line'] = 'KT'
-        elif 'sk broadband' in isp:
-            res_result['line'] = 'SK'
-        elif 'lg powercomm' in isp:
-            res_result['line'] = 'LG'
-        else:
-            if 'kt' in isp:
-                res_result['line'] = 'KT'
-            elif 'sk' in isp:
-                res_result['line'] = 'SK'
-            elif 'lg' in isp:
-                res_result['line'] = 'LG'
-            else:
-                res_result['line'] = 'etc'
-        result.update(res_result)
-        for key, value in result.items():
-            info.change(key, value)
-        info.save()
-    else:
-        return result
+#         logger.info('Get ip info from 3rd party program')
+#         res = requests.post('http://ipinfo.io', timeout=5)
+#         res_result = res.json()
+#         isp = res_result['org'].lower()
+#         if 'korea telecom' in isp:
+#             res_result['line'] = 'KT'
+#         elif 'sk broadband' in isp:
+#             res_result['line'] = 'SK'
+#         elif 'lg powercomm' in isp:
+#             res_result['line'] = 'LG'
+#         else:
+#             if 'kt' in isp:
+#                 res_result['line'] = 'KT'
+#             elif 'sk' in isp:
+#                 res_result['line'] = 'SK'
+#             elif 'lg' in isp:
+#                 res_result['line'] = 'LG'
+#             else:
+#                 res_result['line'] = 'etc'
+#         result.update(res_result)
+#         for key, value in result.items():
+#             info.change(key, value)
+#         info.save()
+#     else:
+#         return result
