@@ -36,7 +36,7 @@ const Modal: React.FC<ModalProps> = ({ mode = 'normal', isOpen, close, children,
         className={cx(
           'fixed min-h-[200px] min-w-[200px] z-10',
           {
-            'fixed top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%]': mode === 'center',
+            'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2': mode === 'center',
           },
           className,
         )}
