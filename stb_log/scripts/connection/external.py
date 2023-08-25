@@ -21,3 +21,7 @@ def set_connection_info(host: str, port: int, username: str, password: str, conn
 
 def get_connection_info() -> Dict:
     return get_all('connection_info')
+
+
+def set_module_status(module_name: str, status: str):
+    set_value('module_status', module_name, status)
