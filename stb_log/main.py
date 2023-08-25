@@ -1,14 +1,15 @@
 import logging
 import time
 
-from scripts.log_service.logcat.log_manager import LogcatManager
-from scripts.log_service.dumpsys.manager import DumpsysManager
+from scripts.config.constant import RedisChannel, RedisDB
+from scripts.connection.external import (get_connection_info,
+                                         set_connection_info)
 from scripts.connection.redis_conn import get_strict_redis_connection
 from scripts.connection.redis_pubsub import Subscribe
-from scripts.config.constant import RedisChannel, RedisDB
+from scripts.log_service.connection_checker import ConnectionChecker
+from scripts.log_service.dumpsys.manager import DumpsysManager
 from scripts.log_service.log_organizer import LogOrganizer
-from scripts.connection.external import set_connection_info, get_connection_info
-
+from scripts.log_service.logcat.log_manager import LogcatManager
 
 logger = logging.getLogger('main')
 
@@ -106,6 +107,9 @@ def command_parser(command: dict):
 
 
 def main():
+    connection_checker = ConnectionChecker()
+    connection_checker.start()
+
     with get_strict_redis_connection(RedisDB.hardware) as src:
         for command in Subscribe(src, RedisChannel.command):
             command_parser(command)
