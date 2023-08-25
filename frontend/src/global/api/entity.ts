@@ -68,3 +68,16 @@ export interface HardwareConfiguration {
   }
   packet_block?: IPLimit[]
 }
+
+/**
+ * 서비스 상태
+ *
+ * `idle` 대기 (녹화 및 로그수집 X, 스트리밍 X)
+ *
+ * `streaming` 녹화 (녹화 및 로그수집 O, 스트리밍 O)
+ *
+ * `playblock` 재생 (녹화 및 로그수집 O, 스트리밍 O)
+ *
+ * `analysis` 분석 (녹화 및 로그수집 X, 스트리밍 X)
+ */
+export type ServiceState = 'idle' | 'streaming' | 'playblock' | 'analysis'

@@ -37,6 +37,10 @@ interface NetworkEmulationOffMessageBody {
   action: 'stop'
 }
 
+interface NetworkEmulationResetMessageBody {
+  action: 'reset'
+}
+
 /**
  * 환경설정 - Network Emulation - Packet Control 변경 메시지 Body
  */
@@ -68,6 +72,7 @@ interface NetworkEmulationMessage {
   data:
     | NetworkEmulationOnMessageBody
     | NetworkEmulationOffMessageBody
+    | NetworkEmulationResetMessageBody
     | PacketControlMessageBody
     | ConfiguringIPLimitMessageBody
 }

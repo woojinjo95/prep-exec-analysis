@@ -39,7 +39,7 @@ const RemoconSection: React.FC<RemoconSectionProps> = ({ keyEvent }) => {
 
   return (
     <section
-      className="border border-black h-full p-[20px] pb-0 bg-[#F1F2F4]"
+      className="row-span-2 h-full p-[20px] pb-0 bg-[#F1F2F4]"
       style={{
         backgroundImage: `url(${BackgroundImage})`,
         backgroundSize: '100%',
