@@ -7,6 +7,7 @@ from scripts.connection.redis_conn import get_strict_redis_connection
 from scripts.connection.redis_pubsub import Subscribe
 from scripts.config.constant import RedisChannel, RedisDB
 from scripts.log_service.log_organizer import LogOrganizer
+from scripts.connection.external import set_connection_info, get_connection_info
 
 
 logger = logging.getLogger('main')
@@ -14,7 +15,6 @@ logger = logging.getLogger('main')
 
 logcat_manager = None
 dumpsys_manager = None
-connection_info = {}
 
 
 def start_logcat_manager(connection_info: dict):
@@ -61,7 +61,8 @@ def stop_dumpsys_manager():
         logger.warning('DumpsysManager is not alive')
 
 
-def start(connection_info: dict):
+def start():
+    connection_info = get_connection_info()
     start_logcat_manager(connection_info)
     start_dumpsys_manager(connection_info)
 
@@ -78,7 +79,6 @@ def command_parser(command: dict):
     stop: PUBLISH command '{"msg": "stb_log", "data": {"control": "stop"}}'
     connection info: PUBLISH command '{"msg": "config", "data": {"mode": "adb", "host": "192.168.30.30", "port": "5555", "username": "root", "password": ""}}'
     '''
-    global connection_info
 
     if command.get('msg') == 'stb_log':
         arg = command.get('data', {})
@@ -86,7 +86,7 @@ def command_parser(command: dict):
 
         control = arg.get('control', '')
         if control == 'start':
-            start(connection_info)
+            start()
         elif control == 'stop':
             stop()
         else:
@@ -98,10 +98,11 @@ def command_parser(command: dict):
         del data['mode']
         connection_info = data
         logger.info(f'connection_info: {connection_info}')
+        set_connection_info(**connection_info)
 
         # restart
         stop()
-        start(connection_info)
+        start()
 
 
 def main():
