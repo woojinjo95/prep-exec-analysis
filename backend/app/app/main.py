@@ -101,6 +101,13 @@ def command_parser(command):
         # 상태 변경 및 메세지 전송
         set_service_state_and_pub(ServiceStateEnum.streaming)
 
+    if msg == 'analysis':
+        msg_data = data.get('data', {})
+        measurement = msg_data.get('measurement', [])
+        if 'loudness' in measurement or 'log_level_finder' in measurement:
+            RedisClient.publish('command',
+                                set_redis_pub_msg(msg="analysis_response", data=msg_data))
+
 
 def subscribe_to_redis():
     pubsub = RedisClient.pubsub()
