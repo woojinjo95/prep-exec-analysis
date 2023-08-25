@@ -1,9 +1,8 @@
 from typing import List, Dict
-import subprocess
 import re
 import logging
 from scripts.connection.stb_connection.utils import exec_command
-
+from scripts.log_service.dumpsys.format import MemoryInfo
 
 logger = logging.getLogger('dumpsys')
 
@@ -13,31 +12,35 @@ def get_meminfo(connection_info: Dict, timeout: float) -> List[str]:
     return result.splitlines()
 
 
-def parse_mem_info_summary(chunk: List[str]) -> Dict:
-    summary_result = {'Total_RAM': None, 'Free_RAM': None, 'Used_RAM': None, 'Lost_RAM': None}
+def parse_mem_info_summary(chunk: List[str]) -> MemoryInfo:
+    summary_result = {'total_ram': '', 'free_ram': '', 'used_ram': '', 'lost_ram': ''}
     for line in chunk:
         # summary_result check
         summary_match = None
         if 'Total RAM:' in line:
-            summary_match = re.match(r'\s*Total RAM:\s*(?P<Total_RAM>[0-9\,\-]+)', line)
+            summary_match = re.match(r'\s*Total RAM:\s*(?P<total_ram>[0-9\,\-]+)', line)
         elif 'Free RAM:' in line:
-            summary_match = re.match(r'\s*Free RAM:\s*(?P<Free_RAM>[0-9\,\-]+)', line)
+            summary_match = re.match(r'\s*Free RAM:\s*(?P<free_ram>[0-9\,\-]+)', line)
         elif 'Used RAM:' in line:
-            summary_match = re.match(r'\s*Used RAM:\s*(?P<Used_RAM>[0-9\,\-]+)', line)
+            summary_match = re.match(r'\s*Used RAM:\s*(?P<used_ram>[0-9\,\-]+)', line)
         elif 'Lost RAM:' in line:
-            summary_match = re.match(r'\s*Lost RAM:\s*(?P<Lost_RAM>[0-9\,\-]+)', line)
+            summary_match = re.match(r'\s*Lost RAM:\s*(?P<lost_ram>[0-9\,\-]+)', line)
         if summary_match is not None:
             summary_result.update(summary_match.groupdict())
-    if any(k is None for k in summary_result.values()):
-        summary_result = {}
-    return summary_result
+    result = {key: '' if value is None else value for key, value in summary_result.items()}
+    return MemoryInfo(**result)
 
 
-def parse_memory_info(connection_info: Dict, timeout: float) -> Dict:
+def parse_memory_info(connection_info: Dict, timeout: float) -> MemoryInfo:
     try:
         lines = get_meminfo(connection_info, timeout)
-        summary = parse_mem_info_summary(lines)
-        return summary
+        mem_info = parse_mem_info_summary(lines)
+        try:
+            mem_info.memory_usage = str((int(mem_info.used_ram.replace(',', '')) / int(mem_info.total_ram.replace(',', ''))) * 100)
+        except Exception as err:
+            logger.warning(f'error in parse memory usage. Cause => {err}')
+            mem_info.memory_usage = ''
+        return mem_info
     except Exception as e:
         logger.error(f'Error while parsing memory info: {e}')
-        return {}
+        return MemoryInfo()
