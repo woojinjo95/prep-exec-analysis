@@ -3,6 +3,7 @@ import re
 import requests
 
 from ..control.command import get_stdout
+from ..configs.config import get_value
 from ..utils._exceptions import handle_errors
 from ..utils.network import check_ipv4, check_ipv6
 
@@ -31,7 +32,7 @@ def get_ethernet_state(nic: str):
 
 @handle_errors
 def get_private_ip() -> str:
-    bridge = 'br0'
+    bridge = get_value('network', 'br_nic', 'br0')
 
     bridge_ipv4_info = get_stdout(f'ip -4 addr show {bridge}')
 

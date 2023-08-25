@@ -20,6 +20,7 @@ def get_default_nic_names() -> NICInfo:
 nic_info = get_default_nic_names()
 
 settings = {'network': {
+    'br_nic': 'br0',
     'wan_nic': nic_info.wan,
     'stb_nic': nic_info.stb,
     'wifi_nic': nic_info.wifi,
