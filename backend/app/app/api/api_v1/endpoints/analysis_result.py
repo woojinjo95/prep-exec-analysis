@@ -123,7 +123,7 @@ def get_data_of_freeze(
     # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    ):
+):
     """
     화면 멈춤 데이터 조회
     """
@@ -146,14 +146,14 @@ def get_data_of_loudness(
     # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    ):
+):
     """
     Loudness 데이터 조회
     """
     try:
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        loudness_pipeline = [{'$match': {'scenario_id': scenario_id, 
+        loudness_pipeline = [{'$match': {'scenario_id': scenario_id,
                                          'timestamp': {'$gte': convert_iso_format(start_time),
                                                        '$lte': convert_iso_format(end_time)}}},
                              {'$project': {'_id': 0, 'lines': 1}},
@@ -265,3 +265,35 @@ def get_data_of_network_filter(
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {"items": network_filter}
+
+
+# Data Summary
+@router.get("/summary")  # TODO Response 달아라
+def get_summary_data_of_measure_result(
+    scenario_id: Optional[str] = None,
+    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+):
+    """
+    분석 결과 데이터 개요
+    """
+    try:
+        pipeline = [{'$match': {'scenario_id': scenario_id,
+                                'timestamp': {'$gte': convert_iso_format(start_time),
+                                              '$lte': convert_iso_format(end_time)}}},
+                    {'$count': 'count'}]
+        freeze_summary = aggregate_from_mongodb(col='an_freeze', pipeline=pipeline) or [{}]
+        loudness_summary = aggregate_from_mongodb(col='loudness', pipeline=pipeline) or [{}]
+        resume_summary = aggregate_from_mongodb(col='an_warm_boot', pipeline=pipeline) or [{}]
+        boot_summary = aggregate_from_mongodb(col='an_cold_boot', pipeline=pipeline) or [{}]
+        log_level_summary = aggregate_from_mongodb(col='stb_log', pipeline=pipeline) or [{}]
+
+        result = [{'freeze': {'count': freeze_summary[0].get('count', 0)}},
+                  {'loudness': {'count': loudness_summary[0].get('count', 0)}},
+                  {'resume': {'count': resume_summary[0].get('count', 0)}},
+                  {'boot': {'count': boot_summary[0].get('count', 0)}},
+                  {'log_level_finder': {'count': log_level_summary[0].get('count', 0)}},
+                  ]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return {"items": result}
