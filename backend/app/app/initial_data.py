@@ -26,7 +26,7 @@ def init() -> None:
             'timezone': 'Asia/Seoul',
         },
         'testrun': {
-            'workspace_path': './data/workspace/testruns',
+            'workspace_path': f'{settings.HOST_PATH}/workspace/testruns',
             'id': 'null',
             'scenario_id': 'null',
         }

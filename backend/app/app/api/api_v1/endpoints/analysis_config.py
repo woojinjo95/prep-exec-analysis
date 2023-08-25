@@ -1,12 +1,15 @@
 import json
 import logging
+import os
 import traceback
+from uuid import uuid4
 
 from app import schemas
 from app.api.utility import parse_bytes_to_value
+from app.core.config import settings
 from app.db.redis_session import RedisClient
 from app.schemas.enum import AnalysisTypeEnum
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.encoders import jsonable_encoder
 
 logger = logging.getLogger(__name__)
@@ -62,3 +65,22 @@ def delete_analysis_config(
 
     RedisClient.delete(name)
     return {'msg': f'Delete {analysis_type} analysis_config'}
+
+
+@router.post("/frame", response_model=schemas.FrameImage)
+async def upload_frame(
+    file: UploadFile = File(...)
+) -> schemas.FrameImage:
+    if file is None:
+        raise HTTPException(status_code=400, detail="No upload file")
+    try:
+        file_uuid = str(uuid4())
+        workspace_path = f"{RedisClient.hget('testrun','workspace_path')}/{RedisClient.hget('testrun','id')}/analysis/frame"
+        local_path = workspace_path.replace(settings.CONTAINER_PATH, settings.HOST_PATH)
+        if not os.path.isdir(local_path):
+            os.mkdir(local_path)
+        with open(os.path.join(local_path, file_uuid), 'wb') as f:
+            f.write(file.file.read())
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return {'id': file_uuid, 'path': f"{workspace_path}/{file_uuid}"}
