@@ -10,8 +10,9 @@ from scripts.external.log import get_data_of_log
 from scripts.external.report import report_output
 from scripts.format import CollectionName
 from scripts.util.decorator import log_decorator
+from scripts.format import LogName, Command
 
-logger = logging.getLogger('log_pattern')
+logger = logging.getLogger(LogName.LOG_PATTERN.value)
 
 
 @log_decorator(logger)
@@ -32,11 +33,11 @@ def match_log_pattern():
                 count += 1
         logger.info(f'matched log count: {count}')
 
-        publish_msg({'measurement': ['log_pattern_matching']}, 'analysis_response')
+        publish_msg({'measurement': [Command.LOG_PATTERN_MATCHING.value]}, 'analysis_response')
 
     except Exception as err:
         error_detail = traceback.format_exc()
-        publish_msg({'measurement': ['log_pattern_matching']}, error_detail, level='error')
+        publish_msg({'measurement': [Command.LOG_PATTERN_MATCHING.value]}, error_detail, level='error')
         logger.error(f"error in match_log_pattern: {err}")
         logger.warning(error_detail)
 

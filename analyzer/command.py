@@ -6,6 +6,7 @@ from scripts.modules.freeze_detect import FreezeDetect
 from scripts.modules.warm_boot import WarmBoot
 from scripts.modules.cold_boot import ColdBoot
 from scripts.modules.log_pattern import LogPattern
+from scripts.format import Command
 
 
 logger = logging.getLogger('main')
@@ -39,13 +40,13 @@ class CommandExecutor:
             logger.info(f'msg: analysis. data: {data}')
 
             measurement = data.get('measurement', [])
-            if 'freeze' in measurement:
+            if Command.FREEZE.value in measurement:
                 self.freeze_detect_module.start()
-            if 'resume' in measurement:
+            if Command.RESUME.value in measurement:
                 self.warm_boot_module.start()
-            if 'boot' in measurement:
+            if Command.BOOT.value in measurement:
                 self.cold_boot_module.start()
-            if 'log_pattern_matching' in measurement:
+            if Command.LOG_PATTERN_MATCHING.value in measurement:
                 self.log_pattern_module.start()
 
         else:
