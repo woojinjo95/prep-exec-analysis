@@ -1,5 +1,6 @@
 from typing import List
 
+from app.schemas.enum import LogLevelEnum
 from pydantic import BaseModel, root_validator
 from pydantic.datetime_parse import parse_datetime
 
@@ -15,7 +16,7 @@ class TimestampBaseModel(BaseModel):
 
 
 class LogLevelFinderBase(TimestampBaseModel):
-    log_level: str
+    log_level: LogLevelEnum
 
 
 class LogLevelFinder(BaseModel):

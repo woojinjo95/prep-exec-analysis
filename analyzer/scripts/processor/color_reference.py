@@ -8,8 +8,9 @@ from scripts.format import CollectionName
 from scripts.external.data import load_input
 from scripts.external.report import report_output
 from scripts.util.decorator import log_decorator
+from scripts.format import LogName
 
-logger = logging.getLogger('color_reference')
+logger = logging.getLogger(LogName.COLOR_REFERENCE.value)
 
 
 @log_decorator(logger)

@@ -33,6 +33,7 @@ class LogcatManager:
     # Log Postprocessor
     def __start_log_postprocessor(self):
         self.log_postprocessor = ProcessMaintainer(target=postprocess, kwargs={
+            'connection_info': self.connection_info,
             'stop_event': self.local_stop_event,
             'queue': self.log_queue,
         }, daemon=True, revive_interval=10)

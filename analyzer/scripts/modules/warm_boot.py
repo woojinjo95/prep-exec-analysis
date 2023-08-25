@@ -2,9 +2,9 @@ import logging
 
 from .template import Module
 from scripts.processor.warm_boot import test_warm_boot
+from scripts.format import LogName
 
-
-logger = logging.getLogger('boot_test')
+logger = logging.getLogger(LogName.BOOT_TEST.value)
 
 
 class WarmBoot(Module):

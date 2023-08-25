@@ -1,4 +1,3 @@
-from datetime import datetime
 from dataclasses import dataclass
 from enum import Enum
 from typing import List
@@ -15,6 +14,7 @@ class CollectionName(Enum):
     FREEZE = 'an_freeze'
     WARM_BOOT = 'an_warm_boot'
     COLD_BOOT = 'an_cold_boot'
+    LOG_PATTERN = 'an_log_pattern'
 
 
 @dataclass
@@ -27,3 +27,18 @@ class InputData:
 class CroppedInfo:
     video_path: str
     timestamps: List[float]
+
+
+class LogName(Enum):
+    COLOR_REFERENCE = 'color_reference'
+    FREEZE_DETECT = 'freeze_detect'
+    BOOT_TEST = 'boot_test'
+    LOG_PATTERN = 'log_pattern'
+    
+
+class Command(Enum):
+    FREEZE = 'freeze'
+    RESUME = 'resume'
+    BOOT = 'boot'
+    LOG_PATTERN_MATCHING = 'log_pattern_matching'
+

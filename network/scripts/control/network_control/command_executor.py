@@ -5,8 +5,7 @@ from typing import Dict
 
 from ...configs.config import get_value
 from ..command import get_stdout
-from ...utils.network import check_ipv4
-from .value_rules import check_bandwidth, check_delay, check_percent, check_port
+from .value_rules import check_bandwidth, check_delay, check_percent, check_ipv4, check_port, DefaultValues
 
 logger = logging.getLogger('network_control')
 
@@ -16,8 +15,8 @@ def traffic_clear(nic: str):
 
 
 def traffic_init(nic: str):
-    max_speed = 1000    # Mbps
-    target = max_speed  # Mpbs
+    max_bandwidth = DefaultValues.bandwidth    # Mbps
+    target_bandwidth = max_bandwidth  # Mpbs
 
     '''
     htb 구조로 인해, 1과 1:1이 두번 정의됨.
@@ -26,8 +25,8 @@ def traffic_init(nic: str):
     '''
 
     handle = f'tc qdisc add dev {nic} handle 1: root htb default 11'
-    class1 = f'tc class add dev {nic} parent 1: classid 1:1 htb rate {max_speed}Mbit'
-    class1_1 = f'tc class add dev {nic} parent 1:1 classid 1:11 htb rate {target}Mbit'
+    class1 = f'tc class add dev {nic} parent 1: classid 1:1 htb rate {max_bandwidth}Mbit'
+    class1_1 = f'tc class add dev {nic} parent 1:1 classid 1:11 htb rate {target_bandwidth}Mbit'
     class2 = f'tc qdisc add dev {nic} parent 1:11 handle 2: netem delay 0ms'
 
     command_lines = [handle, class1, class1_1, class2]  # , mirror_qdisc, mirror_tcp, mirror_udp, mirror_icmp]

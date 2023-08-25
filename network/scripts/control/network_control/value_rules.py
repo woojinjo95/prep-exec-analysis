@@ -1,4 +1,12 @@
 import socket
+from typing import List
+
+
+class DefaultValues:
+    bandwidth: float = 1000
+    loss: float = 0
+    delay: float = 0
+    blocks: List = []
 
 
 def check_bandwidth(value: float) -> bool:

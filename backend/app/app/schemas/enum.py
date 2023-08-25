@@ -22,6 +22,9 @@ class ProtocolEnum(ExtendedEnum):
     all = "all"
     tcp = "tcp"
     udp = "udp"
+    ip = "ip"
+    icmp = "icmp"
+    igmp = "igmp"
 
 
 class ResumeTypeEnum(ExtendedEnum):
@@ -36,6 +39,7 @@ class BootTypeEnum(ExtendedEnum):
 class AnalysisTypeEnum(ExtendedEnum):
     freeze = "freeze"
     # macroblock = "macroblock"
+    loudness = "loudness"
     resume = "resume"
     boot = "boot"
     channel_change_time = "channel_change_time"
@@ -64,6 +68,8 @@ class BlockTypeEnum(ExtendedEnum):
     remocon_transmit = "remocon_transmit"
     on_off_control = "on_off_control"
     shell = "shell"
+    packet_control = "packet_control"
+    packet_block = "packet_block"
 
 
 class LogModuleEnum(ExtendedEnum):
