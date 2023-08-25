@@ -1,10 +1,11 @@
 import logging
 import time
-from multiprocessing import Event, Process
+from multiprocessing import Event
 
 from ..configs.config import RedisDBEnum, RedisDBField, get_value, set_value
 from ..info.network_info import (EthernetState, get_ethernet_state,
-                                 get_private_ip, get_public_ip, get_gateway_ip)
+                                 get_gateway_ip, get_private_ip, get_public_ip)
+from ..utils._multi_process import ProcessMaintainer
 
 logger = logging.getLogger('info')
 STABLE_DELAY = 10
@@ -18,7 +19,7 @@ def set_target_ip(name: str, target_ip: str):
     set_value(RedisDBField.hardware_config, name, target_ip, db=RedisDBEnum.hardware)
 
 
-def device_network_state_finder(stop_event: Event):
+def device_network_state_finder(stop_event: Event, run_state_event: Event):
     br_nic = get_value('network', 'br_nic', 'br0')
     prev_state = EthernetState.down
 
@@ -48,10 +49,8 @@ def device_network_state_finder(stop_event: Event):
 
         prev_state = current_state
 
-    
 
-
-def device_network_state_process(stop_event: Event = Event()) -> Event:
-    process = Process(target=device_network_state_finder, args=(stop_event, ))
+def device_network_state_process() -> ProcessMaintainer:
+    process = ProcessMaintainer(func=device_network_state_finder, revive_interval=1)
     process.start()
-    return stop_event
+    return ProcessMaintainer

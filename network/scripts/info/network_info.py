@@ -83,7 +83,7 @@ def get_gateway_ip(nic: str):
 @handle_none_return(str)
 @handle_errors
 def get_mac_address(target: str = '_gateway') -> str:
-    arp_info = get_stdout(f'arp {target}')
+    arp_info = get_stdout(f'arp {target}', log=False)
     upper_mac_re = re.search(r'ether\s+(?P<mac>.{2}:.{2}:.{2}:.{2}:.{2}:.{2})', arp_info)
     upper_mac = upper_mac_re['mac'] if upper_mac_re else '00:00:00:00:00:00'
 

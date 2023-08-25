@@ -36,6 +36,7 @@ hardware_settings = {'hardware_configuration': {
     'public_ip': get_public_ip(),
     'gateway_ip': get_gateway_ip('br0'),
     'dut_ip': '',
+    'dut_mac': '00:00:00:00:00:00',
     'dut_net_state': False,
 }}
 
