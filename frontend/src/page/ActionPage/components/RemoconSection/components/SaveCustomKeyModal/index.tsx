@@ -92,7 +92,7 @@ const SaveCustomKeyModal: React.FC<SaveCustomKeyModalProps> = ({ isOpen, close, 
               close()
             }}
           >
-            Submit
+            Save
           </Button>
           <Button
             colorScheme="grey"
