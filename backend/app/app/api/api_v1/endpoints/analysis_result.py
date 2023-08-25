@@ -17,6 +17,7 @@ router = APIRouter()
 def get_data_of_log_level_finder(
     scenario_id: Optional[str] = None,
     # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
+    log_level: Optional[str] = Query(None, description='ex)V,D,I,W,E,F,S'),
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
 ):
@@ -26,13 +27,17 @@ def get_data_of_log_level_finder(
     try:
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        log_level_finder_pipeline = [
-            {'$match': {'scenario_id': scenario_id,
-                        'timestamp': {'$gte': convert_iso_format(start_time), '$lte': convert_iso_format(end_time)}}},
-            {'$project': {'_id': 0, 'lines': 1}},
-            {'$unwind': {'path': '$lines'}},
-            {'$project': {'timestamp': '$lines.timestamp', 'log_level': '$lines.log_level'}}
-        ]
+        if log_level is None:
+            log_level = eval(RedisClient.hget('analysis_config:log_level_finder', 'targets'))
+        else:
+            log_level = log_level.split(',')
+        log_level_finder_pipeline = [{'$match': {'scenario_id': scenario_id,
+                                                 'timestamp': {'$gte': convert_iso_format(start_time),
+                                                               '$lte': convert_iso_format(end_time)}}},
+                                     {'$project': {'_id': 0, 'timestamp': 1, 'log_level': '$lines.log_level'}},
+                                     {'$unwind': {'path': '$log_level'}},
+                                     {'$match': {'log_level': {'$in': log_level}}}
+                                     ]
         log_level_finder = aggregate_from_mongodb(col='stb_log', pipeline=log_level_finder_pipeline)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
