@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { PageContainer } from '@global/ui'
+
 import ActionSection from './components/ActionSection'
 import MonitorSection from './components/MonitorSection'
 import RemoconSection from './components/RemoconSection'
 import TerminalSection from './components/TerminalSection'
+import ServiceStateSection from './components/ServiceStateSection'
 import { KeyEvent } from './types'
 
 /**
@@ -36,10 +38,11 @@ const ActionPage: React.FC = () => {
   }, [])
 
   return (
-    <PageContainer className="grid grid-cols-[2fr_3fr_1.5fr] grid-rows-[60%_40%]">
+    <PageContainer className="grid grid-cols-[2fr_3fr_1.5fr] grid-rows-[57%_3%_40%]">
       <ActionSection />
       <MonitorSection />
       <RemoconSection keyEvent={keyEvent} />
+      <ServiceStateSection />
       <TerminalSection />
     </PageContainer>
   )
