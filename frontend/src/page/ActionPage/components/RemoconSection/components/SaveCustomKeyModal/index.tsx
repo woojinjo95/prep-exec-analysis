@@ -87,7 +87,7 @@ const SaveCustomKeyModal: React.FC<SaveCustomKeyModalProps> = ({ isOpen, close, 
             className="w-[132px] h-[48px] mr-3 text-white rounded-3xl"
             onClick={() => {
               postCustomKeyMutate({
-                newCustomKey: { name: remoconInput.join(','), custom_code: remoconInput, remocon_name: remocon.name },
+                newCustomKey: { name: newCustomKeyName, custom_code: remoconInput, remocon_name: remocon.name },
               })
               close()
             }}
