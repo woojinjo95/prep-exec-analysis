@@ -35,6 +35,8 @@ export interface ScenarioSummary {
   updated_at: number
 }
 
+export type IPLimitProtocol = 'all' | 'tcp' | 'udp'
+
 /**
  * 하드웨어 설정 - IP 제한
  */
@@ -42,7 +44,7 @@ export interface IPLimit {
   id: string
   ip?: string
   port?: string
-  protocol: 'all' | 'tcp' | 'udp'
+  protocol: IPLimitProtocol
 }
 
 /**
@@ -64,5 +66,18 @@ export interface HardwareConfiguration {
     username?: string | null
     password?: string | null
   }
-  ip_limit?: IPLimit[]
+  packet_block?: IPLimit[]
 }
+
+/**
+ * 서비스 상태
+ *
+ * `idle` 대기 (녹화 및 로그수집 X, 스트리밍 X)
+ *
+ * `streaming` 녹화 (녹화 및 로그수집 O, 스트리밍 O)
+ *
+ * `playblock` 재생 (녹화 및 로그수집 O, 스트리밍 O)
+ *
+ * `analysis` 분석 (녹화 및 로그수집 X, 스트리밍 X)
+ */
+export type ServiceState = 'idle' | 'streaming' | 'playblock' | 'analysis'

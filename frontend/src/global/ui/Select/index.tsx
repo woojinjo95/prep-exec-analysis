@@ -15,6 +15,7 @@ interface SelectProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children?: React.ReactNode
 
   colorScheme?: 'dark' | 'charcoal' | 'light'
+  widthOption?: 'fit-content' | 'fit-wrapper'
 }
 
 /**
@@ -25,7 +26,7 @@ interface SelectProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 const Select: React.ForwardRefExoticComponent<SelectProps & React.RefAttributes<HTMLButtonElement>> = React.forwardRef<
   HTMLButtonElement,
   SelectProps
->(({ value, className, children, defaultValue, colorScheme = 'charcoal', ...props }, ref) => {
+>(({ value, className, children, defaultValue, colorScheme = 'charcoal', widthOption, ...props }, ref) => {
   const divRef = useRef<HTMLDivElement | null>(null)
   const [isFocused, setIsFocused] = useState<boolean>(false)
   const { ref: selectListRef } = useOutsideClick<HTMLUListElement>({ onClickOutside: () => setIsFocused(false) })
@@ -47,7 +48,7 @@ const Select: React.ForwardRefExoticComponent<SelectProps & React.RefAttributes<
           'border-light-charcoal': colorScheme === 'charcoal',
           'bg-light-black': colorScheme === 'dark',
           'border-charcoal': colorScheme === 'dark',
-          'border-primary': isFocused,
+          'border-primary': isFocused && !props.disabled,
         })}
         onClick={(e) => {
           setIsFocused((prev) => !prev)
@@ -64,6 +65,7 @@ const Select: React.ForwardRefExoticComponent<SelectProps & React.RefAttributes<
       <OptionList
         ref={selectListRef}
         isVisible={isFocused}
+        widthOption={widthOption}
         wrapperRef={divRef}
         onClick={() => setIsFocused(false)}
         colorScheme={colorScheme}

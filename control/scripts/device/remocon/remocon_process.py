@@ -86,7 +86,7 @@ class RemoconProcess(ProcessUtil):
             publish(self.redis_connection, RedisChannel.command, {'msg': 'remocon_response',
                                                                   'level': 'error',
                                                                   'data': {"key": key,
-                                                                           "type": "ir",
+                                                                           "type": _type,
                                                                            "press_time": press_time,
                                                                            "log": f'{key} is not exist on list'}})
 

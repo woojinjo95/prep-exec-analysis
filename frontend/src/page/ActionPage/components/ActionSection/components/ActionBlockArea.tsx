@@ -8,6 +8,8 @@ import BackgroundImage from '@assets/images/background_pattern.svg'
 import { remoconService } from '@global/service/RemoconService/RemoconService'
 import { CustomKeyTransmit, RemoconTransmit } from '@global/service/RemoconService/type'
 
+import { terminalService } from '@global/service/TerminalService/TerminalService'
+import { CommandTransmit } from '@global/service/TerminalService/type'
 import ActionBlockItem from './ActionBlockItem'
 import { getScenarioById, postBlock, putScenario } from '../api/func'
 
@@ -341,6 +343,26 @@ const ActionBlockArea = ({ scenarioId }: ActionBlockAreaProps): JSX.Element => {
           // })
         }
       })
+
+    const terminalButtonSubscribe$ = terminalService.onButton$().subscribe((commandTransmit: CommandTransmit) => {
+      if (scenarioId) {
+        // #TODO: key, value, name에 대한 정확한 정의가 이루어져야 함
+        postBlockMutate({
+          newBlock: {
+            type: commandTransmit.type,
+            args: [
+              {
+                key: '',
+                value: '',
+              },
+            ],
+            delay_time: 3000,
+            name: `${commandTransmit.type} : ${commandTransmit.data.command}`,
+          },
+          scenario_id: scenarioId,
+        })
+      }
+    })
 
     return () => {
       remoconButtonSubscribe$.unsubscribe()
