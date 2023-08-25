@@ -23,13 +23,13 @@ def set_dut_ip(dut_ip: str):
 
 def stb_ip_finder(stop_event: Event):
     stb_nic = get_value('network', 'stb_nic')
-    private_ip = get_private_ip()
     prev_state = EthernetState.down
 
     while not stop_event.is_set():
         current_state = get_ethernet_state(stb_nic)
         dut_ip = get_dut_ip()
         if (dut_ip == '' or prev_state == EthernetState.down) and current_state == EthernetState.up:
+            private_ip = get_private_ip()
             logger.info(f'New stb nic conection detected! wait {STABLE_DELAY} seconds for stable connection')
             time.sleep(STABLE_DELAY)
 
