@@ -4,7 +4,7 @@ import requests
 
 from ..control.command import get_stdout
 from ..configs.config import get_value
-from ..utils._exceptions import handle_errors
+from ..utils._exceptions import handle_errors, handle_none_return
 from ..utils.network import check_ipv4, check_ipv6
 
 logger = logging.getLogger('info')
@@ -25,11 +25,13 @@ def ping_google() -> bool:
     return connected
 
 
+@handle_none_return(str)
 @handle_errors
 def get_ethernet_state(nic: str):
     return get_stdout(f'cat /sys/class/net/{nic}/operstate', log=False).strip()
 
 
+@handle_none_return(str)
 @handle_errors
 def get_private_ip() -> str:
     bridge = get_value('network', 'br_nic', 'br0')
@@ -46,6 +48,7 @@ def get_private_ip() -> str:
     return private_ip
 
 
+@handle_none_return(str)
 @handle_errors
 def get_public_ip() -> str:
     public_ip = '0.0.0.0'
@@ -71,11 +74,13 @@ def get_public_ip() -> str:
     return public_ip
 
 
+@handle_none_return(str)
 @handle_errors
-def get_gateway_ips(nic: str):
+def get_gateway_ip(nic: str):
     return get_stdout(f'ip route show | grep {nic} | awk \'/default/ {{print $3}}\'').strip()
 
 
+@handle_none_return(str)
 @handle_errors
 def get_gateway_mac_address() -> str:
     arp_info = get_stdout('arp _gateway')
