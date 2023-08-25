@@ -1,10 +1,10 @@
 import { Subject } from 'rxjs'
-import { RemoconTransmit } from './type'
+import { CustomKeyTransmit, RemoconTransmit } from './type'
 
 // --------------------------------------------------------------------------------//
 // 이벤트 정의
 const buttonClick$ = new Subject<RemoconTransmit>()
-// const customKeyClick$ = new Subject<RemoconTransmit>()
+const customKeyClick$ = new Subject<CustomKeyTransmit>()
 
 // TODO: Action 생성 여부 (customKey 수정, 삭제 시)
 
@@ -13,8 +13,8 @@ const buttonClick$ = new Subject<RemoconTransmit>()
 
 export const remoconService = {
   onButton$: () => buttonClick$.asObservable(),
-  // onCustomKey$: () => customKeyClick$.asObservable(),
+  onCustomKey$: () => customKeyClick$.asObservable(),
 
   buttonClick: (remoconArgs: RemoconTransmit) => buttonClick$.next(remoconArgs),
-  // customKeyClick: (keyName: string) => customKeyClick$.next({ type: 'RCU', value: keyName }),
+  customKeyClick: (customKeyArgs: CustomKeyTransmit) => customKeyClick$.next(customKeyArgs),
 }

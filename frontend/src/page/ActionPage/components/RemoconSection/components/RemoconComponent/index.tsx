@@ -1,12 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import classNames from 'classnames/bind'
 
-import { ReactComponent as MoreButton } from '@assets/images/button_more.svg'
 // import { ReactComponent as AddIcon } from '@assets/images/add.svg'
 
 import { KeyEvent } from '@page/ActionPage/types'
 
 import AppURL from '@global/constant/appURL'
+import DropdownWithMoreButton from '@global/ui/DropdownWithMoreButton'
+import { Button, OptionItem } from '@global/ui'
+import { useHardwareConfiguration } from '@global/api/hook'
+import useWebsocket from '@global/module/websocket'
+import { remoconService } from '@global/service/RemoconService/RemoconService'
+import { CustomKeyTransmit, RemoconTransmit } from '@global/service/RemoconService/type'
 import { Remocon } from '../../api/entity'
 import RemoconButtons from './RemoconButtons'
 import styles from './RemoconComponent.module.scss'
@@ -25,6 +30,14 @@ const RemoconComponent: React.FC<RemoconProps> = ({ remocon, keyEvent }) => {
   const [isAddCustomModalOpen, setIsAddCustomModalOpen] = useState<boolean>(false)
   const [isRendered, setIsRendered] = useState<boolean>(false)
 
+  const { hardwareConfiguration } = useHardwareConfiguration()
+
+  const { sendMessage } = useWebsocket()
+
+  const dropdownMenu = useMemo(() => {
+    return ['Add', 'Modify', 'Delete']
+  }, [])
+
   useEffect(() => {
     setIsRendered(true)
   }, [])
@@ -35,6 +48,8 @@ const RemoconComponent: React.FC<RemoconProps> = ({ remocon, keyEvent }) => {
       setIsLoadedRemoconImage(false)
     }
   }, [remocon.name, setIsRendered])
+
+  if (!hardwareConfiguration) return <div />
 
   return (
     <>
@@ -55,28 +70,60 @@ const RemoconComponent: React.FC<RemoconProps> = ({ remocon, keyEvent }) => {
           <div className="grid grid-rows-[1fr_8fr] overflow-y-auto">
             <div className="flex flex-row justify-between mt-[20px] items-center">
               <p className="font-medium text-[18px]">Custom Key</p>
-              <div
-                className="flex flex-row justify-center items-center cursor-pointer bg-white w-[50px] border border-[#DFE0EE] h-full rounded-3xl"
-                onClick={() => {
-                  setIsAddCustomModalOpen(true)
-                }}
-              >
-                <MoreButton className="w-[18px]" />
-              </div>
+              <DropdownWithMoreButton>
+                {dropdownMenu?.map((menu) => (
+                  <OptionItem
+                    colorScheme="light"
+                    key={`menu_${menu}`}
+                    onClick={() => {
+                      if (menu === 'Add') {
+                        setIsAddCustomModalOpen(true)
+                      }
+                    }}
+                  >
+                    {menu}
+                  </OptionItem>
+                ))}
+              </DropdownWithMoreButton>
             </div>
             <div className={cx('mt-[20px] overflow-y-auto w-full', 'hot-key-container')}>
               {remocon.custom_keys &&
                 remocon.custom_keys.map((custom_key) => (
-                  <button
-                    type="button"
-                    className="h-[32px] w-full bg-white border-[1px] border-[#707070] rounded-[38px] mb-[5px] font-[500] flex pl-[10px] hover:bg-gray-200"
+                  <Button
+                    colorScheme="dark"
+                    className="h-[40px] w-full border-[1px] border-[#707070] mb-[5px] flex justify-center"
                     key={`custom_keys_${custom_key.id}`}
                     onClick={() => {
-                      // remoconService.customKeyClick(custom_key.name)
+                      const message: CustomKeyTransmit = {
+                        msg: 'remocon_transmit',
+                        data: custom_key.custom_code.map((code) => {
+                          return {
+                            key: code,
+                            type: hardwareConfiguration.remote_control_type,
+                            press_time: 0,
+                            name: remocon.name,
+                          }
+                        }),
+                      } as const
+                      remoconService.customKeyClick(message)
+
+                      custom_key.custom_code.forEach((code) => {
+                        const message: RemoconTransmit = {
+                          msg: 'remocon_transmit',
+                          data: {
+                            key: code,
+                            type: hardwareConfiguration.remote_control_type,
+                            press_time: 0,
+                            name: remocon.name,
+                          },
+                        }
+
+                        sendMessage(message)
+                      })
                     }}
                   >
-                    {custom_key.custom_code.join('')}
-                  </button>
+                    {custom_key.name}
+                  </Button>
                 ))}
             </div>
           </div>
