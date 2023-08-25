@@ -3,7 +3,7 @@ import useWebsocket from '@global/module/websocket'
 import { useHardwareConfiguration } from '@global/api/hook'
 import { Text } from '@global/ui'
 import { History, ShellMessage, Terminal } from '@global/types'
-import { terminalService } from '@global/service/TerminalService/TerminalService'
+// import { terminalService } from '@global/service/TerminalService/TerminalService'
 
 interface CommandInputProps {
   terminal: Terminal

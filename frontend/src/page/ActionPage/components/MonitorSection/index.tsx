@@ -13,7 +13,7 @@ const MonitorSection: React.FC = () => {
 
   return (
     <section
-      className="w-full h-full border-b border-light-charcoal relative aspect-video grid justify-center items-center bg-black"
+      className="w-full h-full relative aspect-video grid justify-center items-center bg-black"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onLostPointerCapture={() => setIsHovered(false)}
