@@ -4,6 +4,7 @@ from collections import namedtuple
 from ..connection.redis_connection import (get_strict_redis_connection,
                                            hget_value, hset_value)
 from .constant import RedisDBEnum
+from ..info.network_info import get_private_ip, get_gateway_ip, get_public_ip
 
 NICInfo = namedtuple('nic_info', ('wan', 'stb', 'wifi'))
 
@@ -29,7 +30,13 @@ settings = {'network': {
     'provider': 'sk',
 }}
 
-hardware_settings = {'hardware_configuration': {'ssh_port': 2345}}
+hardware_settings = {'hardware_configuration': {
+    'ssh_port': 2345,
+    'private_ip': get_private_ip(),
+    'public_ip': get_public_ip(),
+    'gateway_ip': get_gateway_ip('br0'),
+    'dut_ip': '',
+}}
 
 
 def initialize_keys(db: int, settings: dict):
