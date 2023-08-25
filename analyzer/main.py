@@ -5,6 +5,7 @@ from scripts.connection.redis_pubsub import Subscribe
 from scripts.config.constant import RedisChannel, RedisDB
 from scripts.log_service.log_organizer import LogOrganizer
 from command import CommandExecutor
+from scripts.format import LogName
 
 
 logger = logging.getLogger('main')
@@ -23,9 +24,10 @@ if __name__ == '__main__':
         log_organizer = LogOrganizer(name='analyzer')
         log_organizer.set_stream_logger('main')
         log_organizer.set_stream_logger('connection')
-        log_organizer.set_stream_logger('color_reference')
-        log_organizer.set_stream_logger('freeze_detect')
-        log_organizer.set_stream_logger('boot_test')
+        log_organizer.set_stream_logger(LogName.COLOR_REFERENCE.value)
+        log_organizer.set_stream_logger(LogName.FREEZE_DETECT.value)
+        log_organizer.set_stream_logger(LogName.BOOT_TEST.value)
+        log_organizer.set_stream_logger(LogName.LOG_PATTERN.value)
         logger.info('Start analyzer container')
         
         main()

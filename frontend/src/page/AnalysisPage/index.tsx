@@ -10,6 +10,7 @@ import VideoDetailSection from './components/VideoDetailSection'
 import TimelineSection from './components/TimelineSection'
 import VarAnalysisResultSection from './components/VarAnalysisResultSection'
 import { prefetchVideoFile } from './usecase'
+import apiUrls from './api/url'
 
 /**
  * 분석 조회 페이지
@@ -33,7 +34,7 @@ const AnalysisPage: React.FC = () => {
     if (!scenarioId) return
 
     prefetchVideoFile(
-      `${AppURL.backendURL}/api/v1/file/video?scenario_id=${scenarioId}`,
+      `${AppURL.backendURL}${apiUrls.video}?scenario_id=${scenarioId}`,
       (url) => {
         setVideoBlobURL(url)
       },

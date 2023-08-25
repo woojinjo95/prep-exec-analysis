@@ -24,7 +24,7 @@ const ActionSection: React.FC = () => {
   })
 
   return (
-    <section className="border border-black row-span-2 h-full grid grid-rows-[1fr_auto]">
+    <section className="border border-black row-span-3 h-full grid grid-rows-[1fr_auto]">
       <ActionBlockArea scenarioId={scenarioId} />
       <BlockControls scenarioId={scenarioId} />
     </section>

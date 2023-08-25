@@ -76,7 +76,7 @@ def command_parser(command):
         set_service_state_and_pub(ServiceStateEnum.playblock)
 
     # 분석 페이지에 진입했을때 -> 분석
-    elif msg == 'go_analysis':
+    elif msg == 'analysis_mode':
         # 로그수집 중단 메세지 전송
         RedisClient.publish('command',
                             set_redis_pub_msg(msg="stb_log", data={"control": "stop"}))
@@ -89,7 +89,7 @@ def command_parser(command):
         set_service_state_and_pub(ServiceStateEnum.analysis)
 
     # 액션 페이지에 진입했을때 -> 녹화
-    elif msg == 'go_action':
+    elif msg == 'action_mode':
         # 로그수집 시작 메세지 전송
         RedisClient.publish('command',
                             set_redis_pub_msg(msg="stb_log", data={"control": "start"}))
@@ -100,6 +100,13 @@ def command_parser(command):
 
         # 상태 변경 및 메세지 전송
         set_service_state_and_pub(ServiceStateEnum.streaming)
+
+    if msg == 'analysis':
+        msg_data = data.get('data', {})
+        measurement = msg_data.get('measurement', [])
+        if 'loudness' in measurement or 'log_level_finder' in measurement:
+            RedisClient.publish('command',
+                                set_redis_pub_msg(msg="analysis_response", data=msg_data))
 
 
 def subscribe_to_redis():

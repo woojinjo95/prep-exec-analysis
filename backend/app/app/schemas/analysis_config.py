@@ -30,6 +30,10 @@ class Macroblock(CommonBaseModel):
     threshold_score: float
 
 
+class Loudness(CommonBaseModel):
+    pass
+
+
 class Resume(CommonBaseModel):
     type: ResumeTypeEnum
     frame: Optional[Frame]
@@ -70,6 +74,7 @@ class NetworkFilter(CommonBaseModel):
 class AnalysisConfig(BaseModel):
     freeze: Optional[Freeze]
     # macroblock: Optional[Macroblock]
+    loudness: Optional[Loudness]
     resume: Optional[Resume]
     boot: Optional[Boot]
     channel_change_time: Optional[ChannelChangeTime]

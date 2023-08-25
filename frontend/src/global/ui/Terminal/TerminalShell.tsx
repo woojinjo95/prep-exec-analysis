@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Text } from '@global/ui'
 import useWebsocket from '@global/module/websocket'
 import { History, ShellMessage, Terminal } from '@global/types'
+import { terminalService } from '@global/service/TerminalService/TerminalService'
 import CommandInput from './CommandInput'
 
 interface TerminalShellProps {
@@ -25,6 +26,15 @@ const TerminalShell: React.FC<TerminalShellProps> = ({ terminal, currentTerminal
         }
 
         setHistorys((prev) => [...prev, newHistory])
+
+        if (msg.data.data.module === 'stdin') {
+          terminalService.buttonClick({
+            type: 'shell',
+            data: {
+              command: msg.data.data.message,
+            },
+          })
+        }
       }
     },
   })

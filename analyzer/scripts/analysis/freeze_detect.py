@@ -6,9 +6,9 @@ import logging
 from scripts.analysis.image import (calc_diff_rate, calc_image_value_rate, 
                                     calc_image_whole_stdev, is_similar_by_match_template)
 from scripts.util.static import get_static_image
+from scripts.format import LogName
 
-
-logger = logging.getLogger('freeze_detect')
+logger = logging.getLogger(LogName.FREEZE_DETECT.value)
 
 class FreezeDetector:
     def __init__(self, fps: float, sampling_rate: int, min_interval: float, min_color_depth_diff: int, 

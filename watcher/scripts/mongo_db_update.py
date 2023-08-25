@@ -10,10 +10,12 @@ from .configs.constant import RedisDBEnum
 from .connection.mongo_db.create import insert_to_mongodb
 from .utils._multi_process import ProcessMaintainer
 from .utils._timezone import get_utc_datetime
+from .utils._exceptions import handle_errors, handle_none_return
 
 logger = logging.getLogger('mongodb')
 
 
+@handle_errors
 def get_testrun_info() -> Dict[str, str]:
     all_testrun_info = get_value('testrun', db=RedisDBEnum.hardware)
 
@@ -24,11 +26,25 @@ def get_testrun_info() -> Dict[str, str]:
     return testrun_info
 
 
+@handle_errors
 def format_subscribed_log(subscribed_log: Dict) -> Dict:
     return {'timestamp': get_utc_datetime(subscribed_log.get('time', time.time())),
             'service': subscribed_log.get('service', 'Unknown'),
             'msg': subscribed_log.get('msg', 'Unknown'),
             'data': subscribed_log.get('data', {})}
+
+
+@handle_none_return(int)
+@handle_errors
+def check_valid_event_log(subscribed_log: Dict) -> bool:
+    result = False
+    if subscribed_log.get('service') in ('control', 'media', 'network', 'stb_log', 'shell'):
+        result = True
+    else:
+        # backend, replay, analysis log
+        pass
+
+    return result
 
 
 class InsertToMongoDB:
@@ -47,8 +63,7 @@ class InsertToMongoDB:
 
     def put(self, log: dict):
         # add filter
-        # if log.get('msg') in target_msg:
-        if True:
+        if check_valid_event_log(log):
             self.log_queue.put(log)
 
     def consume(self, stop_event: Event, run_state_event: Event):
