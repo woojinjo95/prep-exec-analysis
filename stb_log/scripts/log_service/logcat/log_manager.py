@@ -21,22 +21,34 @@ class LogcatManager:
 
     # Log Collector
     def __start_log_collector(self):
-        self.log_collector = ProcessMaintainer(target=collect, kwargs={
-            'connection_info': self.connection_info,
-            'command_script': 'logcat -c; logcat -v long',
-            'log_type': self.log_type,
-            'stop_event': self.local_stop_event,
-            'queue': self.log_queue,
-        }, daemon=True, revive_interval=10)
+        self.log_collector = ProcessMaintainer(
+            name='logcat_collector',
+            target=collect, 
+            kwargs={
+                'connection_info': self.connection_info,
+                'command_script': 'logcat -c; logcat -v long',
+                'log_type': self.log_type,
+                'stop_event': self.local_stop_event,
+                'queue': self.log_queue,
+            }, 
+            daemon=True, 
+            revive_interval=10
+        )
         self.log_collector.start()
 
     # Log Postprocessor
     def __start_log_postprocessor(self):
-        self.log_postprocessor = ProcessMaintainer(target=postprocess, kwargs={
-            'connection_info': self.connection_info,
-            'stop_event': self.local_stop_event,
-            'queue': self.log_queue,
-        }, daemon=True, revive_interval=10)
+        self.log_postprocessor = ProcessMaintainer(
+            name='logcat_postprocessor',
+            target=postprocess,
+            kwargs={
+                'connection_info': self.connection_info,
+                'stop_event': self.local_stop_event,
+                'queue': self.log_queue,
+            },
+            daemon=True,
+            revive_interval=10
+        )
         self.log_postprocessor.start()
 
     # Control
