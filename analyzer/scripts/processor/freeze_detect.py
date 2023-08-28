@@ -42,7 +42,7 @@ def test_freeze_detection():
 
     except Exception as err:
         error_detail = traceback.format_exc()
-        publish_msg({'measurement': [Command.FREEZE.value]}, error_detail, level='error')
+        publish_msg({'measurement': [Command.FREEZE.value], 'log': error_detail}, 'analysis_response', level='error')
         logger.error(f"error in detect_freeze postprocess: {err}")
         logger.warning(error_detail)
 

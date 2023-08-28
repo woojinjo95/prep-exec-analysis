@@ -38,7 +38,7 @@ def test_warm_boot():
 
     except Exception as err:
         error_detail = traceback.format_exc()
-        publish_msg({'measurement': [Command.RESUME.value]}, error_detail, level='error')
+        publish_msg({'measurement': [Command.RESUME.value], 'log': error_detail}, 'analysis_response', level='error')
         logger.error(f"error in test_warm_boot: {err}")
         logger.warning(error_detail)
 

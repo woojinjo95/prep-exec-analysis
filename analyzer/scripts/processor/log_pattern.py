@@ -37,7 +37,7 @@ def test_log_pattern_matching():
 
     except Exception as err:
         error_detail = traceback.format_exc()
-        publish_msg({'measurement': [Command.LOG_PATTERN_MATCHING.value]}, error_detail, level='error')
+        publish_msg({'measurement': [Command.LOG_PATTERN_MATCHING.value], 'log': error_detail}, 'analysis_response', level='error')
         logger.error(f"error in match_log_pattern: {err}")
         logger.warning(error_detail)
 
