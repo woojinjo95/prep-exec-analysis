@@ -61,7 +61,11 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
       )}
 
       {selectedAnalysisItems.includes('resume') && (
-        <ResumeAnalysisItem onClickDeleteItem={onClickDeleteItem('resume')} />
+        <ResumeAnalysisItem
+          resumeType={unsavedAnalysisConfig.resume?.type}
+          setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
+          onClickDeleteItem={onClickDeleteItem('resume')}
+        />
       )}
 
       {selectedAnalysisItems.includes('boot') && <BootAnalysisItem onClickDeleteItem={onClickDeleteItem('boot')} />}

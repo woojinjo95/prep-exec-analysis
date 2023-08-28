@@ -117,7 +117,9 @@ const VideoDetailSection: React.FC = () => {
 
       {/* FIXME: 버튼의 의미(동영상 다운로드?) */}
       <div className="ml-auto mt-auto py-4 px-3">
-        <Button colorScheme="charcoal">Save</Button>
+        <Button colorScheme="charcoal" className="w-[132px]">
+          Save
+        </Button>
       </div>
     </section>
   )

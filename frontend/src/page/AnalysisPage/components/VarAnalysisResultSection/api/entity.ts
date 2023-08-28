@@ -13,7 +13,7 @@ export interface AnalysisConfig {
   }
   resume?: {
     color: string
-    type: 'image_maching' | 'screen_change_rate'
+    type: 'image_matching' | 'screen_change_rate'
     frame: {
       image_path: string
       roi: {
@@ -26,7 +26,7 @@ export interface AnalysisConfig {
   }
   boot?: {
     color: string
-    type: 'image_maching'
+    type: 'image_matching'
     frame: {
       image_path: string
       roi: {
