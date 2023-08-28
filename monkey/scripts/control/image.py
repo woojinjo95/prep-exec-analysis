@@ -1,13 +1,17 @@
 from typing import List
+import logging
 
 import cv2
 import numpy as np
 
 from scripts.config.config import get_setting_with_env
 
+logger = logging.getLogger('main')
+
 
 def get_snapshots(frame_num: int = 1) -> List[np.ndarray]:
     capture_device = get_setting_with_env('CAPTURE_DEVICE', '/dev/video0')
+    # logger.info(f'Capture device: {capture_device}')
     cap = cv2.VideoCapture(capture_device)
     frames = []
     for i in range(frame_num):
@@ -20,5 +24,6 @@ def get_snapshots(frame_num: int = 1) -> List[np.ndarray]:
 
 
 def get_snapshot() -> np.ndarray:
-    return get_snapshots()[0]
+    snapshot = get_snapshots()[0]
+    return snapshot
 

@@ -212,6 +212,8 @@ services:
     build:
       context: ./monkey
       dockerfile: dockerfile
+    devices:
+      - "/dev/video0:/dev/video0"
     volumes:
       - ./data/workspace:/app/workspace
 
