@@ -21,6 +21,8 @@ class ScenarioUpdate(BaseModel):
 
 class ScenarioBlock(BaseModel):
     id: str
+    name: str
+    tags: Optional[List[str]] = []
     is_active: bool
     block_group: List[BlockGroup]
 

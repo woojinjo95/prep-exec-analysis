@@ -23,13 +23,30 @@ class LogLevelFinder(BaseModel):
     items: List[LogLevelFinderBase]
 
 
-class CpuAndMemoryBase(TimestampBaseModel):
+class CpuBase(TimestampBaseModel):
     cpu_usage: str
+    total: str
+    user: str
+    kernel: str
+    iowait: str
+    irq: str
+    softirq: str
+
+
+class Cpu(BaseModel):
+    items: List[CpuBase]
+
+
+class MemoryBase(TimestampBaseModel):
     memory_usage: str
+    total_ram: str
+    free_ram: str
+    used_ram: str
+    lost_ram: str
 
 
-class CpuAndMemory(BaseModel):
-    items: List[CpuAndMemoryBase]
+class Memory(BaseModel):
+    items: List[MemoryBase]
 
 
 class EventLogBase(TimestampBaseModel):
@@ -52,6 +69,7 @@ class ColorReference(BaseModel):
 
 class FreezeBase(TimestampBaseModel):
     freeze_type: str
+    duration: float
 
 
 class Freeze(BaseModel):
@@ -59,8 +77,8 @@ class Freeze(BaseModel):
 
 
 class LoudnessBase(TimestampBaseModel):
-    m: float # Momentary LKFS
-    i: float # Integrated LKFS
+    m: float  # Momentary LKFS
+    # i: float # Integrated LKFS
 
 
 class Loudness(BaseModel):
