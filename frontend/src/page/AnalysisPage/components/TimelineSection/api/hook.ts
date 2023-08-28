@@ -1,13 +1,22 @@
 import { useQuery } from 'react-query'
-import { getCPUAndMemory, getColorReferences, getEventLogs, getFreeze, getLogLevelFinders } from './func'
+import { getCPU, getColorReferences, getEventLogs, getFreeze, getLogLevelFinders, getMemory } from './func'
 
 /**
- * CPU, Memory 사용률 리스트 조회 hook
+ * CPU 사용률 리스트 조회 hook
  */
-export const useCPUAndMemory = (params: Parameters<typeof getCPUAndMemory>[0]) => {
-  const { data, isLoading, refetch } = useQuery(['cpu_and_memory', params], () => getCPUAndMemory(params))
+export const useCPU = (params: Parameters<typeof getCPU>[0]) => {
+  const { data, isLoading, refetch } = useQuery(['cpu', params], () => getCPU(params))
 
-  return { cpuAndMemory: data, isLoading, refetch }
+  return { cpu: data, isLoading, refetch }
+}
+
+/**
+ * Memory 사용률 리스트 조회 hook
+ */
+export const useMemory = (params: Parameters<typeof getMemory>[0]) => {
+  const { data, isLoading, refetch } = useQuery(['memory', params], () => getMemory(params))
+
+  return { memory: data, isLoading, refetch }
 }
 
 /**
