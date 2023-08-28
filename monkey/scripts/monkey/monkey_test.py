@@ -1,5 +1,5 @@
 
-from typing import Dict, Union, Tuple, List
+from typing import Tuple, List
 import logging
 import time
 
@@ -7,34 +7,18 @@ import numpy as np
 import cv2
 
 from scripts.control.image import get_snapshot
-from scripts.analysis.image import get_cursor_xywh, calc_iou, calc_diff_rate, get_cropped_image, find_roku_cursor
+from scripts.control.remocon import publish_remocon_msg
+from scripts.analysis.image import calc_iou, calc_diff_rate, get_cropped_image, find_roku_cursor
 
 logger = logging.getLogger('monkey_test')
 
 
 class MonkeyTest:
-    def __init__(self):
-        self.frame_queues = frame_queues
-        self.connection_info = connection_info
-        self.remocon_process = remocon_process
-        self.remocon_type = remocon_type
+    def __init__(self, company: str):
         self.company = company
 
         self.key_histories = []
-
         self.depth_key = 'right'
-
-        self.keymap = {
-            'left': 'KEYCODE_DPAD_LEFT',
-            'right': 'KEYCODE_DPAD_RIGHT',
-            'up': 'KEYCODE_DPAD_UP',
-            'down': 'KEYCODE_DPAD_DOWN',
-            'ok': 'KEYCODE_DPAD_CENTER',
-            'back': 'KEYCODE_BACK',
-            'home': 'KEYCODE_HOME',
-            'menu': 'KEYCODE_MENU',
-            'exit': '385',
-        }
         self.inverse_keys = {
             'up': 'down',
             'down': 'up',
@@ -81,7 +65,7 @@ class MonkeyTest:
             return True if is_height_similar and not is_cursor_same else False
 
     def exec_key(self, key: str, delay: float = 1.3, save_history: bool = False):
-        self.remocon_process.put_command(key=key, _type=self.remocon_type, sleep=delay)
+        publish_remocon_msg(key, self.company, sleep=delay)
         time.sleep(delay)
         if save_history:
             self.key_histories.append(key)
