@@ -6,9 +6,10 @@ import { IconButton } from '..'
 
 interface DropdownWithMoreButtonProps {
   children: React.ReactNode
+  positionX?: 'left' | 'right'
 }
 
-const DropdownWithMoreButton: React.FC<DropdownWithMoreButtonProps> = ({ children }) => {
+const DropdownWithMoreButton: React.FC<DropdownWithMoreButtonProps> = ({ children, positionX = 'right' }) => {
   const divRef = useRef<HTMLDivElement | null>(null)
   const [isButtonClicked, setIsButtonClicked] = useState<boolean>(false)
   const { ref: selectListRef } = useOutsideClick<HTMLUListElement>({ onClickOutside: () => setIsButtonClicked(false) })
@@ -28,7 +29,7 @@ const DropdownWithMoreButton: React.FC<DropdownWithMoreButtonProps> = ({ childre
         isVisible={isButtonClicked}
         wrapperRef={divRef}
         widthOption="fit-content"
-        positionX="right"
+        positionX={positionX}
         onClick={() => {
           setIsButtonClicked(false)
         }}
