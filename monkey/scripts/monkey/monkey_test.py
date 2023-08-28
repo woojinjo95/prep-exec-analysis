@@ -69,7 +69,7 @@ class MonkeyTest:
             return True if is_height_similar and not is_cursor_same else False
 
     def exec_key(self, key: str, delay: float = 1.3, save_history: bool = False):
-        publish_remocon_msg(key, self.company, sleep=delay)
+        publish_remocon_msg(self.company, key, sleep=delay)
         time.sleep(delay)
         if save_history:
             self.key_histories.append(key)
