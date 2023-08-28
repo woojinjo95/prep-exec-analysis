@@ -52,6 +52,7 @@ export interface IPLimit {
  */
 export interface HardwareConfiguration {
   remote_control_type: 'ir' | 'bt'
+  dut_ip: string | null
   enable_dut_power: boolean
   enable_hdmi: boolean
   enable_dut_wan: boolean
