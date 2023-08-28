@@ -52,11 +52,11 @@ def hset_value(sr_connection: StrictRedis, key: str, field: str, value: any):
     value = sr_connection.hset(key, field, str(value))
 
 
-def get_value(key: str, field: str = None, default: any = None, db: int = RedisDB.analyzer) -> any:
+def get_value(key: str, field: str = None, default: any = None, db: int = RedisDB.monkey) -> any:
     with get_strict_redis_connection(db) as src:
         return hget_value(src, key, field, default)
 
 
-def set_value(key: str, field: str = None, value: any = None, db: int = RedisDB.analyzer):
+def set_value(key: str, field: str = None, value: any = None, db: int = RedisDB.monkey):
     with get_strict_redis_connection(db) as src:
         hset_value(src, key, field, value)
