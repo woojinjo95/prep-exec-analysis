@@ -93,16 +93,10 @@ class MeasurementBoot(BaseModel):
     items: List[MeasurementBootBase]
 
 
-class VideoAnalysisResultBase(BaseModel):
-    pass
-
-
-class VideoAnalysisResult(BaseModel):
-    items: List[VideoAnalysisResultBase]
-
-
-class LogPatternMatchingBase(BaseModel):
-    pass
+class LogPatternMatchingBase(TimestampBaseModel):
+    log_pattern_name: str
+    log_level: str
+    message: str
 
 
 class LogPatternMatching(BaseModel):

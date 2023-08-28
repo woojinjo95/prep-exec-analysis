@@ -66,7 +66,8 @@ def get_data_of_cpu_and_memory(
                                           '$lte': convert_iso_format(end_time)},
                             'scenario_id': scenario_id,
                             'testrun_id': testrun_id}
-        project = {'_id': 0, 'timestamp': 1, 'cpu_usage': 1, 'total': 1, 'user': 1, 'kernel': 1, 'iowait': 1, 'irq': 1, 'softirq': 1}
+        project = {'_id': 0, 'timestamp': 1, 'cpu_usage': 1, 'total': 1,
+                   'user': 1, 'kernel': 1, 'iowait': 1, 'irq': 1, 'softirq': 1}
         cpu = load_from_mongodb(col="stb_info", param=time_range_param, proj=project)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
@@ -93,7 +94,8 @@ def get_data_of_cpu_and_memory(
                                           '$lte': convert_iso_format(end_time)},
                             'scenario_id': scenario_id,
                             'testrun_id': testrun_id}
-        project = {'_id': 0, 'timestamp': 1, 'memory_usage': 1, 'total_ram': 1, 'free_ram': 1, 'used_ram': 1, 'lost_ram': 1}
+        project = {'_id': 0, 'timestamp': 1, 'memory_usage': 1,
+                   'total_ram': 1, 'free_ram': 1, 'used_ram': 1, 'lost_ram': 1}
         memory = load_from_mongodb(col="stb_info", param=time_range_param, proj=project)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
@@ -274,33 +276,14 @@ def get_data_of_boot(
     return {"items": measurement}
 
 
-# Video Analysis Result
-# @router.get("/video", response_model=schemas.VideoAnalysisResult)
-def get_data_of_video(
-    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-):
-    """
-    비디오 분석 결과 데이터 조회
-    """
-    try:
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        if testrun_id is None:
-            testrun_id = RedisClient.hget('testrun', 'id')
-        video_analysis_result = load_from_mongodb()
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return {"items": video_analysis_result}
-
-
 # Log Pattern Maching
-# @router.get("/log_pattern_matching", response_model=schemas.LogPatternMatching)
+@router.get("/log_pattern_matching", response_model=schemas.LogPatternMatching)
 def get_data_of_log_pattern_matching(
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
+    log_pattern_name: Optional[str] = Query(None, description='ex)LogPattern3,LogPattern16'),
 ):
     """
     로그 패턴 매칭 데이터 조회
@@ -310,7 +293,15 @@ def get_data_of_log_pattern_matching(
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
-        log_pattern_matching = load_from_mongodb()
+        param = {'timestamp': {'$gte': convert_iso_format(start_time),
+                               '$lte': convert_iso_format(end_time)},
+                 'scenario_id': scenario_id,
+                 'testrun_id': testrun_id}
+        if log_pattern_name is not None:
+            log_pattern_name = log_pattern_name.split(',')
+            param['log_pattern_name'] = {'$in': log_pattern_name}
+        proj = {}
+        log_pattern_matching = load_from_mongodb(col='an_log_pattern', param=param, proj=proj)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {"items": log_pattern_matching}

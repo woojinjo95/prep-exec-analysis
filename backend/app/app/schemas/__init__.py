@@ -1,8 +1,7 @@
 from .analysis_config import AnalysisConfig, AnalysisConfigBase, FrameImage
 from .analysis_result import (ColorReference, Cpu, Memory, EventLog, Freeze,
                               LogLevelFinder, LogPatternMatching, Loudness,
-                              MeasurementBoot, NetworkFilter, ProcessLifecycle,
-                              VideoAnalysisResult)
+                              MeasurementBoot, NetworkFilter, ProcessLifecycle,)
 from .block import (Block, BlockBulkCreate, BlockCreate, BlockDelete,
                     BlockGroup, BlockGroupUpdate, BlockUpdate)
 from .hardware_configuration import (HardwareConfigurationBase,
