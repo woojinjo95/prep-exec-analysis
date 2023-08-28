@@ -1,7 +1,8 @@
+import time
 from scripts.connection.redis_pubsub import publish_msg
 
 
-def publish_remocon_msg(key: str, company: str):
+def publish_remocon_msg(company: str, key: str, sleep: float=0):
     # PUBLISH command  '{"msg": "remocon_transmit", "data": {"key": "right", "type": "ir", "press_time": 0, "name": "roku"}}'
     publish_msg({
         'key': key,
@@ -9,3 +10,4 @@ def publish_remocon_msg(key: str, company: str):
         'press_time': 0,
         'name': company,
     }, 'remocon_transmit')
+    time.sleep(sleep)
