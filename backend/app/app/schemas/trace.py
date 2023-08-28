@@ -1,6 +1,6 @@
 from typing import List
 
-from app.schemas.enum import LogLevelEnum
+from app.schemas.enum import LogLevelEnum, ProtocolEnum
 from pydantic import BaseModel, root_validator
 from pydantic.datetime_parse import parse_datetime
 
@@ -31,7 +31,7 @@ class ReadLogcat(BaseModel):
 class Network(TimestampBaseModel):
     src: str
     dst: str
-    protocol: str
+    protocol: ProtocolEnum
     length: int
     info: str
 

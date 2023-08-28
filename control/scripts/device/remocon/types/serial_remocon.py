@@ -34,13 +34,14 @@ class SerialRemocon(AbstractRemocon):
     def press_key_by_command(self, command_queue: dict) -> float:
         logger.info(f'ir remocon transmit: {command_queue}')
         if self.serial_device is None:
-            logger.error('failed to detect serial device.')
-            raise Exception('failed to detect serial device.')
+            logger.error('Failed to detect ir serial device.')
+            raise Exception('Failed to detect ir serial device.')
 
         key = command_queue['key']
         # ir remocon does not use 'key' itself, just use pronto code
         pronto_code = command_queue['code']
         press_time = command_queue['press_time']
+        remocon_type = command_queue['type']
 
         get_event_time = True
         log, event_time = self.serial_device.transmit_ir(pronto_code, press_time=press_time, serial_get_event_time=get_event_time)
@@ -48,7 +49,7 @@ class SerialRemocon(AbstractRemocon):
         if log == 'ok':
             publish(self.redis_connection, RedisChannel.command, {'msg': 'remocon_response',
                                                                   'data': {"key": key,
-                                                                           "type": "ir",
+                                                                           "type": remocon_type,
                                                                            "press_time": press_time,
                                                                            "sensor_time": event_time}})
 
@@ -62,7 +63,7 @@ class SerialRemocon(AbstractRemocon):
             publish(self.redis_connection, RedisChannel.command, {'msg': 'remocon_response',
                                                                   'level': error_level,
                                                                   'data': {"key": key,
-                                                                           "type": "ir",
+                                                                           "type": remocon_type,
                                                                            "press_time": press_time,
                                                                            "log": log}})
 

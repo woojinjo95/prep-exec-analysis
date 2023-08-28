@@ -4,19 +4,23 @@ from scripts.connection.redis_conn import get_strict_redis_connection
 from scripts.connection.redis_pubsub import Subscribe
 from scripts.config.constant import RedisChannel, RedisDB
 from scripts.log_service.log_organizer import LogOrganizer
-from command import CommandExecutor
+from command import CommandManager, CommandExecutor
 from scripts.format import LogName
+import queue
 
 
 logger = logging.getLogger('main')
 
 
 def main():
-    cmd_exec = CommandExecutor()
+    cmd_queue = queue.Queue()
+    cmd_manager = CommandManager(cmd_queue)
+    cmd_executor = CommandExecutor(cmd_queue)
+    cmd_executor.start()
 
     with get_strict_redis_connection(RedisDB.hardware) as src:
         for command in Subscribe(src, RedisChannel.command):
-            cmd_exec.execute(command)
+            cmd_manager.register(command)
 
 
 if __name__ == '__main__':

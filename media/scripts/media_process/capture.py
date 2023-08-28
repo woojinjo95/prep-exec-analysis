@@ -54,7 +54,7 @@ def construct_ffmpeg_cmd() -> str:
     # if crf value +6, video size is half.
 
     # 1920x1080 @ 60FPS from /dev/video0 by v4l2, -re option is realtime.
-    video_input_settings = f'ffmpeg -re -f v4l2 -framerate {capture_framerate} -video_size {capture_dimension} -i {video_name}'
+    video_input_settings = f'ffmpeg -r {capture_framerate} -f v4l2 -framerate {capture_framerate} -video_size {capture_dimension} -i {video_name}'
     # audio from hw:1, by alsa, and calculate lkfs by ebur128 filter
     audio_input_settings = f'-f alsa -i {audio_name} -af ebur128'
     # using h264 codec, ultrafast compression, minimize delay by nobuffer, crf level 23 no b-frame

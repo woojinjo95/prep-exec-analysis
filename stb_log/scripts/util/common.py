@@ -48,3 +48,7 @@ def write_json(json_path: str, result: dict):
 def get_parents_path(path: str, level: int = 0):
     path_object = Path(path)
     return path_object.parents[level]
+
+
+def convert_comma_separated_number_to_int(number: str) -> int:
+    return int(number.replace(',', ''))

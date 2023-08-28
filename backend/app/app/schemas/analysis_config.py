@@ -17,7 +17,8 @@ class Roi(BaseModel):
 
 
 class Frame(BaseModel):
-    image_path: str
+    id: str
+    path: str
     roi: Roi
 
 
@@ -28,6 +29,10 @@ class Freeze(CommonBaseModel):
 class Macroblock(CommonBaseModel):
     frame_sampling_interval: int
     threshold_score: float
+
+
+class Loudness(CommonBaseModel):
+    pass
 
 
 class Resume(CommonBaseModel):
@@ -70,6 +75,7 @@ class NetworkFilter(CommonBaseModel):
 class AnalysisConfig(BaseModel):
     freeze: Optional[Freeze]
     # macroblock: Optional[Macroblock]
+    loudness: Optional[Loudness]
     resume: Optional[Resume]
     boot: Optional[Boot]
     channel_change_time: Optional[ChannelChangeTime]
@@ -81,3 +87,8 @@ class AnalysisConfig(BaseModel):
 
 class AnalysisConfigBase(BaseModel):
     items: AnalysisConfig
+
+
+class FrameImage(BaseModel):
+    id: str
+    path: str

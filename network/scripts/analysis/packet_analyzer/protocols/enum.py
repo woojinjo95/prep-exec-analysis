@@ -8,7 +8,6 @@ IPRROTO_MAP = {
     socket.IPPROTO_TCP: 'TCP',
     socket.IPPROTO_UDP: 'UDP',
     socket.IPPROTO_IGMP: 'IGMP',
-    socket.IPPROTO_ICMP: 'ICMP',
 }
 
 

@@ -1,4 +1,4 @@
-from .analysis_config import AnalysisConfig, AnalysisConfigBase
+from .analysis_config import AnalysisConfig, AnalysisConfigBase, FrameImage
 from .analysis_result import (ColorReference, CpuAndMemory, EventLog, Freeze,
                               LogLevelFinder, LogPatternMatching, Loudness,
                               Measurement, NetworkFilter, ProcessLifecycle,
