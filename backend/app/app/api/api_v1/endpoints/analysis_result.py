@@ -229,6 +229,7 @@ def get_data_of_resume(
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
+    target: Optional[str] = None,
 ):
     """
     분석 데이터 조회 : Resume(Warm booting)
@@ -242,6 +243,9 @@ def get_data_of_resume(
                                            '$lte': convert_iso_format(end_time)},
                              'scenario_id': scenario_id,
                              'testrun_id': testrun_id}
+        if target is not None:
+            measurement_param[''] = target
+            # TODO: 항목명 확인해서 기입
         measurement_proj = {'_id': 0, 'timestamp': 1, 'measure_time': 1}
         measurement = load_from_mongodb(col='an_warm_boot', param=measurement_param, proj=measurement_proj)
     except Exception as e:
@@ -256,6 +260,7 @@ def get_data_of_boot(
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
+    target: Optional[str] = None,
 ):
     """
     분석 데이터 조회 : Boot(Cold booting)
@@ -269,6 +274,9 @@ def get_data_of_boot(
                                            '$lte': convert_iso_format(end_time)},
                              'scenario_id': scenario_id,
                              'testrun_id': testrun_id}
+        if target is not None:
+            measurement_param[''] = target
+            # TODO: 항목명 확인해서 기입
         measurement_proj = {'_id': 0, 'timestamp': 1, 'measure_time': 1}
         measurement = load_from_mongodb(col='an_cold_boot', param=measurement_param, proj=measurement_proj)
     except Exception as e:
@@ -301,6 +309,7 @@ def get_data_of_log_pattern_matching(
             log_pattern_name = log_pattern_name.split(',')
             param['log_pattern_name'] = {'$in': log_pattern_name}
         proj = {}
+        # TODO: 몽고디비 적재 데이터 내용 확인해서 작성
         log_pattern_matching = load_from_mongodb(col='an_log_pattern', param=param, proj=proj)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
