@@ -1,12 +1,13 @@
 import sys
 import json
+from datetime import datetime
 import asyncio
 import traceback
 from typing import Optional
 import asyncssh
-from .utils import log
 from .log import process_log_queue
 from .message import check_skip_message
+
 
 class QAASClientSession(asyncssh.SSHClientSession):
     def set_queue(self, queue: asyncio.Queue):
@@ -14,7 +15,7 @@ class QAASClientSession(asyncssh.SSHClientSession):
 
     def data_received(self, data: str, datatype: asyncssh.DataType) -> None:
         print(data, end='')
-        self._queue.put_nowait(log(data, "stdout"))
+        self._queue.put_nowait({'timestamp': datetime.utcnow(), 'module':  "stdout", 'message': data})
 
     def connection_lost(self, exc: Optional[Exception]) -> None:
         if exc:
@@ -50,8 +51,8 @@ async def consumer_ssh_handler(conn: any, channel: any, shell_id: int, CHANNEL_N
                     print(message)
                     command = f"{message['data']['command']}\n"
                     channel.write(command)
-                    queue.put_nowait(log(command, "stdin"))
-                
+                    queue.put_nowait({'timestamp': datetime.utcnow(), 'module':  "stdin", 'message': command})
+
             except Exception as e:
                 print(e)
                 print(traceback.format_exc())
@@ -61,7 +62,8 @@ async def consumer_ssh_handler(conn: any, channel: any, shell_id: int, CHANNEL_N
     print("consumer_handler end")
 
 
-async def ssh_connect(conn: any, shell_id: int, SSH_HOST: str, SSH_PORT: int, SSH_USERNAME: str, SSH_PASSWORD: str, CHANNEL_NAME: str):
+async def ssh_connect(conn: any, shell_id: int, SSH_HOST: str,
+                      SSH_PORT: int, SSH_USERNAME: str, SSH_PASSWORD: str, CHANNEL_NAME: str):
     queue = asyncio.Queue()
 
     connection, client = await asyncssh.create_connection(QAASSSHClient, host=SSH_HOST, port=SSH_PORT,

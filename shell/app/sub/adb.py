@@ -1,7 +1,7 @@
 import json
 import asyncio
 import subprocess
-from .utils import log
+from datetime import datetime
 from .log import process_log_queue
 from .message import check_skip_message
 
@@ -15,7 +15,7 @@ async def read_stdout(stdout: any, queue: asyncio.Queue):
             break
         line = buf.decode('utf-8').rstrip()
         print(f"stdout: {line}")
-        queue.put_nowait(log(line, "stdout"))
+        queue.put_nowait({'timestamp': datetime.utcnow(), 'module':  "stdout", 'message': line})
     print('read_stdout end')
 
 
@@ -27,7 +27,7 @@ async def read_stderr(stderr: any, queue: asyncio.Queue):
             break
         line = buf.decode('utf-8').rstrip()
         print(f"stderr: {line}")
-        queue.put_nowait(log(line, "stderr"))
+        queue.put_nowait({'timestamp': datetime.utcnow(), 'module':  "stderr", 'message': line})
     print('read_stderr end')
 
 
@@ -53,7 +53,7 @@ async def consumer_adb_handler(conn: any, shell_id: int, proc: any, CHANNEL_NAME
                     command = message['data']['command']
                     proc.stdin.write(f"{command}\n".encode('utf-8'))
                     print(f"stderr: {command}")
-                    queue.put_nowait(log(command, "stdin"))
+                    queue.put_nowait({'timestamp': datetime.utcnow(), 'module':  "stdin", 'message': command})
                     await proc.stdin.drain()
                     await asyncio.sleep(0.5)
             except Exception as e:
