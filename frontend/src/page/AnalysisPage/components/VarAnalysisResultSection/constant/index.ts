@@ -5,6 +5,7 @@ import AnalysisType from '@global/constant/analysisType'
  */
 export const AnalysisTypeLabel: { [key in keyof typeof AnalysisType]: string } = {
   freeze: 'Freeze Detection',
+  loudness: 'Loudness Measurement',
   resume: 'Resume Measurement',
   boot: 'Boot Measurement',
   channel_change_time: 'Channel Change Time Measurement',

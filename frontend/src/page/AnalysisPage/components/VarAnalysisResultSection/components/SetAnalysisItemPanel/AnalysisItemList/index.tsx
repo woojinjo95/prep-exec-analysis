@@ -1,15 +1,16 @@
 import React, { useCallback, useState } from 'react'
 import { Title } from '@global/ui'
 
-import { AnalysisTypeLabel } from '../../../constant'
 import FreezeAnalysisItem from './FreezeAnalysisItem'
 import BootAnalysisItem from './BootAnalysisItem'
 import ResumeAnalysisItem from './ResumeAnalysisItem'
 import ChannelChangeTimeAnalysisItem from './ChannelChangeTimeAnalysisItem'
 import LogLevelFinderAnalysisItem from './LogLevelFinderAnalysisItem'
 import LogPatternMatchingAnalysisItem from './LogPatternMatchingAnalysisItem'
+import { AnalysisTypeLabel } from '../../../constant'
 import { useAnalysisConfig } from '../../../api/hook'
 import { UnsavedAnalysisConfig } from '../../../types'
+import LoudnessAnalysisItem from './LoudnessAnalysisItem'
 
 interface AnalysisItemListProps {
   selectedAnalysisItems: (keyof typeof AnalysisTypeLabel)[]
@@ -53,6 +54,10 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
           setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
           onClickDeleteItem={onClickDeleteItem('freeze')}
         />
+      )}
+
+      {selectedAnalysisItems.includes('loudness') && (
+        <LoudnessAnalysisItem onClickDeleteItem={onClickDeleteItem('loudness')} />
       )}
 
       {selectedAnalysisItems.includes('resume') && (
