@@ -4,48 +4,30 @@ import cx from 'classnames'
 import { ReactComponent as MoreIcon } from '@assets/images/button_more.svg'
 import { formatDateTo } from '@global/usecase'
 import Scrollbars from 'react-custom-scrollbars-2'
-import { QueryFunctionContext, useInfiniteQuery, useQuery } from 'react-query'
-import { getScenarios } from '@global/api/func'
 import useIntersect from '@global/hook/useIntersect'
-import { PaginationResponse, ScenarioSummary } from '@global/api/entity'
 import { useRecoilState } from 'recoil'
 import { scenarioIdState } from '@global/atom'
 import { useNavigate } from 'react-router-dom'
+import useFetchScenarios from '@global/hook/useFetchScenarios'
+import { PAGE_SIZE_TWENTY } from '@global/constant'
 
 const FilesSection: React.FC = () => {
   const [selectedMenu, setSelectedMenu] = useState<'Blocks' | 'Analysis Results'>('Blocks')
 
-  // const [current, setCurrent] = useState<number>(1)
-
-  const { data, hasNextPage, isFetching, fetchNextPage } = useInfiniteQuery<PaginationResponse<ScenarioSummary[]>>(
-    ['scenarios'],
-    ({ pageParam = 1 }: QueryFunctionContext) => {
-      return getScenarios({ page: pageParam as number })
-    },
-    {
-      getNextPageParam: (lastPage) => {
-        const nextPage = lastPage.next
-
-        if (nextPage <= lastPage.pages) {
-          return nextPage
-        }
-
-        return undefined
-      },
-    },
-  )
+  const { data, hasNextPage, isFetching, fetchNextPage } = useFetchScenarios(PAGE_SIZE_TWENTY)
 
   const ref = useIntersect((entry, observer) => {
+    // 발견시 실행될 callback
     observer.unobserve(entry.target)
 
-    if (hasNextPage && !!isFetching) {
-      // setCurrent((prev) => prev + 1)
-      console.log('hi')
+    if (hasNextPage && !isFetching) {
+      // 다음 페이지가 존재하고 isFetching이 아니라면
       fetchNextPage()
     }
   })
 
   const scenarios = useMemo(() => {
+    // InfiniteData type의 data를 flatMap으로 1 depth 배열로 평탄화 작업
     return data ? data.pages.flatMap(({ items }) => items) : []
   }, [data])
 

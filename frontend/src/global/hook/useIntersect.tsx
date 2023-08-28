@@ -4,9 +4,11 @@ type IntersectHandler = (entry: IntersectionObserverEntry, observer: Intersectio
 
 const useIntersect = (onIntersect: IntersectHandler, options?: IntersectionObserverInit) => {
   const ref = useRef<HTMLDivElement | null>(null)
+
   const callback = useCallback(
     (entries: IntersectionObserverEntry[], observer: IntersectionObserver) => {
       entries.forEach((entry) => {
+        // 관측이 되면 onIntersect 함수 실행
         if (entry.isIntersecting) onIntersect(entry, observer)
       })
     },
@@ -15,7 +17,11 @@ const useIntersect = (onIntersect: IntersectHandler, options?: IntersectionObser
 
   useEffect(() => {
     if (!ref.current) return
+
+    // 정의한 callback + option으로 observer 등록
     const observer = new IntersectionObserver(callback, options)
+    
+    // target을 관찰하기 시작
     observer.observe(ref.current)
 
     // eslint-disable-next-line consistent-return
