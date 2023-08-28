@@ -12,6 +12,9 @@ logger = logging.getLogger('connection')
 
 
 report_info = {
+    ReportName.COLOR_REFERENCE.value: {
+        'col_name': CollectionName.COLOR_REFERENCE.value,
+    },
     ReportName.FREEZE.value: {
         'col_name': CollectionName.FREEZE.value,  # collection name for mongo db
         'user_config_name': 'freeze'  # user config name for redis (analysis_config/analysis_config:freeze)
