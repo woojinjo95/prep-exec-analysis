@@ -193,7 +193,7 @@ def get_data_of_loudness(
 @router.get("/resume", response_model=schemas.MeasurementBoot)
 def get_data_of_resume(
     scenario_id: Optional[str] = None,
-    # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
+    testrun_id: Optional[str] = None,
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
 ):
@@ -203,9 +203,12 @@ def get_data_of_resume(
     try:
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        measurement_param = {'scenario_id': scenario_id,
-                             'timestamp': {'$gte': convert_iso_format(start_time),
-                                           '$lte': convert_iso_format(end_time)}}
+        if testrun_id is None:
+            testrun_id = RedisClient.hget('testrun', 'id')
+        measurement_param = {'timestamp': {'$gte': convert_iso_format(start_time),
+                                           '$lte': convert_iso_format(end_time)},
+                             'scenario_id': scenario_id,
+                             'testrun_id': testrun_id}
         measurement_proj = {'_id': 0, 'timestamp': 1, 'measure_time': 1}
         measurement = load_from_mongodb(col='an_warm_boot', param=measurement_param, proj=measurement_proj)
     except Exception as e:
@@ -217,7 +220,7 @@ def get_data_of_resume(
 @router.get("/boot", response_model=schemas.MeasurementBoot)
 def get_data_of_boot(
     scenario_id: Optional[str] = None,
-    # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
+    testrun_id: Optional[str] = None,
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
 ):
@@ -227,9 +230,12 @@ def get_data_of_boot(
     try:
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        measurement_param = {'scenario_id': scenario_id,
-                             'timestamp': {'$gte': convert_iso_format(start_time),
-                                           '$lte': convert_iso_format(end_time)}}
+        if testrun_id is None:
+            testrun_id = RedisClient.hget('testrun', 'id')
+        measurement_param = {'timestamp': {'$gte': convert_iso_format(start_time),
+                                           '$lte': convert_iso_format(end_time)},
+                             'scenario_id': scenario_id,
+                             'testrun_id': testrun_id}
         measurement_proj = {'_id': 0, 'timestamp': 1, 'measure_time': 1}
         measurement = load_from_mongodb(col='an_cold_boot', param=measurement_param, proj=measurement_proj)
     except Exception as e:
