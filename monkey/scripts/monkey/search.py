@@ -11,7 +11,7 @@ from scripts.device.remocon.remocon_process import RemoconProcess
 from ..utils import exec_command
 from scripts.configs.config import get_setting
 
-logger = logging.getLogger('monkey')
+logger = logging.getLogger('monkey_test')
 
 
 
