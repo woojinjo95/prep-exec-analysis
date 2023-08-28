@@ -52,7 +52,7 @@ const ResumeAnalysisItem: React.FC<ResumeAnalysisItemProps> = ({
         </div>
       }
     >
-      <div className="grid grid-rows-2 grid-cols-1 gap-y-4">
+      <div className="flex flex-col w-full gap-y-4">
         <div className="grid grid-rows-1 grid-cols-2 items-center">
           <Text colorScheme="light" weight="medium">
             Type
@@ -80,13 +80,15 @@ const ResumeAnalysisItem: React.FC<ResumeAnalysisItemProps> = ({
           </Select>
         </div>
 
-        <div className="flex justify-between items-center">
-          <Text colorScheme="light" weight="medium">
-            Set ROI
-          </Text>
+        {resumeType === 'image_matching' && (
+          <div className="flex justify-between items-center">
+            <Text colorScheme="light" weight="medium">
+              Set ROI
+            </Text>
 
-          <SetROIButton />
-        </div>
+            <SetROIButton />
+          </div>
+        )}
       </div>
     </Accordion>
   )
