@@ -68,7 +68,6 @@ class Loudness(BaseModel):
 
 class MeasurementBase(TimestampBaseModel):
     measure_time: int
-    analysis_type: str
 
 
 class Measurement(BaseModel):

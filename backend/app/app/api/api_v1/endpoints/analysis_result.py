@@ -167,33 +167,49 @@ def get_data_of_loudness(
     return {"items": loudness}
 
 
-# Measurement
-@router.get("/measurement", response_model=schemas.Measurement)
-def get_data_of_measurement(
+# Measurement_resume (warm boot)
+@router.get("/measurement_resume", response_model=schemas.Measurement)
+def get_data_of_measurement_resume(
     scenario_id: Optional[str] = None,
     # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
 ):
     """
-    분석 데이터 조회 (Resume, Boot)
+    분석 데이터 조회 : Resume(Warm booting)
     """
     try:
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        measurement_pipeline = [{'$match': {'scenario_id': scenario_id,
-                                            'timestamp': {'$gte': convert_iso_format(start_time),
-                                                          '$lte': convert_iso_format(end_time)}}},
-                                {'$addFields': {'analysis_type': 'boot'}},
-                                {'$unionWith': {'coll': 'an_warm_boot',
-                                                'pipeline': [{'$match': {'scenario_id': scenario_id,
-                                                                         'timestamp': {'$gte': convert_iso_format(start_time),
-                                                                                       '$lte': convert_iso_format(end_time)}}},
-                                                             {'$addFields': {'analysis_type': 'resume'}}]}},
-                                {'$project': {'_id': 0, 'timestamp': 1, 'measure_time': 1, 'analysis_type': 1}},
-                                {'$sort': {'timestamp': 1}}
-                                ]
-        measurement = aggregate_from_mongodb(col='an_cold_boot', pipeline=measurement_pipeline)
+        measurement_param = {'scenario_id': scenario_id,
+                             'timestamp': {'$gte': convert_iso_format(start_time),
+                                           '$lte': convert_iso_format(end_time)}}
+        measurement_proj = {'_id': 0, 'timestamp': 1, 'measure_time': 1}
+        measurement = load_from_mongodb(col='an_warm_boot', param=measurement_param, proj=measurement_proj)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return {"items": measurement}
+
+
+# Measurement_resume (cold boot)
+@router.get("/measurement_boot", response_model=schemas.Measurement)
+def get_data_of_measurement_boot(
+    scenario_id: Optional[str] = None,
+    # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
+    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+):
+    """
+    분석 데이터 조회 : Boot(Cold booting)
+    """
+    try:
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        measurement_param = {'scenario_id': scenario_id,
+                             'timestamp': {'$gte': convert_iso_format(start_time),
+                                           '$lte': convert_iso_format(end_time)}}
+        measurement_proj = {'_id': 0, 'timestamp': 1, 'measure_time': 1}
+        measurement = load_from_mongodb(col='an_cold_boot', param=measurement_param, proj=measurement_proj)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {"items": measurement}
@@ -201,79 +217,79 @@ def get_data_of_measurement(
 
 # Video Analysis Result
 # @router.get("/video", response_model=schemas.VideoAnalysisResult)
-# def get_data_of_video(
-#     scenario_id: Optional[str] = None,
-#     # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
-#     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-#     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-# ):
-#     """
-#     비디오 분석 결과 데이터 조회
-#     """
-#     try:
-#         if scenario_id is None:
-#             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-#         video_analysis_result = load_from_mongodb()
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=traceback.format_exc())
-#     return {"items": video_analysis_result}
+def get_data_of_video(
+    scenario_id: Optional[str] = None,
+    # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
+    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+):
+    """
+    비디오 분석 결과 데이터 조회
+    """
+    try:
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        video_analysis_result = load_from_mongodb()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return {"items": video_analysis_result}
 
 
-# # Log Pattern Maching
+# Log Pattern Maching
 # @router.get("/log_pattern_matching", response_model=schemas.LogPatternMatching)
-# def get_data_of_log_pattern_matching(
-#     scenario_id: Optional[str] = None,
-#     # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
-#     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-#     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-# ):
-#     """
-#     로그 패턴 매칭 데이터 조회
-#     """
-#     try:
-#         if scenario_id is None:
-#             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-#         log_pattern_matching = load_from_mongodb()
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=traceback.format_exc())
-#     return {"items": log_pattern_matching}
+def get_data_of_log_pattern_matching(
+    scenario_id: Optional[str] = None,
+    # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
+    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+):
+    """
+    로그 패턴 매칭 데이터 조회
+    """
+    try:
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        log_pattern_matching = load_from_mongodb()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return {"items": log_pattern_matching}
 
 
-# # Process Lifecycle
+# Process Lifecycle
 # @router.get("/process_lifecycle", response_model=schemas.ProcessLifecycle)
-# def get_data_of_process_lifecycle(
-#     scenario_id: Optional[str] = None,
-#     # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
-#     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-#     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-# ):
-#     """
-#     프로세스 활동주기 데이터 조회
-#     """
-#     try:
-#         if scenario_id is None:
-#             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-#         process_lifecycle = load_from_mongodb()
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=traceback.format_exc())
-#     return {"items": process_lifecycle}
+def get_data_of_process_lifecycle(
+    scenario_id: Optional[str] = None,
+    # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
+    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+):
+    """
+    프로세스 활동주기 데이터 조회
+    """
+    try:
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        process_lifecycle = load_from_mongodb()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return {"items": process_lifecycle}
 
 
-# # Network Filter
+# Network Filter
 # @router.get("/network_filter", response_model=schemas.NetworkFilter)
-# def get_data_of_network_filter(
-#     scenario_id: Optional[str] = None,
-#     # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
-#     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-#     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-# ):
-#     """
-#     네트워크 필터 데이터 조회
-#     """
-#     try:
-#         if scenario_id is None:
-#             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-#         network_filter = load_from_mongodb()
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=traceback.format_exc())
-#     return {"items": network_filter}
+def get_data_of_network_filter(
+    scenario_id: Optional[str] = None,
+    # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
+    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+):
+    """
+    네트워크 필터 데이터 조회
+    """
+    try:
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        network_filter = load_from_mongodb()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return {"items": network_filter}
