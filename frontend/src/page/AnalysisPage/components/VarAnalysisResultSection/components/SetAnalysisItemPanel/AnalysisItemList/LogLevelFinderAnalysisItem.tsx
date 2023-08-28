@@ -1,22 +1,22 @@
 import React from 'react'
 import { Accordion, Text } from '@global/ui'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
-import { AnalysisTypeLabel } from '../../../../constant'
+import { AnalysisTypeLabel } from '../../../constant'
 
-interface BootAnalysisItemProps {
+interface LogLevelFinderAnalysisItemProps {
   onClickDeleteItem: () => void
 }
 
 /**
- * boot 분석 아이템
+ * log level finder 분석 아이템
  */
-const BootAnalysisItem: React.FC<BootAnalysisItemProps> = ({ onClickDeleteItem }) => {
+const LogLevelFinderAnalysisItem: React.FC<LogLevelFinderAnalysisItemProps> = ({ onClickDeleteItem }) => {
   return (
     <Accordion
       header={
         <div className="flex justify-between items-center">
           <Text size="sm" weight="medium">
-            {AnalysisTypeLabel.boot}
+            {AnalysisTypeLabel.log_level_finder}
           </Text>
           <TrashIcon className="w-4 fill-white" onClick={onClickDeleteItem} />
         </div>
@@ -25,4 +25,4 @@ const BootAnalysisItem: React.FC<BootAnalysisItemProps> = ({ onClickDeleteItem }
   )
 }
 
-export default BootAnalysisItem
+export default LogLevelFinderAnalysisItem

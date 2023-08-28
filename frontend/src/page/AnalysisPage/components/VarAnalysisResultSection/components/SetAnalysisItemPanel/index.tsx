@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { AnalysisTypeLabel } from '../../constant'
-import Header from './components/AnalysisItemList/Header'
-import AnalysisItemList from './components/AnalysisItemList'
+import Header from './AnalysisItemList/Header'
+import AnalysisItemList from './AnalysisItemList'
 
 /**
  * 분석 아이템 설정 패널

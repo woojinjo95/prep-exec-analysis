@@ -1,15 +1,15 @@
 import React, { useCallback, useState } from 'react'
 import { Title } from '@global/ui'
 
-import { AnalysisTypeLabel } from '../../../../constant'
+import { AnalysisTypeLabel } from '../../../constant'
 import FreezeAnalysisItem from './FreezeAnalysisItem'
 import BootAnalysisItem from './BootAnalysisItem'
 import ResumeAnalysisItem from './ResumeAnalysisItem'
 import ChannelChangeTimeAnalysisItem from './ChannelChangeTimeAnalysisItem'
 import LogLevelFinderAnalysisItem from './LogLevelFinderAnalysisItem'
 import LogPatternMatchingAnalysisItem from './LogPatternMatchingAnalysisItem'
-import { useAnalysisConfig } from '../../../../api/hook'
-import { UnsavedAnalysisConfig } from '../../types'
+import { useAnalysisConfig } from '../../../api/hook'
+import { UnsavedAnalysisConfig } from '../../../types'
 
 interface AnalysisItemListProps {
   selectedAnalysisItems: (keyof typeof AnalysisTypeLabel)[]
