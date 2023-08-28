@@ -26,13 +26,16 @@ class CommandManager:
         # PUBLISH command '{"msg": "service_state", "data": {"state": "analysis"}}'
         elif command.get('msg') == 'service_state':  # 서비스 상태 변경 명령
             data = command.get('data', {})
-            logger.info(f'msg: service_state. data: {data}')
             state = data.get('state', '')
             if state == 'analysis':  # 분석 모드 진입
+                logger.info(f'enter analysis mode. wait commands: {self.queue.qsize()}')
                 # color reference 테스트 작업을 분석 명령으로서 큐에 등록
-                command['msg'] = 'analysis'
-                command['data'] = {'measurement': ['color_reference']}
-                self.queue.put(command)
+                self.put_color_reference(command)
+
+    def put_color_reference(self, command: Dict):
+        command['msg'] = 'analysis'
+        command['data'] = {'measurement': ['color_reference']}
+        self.queue.put(command)
 
 
 class CommandExecutor(threading.Thread):
