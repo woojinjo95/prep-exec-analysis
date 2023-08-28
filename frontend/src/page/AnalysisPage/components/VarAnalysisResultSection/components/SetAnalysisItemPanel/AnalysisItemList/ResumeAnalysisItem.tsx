@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Accordion, OptionItem, Select, SetROIButton, Text } from '@global/ui'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
 import { AnalysisTypeLabel } from '../../../constant'
@@ -26,21 +26,6 @@ const ResumeAnalysisItem: React.FC<ResumeAnalysisItemProps> = ({
   onClickDeleteItem,
   setUnsavedAnalysisConfig,
 }) => {
-  useEffect(() => {
-    if (!resumeType) {
-      setUnsavedAnalysisConfig((prev) => ({
-        ...prev,
-        resume: {
-          ...prev.resume!,
-          type: 'image_matching',
-        },
-      }))
-    }
-  }, [resumeType])
-
-  console.log(resumeType)
-
-  if (!resumeType) return <div />
   return (
     <Accordion
       header={
