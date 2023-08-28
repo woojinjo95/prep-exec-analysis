@@ -1,13 +1,15 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import { Title } from '@global/ui'
 
-import { AnalysisTypeLabel } from '../../../constant'
+import { AnalysisTypeLabel } from '../../../../constant'
 import FreezeAnalysisItem from './FreezeAnalysisItem'
 import BootAnalysisItem from './BootAnalysisItem'
 import ResumeAnalysisItem from './ResumeAnalysisItem'
 import ChannelChangeTimeAnalysisItem from './ChannelChangeTimeAnalysisItem'
 import LogLevelFinderAnalysisItem from './LogLevelFinderAnalysisItem'
 import LogPatternMatchingAnalysisItem from './LogPatternMatchingAnalysisItem'
+import { useAnalysisConfig } from '../../../../api/hook'
+import { UnsavedAnalysisConfig } from '../../types'
 
 interface AnalysisItemListProps {
   selectedAnalysisItems: (keyof typeof AnalysisTypeLabel)[]
@@ -18,6 +20,13 @@ interface AnalysisItemListProps {
  * 분석 아이템 리스트
  */
 const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisItems, setSelectedAnalysisItems }) => {
+  const [unsavedAnalysisConfig, setUnsavedAnalysisConfig] = useState<UnsavedAnalysisConfig>({})
+  const { analysisConfig } = useAnalysisConfig({
+    onSuccess: (data) => {
+      setUnsavedAnalysisConfig(data)
+    },
+  })
+
   const onClickDeleteItem = useCallback(
     (type: keyof typeof AnalysisTypeLabel) => () => {
       setSelectedAnalysisItems((prev) => prev.filter((_type) => _type !== type))
@@ -35,10 +44,15 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
     )
   }
 
+  if (!analysisConfig) return <div />
   return (
     <div className="overflow-y-auto flex flex-col gap-y-1">
       {selectedAnalysisItems.includes('freeze') && (
-        <FreezeAnalysisItem onClickDeleteItem={onClickDeleteItem('freeze')} />
+        <FreezeAnalysisItem
+          duration={unsavedAnalysisConfig.freeze?.duration}
+          setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
+          onClickDeleteItem={onClickDeleteItem('freeze')}
+        />
       )}
 
       {selectedAnalysisItems.includes('resume') && (

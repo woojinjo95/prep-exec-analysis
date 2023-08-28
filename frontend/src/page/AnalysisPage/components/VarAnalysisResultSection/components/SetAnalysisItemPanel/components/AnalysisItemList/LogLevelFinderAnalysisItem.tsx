@@ -1,22 +1,22 @@
 import React from 'react'
 import { Accordion, Text } from '@global/ui'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
-import { AnalysisTypeLabel } from '../../../constant'
+import { AnalysisTypeLabel } from '../../../../constant'
 
-interface ChannelChangeTimeAnalysisItemProps {
+interface LogLevelFinderAnalysisItemProps {
   onClickDeleteItem: () => void
 }
 
 /**
- * channel change time 분석 아이템
+ * log level finder 분석 아이템
  */
-const ChannelChangeTimeAnalysisItem: React.FC<ChannelChangeTimeAnalysisItemProps> = ({ onClickDeleteItem }) => {
+const LogLevelFinderAnalysisItem: React.FC<LogLevelFinderAnalysisItemProps> = ({ onClickDeleteItem }) => {
   return (
     <Accordion
       header={
         <div className="flex justify-between items-center">
           <Text size="sm" weight="medium">
-            {AnalysisTypeLabel.channel_change_time}
+            {AnalysisTypeLabel.log_level_finder}
           </Text>
           <TrashIcon className="w-4 fill-white" onClick={onClickDeleteItem} />
         </div>
@@ -25,4 +25,4 @@ const ChannelChangeTimeAnalysisItem: React.FC<ChannelChangeTimeAnalysisItemProps
   )
 }
 
-export default ChannelChangeTimeAnalysisItem
+export default LogLevelFinderAnalysisItem
