@@ -78,7 +78,11 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
       )}
 
       {selectedAnalysisItems.includes('log_level_finder') && (
-        <LogLevelFinderAnalysisItem onClickDeleteItem={onClickDeleteItem('log_level_finder')} />
+        <LogLevelFinderAnalysisItem
+          targets={unsavedAnalysisConfig.log_level_finder?.targets}
+          setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
+          onClickDeleteItem={onClickDeleteItem('log_level_finder')}
+        />
       )}
 
       {selectedAnalysisItems.includes('log_pattern_matching') && (
