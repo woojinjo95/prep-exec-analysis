@@ -37,9 +37,9 @@ class LogOrganizer():
 
         # make log directory
         if os.path.exists('/app'):
-            self.base_log_dir = os.path.join('/app', 'logs')
+            self.base_log_dir = os.path.join('/app', 'logs', name)
         else:
-            self.base_log_dir = os.path.join(get_parents_path(__file__, 1), 'logs')
+            self.base_log_dir = os.path.join(get_parents_path(__file__, 1), 'logs', name)
         os.makedirs(self.base_log_dir, exist_ok=True)
         self.init()
 
@@ -84,7 +84,7 @@ class LogOrganizer():
 
     def set_file_logger(self, name: str) -> logging.Logger:
         logger = logging.getLogger(name)
-        log_format = f"{name:<12} | [%(asctime)s] %(levelname)8s | %(message)s"
+        log_format = f"{name:<15} | [%(asctime)s] %(levelname)8s | %(message)s"
         formatter = logging.Formatter(log_format)
 
         filehandler = logging.FileHandler(filename=os.path.join(self.base_log_dir, f'{name}.log'), encoding='utf-8-sig')
@@ -100,7 +100,7 @@ class LogOrganizer():
             self.occupied_color_index += 1
 
         color = self.colors_list[color_index % len(self.colors_list)]
-        colored_log_format = f"{color}{name:<12} | [%(asctime)s] %(levelname)8s | %(message)s {self.default_format}"
+        colored_log_format = f"{color}{name:<15} | [%(asctime)s] %(levelname)8s | %(message)s {self.default_format}"
 
         colered_formatter = logging.Formatter(colored_log_format)
 

@@ -1,20 +1,22 @@
-import json
 import logging
 import math
-import os
 import traceback
-from multiprocessing import Event, Manager, Queue, Value
+from multiprocessing import Event, Manager, Queue
 from time import perf_counter_ns
 from typing import List, Tuple
 
 from scripts.device.serial.serial_device import SerialDevice
 from scripts.utils._multi_process import ProcessUtil
 from scripts.utils.common import group_duplicated_value_in_dict
-from scripts.utils.file_manage import get_file_dir_path
 
+from ...configs.config import get_value, set_value
+from ...configs.constant import RedisChannel, RedisDBEnum
+from ...connection.redis_connection import (get_redis_key_list,
+                                            get_strict_redis_connection)
+from ...connection.redis_pubsub import publish
 from .types.abstract_remocon import AbstractRemocon
-from .types.bt_android_keyboard import BTAndroidKeyboard
 from .types.adb_android_keyboard import ADBAndroidKeyboard
+from .types.bt_android_keyboard import BTAndroidKeyboard
 from .types.serial_remocon import SerialRemocon, is_pronto_code_pattern
 
 logger = logging.getLogger('remocon')
@@ -26,14 +28,13 @@ class RemoconProcess(ProcessUtil):
 
         self.start_event = Event()
         self.stop_event = Event()
-        self.remocon_id_pointer = Value('i', -1)
         self.serial_devices = serial_devices
         self.ir_serial_device = self.serial_devices[0]
         self.bt_serial_device = self.serial_devices[1]
-        self.manager = Manager()
-        self.transmit_command_queue = Queue()
-        self.event_time_dict = self.manager.dict()
-        self.remocon_commands = self.manager.dict()
+
+        self.redis_connection = get_strict_redis_connection()
+        self.init_multiprocess_objects()
+
         self.remocon_types = {
             'ir': SerialRemocon(self.event_time_dict, self.ir_serial_device),
             'bt': BTAndroidKeyboard(self.event_time_dict, self.bt_serial_device),
@@ -45,12 +46,55 @@ class RemoconProcess(ProcessUtil):
             device_thread.start()
         self.start()
 
-    def set_remocon_id(self, remocon_id: int):
-        if self.remocon_id_pointer.value != remocon_id:
-            self.load_remocon_commands_from_id(remocon_id)
-            self.remocon_id_pointer.value = remocon_id
+    def init_multiprocess_objects(self):
+        self.manager = Manager()
+        self.transmit_command_queue = Queue()
+        self.event_time_dict = self.manager.dict()
+        self.configs = self.manager.dict()
+        self.remocon_commands = self.manager.dict()
+        self.remocon_name_list = [el.split(':')[1]
+                                  for el
+                                  in get_redis_key_list(get_strict_redis_connection(db=RedisDBEnum.hardware), 'remocon:*')]
+        self.configs['remocon_name'] = ''
+        self.set_remocon_model(self.remocon_name_list[0])
+
+    def set_remocon_model(self, remocon_name: str):
+        if self.configs['remocon_name'] != remocon_name:
+            result = {'msg': 'remocon_properties_response', 'data': {'name': remocon_name}}
+            if self.load_remocon_commands_from_name(remocon_name):
+                self.configs['remocon_name'] = remocon_name
+            else:
+                result['level'] = 'error'
+                result['data'].update({'name': self.configs['remocon_name'], 'log': f'{remocon_name} is not exist, remain previous'})
+                self.load_remocon_commands_from_name(self.configs['remocon_name'])
+
+            publish(self.redis_connection, RedisChannel.command, result)
+
+    def set_default_remocon_type(self, remocon_type: str):
+        result = {'msg': 'remocon_properties_response', 'data': {'type': remocon_type}}
+        if remocon_type in self.remocon_types.keys():
+            set_value('hardware_configuration', 'remote_control_type', remocon_type, db=RedisDBEnum.hardware)
+        else:
+            result['data'].update({'type': get_value('hardware_configuration', 'remote_control_type', db=RedisDBEnum.hardware),
+                                   'log': f'{remocon_type} is not supported'})
+            result['level'] = 'error'
+
+        publish(self.redis_connection, RedisChannel.command, result)
 
     def put_command(self, key: str, _type: str, code: str = '', sleep: float = 0, press_time: float = 0) -> str:
+        if key.lower() not in self.remocon_commands:
+            publish(self.redis_connection, RedisChannel.command, {'msg': 'remocon_response',
+                                                                  'level': 'error',
+                                                                  'data': {"key": key,
+                                                                           "type": _type,
+                                                                           "press_time": press_time,
+                                                                           "log": f'{key} is not exist on list'}})
+
+            return None
+
+        if _type == 'default':
+            _type = get_value('hardware_configuration', 'remote_control_type', db=RedisDBEnum.hardware)
+
         _id = f'{_type}_{perf_counter_ns()}'
 
         if not is_pronto_code_pattern(code) and _type == 'ir':
@@ -113,17 +157,23 @@ class RemoconProcess(ProcessUtil):
         self.transmit_command_queue.close()
         logger.info(f'RemoconProcess Terminated.')
 
-    def load_remocon_commands_from_id(self, remocon_id: int):
+    def load_remocon_commands_from_name(self, remocon_name: str) -> bool:
+        success = False
         try:
             self.remocon_commands.clear()  # 초기화
+            logger.info(f'Get remocon model: {remocon_name}')
+            remocon_codes = get_value(f'remocon:{remocon_name}', 'remocon_codes', db=RedisDBEnum.hardware)
 
-            remocon_id_key = {1: 'sk', 2: 'lg', 3: 'kt', 4: 'playz'}
-            pronto_code_path = os.path.join(get_file_dir_path(__file__), 'static/pronto_code.json')
-            logger.info(f'Load local preset remocon from {pronto_code_path}, key info: {remocon_id_key}')
-            with open(pronto_code_path, 'r', encoding='utf-8') as pronto_code_file:
-                key_info_list = json.loads(pronto_code_file.read())
-            for name, pronto_code in key_info_list.get(remocon_id_key.get(remocon_id, 4), {}).items():
+            if len(remocon_codes) == 0:
+                raise Exception(f'No valid list for name {remocon_name}')
+
+            for remocon_code in remocon_codes:
+                name = remocon_code['name'].lower()
+                code_name = remocon_code['code_name'].lower()
+                pronto_code = remocon_code['pronto_code']
+
                 self.remocon_commands[name] = pronto_code
+                self.remocon_commands[code_name] = pronto_code
 
             total_key_number = len(self.remocon_commands)
             unique_key_number = len(set(self.remocon_commands.values()))
@@ -131,13 +181,17 @@ class RemoconProcess(ProcessUtil):
                 logger.info(
                     f'Command number: {total_key_number}, unique count: {unique_key_number}')
                 unique_keys_list = group_duplicated_value_in_dict(self.remocon_commands)
-                logger.info('Keys: \n' + '\n'.join([f'{idx + 1:{math.ceil(math.log(len(unique_keys_list), 10))}d}: ' + ', '.join(keys)
-                            for idx, keys in enumerate(unique_keys_list)]))
+                logger.debug('Keys: \n' + '\n'.join([f'{idx + 1:{math.ceil(math.log(len(unique_keys_list), 10))}d}: ' + ', '.join(keys)
+                                                     for idx, keys in enumerate(unique_keys_list)]))
             else:
-                logger.error(f'Remocon id {remocon_id} has no remocon valid key in list.')
+                logger.error(f'Remocon id {remocon_name} has no remocon valid key in list.')
+
+            success = True
 
         except Exception as e:
             logger.error(f'Fail to load ir lists {e}')
 
             # TODO custom exception
             raise Exception('Fail to load ir lists')
+        finally:
+            return success

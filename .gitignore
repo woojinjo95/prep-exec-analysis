@@ -3,6 +3,12 @@
 *.pyc
 *.DS_Store
 
+# data
+data/
+logs/
+total.log.*
+*.pcap
+
 # media
 *.mp4
 *.mp4_stat
@@ -11,4 +17,6 @@
 *.db
 *.db-shm
 *.db-wal
-total.log.*
+
+# analyzer
+analyzer/test/images/

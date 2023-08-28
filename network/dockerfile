@@ -3,7 +3,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 # install fundamental
 RUN apt update 
-RUN apt install lsof -y 
+RUN apt install lsof ebtables net-tools tshark tcpdump ethtool traceroute iperf3 iproute2 -y 
 
 # install pip & python
 RUN ln -s /usr/bin/python3 /usr/bin/python
@@ -15,7 +15,7 @@ WORKDIR /app/
 ADD requirements.txt ./
 RUN pip install -r requirements.txt
 
-ENV MONGODB_SERVER mongodb
+ENV MONGODB_SERVER localhost
 ENV MONGODB_NAME prep-exec-analysis
 ENV MONGODB_PORT 27017
 ENV MONGODB_USERNAME admin

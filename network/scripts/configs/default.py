@@ -1,12 +1,44 @@
+import subprocess
+from collections import namedtuple
+
 from ..connection.redis_connection import (get_strict_redis_connection,
                                            hget_value, hset_value)
 from .constant import RedisDBEnum
+from ..info.network_info import get_private_ip, get_gateway_ip, get_public_ip
 
-settings = {'devices': {'serial_baud_rate': 115200,
-                        'ir_remocon_port': '/dev/ttyUSB1',
-                        'bt_remocon_port': '/dev/ttyUSB0'}}
+NICInfo = namedtuple('nic_info', ('wan', 'stb', 'wifi'))
 
-hardware_settings = {'hardware_configuration': {'ssh_port': 2345}}
+
+def get_default_nic_names() -> NICInfo:
+    physical_devices_list = subprocess.check_output('ls -l /sys/class/net/ | grep -v virtual | awk -F\' \' \'{print $9}\'',
+                                                    shell=True,
+                                                    encoding='utf-8').split()
+    physical_devices_list += [None] * 3  # padding
+    wan, stb, wifi = physical_devices_list[:3]
+    return NICInfo(wan, stb, wifi)
+
+
+nic_info = get_default_nic_names()
+
+settings = {'network': {
+    'br_nic': 'br0',
+    'wan_nic': nic_info.wan,
+    'stb_nic': nic_info.stb,
+    'wifi_nic': nic_info.wifi,
+    'segment_interval': 10,
+    'rotation_interval': 1800,
+    'provider': 'sk',
+}}
+
+hardware_settings = {'hardware_configuration': {
+    'ssh_port': 2345,
+    'private_ip': get_private_ip(),
+    'public_ip': get_public_ip(),
+    'gateway_ip': get_gateway_ip('br0'),
+    'dut_ip': '',
+    'dut_mac': '00:00:00:00:00:00',
+    'dut_net_state': False,
+}}
 
 
 def initialize_keys(db: int, settings: dict):

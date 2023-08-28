@@ -12,3 +12,5 @@
 *.db-shm
 *.db-wal
 total.log.*
+*.pcap
+logs/

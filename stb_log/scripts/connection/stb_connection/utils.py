@@ -25,7 +25,7 @@ def close_client(conn: Connection):
     elif conn.connection_mode == 'adb':
         if conn.session:
             conn.session.close()
-    logger.info('close client')
+    # logger.info('close client')
 
 
 def exec_command(command_script: str, timeout: float, connection_info: dict, su_prefix: bool = False) -> str:

@@ -6,11 +6,12 @@ from multiprocessing import Event, Process, Queue
 
 from ..configs.config import get_value, set_value
 from ..configs.constant import RedisChannel
+from ..connection.local_connect import run_command_in_docker_host
+from ..connection.redis_pubsub import get_strict_redis_connection, publish
 from ..utils._subprocess import kill_pid_grep
 from ..utils.docker import convert_if_docker_localhost
 from .loudness import get_sound_values, set_device_volume
 from .rotation import RotationFileManager, get_file_creation_time
-from ..connection.redis_pubsub import publish, get_strict_redis_connection
 
 logger = logging.getLogger('main')
 file_logger = logging.getLogger('file')
@@ -53,7 +54,7 @@ def construct_ffmpeg_cmd() -> str:
     # if crf value +6, video size is half.
 
     # 1920x1080 @ 60FPS from /dev/video0 by v4l2, -re option is realtime.
-    video_input_settings = f'ffmpeg -re -f v4l2 -framerate {capture_framerate} -video_size {capture_dimension} -i {video_name}'
+    video_input_settings = f'ffmpeg -r {capture_framerate} -f v4l2 -framerate {capture_framerate} -video_size {capture_dimension} -i {video_name}'
     # audio from hw:1, by alsa, and calculate lkfs by ebur128 filter
     audio_input_settings = f'-f alsa -i {audio_name} -af ebur128'
     # using h264 codec, ultrafast compression, minimize delay by nobuffer, crf level 23 no b-frame
@@ -134,3 +135,9 @@ def streaming(stop_event: Event = Event()) -> Event:
     consumer_process.start()
 
     return stop_event
+
+
+def refresh_capture_board():
+    video_device = get_value('capture', 'video_device')
+    logger.info(f'Refresh Capture board in {video_device}')
+    run_command_in_docker_host(f'mwcap-control --hdcp true {video_device}')

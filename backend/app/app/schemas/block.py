@@ -1,12 +1,23 @@
-from typing import Optional, List
+from typing import Any, List, Optional
 
+from app.schemas.enum import BlockTypeEnum
 from pydantic import BaseModel
 
 
+class Args(BaseModel):
+    key: str
+    value: Any
+
+
 class BlockCreate(BaseModel):
-    type: str
-    value: str
+    type: BlockTypeEnum
+    name: str
+    args: List[Args]
     delay_time: float = 3000  # ms단위
+
+
+class BlockBulkCreate(BaseModel):
+    blocks: List[BlockCreate]
 
 
 class BlockDelete(BaseModel):
@@ -18,13 +29,14 @@ class Block(BlockCreate):
 
 
 class BlockUpdate(BaseModel):
-    type: Optional[str]
-    value: Optional[str]
+    type: Optional[BlockTypeEnum]
+    name: Optional[str]
+    value: Optional[Args]
     delay_time: Optional[float]
 
 
 class BlockGroupUpdate(BaseModel):
-    repeat_cnt: Optional[int]
+    repeat_cnt: Optional[int] = 1
 
 
 class BlockGroup(BaseModel):

@@ -113,7 +113,7 @@ class SerialDevice:
         hex_strings.append(repeat_ir(repeat_num=repeat_number))
         return hex_strings
 
-    def transmit(self, hex_strings: List[str], press_time: float = 0, serial_get_event_time: bool = False) -> Tuple[bool, any]:
+    def transmit(self, hex_strings: List[str], press_time: float = 0, serial_get_event_time: bool = False) -> Tuple[str, float]:
         """_summary_
         write hex strings to serial device
         Args:
@@ -152,13 +152,16 @@ class SerialDevice:
                         counter_hex += ser.read(1)
                     transmit_time = self.cal_counter(counter_hex)
                     remocon_event_time = start_time + transmit_time + self.time_offset
-                    return remocon_event_time
+                    return 'ok', remocon_event_time
+                else:
+                    return 'ok', None
         except Exception as e:
-            logger.debug(f'serial write raise error => {e}')
+            logger.error(f'serial write raise error => {e}')
             remocon_event_time = start_time + 0.007
             if self.use_control_board:
                 logger.error(f'Failed to parse value!! real value is in this range: {remocon_event_time} +- 0.001')
-            return remocon_event_time
+            log = str(e)
+            return log, remocon_event_time
 
     def read_data(self, length: int = 80, timeout: int = 1) -> Tuple[bool, any]:
         """_summary_
@@ -189,12 +192,12 @@ class SerialDevice:
             hex_strings = self.construct_ir_code(pronto_code, repeat_count)
         else:
             hex_strings = [repeat_ir(repeat_num=repeat_count)]
-        event_time = self.transmit(hex_strings, press_time, serial_get_event_time)
+        log, event_time = self.transmit(hex_strings, press_time, serial_get_event_time)
         self.last_pronto_code = pronto_code
-        return event_time
+        return log, event_time
 
     # 기타 제어
-    def set_packet(self, status: str = None, irbtrcv: str = None, hpd: str = None, lan: str = None, vac: str = None, log=True) -> None:
+    def set_packet(self, status: str = None, irbtrcv: str = None, hpd: str = None, lan: str = None, vac: str = None, log=True) -> str:
         """_summary_
         set control board with packet 
         Args:
@@ -235,7 +238,7 @@ class SerialDevice:
 
         # set packet
         hex_string = set_packet(**current_packet)
-        self.transmit(hex_string)
+        log, _ = self.transmit(hex_string)
         if log:
             logger.info(f'set packet. prev: {self.prev_packet.copy()} -> current: {current_packet}')
         else:
@@ -244,6 +247,8 @@ class SerialDevice:
         # dump current to prev
         for key, value in current_packet.items():
             self.prev_packet[key] = value
+
+        return log
 
     def counter_setting(self, control: str) -> str:
         """_summary_
