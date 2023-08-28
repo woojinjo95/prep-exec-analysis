@@ -24,6 +24,6 @@ class ConnectionChecker(threading.Thread):
                 set_value('log_connection_status', 'is_connected', 'log_disconnected', RedisDB.hardware)
 
             if prev_connected is not None and prev_connected != connected:
-                publish_msg({'log_connection_status_changed': 'true'}, f'change of connection status. prev: {prev_connected} to current: {connected}')
+                publish_msg({'log_connection_status_changed': 'true'}, 'log_connection_status')
 
             prev_connected = connected
