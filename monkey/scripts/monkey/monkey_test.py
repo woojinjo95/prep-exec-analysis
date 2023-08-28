@@ -15,9 +15,9 @@ logger = logging.getLogger('monkey_test')
 
 class MonkeyTest:
     def __init__(self, company: str):
+        # init immutable variables
         self.company = company
 
-        self.key_histories = []
         self.depth_key = 'right'
         self.inverse_keys = {
             'up': 'down',
@@ -27,6 +27,9 @@ class MonkeyTest:
         }
 
     def run(self):
+        # init mutable variables
+        self.key_histories = []
+
         self.set_root_keys(external_keys=['home'])
         self.visit()
 
