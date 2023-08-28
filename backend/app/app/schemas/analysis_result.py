@@ -1,6 +1,6 @@
 from typing import List
 
-from app.schemas.enum import LogLevelEnum
+from app.schemas.enum import LogLevelEnum, FreezeEnum
 from pydantic import BaseModel, root_validator
 from pydantic.datetime_parse import parse_datetime
 
@@ -68,7 +68,7 @@ class ColorReference(BaseModel):
 
 
 class FreezeBase(TimestampBaseModel):
-    freeze_type: str
+    freeze_type: FreezeEnum
     duration: float
 
 
