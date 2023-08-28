@@ -9,6 +9,7 @@ const cx = classnames.bind(styles)
 interface CheckboxProps {
   colorScheme: 'dark' | 'light'
   isChecked: boolean
+  onClick?: (isChecked: boolean) => void
   label?: string
 }
 
@@ -17,9 +18,14 @@ interface CheckboxProps {
  *
  * @param label 체크박스 오른쪽에 표시될 라벨
  */
-const Checkbox: React.FC<CheckboxProps> = ({ colorScheme, isChecked, label }) => {
+const Checkbox: React.FC<CheckboxProps> = ({ colorScheme, isChecked, label, onClick }) => {
   return (
-    <button type="button" aria-label="checkbox" className={cx('flex items-center')}>
+    <button
+      type="button"
+      aria-label="checkbox"
+      className={cx('flex items-center')}
+      onClick={() => onClick?.(!isChecked)}
+    >
       <div
         className={cx('rounded-[3px] w-4 h-4 p-0.5 flex justify-center items-center', {
           'bg-primary': isChecked,
