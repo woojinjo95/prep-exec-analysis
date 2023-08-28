@@ -23,6 +23,7 @@ class CommandManager:
         if command.get('msg') == 'analysis':  # 분석 명령
             self.queue.put(command)
             logger.info(f'put command: {command}. wait commands: {self.queue.qsize()}')
+        # PUBLISH command '{"msg": "service_state", "data": {"state": "analysis"}}'
         elif command.get('msg') == 'service_state':  # 서비스 상태 변경 명령
             data = command.get('data', {})
             logger.info(f'msg: service_state. data: {data}')
