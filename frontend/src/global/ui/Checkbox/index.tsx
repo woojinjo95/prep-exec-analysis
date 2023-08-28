@@ -37,7 +37,7 @@ const Checkbox: React.FC<CheckboxProps> = ({ colorScheme, isChecked, label, onCl
       </div>
 
       {label && (
-        <Text size="xs" weight="medium" className="pl-2" colorScheme={colorScheme}>
+        <Text size="xs" weight="medium" className="pl-2" colorScheme={colorScheme} isActive={isChecked}>
           {label}
         </Text>
       )}

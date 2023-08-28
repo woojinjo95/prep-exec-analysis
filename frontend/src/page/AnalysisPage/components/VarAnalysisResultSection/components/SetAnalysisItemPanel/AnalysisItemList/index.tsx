@@ -67,7 +67,14 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
       {selectedAnalysisItems.includes('boot') && <BootAnalysisItem onClickDeleteItem={onClickDeleteItem('boot')} />}
 
       {selectedAnalysisItems.includes('channel_change_time') && (
-        <ChannelChangeTimeAnalysisItem onClickDeleteItem={onClickDeleteItem('channel_change_time')} />
+        <ChannelChangeTimeAnalysisItem
+          isCheckedAdjointChannel={unsavedAnalysisConfig.channel_change_time?.targets?.includes('adjoint_channel')}
+          isCheckedNonadjointChannel={unsavedAnalysisConfig.channel_change_time?.targets?.includes(
+            'nonadjoint_channel',
+          )}
+          onClickDeleteItem={onClickDeleteItem('channel_change_time')}
+          setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
+        />
       )}
 
       {selectedAnalysisItems.includes('log_level_finder') && (

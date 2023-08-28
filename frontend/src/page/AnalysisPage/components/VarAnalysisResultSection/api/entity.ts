@@ -39,7 +39,7 @@ export interface AnalysisConfig {
   }
   channel_change_time?: {
     color: string
-    targets: ['adjoint_channel' | 'nonadjoint_channel']
+    targets: ('adjoint_channel' | 'nonadjoint_channel')[]
   }
   log_level_finder?: {
     color: string
