@@ -30,7 +30,7 @@ const LogLevelFinderAnalysisItem: React.FC<LogLevelFinderAnalysisItemProps> = ({
         </div>
       }
     >
-      <div className="flex justify-between">
+      <div className="flex justify-between pt-2">
         <Text colorScheme="light" weight="medium">
           Target
         </Text>

@@ -46,7 +46,7 @@ const ChannelChangeTimeAnalysisItem: React.FC<ChannelChangeTimeAnalysisItemProps
         </div>
       }
     >
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center pt-2">
         <Text colorScheme="light" weight="medium">
           Target
         </Text>
