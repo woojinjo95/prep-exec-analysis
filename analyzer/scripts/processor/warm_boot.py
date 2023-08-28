@@ -96,7 +96,7 @@ def test_warm_boot_with_match():
 
 def get_template_from_config() -> np.ndarray:
     analysis_config = read_analysis_config()
-    image_path = analysis_config['resume']['frame']['image_path']
+    image_path = analysis_config['resume']['frame']['path']
     image = cv2.imread(image_path)
     logger.info(f'image shape: {image.shape}')
     return image
