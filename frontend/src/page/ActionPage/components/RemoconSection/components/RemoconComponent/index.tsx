@@ -104,7 +104,7 @@ const RemoconComponent: React.FC<RemoconProps> = ({ remocon, keyEvent }) => {
                             name: remocon.name,
                           }
                         }),
-                      } as const
+                      }
                       remoconService.customKeyClick(message)
 
                       custom_key.custom_code.forEach((code) => {

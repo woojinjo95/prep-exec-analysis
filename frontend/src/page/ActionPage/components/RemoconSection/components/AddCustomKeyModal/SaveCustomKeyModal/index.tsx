@@ -2,8 +2,8 @@ import Modal from '@global/ui/Modal'
 import React, { useEffect, useRef, useState } from 'react'
 import { Button, Input, Text } from '@global/ui'
 import { useMutation, useQuery } from 'react-query'
-import { getRemocon, postCustomKey } from '../../api/func'
-import { Remocon } from '../../api/entity'
+import { getRemocon, postCustomKey } from '../../../api/func'
+import { Remocon } from '../../../api/entity'
 
 interface SaveCustomKeyModalProps {
   isOpen: boolean
@@ -79,7 +79,7 @@ const SaveCustomKeyModal: React.FC<SaveCustomKeyModalProps> = ({ isOpen, close, 
           className="mt-6"
           value={newCustomKeyName}
           onChange={(e) => setNewCustomKeyName(e.target.value)}
-          //   ref={firstFocusableElementRef}
+          ref={firstFocusableElementRef}
         />
         <div className="flex justify-end mt-6">
           <Button
@@ -97,7 +97,7 @@ const SaveCustomKeyModal: React.FC<SaveCustomKeyModalProps> = ({ isOpen, close, 
           <Button
             colorScheme="grey"
             className="w-[132px] h-[48px] text-white rounded-3xl"
-            // ref={lastFocusableElementRef}
+            ref={lastFocusableElementRef}
             onClick={() => {
               setNewCustomKeyName('')
               close()
