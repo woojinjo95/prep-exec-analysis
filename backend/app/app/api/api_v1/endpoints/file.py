@@ -23,14 +23,17 @@ async def file_upload(
 ) -> schemas.MsgWithId:
     if file is None:
         raise HTTPException(status_code=400, detail="No upload file")
-    file_uuid = str(uuid4())
-    insert_one_to_mongodb(col='file', data={'file_id': file_uuid, "file_name": file.filename})
-
-    file_dir = classify_file_type(file.filename)
-    if not os.path.isdir(file_dir):
-        os.mkdir(file_dir)
-    with open(os.path.join(file_dir, file_uuid), 'wb') as f:
-        f.write(file.file.read())
+    try:
+        file_uuid = str(uuid4())
+        file_dir = classify_file_type(file.filename)
+        if not os.path.isdir(file_dir):
+            os.mkdir(file_dir)
+        with open(os.path.join(file_dir, file_uuid), 'wb') as f:
+            f.write(file.file.read())
+        insert_one_to_mongodb(col='file',
+                              data={'id': file_uuid, "name": file.filename, "path": file_dir})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': f'{file.filename} uploaded successfully',
             'id': file_uuid}
 
@@ -39,12 +42,15 @@ async def file_upload(
 async def file_download(
     file_id: str
 ) -> FileResponse:
-    file_info = load_from_mongodb(col='file', param={'file_id': file_id})
+    file_info = load_from_mongodb(col='file', param={'id': file_id})
     if file_info == []:
         raise HTTPException(status_code=400, detail="No file")
-    file_name = file_info[0]['file_name']
-    file_dir = classify_file_type(file_name)
-    file_dir = os.path.join(file_dir, file_id)
+    try:
+        file_name = file_info[0]['name']
+        file_dir = classify_file_type(file_name)
+        file_dir = os.path.join(file_dir, file_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
     return FileResponse(path=file_dir, filename=file_name)
 
 
