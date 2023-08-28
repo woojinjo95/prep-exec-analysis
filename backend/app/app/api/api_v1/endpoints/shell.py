@@ -68,7 +68,6 @@ def connect_shell() -> schemas.Msg:
                                                                "port": conn_info.get('port', None),
                                                                "username": conn_info.get('username', None),
                                                                "password": conn_info.get('password', None)}))
-        # TODO shell 응답
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Connect shell'}
@@ -81,7 +80,6 @@ def disconnect_shell() -> schemas.Msg:
     """
     try:
         RedisClient.publish('command', set_redis_pub_msg(msg="disconnect_shell"))
-    # TODO shell 응답
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Disconnect shell'}
