@@ -15,7 +15,7 @@ import LoudnessAnalysisItem from './LoudnessAnalysisItem'
 const DefaultAnalysisConfig: Required<UnsavedAnalysisConfig> = {
   freeze: {
     color: '#42FF00',
-    duration: 3,
+    duration: '3',
   },
   loudness: {
     color: '#0106FF',
@@ -56,7 +56,15 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
   const [unsavedAnalysisConfig, setUnsavedAnalysisConfig] = useState<UnsavedAnalysisConfig>({})
   const { analysisConfig } = useAnalysisConfig({
     onSuccess: (data) => {
-      setUnsavedAnalysisConfig(data)
+      setUnsavedAnalysisConfig(() => ({
+        ...data,
+        freeze: data.freeze
+          ? {
+              ...data.freeze,
+              duration: String(data.freeze.duration),
+            }
+          : undefined,
+      }))
     },
   })
 

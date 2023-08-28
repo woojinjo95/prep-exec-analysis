@@ -57,7 +57,6 @@ const AddCustomKeyModal: React.FC<AddCustomKeyModalProps> = ({
       }
     }
 
-    console.log(firstFocusableElementRef.current)
     firstFocusableElementRef.current?.focus()
 
     document.addEventListener('keydown', handleKeyDown)

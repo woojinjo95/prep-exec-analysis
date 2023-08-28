@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Accordion, Checkbox, ColorPickerBox, Input, OptionItem, Select, Text } from '@global/ui'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
 import { AnalysisTypeLabel } from '../../../constant'
@@ -18,44 +18,56 @@ interface FreezeAnalysisItemProps {
  */
 const FreezeAnalysisItem: React.FC<FreezeAnalysisItemProps> = ({
   color,
-  duration: defaultDuration,
+  duration,
   onClickDeleteItem,
   setUnsavedAnalysisConfig,
 }) => {
-  const [duration, setDuration] = useState<string>('3')
-  const [durationUnit, setDurationUnit] = useState<'Sec' | 'Min'>('Sec')
+  const [durationUnit, setDurationUnit] = useState<'Sec' | 'Min'>(Number(duration) > 60 ? 'Min' : 'Sec')
   const [isRememberChecked, setIsRememberChecked] = useState<boolean>(false)
 
+  const displayDuration = useMemo(() => {
+    if (!duration) return ''
+
+    if (Number(duration) > 60) return String(Math.floor(Number(duration) % 60))
+
+    return String(Number(duration))
+  }, [duration])
+
+  const setDuration = useCallback((_duration: string) => {
+    setUnsavedAnalysisConfig((prev) => ({
+      ...prev,
+      freeze: {
+        ...prev.freeze!,
+        duration: _duration,
+      },
+    }))
+  }, [])
+
   useEffect(() => {
-    if (defaultDuration > 60 * 60 || defaultDuration < 0) {
+    if (Number(duration) > 60 * 60 || Number(duration) < 0) {
       setDuration('3')
-      setDurationUnit('Sec')
       return
     }
 
-    if (defaultDuration > 60) {
-      setDuration(String(Math.floor(defaultDuration % 60)))
+    if (Number(duration) > 60) {
       setDurationUnit('Min')
       return
     }
 
-    setDuration(String(defaultDuration))
     setDurationUnit('Sec')
-  }, [defaultDuration])
+  }, [duration])
 
   const onChangeDuration: React.ChangeEventHandler<HTMLInputElement> = useCallback((e) => {
     const { value } = e.target
 
-    if (Number.isNaN(value)) return
+    if (Number.isNaN(Number(value))) return
+
+    if (!value.length) {
+      setDuration('')
+      return
+    }
 
     if (value.length > 1 && value.charAt(0) === '0') {
-      setUnsavedAnalysisConfig((prev) => ({
-        ...prev,
-        freeze: {
-          ...prev.freeze!,
-          duration: Number(value.slice(1)),
-        },
-      }))
       setDuration(value.slice(1))
       return
     }
@@ -102,7 +114,7 @@ const FreezeAnalysisItem: React.FC<FreezeAnalysisItemProps> = ({
           <Text colorScheme="light" weight="medium">
             Duration
           </Text>
-          <Input colorScheme="charcoal" placeholder="3" value={duration} onChange={onChangeDuration} />
+          <Input colorScheme="charcoal" placeholder="3" value={displayDuration} onChange={onChangeDuration} />
           <Select colorScheme="charcoal" value={durationUnit}>
             {DurationUnits.map((unit) => (
               <OptionItem
