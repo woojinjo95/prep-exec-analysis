@@ -89,9 +89,9 @@ def get_data_of_event_log(
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
         event_log_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
-                                                        '$lte': convert_iso_format(end_time)}},
+                                                        '$lte': convert_iso_format(end_time)},
                                           'scenario_id': scenario_id,
-                                          'testrun_id': testrun_id},
+                                          'testrun_id': testrun_id}},
                               {'$project': {'_id': 0, 'lines': 1}},
                               {'$unwind': {'path': '$lines'}},
                               {'$replaceRoot': {'newRoot': '$lines'}}]
@@ -99,7 +99,6 @@ def get_data_of_event_log(
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {"items": event_log}
-    # TODO: 리턴에 무엇이 필요한지 확인하여 불필요한 항목 덜어내기
 
 
 # Color Reference
@@ -137,7 +136,7 @@ def get_data_of_freeze(
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
-    ):
+):
     """
     화면 멈춤 데이터 조회
     """
@@ -152,7 +151,7 @@ def get_data_of_freeze(
                         'testrun_id': testrun_id}
         freeze = load_from_mongodb(col="an_freeze",
                                    param=freeze_param,
-                                   proj={'_id': 0, 'timestamp': 1, 'freeze_type': 1})
+                                   proj={'_id': 0, 'timestamp': 1, 'freeze_type': 1, 'duration': 1})
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {"items": freeze}
@@ -165,7 +164,7 @@ def get_data_of_loudness(
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
-    ):
+):
     """
     Loudness 데이터 조회
     """
@@ -175,9 +174,9 @@ def get_data_of_loudness(
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
         loudness_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
-                                                       '$lte': convert_iso_format(end_time)}},
+                                                       '$lte': convert_iso_format(end_time)},
                                          'scenario_id': scenario_id,
-                                         'testrun_id': testrun_id},
+                                         'testrun_id': testrun_id}},
                              {'$project': {'_id': 0, 'lines': 1}},
                              {'$unwind': {'path': '$lines'}},
                              {'$replaceRoot': {'newRoot': '$lines'}},
@@ -192,10 +191,10 @@ def get_data_of_loudness(
 # Measurement_resume (warm boot)
 @router.get("/resume", response_model=schemas.MeasurementBoot)
 def get_data_of_resume(
-    scenario_id: Optional[str] = None,
-    testrun_id: Optional[str] = None,
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    scenario_id: Optional[str] = None,
+    testrun_id: Optional[str] = None,
 ):
     """
     분석 데이터 조회 : Resume(Warm booting)
@@ -219,10 +218,10 @@ def get_data_of_resume(
 # Measurement_resume (cold boot)
 @router.get("/boot", response_model=schemas.MeasurementBoot)
 def get_data_of_boot(
-    scenario_id: Optional[str] = None,
-    testrun_id: Optional[str] = None,
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    scenario_id: Optional[str] = None,
+    testrun_id: Optional[str] = None,
 ):
     """
     분석 데이터 조회 : Boot(Cold booting)
@@ -244,7 +243,7 @@ def get_data_of_boot(
 
 
 # Video Analysis Result
-@router.get("/video", response_model=schemas.VideoAnalysisResult)
+# @router.get("/video", response_model=schemas.VideoAnalysisResult)
 def get_data_of_video(
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),

@@ -52,6 +52,7 @@ class ColorReference(BaseModel):
 
 class FreezeBase(TimestampBaseModel):
     freeze_type: str
+    duration: float
 
 
 class Freeze(BaseModel):
@@ -59,8 +60,8 @@ class Freeze(BaseModel):
 
 
 class LoudnessBase(TimestampBaseModel):
-    m: float # Momentary LKFS
-    i: float # Integrated LKFS
+    m: float  # Momentary LKFS
+    # i: float # Integrated LKFS
 
 
 class Loudness(BaseModel):
