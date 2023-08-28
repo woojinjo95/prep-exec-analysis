@@ -66,12 +66,12 @@ class Loudness(BaseModel):
     items: List[LoudnessBase]
 
 
-class MeasurementBase(TimestampBaseModel):
+class MeasurementBootBase(TimestampBaseModel):
     measure_time: int
 
 
-class Measurement(BaseModel):
-    items: List[MeasurementBase]
+class MeasurementBoot(BaseModel):
+    items: List[MeasurementBootBase]
 
 
 class VideoAnalysisResultBase(BaseModel):

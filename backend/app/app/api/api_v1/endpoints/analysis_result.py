@@ -168,8 +168,8 @@ def get_data_of_loudness(
 
 
 # Measurement_resume (warm boot)
-@router.get("/measurement_resume", response_model=schemas.Measurement)
-def get_data_of_measurement_resume(
+@router.get("/resume", response_model=schemas.MeasurementBoot)
+def get_data_of_resume(
     scenario_id: Optional[str] = None,
     # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
@@ -192,8 +192,8 @@ def get_data_of_measurement_resume(
 
 
 # Measurement_resume (cold boot)
-@router.get("/measurement_boot", response_model=schemas.Measurement)
-def get_data_of_measurement_boot(
+@router.get("/boot", response_model=schemas.MeasurementBoot)
+def get_data_of_boot(
     scenario_id: Optional[str] = None,
     # testrun_id: Optional[str] = None, # TODO: testrun_id 내용 추가되면 필터 추가 (시나리오 아이디랑 똑같이 레디스에서 디폴트값 참조)
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
