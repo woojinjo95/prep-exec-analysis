@@ -164,6 +164,7 @@ def get_data_of_freeze(
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
+    freeze_type: Optional[str] = Query(None, description='ex)Black,White'),
 ):
     """
     화면 멈춤 데이터 조회
@@ -177,6 +178,9 @@ def get_data_of_freeze(
                                       '$lte': convert_iso_format(end_time)},
                         'scenario_id': scenario_id,
                         'testrun_id': testrun_id}
+        if freeze_type is not None:
+            freeze_type = freeze_type.split(',')
+            freeze_param['freeze_type'] = {'$in': freeze_type}
         freeze = load_from_mongodb(col="an_freeze",
                                    param=freeze_param,
                                    proj={'_id': 0, 'timestamp': 1, 'freeze_type': 1, 'duration': 1})
