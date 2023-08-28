@@ -301,16 +301,17 @@ def get_data_of_log_pattern_matching(
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
-        param = {'timestamp': {'$gte': convert_iso_format(start_time),
-                               '$lte': convert_iso_format(end_time)},
-                 'scenario_id': scenario_id,
-                 'testrun_id': testrun_id}
+        pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
+                                              '$lte': convert_iso_format(end_time)},
+                                'scenario_id': scenario_id,
+                                'testrun_id': testrun_id}},
+                    {'$project': {'_id': 0, 'timestamp': '$timestamp', 'message': '$message', 'items': '$user_config.items'}}, 
+                    {'$unwind': {'path': '$items'}},
+                    {'$project': {'timestamp': '$timestamp', 'log_pattern_name': '$items.name', 'log_level': '$items.level', 'message': '$message'}}]
         if log_pattern_name is not None:
             log_pattern_name = log_pattern_name.split(',')
-            param['log_pattern_name'] = {'$in': log_pattern_name}
-        proj = {}
-        # TODO: 몽고디비 적재 데이터 내용 확인해서 작성
-        log_pattern_matching = load_from_mongodb(col='an_log_pattern', param=param, proj=proj)
+            pipeline.append({'$match': {'$in': log_pattern_name}})
+        log_pattern_matching = aggregate_from_mongodb(col='an_log_pattern', pipeline=pipeline)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {"items": log_pattern_matching}
