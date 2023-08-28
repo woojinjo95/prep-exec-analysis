@@ -56,6 +56,8 @@ const ActionBlockArea = (): JSX.Element => {
     },
     onError: () => {
       alert('시나리오 수정에 실패하였습니다')
+      // 제자리로 돌아오기 위한
+      blockRefetch()
     },
   })
 
@@ -97,8 +99,10 @@ const ActionBlockArea = (): JSX.Element => {
 
     if (scenarioId) {
       putScenarioMutate({
-        block_group: [newBlockGroup],
-        scenario_id: scenarioId,
+        new_scenario: {
+          ...scenario,
+          block_group: [newBlockGroup],
+        },
       })
     }
   }
