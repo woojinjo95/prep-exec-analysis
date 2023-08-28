@@ -138,17 +138,16 @@ def bulk_create_blocks(
         if len(block_group) == 0:
             new_last_block_group = [{"id": str(uuid.uuid4()),
                                     "repeat_cnt": 1,
-                                     "block": [block_in]}]
+                                     "block": block_in}]
         else:
             last_block_group = block_group[-1]
             new_last_block_group = [item for item in block_group
                                     if item != last_block_group]
 
             new_blocks = last_block_group.get('block', [])
-            new_blocks.append(block_in)
             new_last_block_group.append({"id": last_block_group.get('id', ''),
                                         "repeat_cnt": last_block_group.get('repeat_cnt', 0),
-                                         "block": new_blocks})
+                                         "block": new_blocks+block_in})
         update_by_id_to_mongodb(col='scenario',
                                 id=scenario_id,
                                 data={'block_group': new_last_block_group,
