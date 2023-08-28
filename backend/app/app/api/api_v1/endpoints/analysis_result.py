@@ -297,20 +297,20 @@ def get_data_of_log_pattern_matching(
     로그 패턴 매칭 데이터 조회
     """
     try:
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
-        pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
-                                              '$lte': convert_iso_format(end_time)},
-                                'scenario_id': scenario_id,
-                                'testrun_id': testrun_id}},
+        match_dict = {'timestamp': {'$gte': convert_iso_format(start_time),
+                                    '$lte': convert_iso_format(end_time)},
+                      'testrun_id': testrun_id}
+        if scenario_id is not None:
+            match_dict['scenario_id'] = scenario_id
+        pipeline = [{'$match': match_dict},
                     {'$project': {'_id': 0, 'timestamp': '$timestamp', 'message': '$message', 'items': '$user_config.items'}}, 
                     {'$unwind': {'path': '$items'}},
                     {'$project': {'timestamp': '$timestamp', 'log_pattern_name': '$items.name', 'log_level': '$items.level', 'message': '$message'}}]
         if log_pattern_name is not None:
             log_pattern_name = log_pattern_name.split(',')
-            pipeline.append({'$match': {'$in': log_pattern_name}})
+            pipeline.append({'$match': {'log_pattern_name': {'$in': log_pattern_name}}})
         log_pattern_matching = aggregate_from_mongodb(col='an_log_pattern', pipeline=pipeline)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
