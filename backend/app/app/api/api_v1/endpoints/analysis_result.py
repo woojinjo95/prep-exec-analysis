@@ -46,8 +46,8 @@ def get_data_of_log_level_finder(
     return {"items": log_level_finder}
 
 
-# CPU, Memory
-@router.get("/cpu_and_memory", response_model=schemas.CpuAndMemory)
+# CPU
+@router.get("/cpu", response_model=schemas.Cpu)
 def get_data_of_cpu_and_memory(
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
@@ -55,7 +55,7 @@ def get_data_of_cpu_and_memory(
     testrun_id: Optional[str] = None,
 ):
     """
-    Cpu, Memory 데이터 조회
+    Cpu 데이터 조회
     """
     try:
         if scenario_id is None:
@@ -66,10 +66,38 @@ def get_data_of_cpu_and_memory(
                                           '$lte': convert_iso_format(end_time)},
                             'scenario_id': scenario_id,
                             'testrun_id': testrun_id}
-        cpu_and_memory = load_from_mongodb(col="stb_info", param=time_range_param, proj={'_id': 0})
+        project = {'_id': 0, 'timestamp': 1, 'cpu_usage': 1, 'total': 1, 'user': 1, 'kernel': 1, 'iowait': 1, 'irq': 1, 'softirq': 1}
+        cpu = load_from_mongodb(col="stb_info", param=time_range_param, proj=project)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return {"items": cpu_and_memory}
+    return {"items": cpu}
+
+
+# Memory
+@router.get("/memory", response_model=schemas.Memory)
+def get_data_of_cpu_and_memory(
+    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    scenario_id: Optional[str] = None,
+    testrun_id: Optional[str] = None,
+):
+    """
+    Memory 데이터 조회
+    """
+    try:
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        if testrun_id is None:
+            testrun_id = RedisClient.hget('testrun', 'id')
+        time_range_param = {'timestamp': {'$gte': convert_iso_format(start_time),
+                                          '$lte': convert_iso_format(end_time)},
+                            'scenario_id': scenario_id,
+                            'testrun_id': testrun_id}
+        project = {'_id': 0, 'timestamp': 1, 'memory_usage': 1, 'total_ram': 1, 'free_ram': 1, 'used_ram': 1, 'lost_ram': 1}
+        memory = load_from_mongodb(col="stb_info", param=time_range_param, proj=project)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return {"items": memory}
 
 
 # Event Log

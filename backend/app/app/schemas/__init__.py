@@ -1,5 +1,5 @@
 from .analysis_config import AnalysisConfig, AnalysisConfigBase, FrameImage
-from .analysis_result import (ColorReference, CpuAndMemory, EventLog, Freeze,
+from .analysis_result import (ColorReference, Cpu, Memory, EventLog, Freeze,
                               LogLevelFinder, LogPatternMatching, Loudness,
                               MeasurementBoot, NetworkFilter, ProcessLifecycle,
                               VideoAnalysisResult)
