@@ -15,14 +15,16 @@ const ActionPage: React.FC = () => {
   const [keyEvent, setKeyEvent] = useState<KeyEvent | null>(null)
 
   useEffect(() => {
-    const keyDownHandler = (e: KeyEvent) => {
+    const keyDownHandler = (e: KeyboardEvent) => {
+      if (e.repeat) return
+
       if (e.altKey) {
         setKeyEvent(e)
         e.preventDefault()
       }
     }
 
-    const keyUpHandler = (e: KeyEvent) => {
+    const keyUpHandler = (e: KeyboardEvent) => {
       if (!e.altKey) {
         setKeyEvent(null)
         e.preventDefault()
