@@ -16,16 +16,17 @@ const useIntersect = (onIntersect: IntersectHandler, options?: IntersectionObser
   )
 
   useEffect(() => {
-    if (!ref.current) return
+    if (!ref.current) return undefined
 
     // 정의한 callback + option으로 observer 등록
     const observer = new IntersectionObserver(callback, options)
-    
+
     // target을 관찰하기 시작
     observer.observe(ref.current)
 
-    // eslint-disable-next-line consistent-return
-    return () => observer.disconnect()
+    return () => {
+      observer.disconnect()
+    }
   }, [ref, options, callback])
 
   return ref

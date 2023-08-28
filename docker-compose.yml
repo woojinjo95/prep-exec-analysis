@@ -204,6 +204,19 @@ services:
     volumes:
       - ./data/workspace:/app/workspace
 
+  monkey:
+    container_name: monkey
+    restart: always
+    image: registry.dev-nextlab.com/qaas-monkey:dev-0
+    command: python -u main.py
+    build:
+      context: ./monkey
+      dockerfile: dockerfile
+    devices:
+      - "/dev/video0:/dev/video0"
+    volumes:
+      - ./data/workspace:/app/workspace
+
 volumes:
   mongodb_data: {}
   redis_data: {}
