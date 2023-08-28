@@ -5,10 +5,36 @@ from scripts.connection.redis_conn import get_strict_redis_connection
 from scripts.connection.redis_pubsub import Subscribe
 from scripts.config.constant import RedisChannel, RedisDB
 from scripts.log_service.log_organizer import LogOrganizer
-from monkey import start_monkey, stop_monkey
+from scripts.monkey.monkey_manager import MonkeyManager
 
 
 logger = logging.getLogger('main')
+
+
+monkey_manager = None
+
+
+def start_monkey_manager():
+    global monkey_manager
+
+    if monkey_manager is not None:
+        logger.warning('MonkeyManager is already alive')
+    else:
+        monkey_manager = MonkeyManager()
+        monkey_manager.start()
+        logger.info('Start MonkeyManager')
+
+
+def stop_monkey_manager():
+    global monkey_manager
+
+    if monkey_manager is not None:
+        monkey_manager.stop()
+        monkey_manager = None
+        logger.info('Stop MonkeyManager')
+    else:
+        logger.warning('MonkeyManager is not alive')
+
 
 
 def execute(command: Dict):
@@ -22,9 +48,9 @@ def execute(command: Dict):
 
         control = arg.get('control', '')
         if control == 'start':
-            start_monkey()
+            start_monkey_manager()
         elif control == 'stop':
-            stop_monkey()
+            stop_monkey_manager()
         else:
             logger.warning(f'Unknown control: {control}')
 

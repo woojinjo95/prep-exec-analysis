@@ -26,6 +26,10 @@ class MonkeyTest:
             'right': 'left'
         }
 
+    def run(self):
+        self.set_root_keys(external_keys=['home'])
+        self.visit()
+
     def get_current_image(self) -> np.ndarray:
         return get_snapshot()
     
