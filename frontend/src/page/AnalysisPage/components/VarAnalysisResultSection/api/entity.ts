@@ -6,7 +6,7 @@ import LogLevel from '@global/constant/logLevel'
 export interface AnalysisConfig {
   freeze?: {
     color: string
-    duration: number
+    duration: number // second
   }
   loudness?: {
     color: string

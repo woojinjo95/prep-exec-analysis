@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Accordion, Checkbox, Input, OptionItem, Select, Text } from '@global/ui'
+import { Accordion, Checkbox, ColorPickerBox, Input, OptionItem, Select, Text } from '@global/ui'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
 import { AnalysisTypeLabel } from '../../../constant'
 import { UnsavedAnalysisConfig } from '../../../types'
@@ -7,7 +7,8 @@ import { UnsavedAnalysisConfig } from '../../../types'
 const DurationUnits = ['Sec', 'Min'] as const
 
 interface FreezeAnalysisItemProps {
-  duration?: number
+  color: NonNullable<UnsavedAnalysisConfig['freeze']>['color']
+  duration: NonNullable<UnsavedAnalysisConfig['freeze']>['duration']
   onClickDeleteItem: () => void
   setUnsavedAnalysisConfig: React.Dispatch<React.SetStateAction<UnsavedAnalysisConfig>>
 }
@@ -16,6 +17,7 @@ interface FreezeAnalysisItemProps {
  * freeze 분석 아이템
  */
 const FreezeAnalysisItem: React.FC<FreezeAnalysisItemProps> = ({
+  color,
   duration: defaultDuration,
   onClickDeleteItem,
   setUnsavedAnalysisConfig,
@@ -25,7 +27,7 @@ const FreezeAnalysisItem: React.FC<FreezeAnalysisItemProps> = ({
   const [isRememberChecked, setIsRememberChecked] = useState<boolean>(false)
 
   useEffect(() => {
-    if (!defaultDuration || defaultDuration > 60 * 60 || defaultDuration < 0) {
+    if (defaultDuration > 60 * 60 || defaultDuration < 0) {
       setDuration('3')
       setDurationUnit('Sec')
       return
@@ -50,7 +52,7 @@ const FreezeAnalysisItem: React.FC<FreezeAnalysisItemProps> = ({
       setUnsavedAnalysisConfig((prev) => ({
         ...prev,
         freeze: {
-          ...prev.freeze,
+          ...prev.freeze!,
           duration: Number(value.slice(1)),
         },
       }))
@@ -74,9 +76,23 @@ const FreezeAnalysisItem: React.FC<FreezeAnalysisItemProps> = ({
     <Accordion
       header={
         <div className="flex justify-between items-center">
-          <Text size="sm" weight="medium">
-            {AnalysisTypeLabel.freeze}
-          </Text>
+          <div className="flex items-center gap-x-3">
+            <ColorPickerBox
+              color={color}
+              onChange={(newColor) => {
+                setUnsavedAnalysisConfig((prev) => ({
+                  ...prev,
+                  freeze: {
+                    ...prev.freeze!,
+                    color: newColor,
+                  },
+                }))
+              }}
+            />
+            <Text size="sm" weight="medium">
+              {AnalysisTypeLabel.freeze}
+            </Text>
+          </div>
           <TrashIcon className="w-4 fill-white" onClick={onClickDeleteItem} />
         </div>
       }

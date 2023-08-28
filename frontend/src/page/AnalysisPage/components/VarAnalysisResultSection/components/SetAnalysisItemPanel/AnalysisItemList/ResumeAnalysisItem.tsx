@@ -31,7 +31,7 @@ const ResumeAnalysisItem: React.FC<ResumeAnalysisItemProps> = ({
       setUnsavedAnalysisConfig((prev) => ({
         ...prev,
         resume: {
-          ...prev.resume,
+          ...prev.resume!,
           type: 'image_matching',
         },
       }))
@@ -68,7 +68,7 @@ const ResumeAnalysisItem: React.FC<ResumeAnalysisItemProps> = ({
                   onClick={() => {
                     setUnsavedAnalysisConfig((prev) => ({
                       ...prev,
-                      resume: { ...prev.resume, type },
+                      resume: { ...prev.resume!, type },
                     }))
                   }}
                   isActive={type === resumeType}

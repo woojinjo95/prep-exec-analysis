@@ -28,7 +28,7 @@ const BootAnalysisItem: React.FC<BootAnalysisItemProps> = ({
       setUnsavedAnalysisConfig((prev) => ({
         ...prev,
         boot: {
-          ...prev.boot,
+          ...prev.boot!,
           type: 'image_matching',
         },
       }))

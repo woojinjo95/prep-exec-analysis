@@ -43,15 +43,15 @@ const LogLevelFinderAnalysisItem: React.FC<LogLevelFinderAnalysisItemProps> = ({
                 key={`log-level-finder-analysis-item-${level}`}
                 colorScheme="light"
                 label={`Logcat ${level}`}
-                isChecked={targets?.includes(level) || false}
+                isChecked={targets.includes(level)}
                 onClick={(isChecked) => {
                   setUnsavedAnalysisConfig((prev) => ({
                     ...prev,
                     log_level_finder: {
-                      ...prev.log_level_finder,
+                      ...prev.log_level_finder!,
                       targets: isChecked
                         ? [...(prev.log_level_finder?.targets || []), level]
-                        : prev.log_level_finder?.targets?.filter((l) => l !== level),
+                        : prev.log_level_finder?.targets.filter((l) => l !== level) || [],
                     },
                   }))
                 }}

@@ -1,12 +1,18 @@
-import React, { useCallback } from 'react'
+import React from 'react'
 import { Accordion, Checkbox, Text } from '@global/ui'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
 import { AnalysisTypeLabel } from '../../../constant'
 import { UnsavedAnalysisConfig } from '../../../types'
 
+const ChannelChangeTargetLabel: {
+  [key in NonNullable<UnsavedAnalysisConfig['channel_change_time']>['targets'][number]]: string
+} = {
+  adjoint_channel: 'Adjoint Channel',
+  nonadjoint_channel: 'Nonadjoint Channel',
+} as const
+
 interface ChannelChangeTimeAnalysisItemProps {
-  isCheckedAdjointChannel?: boolean
-  isCheckedNonadjointChannel?: boolean
+  targets: NonNullable<UnsavedAnalysisConfig['channel_change_time']>['targets']
   onClickDeleteItem: () => void
   setUnsavedAnalysisConfig: React.Dispatch<React.SetStateAction<UnsavedAnalysisConfig>>
 }
@@ -15,26 +21,10 @@ interface ChannelChangeTimeAnalysisItemProps {
  * channel change time 분석 아이템
  */
 const ChannelChangeTimeAnalysisItem: React.FC<ChannelChangeTimeAnalysisItemProps> = ({
-  isCheckedAdjointChannel,
-  isCheckedNonadjointChannel,
+  targets,
   onClickDeleteItem,
   setUnsavedAnalysisConfig,
 }) => {
-  const onClickCheckbox = useCallback(
-    (target: 'adjoint_channel' | 'nonadjoint_channel') => (isChecked: boolean) => {
-      setUnsavedAnalysisConfig((prev) => ({
-        ...prev,
-        channel_change_time: {
-          ...prev.channel_change_time,
-          targets: isChecked
-            ? [...(prev.channel_change_time?.targets || []), target]
-            : prev.channel_change_time?.targets?.filter((t) => t !== target),
-        },
-      }))
-    },
-    [],
-  )
-
   return (
     <Accordion
       header={
@@ -52,18 +42,29 @@ const ChannelChangeTimeAnalysisItem: React.FC<ChannelChangeTimeAnalysisItemProps
         </Text>
 
         <div className="flex items-center justify-end gap-x-4">
-          <Checkbox
-            colorScheme="light"
-            label="Adjoint Channel"
-            isChecked={isCheckedAdjointChannel || false}
-            onClick={onClickCheckbox('adjoint_channel')}
-          />
-          <Checkbox
-            colorScheme="light"
-            label="Nondjoint Channel"
-            isChecked={isCheckedNonadjointChannel || false}
-            onClick={onClickCheckbox('nonadjoint_channel')}
-          />
+          {Object.keys(ChannelChangeTargetLabel).map((_target) => {
+            const target = _target as NonNullable<typeof targets>[number]
+
+            return (
+              <Checkbox
+                key={`channel-change-itme-analysis-item-${target}`}
+                colorScheme="light"
+                label={ChannelChangeTargetLabel[target]}
+                isChecked={targets.includes(target)}
+                onClick={(isChecked) => {
+                  setUnsavedAnalysisConfig((prev) => ({
+                    ...prev,
+                    channel_change_time: {
+                      ...prev.channel_change_time!,
+                      targets: isChecked
+                        ? [...(prev.channel_change_time?.targets || []), target]
+                        : prev.channel_change_time?.targets.filter((t) => t !== target) || [],
+                    },
+                  }))
+                }}
+              />
+            )
+          })}
         </div>
       </div>
     </Accordion>
