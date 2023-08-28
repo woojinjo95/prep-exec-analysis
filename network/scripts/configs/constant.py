@@ -27,6 +27,10 @@ class RedisDBEnum:
     media: int = 3
 
 
+class RedisDBField:
+    hardware_config: str = 'hardware_configuration'
+
+
 class RedisChannel:
     command = 'command'
     loudness = 'loudness'
