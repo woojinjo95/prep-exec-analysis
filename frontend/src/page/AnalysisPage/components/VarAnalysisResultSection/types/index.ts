@@ -5,6 +5,7 @@ import { AnalysisConfig } from '../api/entity'
  */
 export interface UnsavedAnalysisConfig {
   freeze?: Partial<AnalysisConfig['freeze']>
+  loudness?: Partial<AnalysisConfig['loudness']>
   resume?: Partial<AnalysisConfig['resume']>
   boot?: Partial<AnalysisConfig['boot']>
   channel_change_time?: Partial<AnalysisConfig['channel_change_time']>

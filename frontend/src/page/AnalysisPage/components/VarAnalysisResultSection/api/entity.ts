@@ -8,6 +8,9 @@ export interface AnalysisConfig {
     color: string
     duration: number
   }
+  loudness?: {
+    color: string
+  }
   resume?: {
     color: string
     type: 'image_maching' | 'screen_change_rate'
