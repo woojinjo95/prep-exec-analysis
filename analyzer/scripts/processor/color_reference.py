@@ -4,7 +4,7 @@ import traceback
 
 from scripts.analysis.image import calc_color_entropy
 from scripts.config.config import get_setting_with_env
-from scripts.format import CollectionName
+from scripts.format import ReportName
 from scripts.external.data import load_input
 from scripts.external.report import report_output
 from scripts.util.decorator import log_decorator
@@ -31,7 +31,7 @@ def process():
             if idx % skip_frame == 0:
                 color_entropy = calc_color_entropy(frame)
                 logger.info(f"idx: {idx}, color_entropy: {color_entropy}")
-                report_output(CollectionName.COLOR_REFERENCE.value, {
+                report_output(ReportName.COLOR_REFERENCE.value, {
                     'color_reference': color_entropy,
                 })
             idx += 1
