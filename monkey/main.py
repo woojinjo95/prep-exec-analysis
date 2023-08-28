@@ -5,12 +5,13 @@ from scripts.connection.redis_conn import get_strict_redis_connection
 from scripts.connection.redis_pubsub import Subscribe
 from scripts.config.constant import RedisChannel, RedisDB
 from scripts.log_service.log_organizer import LogOrganizer
+from .monkey import start_monkey, stop_monkey
 
 
 logger = logging.getLogger('main')
 
 
-def execute(command: dict):
+def execute(command: Dict):
     ''' 
     start: PUBLISH command '{"msg": "monkey", "data": {"control": "start"}}'
     stop: PUBLISH command '{"msg": "monkey", "data": {"control": "stop"}}'
@@ -21,9 +22,9 @@ def execute(command: dict):
 
         control = arg.get('control', '')
         if control == 'start':
-            start()
+            start_monkey()
         elif control == 'stop':
-            stop()
+            stop_monkey()
         else:
             logger.warning(f'Unknown control: {control}')
 
@@ -39,6 +40,7 @@ if __name__ == '__main__':
         log_organizer = LogOrganizer(name='monkey')
         log_organizer.set_stream_logger('main')
         log_organizer.set_stream_logger('connection')
+        log_organizer.set_stream_logger('monkey')
         logger.info('Start monkey container')
         
         main()
