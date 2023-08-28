@@ -11,3 +11,11 @@ class ServiceStateBase(BaseModel):
 
 class ServiceState(BaseModel):
     items: ServiceStateBase
+
+
+class LogConnectionStatusBase(BaseModel):
+    status: str
+
+
+class LogConnectionStatus(BaseModel):
+    items: LogConnectionStatusBase

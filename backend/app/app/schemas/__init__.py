@@ -17,4 +17,4 @@ from .scenario import (Scenario, ScenarioCreate, ScenarioPage, ScenarioTag,
                        ScenarioTagUpdate, ScenarioUpdate)
 from .shell import Shell, ShellList, ShellLogList
 from .trace import ReadLogcat, ReadNetwork
-from .utility import ServiceState, Timezone
+from .utility import LogConnectionStatus, ServiceState, Timezone
