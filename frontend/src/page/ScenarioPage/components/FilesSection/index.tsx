@@ -135,7 +135,14 @@ const FilesSection: React.FC = () => {
               </div>
             ))}
             {/* Intersect Target */}
-            <div className="h-[5px]" ref={ref} />
+            <div
+              className="min-h-[48px] border-b-grey border-b-[1px]"
+              ref={ref}
+              style={{ display: !hasNextPage ? 'none' : '' }}
+            >
+              {/* Loading spin 같은 로딩 UI가 필요 */}
+              Loading...
+            </div>
           </Scrollbars>
         </div>
       </div>
