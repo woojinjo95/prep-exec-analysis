@@ -15,9 +15,9 @@ export const getScenarioById = async ({ scenario_id }: { scenario_id: string }) 
   }
 }
 
-export const putScenario = async ({ block_group, scenario_id }: { block_group: BlockGroup[]; scenario_id: string }) => {
+export const putScenario = async ({ new_scenario }: { new_scenario: Scenario }) => {
   try {
-    const result = await API.put<{ msg: string }>(`${apiUrls.scenario}/${scenario_id}`, { block_group })
+    const result = await API.put<{ msg: string }>(`${apiUrls.scenario}/${new_scenario.id}`, new_scenario)
 
     return result.data
   } catch (err) {

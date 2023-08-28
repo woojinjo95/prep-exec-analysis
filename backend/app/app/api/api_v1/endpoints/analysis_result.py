@@ -48,7 +48,7 @@ def get_data_of_log_level_finder(
 
 # CPU
 @router.get("/cpu", response_model=schemas.Cpu)
-def get_data_of_cpu_and_memory(
+def get_data_of_cpu(
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
@@ -76,7 +76,7 @@ def get_data_of_cpu_and_memory(
 
 # Memory
 @router.get("/memory", response_model=schemas.Memory)
-def get_data_of_cpu_and_memory(
+def get_data_of_memory(
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
