@@ -1,110 +1,57 @@
 import { Text, Title } from '@global/ui'
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import cx from 'classnames'
 import { ReactComponent as MoreIcon } from '@assets/images/button_more.svg'
 import { formatDateTo } from '@global/usecase'
 import Scrollbars from 'react-custom-scrollbars-2'
-
-const tempFiles: { name: string; tags: string[]; last_modified: Date }[] = [
-  {
-    name: 'blocks',
-    tags: ['BKO-UA500'],
-    last_modified: new Date(),
-  },
-  {
-    name: 'blocks1',
-    tags: ['BKO-UA500', 'sw-11.531.10-0000', 'SKBroadband'],
-    last_modified: new Date(),
-  },
-  {
-    name: 'blocks2',
-    tags: ['BKO-UA500', 'sw-11.531.10-0000', 'SKBroadband', 'SKBroadband1'],
-    last_modified: new Date(),
-  },
-  {
-    name: 'blocks3',
-    tags: [],
-    last_modified: new Date(),
-  },
-  {
-    name: 'blocks4',
-    tags: ['BKO-UA500'],
-    last_modified: new Date(),
-  },
-  {
-    name: 'blocks5',
-    tags: ['BKO-UA500'],
-    last_modified: new Date(),
-  },
-  {
-    name: 'blocks6',
-    tags: ['BKO-UA500'],
-    last_modified: new Date(),
-  },
-  {
-    name: 'blocks7',
-    tags: [],
-    last_modified: new Date(),
-  },
-  {
-    name: 'blocks8',
-    tags: ['BKO-UA500'],
-    last_modified: new Date(),
-  },
-  {
-    name: 'blocks9',
-    tags: ['BKO-UA500'],
-    last_modified: new Date(),
-  },
-  {
-    name: 'blocks10',
-    tags: ['BKO-UA500'],
-    last_modified: new Date(),
-  },
-  {
-    name: 'blocks11',
-    tags: [],
-    last_modified: new Date(),
-  },
-  {
-    name: 'blocks12',
-    tags: ['BKO-UA500'],
-    last_modified: new Date(),
-  },
-  {
-    name: 'blocks13',
-    tags: ['BKO-UA500'],
-    last_modified: new Date(),
-  },
-  {
-    name: 'blocks14',
-    tags: ['BKO-UA500'],
-    last_modified: new Date(),
-  },
-  {
-    name: 'blocks15',
-    tags: [],
-    last_modified: new Date(),
-  },
-  {
-    name: 'blocks16',
-    tags: ['BKO-UA500'],
-    last_modified: new Date(),
-  },
-  {
-    name: 'blocks17',
-    tags: ['BKO-UA500'],
-    last_modified: new Date(),
-  },
-  {
-    name: 'blocks18',
-    tags: ['BKO-UA500'],
-    last_modified: new Date(),
-  },
-]
+import { QueryFunctionContext, useInfiniteQuery, useQuery } from 'react-query'
+import { getScenarios } from '@global/api/func'
+import useIntersect from '@global/hook/useIntersect'
+import { PaginationResponse, ScenarioSummary } from '@global/api/entity'
+import { useRecoilState } from 'recoil'
+import { scenarioIdState } from '@global/atom'
+import { useNavigate } from 'react-router-dom'
 
 const FilesSection: React.FC = () => {
   const [selectedMenu, setSelectedMenu] = useState<'Blocks' | 'Analysis Results'>('Blocks')
+
+  // const [current, setCurrent] = useState<number>(1)
+
+  const { data, hasNextPage, isFetching, fetchNextPage } = useInfiniteQuery<PaginationResponse<ScenarioSummary[]>>(
+    ['scenarios'],
+    ({ pageParam = 1 }: QueryFunctionContext) => {
+      return getScenarios({ page: pageParam as number })
+    },
+    {
+      getNextPageParam: (lastPage) => {
+        const nextPage = lastPage.next
+
+        if (nextPage <= lastPage.pages) {
+          return nextPage
+        }
+
+        return undefined
+      },
+    },
+  )
+
+  const ref = useIntersect((entry, observer) => {
+    observer.unobserve(entry.target)
+
+    if (hasNextPage && !!isFetching) {
+      // setCurrent((prev) => prev + 1)
+      console.log('hi')
+      fetchNextPage()
+    }
+  })
+
+  const scenarios = useMemo(() => {
+    return data ? data.pages.flatMap(({ items }) => items) : []
+  }, [data])
+
+  const [scenarioId, setScenarioId] = useRecoilState(scenarioIdState)
+
+  const navigate = useNavigate()
 
   return (
     <div className="flex flex-col w-full h-full p-7 min-h-full border-r-[1px] border-b-grey">
@@ -164,32 +111,40 @@ const FilesSection: React.FC = () => {
           <Scrollbars
             renderThumbVertical={({ ...props }) => <div {...props} className="bg-[#4E525A] w-2 rounded-[5px]" />}
           >
-            {tempFiles?.map((file) => (
-              <div className="flex flex-col w-full" key={`file_${file.name}`}>
+            {scenarios?.map((scenario) => (
+              <div className="flex flex-col w-full" key={`file_${scenario.name}`}>
                 <div className="w-full grid grid-cols-[30%_40%_25%_5%] border-b-grey border-b-[1px] min-h-[48px] items-center">
                   <div>
                     <Text className="text-white mr-3" invertBackground colorScheme="light-orange">
                       B
                     </Text>
-                    <Text size="md" colorScheme="light">
-                      {file.name}
+                    <Text
+                      size="md"
+                      colorScheme="light"
+                      className="cursor-pointer"
+                      onClick={() => {
+                        setScenarioId(scenario.id)
+                        navigate('/action')
+                      }}
+                    >
+                      {scenario.name}
                     </Text>
                   </div>
 
                   <div className="flex flex-wrap w-full h-full pt-[10px] items-center">
-                    {file.tags.map((tag) => (
+                    {scenario.tags.map((tag) => (
                       <Text
                         className="text-white mr-2 mb-2"
                         invertBackground
                         colorScheme="dark-grey"
-                        key={`${file.name}_tag_${tag}`}
+                        key={`${scenario.name}_tag_${tag}`}
                       >
                         {tag}
                       </Text>
                     ))}
                   </div>
                   <Text size="md" colorScheme="light">
-                    {formatDateTo('M DD YYYY, HH:MM AA', file.last_modified)}
+                    {formatDateTo('M DD YYYY, HH:MM AA', new Date(scenario.updated_at))}
                   </Text>
                   <div className="flex justify-center cursor-pointer h-full">
                     <MoreIcon className="w-[20px] fill-white " />
@@ -197,6 +152,8 @@ const FilesSection: React.FC = () => {
                 </div>
               </div>
             ))}
+            {/* Intersect Target */}
+            <div className="h-[5px]" ref={ref} />
           </Scrollbars>
         </div>
       </div>
