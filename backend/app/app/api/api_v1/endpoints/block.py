@@ -24,38 +24,37 @@ def create_block(
     """
     Create new block.
     """
+    # TODO 비활성화
     scenario = load_by_id_from_mongodb('scenario', scenario_id)
     if not scenario:
         raise HTTPException(status_code=404, detail="The scenario with this id does not exist in the system.")
     try:
-        block_in = schemas.Block(id=str(uuid.uuid4()),
-                                type=block_in.type,
-                                name=block_in.name,
-                                args=block_in.args,
-                                delay_time=block_in.delay_time)
+        block_id = str(uuid.uuid4())
+        block_in = jsonable_encoder(block_in)
+        block_in['id'] = block_id
         block_group = scenario.get('block_group', [])
 
         if len(block_group) == 0:
             new_last_block_group = [{"id": str(uuid.uuid4()),
                                     "repeat_cnt": 1,
-                                    "block": [jsonable_encoder(block_in)]}]
+                                     "block": [block_in]}]
         else:
             last_block_group = block_group[-1]
             new_last_block_group = [item for item in block_group
                                     if item != last_block_group]
 
             new_blocks = last_block_group.get('block', [])
-            new_blocks.append(jsonable_encoder(block_in))
+            new_blocks.append(block_in)
             new_last_block_group.append({"id": last_block_group.get('id', ''),
                                         "repeat_cnt": last_block_group.get('repeat_cnt', 0),
-                                        "block": new_blocks})
+                                         "block": new_blocks})
         update_by_id_to_mongodb(col='scenario',
                                 id=scenario_id,
                                 data={'block_group': new_last_block_group,
                                       'updated_at': get_utc_datetime(time.time())})
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return {'msg': 'Create new block', 'id': block_in.id}
+    return {'msg': 'Create new block', 'id': block_id}
 
 
 @router.delete("/{scenario_id}", response_model=schemas.Msg)
@@ -72,14 +71,14 @@ def delete_blocks(
     try:
         for block_id in block_in.block_ids:
             delete_part_to_mongodb(col='scenario',
-                                param={'id': scenario_id,
-                                        'block_group': {'$elemMatch': {'block.id': block_id}}},
-                                data={'block_group.$.block': {'id': block_id}})
+                                   param={'id': scenario_id,
+                                          'block_group': {'$elemMatch': {'block.id': block_id}}},
+                                   data={'block_group.$.block': {'id': block_id}})
         delete_part_to_mongodb(col='scenario',
-                            param={'id': scenario_id,
-                                    'block_group.block': {'$size': 0}},
-                            data={'block_group': {'block': {'$size': 0}}})
-        update_by_id_to_mongodb(col='scenario', id=scenario_id, data={"updated_at":get_utc_datetime(time.time())})
+                               param={'id': scenario_id,
+                                      'block_group.block': {'$size': 0}},
+                               data={'block_group': {'block': {'$size': 0}}})
+        update_by_id_to_mongodb(col='scenario', id=scenario_id, data={"updated_at": get_utc_datetime(time.time())})
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Delete blocks.'}
@@ -105,14 +104,14 @@ def update_block(
 
     try:
         update_data = {f"block_group.$.block.$[elem].{key}": value
-                    for key, value in jsonable_encoder(block_in).items() if value is not None}
+                       for key, value in jsonable_encoder(block_in).items() if value is not None}
 
         col = get_mongodb_collection('scenario')
         col.update_one({"id": scenario_id, "block_group.block.id": block_id},
-                        {'$set': update_data},
-                        array_filters=[{"elem.id": block_id}],
-                        upsert=False)
-        update_by_id_to_mongodb(col='scenario', id=scenario_id, data={"updated_at":get_utc_datetime(time.time())})
+                       {'$set': update_data},
+                       array_filters=[{"elem.id": block_id}],
+                       upsert=False)
+        update_by_id_to_mongodb(col='scenario', id=scenario_id, data={"updated_at": get_utc_datetime(time.time())})
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Update a block', 'id': block_id}
@@ -121,7 +120,49 @@ def update_block(
 router_detail = APIRouter()
 
 
-@router_detail.put("/{scenario_id}/{block_group_id}", response_model=schemas.MsgWithId)
+@router_detail.post("/{scenario_id}", response_model=schemas.Msg)
+def bulk_create_blocks(
+    *,
+    scenario_id: str,
+    blocks_in: schemas.BlockBulkCreate,
+) -> schemas.Msg:
+    """
+    Bulk Create blocks.
+    """
+    scenario = load_by_id_from_mongodb('scenario', scenario_id)
+    if not scenario:
+        raise HTTPException(status_code=404, detail="The scenario with this id does not exist in the system.")
+    try:
+        block_in = [{'id': str(uuid.uuid4()), **x} for x in jsonable_encoder(blocks_in.blocks)]
+        block_group = scenario.get('block_group', [])
+
+        if len(block_group) == 0:
+            new_last_block_group = [{"id": str(uuid.uuid4()),
+                                    "repeat_cnt": 1,
+                                     "block": [block_in]}]
+        else:
+            last_block_group = block_group[-1]
+            new_last_block_group = [item for item in block_group
+                                    if item != last_block_group]
+
+            new_blocks = last_block_group.get('block', [])
+            new_blocks.append(block_in)
+            new_last_block_group.append({"id": last_block_group.get('id', ''),
+                                        "repeat_cnt": last_block_group.get('repeat_cnt', 0),
+                                         "block": new_blocks})
+        update_by_id_to_mongodb(col='scenario',
+                                id=scenario_id,
+                                data={'block_group': new_last_block_group,
+                                      'updated_at': get_utc_datetime(time.time())})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return {'msg': 'Bulk Create blocks'}
+
+
+block_group_router = APIRouter()
+
+
+@block_group_router.put("/{scenario_id}/{block_group_id}", response_model=schemas.MsgWithId)
 def update_block_group(
     *,
     scenario_id: str,
@@ -140,11 +181,11 @@ def update_block_group(
             status_code=404, detail="The block_group with this id does not exist in the system.")
     try:
         update_data = {f"block_group.$.{key}": value
-                    for key, value in jsonable_encoder(block_group_in).items() if value is not None}
+                       for key, value in jsonable_encoder(block_group_in).items() if value is not None}
         update_data['updated_at'] = get_utc_datetime(time.time())
         update_to_mongodb(col='scenario',
-                        param=param,
-                        data=update_data)
+                          param=param,
+                          data=update_data)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Update a block_group', 'id': block_group_id}

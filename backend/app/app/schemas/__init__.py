@@ -3,8 +3,8 @@ from .analysis_result import (ColorReference, CpuAndMemory, EventLog, Freeze,
                               LogLevelFinder, LogPatternMatching, Loudness,
                               MeasurementBoot, NetworkFilter, ProcessLifecycle,
                               VideoAnalysisResult)
-from .block import (Block, BlockCreate, BlockDelete, BlockGroup,
-                    BlockGroupUpdate, BlockUpdate)
+from .block import (Block, BlockBulkCreate, BlockCreate, BlockDelete,
+                    BlockGroup, BlockGroupUpdate, BlockUpdate)
 from .hardware_configuration import (HardwareConfigurationBase,
                                      HardwareConfigurationUpdate,
                                      StbConnection, StbConnectionBase)
