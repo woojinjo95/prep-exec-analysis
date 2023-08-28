@@ -8,6 +8,7 @@ from scripts.processor.freeze_detect import test_freeze_detection
 from scripts.processor.warm_boot import test_warm_boot
 from scripts.processor.cold_boot import test_cold_boot
 from scripts.processor.log_pattern import test_log_pattern_matching
+from scripts.processor.color_reference import test_color_reference
 from scripts.format import Command
 
 
@@ -19,9 +20,18 @@ class CommandManager:
         self.queue = queue
 
     def register(self, command: Dict):
-        if command.get('msg') == 'analysis':
+        if command.get('msg') == 'analysis':  # 분석 명령
             self.queue.put(command)
-            logger.info(f'register command: {command}. wait commands: {self.queue.qsize()}')
+            logger.info(f'put command: {command}. wait commands: {self.queue.qsize()}')
+        elif command.get('msg') == 'service_state':  # 서비스 상태 변경 명령
+            data = command.get('data', {})
+            logger.info(f'msg: service_state. data: {data}')
+            state = data.get('state', '')
+            if state == 'analysis':  # 분석 모드 진입
+                # color reference 테스트 작업을 분석 명령으로서 큐에 등록
+                command['msg'] = 'analysis'
+                command['data'] = {'measurement': ['color_reference']}
+                self.queue.put(command)
 
 
 class CommandExecutor(threading.Thread):
@@ -43,6 +53,8 @@ class CommandExecutor(threading.Thread):
         logger.info(f'msg: analysis. data: {data}')
 
         measurement = data.get('measurement', [])
+        if Command.COLOR_REFERENCE.value in measurement:
+            test_color_reference()
         if Command.FREEZE.value in measurement:
             test_freeze_detection()
         if Command.RESUME.value in measurement:

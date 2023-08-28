@@ -46,6 +46,7 @@ class LogName(Enum):
     
 # command for subscriber
 class Command(Enum):
+    COLOR_REFERENCE = 'color_reference'
     FREEZE = 'freeze'
     RESUME = 'resume'
     BOOT = 'boot'

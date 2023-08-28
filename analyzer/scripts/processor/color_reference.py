@@ -14,21 +14,22 @@ logger = logging.getLogger(LogName.COLOR_REFERENCE.value)
 
 
 @log_decorator(logger)
-def process():
+def test_color_reference():
     try:
         args = load_input()
+        resolution = get_setting_with_env('COLOR_REFERENCE_RESOLUTION', (960, 540))
         skip_frame = get_setting_with_env('COLOR_REFERENCE_SKIP_FRAME', 60)
         
         cap = cv2.VideoCapture(args.video_path)
         logger.info(f"frame count: {cap.get(cv2.CAP_PROP_FRAME_COUNT)}")
 
         idx = 0
-
         while True:
             ret, frame = cap.read()
             if not ret:
                 break
             if idx % skip_frame == 0:
+                frame = cv2.resize(frame, resolution)
                 color_entropy = calc_color_entropy(frame)
                 logger.info(f"idx: {idx}, color_entropy: {color_entropy}")
                 report_output(ReportName.COLOR_REFERENCE.value, {
