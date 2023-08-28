@@ -135,11 +135,7 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
       )}
 
       {selectedAnalysisItems.includes('boot') && unsavedAnalysisConfig.boot && (
-        <BootAnalysisItem
-          bootType={unsavedAnalysisConfig.boot.type}
-          setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
-          onClickDeleteItem={onClickDeleteItem('boot')}
-        />
+        <BootAnalysisItem bootType={unsavedAnalysisConfig.boot.type} onClickDeleteItem={onClickDeleteItem('boot')} />
       )}
 
       {selectedAnalysisItems.includes('channel_change_time') && unsavedAnalysisConfig.channel_change_time && (

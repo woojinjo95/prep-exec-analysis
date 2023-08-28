@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Accordion, SetROIButton, Text } from '@global/ui'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
 import { AnalysisTypeLabel } from '../../../constant'
@@ -12,30 +12,12 @@ const BootTypeLabel: { [key in NonNullable<AnalysisConfig['boot']>['type']]: str
 interface BootAnalysisItemProps {
   bootType: NonNullable<UnsavedAnalysisConfig['boot']>['type']
   onClickDeleteItem: () => void
-  setUnsavedAnalysisConfig: React.Dispatch<React.SetStateAction<UnsavedAnalysisConfig>>
 }
 
 /**
  * boot 분석 아이템
  */
-const BootAnalysisItem: React.FC<BootAnalysisItemProps> = ({
-  bootType,
-  onClickDeleteItem,
-  setUnsavedAnalysisConfig,
-}) => {
-  useEffect(() => {
-    if (!bootType) {
-      setUnsavedAnalysisConfig((prev) => ({
-        ...prev,
-        boot: {
-          ...prev.boot!,
-          type: 'image_matching',
-        },
-      }))
-    }
-  }, [bootType])
-
-  if (!bootType) return <div />
+const BootAnalysisItem: React.FC<BootAnalysisItemProps> = ({ bootType, onClickDeleteItem }) => {
   return (
     <Accordion
       header={
