@@ -6,7 +6,7 @@ import apiUrls from './url'
 /**
  * 시나리오 리스트 조회 api
  */
-export const getScenarios = async ({ page, page_size }: { page: number; page_size: number }) => {
+export const getScenarios = async ({ page, page_size }: { page?: number; page_size?: number }) => {
   try {
     const result = await API.get<PaginationResponse<ScenarioSummary[]>>(apiUrls.scenario, {
       params: {
