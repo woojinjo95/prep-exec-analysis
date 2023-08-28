@@ -14,13 +14,13 @@ logger = logging.getLogger('main')
 monkey_manager = None
 
 
-def start_monkey_manager():
+def start_monkey_manager(company: str):
     global monkey_manager
 
     if monkey_manager is not None:
         logger.warning('MonkeyManager is already alive')
     else:
-        monkey_manager = MonkeyManager()
+        monkey_manager = MonkeyManager(company=company)
         monkey_manager.start()
         logger.info('Start MonkeyManager')
 
@@ -48,7 +48,7 @@ def execute(command: Dict):
 
         control = arg.get('control', '')
         if control == 'start':
-            start_monkey_manager()
+            start_monkey_manager(company='roku')  # TODO: company name from config
         elif control == 'stop':
             stop_monkey_manager()
         else:

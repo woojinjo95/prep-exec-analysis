@@ -8,11 +8,12 @@ logger = logging.getLogger('monkey_test')
 
 
 class MonkeyManager:
-    def __init__(self):
+    def __init__(self, company: str):
         self.monkey_proc = None
+        self.company = company
 
     def __start_monkey_test(self):
-        monkey_test = MonkeyTest()
+        monkey_test = MonkeyTest(company=self.company)
         self.monkey_proc = ProcessMaintainer(
             name='monkey_test',
             target=monkey_test.run,
