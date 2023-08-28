@@ -1,6 +1,6 @@
 from ..connection.redis_connection import (get_strict_redis_connection,
                                            hget_value, hset_value)
-from .constant import RedisDBEnum, RedisChannel
+from .constant import RedisDBEnum, RedisChannel, RedisDBField
 
 
 def get_value(key: str, field: str = None, default: any = None, db=RedisDBEnum.media) -> any:

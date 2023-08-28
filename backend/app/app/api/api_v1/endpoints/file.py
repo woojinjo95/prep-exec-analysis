@@ -17,34 +17,40 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.post("/upload", response_model=schemas.MsgWithId)
+# @router.post("/upload", response_model=schemas.MsgWithId)
 async def file_upload(
     file: UploadFile = File(...)
 ) -> schemas.MsgWithId:
     if file is None:
         raise HTTPException(status_code=400, detail="No upload file")
-    file_uuid = str(uuid4())
-    insert_one_to_mongodb(col='file', data={'file_id': file_uuid, "file_name": file.filename})
-
-    file_dir = classify_file_type(file.filename)
-    if not os.path.isdir(file_dir):
-        os.mkdir(file_dir)
-    with open(os.path.join(file_dir, file_uuid), 'wb') as f:
-        f.write(file.file.read())
+    try:
+        file_uuid = str(uuid4())
+        file_dir = classify_file_type(file.filename)
+        if not os.path.isdir(file_dir):
+            os.mkdir(file_dir)
+        with open(os.path.join(file_dir, file_uuid), 'wb') as f:
+            f.write(file.file.read())
+        insert_one_to_mongodb(col='file',
+                              data={'id': file_uuid, "name": file.filename, "path": file_dir})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': f'{file.filename} uploaded successfully',
             'id': file_uuid}
 
 
-@router.get('/download/{file_id}', response_class=FileResponse)
+# @router.get('/download/{file_id}', response_class=FileResponse)
 async def file_download(
     file_id: str
 ) -> FileResponse:
-    file_info = load_from_mongodb(col='file', param={'file_id': file_id})
+    file_info = load_from_mongodb(col='file', param={'id': file_id})
     if file_info == []:
         raise HTTPException(status_code=400, detail="No file")
-    file_name = file_info[0]['file_name']
-    file_dir = classify_file_type(file_name)
-    file_dir = os.path.join(file_dir, file_id)
+    try:
+        file_name = file_info[0]['name']
+        file_dir = classify_file_type(file_name)
+        file_dir = os.path.join(file_dir, file_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
     return FileResponse(path=file_dir, filename=file_name)
 
 
@@ -79,7 +85,7 @@ async def workspace_video_file_download(
     try:
         video_info = video_info[0]['videos'][0]
         video_file_path = video_info.get('path', '')
-        video_file_path = video_file_path.replace('./data', '/app')
+        video_file_path = video_file_path.replace(settings.CONTAINER_PATH, settings.HOST_PATH)
         with open(video_file_path, "rb") as video:
             headers = {'Accept-Ranges': 'bytes'}
             return Response(video.read(), headers=headers, media_type="video/mp4")
@@ -106,7 +112,7 @@ async def workspace_partial_video_file_download(
     try:
         video_info = video_info[0].get('videos', [{}])[0]
         video_file_path = video_info.get('path', '')
-        video_file_path = video_file_path.replace('./data', '/app')
+        video_file_path = video_file_path.replace(settings.CONTAINER_PATH, settings.HOST_PATH)
 
         if not range:
             return FileResponse(video_file_path)
@@ -116,7 +122,7 @@ async def workspace_partial_video_file_download(
         start = int(start)
         end = int(end) if end else start + CHUNK_SIZE
         video_size = os.path.getsize(video_file_path)
-        
+
         if start < 0:
             start = 0
         if end >= video_size:
@@ -133,4 +139,3 @@ async def workspace_partial_video_file_download(
         return Response(content, headers=headers, status_code=206, media_type="video/mp4")
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-

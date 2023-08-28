@@ -5,7 +5,8 @@ from typing import Dict
 
 from ...configs.config import get_value
 from ..command import get_stdout
-from .value_rules import check_bandwidth, check_delay, check_percent, check_ipv4, check_port, DefaultValues
+from ...utils.network import check_ipv4
+from .value_rules import check_bandwidth, check_delay, check_percent, check_port, DefaultValues
 
 logger = logging.getLogger('network_control')
 

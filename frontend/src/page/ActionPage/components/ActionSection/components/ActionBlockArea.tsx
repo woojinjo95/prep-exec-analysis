@@ -11,7 +11,7 @@ import { CustomKeyTransmit, RemoconTransmit } from '@global/service/RemoconServi
 import { terminalService } from '@global/service/TerminalService/TerminalService'
 import { CommandTransmit } from '@global/service/TerminalService/type'
 import ActionBlockItem from './ActionBlockItem'
-import { getScenarioById, postBlock, putScenario } from '../api/func'
+import { getScenarioById, postBlock, postBlocks, putScenario } from '../api/func'
 
 type BlocksRef = {
   [id: string]: HTMLDivElement | null
@@ -278,6 +278,15 @@ const ActionBlockArea = ({ scenarioId }: ActionBlockAreaProps): JSX.Element => {
     },
   })
 
+  const { mutate: postBlocksMutate } = useMutation(postBlocks, {
+    onSuccess: () => {
+      blockRefetch()
+    },
+    onError: (err) => {
+      console.error(err)
+    },
+  })
+
   useEffect(() => {
     const remoconButtonSubscribe$ = remoconService.onButton$().subscribe((remoconTransmit: RemoconTransmit) => {
       if (scenarioId) {
@@ -314,33 +323,35 @@ const ActionBlockArea = ({ scenarioId }: ActionBlockAreaProps): JSX.Element => {
       .onCustomKey$()
       .subscribe((customKeyTransmit: CustomKeyTransmit) => {
         if (scenarioId) {
-          // 여러개의 블록 생성 요청
-          // postBlockMutate({
-          //   newBlock: {
-          //     type: customKeyTransmit.msg,
-          //     args: [
-          //       {
-          //         key: 'key',
-          //         value: remoconTransmit.data.key,
-          //       },
-          //       {
-          //         key: 'type',
-          //         value: remoconTransmit.data.type,
-          //       },
-          //       {
-          //         key: 'press_time',
-          //         value: remoconTransmit.data.press_time,
-          //       },
-          //       {
-          //         key: 'name',
-          //         value: remoconTransmit.data.name,
-          //       },
-          //     ],
-          //     delay_time: remoconTransmit.data.press_time,
-          //     name: `RCU (${remoconTransmit.data.type}) : ${remoconTransmit.data.key}`,
-          //   },
-          //   scenario_id: scenarioId,
-          // })
+          const newBlocks = customKeyTransmit.data.map((keyTransmit) => {
+            return {
+              type: customKeyTransmit.msg,
+              args: [
+                {
+                  key: 'key',
+                  value: keyTransmit.key,
+                },
+                {
+                  key: 'type',
+                  value: keyTransmit.type,
+                },
+                {
+                  key: 'press_time',
+                  value: keyTransmit.press_time,
+                },
+                {
+                  key: 'name',
+                  value: keyTransmit.name,
+                },
+              ],
+              delay_time: 0,
+              name: `RCU (${keyTransmit.type}) : ${keyTransmit.key}`,
+            }
+          })
+          postBlocksMutate({
+            newBlocks,
+            scenario_id: scenarioId,
+          })
         }
       })
 
@@ -367,6 +378,7 @@ const ActionBlockArea = ({ scenarioId }: ActionBlockAreaProps): JSX.Element => {
     return () => {
       remoconButtonSubscribe$.unsubscribe()
       remoconCustomKeySubscribe$.unsubscribe()
+      terminalButtonSubscribe$.unsubscribe()
     }
   }, [scenarioId])
 

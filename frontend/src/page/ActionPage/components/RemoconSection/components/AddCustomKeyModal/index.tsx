@@ -6,7 +6,7 @@ import { Button, Text } from '@global/ui'
 import Modal from '@global/ui/Modal'
 import { Remocon } from '../../api/entity'
 import AddCustomKeyModalRemoconButtons from './AddCustomKeyModalRemoconButtons'
-import SaveCustomKeyModal from '../SaveCustomKeyModal'
+import SaveCustomKeyModal from './SaveCustomKeyModal'
 
 interface AddCustomKeyModalProps {
   remocon: Remocon
@@ -57,6 +57,7 @@ const AddCustomKeyModal: React.FC<AddCustomKeyModalProps> = ({
       }
     }
 
+    console.log(firstFocusableElementRef.current)
     firstFocusableElementRef.current?.focus()
 
     document.addEventListener('keydown', handleKeyDown)
@@ -145,7 +146,7 @@ const AddCustomKeyModal: React.FC<AddCustomKeyModalProps> = ({
                 <Button
                   colorScheme="primary"
                   className="w-[132px] h-[48px] mr-3 text-white rounded-3xl"
-                  // ref={firstFocusableElementRef}
+                  ref={firstFocusableElementRef}
                   onClick={() => {
                     setIsSubmitted(true)
                   }}
@@ -155,7 +156,7 @@ const AddCustomKeyModal: React.FC<AddCustomKeyModalProps> = ({
                 <Button
                   colorScheme="grey"
                   className="w-[132px] h-[48px] text-white rounded-3xl"
-                  // ref={lastFocusableElementRef}
+                  ref={lastFocusableElementRef}
                   onClick={() => {
                     setRemoconInput([])
                     close()

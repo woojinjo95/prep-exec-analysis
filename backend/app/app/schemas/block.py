@@ -16,6 +16,10 @@ class BlockCreate(BaseModel):
     delay_time: float = 3000  # ms단위
 
 
+class BlockBulkCreate(BaseModel):
+    blocks: List[BlockCreate]
+
+
 class BlockDelete(BaseModel):
     block_ids: List[str]
 

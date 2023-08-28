@@ -32,6 +32,7 @@ class HardwareConfiguration(BaseModel):
     packet_bandwidth: int
     packet_delay: float
     packet_loss: float
+    dut_ip: Optional[str]
     stb_connection: Optional[StbConnection]
     packet_block: Optional[List[PacketBlock]]
 
