@@ -1,9 +1,7 @@
 # 이미지 처리와 관련된 일반 함수 (응용 함수를 여기서 정의하지 말 것.)
 
 import logging
-from typing import List, Dict
-import base64
-import requests
+from typing import List
 
 import cv2
 import numpy as np
@@ -183,23 +181,6 @@ def calc_color_entropy(image: np.ndarray) -> float:
     probabilities = counts / pixel_num  # array of appearance probability about each pixel value
     entropy = -np.sum(probabilities * np.log2(probabilities))  # Shannon entropy formula (maximum=8)
     return entropy
-
-
-def check_layout(model_name: str, image: np.ndarray) -> Dict:
-    try:
-        image_byte = cv2.imencode('.png', image)[1]
-        image_byte = base64.b64encode(image_byte).decode()
-
-        ml_server_url = 'http://host.docker.internal:6190/scene/check'
-        res = requests.get(ml_server_url, json={
-            'model_name': model_name,
-            'image_byte': image_byte,
-        }, timeout=10)
-        result = res.json()
-    except Exception as e:
-        logger.error(f'check_scene error. Cause:{e}')
-        result = {'scene': 'error'}
-    return result
 
 
 def calc_iou(box1, box2):
