@@ -162,7 +162,7 @@ def update_scenario(
             tag_list = parse_bytes_to_value(tags) if tags else []
             RedisClient.hset('testrun', 'tags',
                              f'{list(set([tag for tag in scenario_in.tags if tag not in tag_list] + tag_list))}')
-            
+
         update_by_id_to_mongodb(col='scenario',
                                 id=scenario_id,
                                 data={'is_active': scenario_in.is_active,
@@ -173,6 +173,30 @@ def update_scenario(
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Update a scenario.'}
+
+
+@router.delete("/{scenario_id}", response_model=schemas.Msg)
+def delete_scenario(
+    scenario_id: str,
+) -> schemas.Msg:
+    """
+    Delete a scenario.
+    """
+    scenario = load_by_id_from_mongodb(col='scenario', id=scenario_id, proj={'_id': 0, 'name': 1})
+    if not scenario:
+        raise HTTPException(status_code=404,
+                            detail="The scenario with this id does not exist in the system.")
+
+    try:
+        now = time.time()
+        update_by_id_to_mongodb(col='scenario',
+                                id=scenario_id,
+                                data={'is_active': False,
+                                      'updated_at': get_utc_datetime(now),
+                                      'name': str(now)})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return {'msg': 'Delete a scenario.'}
 
 
 @router.get("", response_model=schemas.ScenarioPage)

@@ -24,7 +24,6 @@ def create_block(
     """
     Create new block.
     """
-    # TODO 비활성화
     scenario = load_by_id_from_mongodb('scenario', scenario_id)
     if not scenario:
         raise HTTPException(status_code=404, detail="The scenario with this id does not exist in the system.")
