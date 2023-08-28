@@ -90,6 +90,10 @@ def command_parser(command):
 
     # 액션 페이지에 진입했을때 -> 녹화
     elif msg == 'action_mode':
+        # 분석 중단 메세지 전송
+        RedisClient.publish('command',
+                            set_redis_pub_msg(msg="analysis_terminate", data={}))
+
         # 로그수집 시작 메세지 전송
         RedisClient.publish('command',
                             set_redis_pub_msg(msg="stb_log", data={"control": "start"}))

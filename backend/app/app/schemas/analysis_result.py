@@ -67,6 +67,14 @@ class Loudness(BaseModel):
     items: List[LoudnessBase]
 
 
+class MeasurementBootBase(TimestampBaseModel):
+    measure_time: int
+
+
+class MeasurementBoot(BaseModel):
+    items: List[MeasurementBootBase]
+
+
 class VideoAnalysisResultBase(BaseModel):
     pass
 
@@ -81,14 +89,6 @@ class LogPatternMatchingBase(BaseModel):
 
 class LogPatternMatching(BaseModel):
     items: List[LogPatternMatchingBase]
-
-
-class MeasurementBase(BaseModel):
-    pass
-
-
-class Measurement(BaseModel):
-    items: List[MeasurementBase]
 
 
 class ProcessLifecycleBase(BaseModel):
