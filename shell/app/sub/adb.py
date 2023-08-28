@@ -15,7 +15,7 @@ async def read_stdout(stdout: any, queue: asyncio.Queue):
             break
         line = buf.decode('utf-8').rstrip()
         print(f"stdout: {line}")
-        queue.put_nowait({'timestamp': datetime.utcnow(), 'module':  "stdout", 'message': line})
+        queue.put_nowait({'timestamp': datetime.utcnow().timestamp(), 'module':  "stdout", 'message': line})
     print('read_stdout end')
 
 
@@ -27,7 +27,7 @@ async def read_stderr(stderr: any, queue: asyncio.Queue):
             break
         line = buf.decode('utf-8').rstrip()
         print(f"stderr: {line}")
-        queue.put_nowait({'timestamp': datetime.utcnow(), 'module':  "stderr", 'message': line})
+        queue.put_nowait({'timestamp': datetime.utcnow().timestamp(), 'module':  "stderr", 'message': line})
     print('read_stderr end')
 
 
@@ -53,7 +53,7 @@ async def consumer_adb_handler(conn: any, shell_id: int, proc: any, CHANNEL_NAME
                     command = message['data']['command']
                     proc.stdin.write(f"{command}\n".encode('utf-8'))
                     print(f"stderr: {command}")
-                    queue.put_nowait({'timestamp': datetime.utcnow(), 'module':  "stdin", 'message': command})
+                    queue.put_nowait({'timestamp': datetime.utcnow().timestamp(), 'module':  "stdin", 'message': command})
                     await proc.stdin.drain()
                     await asyncio.sleep(0.5)
             except Exception as e:

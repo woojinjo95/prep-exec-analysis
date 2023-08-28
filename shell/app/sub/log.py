@@ -1,6 +1,7 @@
 
 import json
 import asyncio
+from datetime import datetime
 from .mongodb import get_collection
 
 
@@ -11,6 +12,8 @@ async def process_log_queue(queue: asyncio.Queue, conn: any, CHANNEL_NAME: str, 
     print("process_log_queue")
     while True:
         data = await queue.get()
+        timestamp = datetime.fromtimestamp(data['timestamp'])
+        data['timestamp'] = timestamp
         _sec = data['timestamp'].second
         if sec != _sec and len(buffer) > 0:
             # 저장

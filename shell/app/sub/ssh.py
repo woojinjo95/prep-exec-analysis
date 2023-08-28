@@ -15,7 +15,7 @@ class QAASClientSession(asyncssh.SSHClientSession):
 
     def data_received(self, data: str, datatype: asyncssh.DataType) -> None:
         print(data, end='')
-        self._queue.put_nowait({'timestamp': datetime.utcnow(), 'module':  "stdout", 'message': data})
+        self._queue.put_nowait({'timestamp': datetime.utcnow().timestamp(), 'module':  "stdout", 'message': data})
 
     def connection_lost(self, exc: Optional[Exception]) -> None:
         if exc:
@@ -51,7 +51,7 @@ async def consumer_ssh_handler(conn: any, channel: any, shell_id: int, CHANNEL_N
                     print(message)
                     command = f"{message['data']['command']}\n"
                     channel.write(command)
-                    queue.put_nowait({'timestamp': datetime.utcnow(), 'module':  "stdin", 'message': command})
+                    queue.put_nowait({'timestamp': datetime.utcnow().timestamp(), 'module':  "stdin", 'message': command})
 
             except Exception as e:
                 print(e)
