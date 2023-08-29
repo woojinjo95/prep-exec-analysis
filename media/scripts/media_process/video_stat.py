@@ -51,7 +51,7 @@ def process_video_info(file_info: dict) -> dict:
 
 
 @handle_errors
-def summerize_merged_video_info(requested_start_time: float, output_json_path: str, json_name_list: List[str]):
+def summerize_merged_video_info(requested_start_time: float, output_json_path: str, json_name_list: List[str]) -> Dict:
     video_infos = []
     for json_file in json_name_list:
         with open(json_file, 'r') as f:
@@ -122,6 +122,8 @@ def summerize_merged_video_info(requested_start_time: float, output_json_path: s
         publish(redis_connection, RedisChannel.command, {'msg': 'recording_response',
                                                          'level': log_level,
                                                          'data': {'log': str(info['logs'])}})
+
+    return info
 
 
 def error_logging(primary_data: Dict, info: Dict, start_time: float, calculated_interval: float, inter_calculated_fps: float):
