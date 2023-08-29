@@ -72,12 +72,14 @@ const BlockControls: React.FC = () => {
           <IconButton icon={<TrashIcon />} />
         </div>
       </div>
-      <SaveBlocksModal
-        isOpen={isSaveBlocksModalOpen}
-        close={() => {
-          setIsSaveBlocksModalOpen(false)
-        }}
-      />
+      {isSaveBlocksModalOpen && (
+        <SaveBlocksModal
+          isOpen={isSaveBlocksModalOpen}
+          close={() => {
+            setIsSaveBlocksModalOpen(false)
+          }}
+        />
+      )}
     </>
   )
 }
