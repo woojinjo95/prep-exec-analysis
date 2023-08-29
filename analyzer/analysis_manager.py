@@ -4,6 +4,7 @@ import logging
 import psutil
 import traceback
 import json
+import threading
 from typing import Dict, Callable, Tuple, List
 
 from scripts.format import Command
@@ -104,7 +105,10 @@ class RedisStorage:
         self.client = get_strict_redis_connection()
         self.processes_name = "processes"
         self.cmd_queue_name = "cmd_queue"
+
+        self.periodic_cleanup()
         
+    ##### Process Management #####
     def store_process(self, pid: int, metadata: Dict={}):
         self.client.hset(self.processes_name, pid, json.dumps(metadata))
 
@@ -123,6 +127,12 @@ class RedisStorage:
             logger.warning(f"Process with PID {pid} not found.")
         self.client.hdel(self.processes_name, pid)
 
+    def get_all_pids(self) -> List[int]:
+        all_pids = self.client.hkeys(self.processes_name)
+        all_pids = [int(pid.decode('utf-8')) for pid in all_pids]
+        return all_pids
+
+    ##### Queue Management #####
     def enqueue_command(self, func: Callable, args: Tuple):
         command = json.dumps({'func_name': func.__name__, 'args': args})
         self.client.lpush(self.cmd_queue_name, command)
@@ -151,3 +161,13 @@ class RedisStorage:
     def empty_command_queue(self):
         while self.client.llen(self.cmd_queue_name) > 0:
             self.client.rpop(self.cmd_queue_name)
+
+    ##### Cleanup #####
+    def periodic_cleanup(self):
+        def cleanup_terminated_processes():
+            all_pids = self.get_all_pids()
+            for pid in all_pids:
+                if not psutil.pid_exists(pid):
+                    self.client.hdel(self.processes_name, pid)
+        cleanup_terminated_processes()
+        threading.Timer(5, self.periodic_cleanup).start()
