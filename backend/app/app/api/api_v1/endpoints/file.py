@@ -78,7 +78,7 @@ async def workspace_video_file_download(
     if scenario_id is None:
         scenario_id = RedisClient.hget('testrun', 'scenario_id')
     if testrun_id is None:
-        scenario_id = RedisClient.hget('testrun', 'id')
+        testrun_id = RedisClient.hget('testrun', 'id')
 
     pipeline = [{'$match': {'id': scenario_id, 'testruns.id': testrun_id}},
                 {'$unwind': "$testruns"},
@@ -111,7 +111,7 @@ async def workspace_partial_video_file_download(
     if scenario_id is None:
         scenario_id = RedisClient.hget('testrun', 'scenario_id')
     if testrun_id is None:
-        scenario_id = RedisClient.hget('testrun', 'id')
+        testrun_id = RedisClient.hget('testrun', 'id')
 
     pipeline = [{'$match': {'id': scenario_id, 'testruns.id': testrun_id}},
                 {'$unwind': "$testruns"},
