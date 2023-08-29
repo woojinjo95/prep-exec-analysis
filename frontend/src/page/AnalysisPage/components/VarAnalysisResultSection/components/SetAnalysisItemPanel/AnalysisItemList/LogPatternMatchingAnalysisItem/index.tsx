@@ -1,21 +1,25 @@
 import React, { useState } from 'react'
-import { Accordion, Button, Checkbox, Text } from '@global/ui'
+import { Accordion, Button, Checkbox, ColorPickerBox, Text } from '@global/ui'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
 import { UnsavedAnalysisConfig } from '@page/AnalysisPage/components/VarAnalysisResultSection/types'
 import { AnalysisTypeLabel } from '../../../../constant'
 import LogPattern from './LogPattern'
 
 interface LogPatternMatchingAnalysisItemProps {
-  onClickDeleteItem: () => void
+  color: NonNullable<UnsavedAnalysisConfig['log_pattern_matching']>['color']
   patterns: NonNullable<UnsavedAnalysisConfig['log_pattern_matching']>['items']
+  setUnsavedAnalysisConfig: React.Dispatch<React.SetStateAction<UnsavedAnalysisConfig>>
+  onClickDeleteItem: () => void
 }
 
 /**
  * log pattern matching 분석 아이템
  */
 const LogPatternMatchingAnalysisItem: React.FC<LogPatternMatchingAnalysisItemProps> = ({
-  onClickDeleteItem,
+  color,
   patterns,
+  setUnsavedAnalysisConfig,
+  onClickDeleteItem,
 }) => {
   const [isRememberChecked, setIsRememberChecked] = useState<boolean>(false)
 
@@ -23,9 +27,23 @@ const LogPatternMatchingAnalysisItem: React.FC<LogPatternMatchingAnalysisItemPro
     <Accordion
       header={
         <div className="flex justify-between items-center">
-          <Text size="sm" weight="medium">
-            {AnalysisTypeLabel.log_pattern_matching}
-          </Text>
+          <div className="flex items-center gap-x-3">
+            <ColorPickerBox
+              color={color}
+              onChange={(newColor) => {
+                setUnsavedAnalysisConfig((prev) => ({
+                  ...prev,
+                  log_pattern_matching: {
+                    ...prev.log_pattern_matching!,
+                    color: newColor,
+                  },
+                }))
+              }}
+            />
+            <Text size="sm" weight="medium">
+              {AnalysisTypeLabel.log_pattern_matching}
+            </Text>
+          </div>
           <TrashIcon className="w-4 fill-white" onClick={onClickDeleteItem} />
         </div>
       }

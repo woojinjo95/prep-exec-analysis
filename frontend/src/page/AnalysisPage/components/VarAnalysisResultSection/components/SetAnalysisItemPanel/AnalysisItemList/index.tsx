@@ -176,7 +176,9 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
 
       {selectedAnalysisItems.includes('log_pattern_matching') && unsavedAnalysisConfig.log_pattern_matching && (
         <LogPatternMatchingAnalysisItem
+          color={unsavedAnalysisConfig.log_pattern_matching.color}
           patterns={unsavedAnalysisConfig.log_pattern_matching.items}
+          setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
           onClickDeleteItem={onClickDeleteItem('log_pattern_matching')}
         />
       )}
