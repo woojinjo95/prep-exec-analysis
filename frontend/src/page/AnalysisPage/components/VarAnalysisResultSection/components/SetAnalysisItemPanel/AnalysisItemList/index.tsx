@@ -131,7 +131,11 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
       )}
 
       {selectedAnalysisItems.includes('loudness') && unsavedAnalysisConfig.loudness && (
-        <LoudnessAnalysisItem onClickDeleteItem={onClickDeleteItem('loudness')} />
+        <LoudnessAnalysisItem
+          color={unsavedAnalysisConfig.loudness.color}
+          onClickDeleteItem={onClickDeleteItem('loudness')}
+          setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
+        />
       )}
 
       {selectedAnalysisItems.includes('resume') && unsavedAnalysisConfig.resume && (
