@@ -158,6 +158,7 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
 
       {selectedAnalysisItems.includes('channel_change_time') && unsavedAnalysisConfig.channel_change_time && (
         <ChannelChangeTimeAnalysisItem
+          color={unsavedAnalysisConfig.channel_change_time.color}
           targets={unsavedAnalysisConfig.channel_change_time.targets}
           onClickDeleteItem={onClickDeleteItem('channel_change_time')}
           setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
