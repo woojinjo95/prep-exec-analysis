@@ -17,6 +17,7 @@ logger = logging.getLogger('main')
 class AnalysisManager:
     def __init__(self, mode: str):
         self.mode = mode  # sync | async
+        logger.info(f'analysis mode: {self.mode}')
 
         self.processes = {}  # 모든 동작 중 프로세스. key: pid, value: process
         self.cmd_queue = multiprocessing.Queue()
@@ -25,9 +26,11 @@ class AnalysisManager:
             self.start_command_executor()
 
     def register(self, command: Dict):
+        logger.info(f'register command: {command}')
         # parse to module function and args
         exec_list = self.parse_command(command)
         for func, args in exec_list:
+            logger.info(f'execute: {func.__name__}({args})')
             if self.mode == "sync":
                 self.cmd_queue.put((func, args))
             else:
