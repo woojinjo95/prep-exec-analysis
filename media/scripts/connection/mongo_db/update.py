@@ -42,7 +42,6 @@ mongo_client.update_one({'id': 'scenario id'},
 
 def update_video_info_to_scenario(col: str, scenario_id: str, testrun_id: str, data: dict) -> Tuple[bool, str]:
 
-    mongo_client = get_mongodb_collection(col)
     try:
         # Connect to MongoDB and get the collection
         mongo_client = get_mongodb_collection(col)
