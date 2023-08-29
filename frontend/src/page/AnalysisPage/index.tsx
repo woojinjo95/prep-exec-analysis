@@ -16,7 +16,7 @@ import apiUrls from './api/url'
  * 분석 조회 페이지
  */
 const AnalysisPage: React.FC = () => {
-  // TODO: rxjs? recoil? 고민
+  // FIXME: 시간 주입
   const [startTime] = useState<Date>(new Date('2023-08-18T07:59:28.731511+00:00'))
   const [endTime] = useState<Date>(new Date('2023-08-18T08:03:13.925471+00:00'))
   const scenarioId = useRecoilValue(scenarioIdState)

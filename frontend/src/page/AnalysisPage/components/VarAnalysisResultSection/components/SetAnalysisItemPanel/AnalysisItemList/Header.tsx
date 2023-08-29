@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button, OptionItem, Select } from '@global/ui'
 import useWebsocket from '@global/module/websocket'
-import { AnalysisTypeLabel } from '../../constant'
+import { AnalysisTypeLabel } from '../../../constant'
 
 interface HeaderProps {
   selectedAnalysisItems: (keyof typeof AnalysisTypeLabel)[]
