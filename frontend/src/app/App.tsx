@@ -19,6 +19,7 @@ const client = new QueryClient({
 const App: React.FC = () => {
   useWebsocket({
     onMessage: (message) => {
+      if (!message.msg) return
       console.info({ ...message, time: message.time * 1000 })
     },
   })
