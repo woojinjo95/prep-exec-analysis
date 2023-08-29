@@ -9,6 +9,7 @@ class CopyScenarioCreate(BaseModel):
     src_scenario_id: str
     name: str
     tags: Optional[List[str]] = []
+    block_group: Optional[List[BlockGroup]]
 
 
 class ScenarioCreate(BaseModel):
