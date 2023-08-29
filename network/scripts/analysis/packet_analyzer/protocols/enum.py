@@ -3,11 +3,11 @@ from collections import defaultdict
 from ....utils._exceptions import handle_errors
 
 IPRROTO_MAP = {
-    socket.IPPROTO_IP: 'IP',
-    socket.IPPROTO_ICMP: 'ICMP',
-    socket.IPPROTO_TCP: 'TCP',
-    socket.IPPROTO_UDP: 'UDP',
-    socket.IPPROTO_IGMP: 'IGMP',
+    socket.IPPROTO_IP: 'ip',
+    socket.IPPROTO_ICMP: 'icmp',
+    socket.IPPROTO_TCP: 'tcp',
+    socket.IPPROTO_UDP: 'udp',
+    socket.IPPROTO_IGMP: 'igmp',
 }
 
 
