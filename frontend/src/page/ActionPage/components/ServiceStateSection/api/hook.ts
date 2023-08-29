@@ -1,6 +1,7 @@
 import { useQuery } from 'react-query'
 import { useEffect } from 'react'
 import { ServiceState } from '@global/api/entity'
+import { useWebsocket } from '@global/hook'
 import { getServiceState } from './func'
 
 /**
@@ -20,6 +21,14 @@ export const useServiceState = ({
       onSuccess?.(data)
     }
   }, [data])
+
+  useWebsocket({
+    onMessage: (message) => {
+      if (message.msg === 'service_state') {
+        refetch()
+      }
+    },
+  })
 
   return {
     serviceState: data,

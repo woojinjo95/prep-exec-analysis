@@ -3,7 +3,7 @@ import classnames from 'classnames/bind'
 
 import { Input, OptionItem, Select } from '@global/ui'
 import { IPLimit } from '@global/api/entity'
-import useWebsocket from '@global/module/websocket'
+import { useWebsocket } from '@global/hook'
 import { IPRegex } from '@global/constant'
 import { ReactComponent as EditIcon } from '@assets/images/icon_edit.svg'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'

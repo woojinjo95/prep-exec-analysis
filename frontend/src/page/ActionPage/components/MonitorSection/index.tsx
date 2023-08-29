@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import cx from 'classnames'
 import { useNavigate } from 'react-router-dom'
 import AppURL from '@global/constant/appURL'
 import { Text } from '@global/ui'
@@ -18,19 +19,23 @@ const MonitorSection: React.FC = () => {
       onMouseLeave={() => setIsHovered(false)}
       onLostPointerCapture={() => setIsHovered(false)}
     >
-      {isHovered && (
-        <button
-          className="absolute top-5 left-1/2 -translate-x-1/2 bg-white/80 rounded-full border-2 border-primary py-3 px-10 cursor-pointer z-10 hover:bg-white/90 active:bg-white/70"
-          type="button"
-          onClick={() => {
-            navigate('/analysis')
-          }}
-        >
-          <Text weight="medium" colorScheme="dark">
-            Analysis
-          </Text>
-        </button>
-      )}
+      <button
+        className={cx(
+          'absolute top-5 left-1/2 -translate-x-1/2 bg-white/80 rounded-full border-2 border-primary py-3 px-10 cursor-pointer z-10 transition-opacity',
+          {
+            'opacity-30': !isHovered,
+            'opacity-100': isHovered,
+          },
+        )}
+        type="button"
+        onClick={() => {
+          navigate('/analysis')
+        }}
+      >
+        <Text weight="medium" colorScheme="dark">
+          Analysis
+        </Text>
+      </button>
 
       <HLSPlayer autoPlay controls className="h-full aspect-video" src={AppURL.streamingURL} />
     </section>

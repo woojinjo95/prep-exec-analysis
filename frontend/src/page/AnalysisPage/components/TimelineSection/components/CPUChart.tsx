@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react'
 import { AreaChart } from '@global/ui'
-import useWebsocket from '@global/module/websocket'
-import { useCPUAndMemory } from '../api/hook'
+import { useCPU } from '../api/hook'
 
 interface CPUChartProps {
   chartWidth: Parameters<typeof AreaChart>[0]['chartWidth']
@@ -14,22 +13,15 @@ interface CPUChartProps {
  * CPU 사용률 차트
  */
 const CPUChart: React.FC<CPUChartProps> = ({ chartWidth, scaleX, startTime, endTime }) => {
-  const { cpuAndMemory, refetch } = useCPUAndMemory({
+  const { cpu } = useCPU({
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
   })
-  useWebsocket({
-    onMessage: (message) => {
-      if (message.msg === 'analysis_response') {
-        refetch()
-      }
-    },
-  })
 
   const cpuData = useMemo(() => {
-    if (!cpuAndMemory) return null
-    return cpuAndMemory.map(({ timestamp, cpu_usage }) => ({ date: new Date(timestamp), value: cpu_usage }))
-  }, [cpuAndMemory])
+    if (!cpu) return null
+    return cpu.map(({ timestamp, cpu_usage }) => ({ date: new Date(timestamp), value: Number(cpu_usage) }))
+  }, [cpu])
 
   if (!cpuData) return <div />
   return (

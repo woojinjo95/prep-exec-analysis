@@ -1,15 +1,39 @@
 import API from '@global/api'
 import { Response } from '@global/api/entity'
 import { AxiosError } from 'axios'
-import { CPUAndMemory, ColorReference, EventLog, Freeze, LogLevelFinder } from './entity'
+import { CPU, ColorReference, EventLog, Freeze, LogLevelFinder, Memory } from './entity'
 import apiUrls from './url'
 
 /**
- * CPU, Memory 사용률 리스트 조회 api
+ * CPU 사용률 리스트 조회 api
  */
-export const getCPUAndMemory = async (params: { scenario_id?: string; start_time: string; end_time: string }) => {
+export const getCPU = async (params: {
+  scenario_id?: string
+  testrun_id?: string
+  start_time: string
+  end_time: string
+}) => {
   try {
-    const result = await API.get<Response<CPUAndMemory[]>>(apiUrls.cpu_and_memory, { params })
+    const result = await API.get<Response<CPU[]>>(apiUrls.cpu, { params })
+
+    return result.data.items
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
+/**
+ * Memory 사용률 리스트 조회 api
+ */
+export const getMemory = async (params: {
+  scenario_id?: string
+  testrun_id?: string
+  start_time: string
+  end_time: string
+}) => {
+  try {
+    const result = await API.get<Response<Memory[]>>(apiUrls.memory, { params })
 
     return result.data.items
   } catch (err) {
@@ -49,7 +73,12 @@ export const getColorReferences = async (params: { scenario_id?: string; start_t
 /**
  * Freeze 리스트 조회 api
  */
-export const getFreeze = async (params: { scenario_id?: string; start_time: string; end_time: string }) => {
+export const getFreeze = async (params: {
+  scenario_id?: string
+  testrun_id?: string
+  start_time: string
+  end_time: string
+}) => {
   try {
     const result = await API.get<Response<Freeze[]>>(apiUrls.freeze, { params })
 

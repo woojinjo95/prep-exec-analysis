@@ -2,7 +2,7 @@ import { KeyEvent } from '@page/ActionPage/types'
 import React, { useEffect, useMemo, useState } from 'react'
 import cx from 'classnames'
 import { remoconService } from '@global/service/RemoconService/RemoconService'
-import useWebsocket from '@global/module/websocket'
+import { useWebsocket } from '@global/hook'
 import { useHardwareConfiguration } from '@global/api/hook'
 import { Remocon } from '../../api/entity'
 

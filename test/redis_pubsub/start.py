@@ -18,7 +18,7 @@ def main():
 
     # new_scenario()
 
-    unit_publish(payload=log_config_95)
+    # unit_publish(payload=log_config_95)
     unit_publish(payload={'msg': 'streaming', 'data': {'action': 'start'}})
     unit_publish(payload={'msg': 'stb_log', 'data': {'control': 'start'}})
 
