@@ -2,6 +2,7 @@ import multiprocessing
 import time
 import logging
 import psutil
+import traceback
 import json
 from typing import Dict, Callable, Tuple, List
 
@@ -125,12 +126,13 @@ class RedisStorage:
     def enqueue_command(self, func: Callable, args: Tuple):
         command = json.dumps({'func_name': func.__name__, 'args': args})
         self.client.lpush(self.cmd_queue_name, command)
+        logger.info(f'command queue length: {self.command_length()}')
 
     def dequeue_command(self) -> Tuple[Callable, Tuple]:
         try:
             command_byte = self.client.rpop(self.cmd_queue_name)
             if command_byte:
-                command = json.loads(command)
+                command = json.loads(command_byte)
                 # func_name to func that is defined in this module
                 func_name = command.get('func_name')
                 func = globals().get(func_name)
@@ -139,7 +141,12 @@ class RedisStorage:
             else:
                 return None
         except Exception as e:
+            logger.error(f'Error in dequeue_command: {e}')
+            logger.warning(traceback.format_exc())
             return None
+
+    def command_length(self) -> int:
+        return self.client.llen(self.cmd_queue_name)
 
     def empty_command_queue(self):
         while self.client.llen(self.cmd_queue_name) > 0:
