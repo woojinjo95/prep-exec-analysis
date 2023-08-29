@@ -49,6 +49,8 @@ services:
       - "8888:8888" # HLS
     volumes:
       - "./media/mediamtx.yml:/mediamtx.yml"
+      - "./media/server.crt:/server.crt"
+      - "./media/server.key:/server.key"
     logging:
       options:
         max-file: "3"
@@ -104,7 +106,7 @@ services:
       REDIS_PORT: 6379
       REDIS_PASSWORD:
       USER: ${USER}
-    # privileged: true
+    privileged: true
     network_mode: host
     volumes:
       - "$HOME/.ssh:/app/static/keys"
@@ -199,6 +201,19 @@ services:
     build:
       context: ./analyzer
       dockerfile: dockerfile
+    volumes:
+      - ./data/workspace:/app/workspace
+
+  monkey:
+    container_name: monkey
+    restart: always
+    image: registry.dev-nextlab.com/qaas-monkey:dev-0
+    command: python -u main.py
+    build:
+      context: ./monkey
+      dockerfile: dockerfile
+    devices:
+      - "/dev/video0:/dev/video0"
     volumes:
       - ./data/workspace:/app/workspace
 

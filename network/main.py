@@ -13,6 +13,8 @@ from scripts.log_organizer import LogOrganizer
 from scripts.packet_capture import real_time_packet_capture, stop_capture
 from scripts.utils._exceptions import handle_errors
 from scripts.epg.epg import get_epg_data_with_provider
+from scripts.control.emulation_function import apply_network_emulation_args, reset_network_emulation
+from scripts.state import stb_ip_finder_process, device_network_state_process
 
 
 logger = logging.getLogger('main')
@@ -21,6 +23,7 @@ logger = logging.getLogger('main')
 @handle_errors
 def init():
     set_value('state', 'packet_capture', 'idle')
+    reset_network_emulation()
     pass
 
 
@@ -29,6 +32,9 @@ def command_parser(command: dict, packet_capture_stop_event: Event):
     ''' 
     publish command '{"msg": "packet_capture", "data": {"action": "start"}}'
     publish command '{"msg": "epg_update", "data": {"provider": "sk", "ip": "239.192.60.43", "port": 49200}}'
+    publish command '{"msg": "network_emulation", "data": {"action": "start"}}'
+    publish command '{"msg": "network_emulation", "data": {"action": "create", "packet_block": {"ip": "239.192.41.2"}}}'
+    publish command '{"msg": "network_emulation", "data": {"action": "create", "packet_delay": 20}}'
     '''
 
     if command.get('msg') == 'packet_capture':
@@ -42,6 +48,7 @@ def command_parser(command: dict, packet_capture_stop_event: Event):
         if action == 'start':
             state = 'capturing'
             if get_value('state', 'packet_capture') == 'idle':
+                set_value('state', 'packet_capture', 'capturing')
                 packet_capture_stop_event.clear()
                 real_time_packet_capture(packet_capture_stop_event)
                 log = 'Start packet capture service'
@@ -55,6 +62,7 @@ def command_parser(command: dict, packet_capture_stop_event: Event):
                 log_level = 'warning'
                 log = 'Already packet capture service stopped'
             else:
+                set_value('state', 'packet_capture', 'idle')
                 stop_capture()
                 packet_capture_stop_event.set()
                 log = 'Stop packet capture service'
@@ -74,15 +82,21 @@ def command_parser(command: dict, packet_capture_stop_event: Event):
         provider = epg_args.get('provider', 'Unknown')
         ip = epg_args.get('ip')
         port = epg_args.get('port')
-        logger.info()
 
         get_epg_data_with_provider(provider, ip, port)
+
+    if command.get('msg') == 'network_emulation':
+        network_emulation_args = command.get('data', {})
+        apply_network_emulation_args(network_emulation_args)
 
 
 @handle_errors
 def main():
     packet_capture_stop_event = Event()
     init()
+    stb_ip_finder_process()
+    device_network_state_process()
+
     with get_strict_redis_connection() as src:
         for command in Subscribe(src, RedisChannel.command):
             command_parser(command, packet_capture_stop_event)
@@ -94,9 +108,13 @@ if __name__ == '__main__':
         log_organizer.set_stream_logger('main')
         log_organizer.set_stream_logger('capture')
         log_organizer.set_stream_logger('analysis')
+        log_organizer.set_stream_logger('network_control')
         log_organizer.set_stream_logger('epg')
+        log_organizer.set_stream_logger('mongodb')
         log_organizer.set_stream_logger('file')
+        log_organizer.set_stream_logger('shell')
         log_organizer.set_stream_logger('connection')
+        log_organizer.set_stream_logger('info')
         log_organizer.set_stream_logger('error', 10)
         logger.info('Start network container')
 

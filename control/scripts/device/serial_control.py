@@ -1,64 +1,84 @@
 import logging
+import time
 from typing import Dict, Tuple
 
-from ..configs.config import get_value, set_value
+from ..configs.config import get_value
 from ..configs.constant import RedisChannel, RedisDBEnum
+from ..connection.redis_connection import StrictRedis, hget_value, hset_value
 from ..connection.redis_pubsub import get_strict_redis_connection, publish
 from .serial.serial_device import SerialDevice, parse_on_off_control_args
 
 logger = logging.getLogger('serial')
 
 
+HARDWARE_CONFIG = 'hardware_configuration'
+DUT_POWER = 'enable_dut_power'
+DUT_HDMI = 'enable_hdmi'
+DUT_WAN = 'enable_dut_wan'
+
+
 def init_dut_state(serial_device: SerialDevice) -> Tuple[str, str, str]:
-    hardware_configuration = get_value('hardware_configuration', db=RedisDBEnum.hardware)
-    power_state = parse_on_off_control_args(hardware_configuration.get('enable_dut_power'))
-    hdmi_state = parse_on_off_control_args(hardware_configuration.get('enable_hdmi'))
-    wan_state = parse_on_off_control_args(hardware_configuration.get('enable_dut_wan'))
+    hardware_configuration = get_value(HARDWARE_CONFIG, db=RedisDBEnum.hardware)
+    power_state = parse_on_off_control_args(hardware_configuration.get(DUT_POWER))
+    hdmi_state = parse_on_off_control_args(hardware_configuration.get(DUT_HDMI))
+    wan_state = parse_on_off_control_args(hardware_configuration.get(DUT_WAN))
     serial_device.set_packet(vac=power_state, hpd=hdmi_state, lan=wan_state)
     return power_state, hdmi_state, wan_state
 
 
 def change_dut_state(serial_device: SerialDevice, args: Dict[str, str]):
-    power_state = args.pop('enable_dut_power', None)
-    hdmi_state = args.pop('enable_hdmi', None)
-    wan_state = args.pop('enable_dut_wan', None)
+    power_state = args.pop(DUT_POWER, None)
+    hdmi_state = args.pop(DUT_HDMI, None)
+    wan_state = args.pop(DUT_WAN, None)
 
     packet_dict = {}
+    data = {}
 
-    if power_state is not None:
-        power_state = parse_on_off_control_args(power_state)
-        packet_dict['vac'] = power_state
-        set_value('hardware_configuration', 'enable_dut_power',
-                  'True' if power_state == 'on' else 'False', db=RedisDBEnum.hardware)
+    def assign_state(rc: StrictRedis, state: str, pin_name: str, device_name: str):
+        state = parse_on_off_control_args(state)
+        packet_dict[pin_name] = state
+        prev_state = hget_value(rc, HARDWARE_CONFIG, device_name)
+        requested_state = True if state == 'on' else False
 
-    if hdmi_state is not None:
-        hdmi_state = parse_on_off_control_args(hdmi_state)
-        packet_dict['hpd'] = hdmi_state
-        set_value('hardware_configuration', 'enable_hdmi',
-                  'True' if hdmi_state == 'on' else 'False', db=RedisDBEnum.hardware)
+        if prev_state == requested_state:
+            transition = 'steady'
+        elif prev_state is True:
+            transition = 'falling'
+        else:
+            transition = 'rising'
 
-    if wan_state is not None:
-        wan_state = parse_on_off_control_args(wan_state)
-        packet_dict['lan'] = wan_state
-        set_value('hardware_configuration', 'enable_dut_wan',
-                  'True' if wan_state == 'on' else 'False', db=RedisDBEnum.hardware)
+        data[f'{device_name}_transition'] = transition
+        hset_value(rc, HARDWARE_CONFIG, device_name, requested_state)
 
-    if len(args) > 0:
-        with get_strict_redis_connection() as redis_connection:
-            publish(redis_connection, RedisChannel.command, {'msg': 'on_off_control_response',
-                                                             'level': 'error',
-                                                             'data': {'log': f'Devices "{args}" is not supported type'}})
+    with get_strict_redis_connection(db=RedisDBEnum.hardware) as rc:
+        if power_state is not None:
+            assign_state(rc, power_state, 'vac', DUT_POWER)
 
-    with get_strict_redis_connection() as redis_connection:
+        if hdmi_state is not None:
+            assign_state(rc, hdmi_state, 'hpd', DUT_HDMI)
+
+        if wan_state is not None:
+            assign_state(rc, wan_state, 'lan', DUT_WAN)
+
+        if len(args) > 0:
+            publish(rc, RedisChannel.command, {'msg': 'on_off_control_response',
+                                               'level': 'error',
+                                               'data': {'log': f'Devices "{args}" is not supported type'}})
+
+    data.update(packet_dict)
+
+    with get_strict_redis_connection() as rc:
+        sensor_time = time.time()
         log = serial_device.set_packet(**packet_dict)
+        sensor_time += serial_device.time_offset
 
         if log == 'ok':
+            data.update({'sensor_time': sensor_time})
             payload = {'msg': 'on_off_control_response',
-                       'data': packet_dict}
+                       'data': data}
         else:
             payload = {'msg': 'on_off_control_response',
                        'level': 'error',
                        'data': {'log': f'Devices "{args}" is not supported type'}}
 
-
-        publish(redis_connection, RedisChannel.command, payload)
+        publish(rc, RedisChannel.command, payload)

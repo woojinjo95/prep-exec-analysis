@@ -16,39 +16,39 @@ interface ButtonProps
  *
  * @param isRoundedFull 모서리 둥글기, true면 완전히 동그래짐. false면 기본 rounded
  */
-const Button: React.FC<ButtonProps> = ({
-  children,
-  colorScheme = 'charcoal',
-  isRoundedFull = true,
-  className,
-  ...props
-}) => {
-  return (
-    <button
-      // eslint-disable-next-line react/button-has-type
-      type="button"
-      className={cx(
-        'py-3 px-10',
-        {
-          'bg-light-black': colorScheme === 'dark',
-          'bg-light-charcoal': colorScheme === 'charcoal',
-          'bg-grey': colorScheme === 'grey',
-          'bg-primary': colorScheme === 'primary',
-          'rounded-full': isRoundedFull,
-          'rounded-lg': !isRoundedFull,
-        },
-        className,
-      )}
-      {...props}
-    >
-      {typeof children === 'string' && (
-        <Text size="sm" weight="medium">
-          {children}
-        </Text>
-      )}
-      {typeof children !== 'string' && children}
-    </button>
+const Button: React.ForwardRefExoticComponent<Omit<ButtonProps, 'ref'> & React.RefAttributes<HTMLButtonElement>> =
+  React.forwardRef<HTMLButtonElement, ButtonProps>(
+    ({ children, colorScheme = 'charcoal', isRoundedFull = true, className, ...props }, ref) => {
+      return (
+        <button
+          ref={ref}
+          // eslint-disable-next-line react/button-has-type
+          type="button"
+          className={cx(
+            'py-3 px-10 h-fit',
+            {
+              'bg-light-black': colorScheme === 'dark',
+              'bg-light-charcoal': colorScheme === 'charcoal',
+              'bg-grey': colorScheme === 'grey',
+              'bg-primary': colorScheme === 'primary',
+              'rounded-full': isRoundedFull,
+              'rounded-lg': !isRoundedFull,
+            },
+            className,
+          )}
+          {...props}
+        >
+          {typeof children === 'string' && (
+            <Text size="sm" weight="medium">
+              {children}
+            </Text>
+          )}
+          {typeof children !== 'string' && children}
+        </button>
+      )
+    },
   )
-}
+
+Button.displayName = 'Button'
 
 export default Button

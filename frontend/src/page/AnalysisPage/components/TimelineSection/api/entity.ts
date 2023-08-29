@@ -1,13 +1,33 @@
 /**
- * CPU, Memory
+ * 온전치 못한 데이터일 경우(ex: 에러) -> 빈문자열
  */
-export interface CPUAndMemory {
+export interface CPU {
   /**
    * @format timestamp
    */
   timestamp: string
-  cpu_usage: number
-  memory_usage: number
+  cpu_usage: string
+  total: string
+  user: string
+  kernel: string
+  iowait: string
+  irq: string
+  softirq: string
+}
+
+/**
+ * 온전치 못한 데이터일 경우(ex: 에러) -> 빈문자열
+ */
+export interface Memory {
+  /**
+   * @format timestamp
+   */
+  timestamp: string
+  memory_usage: string
+  total_ram: string
+  free_ram: string
+  used_ram: string
+  lost_ram: string
 }
 
 export interface EventLog {

@@ -1,5 +1,4 @@
 import logging
-import os
 import asyncio
 import redis.asyncio as redis
 from app.core.config import settings
@@ -44,11 +43,14 @@ html = """
     </body>
 </html>
 """
-CHANNEL_NAME = "command"
+COMMAND_CHANNEL_NAME = "command"
+LOUDNESS_CHANNEL_NAME = "loudness"
+
 
 @router.get("/test")
 async def get():
     return HTMLResponse(html)
+
 
 @router.websocket('/ws')
 async def ws_voting_endpoint(websocket: WebSocket):
@@ -57,18 +59,18 @@ async def ws_voting_endpoint(websocket: WebSocket):
 
 
 async def redis_connector(websocket: WebSocket):
-    async def consumer_handler(conn: redis, ws: WebSocket):
+    async def message_bridge_handler(conn: redis, ws: WebSocket):
         try:
             while True:
                 message = await ws.receive_text()
                 await asyncio.sleep(0.001)
                 if message is not None:  # command:로 시작하는 메시지를 control 채널로 발행함
-                    await conn.publish(CHANNEL_NAME, message)
+                    await conn.publish(COMMAND_CHANNEL_NAME, message)
         except WebSocketDisconnect as exc:
             logger.error(exc)
 
-    async def producer_handler(pubsub: redis, ws: WebSocket):
-        await pubsub.subscribe(CHANNEL_NAME)  # control 채널을 수신함 
+    async def consumer_pubsub_handler(pubsub: redis, ch_name: str, ws: WebSocket):
+        await pubsub.subscribe(ch_name)  # control 채널을 수신함 
         try:
             while True:
                 message = await pubsub.get_message(ignore_subscribe_messages=True)
@@ -79,12 +81,14 @@ async def redis_connector(websocket: WebSocket):
             logger.error(exc)
 
     conn = await get_redis_pool()
-    pubsub = conn.pubsub()
-
-    consumer_task = consumer_handler(conn=conn, ws=websocket)
-    producer_task = producer_handler(pubsub=pubsub, ws=websocket)
+    
+    message_bridge_task = message_bridge_handler(conn=conn, ws=websocket)
+    pubsub_command = conn.pubsub()
+    consumer_command_task = consumer_pubsub_handler(pubsub=pubsub_command, ch_name=COMMAND_CHANNEL_NAME, ws=websocket)
+    pubsub_loudness = conn.pubsub()
+    consumer_loudness_task = consumer_pubsub_handler(pubsub=pubsub_loudness, ch_name=LOUDNESS_CHANNEL_NAME, ws=websocket)
     done, pending = await asyncio.wait(
-        [consumer_task, producer_task], return_when=asyncio.FIRST_COMPLETED,
+        [message_bridge_task, consumer_command_task, consumer_loudness_task], return_when=asyncio.FIRST_COMPLETED,
     )
     logger.debug(f"Done task: {done}")
     for task in pending:

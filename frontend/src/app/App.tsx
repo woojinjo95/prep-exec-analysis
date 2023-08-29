@@ -1,6 +1,8 @@
 import React from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { ChakraProvider } from '@chakra-ui/react'
+import { RecoilRoot } from 'recoil'
+import { useWebsocket } from '@global/hook'
 import PageRouter from './router'
 
 /**
@@ -15,11 +17,20 @@ const client = new QueryClient({
 })
 
 const App: React.FC = () => {
+  useWebsocket({
+    onMessage: (message) => {
+      if (!message.msg) return
+      console.info({ ...message, time: message.time * 1000 })
+    },
+  })
+
   return (
     <QueryClientProvider client={client}>
-      <ChakraProvider>
-        <PageRouter />
-      </ChakraProvider>
+      <RecoilRoot>
+        <ChakraProvider>
+          <PageRouter />
+        </ChakraProvider>
+      </RecoilRoot>
     </QueryClientProvider>
   )
 }

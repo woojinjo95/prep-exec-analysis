@@ -6,9 +6,9 @@ import logging
 from scripts.analysis.image import (calc_diff_rate, calc_image_value_rate, 
                                     calc_image_whole_stdev, is_similar_by_match_template)
 from scripts.util.static import get_static_image
+from scripts.format import LogName
 
-
-logger = logging.getLogger('freeze_detect')
+logger = logging.getLogger(LogName.FREEZE_DETECT.value)
 
 class FreezeDetector:
     def __init__(self, fps: float, sampling_rate: int, min_interval: float, min_color_depth_diff: int, 
@@ -26,6 +26,8 @@ class FreezeDetector:
                 'frame': None,
                 'index': 0,
                 'freeze_count': 0, 
+                'start_time': 0,
+                'freeze_type': 'none',
             },
         }
 
@@ -45,6 +47,8 @@ class FreezeDetector:
         if freeze_state['occured']:
             return {
                 'detect': True,
+                'start_time': freeze_state['start_time'],
+                'duration': freeze_state['duration'],
                 'freeze_type': freeze_state['freeze_type'],
             }
         else:
@@ -73,19 +77,28 @@ class FreezeDetector:
             is_frame_freezed = diff_rate < min_diff_rate
             prev_info['frame'] = frame
 
-            # freeze_count is dict value
+            # manage freeze count and status
+            status = 'none'
             if is_frame_freezed:
+                if prev_info['freeze_count'] == 0:  # freeze count rising edge
+                    status = 'rising'
                 prev_info['freeze_count'] += 1
             else:
+                if prev_info['freeze_count'] > 0:  # freeze count falling edge
+                    status = 'falling'
+                    if prev_info['freeze_count'] >= min_freeze_count:
+                        status = 'occured'
                 prev_info['freeze_count'] = 0
 
-            if prev_info['freeze_count'] == min_freeze_count:
+            if status == 'rising':
+                prev_info['start_time'] = timestamp
+                prev_info['freeze_type'] = self.get_freeze_type(frame, frame_stdev_thres)
+            elif status == 'occured':
                 result['occured'] = True
-                result['interval'] = min_interval
-                result['event_time'] = timestamp - min_interval
-                result['freeze_type'] = self.get_freeze_type(frame, frame_stdev_thres)
-            else:
-                pass
+                result['start_time'] = prev_info['start_time']
+                result['end_time'] = timestamp
+                result['duration'] = timestamp - prev_info['start_time']
+                result['freeze_type'] = prev_info['freeze_type']
 
             # logger.info(f'freeze_count: {prev_info["freeze_count"]}, diff_rate: {diff_rate}, is_frame_freezed: {is_frame_freezed}, min_freeze_count: {min_freeze_count}')
 
@@ -98,19 +111,19 @@ class FreezeDetector:
         is_similar = is_similar_by_match_template(resized_frame, self.power_off_image)
 
         if is_similar:
-            freeze_type = 'No-signal'
+            freeze_type = 'no_signal'
         else:
             frame_brightess = calc_image_value_rate(frame)
             frame_stdev = calc_image_whole_stdev(frame)
 
             if frame_stdev < frame_stdev_thres:
                 if frame_brightess < 0.001:
-                    freeze_type = 'Black'
+                    freeze_type = 'black'
                 elif frame_brightess > 0.999:
-                    freeze_type = 'White'
+                    freeze_type = 'white'
                 else:
-                    freeze_type = 'One-colored'
+                    freeze_type = 'one_colored'
             else:
-                freeze_type = 'Default'
+                freeze_type = 'default'
 
         return freeze_type

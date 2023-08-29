@@ -4,6 +4,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 # install fundamental
 RUN apt-get update
 RUN apt-get update && apt-get -y install libgl1-mesa-glx x264 libx264-dev libavcodec-dev
+RUN apt-get -y install ffmpeg
 
 # install pip & python
 RUN ln -s /usr/bin/python3 /usr/bin/python
@@ -28,3 +29,4 @@ ENV REDIS_HOST redis
 ENV REDIS_PORT 6379
 ENV REDIS_DB 0
 ENV REDIS_PASSWORD ""
+

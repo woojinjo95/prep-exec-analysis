@@ -22,9 +22,11 @@ const OptionItem: React.FC<OptionItemProps> = ({ children, colorScheme = 'charco
         {
           'bg-charcoal': colorScheme === 'dark' && isActive,
           'bg-light-charcoal': colorScheme === 'charcoal' && isActive,
-          'hover:backdrop-brightness-[1.1]': colorScheme === 'dark' || colorScheme === 'charcoal',
-          'hover:backdrop-brightness-[0.97]': colorScheme === 'light',
           'bg-[#F1F2F4]': colorScheme === 'light' && isActive,
+
+          'hover:bg-charcoal': colorScheme === 'dark',
+          'hover:bg-light-charcoal': colorScheme === 'charcoal',
+          'hover:bg-[#F1F2F4]': colorScheme === 'light',
         },
         props.className,
       )}

@@ -1,4 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react'
+import { useRecoilValue } from 'recoil'
 import { ReactComponent as GoToFirstIcon } from '@assets/images/icon_go_to_first_w.svg'
 import { ReactComponent as StepBackIcon } from '@assets/images/icon_step_back_1sec_w.svg'
 import { ReactComponent as PlayIcon } from '@assets/images/icon_play.svg'
@@ -6,17 +7,16 @@ import { ReactComponent as StepForwardIcon } from '@assets/images/icon_step_forw
 import { ReactComponent as GoToLastIcon } from '@assets/images/icon_go_to_last_w.svg'
 import { ReactComponent as StopIcon } from '@assets/images/icon_stop.svg'
 import { Button, IconButton, Text } from '@global/ui'
+import { scenarioIdState } from '@global/atom'
 import AppURL from '@global/constant/appURL'
-
-interface VideoDetailSectionProps {
-  scenarioId: string | null
-}
+import apiUrls from '@page/AnalysisPage/api/url'
 
 /**
  * 결과영상 및 정보 영역
  */
-const VideoDetailSection: React.FC<VideoDetailSectionProps> = ({ scenarioId }) => {
+const VideoDetailSection: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
+  const scenarioId = useRecoilValue(scenarioIdState)
   const [isPlaying, setIsPlaying] = useState<boolean>(false)
   const [currentTime, setCurrentTime] = useState<number>(0)
   /**
@@ -97,7 +97,7 @@ const VideoDetailSection: React.FC<VideoDetailSectionProps> = ({ scenarioId }) =
           <video
             ref={videoRef}
             className="h-full aspect-video"
-            src={`${AppURL.backendURL}/api/v1/file/video?scenario_id=${scenarioId}`}
+            src={`${AppURL.backendURL}${apiUrls.partial_video}?scenario_id=${scenarioId}`}
             muted
             controls
             loop={false}
@@ -117,7 +117,9 @@ const VideoDetailSection: React.FC<VideoDetailSectionProps> = ({ scenarioId }) =
 
       {/* FIXME: 버튼의 의미(동영상 다운로드?) */}
       <div className="ml-auto mt-auto py-4 px-3">
-        <Button colorScheme="charcoal">Save</Button>
+        <Button colorScheme="charcoal" className="w-[132px]">
+          Save
+        </Button>
       </div>
     </section>
   )

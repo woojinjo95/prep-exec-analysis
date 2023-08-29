@@ -15,6 +15,7 @@ interface SelectProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children?: React.ReactNode
 
   colorScheme?: 'dark' | 'charcoal' | 'light'
+  widthOption?: 'fit-content' | 'fit-wrapper'
 }
 
 /**
@@ -25,45 +26,42 @@ interface SelectProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 const Select: React.ForwardRefExoticComponent<SelectProps & React.RefAttributes<HTMLButtonElement>> = React.forwardRef<
   HTMLButtonElement,
   SelectProps
->(({ value, className, children, defaultValue, colorScheme = 'charcoal', ...props }, ref) => {
+>(({ value, className, children, defaultValue, colorScheme = 'charcoal', widthOption, ...props }, ref) => {
   const divRef = useRef<HTMLDivElement | null>(null)
   const [isFocused, setIsFocused] = useState<boolean>(false)
   const { ref: selectListRef } = useOutsideClick<HTMLUListElement>({ onClickOutside: () => setIsFocused(false) })
 
   return (
-    <div ref={divRef} className="relative">
+    <div ref={divRef} className={cx('relative', className)}>
       <button
         ref={ref}
         type="button"
         aria-label="select"
-        className={cx(
-          'flex justify-between items-center border rounded-lg py-3 px-4 w-full transition-colors',
-          {
-            'bg-white': colorScheme === 'light',
-            'border-light-grey': colorScheme === 'light',
-            'bg-charcoal': colorScheme === 'charcoal',
-            'border-light-charcoal': colorScheme === 'charcoal',
-            'bg-light-black': colorScheme === 'dark',
-            'border-charcoal': colorScheme === 'dark',
-            'border-primary': isFocused,
-          },
-          className,
-        )}
+        className={cx('flex justify-between items-center border rounded-lg py-3 px-4 w-full transition-colors', {
+          'bg-white': colorScheme === 'light',
+          'border-light-grey': colorScheme === 'light',
+          'bg-charcoal': colorScheme === 'charcoal',
+          'border-light-charcoal': colorScheme === 'charcoal',
+          'bg-light-black': colorScheme === 'dark',
+          'border-charcoal': colorScheme === 'dark',
+          'border-primary': isFocused && !props.disabled,
+        })}
         onClick={(e) => {
           setIsFocused((prev) => !prev)
           props.onClick?.(e)
         }}
         {...props}
       >
-        <Text weight="bold" colorScheme={colorScheme === 'light' ? 'dark' : 'light'}>
+        <Text weight="bold" size="sm" colorScheme={colorScheme === 'light' ? 'dark' : 'light'}>
           {value || defaultValue}
         </Text>
-        <DropdownIcon className={cx('w-[10px]', colorScheme)} />
+        <DropdownIcon className={cx('w-3', colorScheme)} />
       </button>
 
       <OptionList
         ref={selectListRef}
         isVisible={isFocused}
+        widthOption={widthOption}
         wrapperRef={divRef}
         onClick={() => setIsFocused(false)}
         colorScheme={colorScheme}

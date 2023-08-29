@@ -1,5 +1,6 @@
 from typing import List
 
+from app.schemas.enum import LogLevelEnum, FreezeTypeEnum
 from pydantic import BaseModel, root_validator
 from pydantic.datetime_parse import parse_datetime
 
@@ -15,20 +16,37 @@ class TimestampBaseModel(BaseModel):
 
 
 class LogLevelFinderBase(TimestampBaseModel):
-    log_level: str
+    log_level: LogLevelEnum
 
 
 class LogLevelFinder(BaseModel):
     items: List[LogLevelFinderBase]
 
 
-class CpuAndMemoryBase(TimestampBaseModel):
+class CpuBase(TimestampBaseModel):
     cpu_usage: str
+    total: str
+    user: str
+    kernel: str
+    iowait: str
+    irq: str
+    softirq: str
+
+
+class Cpu(BaseModel):
+    items: List[CpuBase]
+
+
+class MemoryBase(TimestampBaseModel):
     memory_usage: str
+    total_ram: str
+    free_ram: str
+    used_ram: str
+    lost_ram: str
 
 
-class CpuAndMemory(BaseModel):
-    items: List[CpuAndMemoryBase]
+class Memory(BaseModel):
+    items: List[MemoryBase]
 
 
 class EventLogBase(TimestampBaseModel):
@@ -50,35 +68,39 @@ class ColorReference(BaseModel):
 
 
 class FreezeBase(TimestampBaseModel):
-    pass
+    freeze_type: FreezeTypeEnum
+    duration: float
 
 
 class Freeze(BaseModel):
     items: List[FreezeBase]
 
 
-class VideoAnalysisResultBase(BaseModel):
-    pass
+class LoudnessBase(TimestampBaseModel):
+    m: float  # Momentary LKFS
+    # i: float # Integrated LKFS
 
 
-class VideoAnalysisResult(BaseModel):
-    items: List[VideoAnalysisResultBase]
+class Loudness(BaseModel):
+    items: List[LoudnessBase]
 
 
-class LogPatternMatchingBase(BaseModel):
-    pass
+class MeasurementBootBase(TimestampBaseModel):
+    measure_time: int
+
+
+class MeasurementBoot(BaseModel):
+    items: List[MeasurementBootBase]
+
+
+class LogPatternMatchingBase(TimestampBaseModel):
+    log_pattern_name: str
+    log_level: str
+    message: str
 
 
 class LogPatternMatching(BaseModel):
     items: List[LogPatternMatchingBase]
-
-
-class MeasurementBase(BaseModel):
-    pass
-
-
-class Measurement(BaseModel):
-    items: List[MeasurementBase]
 
 
 class ProcessLifecycleBase(BaseModel):

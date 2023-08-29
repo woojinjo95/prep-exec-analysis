@@ -5,19 +5,32 @@ from pydantic import BaseModel, root_validator
 from pydantic.datetime_parse import parse_datetime
 
 
+class CopyScenarioCreate(BaseModel):
+    src_scenario_id: str
+    name: str
+    tags: Optional[List[str]] = []
+    block_group: Optional[List[BlockGroup]]
+
+
 class ScenarioCreate(BaseModel):
-    is_active: bool
+    is_active: Optional[bool] = False
     name: Optional[str]
     tags: Optional[List[str]]
     block_group: Optional[List[BlockGroup]]
 
 
-class ScenarioUpdate(ScenarioCreate):
+class ScenarioUpdate(BaseModel):
+    is_active: bool
+    name: str
+    tags: Optional[List[str]] = []
     block_group: List[BlockGroup]
 
 
 class ScenarioBlock(BaseModel):
     id: str
+    name: str
+    tags: Optional[List[str]] = []
+    is_active: bool
     block_group: List[BlockGroup]
 
 

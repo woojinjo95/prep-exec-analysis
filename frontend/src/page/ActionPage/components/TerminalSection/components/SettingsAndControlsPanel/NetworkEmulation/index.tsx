@@ -1,11 +1,10 @@
 import React, { useCallback, useState } from 'react'
-import { useMutation } from 'react-query'
 import { useToast } from '@chakra-ui/react'
 
 import { ReactComponent as RefreshIcon } from '@assets/images/icon_refresh_w.svg'
 import { Input, Title, ToggleButton, Text, Divider, Button } from '@global/ui'
 import { useHardwareConfiguration } from '@global/api/hook'
-import { putHardwareConfiguration } from '../../../api/func'
+import { useWebsocket } from '@global/hook'
 import IPLimitItem from './IPLimitItem'
 
 /**
@@ -13,46 +12,127 @@ import IPLimitItem from './IPLimitItem'
  */
 const NetworkEmulation: React.FC = () => {
   const toast = useToast({ duration: 3000, isClosable: true })
-  const [bandwidth, setBandwidth] = useState<number | null>(null)
-  const [delay, setDelay] = useState<number | null>(null)
-  const [loss, setLoss] = useState<number | null>(null)
+  const [input, setInput] = useState<{ bandwidth: string | null; delay: string | null; loss: string | null }>({
+    bandwidth: null,
+    delay: null,
+    loss: null,
+  })
   const { hardwareConfiguration, refetch } = useHardwareConfiguration({
     onSuccess: (data) => {
-      setBandwidth(data.packet_bandwidth)
-      setDelay(data.packet_delay)
-      setLoss(data.packet_loss)
+      setInput({
+        bandwidth: String(data.packet_bandwidth),
+        delay: String(data.packet_delay),
+        loss: String(data.packet_loss),
+      })
     },
   })
-  const { mutate: updateHardwareConfiguration } = useMutation(putHardwareConfiguration, {
-    onSuccess: () => {
-      refetch()
-    },
-    onError: () => {
-      toast({ status: 'error', title: 'An error has occurred. Please try again.' })
+  const { sendMessage } = useWebsocket({
+    onMessage: (message) => {
+      if (message.msg === 'network_emulation_response') {
+        refetch()
+      }
     },
   })
+
   const [isAddingIPLimit, setIsAddingIPLimit] = useState<boolean>(false)
 
-  const onBlurInput = useCallback(
-    (key: 'bandwidth' | 'delay' | 'loss', value: number | null): React.FocusEventHandler<HTMLInputElement> =>
-      () => {
-        // TODO: validate bandwidth, delay, loss
-        if (value === hardwareConfiguration?.[`packet_${key}`] || value === null) return
-        updateHardwareConfiguration({ [`packet_${key}`]: value })
-      },
+  /**
+   * Packet Control 업데이트 함수
+   */
+  const updatePacketControl = useCallback(
+    (key: 'bandwidth' | 'delay' | 'loss', value: string | null) => {
+      if (!hardwareConfiguration) return
+
+      if (value === String(hardwareConfiguration?.[`packet_${key}`])) return
+
+      if (value === '') {
+        sendMessage({
+          msg: 'network_emulation',
+          data: {
+            action: 'update',
+            [`packet_${key}`]: key === 'bandwidth' ? 1000 : 0,
+          },
+        })
+        return
+      }
+
+      const newValue = Number(value)
+
+      if (key === 'bandwidth' && (newValue < 0 || newValue > 1000)) {
+        toast({ status: 'warning', title: 'For bandwidth, only values ​​between 0Mbps and 1000Mbps can be entered.' })
+        setInput((prev) => ({
+          ...prev,
+          [key]: String(hardwareConfiguration[`packet_${key}`]),
+        }))
+        return
+      }
+
+      if (key === 'delay' && (newValue < 0 || newValue > 100000)) {
+        toast({ status: 'warning', title: 'For delay, only values ​​between 0ms and 100000ms(100s) can be entered.' })
+        setInput((prev) => ({
+          ...prev,
+          [key]: String(hardwareConfiguration[`packet_${key}`]),
+        }))
+        return
+      }
+
+      if (key === 'loss' && (newValue < 0 || newValue > 100)) {
+        toast({ status: 'warning', title: 'For loss, only values ​​between 0% and 100% can be entered.' })
+        setInput((prev) => ({
+          ...prev,
+          [key]: String(hardwareConfiguration[`packet_${key}`]),
+        }))
+        return
+      }
+
+      sendMessage({
+        msg: 'network_emulation',
+        data: {
+          action: 'update',
+          [`packet_${key}`]: newValue,
+        },
+      })
+    },
     [hardwareConfiguration],
   )
 
-  const onKeyDownInput = useCallback(
-    (key: 'bandwidth' | 'delay' | 'loss', value: number | null): React.KeyboardEventHandler<HTMLInputElement> =>
+  const onChangeInput = useCallback(
+    (key: keyof typeof input): React.ChangeEventHandler<HTMLInputElement> =>
       (e) => {
-        if (e.key !== 'Enter') return
-        e.currentTarget.blur()
-        // TODO: validate bandwidth, delay, loss
-        if (value === hardwareConfiguration?.[`packet_${key}`] || value === null) return
-        updateHardwareConfiguration({ [`packet_${key}`]: value })
+        const { value } = e.target
+
+        if (Number.isNaN(value)) return
+
+        if (value.length > 1 && value.charAt(0) === '0') {
+          setInput((prev) => ({
+            ...prev,
+            [key]: value.slice(1),
+          }))
+          return
+        }
+
+        setInput((prev) => ({
+          ...prev,
+          [key]: value,
+        }))
       },
-    [hardwareConfiguration],
+    [],
+  )
+
+  const onBlurInput = useCallback(
+    (key: 'bandwidth' | 'delay' | 'loss'): React.FocusEventHandler<HTMLInputElement> =>
+      () => {
+        updatePacketControl(key, input[key])
+      },
+    [updatePacketControl, input],
+  )
+
+  const onKeyDownInput: React.KeyboardEventHandler<HTMLInputElement> = useCallback(
+    (e) => {
+      if (e.key !== 'Enter') return
+      e.currentTarget.blur()
+    },
+    [updatePacketControl, input],
   )
 
   return (
@@ -64,11 +144,23 @@ const NetworkEmulation: React.FC = () => {
 
         <ToggleButton
           isOn={!!hardwareConfiguration?.enable_network_emulation}
-          onClick={(isOn) => updateHardwareConfiguration({ enable_network_emulation: isOn })}
+          onClick={(isOn) => {
+            sendMessage({ msg: 'network_emulation', data: { action: isOn ? 'start' : 'stop' } })
+          }}
         />
 
-        {/* FIXME: 이 아이콘의 용도 찾기 */}
-        <button type="button" className="ml-auto">
+        <button
+          type="button"
+          className="ml-auto"
+          onClick={() => {
+            // FIXME: confirm 함수 -> custom confirm으로 대체
+            if (
+              !window.confirm('Do you want to set all values ​​related to Network Emulation to their initial values?')
+            )
+              return
+            sendMessage({ msg: 'network_emulation', data: { action: 'reset' } })
+          }}
+        >
           <RefreshIcon className="w-5 h-5" />
         </button>
       </div>
@@ -88,12 +180,12 @@ const NetworkEmulation: React.FC = () => {
             <div className="mt-1 grid grid-rows-1 grid-cols-[55%_40%] gap-x-2 items-center">
               <Input
                 colorScheme="charcoal"
-                value={bandwidth || 0}
+                value={input.bandwidth === null ? '' : input.bandwidth}
+                placeholder="1000"
                 type="number"
-                pattern="[0-9]*"
-                onChange={(e) => setBandwidth(Number(e.target.value))}
-                onBlur={onBlurInput('bandwidth', bandwidth)}
-                onKeyDown={onKeyDownInput('bandwidth', bandwidth)}
+                onChange={onChangeInput('bandwidth')}
+                onBlur={onBlurInput('bandwidth')}
+                onKeyDown={onKeyDownInput}
               />
               <Text weight="medium" size="xs" className="mr-2">
                 Mbps
@@ -108,12 +200,12 @@ const NetworkEmulation: React.FC = () => {
             <div className="mt-1 grid grid-rows-1 grid-cols-[55%_40%] gap-x-2 items-center">
               <Input
                 colorScheme="charcoal"
-                value={delay || 0}
+                value={input.delay === null ? '' : input.delay}
+                placeholder="0"
                 type="number"
-                pattern="[0-9]*"
-                onChange={(e) => setDelay(Number(e.target.value))}
-                onBlur={onBlurInput('delay', delay)}
-                onKeyDown={onKeyDownInput('delay', delay)}
+                onChange={onChangeInput('delay')}
+                onBlur={onBlurInput('delay')}
+                onKeyDown={onKeyDownInput}
               />
               <Text weight="medium" size="xs" className="mr-2">
                 ms
@@ -128,12 +220,12 @@ const NetworkEmulation: React.FC = () => {
             <div className="mt-1 grid grid-rows-1 grid-cols-[55%_40%] gap-x-2 items-center">
               <Input
                 colorScheme="charcoal"
-                value={loss || 0}
+                value={input.loss === null ? '' : input.loss}
+                placeholder="0"
                 type="number"
-                pattern="[0-9]*"
-                onChange={(e) => setLoss(Number(e.target.value))}
-                onBlur={onBlurInput('loss', loss)}
-                onKeyDown={onKeyDownInput('loss', loss)}
+                onChange={onChangeInput('loss')}
+                onBlur={onBlurInput('loss')}
+                onKeyDown={onKeyDownInput}
               />
               <Text weight="medium" size="xs" className="mr-2">
                 %
@@ -150,10 +242,10 @@ const NetworkEmulation: React.FC = () => {
           Configuring IP Limit
         </Text>
 
-        {isAddingIPLimit && <IPLimitItem isFocusDefault cancelAddIPLimit={() => setIsAddingIPLimit(false)} />}
-        {hardwareConfiguration?.ip_limit?.map(({ id, ip, port, protocol }) => (
-          <IPLimitItem key={`hardware-configuration-ip-limit-${id}`} ip={ip} port={port} protocol={protocol} />
+        {hardwareConfiguration?.packet_block?.map(({ id, ip, port, protocol }) => (
+          <IPLimitItem key={`hardware-configuration-ip-limit-${id}`} id={id} ip={ip} port={port} protocol={protocol} />
         ))}
+        {isAddingIPLimit && <IPLimitItem isCreating close={() => setIsAddingIPLimit(false)} />}
 
         {!isAddingIPLimit && (
           <Button type="button" colorScheme="charcoal" onClick={() => setIsAddingIPLimit(true)}>

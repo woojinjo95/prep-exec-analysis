@@ -4,13 +4,15 @@
   }
   &.charcoal {
     path,
-    polygon {
+    polygon,
+    circle {
       @apply fill-white;
     }
   }
   &.light {
     path,
-    polygon {
+    polygon,
+    circle {
       @apply fill-black;
     }
   }

@@ -1,13 +1,18 @@
 import json
 import logging
+import os
 import traceback
+from uuid import uuid4
 
 from app import schemas
 from app.api.utility import parse_bytes_to_value
+from app.core.config import settings
+from app.crud.base import insert_one_to_mongodb, load_from_mongodb
 from app.db.redis_session import RedisClient
 from app.schemas.enum import AnalysisTypeEnum
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.encoders import jsonable_encoder
+from fastapi.responses import FileResponse
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -44,3 +49,65 @@ def update_analysis_config(
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Update analysis_config'}
+
+
+@router.delete("/{analysis_type}", response_model=schemas.Msg)
+def delete_analysis_config(
+    *,
+    analysis_type: AnalysisTypeEnum,
+) -> schemas.Msg:
+    """
+    Delete analysis_config.
+    """
+    analysis_type = analysis_type.value
+    name = f'analysis_config:{analysis_type}'
+    if not RedisClient.hgetall(name=name):
+        raise HTTPException(
+            status_code=404, detail=f"The analysis_config with this {analysis_type} does not exist in the system.")
+    try:
+        RedisClient.delete(name)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return {'msg': f'Delete {analysis_type} analysis_config'}
+
+
+@router.post("/frame", response_model=schemas.FrameImage)
+async def upload_frame(
+    file: UploadFile = File(...)
+) -> schemas.FrameImage:
+    """
+    Upload frame.
+    """
+    if file is None:
+        raise HTTPException(status_code=400, detail="No upload file")
+    try:
+        file_uuid = str(uuid4())
+        workspace_path = f"{RedisClient.hget('testrun','workspace_path')}/{RedisClient.hget('testrun','id')}/analysis/frame"
+        local_path = workspace_path.replace(settings.CONTAINER_PATH, settings.HOST_PATH)
+        insert_one_to_mongodb(col='file', data={'id': file_uuid, "name": file.filename, "path": local_path})
+        if not os.path.isdir(local_path):
+            os.mkdir(local_path)
+        with open(os.path.join(local_path, file_uuid), 'wb') as f:
+            f.write(file.file.read())
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return {'id': file_uuid, 'path': f"{workspace_path}/{file_uuid}"}
+
+
+@router.get('/frame/{frame_id}', response_class=FileResponse)
+async def download_frame(
+    frame_id: str
+) -> FileResponse:
+    """
+    Download frame.
+    """
+    file = load_from_mongodb(col='file', param={'id': frame_id})
+    if not file:
+        raise HTTPException(status_code=404, detail=f"The frame does not exist in the system.")
+    try:
+        file_name = file[0]['name']
+        workspace_path = f"{RedisClient.hget('testrun','workspace_path')}/{RedisClient.hget('testrun','id')}/analysis/frame/{frame_id}"
+        local_path = workspace_path.replace(settings.CONTAINER_PATH, settings.HOST_PATH)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return FileResponse(path=local_path, filename=file_name)

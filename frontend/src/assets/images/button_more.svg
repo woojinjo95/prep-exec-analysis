@@ -3,9 +3,9 @@
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 18 4" style="enable-background:new 0 0 18 4;" xml:space="preserve">
 <style type="text/css">
-	.st0{fill:#222222;}
+	.button-more{fill:#222222;}
 </style>
-<circle id="타원_10" class="st0" cx="2" cy="2" r="2"/>
-<circle id="타원_10-2" class="st0" cx="9" cy="2" r="2"/>
-<circle id="타원_10-3" class="st0" cx="16" cy="2" r="2"/>
+<circle id="타원_10" class="button-more" cx="2" cy="2" r="2"/>
+<circle id="타원_10-2" class="button-more" cx="9" cy="2" r="2"/>
+<circle id="타원_10-3" class="button-more" cx="16" cy="2" r="2"/>
 </svg>
