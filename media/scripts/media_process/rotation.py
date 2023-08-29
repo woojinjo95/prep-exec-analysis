@@ -19,7 +19,7 @@ from ..connection.mongo_db.update import update_to_mongodb, update_video_info_to
 from ..connection.redis_pubsub import get_strict_redis_connection, publish
 from ..utils._timezone import timestamp_to_datetime_with_timezone_str
 from ..utils.file_manage import substitute_path_extension
-from .video_stat import summerize_merged_video_info, process_video_info
+from .video_stat import summarize_merged_video_info, process_video_info
 
 logger = logging.getLogger('main')
 
@@ -145,7 +145,7 @@ class MakeVideo:
 
             json_name_list = sorted(list(set(self.json_name_list)))
             self.output_json_path = substitute_path_extension(self.output_video_path, 'mp4_stat')
-            raw_video_info = summerize_merged_video_info(self.start_time, self.output_json_path, json_name_list)
+            raw_video_info = summarize_merged_video_info(self.start_time, self.output_json_path, json_name_list)
 
             for video in video_name_list:
                 try:
@@ -175,12 +175,12 @@ class MakeVideo:
             testrun_id = self.workspace_info['id']
 
             video_basename = os.path.basename(self.output_video_path)
-            json_basenmae = os.path.basename(self.output_json_path)
+            json_basename = os.path.basename(self.output_json_path)
 
             video_info = {'created': timestamp_to_datetime_with_timezone_str(),
                           'path': os.path.join(self.mounted_output_path, video_basename),
                           'name': video_basename,
-                          'stat_path':  os.path.join(self.mounted_output_path, json_basenmae),
+                          'stat_path':  os.path.join(self.mounted_output_path, json_basename),
                           'start_time': raw_video_info['timestamps'][0],
                           'end_time': raw_video_info['timestamps'][-1],
                           'frame_count': len(raw_video_info['timestamps']),
