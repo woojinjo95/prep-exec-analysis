@@ -1,5 +1,5 @@
 import React from 'react'
-import { Accordion, OptionItem, Select, SetROIButton, Text } from '@global/ui'
+import { Accordion, ColorPickerBox, OptionItem, Select, SetROIButton, Text } from '@global/ui'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
 import { AnalysisTypeLabel } from '../../../constant'
 import { AnalysisConfig } from '../../../api/entity'
@@ -13,6 +13,7 @@ const ResumeTypeLabel: { [key in ResumeType]: string } = {
 } as const
 
 interface ResumeAnalysisItemProps {
+  color: NonNullable<UnsavedAnalysisConfig['resume']>['color']
   resumeType: NonNullable<UnsavedAnalysisConfig['resume']>['type']
   onClickDeleteItem: () => void
   setUnsavedAnalysisConfig: React.Dispatch<React.SetStateAction<UnsavedAnalysisConfig>>
@@ -22,6 +23,7 @@ interface ResumeAnalysisItemProps {
  * resume 분석 아이템
  */
 const ResumeAnalysisItem: React.FC<ResumeAnalysisItemProps> = ({
+  color,
   resumeType,
   onClickDeleteItem,
   setUnsavedAnalysisConfig,
@@ -30,9 +32,23 @@ const ResumeAnalysisItem: React.FC<ResumeAnalysisItemProps> = ({
     <Accordion
       header={
         <div className="flex justify-between items-center">
-          <Text size="sm" weight="medium">
-            {AnalysisTypeLabel.resume}
-          </Text>
+          <div className="flex items-center gap-x-3">
+            <ColorPickerBox
+              color={color}
+              onChange={(newColor) => {
+                setUnsavedAnalysisConfig((prev) => ({
+                  ...prev,
+                  resume: {
+                    ...prev.resume!,
+                    color: newColor,
+                  },
+                }))
+              }}
+            />
+            <Text size="sm" weight="medium">
+              {AnalysisTypeLabel.resume}
+            </Text>
+          </div>
           <TrashIcon className="w-4 fill-white" onClick={onClickDeleteItem} />
         </div>
       }

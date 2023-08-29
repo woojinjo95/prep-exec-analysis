@@ -15,7 +15,7 @@ import LoudnessAnalysisItem from './LoudnessAnalysisItem'
 const DefaultAnalysisConfig: Required<UnsavedAnalysisConfig> = {
   freeze: {
     color: '#42FF00',
-    duration: 3,
+    duration: '3',
   },
   loudness: {
     color: '#0106FF',
@@ -56,7 +56,15 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
   const [unsavedAnalysisConfig, setUnsavedAnalysisConfig] = useState<UnsavedAnalysisConfig>({})
   const { analysisConfig } = useAnalysisConfig({
     onSuccess: (data) => {
-      setUnsavedAnalysisConfig(data)
+      setUnsavedAnalysisConfig(() => ({
+        ...data,
+        freeze: data.freeze
+          ? {
+              ...data.freeze,
+              duration: String(data.freeze.duration),
+            }
+          : undefined,
+      }))
     },
   })
 
@@ -123,11 +131,16 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
       )}
 
       {selectedAnalysisItems.includes('loudness') && unsavedAnalysisConfig.loudness && (
-        <LoudnessAnalysisItem onClickDeleteItem={onClickDeleteItem('loudness')} />
+        <LoudnessAnalysisItem
+          color={unsavedAnalysisConfig.loudness.color}
+          onClickDeleteItem={onClickDeleteItem('loudness')}
+          setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
+        />
       )}
 
       {selectedAnalysisItems.includes('resume') && unsavedAnalysisConfig.resume && (
         <ResumeAnalysisItem
+          color={unsavedAnalysisConfig.resume.color}
           resumeType={unsavedAnalysisConfig.resume.type}
           setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
           onClickDeleteItem={onClickDeleteItem('resume')}
@@ -135,11 +148,17 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
       )}
 
       {selectedAnalysisItems.includes('boot') && unsavedAnalysisConfig.boot && (
-        <BootAnalysisItem bootType={unsavedAnalysisConfig.boot.type} onClickDeleteItem={onClickDeleteItem('boot')} />
+        <BootAnalysisItem
+          color={unsavedAnalysisConfig.boot.color}
+          bootType={unsavedAnalysisConfig.boot.type}
+          setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
+          onClickDeleteItem={onClickDeleteItem('boot')}
+        />
       )}
 
       {selectedAnalysisItems.includes('channel_change_time') && unsavedAnalysisConfig.channel_change_time && (
         <ChannelChangeTimeAnalysisItem
+          color={unsavedAnalysisConfig.channel_change_time.color}
           targets={unsavedAnalysisConfig.channel_change_time.targets}
           onClickDeleteItem={onClickDeleteItem('channel_change_time')}
           setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
@@ -148,14 +167,20 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
 
       {selectedAnalysisItems.includes('log_level_finder') && unsavedAnalysisConfig.log_level_finder && (
         <LogLevelFinderAnalysisItem
+          color={unsavedAnalysisConfig.log_level_finder.color}
           targets={unsavedAnalysisConfig.log_level_finder.targets}
           setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
           onClickDeleteItem={onClickDeleteItem('log_level_finder')}
         />
       )}
 
-      {selectedAnalysisItems.includes('log_pattern_matching') && (
-        <LogPatternMatchingAnalysisItem onClickDeleteItem={onClickDeleteItem('log_pattern_matching')} />
+      {selectedAnalysisItems.includes('log_pattern_matching') && unsavedAnalysisConfig.log_pattern_matching && (
+        <LogPatternMatchingAnalysisItem
+          color={unsavedAnalysisConfig.log_pattern_matching.color}
+          patterns={unsavedAnalysisConfig.log_pattern_matching.items}
+          setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
+          onClickDeleteItem={onClickDeleteItem('log_pattern_matching')}
+        />
       )}
     </div>
   )

@@ -1,8 +1,9 @@
 import { useEffect } from 'react'
 import { useQuery } from 'react-query'
 import { PAGE_SIZE_FIFTEEN } from '@global/constant'
-import { getHardwareConfiguration, getScenarios } from './func'
-import { HardwareConfiguration, PaginationResponse, ScenarioSummary } from './entity'
+import { useWebsocket } from '@global/hook'
+import { getHardwareConfiguration, getLogConnectionStatus, getScenarios } from './func'
+import { HardwareConfiguration, LogConnectionStatus, PaginationResponse, ScenarioSummary } from './entity'
 
 /**
  * 시나리오 리스트 조회 hook
@@ -56,6 +57,39 @@ export const useHardwareConfiguration = ({ onSuccess }: { onSuccess?: (data: Har
 
   return {
     hardwareConfiguration: data,
+    isLoading,
+    refetch,
+  }
+}
+
+/**
+ * 로그 연결여부 조회 hook
+ */
+export const useLogConnectionStatus = ({
+  onSuccess,
+}: {
+  onSuccess?: (data: LogConnectionStatus) => void
+} = {}) => {
+  const { data, isLoading, refetch } = useQuery(['log_connection_status'], getLogConnectionStatus, {
+    onSuccess,
+  })
+
+  useEffect(() => {
+    if (data) {
+      onSuccess?.(data)
+    }
+  }, [data])
+
+  useWebsocket({
+    onMessage: (message) => {
+      if (message.msg === 'log_connection_status') {
+        refetch()
+      }
+    },
+  })
+
+  return {
+    logConnectionStatus: data,
     isLoading,
     refetch,
   }

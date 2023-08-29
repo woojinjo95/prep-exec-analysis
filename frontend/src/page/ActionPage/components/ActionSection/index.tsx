@@ -1,6 +1,5 @@
-import React, { useState } from 'react'
+import React from 'react'
 
-import { useScenarios } from '@global/api/hook'
 import ActionBlockArea from './components/ActionBlockArea'
 import BlockControls from './components/BlockControls'
 
