@@ -167,6 +167,7 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
 
       {selectedAnalysisItems.includes('log_level_finder') && unsavedAnalysisConfig.log_level_finder && (
         <LogLevelFinderAnalysisItem
+          color={unsavedAnalysisConfig.log_level_finder.color}
           targets={unsavedAnalysisConfig.log_level_finder.targets}
           setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
           onClickDeleteItem={onClickDeleteItem('log_level_finder')}

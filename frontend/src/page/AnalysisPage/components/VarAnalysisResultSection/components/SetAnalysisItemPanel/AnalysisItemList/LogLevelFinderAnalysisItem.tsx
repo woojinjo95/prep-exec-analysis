@@ -1,11 +1,12 @@
 import React from 'react'
-import { Accordion, Checkbox, Text } from '@global/ui'
+import { Accordion, Checkbox, ColorPickerBox, Text } from '@global/ui'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
 import LogLevel from '@global/constant/logLevel'
 import { AnalysisTypeLabel } from '../../../constant'
 import { UnsavedAnalysisConfig } from '../../../types'
 
 interface LogLevelFinderAnalysisItemProps {
+  color: NonNullable<UnsavedAnalysisConfig['log_level_finder']>['color']
   targets: NonNullable<UnsavedAnalysisConfig['log_level_finder']>['targets']
   onClickDeleteItem: () => void
   setUnsavedAnalysisConfig: React.Dispatch<React.SetStateAction<UnsavedAnalysisConfig>>
@@ -15,6 +16,7 @@ interface LogLevelFinderAnalysisItemProps {
  * log level finder 분석 아이템
  */
 const LogLevelFinderAnalysisItem: React.FC<LogLevelFinderAnalysisItemProps> = ({
+  color,
   targets,
   onClickDeleteItem,
   setUnsavedAnalysisConfig,
@@ -23,9 +25,23 @@ const LogLevelFinderAnalysisItem: React.FC<LogLevelFinderAnalysisItemProps> = ({
     <Accordion
       header={
         <div className="flex justify-between items-center">
-          <Text size="sm" weight="medium">
-            {AnalysisTypeLabel.log_level_finder}
-          </Text>
+          <div className="flex items-center gap-x-3">
+            <ColorPickerBox
+              color={color}
+              onChange={(newColor) => {
+                setUnsavedAnalysisConfig((prev) => ({
+                  ...prev,
+                  log_level_finder: {
+                    ...prev.log_level_finder!,
+                    color: newColor,
+                  },
+                }))
+              }}
+            />
+            <Text size="sm" weight="medium">
+              {AnalysisTypeLabel.log_level_finder}
+            </Text>
+          </div>
           <TrashIcon className="w-4 fill-white" onClick={onClickDeleteItem} />
         </div>
       }
