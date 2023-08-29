@@ -8,13 +8,13 @@ import { ReactComponent as StopIcon } from '@assets/images/icon_stop.svg'
 
 import { IconButton, Text } from '@global/ui'
 import useWebsocket from '@global/module/websocket'
+import { useRecoilValue } from 'recoil'
+import { scenarioIdState } from '@global/atom'
 
-interface BlockControlsProps {
-  scenarioId: string | null
-}
-
-const BlockControls: React.FC<BlockControlsProps> = ({ scenarioId }) => {
+const BlockControls: React.FC = () => {
   const { sendMessage } = useWebsocket()
+
+  const scenarioId = useRecoilValue(scenarioIdState)
 
   return (
     <div className="flex flex-wrap items-center px-3 py-2 gap-y-2 border-t border-[#DFE0EE] bg-white">

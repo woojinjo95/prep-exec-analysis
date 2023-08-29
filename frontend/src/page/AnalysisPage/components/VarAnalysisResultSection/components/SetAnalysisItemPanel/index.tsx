@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { AnalysisTypeLabel } from '../../constant'
-import Header from './Header'
+import Header from './AnalysisItemList/Header'
 import AnalysisItemList from './AnalysisItemList'
 
 /**

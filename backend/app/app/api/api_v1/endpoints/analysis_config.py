@@ -64,8 +64,10 @@ def delete_analysis_config(
     if not RedisClient.hgetall(name=name):
         raise HTTPException(
             status_code=404, detail=f"The analysis_config with this {analysis_type} does not exist in the system.")
-
-    RedisClient.delete(name)
+    try:
+        RedisClient.delete(name)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': f'Delete {analysis_type} analysis_config'}
 
 

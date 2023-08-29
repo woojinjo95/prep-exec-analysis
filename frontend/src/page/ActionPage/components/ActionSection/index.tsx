@@ -10,23 +10,11 @@ import BlockControls from './components/BlockControls'
 const ActionSection: React.FC = () => {
   // current scenarioId
   // TODO: 나중에 진입 시에 scenario_id를 받을 수 있어야함
-  const [scenarioId, setScenarioId] = useState<string | null>(null)
-
-  useScenarios({
-    onSuccess: (res) => {
-      if (res && res.items.length > 0) {
-        setScenarioId(res.items[0].id)
-      }
-    },
-    onError: (err) => {
-      console.error(err)
-    },
-  })
 
   return (
     <section className="border border-black row-span-3 h-full grid grid-rows-[1fr_auto]">
-      <ActionBlockArea scenarioId={scenarioId} />
-      <BlockControls scenarioId={scenarioId} />
+      <ActionBlockArea />
+      <BlockControls />
     </section>
   )
 }

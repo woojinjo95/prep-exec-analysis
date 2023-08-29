@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -6,7 +8,7 @@ class Timezone(BaseModel):
 
 
 class ServiceStateBase(BaseModel):
-    state: str
+    state: Optional[str]
 
 
 class ServiceState(BaseModel):
@@ -14,7 +16,7 @@ class ServiceState(BaseModel):
 
 
 class LogConnectionStatusBase(BaseModel):
-    status: str
+    status: Optional[str]
 
 
 class LogConnectionStatus(BaseModel):

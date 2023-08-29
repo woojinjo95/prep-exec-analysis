@@ -14,5 +14,8 @@ export interface BlockGroup {
 
 export interface Scenario {
   id: string
+  name: string
+  is_acive: boolean
+  tags: string[]
   block_group: BlockGroup[]
 }

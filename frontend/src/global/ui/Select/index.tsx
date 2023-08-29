@@ -52,7 +52,7 @@ const Select: React.ForwardRefExoticComponent<SelectProps & React.RefAttributes<
         }}
         {...props}
       >
-        <Text weight="bold" colorScheme={colorScheme === 'light' ? 'dark' : 'light'}>
+        <Text weight="bold" size="sm" colorScheme={colorScheme === 'light' ? 'dark' : 'light'}>
           {value || defaultValue}
         </Text>
         <DropdownIcon className={cx('w-3', colorScheme)} />
