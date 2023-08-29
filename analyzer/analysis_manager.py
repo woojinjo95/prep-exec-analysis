@@ -25,6 +25,7 @@ class AnalysisManager:
         if self.mode == "sync":
             self.start_command_executor()
 
+    ##### Command Producer #####
     def register(self, command: Dict):
         logger.info(f'register command: {command}')
         # parse to module function and args
@@ -60,26 +61,29 @@ class AnalysisManager:
             state = data.get('state', '')
             if state == 'analysis':  # 분석 모드 진입
                 exec_list.append((test_color_reference, ()))
+        
+        return exec_list
 
     ##### Command Consumer #####
     def start_command_executor(self):
-        proc = multiprocessing.Process(target=self.command_executor)
-        proc.start()
+        def command_executor():
+            while True:
+                try:
+                    func, args = self.cmd_queue.get_nowait()
+                    proc = self.start_process(func, args)
+                    proc.join()
+                except queue.Empty:
+                    time.sleep(1)
 
-    def command_executor(self):
-        while True:
-            try:
-                func, args = self.cmd_queue.get_nowait()
-                proc = self.start_process(func, args)
-                proc.join()
-            except queue.Empty:
-                time.sleep(1)
+        proc = multiprocessing.Process(target=command_executor)
+        proc.start()
 
     ##### Process Control #####
     def start_process(self, func: Callable, args: Tuple) -> multiprocessing.Process:
         proc = multiprocessing.Process(target=func, args=args)
         proc.start()
         self.processes[proc.pid] = proc
+        logger.info(f'start process: {proc.pid}')
         return proc
 
     def stop_processes(self):
@@ -89,9 +93,13 @@ class AnalysisManager:
             process.terminate()
             process.join()
         self.processes = {}
+        logger.info('stop all processes')
 
     def remove_process_by_id(self, pid):
         if pid in self.processes:
             self.processes[pid].terminate()
             self.processes[pid].join()
             del self.processes[pid]
+            logger.info(f'remove process: {pid}')
+        else:
+            logger.warning(f'process {pid} not exist')
