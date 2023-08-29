@@ -115,7 +115,11 @@ class RedisStorage:
         self.client = get_strict_redis_connection()
         self.processes_name = "processes"
         self.cmd_queue_name = "cmd_queue"
-        
+
+        # init redis
+        self.client.delete(self.processes_name)
+        self.client.delete(self.cmd_queue_name)
+
     ##### Process Management #####
     def store_process(self, pid: int, metadata: Dict={}):
         self.client.hset(self.processes_name, pid, json.dumps(metadata))
