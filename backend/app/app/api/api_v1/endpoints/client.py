@@ -81,11 +81,12 @@ async def redis_connector(websocket: WebSocket):
             logger.error(exc)
 
     conn = await get_redis_pool()
-    pubsub = conn.pubsub()
-
+    
     message_bridge_task = message_bridge_handler(conn=conn, ws=websocket)
-    consumer_command_task = consumer_pubsub_handler(pubsub=pubsub, ch_name=COMMAND_CHANNEL_NAME, ws=websocket)
-    consumer_loudness_task = consumer_pubsub_handler(pubsub=pubsub, ch_name=LOUDNESS_CHANNEL_NAME, ws=websocket)
+    pubsub_command = conn.pubsub()
+    consumer_command_task = consumer_pubsub_handler(pubsub=pubsub_command, ch_name=COMMAND_CHANNEL_NAME, ws=websocket)
+    pubsub_loudness = conn.pubsub()
+    consumer_loudness_task = consumer_pubsub_handler(pubsub=pubsub_loudness, ch_name=LOUDNESS_CHANNEL_NAME, ws=websocket)
     done, pending = await asyncio.wait(
         [message_bridge_task, consumer_command_task, consumer_loudness_task], return_when=asyncio.FIRST_COMPLETED,
     )
