@@ -7,7 +7,6 @@ from scripts.config.constant import RedisChannel, RedisDB
 from scripts.config.config import get_setting_with_env
 from scripts.log_service.log_organizer import LogOrganizer
 from scripts.format import LogName
-import queue
 
 
 logger = logging.getLogger('main')
