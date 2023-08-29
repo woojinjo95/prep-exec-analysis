@@ -25,14 +25,14 @@ def get_data_of_log_level_finder(
     로그 레벨 데이터 조회
     """
     try:
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if log_level is None:
             log_level = parse_bytes_to_value(RedisClient.hget('analysis_config:log_level_finder', 'targets'))
         else:
             log_level = log_level.split(',')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         log_level_finder_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
                                                                '$lte': convert_iso_format(end_time)},
                                                  'scenario_id': scenario_id,
@@ -58,15 +58,16 @@ def get_data_of_cpu(
     Cpu 데이터 조회
     """
     try:
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         time_range_param = {'timestamp': {'$gte': convert_iso_format(start_time),
                                           '$lte': convert_iso_format(end_time)},
                             'scenario_id': scenario_id,
                             'testrun_id': testrun_id}
-        project = {'_id': 0, 'timestamp': 1, 'cpu_usage': 1, 'total': 1, 'user': 1, 'kernel': 1, 'iowait': 1, 'irq': 1, 'softirq': 1}
+        project = {'_id': 0, 'timestamp': 1, 'cpu_usage': 1, 'total': 1,
+                   'user': 1, 'kernel': 1, 'iowait': 1, 'irq': 1, 'softirq': 1}
         cpu = load_from_mongodb(col="stb_info", param=time_range_param, proj=project)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
@@ -85,15 +86,16 @@ def get_data_of_memory(
     Memory 데이터 조회
     """
     try:
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         time_range_param = {'timestamp': {'$gte': convert_iso_format(start_time),
                                           '$lte': convert_iso_format(end_time)},
                             'scenario_id': scenario_id,
                             'testrun_id': testrun_id}
-        project = {'_id': 0, 'timestamp': 1, 'memory_usage': 1, 'total_ram': 1, 'free_ram': 1, 'used_ram': 1, 'lost_ram': 1}
+        project = {'_id': 0, 'timestamp': 1, 'memory_usage': 1,
+                   'total_ram': 1, 'free_ram': 1, 'used_ram': 1, 'lost_ram': 1}
         memory = load_from_mongodb(col="stb_info", param=time_range_param, proj=project)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
@@ -112,10 +114,10 @@ def get_data_of_event_log(
     이벤트 로그 데이터 조회
     """
     try:
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         event_log_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
                                                         '$lte': convert_iso_format(end_time)},
                                           'scenario_id': scenario_id,
@@ -141,10 +143,10 @@ def get_data_of_color_reference(
     컬러 레퍼런스 데이터 조회
     """
     try:
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         color_reference_param = {'timestamp': {'$gte': convert_iso_format(start_time),
                                                '$lte': convert_iso_format(end_time)},
                                  'scenario_id': scenario_id,
@@ -170,10 +172,10 @@ def get_data_of_freeze(
     화면 멈춤 데이터 조회
     """
     try:
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         freeze_param = {'timestamp': {'$gte': convert_iso_format(start_time),
                                       '$lte': convert_iso_format(end_time)},
                         'scenario_id': scenario_id,
@@ -201,10 +203,10 @@ def get_data_of_loudness(
     Loudness 데이터 조회
     """
     try:
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         loudness_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
                                                        '$lte': convert_iso_format(end_time)},
                                          'scenario_id': scenario_id,
@@ -232,10 +234,10 @@ def get_data_of_resume(
     분석 데이터 조회 : Resume(Warm booting)
     """
     try:
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         measurement_param = {'timestamp': {'$gte': convert_iso_format(start_time),
                                            '$lte': convert_iso_format(end_time)},
                              'scenario_id': scenario_id,
@@ -259,10 +261,10 @@ def get_data_of_boot(
     분석 데이터 조회 : Boot(Cold booting)
     """
     try:
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         measurement_param = {'timestamp': {'$gte': convert_iso_format(start_time),
                                            '$lte': convert_iso_format(end_time)},
                              'scenario_id': scenario_id,
@@ -274,28 +276,8 @@ def get_data_of_boot(
     return {"items": measurement}
 
 
-# Video Analysis Result
-# @router.get("/video", response_model=schemas.VideoAnalysisResult)
-def get_data_of_video(
-    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-):
-    """
-    비디오 분석 결과 데이터 조회
-    """
-    try:
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        if testrun_id is None:
-            testrun_id = RedisClient.hget('testrun', 'id')
-        video_analysis_result = load_from_mongodb()
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return {"items": video_analysis_result}
-
-
 # Log Pattern Maching
-# @router.get("/log_pattern_matching", response_model=schemas.LogPatternMatching)
+@router.get("/log_pattern_matching", response_model=schemas.LogPatternMatching)
 def get_data_of_log_pattern_matching(
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
@@ -306,11 +288,18 @@ def get_data_of_log_pattern_matching(
     로그 패턴 매칭 데이터 조회
     """
     try:
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
-        log_pattern_matching = load_from_mongodb()
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
+                                              '$lte': convert_iso_format(end_time)},
+                                'scenario_id': scenario_id,
+                                'testrun_id': testrun_id}},
+                    {'$project': {'_id': 0, 'timestamp': '$timestamp', 'message': '$message', 'items': '$user_config.items'}}, 
+                    {'$unwind': {'path': '$items'}},
+                    {'$project': {'timestamp': '$timestamp', 'log_pattern_name': '$items.name', 'log_level': '$items.level', 'message': '$message'}}]
+        log_pattern_matching = aggregate_from_mongodb(col='an_log_pattern', pipeline=pipeline)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {"items": log_pattern_matching}
@@ -328,10 +317,10 @@ def get_data_of_process_lifecycle(
     프로세스 활동주기 데이터 조회
     """
     try:
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         process_lifecycle = load_from_mongodb()
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
@@ -350,10 +339,10 @@ def get_data_of_network_filter(
     네트워크 필터 데이터 조회
     """
     try:
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         network_filter = load_from_mongodb()
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
