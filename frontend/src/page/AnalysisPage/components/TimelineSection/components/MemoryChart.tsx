@@ -1,6 +1,5 @@
-import { AreaChart } from '@global/ui'
 import React, { useMemo } from 'react'
-import { useWebsocket } from '@global/hook'
+import { AreaChart } from '@global/ui'
 import { useMemory } from '../api/hook'
 
 interface MemoryChartProps {
@@ -14,16 +13,9 @@ interface MemoryChartProps {
  * Memory 사용률 차트
  */
 const MemoryChart: React.FC<MemoryChartProps> = ({ chartWidth, scaleX, startTime, endTime }) => {
-  const { memory, refetch } = useMemory({
+  const { memory } = useMemory({
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
-  })
-  useWebsocket({
-    onMessage: (message) => {
-      if (message.msg === 'analysis_response') {
-        refetch()
-      }
-    },
   })
 
   const memoryUsage = useMemo(() => {

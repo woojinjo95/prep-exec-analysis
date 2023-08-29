@@ -1,6 +1,6 @@
 import API from '@global/api'
 import { AxiosError } from 'axios'
-import { Block, BlockGroup, Scenario } from '@page/ActionPage/components/ActionSection/api/entity'
+import { Block, Scenario } from '@page/ActionPage/components/ActionSection/api/entity'
 import { Response } from '@global/api/entity'
 import apiUrls from './url'
 
