@@ -9,6 +9,14 @@ class VideoData:
     stat_path: str
 
 
+class ReportName(Enum):
+    COLOR_REFERENCE = 'color_reference'
+    FREEZE = 'freeze'
+    WARM_BOOT = 'warm_boot'
+    COLD_BOOT = 'cold_boot'
+    LOG_PATTERN = 'log_pattern'
+
+
 class CollectionName(Enum):
     COLOR_REFERENCE = 'an_color_reference'
     FREEZE = 'an_freeze'
@@ -29,14 +37,16 @@ class CroppedInfo:
     timestamps: List[float]
 
 
+# logger name
 class LogName(Enum):
     COLOR_REFERENCE = 'color_reference'
     FREEZE_DETECT = 'freeze_detect'
     BOOT_TEST = 'boot_test'
     LOG_PATTERN = 'log_pattern'
     
-
+# command for subscriber
 class Command(Enum):
+    COLOR_REFERENCE = 'color_reference'
     FREEZE = 'freeze'
     RESUME = 'resume'
     BOOT = 'boot'
