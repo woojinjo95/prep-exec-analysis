@@ -113,9 +113,7 @@ class RedisStorage:
         self.client.hset(self.processes_name, pid, json.dumps(metadata))
 
     def terminate_all_processes(self):
-        all_pids = self.client.hkeys(self.processes_name)
-        for pid in all_pids:
-            pid = int(pid.decode('utf-8'))
+        for pid in self.get_all_pids():
             self.remove_process(pid)
         self.client.delete(self.processes_name)
 
@@ -143,8 +141,8 @@ class RedisStorage:
             command_byte = self.client.rpop(self.cmd_queue_name)
             if command_byte:
                 command = json.loads(command_byte)
-                # func_name to func that is defined in this module
                 func_name = command.get('func_name')
+                # func_name to func that is defined in this module
                 func = globals().get(func_name)
                 args = command.get('args')
                 return func, args
@@ -169,5 +167,6 @@ class RedisStorage:
             for pid in all_pids:
                 if not psutil.pid_exists(pid):
                     self.client.hdel(self.processes_name, pid)
+                    logger.info(f'process {pid} is terminated. remove from storage.')
         cleanup_terminated_processes()
         threading.Timer(5, self.periodic_cleanup).start()
