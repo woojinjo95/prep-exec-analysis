@@ -3,11 +3,14 @@ import time
 import logging
 import traceback
 import json
+from operator import attrgetter
+import threading
 import uuid
 from typing import Dict, Callable, Tuple, List
 
 from scripts.format import Command
 from scripts.connection.redis_conn import get_strict_redis_connection
+from scripts import processor
 from scripts.processor.freeze_detect import test_freeze_detection
 from scripts.processor.warm_boot import test_warm_boot
 from scripts.processor.cold_boot import test_cold_boot
@@ -28,12 +31,16 @@ class AnalysisManager:
         if self.mode == "sync":
             self.start_command_executor()
 
+    def __del__(self):
+        self.pool.close()
+        self.pool.join()
+
     ##### Command Producer #####
     def register(self, command: Dict):
         # parse to module function and args
         exec_list = self.parse_command(command)
         for func, args in exec_list:
-            logger.info(f'execute: {func.__name__}{args}')
+            logger.info(f'register: {func.__name__}{args}')
             if self.mode == "sync":
                 self.storage.enqueue_command(func, args)
             elif self.mode == 'async':
@@ -74,17 +81,21 @@ class AnalysisManager:
                 command = self.storage.dequeue_command()
                 if command:
                     func, args = command
-                    proc = self.start_process(func, args)
-                    result = proc.get()
+                    async_result = self.start_process(func, args)
+                    try:
+                        result = async_result.get()
+                    except Exception as e:
+                        logger.error(f"Error executing function {func.__name__}: {e}")
                 else:
                     pass
 
-        proc = multiprocessing.Process(target=command_executor)
-        proc.start()
+        executor = threading.Thread(target=command_executor)
+        executor.start()
 
     ##### Process Control #####
     def start_process(self, func: Callable, args: Tuple):
         process_id = str(uuid.uuid4())
+        logger.info(f'func: {func}, args: {args}')
         async_result = self.pool.apply_async(func, args=args, callback=lambda result: self.cleanup(process_id))
         self.storage.store_process(process_id, {'func': func.__name__, 'args': args})
         logger.info(f'started process: {process_id}')
@@ -119,11 +130,6 @@ class RedisStorage:
     #     self.client.delete(self.processes_name)
 
     def remove_process(self, pid: int):
-        # try:
-        #     process = psutil.Process(pid)
-        #     process.terminate()
-        # except psutil.NoSuchProcess:
-        #     logger.warning(f"Process with PID {pid} not found.")
         self.client.hdel(self.processes_name, pid)
 
     # def get_all_pids(self) -> List[int]:
@@ -144,8 +150,8 @@ class RedisStorage:
                 command = json.loads(command_byte)
                 func_name = command.get('func_name')
                 # func_name to func that is defined in this module
-                func = globals().get(func_name)
-                args = command.get('args')
+                func = attrgetter(func_name)(processor)
+                args = tuple(command.get('args'))
                 return func, args
             else:
                 return None
