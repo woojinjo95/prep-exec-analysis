@@ -14,6 +14,10 @@ interface DropdownWithMoreButtonProps {
   type?: 'icon-button' | 'icon'
 }
 
+/**
+ *
+ * @param type 버튼 모양 타입. icon-button: 테두리 있는 아이콘 버튼 / icon: 테두리 없는 아이콘
+ */
 const DropdownWithMoreButton: React.FC<DropdownWithMoreButtonProps> = ({
   children,
   colorScheme = 'light',
