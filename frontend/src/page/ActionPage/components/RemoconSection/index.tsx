@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useQuery } from 'react-query'
-import { OptionItem, Select } from '@global/ui'
+import { OptionItem, Select, Text } from '@global/ui'
 import BackgroundImage from '@assets/images/background_pattern.svg'
 
 import { KeyEvent } from '@page/ActionPage/types'
@@ -47,7 +47,14 @@ const RemoconSection: React.FC<RemoconSectionProps> = ({ keyEvent }) => {
     >
       <div className="grid grid-rows-1 grid-cols-[1fr_auto] w-full pb-3 items-center">
         {selectedRemocon && remocons && (
-          <Select value={selectedRemocon.name} colorScheme="light">
+          <Select
+            header={
+              <Text weight="bold" colorScheme="dark">
+                {selectedRemocon.name}
+              </Text>
+            }
+            colorScheme="light"
+          >
             {remocons.map((remocon) => (
               <OptionItem
                 colorScheme="light"

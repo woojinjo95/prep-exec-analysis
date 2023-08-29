@@ -9,8 +9,7 @@ import styles from './Select.module.scss'
 const cx = classnames.bind(styles)
 
 interface SelectProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  value?: React.SelectHTMLAttributes<HTMLSelectElement>['value']
-  defaultValue?: React.SelectHTMLAttributes<HTMLSelectElement>['defaultValue']
+  header: React.ReactNode
   className?: string
   children?: React.ReactNode
 
@@ -26,7 +25,7 @@ interface SelectProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 const Select: React.ForwardRefExoticComponent<SelectProps & React.RefAttributes<HTMLButtonElement>> = React.forwardRef<
   HTMLButtonElement,
   SelectProps
->(({ value, className, children, defaultValue, colorScheme = 'charcoal', widthOption, ...props }, ref) => {
+>(({ header, className, children, colorScheme = 'charcoal', widthOption, ...props }, ref) => {
   const divRef = useRef<HTMLDivElement | null>(null)
   const [isFocused, setIsFocused] = useState<boolean>(false)
   const { ref: selectListRef } = useOutsideClick<HTMLUListElement>({ onClickOutside: () => setIsFocused(false) })
@@ -52,9 +51,7 @@ const Select: React.ForwardRefExoticComponent<SelectProps & React.RefAttributes<
         }}
         {...props}
       >
-        <Text weight="bold" colorScheme={colorScheme === 'light' ? 'dark' : 'light'}>
-          {value || defaultValue}
-        </Text>
+        {header}
         <DropdownIcon className={cx('w-3', colorScheme)} />
       </button>
 
