@@ -11,11 +11,7 @@ from typing import Dict, Callable, Tuple, List
 from scripts.format import Command
 from scripts.connection.redis_conn import get_strict_redis_connection
 from scripts import processor
-from scripts.processor.freeze_detect import test_freeze_detection
-from scripts.processor.warm_boot import test_warm_boot
-from scripts.processor.cold_boot import test_cold_boot
-from scripts.processor.log_pattern import test_log_pattern_matching
-from scripts.processor.color_reference import test_color_reference
+from scripts.processor import (test_freeze_detection, test_warm_boot, test_cold_boot, test_log_pattern_matching, test_color_reference)
 
 logger = logging.getLogger('main')
 
