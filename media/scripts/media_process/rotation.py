@@ -15,7 +15,7 @@ from typing import List, Tuple
 
 from ..configs.config import RedisDBEnum, get_value
 from ..configs.constant import RedisChannel
-from ..connection.mongo_db.update import update_to_mongodb
+from ..connection.mongo_db.update import update_to_mongodb, update_video_info_to_scenario
 from ..connection.redis_pubsub import get_strict_redis_connection, publish
 from ..utils._timezone import timestamp_to_datetime_with_timezone_str
 from ..utils.file_manage import substitute_path_extension
@@ -171,6 +171,7 @@ class MakeVideo:
             self.concat_file()
 
             scenario_id = self.workspace_info['scenario_id']
+            testrun_id = self.workspace_info['id']
 
             video_basename = os.path.basename(self.output_video_path)
             json_basenmae = os.path.basename(self.output_json_path)
@@ -186,7 +187,8 @@ class MakeVideo:
                 subscribe_count = publish(src, RedisChannel.command, video_info)
 
             try:
-                update_to_mongodb('scenario', scenario_id, {'testrun.raw.videos': video_info})
+                # update_to_mongodb('scenario', scenario_id, {'testrun.raw.videos': video_info})
+                update_video_info_to_scenario('scenario', scenario_id, testrun_id, video_info)
             except Exception as e:
                 logger.error(f'Error in update mongodb: {e}')
                 logger.debug(traceback.format_exc())
