@@ -1,5 +1,5 @@
 import React from 'react'
-import { Accordion, SetROIButton, Text } from '@global/ui'
+import { Accordion, ColorPickerBox, SetROIButton, Text } from '@global/ui'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
 import { AnalysisTypeLabel } from '../../../constant'
 import { AnalysisConfig } from '../../../api/entity'
@@ -10,21 +10,42 @@ const BootTypeLabel: { [key in NonNullable<AnalysisConfig['boot']>['type']]: str
 } as const
 
 interface BootAnalysisItemProps {
+  color: NonNullable<UnsavedAnalysisConfig['boot']>['color']
   bootType: NonNullable<UnsavedAnalysisConfig['boot']>['type']
   onClickDeleteItem: () => void
+  setUnsavedAnalysisConfig: React.Dispatch<React.SetStateAction<UnsavedAnalysisConfig>>
 }
 
 /**
  * boot 분석 아이템
  */
-const BootAnalysisItem: React.FC<BootAnalysisItemProps> = ({ bootType, onClickDeleteItem }) => {
+const BootAnalysisItem: React.FC<BootAnalysisItemProps> = ({
+  color,
+  bootType,
+  onClickDeleteItem,
+  setUnsavedAnalysisConfig,
+}) => {
   return (
     <Accordion
       header={
         <div className="flex justify-between items-center">
-          <Text size="sm" weight="medium">
-            {AnalysisTypeLabel.boot}
-          </Text>
+          <div className="flex items-center gap-x-3">
+            <ColorPickerBox
+              color={color}
+              onChange={(newColor) => {
+                setUnsavedAnalysisConfig((prev) => ({
+                  ...prev,
+                  boot: {
+                    ...prev.boot!,
+                    color: newColor,
+                  },
+                }))
+              }}
+            />
+            <Text size="sm" weight="medium">
+              {AnalysisTypeLabel.boot}
+            </Text>
+          </div>
           <TrashIcon className="w-4 fill-white" onClick={onClickDeleteItem} />
         </div>
       }
