@@ -7,7 +7,7 @@ import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
 import { ReactComponent as StopIcon } from '@assets/images/icon_stop.svg'
 
 import { IconButton, Text } from '@global/ui'
-import useWebsocket from '@global/module/websocket'
+import { useWebsocket } from '@global/hook'
 import { useRecoilValue } from 'recoil'
 import { scenarioIdState } from '@global/atom'
 

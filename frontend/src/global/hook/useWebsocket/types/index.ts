@@ -1,4 +1,5 @@
 import { IPLimitProtocol } from '@global/api/entity'
+import AnalysisType from '@global/constant/analysisType'
 
 /**
  * 블럭 재생 시작 publish 메시지
@@ -115,7 +116,7 @@ interface CommandMessage {
 interface AnalysisMessage {
   msg: 'analysis'
   data: {
-    measurement: ('freeze' | 'boot' | 'channel_change_time' | 'log_level_finder' | 'log_pattern_matching' | 'resume')[]
+    measurement: (keyof typeof AnalysisType)[]
   }
 }
 

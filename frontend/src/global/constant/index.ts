@@ -1,3 +1,4 @@
+import { LogConnectionStatus } from '@global/api/entity'
 import PagePath from './pagePath'
 
 /**
@@ -27,3 +28,8 @@ export const CHART_HEIGHT = 64
  * 월 영어 이름
  */
 export const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+export const LogConnectionStatusLabel: { [key in LogConnectionStatus]: string } = {
+  log_connected: 'Log Connected',
+  log_disconnected: 'Log Disconnected',
+} as const

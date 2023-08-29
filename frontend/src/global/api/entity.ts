@@ -82,3 +82,8 @@ export interface HardwareConfiguration {
  * `analysis` 분석 (녹화 및 로그수집 X, 스트리밍 X)
  */
 export type ServiceState = 'idle' | 'streaming' | 'playblock' | 'analysis'
+
+/**
+ * 로그 연결여부
+ */
+export type LogConnectionStatus = 'log_disconnected' | 'log_connected'

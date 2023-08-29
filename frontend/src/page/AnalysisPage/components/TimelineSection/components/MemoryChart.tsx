@@ -1,6 +1,6 @@
 import { AreaChart } from '@global/ui'
 import React, { useMemo } from 'react'
-import useWebsocket from '@global/module/websocket'
+import { useWebsocket } from '@global/hook'
 import { useMemory } from '../api/hook'
 
 interface MemoryChartProps {

@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { ToggleButton, Text, Divider, Title } from '@global/ui'
-import useWebsocket from '@global/module/websocket'
+import { useWebsocket } from '@global/hook'
 import { useHardwareConfiguration } from '@global/api/hook'
 
 type OnOffControlSubscribeMessage = {

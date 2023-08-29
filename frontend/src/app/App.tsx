@@ -2,7 +2,7 @@ import React from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { ChakraProvider } from '@chakra-ui/react'
 import { RecoilRoot } from 'recoil'
-import useWebsocket from '@global/module/websocket'
+import { useWebsocket } from '@global/hook'
 import PageRouter from './router'
 
 /**

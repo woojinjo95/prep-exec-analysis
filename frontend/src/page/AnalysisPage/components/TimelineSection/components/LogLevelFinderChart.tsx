@@ -1,6 +1,6 @@
 import { PointChart } from '@global/ui'
 import React, { useMemo } from 'react'
-import useWebsocket from '@global/module/websocket'
+import { useWebsocket } from '@global/hook'
 import { useLogLevelFinders } from '../api/hook'
 
 interface LogLevelFinderChartProps {

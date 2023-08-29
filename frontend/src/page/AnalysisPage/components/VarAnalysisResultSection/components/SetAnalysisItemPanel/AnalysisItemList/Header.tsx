@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button, OptionItem, Select } from '@global/ui'
-import useWebsocket from '@global/module/websocket'
+import { useWebsocket } from '@global/hook'
 import { AnalysisTypeLabel } from '../../../constant'
 
 interface HeaderProps {

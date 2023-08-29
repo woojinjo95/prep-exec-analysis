@@ -31,7 +31,7 @@ const FilesSection: React.FC = () => {
     return data ? data.pages.flatMap(({ items }) => items) : []
   }, [data])
 
-  const [scenarioId, setScenarioId] = useRecoilState(scenarioIdState)
+  const [, setScenarioId] = useRecoilState(scenarioIdState)
 
   const navigate = useNavigate()
 

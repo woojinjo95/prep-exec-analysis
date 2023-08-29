@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import { PointChart } from '@global/ui'
-import useWebsocket from '@global/module/websocket'
+import { useWebsocket } from '@global/hook'
 import { useEventLogs } from '../api/hook'
 
 interface EventLogChartProps {

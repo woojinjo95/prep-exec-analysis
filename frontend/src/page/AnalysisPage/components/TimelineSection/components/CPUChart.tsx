@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import { AreaChart } from '@global/ui'
-import useWebsocket from '@global/module/websocket'
+import { useWebsocket } from '@global/hook'
 import { useCPU } from '../api/hook'
 
 interface CPUChartProps {
