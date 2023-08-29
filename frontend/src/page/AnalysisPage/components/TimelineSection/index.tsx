@@ -11,6 +11,7 @@ import MemoryChart from './components/MemoryChart'
 import EventLogChart from './components/EventLogChart'
 import ColorReferenceChart from './components/ColorReferenceChart'
 import FreezeChart from './components/FreezeChart'
+import TimelineHeader from './components/TimelineHeader'
 // import LogLevelFinderChart from './components/LogLevelFinderChart'
 
 interface TimelineSectionProps {
@@ -52,16 +53,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
   return (
     <section className="h-full bg-black grid grid-cols-1 grid-rows-[auto_1fr_auto]">
       {/* time ticks */}
-      <div className="h-8">
-        <div className="h-full w-48 bg-charcoal border-b-[1px] border-light-charcoal px-5 flex items-center">
-          <Text colorScheme="light" weight="medium">
-            Filter
-          </Text>
-        </div>
-
-        {/* TODO: time ticks / text 10px */}
-        <div className="h-full" />
-      </div>
+      <TimelineHeader scaleX={scrollbarScaleX} chartWidth={chartWidth} />
 
       <div className="grid grid-cols-[auto_1fr] grid-rows-1 overflow-y-auto overflow-x-hidden">
         <div className="w-48 z-10">
