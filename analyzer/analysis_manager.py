@@ -48,8 +48,6 @@ class AnalysisManager:
         if command.get('msg') == 'analysis':  # 분석 명령
             data = command.get('data', {})
             measurement = data.get('measurement', [])
-            if Command.COLOR_REFERENCE.value in measurement:
-                exec_list.append((test_color_reference, ()))
             if Command.FREEZE.value in measurement:
                 exec_list.append((test_freeze_detection, ()))
             if Command.RESUME.value in measurement:
