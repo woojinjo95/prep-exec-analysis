@@ -229,7 +229,6 @@ def get_data_of_resume(
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
-    target: Optional[str] = Query(None, description='ex)image_matching,screen_change_rate'),
 ):
     """
     분석 데이터 조회 : Resume(Warm booting)
@@ -243,9 +242,6 @@ def get_data_of_resume(
                                            '$lte': convert_iso_format(end_time)},
                              'scenario_id': scenario_id,
                              'testrun_id': testrun_id}
-        if target is not None:
-            target = target.split(',')
-            measurement_param['user_config.type'] = {'$in': target}
         measurement_proj = {'_id': 0, 'timestamp': 1, 'measure_time': 1}
         measurement = load_from_mongodb(col='an_warm_boot', param=measurement_param, proj=measurement_proj)
     except Exception as e:
@@ -260,7 +256,6 @@ def get_data_of_boot(
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
-    target: Optional[str] = Query(None, description='ex)image_matching,screen_change_rate'),
 ):
     """
     분석 데이터 조회 : Boot(Cold booting)
@@ -274,9 +269,6 @@ def get_data_of_boot(
                                            '$lte': convert_iso_format(end_time)},
                              'scenario_id': scenario_id,
                              'testrun_id': testrun_id}
-        if target is not None:
-            target = target.split(',')
-            measurement_param['user_config.type'] = {'$in': target}
         measurement_proj = {'_id': 0, 'timestamp': 1, 'measure_time': 1}
         measurement = load_from_mongodb(col='an_cold_boot', param=measurement_param, proj=measurement_proj)
     except Exception as e:
@@ -291,7 +283,6 @@ def get_data_of_log_pattern_matching(
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
-    log_pattern_name: Optional[str] = Query(None, description='ex)LogPattern3,LogPattern16'),
 ):
     """
     로그 패턴 매칭 데이터 조회
@@ -301,17 +292,10 @@ def get_data_of_log_pattern_matching(
             testrun_id = RedisClient.hget('testrun', 'id')
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        match_dict = {'timestamp': {'$gte': convert_iso_format(start_time),
-                                    '$lte': convert_iso_format(end_time)},
-                      'scenario_id': scenario_id,
-                      'testrun_id': testrun_id}
-        if scenario_id is not None:
-            match_dict['scenario_id'] = scenario_id
-        if log_pattern_name is not None:
-            log_pattern_name = log_pattern_name.split(',')
-            match_dict['user_config.items.name'] = {'$in': log_pattern_name}
-
-        pipeline = [{'$match': match_dict},
+        pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
+                                              '$lte': convert_iso_format(end_time)},
+                                'scenario_id': scenario_id,
+                                'testrun_id': testrun_id}},
                     {'$project': {'_id': 0, 'timestamp': '$timestamp', 'message': '$message', 'items': '$user_config.items'}}, 
                     {'$unwind': {'path': '$items'}},
                     {'$project': {'timestamp': '$timestamp', 'log_pattern_name': '$items.name', 'log_level': '$items.level', 'message': '$message'}}]
