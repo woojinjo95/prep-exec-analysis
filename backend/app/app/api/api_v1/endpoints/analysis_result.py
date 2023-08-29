@@ -304,13 +304,14 @@ def get_data_of_log_pattern_matching(
                       'testrun_id': testrun_id}
         if scenario_id is not None:
             match_dict['scenario_id'] = scenario_id
+        if log_pattern_name is not None:
+            log_pattern_name = log_pattern_name.split(',')
+            match_dict['user_config.items.name'] = {'$in': log_pattern_name}
+
         pipeline = [{'$match': match_dict},
                     {'$project': {'_id': 0, 'timestamp': '$timestamp', 'message': '$message', 'items': '$user_config.items'}}, 
                     {'$unwind': {'path': '$items'}},
                     {'$project': {'timestamp': '$timestamp', 'log_pattern_name': '$items.name', 'log_level': '$items.level', 'message': '$message'}}]
-        if log_pattern_name is not None:
-            log_pattern_name = log_pattern_name.split(',')
-            pipeline.append({'$match': {'log_pattern_name': {'$in': log_pattern_name}}})
         log_pattern_matching = aggregate_from_mongodb(col='an_log_pattern', pipeline=pipeline)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
