@@ -30,7 +30,6 @@ class AnalysisManager:
 
     ##### Command Producer #####
     def register(self, command: Dict):
-        logger.info(f'register command: {command}')
         # parse to module function and args
         exec_list = self.parse_command(command)
         for func, args in exec_list:
