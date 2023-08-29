@@ -13,7 +13,7 @@ logger = logging.getLogger('main')
 
 
 def main():
-    analysis_manager = AnalysisManager(mode=get_setting_with_env('ANALYSIS_EXEC_MODE', 'sync'))
+    analysis_manager = AnalysisManager(mode=get_setting_with_env('ANALYSIS_EXEC_MODE', 'async'))
 
     with get_strict_redis_connection(RedisDB.hardware) as src:
         for command in Subscribe(src, RedisChannel.command):
