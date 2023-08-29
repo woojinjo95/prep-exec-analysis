@@ -88,3 +88,11 @@ class ServiceStateEnum(ExtendedEnum):
     streaming = "streaming"
     playblock = "playblock"
     analysis = "analysis"
+
+
+class FreezeTypeEnum(ExtendedEnum):
+    no_signal = "no_signal"
+    black = "black"
+    white = "white"
+    one_colored = "one_colored"
+    default = "default"
