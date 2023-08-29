@@ -81,3 +81,25 @@ export interface HardwareConfiguration {
  * `analysis` 분석 (녹화 및 로그수집 X, 스트리밍 X)
  */
 export type ServiceState = 'idle' | 'streaming' | 'playblock' | 'analysis'
+
+export interface Block {
+  type: string
+  args: { key: string; value: string | number }[]
+  name: string
+  delay_time: number
+  id: string
+}
+
+export interface BlockGroup {
+  id: string
+  repeat_cnt: number
+  block: Block[]
+}
+
+export interface Scenario {
+  id: string
+  name: string
+  is_acive: boolean
+  tags: string[]
+  block_group: BlockGroup[]
+}

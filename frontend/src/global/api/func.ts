@@ -1,7 +1,22 @@
 import { AxiosError } from 'axios'
 import API from '.'
-import { HardwareConfiguration, PaginationResponse, Response, ScenarioSummary } from './entity'
+import { HardwareConfiguration, PaginationResponse, Response, Scenario, ScenarioSummary } from './entity'
 import apiUrls from './url'
+
+/**
+ * 시나리오 단건 조회 api
+ */
+
+export const getScenarioById = async ({ scenario_id }: { scenario_id: string }) => {
+  try {
+    const result = await API.get<Response<Scenario>>(`${apiUrls.scenario}/${scenario_id}`)
+
+    return result.data.items
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
 
 /**
  * 시나리오 리스트 조회 api
