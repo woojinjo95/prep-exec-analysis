@@ -1,10 +1,12 @@
 import multiprocessing
 import time
-import queue
 import logging
+import psutil
+import json
 from typing import Dict, Callable, Tuple, List
 
 from scripts.format import Command
+from scripts.connection.redis_conn import get_strict_redis_connection
 from scripts.processor.freeze_detect import test_freeze_detection
 from scripts.processor.warm_boot import test_warm_boot
 from scripts.processor.cold_boot import test_cold_boot
@@ -19,8 +21,7 @@ class AnalysisManager:
         self.mode = mode  # sync | async
         logger.info(f'analysis mode: {self.mode}')
 
-        self.processes = {}  # 모든 동작 중 프로세스. key: pid, value: process
-        self.cmd_queue = multiprocessing.Queue()
+        self.storage = RedisStorage()
 
         if self.mode == "sync":
             self.start_command_executor()
@@ -31,9 +32,9 @@ class AnalysisManager:
         # parse to module function and args
         exec_list = self.parse_command(command)
         for func, args in exec_list:
-            logger.info(f'execute: {func.__name__}({args})')
+            logger.info(f'execute: {func.__name__}{args}')
             if self.mode == "sync":
-                self.cmd_queue.put((func, args))
+                self.storage.enqueue_command(func, args)
             else:
                 self.start_process(func, args)
 
@@ -68,12 +69,14 @@ class AnalysisManager:
     def start_command_executor(self):
         def command_executor():
             while True:
-                try:
-                    func, args = self.cmd_queue.get_nowait()
+                time.sleep(1)
+                command = self.storage.dequeue_command()
+                if command:
+                    func, args = command
                     proc = self.start_process(func, args)
                     proc.join()
-                except queue.Empty:
-                    time.sleep(1)
+                else:
+                    pass
 
         proc = multiprocessing.Process(target=command_executor)
         proc.start()
@@ -82,24 +85,62 @@ class AnalysisManager:
     def start_process(self, func: Callable, args: Tuple) -> multiprocessing.Process:
         proc = multiprocessing.Process(target=func, args=args)
         proc.start()
-        self.processes[proc.pid] = proc
+        self.storage.store_process(proc.pid, {'func': func.__name__, 'args': args})
         logger.info(f'start process: {proc.pid}')
         return proc
 
     def stop_processes(self):
-        while not self.cmd_queue.empty():
-            self.cmd_queue.get()
-        for pid, process in self.processes.items():
-            process.terminate()
-            process.join()
-        self.processes = {}
+        self.storage.empty_command_queue()
+        self.storage.terminate_all_processes()
         logger.info('stop all processes')
 
     def remove_process_by_id(self, pid):
-        if pid in self.processes:
-            self.processes[pid].terminate()
-            self.processes[pid].join()
-            del self.processes[pid]
-            logger.info(f'remove process: {pid}')
-        else:
-            logger.warning(f'process {pid} not exist')
+        self.storage.remove_process(pid)
+
+
+class RedisStorage:
+    def __init__(self):
+        self.client = get_strict_redis_connection()
+        self.processes_name = "processes"
+        self.cmd_queue_name = "cmd_queue"
+        
+    def store_process(self, pid: int, metadata: Dict={}):
+        self.client.hset(self.processes_name, pid, json.dumps(metadata))
+
+    def terminate_all_processes(self):
+        all_pids = self.client.hkeys(self.processes_name)
+        for pid in all_pids:
+            pid = int(pid.decode('utf-8'))
+            self.remove_process(pid)
+        self.client.delete(self.processes_name)
+
+    def remove_process(self, pid: int):
+        try:
+            process = psutil.Process(pid)
+            process.terminate()
+        except psutil.NoSuchProcess:
+            logger.warning(f"Process with PID {pid} not found.")
+        self.client.hdel(self.processes_name, pid)
+
+    def enqueue_command(self, func: Callable, args: Tuple):
+        command = json.dumps({'func_name': func.__name__, 'args': args})
+        self.client.lpush(self.cmd_queue_name, command)
+
+    def dequeue_command(self) -> Tuple[Callable, Tuple]:
+        try:
+            command_byte = self.client.rpop(self.cmd_queue_name)
+            if command_byte:
+                command = json.loads(command)
+                # func_name to func that is defined in this module
+                func_name = command.get('func_name')
+                func = globals().get(func_name)
+                args = command.get('args')
+                return func, args
+            else:
+                return None
+        except Exception as e:
+            return None
+
+    def empty_command_queue(self):
+        while self.client.llen(self.cmd_queue_name) > 0:
+            self.client.rpop(self.cmd_queue_name)

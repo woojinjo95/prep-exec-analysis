@@ -15,7 +15,7 @@ REDIS_PORT = get_setting_with_env("REDIS_PORT")
 REDIS_PASSWORD = get_setting_with_env("REDIS_PASSWORD")
 
 
-def get_strict_redis_connection(db: int) -> StrictRedis:
+def get_strict_redis_connection(db: int=RedisDB.analyzer) -> StrictRedis:
     # logger.info(f'get_strict_redis_connection: {REDIS_HOST}:{REDIS_PORT}, password={REDIS_PASSWORD} db={db}')
     return StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=db, password=REDIS_PASSWORD)
 
