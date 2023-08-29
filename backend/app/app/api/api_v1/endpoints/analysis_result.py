@@ -25,8 +25,6 @@ def get_data_of_log_level_finder(
     로그 레벨 데이터 조회
     """
     try:
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if log_level is None:
             log_level = parse_bytes_to_value(RedisClient.hget('analysis_config:log_level_finder', 'targets'))
         else:
@@ -58,8 +56,6 @@ def get_data_of_cpu(
     Cpu 데이터 조회
     """
     try:
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
         time_range_param = {'timestamp': {'$gte': convert_iso_format(start_time),
@@ -86,8 +82,6 @@ def get_data_of_memory(
     Memory 데이터 조회
     """
     try:
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
         time_range_param = {'timestamp': {'$gte': convert_iso_format(start_time),
@@ -114,8 +108,6 @@ def get_data_of_event_log(
     이벤트 로그 데이터 조회
     """
     try:
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
         event_log_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
@@ -143,8 +135,6 @@ def get_data_of_color_reference(
     컬러 레퍼런스 데이터 조회
     """
     try:
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
         color_reference_param = {'timestamp': {'$gte': convert_iso_format(start_time),
@@ -172,8 +162,6 @@ def get_data_of_freeze(
     화면 멈춤 데이터 조회
     """
     try:
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
         freeze_param = {'timestamp': {'$gte': convert_iso_format(start_time),
@@ -203,8 +191,6 @@ def get_data_of_loudness(
     Loudness 데이터 조회
     """
     try:
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
         loudness_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
@@ -235,8 +221,6 @@ def get_data_of_resume(
     분석 데이터 조회 : Resume(Warm booting)
     """
     try:
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
         measurement_param = {'timestamp': {'$gte': convert_iso_format(start_time),
@@ -266,8 +250,6 @@ def get_data_of_boot(
     분석 데이터 조회 : Boot(Cold booting)
     """
     try:
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
         measurement_param = {'timestamp': {'$gte': convert_iso_format(start_time),
@@ -330,8 +312,6 @@ def get_data_of_process_lifecycle(
     프로세스 활동주기 데이터 조회
     """
     try:
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
         process_lifecycle = load_from_mongodb()
@@ -352,8 +332,6 @@ def get_data_of_network_filter(
     네트워크 필터 데이터 조회
     """
     try:
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
         network_filter = load_from_mongodb()
