@@ -6,9 +6,9 @@ import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
 import { AnalysisTypeLabel } from '../../../constant'
 
 /**
- * freeze 분석결과 요약 아이템
+ * log pattern matching 분석 결과 아이템
  */
-const FreezeSummaryResultItem: React.FC = () => {
+const LogPatternMatchingSummaryResultItem: React.FC = () => {
   return (
     <Accordion
       header={
@@ -22,7 +22,7 @@ const FreezeSummaryResultItem: React.FC = () => {
               }}
             />
             <Text size="sm" weight="medium">
-              {AnalysisTypeLabel.freeze}
+              {AnalysisTypeLabel.log_pattern_matching}
             </Text>
           </div>
 
@@ -34,7 +34,7 @@ const FreezeSummaryResultItem: React.FC = () => {
         <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 gap-y-2">
           {/* header */}
           <Text weight="medium" size="sm">
-            Error Type
+            Log Pattern Name
           </Text>
           <Text weight="medium" size="sm">
             Total
@@ -42,7 +42,15 @@ const FreezeSummaryResultItem: React.FC = () => {
           <div />
 
           {/* TODO: items */}
-          <Text size="sm">Standard</Text>
+          <div className="flex items-center gap-x-3">
+            <div
+              className="w-4 h-4"
+              style={{
+                backgroundColor: 'red',
+              }}
+            />
+            <Text size="sm">Untitled Log Pattren (1)</Text>
+          </div>
           <Text size="sm" className="text-right">
             2
           </Text>
@@ -50,7 +58,15 @@ const FreezeSummaryResultItem: React.FC = () => {
             <ShowEyeIcon className="w-5" />
           </button>
 
-          <Text size="sm">Black</Text>
+          <div className="flex items-center gap-x-3">
+            <div
+              className="w-4 h-4"
+              style={{
+                backgroundColor: 'red',
+              }}
+            />
+            <Text size="sm">Untitled Log Pattren (2)</Text>
+          </div>
           <Text size="sm" className="text-right">
             2
           </Text>
@@ -69,4 +85,4 @@ const FreezeSummaryResultItem: React.FC = () => {
   )
 }
 
-export default FreezeSummaryResultItem
+export default LogPatternMatchingSummaryResultItem

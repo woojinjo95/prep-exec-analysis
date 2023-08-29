@@ -6,9 +6,9 @@ import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
 import { AnalysisTypeLabel } from '../../../constant'
 
 /**
- * freeze 분석결과 요약 아이템
+ * resume 분석결과 요약 아이템
  */
-const FreezeSummaryResultItem: React.FC = () => {
+const ResumeSummaryResultItem: React.FC = () => {
   return (
     <Accordion
       header={
@@ -22,7 +22,7 @@ const FreezeSummaryResultItem: React.FC = () => {
               }}
             />
             <Text size="sm" weight="medium">
-              {AnalysisTypeLabel.freeze}
+              {AnalysisTypeLabel.resume}
             </Text>
           </div>
 
@@ -31,28 +31,37 @@ const FreezeSummaryResultItem: React.FC = () => {
       }
     >
       <div className="grid grid-cols-1 gap-y-4 pt-1">
-        <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 gap-y-2">
+        <div className="grid grid-cols-[1fr_auto_auto_auto] gap-x-4 gap-y-2">
           {/* header */}
           <Text weight="medium" size="sm">
-            Error Type
+            Target
           </Text>
           <Text weight="medium" size="sm">
             Total
           </Text>
+          <Text weight="medium" size="sm">
+            Avg Time
+          </Text>
           <div />
 
           {/* TODO: items */}
-          <Text size="sm">Standard</Text>
+          <Text size="sm">Matching Image</Text>
           <Text size="sm" className="text-right">
             2
+          </Text>
+          <Text size="sm" className="text-right">
+            869ms
           </Text>
           <button type="button">
             <ShowEyeIcon className="w-5" />
           </button>
 
-          <Text size="sm">Black</Text>
+          <Text size="sm">Screen Change Rate</Text>
           <Text size="sm" className="text-right">
             2
+          </Text>
+          <Text size="sm" className="text-right">
+            1,021ms
           </Text>
           <button type="button">
             <HiddenEyeIcon className="w-5" />
@@ -69,4 +78,4 @@ const FreezeSummaryResultItem: React.FC = () => {
   )
 }
 
-export default FreezeSummaryResultItem
+export default ResumeSummaryResultItem
