@@ -162,8 +162,11 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
         />
       )}
 
-      {selectedAnalysisItems.includes('log_pattern_matching') && (
-        <LogPatternMatchingAnalysisItem onClickDeleteItem={onClickDeleteItem('log_pattern_matching')} />
+      {selectedAnalysisItems.includes('log_pattern_matching') && unsavedAnalysisConfig.log_pattern_matching && (
+        <LogPatternMatchingAnalysisItem
+          patterns={unsavedAnalysisConfig.log_pattern_matching.items}
+          onClickDeleteItem={onClickDeleteItem('log_pattern_matching')}
+        />
       )}
     </div>
   )
