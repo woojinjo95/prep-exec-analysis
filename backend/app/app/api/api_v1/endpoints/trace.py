@@ -23,18 +23,17 @@ def read_logcat(
     Logcat 로그 조회
     """
     try:
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
-        match_dict = {'timestamp': {'$gte': convert_iso_format(start_time),
-                                    '$lte': convert_iso_format(end_time)},
-                      'testrun_id': testrun_id}
-        if scenario_id is not None:
-            match_dict['scenario_id'] = scenario_id
-        pipeline = [{'$match': match_dict},
+        pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
+                                              '$lte': convert_iso_format(end_time)},
+                                'scenario_id': scenario_id,
+                                'testrun_id': testrun_id}},
+                    {'$project': {'_id': 0, 'lines': 1}},
                     {'$unwind': {'path': '$lines'}},
-                    {'$group': {'_id': None, 'items': {'$push': '$lines'}}},
-                    ]
-
+                    {'$group': {'_id': None, 'items': {'$push': '$lines'}}}]
         aggregation_result = aggregate_from_mongodb(col='stb_log', pipeline=pipeline)
         log_list = aggregation_result[0].get('items', []) if aggregation_result != [] else aggregation_result
     except Exception as e:
@@ -53,17 +52,17 @@ def read_network(
     Network 조회
     """
     try:
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
-        match_dict = {'timestamp': {'$gte': convert_iso_format(start_time),
-                                    '$lte': convert_iso_format(end_time)},
-                      'testrun_id': testrun_id}
-        if scenario_id is not None:
-            match_dict['scenario_id'] = scenario_id
-        pipeline = [{'$match': match_dict},
+        pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
+                                              '$lte': convert_iso_format(end_time)},
+                                'scenario_id': scenario_id,
+                                'testrun_id': testrun_id}},
+                    {'$project': {'_id': 0, 'lines': 1}},
                     {'$unwind': {'path': '$lines'}},
-                    {'$group': {'_id': None, 'items': {'$push': '$lines'}}},
-                    ]
+                    {'$group': {'_id': None, 'items': {'$push': '$lines'}}}]
         aggregation_result = aggregate_from_mongodb(col='network_trace', pipeline=pipeline)
         log_list = aggregation_result[0].get('items', []) if aggregation_result != [] else aggregation_result
     except Exception as e:
