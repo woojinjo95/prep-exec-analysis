@@ -39,7 +39,7 @@ const BootSummaryResultItem: React.FC = () => {
           <Text weight="medium" size="sm">
             Total
           </Text>
-          <Text weight="medium" size="sm">
+          <Text weight="medium" size="sm" className="ml-4">
             Avg Time
           </Text>
           <div />
