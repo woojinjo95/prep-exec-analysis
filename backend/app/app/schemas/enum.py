@@ -90,7 +90,7 @@ class ServiceStateEnum(ExtendedEnum):
     analysis = "analysis"
 
 
-class FreezeEnum(ExtendedEnum):
+class FreezeTypeEnum(ExtendedEnum):
     no_signal = "no_signal"
     black = "black"
     white = "white"
