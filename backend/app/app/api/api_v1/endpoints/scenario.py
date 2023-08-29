@@ -178,3 +178,66 @@ def create_scenario(
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Create new scenario', 'id': scenario_id}
+
+
+router_detail = APIRouter()
+
+
+@router_detail.post("", response_model=schemas.MsgWithId)
+def copy_scenario(
+    *,
+    scenario_in: schemas.CopyScenarioCreate,
+) -> schemas.MsgWithId:
+    """
+    Copy scenario.
+    """
+    scenario = load_by_id_from_mongodb(col='scenario', id=scenario_in.src_scenario_id,
+                                       proj={'_id': 0, 'testruns': 1})
+    if not scenario:
+        raise HTTPException(status_code=404,
+                            detail="The scenario with this id does not exist in the system.")
+
+    if count_from_mongodb(col='scenario', param={"name": scenario_in.name}) > 0:
+        raise HTTPException(
+            status_code=406, detail="The scenario name already exists in the system.")
+
+    try:
+        scenario_in.tags = list(set(scenario_in.tags)) if scenario_in.tags else []
+        if scenario_in.tags:
+            tags = RedisClient.hget('testrun', 'tags')
+            tag_list = parse_bytes_to_value(tags) if tags else []
+            RedisClient.hset('testrun', 'tags',
+                             f'{list(set([tag for tag in scenario_in.tags if tag not in tag_list] + tag_list))}')
+
+        scenario_id = str(uuid.uuid4())
+        testrun_id = datetime.now().strftime("%Y-%m-%dT%H%M%SF%f")
+        data = {'id': scenario_id,
+                'updated_at': get_utc_datetime(time.time()),
+                'is_active': True,
+                'name': scenario_in.name,
+                'tags': scenario_in.tags,
+                'block_group': scenario_in.block_group,
+                'testruns': scenario.get('testruns', [])}
+
+        # 폴더 생성
+        path = f'/app/workspace/testruns/{testrun_id}'
+        os.makedirs(f'{path}/raw')
+        os.makedirs(f'{path}/analysis')
+
+        # 시나리오 복제
+        insert_one_to_mongodb(col='scenario', data=data)
+
+        # 워크스페이스 변경
+        RedisClient.hset('testrun', 'id', testrun_id)
+        RedisClient.hset('testrun', 'scenario_id', scenario_id)
+
+        # 워크스페이스 변경 메세지 전송
+        RedisClient.publish('command',
+                            set_redis_pub_msg(msg="workspace",
+                                              data={"workspace_path": RedisClient.hget('testrun', 'workspace_path'),
+                                                    "testrun_id": testrun_id,
+                                                    "scenario_id": scenario_id}))
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return {'msg': 'Copy scenario', 'id': scenario_id}
