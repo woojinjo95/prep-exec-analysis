@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { Button, Input, Text, Modal } from '@global/ui'
+import { Button, Input, Text, Modal, Select, TagItem } from '@global/ui'
 import useFetchScenarios from '@global/hook/useFetchScenarios'
 import { PAGE_SIZE_TWENTY } from '@global/constant'
 import useIntersect from '@global/hook/useIntersect'
@@ -8,6 +8,9 @@ import Scrollbars from 'react-custom-scrollbars-2'
 import { useScenarioById } from '@global/api/hook'
 import { useRecoilValue } from 'recoil'
 import { scenarioIdState } from '@global/atom'
+import Tag from '@global/ui/Tag'
+import { useQuery } from 'react-query'
+import { getTag } from '@global/api/func'
 
 interface SaveBlocksModalProps {
   isOpen: boolean
@@ -19,6 +22,9 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
   const lastFocusableElementRef = useRef<HTMLButtonElement>(null)
 
   const [blocksName, setBlocksName] = useState<string>('')
+  const [blocksTags, setBlocksTags] = useState<string[]>([])
+  const [tagInput, setTagInput] = useState<string>('')
+  // const [searchedTags, setSearchedTags] = useState<string[] | null>(null)
 
   const { data, hasNextPage, isFetching, fetchNextPage } = useFetchScenarios(PAGE_SIZE_TWENTY)
 
@@ -28,8 +34,11 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
     scenarioId,
     onSuccess: (res) => {
       setBlocksName(res.name)
+      setBlocksTags(res.tags)
     },
   })
+
+  const { data: tags, refetch } = useQuery<string[]>(['tags'], () => getTag())
 
   const ref = useIntersect((entry, observer) => {
     // 발견시 실행될 callback
@@ -70,6 +79,16 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
       document.removeEventListener('keydown', handleKeyDown)
     }
   }, [])
+
+  const searchedTags = useMemo(() => {
+    if (!tags) return null
+    if (tagInput === '') return null
+
+    return tags.filter((tag) => tagInput !== '' && tag.includes(tagInput))
+  }, [tagInput, tags])
+
+  if (!(tags && currentScenario && scenarios)) return <div />
+
   return (
     <Modal
       mode="center"
@@ -84,13 +103,47 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
           <Text colorScheme="light" className="!text-lg " weight="bold">
             Name
           </Text>
-          <Input value={blocksName} onChange={(e) => setBlocksName(e.target.value)} ref={firstFocusableElementRef} />
+          <Input
+            value={blocksName}
+            onChange={(e) => {
+              setBlocksName(e.target.value)
+            }}
+            ref={firstFocusableElementRef}
+          />
         </div>
         <div className="w-full grid grid-cols-[1fr_6fr] items-center h-12">
           <Text colorScheme="light" className="!text-lg " weight="bold">
             Tag
           </Text>
-          <Input value={blocksName} onChange={(e) => setBlocksName(e.target.value)} />
+          <Select
+            colorScheme="charcoal"
+            header={
+              <div className="flex w-full">
+                {currentScenario &&
+                  blocksTags.map((tag) => (
+                    <React.Fragment key={`blocks_${currentScenario.id}_${tag}`}>
+                      <Tag tag={tag} mode="delete" />
+                    </React.Fragment>
+                  ))}
+                <input
+                  className="ml-3 border-none bg-transparent w-full outline-none text-white"
+                  value={tagInput}
+                  onChange={(e) => {
+                    e.stopPropagation()
+                    setTagInput(e.target.value)
+                  }}
+                />
+              </div>
+            }
+          >
+            <span>test</span>
+            {searchedTags &&
+              searchedTags.map((tag) => {
+                return (
+                  <TagItem colorScheme="charcoal" tag={tag} key={`scenario_${currentScenario.id}_tag_item_${tag}`} />
+                )
+              })}
+          </Select>
         </div>
         <div className="mt-5 flex flex-col w-full min-h-[520px]">
           <div className="mt-9 w-full grid grid-cols-[35%_45%_20%] gap-x-2 min-h-[48px] items-end border-b-grey border-b-[1px] pb-2">
@@ -105,9 +158,11 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
             </Text>
           </div>
           <Scrollbars
-            renderThumbVertical={({ ...props }) => <div {...props} className="bg-[#4E525A] w-2 rounded-[5px] pr-2" />}
+            renderThumbVertical={({ ...props }) => (
+              <div {...props} className="w-2 rounded-[5px] pr-2 bg-light-charcoal" />
+            )}
           >
-            {scenarios?.map((scenario) => (
+            {scenarios.map((scenario) => (
               <div className="flex flex-col w-full" key={`file_${scenario.name}`}>
                 <div className="w-full grid grid-cols-[35%_45%_20%] border-b-grey border-b-[1px] min-h-[48px] items-center">
                   <div>
