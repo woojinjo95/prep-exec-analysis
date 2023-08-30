@@ -13,6 +13,7 @@ from scripts.modules.warm_boot import WarmBoot
 logger = logging.getLogger('main')
 
 service_name = 'resume'  # FIXME: service name
+command_name = Command.RESUME.value  # FIXME: command name
 
 
 class CommandExecutor:
@@ -30,9 +31,9 @@ class CommandExecutor:
             data = command.get('data', {})
 
             measurement = data.get('measurement', [])
-            if Command.RESUME.value in measurement:  # FIXME: measurement command name
+            if command_name in measurement:
                 self.start_service_module()
-                publish_msg({'measurement': [Command.RESUME.value]}, 'analysis_started')
+                publish_msg({'measurement': [command_name]}, 'analysis_started')
 
 
 def main():

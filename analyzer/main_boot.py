@@ -13,6 +13,7 @@ from scripts.modules.cold_boot import ColdBoot
 logger = logging.getLogger('main')
 
 service_name = 'boot'  # FIXME: service name
+command_name = Command.BOOT.value  # FIXME: command name
 
 
 class CommandExecutor:
@@ -30,9 +31,9 @@ class CommandExecutor:
             data = command.get('data', {})
 
             measurement = data.get('measurement', [])
-            if Command.BOOT.value in measurement:  # FIXME: measurement command name
+            if command_name in measurement:
                 self.start_service_module()
-                publish_msg({'measurement': [Command.BOOT.value]}, 'analysis_started')
+                publish_msg({'measurement': [command_name]}, 'analysis_started')
 
 
 

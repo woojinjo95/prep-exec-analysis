@@ -13,6 +13,7 @@ from scripts.modules.freeze_detect import FreezeDetect
 logger = logging.getLogger('main')
 
 service_name = 'freeze'  # FIXME: service name
+command_name = Command.FREEZE.value  # FIXME: command name
 
 
 class CommandExecutor:
@@ -32,9 +33,9 @@ class CommandExecutor:
             data = command.get('data', {})
 
             measurement = data.get('measurement', [])
-            if Command.FREEZE.value in measurement:  # FIXME: measurement command name
+            if command_name in measurement:
                 self.start_service_module()
-                publish_msg({'measurement': [Command.FREEZE.value]}, 'analysis_started')
+                publish_msg({'measurement': [command_name]}, 'analysis_started')
 
 
 def main():

@@ -13,6 +13,7 @@ from scripts.modules.log_pattern import LogPattern
 logger = logging.getLogger('main')
 
 service_name = 'log_pattern'  # FIXME: service name
+command_name = Command.LOG_PATTERN_MATCHING.value  # FIXME: command name
 
 
 class CommandExecutor:
@@ -30,9 +31,9 @@ class CommandExecutor:
             data = command.get('data', {})
 
             measurement = data.get('measurement', [])
-            if Command.LOG_PATTERN_MATCHING.value in measurement:  # FIXME: measurement command name
+            if command_name in measurement:
                 self.start_service_module()
-                publish_msg({'measurement': [Command.LOG_PATTERN_MATCHING.value]}, 'analysis_started')
+                publish_msg({'measurement': [command_name]}, 'analysis_started')
 
 
 def main():
