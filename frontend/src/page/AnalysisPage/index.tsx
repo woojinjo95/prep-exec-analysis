@@ -3,7 +3,7 @@ import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { PageContainer, Text } from '@global/ui'
 import { useScenarios } from '@global/api/hook'
 import { AppURL } from '@global/constant'
-import { scenarioIdState, videoBlobURLState } from '@global/atom'
+import { scenarioIdState, testRunIdState, videoBlobURLState } from '@global/atom'
 
 import LogTraceSection from './components/LogTraceSection'
 import VideoDetailSection from './components/VideoDetailSection'
@@ -20,6 +20,7 @@ const AnalysisPage: React.FC = () => {
   const [startTime] = useState<Date>(new Date('2023-08-30T10:14:00.000+00:00'))
   const [endTime] = useState<Date>(new Date('2023-08-30T10:16:00.000+00:00'))
   const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
   const setVideoBlobURL = useSetRecoilState(videoBlobURLState)
 
   useScenarios({
@@ -31,10 +32,10 @@ const AnalysisPage: React.FC = () => {
   })
 
   useEffect(() => {
-    if (!scenarioId) return
+    if (!scenarioId || !testRunId) return
 
     prefetchVideoFile(
-      `${AppURL.backendURL}${apiUrls.video}?scenario_id=${scenarioId}`,
+      `${AppURL.backendURL}${apiUrls.video}?scenario_id=${scenarioId}&testrun_id=${testRunId}`,
       (url) => {
         setVideoBlobURL(url)
       },

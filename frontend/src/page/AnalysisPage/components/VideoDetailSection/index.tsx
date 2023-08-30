@@ -7,7 +7,7 @@ import { ReactComponent as StepForwardIcon } from '@assets/images/icon_step_forw
 import { ReactComponent as GoToLastIcon } from '@assets/images/icon_go_to_last_w.svg'
 import { ReactComponent as StopIcon } from '@assets/images/icon_stop.svg'
 import { IconButton, Text } from '@global/ui'
-import { scenarioIdState } from '@global/atom'
+import { scenarioIdState, testRunIdState } from '@global/atom'
 import { AppURL } from '@global/constant'
 import apiUrls from '@page/AnalysisPage/api/url'
 
@@ -17,6 +17,7 @@ import apiUrls from '@page/AnalysisPage/api/url'
 const VideoDetailSection: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
   const [isPlaying, setIsPlaying] = useState<boolean>(false)
   const [currentTime, setCurrentTime] = useState<number>(0)
   /**
@@ -93,11 +94,11 @@ const VideoDetailSection: React.FC = () => {
       </div>
 
       <div className="aspect-video">
-        {scenarioId && (
+        {scenarioId && testRunId && (
           <video
             ref={videoRef}
             className="h-full aspect-video"
-            src={`${AppURL.backendURL}${apiUrls.partial_video}?scenario_id=${scenarioId}`}
+            src={`${AppURL.backendURL}${apiUrls.partial_video}?scenario_id=${scenarioId}&testrun_id=${testRunId}`}
             muted
             controls
             loop={false}
