@@ -2,8 +2,48 @@ import API from '@global/api'
 import { Response } from '@global/api/entity'
 import { AxiosError } from 'axios'
 import { FreezeType, LogLevel } from '@global/constant'
-import { CPU, ColorReference, EventLog, Freeze, LogLevelFinder, Memory } from './entity'
+import {
+  Boot,
+  CPU,
+  ColorReference,
+  EventLog,
+  Freeze,
+  LogLevelFinder,
+  LogPatternMatching,
+  Loudness,
+  Memory,
+  Resume,
+} from './entity'
 import apiUrls from './url'
+
+/**
+ * Log level finder 리스트 조회 api
+ *
+ * @param scenario_id 시나리오 id
+ * @param testrun_id 테스트런 id
+ * @param log_level 로그레벨 필터. ex: "V,D,I,W,E,F,S"
+ */
+export const getLogLevelFinders = async (params: {
+  start_time: string
+  end_time: string
+  scenario_id?: string
+  testrun_id?: string
+  log_level?: (keyof typeof LogLevel)[]
+}) => {
+  try {
+    const result = await API.get<Response<LogLevelFinder[]>>(apiUrls.log_level_finder, {
+      params: {
+        ...params,
+        log_level: params.log_level ? params.log_level.join(',') : undefined,
+      },
+    })
+
+    return result.data.items
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
 
 /**
  * CPU 사용률 리스트 조회 api
@@ -107,25 +147,80 @@ export const getFreeze = async (params: {
 }
 
 /**
- * Log level finder 리스트 조회 api
- *
- * @param scenario_id 시나리오 id
- * @param testrun_id 테스트런 id
- * @param log_level 로그레벨 필터. ex: "V,D,I,W,E,F,S"
+ * Loudness 리스트 조회 api
  */
-export const getLogLevelFinders = async (params: {
+export const getLoudness = async (params: {
   start_time: string
   end_time: string
   scenario_id?: string
   testrun_id?: string
-  log_level?: (keyof typeof LogLevel)[]
 }) => {
   try {
-    const result = await API.get<Response<LogLevelFinder[]>>(apiUrls.log_level_finder, {
-      params: {
-        ...params,
-        log_level: params.log_level ? params.log_level.join(',') : undefined,
-      },
+    const result = await API.get<Response<Loudness[]>>(apiUrls.loudness, {
+      params,
+    })
+
+    return result.data.items
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
+/**
+ * Resume 리스트 조회 api
+ */
+export const getResume = async (params: {
+  start_time: string
+  end_time: string
+  scenario_id?: string
+  testrun_id?: string
+}) => {
+  try {
+    const result = await API.get<Response<Resume[]>>(apiUrls.resume, {
+      params,
+    })
+
+    return result.data.items
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
+/**
+ * Boot 리스트 조회 api
+ */
+export const getBoot = async (params: {
+  start_time: string
+  end_time: string
+  scenario_id?: string
+  testrun_id?: string
+}) => {
+  try {
+    const result = await API.get<Response<Boot[]>>(apiUrls.boot, {
+      params,
+    })
+
+    return result.data.items
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
+/**
+ * LogPatternMatching 리스트 조회 api
+ */
+export const getLogPatternMatching = async (params: {
+  start_time: string
+  end_time: string
+  scenario_id?: string
+  testrun_id?: string
+}) => {
+  try {
+    const result = await API.get<Response<LogPatternMatching[]>>(apiUrls.log_pattern_matching, {
+      params,
     })
 
     return result.data.items

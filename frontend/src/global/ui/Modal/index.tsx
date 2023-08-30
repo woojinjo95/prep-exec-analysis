@@ -1,7 +1,7 @@
 import React from 'react'
 import cx from 'classnames'
 import useOutSideRef from '@global/hook/useOutsideRef'
-import { Text, Title } from '@global/ui'
+import { Title } from '@global/ui'
 
 interface ModalProps {
   mode?: 'center' | 'normal'

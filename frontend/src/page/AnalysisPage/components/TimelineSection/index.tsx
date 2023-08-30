@@ -13,6 +13,9 @@ import ColorReferenceChart from './components/ColorReferenceChart'
 import FreezeChart from './components/FreezeChart'
 import LogLevelFinderChart from './components/LogLevelFinderChart'
 import TimelineHeader from './components/TimelineHeader'
+import LoudnessChart from './components/LoudnessChart'
+import ResumeBootChart from './components/ResumeBootChart'
+import LogPatternMatchingChart from './components/LogPatternMatchingChart'
 
 interface TimelineSectionProps {
   startTime: Date
@@ -57,19 +60,28 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
 
       <div className="grid grid-cols-[auto_1fr] grid-rows-1 overflow-y-auto overflow-x-hidden">
         <div className="w-48 z-10">
-          {['Video', 'Color Reference', 'Event Log', 'Video Analysis Result', 'Log Level Finder', 'CPU', 'Memory'].map(
-            (title, index) => (
-              <div
-                key={`timeline-chart-title-${title}-${index}`}
-                className="border-b-[1px] border-light-charcoal bg-charcoal py-2 px-5"
-                style={{ height: CHART_HEIGHT }}
-              >
-                <Text colorScheme="grey" weight="medium">
-                  {title}
-                </Text>
-              </div>
-            ),
-          )}
+          {[
+            'Video',
+            'Color Reference',
+            'Event Log',
+            'Video Analysis Result',
+            'Loudness',
+            'Resume, Boot Measurement',
+            'Log Level Finder',
+            'Log Pattern Matching',
+            'CPU',
+            'Memory',
+          ].map((title, index) => (
+            <div
+              key={`timeline-chart-title-${title}-${index}`}
+              className="border-b-[1px] border-light-charcoal bg-charcoal py-2 px-5"
+              style={{ height: CHART_HEIGHT }}
+            >
+              <Text colorScheme="grey" weight="medium">
+                {title}
+              </Text>
+            </div>
+          ))}
         </div>
 
         {/* chart */}
@@ -97,8 +109,11 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
           />
           <EventLogChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
           <FreezeChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
+          <LoudnessChart chartWidth={chartWidth} scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
+          <ResumeBootChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
           {/* FIXME: 데이터가 너무많음. 페이지 로딩이 오래걸림 */}
           <LogLevelFinderChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
+          <LogPatternMatchingChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
           <CPUChart chartWidth={chartWidth} scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
           <MemoryChart chartWidth={chartWidth} scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
         </div>

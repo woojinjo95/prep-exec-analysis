@@ -1,6 +1,35 @@
 import { useQuery } from 'react-query'
 import { useWebsocket } from '@global/hook'
-import { getCPU, getColorReferences, getEventLogs, getFreeze, getLogLevelFinders, getMemory } from './func'
+import {
+  getBoot,
+  getCPU,
+  getColorReferences,
+  getEventLogs,
+  getFreeze,
+  getLogLevelFinders,
+  getLogPatternMatching,
+  getLoudness,
+  getMemory,
+  getResume,
+} from './func'
+
+/**
+ * Log Level Finder 리스트 조회 hook
+ */
+export const useLogLevelFinders = (params: Parameters<typeof getLogLevelFinders>[0]) => {
+  const { data, isLoading, refetch } = useQuery(['log_level_finder', params], () => getLogLevelFinders(params))
+
+  // FIXME: log level finder 분석이 완료되면 refetch
+  useWebsocket({
+    onMessage: (message) => {
+      if (message.msg === 'analysis_response') {
+        refetch()
+      }
+    },
+  })
+
+  return { logLevelFinders: data, isLoading, refetch }
+}
 
 /**
  * CPU 사용률 리스트 조회 hook
@@ -94,12 +123,12 @@ export const useFreeze = (params: Parameters<typeof getFreeze>[0]) => {
 }
 
 /**
- * Log Level Finder 리스트 조회 hook
+ * Loudness 리스트 조회 hook
  */
-export const useLogLevelFinders = (params: Parameters<typeof getLogLevelFinders>[0]) => {
-  const { data, isLoading, refetch } = useQuery(['log_level_finder', params], () => getLogLevelFinders(params))
+export const useLoudness = (params: Parameters<typeof getLoudness>[0]) => {
+  const { data, isLoading, refetch } = useQuery(['loudness', params], () => getLoudness(params))
 
-  // FIXME: log level finder 분석이 완료되면 refetch
+  // FIXME: loudness 분석이 완료되면 refetch
   useWebsocket({
     onMessage: (message) => {
       if (message.msg === 'analysis_response') {
@@ -108,5 +137,59 @@ export const useLogLevelFinders = (params: Parameters<typeof getLogLevelFinders>
     },
   })
 
-  return { logLevelFinders: data, isLoading, refetch }
+  return { loudness: data, isLoading, refetch }
+}
+
+/**
+ * Resume 리스트 조회 hook
+ */
+export const useResume = (params: Parameters<typeof getResume>[0]) => {
+  const { data, isLoading, refetch } = useQuery(['resume', params], () => getResume(params))
+
+  // FIXME: resume 분석이 완료되면 refetch
+  useWebsocket({
+    onMessage: (message) => {
+      if (message.msg === 'analysis_response') {
+        refetch()
+      }
+    },
+  })
+
+  return { resume: data, isLoading, refetch }
+}
+
+/**
+ * Boot 리스트 조회 hook
+ */
+export const useBoot = (params: Parameters<typeof getBoot>[0]) => {
+  const { data, isLoading, refetch } = useQuery(['boot', params], () => getBoot(params))
+
+  // FIXME: boot 분석이 완료되면 refetch
+  useWebsocket({
+    onMessage: (message) => {
+      if (message.msg === 'analysis_response') {
+        refetch()
+      }
+    },
+  })
+
+  return { boot: data, isLoading, refetch }
+}
+
+/**
+ * Log Pattern Matching 리스트 조회 hook
+ */
+export const useLogPatternMatching = (params: Parameters<typeof getLogPatternMatching>[0]) => {
+  const { data, isLoading, refetch } = useQuery(['log_pattern_matching', params], () => getLogPatternMatching(params))
+
+  // FIXME: log pattern matching 분석이 완료되면 refetch
+  useWebsocket({
+    onMessage: (message) => {
+      if (message.msg === 'analysis_response') {
+        refetch()
+      }
+    },
+  })
+
+  return { logPatternMatching: data, isLoading, refetch }
 }
