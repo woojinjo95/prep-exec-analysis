@@ -14,8 +14,10 @@ logger = logging.getLogger('main')
 
 def load_data() -> Dict:
     testrun = load_testrun()
-    video_path = testrun['raw']['videos'][0]['path']
-    stat_path = testrun['raw']['videos'][0]['stat_path']
+    video_path = str(testrun['raw']['videos'][0]['path'])
+    stat_path = str(testrun['raw']['videos'][0]['stat_path'])
+    video_path = video_path.replace('./data, /app')
+    stat_path = stat_path.replace('./data, /app')
     return {
         "video_path": video_path,
         "stat_path": stat_path,
