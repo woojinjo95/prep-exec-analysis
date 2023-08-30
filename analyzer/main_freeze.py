@@ -48,7 +48,7 @@ def main():
 if __name__ == '__main__':
     try:
         log_organizer = LogOrganizer(name=service_name)
-        log_organizer.set_stream_logger('main', color_index=0)
+        log_organizer.set_stream_logger('main', color_index=0)  # FIXME: color index
         logger.info(f'Start {service_name} container')
         
         main()
