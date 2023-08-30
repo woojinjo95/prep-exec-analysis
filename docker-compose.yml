@@ -261,6 +261,16 @@ services:
     volumes:
       - ./data/workspace:/app/workspace
 
+  state:
+    container_name: state
+    image: registry.dev-nextlab.com/qaas-state:dev-0
+    command: python -u process.py
+    build:
+      context: ./state
+      dockerfile: Dockerfile.dev.m32dev4
+    volumes:
+      - ./state/app:/app
+
 volumes:
   mongodb_data: {}
   redis_data: {}
