@@ -49,8 +49,7 @@ def main():
 if __name__ == '__main__':
     try:
         log_organizer = LogOrganizer(name=service_name)
-        log_organizer.set_stream_logger('main')
-        log_organizer.set_stream_logger('connection')
+        log_organizer.set_stream_logger('main', color_index=0)
         logger.info(f'Start {service_name} container')
         
         main()
