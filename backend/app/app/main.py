@@ -85,8 +85,12 @@ def command_parser(command):
         RedisClient.publish('command',
                             set_redis_pub_msg(msg="streaming", data={"action": "stop"}))
 
+        # 컬러레퍼런스 분석 메세지 전송
+        RedisClient.publish('command',
+                            set_redis_pub_msg(msg="analysis", data={"measurement": ["color_reference"]}))
+
         # 상태 변경 및 메세지 전송
-        set_service_state_and_pub(ServiceStateEnum.analysis)
+        set_service_state_and_pub(ServiceStateEnum.idle)
 
     # 액션 페이지에 진입했을때 -> 녹화
     elif msg == 'action_mode':
@@ -105,6 +109,17 @@ def command_parser(command):
         # 상태 변경 및 메세지 전송
         set_service_state_and_pub(ServiceStateEnum.streaming)
 
+    # 분석이 시작되었을 때
+    if msg == 'analysis_started':
+        # 상태 변경 및 메세지 전송
+        set_service_state_and_pub(ServiceStateEnum.analysis)
+
+    # 분석이 종료되었을 때
+    if msg == 'analysis_response':
+        # 상태 변경 및 메세지 전송
+        set_service_state_and_pub(ServiceStateEnum.idle)
+
+    # 분석 시작
     if msg == 'analysis':
         msg_data = data.get('data', {})
         measurement = msg_data.get('measurement', [])
