@@ -26,7 +26,9 @@ const LogcatTrace: React.FC = () => {
 
   return (
     <div className="w-full flex flex-col h-full overflow-x-hidden overflow-y-auto">
-      <Scrollbars renderThumbVertical={({ ...props }) => <div {...props} className="bg-[#4E525A] w-2 rounded-[5px]" />}>
+      <Scrollbars
+        renderThumbVertical={({ ...props }) => <div {...props} className="bg-light-charcoal w-2 rounded-[5px]" />}
+      >
         {logcats && (
           <>
             <div className="w-[calc(100%-48px)] grid grid-cols-[14%_6%_9%_9%_5%_5%_52%] gap-x-2 text-[#8F949E]">

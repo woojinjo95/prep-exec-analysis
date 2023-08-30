@@ -25,7 +25,9 @@ const NetworkTrace: React.FC = () => {
 
   return (
     <div className="w-full flex flex-col overflow-y-auto h-full overflow-x-hidden relative">
-      <Scrollbars renderThumbVertical={({ ...props }) => <div {...props} className="bg-[#4E525A] w-2 rounded-[5px]" />}>
+      <Scrollbars
+        renderThumbVertical={({ ...props }) => <div {...props} className="bg-light-charcoal w-2 rounded-[5px]" />}
+      >
         {networks && (
           <>
             <div className="w-[calc(100%-40px)] grid grid-cols-[15%_9%_10%_6%_5%_55%] gap-x-2 text-[#8F949E] ">
