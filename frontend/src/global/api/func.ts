@@ -99,3 +99,18 @@ export const getLogConnectionStatus = async () => {
     throw er
   }
 }
+
+/**
+ * tag 조회
+ */
+
+export const getTag = async () => {
+  try {
+    const result = await API.get<Response<{ tags: string[] }>>(apiUrls.tag)
+
+    return result.data.items.tags
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
