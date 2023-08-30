@@ -102,7 +102,7 @@ async def consumer_handler(conn: any, db_scenario: any, db_blocks: any, CHANNEL_
         print("consumer_handler end")
 
 
-def publish_message(conn: any, message: str):
+def publish_message(message: str):
     return json.dumps({
         "msg": message,
         "level": "info",
