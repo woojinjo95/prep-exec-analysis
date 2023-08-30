@@ -14,5 +14,5 @@ export const videoBlobURLState = atom<string | null>({
 export const scenarioIdState = atom<string | null>({
   key: 'scenarioIdState',
   // FIXME: null로 변경,  서비스 진입 시 설정되도록 변경필요
-  default: '5e731960-616a-436e-9cad-84fdbb39bbf4',
+  default: '61e34251-73da-4614-b460-999a4f29c44b',
 })

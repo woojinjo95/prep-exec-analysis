@@ -1,6 +1,5 @@
-import Modal from '@global/ui/Modal'
 import React, { useEffect, useRef, useState } from 'react'
-import { Button, Input, Text } from '@global/ui'
+import { Button, Input, Modal } from '@global/ui'
 import { useMutation, useQuery } from 'react-query'
 import { getRemocon, postCustomKey } from '../../../api/func'
 import { Remocon } from '../../../api/entity'
@@ -69,13 +68,11 @@ const SaveCustomKeyModal: React.FC<SaveCustomKeyModalProps> = ({ isOpen, close, 
         setNewCustomKeyName('')
         close()
       }}
+      className="w-[500px] h-[230px]"
+      title="Custom key"
     >
-      <div className="w-[500px] h-[230px] flex flex-col bg-light-black rounded-[10px] p-6">
-        <Text colorScheme="light" className="!text-2xl" weight="bold">
-          Custom key
-        </Text>
+      <div className="flex flex-col">
         <Input
-          className="mt-6"
           value={newCustomKeyName}
           onChange={(e) => setNewCustomKeyName(e.target.value)}
           ref={firstFocusableElementRef}
