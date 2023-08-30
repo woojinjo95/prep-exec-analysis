@@ -1,7 +1,7 @@
 name: qaas-dev-m32dev4-playblock
 run-name: ${{ github.actor }} is deploy qaas-dev-m32dev4-playblock
-on: push
-# on: workflow_dispatch
+# on: push
+on: workflow_dispatch
 jobs:
   build-dev-m32dev4-playblock:
     runs-on: [self-hosted, docker, Linux]
