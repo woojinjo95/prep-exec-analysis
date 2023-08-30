@@ -1,6 +1,5 @@
-import Modal from '@global/ui/Modal'
 import React, { useEffect, useRef, useState } from 'react'
-import { Button, Input, Text } from '@global/ui'
+import { Button, Input, Modal } from '@global/ui'
 import { useMutation, useQuery } from 'react-query'
 import { getRemocon, postCustomKey } from '../../../api/func'
 import { Remocon } from '../../../api/entity'

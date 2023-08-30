@@ -1,6 +1,5 @@
-import Modal from '@global/ui/Modal'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { Button, Input, Text } from '@global/ui'
+import { Button, Input, Text, Modal } from '@global/ui'
 import useFetchScenarios from '@global/hook/useFetchScenarios'
 import { PAGE_SIZE_TWENTY } from '@global/constant'
 import useIntersect from '@global/hook/useIntersect'
