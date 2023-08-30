@@ -237,8 +237,8 @@ services:
     volumes:
       - ./data/workspace:/app/workspace
 
-  color_reference:
-    container_name: color_reference
+  color-reference:
+    container_name: color-reference
     restart: always
     image: registry.dev-nextlab.com/qaas-color-reference:dev-0
     command: python -u main_color_reference.py
