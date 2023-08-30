@@ -31,7 +31,7 @@ const LogcatTrace: React.FC = () => {
       >
         {logcats && (
           <>
-            <div className="w-[calc(100%-48px)] grid grid-cols-[14%_6%_9%_9%_5%_5%_52%] gap-x-2 text-[#8F949E]">
+            <div className="w-[calc(100%-48px)] grid grid-cols-[14%_6%_9%_9%_5%_5%_52%] gap-x-2 text-grey">
               <Text size="sm" colorScheme="grey">
                 Timestamp
               </Text>
@@ -58,7 +58,7 @@ const LogcatTrace: React.FC = () => {
               {logcats.map((logcat) => (
                 <div
                   key={`logcat_${logcat.timestamp}`}
-                  className="w-[calc(100%-48px)] grid grid-cols-[14%_6%_9%_9%_5%_5%_52%] gap-x-2 text-[#8F949E] text-sm"
+                  className="w-[calc(100%-48px)] grid grid-cols-[14%_6%_9%_9%_5%_5%_52%] gap-x-2 text-grey text-sm"
                 >
                   <Text size="sm" colorScheme="grey">
                     {logcat.timestamp.substring(0, logcat.timestamp.length - 6)}

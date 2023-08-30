@@ -30,7 +30,7 @@ const NetworkTrace: React.FC = () => {
       >
         {networks && (
           <>
-            <div className="w-[calc(100%-40px)] grid grid-cols-[15%_9%_10%_6%_5%_55%] gap-x-2 text-[#8F949E] ">
+            <div className="w-[calc(100%-40px)] grid grid-cols-[15%_9%_10%_6%_5%_55%] gap-x-2 text-grey">
               <Text size="sm" colorScheme="grey">
                 Timestamp
               </Text>
@@ -54,7 +54,7 @@ const NetworkTrace: React.FC = () => {
               {networks.map((network) => (
                 <div
                   key={`network${network.timestamp}`}
-                  className="w-[calc(100%-40px)] grid grid-cols-[15%_9%_10%_6%_5%_55%] gap-x-2 text-[#8F949E] text-sm"
+                  className="w-[calc(100%-40px)] grid grid-cols-[15%_9%_10%_6%_5%_55%] gap-x-2 text-grey text-sm"
                 >
                   <Text size="sm" colorScheme="grey">
                     {network.timestamp.substring(0, network.timestamp.length - 6)}
