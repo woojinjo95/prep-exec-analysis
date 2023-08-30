@@ -34,11 +34,11 @@ def test_warm_boot():
         elif processing_mode == 'screen_change_rate':
             test_warm_boot_with_diff()
 
-        publish_msg({'measurement': [Command.RESUME.value]}, 'analysis_response')
+        publish_msg({'measurement': Command.RESUME.value}, 'analysis_response')
 
     except Exception as err:
         error_detail = traceback.format_exc()
-        publish_msg({'measurement': [Command.RESUME.value], 'log': error_detail}, 'analysis_response', level='error')
+        publish_msg({'measurement': Command.RESUME.value, 'log': error_detail}, 'analysis_response', level='error')
         logger.error(f"error in test_warm_boot: {err}")
         logger.warning(error_detail)
 
