@@ -1,10 +1,12 @@
 import React from 'react'
 import cx from 'classnames'
-import { Text } from '..'
+import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
+import { DropdownWithMoreButton, OptionItem, Text } from '..'
+import Tag from '../Tag'
 
 interface TagItemProps extends React.LiHTMLAttributes<HTMLLIElement> {
   mode?: 'create' | 'item'
-  tag?: string
+  tag: string
 
   colorScheme?: 'dark' | 'charcoal' | 'light'
   isActive?: boolean
@@ -34,10 +36,23 @@ const TagItem: React.FC<TagItemProps> = ({ mode = 'item', tag, colorScheme = 'ch
       {...props}
     >
       {mode === 'item' && (
-        <div className="flex justify-between">
-          <Text className="text-white mr-2 mb-2" invertBackground colorScheme="dark-grey">
-            {tag}
-          </Text>
+        <div
+          className="flex justify-between"
+          // onClick={(e) => {
+          //   e.stopPropagation()
+          //   e.preventDefault()
+          // }}
+        >
+          <Tag tag={tag} />
+          <DropdownWithMoreButton type="icon" colorScheme="charcoal">
+            <OptionItem colorScheme="charcoal">Testing</OptionItem>
+            <OptionItem colorScheme="charcoal">
+              <div className="flex">
+                <TrashIcon className="w-4 h-[19px] fill-white" />
+                <Text>Delete</Text>
+              </div>
+            </OptionItem>
+          </DropdownWithMoreButton>
         </div>
       )}
     </li>
