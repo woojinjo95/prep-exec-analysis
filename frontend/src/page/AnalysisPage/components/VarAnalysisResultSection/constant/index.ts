@@ -1,4 +1,4 @@
-import AnalysisType from '@global/constant/analysisType'
+import { AnalysisType } from '@global/constant'
 
 /**
  * 측정타입 라벨

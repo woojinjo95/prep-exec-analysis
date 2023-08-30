@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import cx from 'classnames'
-import AppURL from '@global/constant/appURL'
+import { AppURL } from '@global/constant'
 import { KeyEvent } from '@page/ActionPage/types'
 import { Button, Text, Modal } from '@global/ui'
 import { Remocon } from '../../api/entity'

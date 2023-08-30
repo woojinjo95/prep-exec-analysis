@@ -1,9 +1,8 @@
 import React from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
-import { DEFAULT_PAGE_PATH } from '@global/constant/index'
 import { ActionPage, AnalysisPage, NotFoundPage } from '@page/index'
-import PagePath from '@global/constant/pagePath'
+import { PagePath, DEFAULT_PAGE_PATH } from '@global/constant'
 import TerminalPage from '@page/TerminalPage'
 import ScenarioPage from '@page/ScenarioPage'
 

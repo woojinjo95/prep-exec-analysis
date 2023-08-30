@@ -1,5 +1,5 @@
 import { IPLimitProtocol } from '@global/api/entity'
-import AnalysisType from '@global/constant/analysisType'
+import { AnalysisType } from '@global/constant'
 
 /**
  * 블럭 재생 시작 publish 메시지

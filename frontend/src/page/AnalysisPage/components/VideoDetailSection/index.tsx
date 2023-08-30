@@ -8,7 +8,7 @@ import { ReactComponent as GoToLastIcon } from '@assets/images/icon_go_to_last_w
 import { ReactComponent as StopIcon } from '@assets/images/icon_stop.svg'
 import { Button, IconButton, Text } from '@global/ui'
 import { scenarioIdState } from '@global/atom'
-import AppURL from '@global/constant/appURL'
+import { AppURL } from '@global/constant'
 import apiUrls from '@page/AnalysisPage/api/url'
 
 /**

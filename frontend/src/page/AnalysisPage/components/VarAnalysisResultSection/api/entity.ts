@@ -1,4 +1,4 @@
-import LogLevel from '@global/constant/logLevel'
+import { LogLevel } from '@global/constant'
 
 /**
  * 분석 설정

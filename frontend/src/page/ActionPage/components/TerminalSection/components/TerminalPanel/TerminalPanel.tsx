@@ -7,7 +7,7 @@ import { useHardwareConfiguration } from '@global/api/hook'
 import TerminalShell from '@global/ui/Terminal/TerminalShell'
 import { Terminal } from '@global/types'
 import { postConnect, postDisconnect } from '@global/api/func'
-import PagePath from '@global/constant/pagePath'
+import { PagePath } from '@global/constant'
 
 /**
  * Terminal 탭의 패널
