@@ -7,7 +7,7 @@ from scripts.config.config import get_setting_with_env
 from scripts.config.constant import RedisDB
 
 
-logger = logging.getLogger('connection')
+logger = logging.getLogger('main')
 
 
 REDIS_HOST = get_setting_with_env("REDIS_HOST")
