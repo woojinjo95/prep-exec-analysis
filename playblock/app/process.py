@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 async def set_run_state(redis_connection):
     print("run_scenario")
     await redis_connection.hset("testrun", "state", "run")
+    await redis_connection.publish(CHANNEL_NAME, publish_message("start_playblock_response"))
 
 
 async def is_run_state(redis_connection):
@@ -24,6 +25,7 @@ async def is_run_state(redis_connection):
 async def set_stop_state(redis_connection):
     print("stop_scenario")
     await redis_connection.hset("testrun", "state", "stop")
+    await redis_connection.publish(CHANNEL_NAME, publish_message("stop_playblock_response"))
 
 
 def calc_scenario_to_run_blocks(total_loop: int, scenario: dict):
@@ -58,7 +60,7 @@ async def consumer_handler(conn: any, db_scenario: any, db_blocks: any, CHANNEL_
                     continue
 
                 command = message['msg']
-                if command == "run_scenario":
+                if command == "start_playblock":
                     testrun_state = await conn.hgetall("testrun")
                     print(f"state: {testrun_state}")
                     if await is_run_state(conn):
@@ -86,7 +88,7 @@ async def consumer_handler(conn: any, db_scenario: any, db_blocks: any, CHANNEL_
                     # 동작 상태를 run으로 설정함
                     await set_run_state(conn)
 
-                if command == "stop_scenario":
+                if command == "stop_playblock":
                     await set_stop_state(conn)
                     # 또는 여기서 중지하고 동작아이템 정리 해야 함
 
@@ -98,6 +100,16 @@ async def consumer_handler(conn: any, db_scenario: any, db_blocks: any, CHANNEL_
         print(traceback.format_exc())
     finally:
         print("consumer_handler end")
+
+
+def publish_message(conn: any, message: str):
+    return json.dumps({
+        "msg": message,
+        "level": "info",
+        "data": {},
+        "service": "playblock",
+        "time": datetime.utcnow().timestamp()
+    })
 
 
 def cvt_block_to_message(block: dict):
@@ -146,6 +158,9 @@ async def run_blocks(conn, db_blocks, scenario_id, blocks: list):
         print(traceback.format_exc())
     finally:
         await set_stop_state(conn)
+        await conn.publish(CHANNEL_NAME, publish_message("end_playblock"))
+        print("run_blocks end")
+
 
 async def process_handler(conn: any, db_blocks: any, CHANNEL_NAME: str):
     print("process_handler")
