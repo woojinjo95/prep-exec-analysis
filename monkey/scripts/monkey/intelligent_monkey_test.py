@@ -13,11 +13,13 @@ from scripts.analysis.image import calc_iou, calc_diff_rate, get_cropped_image, 
 logger = logging.getLogger('monkey_test')
 
 
-class MonkeyTest:
-    def __init__(self, company: str):
-        # init immutable variables
+class IntelligentMonkeyTest:
+    def __init__(self, company: str, key_interval: float):
+        # set init variables
         self.company = company
+        self.key_interval = key_interval
 
+        # init immutable variables
         self.depth_key = 'right'
         self.inverse_keys = {
             'up': 'down',
@@ -26,16 +28,35 @@ class MonkeyTest:
             'right': 'left'
         }
 
+    ##### Entry Point #####
     def run(self):
         # init mutable variables
         self.key_histories = []
 
+        # init
         self.set_root_keys(external_keys=['home'])
         self.visit()
 
     def get_current_image(self) -> np.ndarray:
         return get_snapshot()
-    
+
+    def exec_key(self, key: str, save_history: bool = False):
+        publish_remocon_msg(self.company, key, sleep=self.key_interval)
+        time.sleep(self.key_interval)
+        if save_history:
+            self.key_histories.append(key)
+
+    def exec_keys(self, keys: list, *args, **kwargs):
+        logger.info(f'exec_keys: {keys}')
+        for key in keys:
+            self.exec_key(key, *args, **kwargs)
+        time.sleep(3)
+
+
+
+
+
+
     def get_cursor(self) -> Tuple:
         return find_roku_cursor(self.get_current_image())
 
@@ -70,18 +91,6 @@ class MonkeyTest:
             is_cursor_same = self.check_cursor_is_same(prev_image, prev_cursor, image, cursor)
             
             return True if is_height_similar and not is_cursor_same else False
-
-    def exec_key(self, key: str, delay: float = 1.3, save_history: bool = False):
-        publish_remocon_msg(self.company, key, sleep=delay)
-        time.sleep(delay)
-        if save_history:
-            self.key_histories.append(key)
-
-    def exec_keys(self, keys: list, *args, **kwargs):
-        logger.info(f'exec_keys: {keys}')
-        for key in keys:
-            self.exec_key(key, *args, **kwargs)
-        time.sleep(3)
 
     # 최초 루트 영역으로 이동
     def set_root_keys(self, external_keys: List[str] = []):
@@ -146,7 +155,7 @@ class MonkeyTest:
             image = self.get_current_image()
             cursor = self.get_cursor()
             fi = FrameInfo(image, cursor)
-            self.exec_key(self.depth_key, 2)
+            self.exec_key(self.depth_key)
             if self.check_leftmenu_is_opened(image, cursor, self.get_current_image(), self.get_cursor()):
                 logger.info('right menu exists.')
                 self.append_key(self.depth_key)

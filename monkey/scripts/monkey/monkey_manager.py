@@ -1,19 +1,20 @@
 import logging
 
 from scripts.util.process_maintainer import ProcessMaintainer
-from scripts.monkey.monkey_test import MonkeyTest
+from scripts.monkey.intelligent_monkey_test import IntelligentMonkeyTest
 
 
 logger = logging.getLogger('monkey_test')
 
 
 class MonkeyManager:
-    def __init__(self, company: str):
+    def __init__(self, company: str, key_interval: float):
         self.monkey_proc = None
         self.company = company
+        self.key_interval = key_interval
 
     def __start_monkey_test(self):
-        monkey_test = MonkeyTest(company=self.company)
+        monkey_test = IntelligentMonkeyTest(company=self.company, key_interval=self.key_interval)
         self.monkey_proc = ProcessMaintainer(
             name='monkey_test',
             target=monkey_test.run,

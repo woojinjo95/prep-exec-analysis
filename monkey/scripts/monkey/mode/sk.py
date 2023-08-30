@@ -1,7 +1,7 @@
-from ..monkey_test import MonkeyTest
+from ..intelligent_monkey_test import IntelligentMonkeyTest
 
 
-class MonkeyTestSK(MonkeyTest):
+class IntelligentMonkeyTestSK(IntelligentMonkeyTest):
     def __init__(self):
         pass
     
