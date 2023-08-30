@@ -1,11 +1,8 @@
 
 
 import os
-import asyncio
 import redis.asyncio as redis
-import copy
 import pymongo
-from bson.objectid import ObjectId
 
 REDIS_HOST = os.getenv("REDIS_HOST", "192.168.1.45")
 REDIS_PORT = os.getenv("REDIS_PORT", 6379)
