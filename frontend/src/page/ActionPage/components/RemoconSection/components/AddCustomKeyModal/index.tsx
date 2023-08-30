@@ -87,7 +87,7 @@ const AddCustomKeyModal: React.FC<AddCustomKeyModalProps> = ({
     <>
       {!isSubmitted && (
         <Modal
-          isOpen
+          isOpen={isOpen}
           close={() => {
             setRemoconInput([])
             close()
