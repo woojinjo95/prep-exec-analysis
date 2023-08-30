@@ -1,4 +1,4 @@
-import { PointChart } from '@global/ui'
+import { PointChart, RangeChart } from '@global/ui'
 import React, { useMemo } from 'react'
 import { scenarioIdState } from '@global/atom'
 import { useRecoilValue } from 'recoil'
@@ -25,11 +25,11 @@ const FreezeChart: React.FC<FreezeChartProps> = ({ scaleX, startTime, endTime })
 
   const freezeData = useMemo(() => {
     if (!freeze) return null
-    return freeze.map(({ timestamp }) => new Date(timestamp))
+    return freeze.map(({ timestamp, duration }) => ({ date: new Date(timestamp), duration: duration * 1000 }))
   }, [freeze])
 
   if (!freezeData) return <div />
-  return <PointChart scaleX={scaleX} data={freezeData} />
+  return <RangeChart scaleX={scaleX} data={freezeData} color="blue" />
 }
 
 export default FreezeChart
