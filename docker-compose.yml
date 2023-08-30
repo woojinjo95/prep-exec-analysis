@@ -197,9 +197,9 @@ services:
     container_name: freeze
     restart: always
     image: registry.dev-nextlab.com/qaas-freeze:dev-0
-    command: python -u main.py
+    command: python -u main_freeze.py
     build:
-      context: ./analyzer/main/freeze.py
+      context: ./analyzer
       dockerfile: dockerfile
     volumes:
       - ./data/workspace:/app/workspace
