@@ -84,7 +84,7 @@ const OptionList: React.ForwardRefExoticComponent<OptionListProps & React.RefAtt
           <ul
             ref={ref}
             className={cx(
-              'fixed border rounded-lg p-[3px] grid grid-cols-1 gap-y-1',
+              'fixed border rounded-lg p-[3px] grid grid-cols-1 gap-y-1 z-20',
               {
                 'bg-white': colorScheme === 'light',
                 'border-light-grey': colorScheme === 'light',
