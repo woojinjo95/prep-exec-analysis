@@ -69,22 +69,28 @@ async def system_file_download(
 
 @router.get('/video', response_class=FileResponse)
 async def workspace_video_file_download(
-    scenario_id: Optional[str] = None
+    scenario_id: Optional[str] = None,
+    testrun_id: Optional[str] = None,
 ) -> FileResponse:
     """
     워크스페이스 비디오 파일 다운로드
     """
     if scenario_id is None:
         scenario_id = RedisClient.hget('testrun', 'scenario_id')
-    pipeline = [{'$match': {'id': scenario_id}},
-                {'$project': {'_id': 0, 'videos': '$testrun.raw.videos'}},
-                ]
-    video_info = aggregate_from_mongodb(col='scenario', pipeline=pipeline)
-    if not video_info:
+    if testrun_id is None:
+        testrun_id = RedisClient.hget('testrun', 'id')
+
+    pipeline = [{'$match': {'id': scenario_id, 'testruns.id': testrun_id}},
+                {'$unwind': "$testruns"},
+                {'$match': {"testruns.id": testrun_id}},
+                {'$unwind': "$testruns.raw.videos"},
+                {'$project': {'_id': 0, "path": "$testruns.raw.videos.path"}}]
+    video = aggregate_from_mongodb(col='scenario', pipeline=pipeline)
+    if not video or video[0].get('path', None) is None:
         raise HTTPException(status_code=404, detail="Scenario data not found")
+
     try:
-        video_info = video_info[0]['videos'][0]
-        video_file_path = video_info.get('path', '')
+        video_file_path = video[0]['path']
         video_file_path = video_file_path.replace(settings.CONTAINER_PATH, settings.HOST_PATH)
         with open(video_file_path, "rb") as video:
             headers = {'Accept-Ranges': 'bytes'}
@@ -96,6 +102,7 @@ async def workspace_video_file_download(
 @router.get('/partial_video', response_class=FileResponse)
 async def workspace_partial_video_file_download(
     scenario_id: Optional[str] = None,
+    testrun_id: Optional[str] = None,
     range: str = Header(None)
 ) -> FileResponse:
     """
@@ -103,15 +110,20 @@ async def workspace_partial_video_file_download(
     """
     if scenario_id is None:
         scenario_id = RedisClient.hget('testrun', 'scenario_id')
-    pipeline = [{'$match': {'id': scenario_id}},
-                {'$project': {'_id': 0, 'videos': '$testrun.raw.videos'}}]
-    video_info = aggregate_from_mongodb(col='scenario', pipeline=pipeline)
-    if not video_info:
+    if testrun_id is None:
+        testrun_id = RedisClient.hget('testrun', 'id')
+
+    pipeline = [{'$match': {'id': scenario_id, 'testruns.id': testrun_id}},
+                {'$unwind': "$testruns"},
+                {'$match': {"testruns.id": testrun_id}},
+                {'$unwind': "$testruns.raw.videos"},
+                {'$project': {'_id': 0, "path": "$testruns.raw.videos.path"}}]
+    video = aggregate_from_mongodb(col='scenario', pipeline=pipeline)
+    if not video or video[0].get('path', None) is None:
         raise HTTPException(status_code=404, detail="Scenario data not found")
 
     try:
-        video_info = video_info[0].get('videos', [{}])[0]
-        video_file_path = video_info.get('path', '')
+        video_file_path = video[0]['path']
         video_file_path = video_file_path.replace(settings.CONTAINER_PATH, settings.HOST_PATH)
 
         if not range:

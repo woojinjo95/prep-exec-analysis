@@ -52,6 +52,7 @@ export interface IPLimit {
  */
 export interface HardwareConfiguration {
   remote_control_type: 'ir' | 'bt'
+  dut_ip: string | null
   enable_dut_power: boolean
   enable_hdmi: boolean
   enable_dut_wan: boolean
@@ -103,3 +104,7 @@ export interface Scenario {
   tags: string[]
   block_group: BlockGroup[]
 }
+/**
+ * 로그 연결여부
+ */
+export type LogConnectionStatus = 'log_disconnected' | 'log_connected'

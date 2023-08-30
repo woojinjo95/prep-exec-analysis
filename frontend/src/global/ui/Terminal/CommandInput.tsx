@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import useWebsocket from '@global/module/websocket'
+import { useWebsocket } from '@global/hook'
 import { useHardwareConfiguration } from '@global/api/hook'
 import { Text } from '@global/ui'
 import { History, ShellMessage, Terminal } from '@global/types'

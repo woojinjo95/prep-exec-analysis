@@ -15,6 +15,12 @@ const delay = (sec: number) => {
   })
 }
 
+/**
+ * 웹소켓 연결 hook
+ *
+ * @param onMessage 메시지 수신 callback
+ * @return sendMessage 메시지 송신 function
+ */
 const useWebsocket = <T extends object>({ onMessage }: { onMessage?: (message: SubscribeMessage<T>) => void } = {}) => {
   const ws = useRef<WebSocket | null>(null)
 

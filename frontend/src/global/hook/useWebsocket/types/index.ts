@@ -1,4 +1,5 @@
 import { IPLimitProtocol } from '@global/api/entity'
+import AnalysisType from '@global/constant/analysisType'
 
 /**
  * 블럭 재생 시작 publish 메시지
@@ -115,12 +116,14 @@ interface CommandMessage {
 interface AnalysisMessage {
   msg: 'analysis'
   data: {
-    measurement: ('freeze' | 'boot' | 'channel_change_time' | 'log_level_finder' | 'log_pattern_matching' | 'resume')[]
+    measurement: (keyof typeof AnalysisType)[]
   }
 }
 
+type MessageLevel = 'debug' | 'info' | 'warning' | 'error' | 'critical' | 'fatal'
+
 export type PublishMessage = {
-  level?: 'debug' | 'info' | 'warning' | 'error' | 'critical' | 'fatal'
+  level?: MessageLevel
   time?: number
 } & (
   | RunScenarioMessage
@@ -133,10 +136,22 @@ export type PublishMessage = {
   | NetworkEmulationMessage
 )
 
-export type SubscribeMessage<T> = {
-  level: 'debug' | 'info' | 'warning' | 'error' | 'critical' | 'fatal'
+type SubscribeCommandMessage<T> = {
+  level: MessageLevel
   time: number
   msg: string
   data: T
   service: string
 }
+
+type SubscribeLoudnessMessage = {
+  service: string
+  level: MessageLevel
+  time: number
+  t: number
+  M: number
+  I: number
+  inactive: boolean
+}
+
+export type SubscribeMessage<T> = SubscribeCommandMessage<T> & SubscribeLoudnessMessage

@@ -137,7 +137,15 @@ const DeviceInfo: React.FC = () => {
           <>
             <div className="grid grid-rows-1 grid-cols-[2fr_1fr] gap-x-2">
               <Input
-                placeholder="IP"
+                onClick={() => {
+                  if (stbConnection.host) return
+
+                  setSTBConnection((prev) => ({
+                    ...prev,
+                    host: hardwareConfiguration?.dut_ip,
+                  }))
+                }}
+                placeholder={hardwareConfiguration?.dut_ip || 'IP'}
                 value={stbConnection.host || ''}
                 onChange={(e) => setSTBConnection((prev) => ({ ...prev, host: e.target.value }))}
                 warningMessage={warningMessage.host}

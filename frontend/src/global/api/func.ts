@@ -1,6 +1,13 @@
 import { AxiosError } from 'axios'
 import API from '.'
-import { HardwareConfiguration, PaginationResponse, Response, Scenario, ScenarioSummary } from './entity'
+import {
+  HardwareConfiguration,
+  LogConnectionStatus,
+  PaginationResponse,
+  Response,
+  ScenarioSummary,
+  Scenario,
+} from './entity'
 import apiUrls from './url'
 
 /**
@@ -73,6 +80,20 @@ export const postDisconnect = async () => {
     const result = await API.post<{ msg: string }>(apiUrls.disconnect)
 
     return result.data
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
+/**
+ * 로그 연결여부 조회 api
+ */
+export const getLogConnectionStatus = async () => {
+  try {
+    const result = await API.get<Response<{ status: LogConnectionStatus }>>(apiUrls.log_connection_status)
+
+    return result.data.items.status
   } catch (err) {
     const er = err as AxiosError
     throw er
