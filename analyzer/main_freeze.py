@@ -31,7 +31,6 @@ class CommandExecutor:
 
         if command.get('msg') == 'analysis':
             data = command.get('data', {})
-            logger.info(f'msg: analysis. data: {data}')
 
             measurement = data.get('measurement', [])
             if Command.FREEZE.value in measurement:  # FIXME: measurement command name

@@ -29,7 +29,6 @@ class CommandExecutor:
     def execute(self, command: Dict):
         if command.get('msg') == 'analysis':
             data = command.get('data', {})
-            logger.info(f'msg: analysis. data: {data}')
 
             measurement = data.get('measurement', [])
             if Command.RESUME.value in measurement:  # FIXME: measurement command name
