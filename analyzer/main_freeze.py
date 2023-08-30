@@ -34,14 +34,14 @@ class CommandExecutor:
             measurement = data.get('measurement', [])
             if command_name in measurement:
                 self.start_service_module()
-                publish_msg({'measurement': [command_name]}, 'analysis_started')
+                publish_msg({'measurement': command_name}, 'analysis_started')
 
         elif command.get('msg') == 'service_state':
             data = command.get('data', {})
             state = data.get('state', '')
             if state == 'streaming':
                 self.stop_service_module()
-                publish_msg({'measurement': [command_name]}, 'analysis_terminate')
+                publish_msg({'measurement': command_name}, 'analysis_terminate')
 
 
 def main():
