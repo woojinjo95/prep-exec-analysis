@@ -1,7 +1,7 @@
-import { PointChart, RangeChart } from '@global/ui'
 import React, { useMemo } from 'react'
-import { scenarioIdState } from '@global/atom'
 import { useRecoilValue } from 'recoil'
+import { PointChart, RangeChart } from '@global/ui'
+import { scenarioIdState } from '@global/atom'
 import { useFreeze } from '../api/hook'
 
 interface FreezeChartProps {

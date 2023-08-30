@@ -1,7 +1,8 @@
-import { scenarioIdState } from '@global/atom'
-import { PointChart } from '@global/ui'
 import React, { useMemo } from 'react'
 import { useRecoilValue } from 'recoil'
+import { scenarioIdState } from '@global/atom'
+import { PointChart, RangeChart } from '@global/ui'
+import { RangeChartData } from '@global/types'
 import { useBoot, useResume } from '../api/hook'
 
 interface ResumeBootChartProps {
@@ -30,16 +31,19 @@ const ResumeBootChart: React.FC<ResumeBootChartProps> = ({ scaleX, startTime, en
     testrun_id: '2023-08-14T054428F718593',
   })
 
-  const data = useMemo(() => {
+  const data: RangeChartData | null = useMemo(() => {
     if (!resume || !boot) return null
-    const resumeData = resume.map(({ timestamp }) => new Date(timestamp))
-    const bootData = boot.map(({ timestamp }) => new Date(timestamp))
 
-    return [...resumeData, ...bootData].sort((a, b) => (a.getTime() > b.getTime() ? 1 : 0))
+    return [...resume, ...boot]
+      .map(({ timestamp, measure_time }) => ({
+        date: new Date(timestamp),
+        duration: measure_time,
+      }))
+      .sort(({ date: aDate }, { date: bDate }) => (aDate.getTime() > bDate.getTime() ? 1 : 0))
   }, [resume, boot])
 
   if (!data) return <div />
-  return <PointChart scaleX={scaleX} data={data} />
+  return <RangeChart scaleX={scaleX} data={data} color="green" />
 }
 
 export default ResumeBootChart
