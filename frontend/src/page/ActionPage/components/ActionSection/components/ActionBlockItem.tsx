@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { ReactComponent as EditIcon } from '@assets/images/icon_edit.svg'
 import cx from 'classnames'
-import { Block } from '@page/ActionPage/components/ActionSection/api/entity'
 import { changeMinSecMsToMs, changeMsToMinSecMs, formMsToHundred } from '@global/usecase'
 import { useMutation } from 'react-query'
 import { useRecoilValue } from 'recoil'
 import { scenarioIdState } from '@global/atom'
+import { Block } from '@global/api/entity'
 import { ActionStatus } from '../types'
 import { putBlock } from '../api/func'
 

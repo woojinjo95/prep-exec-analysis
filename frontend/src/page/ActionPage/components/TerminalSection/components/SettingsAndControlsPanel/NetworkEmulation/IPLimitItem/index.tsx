@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react'
 import classnames from 'classnames/bind'
 
-import { Input, OptionItem, Select } from '@global/ui'
+import { Input, OptionItem, Select, Text } from '@global/ui'
 import { IPLimit } from '@global/api/entity'
 import { useWebsocket } from '@global/hook'
 import { IPRegex } from '@global/constant'
@@ -185,7 +185,15 @@ const IPLimitItem: React.FC<IPLimitItemProps> = ({
           disabled={!isEditing}
           onChange={(e) => setPort(e.target.value)}
         />
-        <Select colorScheme="charcoal" value={protocol} disabled={!isEditing}>
+        <Select
+          colorScheme="charcoal"
+          header={
+            <Text weight="bold" colorScheme="light">
+              {protocol}
+            </Text>
+          }
+          disabled={!isEditing}
+        >
           {Protocols.map((p) => (
             <OptionItem
               colorScheme="charcoal"

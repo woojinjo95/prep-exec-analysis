@@ -111,19 +111,19 @@ class FreezeDetector:
         is_similar = is_similar_by_match_template(resized_frame, self.power_off_image)
 
         if is_similar:
-            freeze_type = 'No-signal'
+            freeze_type = 'no_signal'
         else:
             frame_brightess = calc_image_value_rate(frame)
             frame_stdev = calc_image_whole_stdev(frame)
 
             if frame_stdev < frame_stdev_thres:
                 if frame_brightess < 0.001:
-                    freeze_type = 'Black'
+                    freeze_type = 'black'
                 elif frame_brightess > 0.999:
-                    freeze_type = 'White'
+                    freeze_type = 'white'
                 else:
-                    freeze_type = 'One-colored'
+                    freeze_type = 'one_colored'
             else:
-                freeze_type = 'Default'
+                freeze_type = 'default'
 
         return freeze_type

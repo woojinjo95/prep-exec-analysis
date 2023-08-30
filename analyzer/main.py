@@ -1,26 +1,23 @@
 import logging
 
+from analysis_manager import AnalysisManager
 from scripts.connection.redis_conn import get_strict_redis_connection
 from scripts.connection.redis_pubsub import Subscribe
 from scripts.config.constant import RedisChannel, RedisDB
+from scripts.config.config import get_setting_with_env
 from scripts.log_service.log_organizer import LogOrganizer
-from command import CommandManager, CommandExecutor
 from scripts.format import LogName
-import queue
 
 
 logger = logging.getLogger('main')
 
 
 def main():
-    cmd_queue = queue.Queue()
-    cmd_manager = CommandManager(cmd_queue)
-    cmd_executor = CommandExecutor(cmd_queue)
-    cmd_executor.start()
+    analysis_manager = AnalysisManager(mode=get_setting_with_env('ANALYSIS_EXEC_MODE', 'async'))
 
     with get_strict_redis_connection(RedisDB.hardware) as src:
         for command in Subscribe(src, RedisChannel.command):
-            cmd_manager.register(command)
+            analysis_manager.register(command)
 
 
 if __name__ == '__main__':

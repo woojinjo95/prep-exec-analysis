@@ -12,7 +12,7 @@ from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.data import load_input, read_analysis_config
 from scripts.external.event import get_data_of_event_log, get_dut_power_times
 from scripts.external.report import report_output
-from scripts.format import CollectionName
+from scripts.format import ReportName
 from scripts.util._timezone import get_utc_datetime
 from scripts.util.decorator import log_decorator
 from scripts.util.video import crop_video_with_opencv
@@ -36,7 +36,7 @@ def test_cold_boot():
 
     except Exception as err:
         error_detail = traceback.format_exc()
-        publish_msg({'measurement': [Command.BOOT.value]}, error_detail, level='error')
+        publish_msg({'measurement': [Command.BOOT.value], 'log': error_detail}, 'analysis_response', level='error')
         logger.error(f"error in test_cold_boot: {err}")
         logger.warning(error_detail)
 
@@ -62,7 +62,7 @@ def test_cold_boot_with_match():
 
     for result in results:
         if result['status'] == 'success':
-            report_output(CollectionName.COLD_BOOT.value, {
+            report_output(ReportName.COLD_BOOT.value, {
                 'timestamp': get_utc_datetime(result['match_timestamp']),
                 'measure_time': result['match_time'],
             })
@@ -70,7 +70,7 @@ def test_cold_boot_with_match():
 
 def get_template_from_config() -> np.ndarray:
     analysis_config = read_analysis_config()
-    image_path = analysis_config['boot']['frame']['image_path']
+    image_path = analysis_config['boot']['frame']['path']
     image = cv2.imread(image_path)
     logger.info(f'image shape: {image.shape}')
     return image
