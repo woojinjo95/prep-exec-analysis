@@ -10,9 +10,9 @@ from scripts.external.log import get_data_of_log
 from scripts.external.report import report_output
 from scripts.format import ReportName
 from scripts.util.decorator import log_decorator
-from scripts.format import LogName, Command
+from scripts.format import Command
 
-logger = logging.getLogger(LogName.LOG_PATTERN.value)
+logger = logging.getLogger('main')
 
 
 @log_decorator(logger)
