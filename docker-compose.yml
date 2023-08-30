@@ -196,7 +196,7 @@ services:
   freeze:
     container_name: freeze
     restart: always
-    image: registry.dev-nextlab.com/qaas-freeze:dev-0
+    image: registry.dev-nextlab.com/qaas-analyzer:dev-0
     command: python -u main_freeze.py
     build:
       context: ./analyzer
@@ -207,7 +207,7 @@ services:
   resume:
     container_name: resume
     restart: always
-    image: registry.dev-nextlab.com/qaas-resume:dev-0
+    image: registry.dev-nextlab.com/qaas-analyzer:dev-0
     command: python -u main_resume.py
     build:
       context: ./analyzer
@@ -218,7 +218,7 @@ services:
   boot:
     container_name: boot
     restart: always
-    image: registry.dev-nextlab.com/qaas-boot:dev-0
+    image: registry.dev-nextlab.com/qaas-analyzer:dev-0
     command: python -u main_boot.py
     build:
       context: ./analyzer
@@ -229,7 +229,7 @@ services:
   log-pattern:
     container_name: log-pattern
     restart: always
-    image: registry.dev-nextlab.com/qaas-log-pattern:dev-0
+    image: registry.dev-nextlab.com/qaas-analyzer:dev-0
     command: python -u main_log_pattern.py
     build:
       context: ./analyzer
@@ -240,7 +240,7 @@ services:
   color-reference:
     container_name: color-reference
     restart: always
-    image: registry.dev-nextlab.com/qaas-color-reference:dev-0
+    image: registry.dev-nextlab.com/qaas-analyzer:dev-0
     command: python -u main_color_reference.py
     build:
       context: ./analyzer
