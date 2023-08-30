@@ -78,11 +78,9 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
       close={() => {
         close()
       }}
+      title="Save Blocks"
     >
-      <div className="h-[845px] w-[1140px] flex flex-col bg-light-black rounded-[10px] p-6">
-        <Text colorScheme="light" className="!text-2xl mb-5" weight="bold">
-          Save Blocks
-        </Text>
+      <div className="h-[745px] w-[1140px] flex flex-col rounded-[10px]">
         <div className="w-full grid grid-cols-[1fr_6fr] items-center h-12 mb-4">
           <Text colorScheme="light" className="!text-lg " weight="bold">
             Name

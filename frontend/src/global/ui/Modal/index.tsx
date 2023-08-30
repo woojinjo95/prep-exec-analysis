@@ -1,6 +1,7 @@
 import React from 'react'
 import cx from 'classnames'
 import useOutSideRef from '@global/hook/useOutsideRef'
+import { Text } from '@global/ui'
 
 interface ModalProps {
   mode?: 'center' | 'normal'
@@ -8,6 +9,7 @@ interface ModalProps {
   close: () => void
   children: React.ReactNode
   className?: string
+  title?: string
 }
 
 /**
@@ -18,10 +20,11 @@ interface ModalProps {
  * @param close: 모달 close 시 실행 함수
  * @param className: 모달 style 조절
  * @param children: 모달 children
+ * @param title: 모달 제목
  * @returns
  */
 
-const Modal: React.FC<ModalProps> = ({ mode = 'normal', isOpen, close, children, className }) => {
+const Modal: React.FC<ModalProps> = ({ mode = 'normal', isOpen, close, children, className, title }) => {
   const { ref } = useOutSideRef({
     isOpen,
     closeHook: () => {
@@ -34,7 +37,7 @@ const Modal: React.FC<ModalProps> = ({ mode = 'normal', isOpen, close, children,
       <div
         ref={ref}
         className={cx(
-          'fixed min-h-[200px] min-w-[200px] z-10',
+          'flex flex-col fixed min-h-[200px] min-w-[200px] z-10 p-6 bg-light-black',
           {
             'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2': mode === 'center',
           },
@@ -42,6 +45,9 @@ const Modal: React.FC<ModalProps> = ({ mode = 'normal', isOpen, close, children,
         )}
         style={{ display: !isOpen ? 'none' : '' }}
       >
+        <Text colorScheme="light" className="!text-2xl mb-6" weight="bold">
+          {title}
+        </Text>
         {children}
       </div>
       <div
