@@ -3,13 +3,12 @@
 import logging
 from typing import Dict
 
-from scripts.connection.redis_conn import get_strict_redis_connection
-from scripts.connection.redis_pubsub import Subscribe
 from scripts.config.constant import RedisChannel, RedisDB
+from scripts.connection.redis_conn import get_strict_redis_connection
+from scripts.connection.redis_pubsub import Subscribe, publish_msg
+from scripts.format import Command
 from scripts.log_service.log_organizer import LogOrganizer
 from scripts.modules.color_reference import ColorReference
-from scripts.format import Command
-
 
 logger = logging.getLogger('main')
 
@@ -33,6 +32,7 @@ class CommandExecutor:
             measurement = data.get('measurement', [])
             if Command.COLOR_REFERENCE.value in measurement:  # FIXME: measurement command name
                 self.start_service_module()
+                publish_msg({'measurement': [Command.COLOR_REFERENCE.value]}, 'analysis_started')
 
 
 
