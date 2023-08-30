@@ -7,6 +7,7 @@ type DateToken =
   | 'YY.MM.DD'
   | 'HH:MM'
   | 'HH:MM:SS'
+  | 'HH:MM:SS:MS'
   | 'AA HH:MM'
   | 'YYYY-MM-DD HH:MM'
   | 'YYYY-MM-DD HH:MM:SS'
@@ -21,9 +22,9 @@ export const formatDateTo = (type: DateToken, dateObject = new Date()): string =
   const year = dateObject.getFullYear()
   const month = `0${dateObject.getMonth() + 1}`.slice(-2)
   const date = `0${dateObject.getDate()}`.slice(-2)
-  const hour = dateObject.getHours() < 10 ? `0${dateObject.getHours()}` : dateObject.getHours()
-  const minute = dateObject.getMinutes() < 10 ? `0${dateObject.getMinutes()}` : dateObject.getMinutes()
-  const second = dateObject.getSeconds() < 10 ? `0${dateObject.getSeconds()}` : dateObject.getSeconds()
+  const hour = String(dateObject.getHours()).padStart(2, '0')
+  const minute = String(dateObject.getMinutes()).padStart(2, '0')
+  const second = String(dateObject.getSeconds()).padStart(2, '0')
   const milliSec = dateObject.getMilliseconds()
 
   switch (type) {
@@ -39,6 +40,8 @@ export const formatDateTo = (type: DateToken, dateObject = new Date()): string =
       return `${hour}:${minute}`
     case 'HH:MM:SS':
       return `${hour}:${minute}:${second}`
+    case 'HH:MM:SS:MS':
+      return `${hour}:${minute}:${second}:${String(milliSec).slice(0, 2).padStart(2, '0')}`
     case 'AA HH:MM': {
       if (dateObject.getHours() < 12) {
         return `오전 ${dateObject.getHours() === 0 ? '12' : dateObject.getHours()}:${minute}`
