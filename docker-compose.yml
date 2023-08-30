@@ -193,13 +193,13 @@ services:
       - ./shell/app:/app
       - "adb-rsa:/root/.android"
 
-  analyzer:
-    container_name: analyzer
+  freeze:
+    container_name: freeze
     restart: always
-    image: registry.dev-nextlab.com/qaas-analyzer:dev-0
+    image: registry.dev-nextlab.com/qaas-freeze:dev-0
     command: python -u main.py
     build:
-      context: ./analyzer
+      context: ./analyzer/main/freeze.py
       dockerfile: dockerfile
     volumes:
       - ./data/workspace:/app/workspace
