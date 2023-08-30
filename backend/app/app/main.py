@@ -136,8 +136,6 @@ def subscribe_to_redis():
 
 
 def start_redis_subscription():
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
     asyncio.run(subscribe_to_redis())
 
 

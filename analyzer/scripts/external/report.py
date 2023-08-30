@@ -8,7 +8,7 @@ from scripts.external.scenario import get_scenario_info
 from scripts.format import CollectionName, ReportName
 from scripts.external.data import read_analysis_config
 
-logger = logging.getLogger('connection')
+logger = logging.getLogger('main')
 
 
 report_info = {

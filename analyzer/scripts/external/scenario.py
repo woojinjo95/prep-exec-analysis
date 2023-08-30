@@ -12,7 +12,9 @@ def get_scenario_info() -> Dict:
     }
 
 
-def load_scenario() -> Dict:
+def load_testrun() -> Dict:
     scenario_info = get_scenario_info()
     scenario = load_by_id_from_mongodb(col='scenario', id=scenario_info['scenario_id'])
-    return scenario
+    testruns = scenario['testruns']
+    index = next((i for i, item in enumerate(testruns) if item.get('id') == scenario_info['testrun_id']), None)  # find first index of testrun_id
+    return testruns[index]
