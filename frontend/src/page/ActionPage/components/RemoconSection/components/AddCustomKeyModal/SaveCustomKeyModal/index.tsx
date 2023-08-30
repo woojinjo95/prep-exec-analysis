@@ -71,7 +71,7 @@ const SaveCustomKeyModal: React.FC<SaveCustomKeyModalProps> = ({ isOpen, close, 
       className="w-[500px] h-[230px]"
       title="Custom key"
     >
-      <div className="flex flex-col bg-light-black rounded-[10px]">
+      <div className="flex flex-col">
         <Input
           value={newCustomKeyName}
           onChange={(e) => setNewCustomKeyName(e.target.value)}

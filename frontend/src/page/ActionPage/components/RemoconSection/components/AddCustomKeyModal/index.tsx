@@ -95,7 +95,7 @@ const AddCustomKeyModal: React.FC<AddCustomKeyModalProps> = ({
           mode="normal"
           className={cx('right-3.5 h-[95vh] w-[700px] top-1/2 -translate-y-1/2')}
         >
-          <div className="h-full w-full flex flex-col bg-[#323339] rounded-[10px] items-center justify-between relative">
+          <div className="h-full w-full flex flex-col items-center justify-between relative">
             <div className="flex flex-col items-center">
               <p className="text-white text-lg">Press the Keys in order and press the [Submit] button</p>
               <div>

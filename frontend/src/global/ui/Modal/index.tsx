@@ -1,7 +1,7 @@
 import React from 'react'
 import cx from 'classnames'
 import useOutSideRef from '@global/hook/useOutsideRef'
-import { Text } from '@global/ui'
+import { Text, Title } from '@global/ui'
 
 interface ModalProps {
   mode?: 'center' | 'normal'
@@ -37,7 +37,7 @@ const Modal: React.FC<ModalProps> = ({ mode = 'normal', isOpen, close, children,
       <div
         ref={ref}
         className={cx(
-          'flex flex-col fixed min-h-[200px] min-w-[200px] z-10 p-6 bg-light-black',
+          'flex flex-col fixed min-h-[200px] min-w-[200px] z-10 p-6 bg-light-black rounded-[10px] pb-7',
           {
             'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2': mode === 'center',
           },
@@ -45,9 +45,9 @@ const Modal: React.FC<ModalProps> = ({ mode = 'normal', isOpen, close, children,
         )}
         style={{ display: !isOpen ? 'none' : '' }}
       >
-        <Text colorScheme="light" className="!text-2xl mb-6" weight="bold">
+        <Title as="h1" colorScheme="light" className="mb-6">
           {title}
-        </Text>
+        </Title>
         {children}
       </div>
       <div
