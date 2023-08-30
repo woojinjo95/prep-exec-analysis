@@ -166,7 +166,8 @@ def get_data_of_freeze(
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
-    freeze_type: Optional[str] = Query(None, description='ex)Black,White'),
+    page_size: Optional[int] = 10,
+    page: Optional[int] = None
 ):
     """
     화면 멈춤 데이터 조회
@@ -176,19 +177,29 @@ def get_data_of_freeze(
             testrun_id = RedisClient.hget('testrun', 'id')
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        freeze_param = {'timestamp': {'$gte': convert_iso_format(start_time),
-                                      '$lte': convert_iso_format(end_time)},
-                        'scenario_id': scenario_id,
-                        'testrun_id': testrun_id}
-        if freeze_type is not None:
-            freeze_type = freeze_type.split(',')
-            freeze_param['freeze_type'] = {'$in': freeze_type}
-        freeze = load_from_mongodb(col="an_freeze",
-                                   param=freeze_param,
-                                   proj={'_id': 0, 'timestamp': 1, 'freeze_type': 1, 'duration': 1})
+
+        freeze_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
+                                                     '$lte': convert_iso_format(end_time)},
+                                       'scenario_id': scenario_id,
+                                       'testrun_id': testrun_id}},
+                           {'$project': {'_id': 0, 'timestamp': 1, 'freeze_type': 1, 'duration': 1}}]
+        if page and page_size:
+            skip_num = (page - 1) * page_size
+            paging_pipeline = [{'$facet': {'page_info': [{'$count': 'total'}],
+                                           'items': [{'$skip': skip_num},
+                                                     {'$limit': page_size}]}},
+                               {'$project': {'total': {'$arrayElemAt': ['$page_info.total', 0]}, 
+                                             'pages': {'$ceil': {'$divide': [{'$arrayElemAt': ['$page_info.total', 0]}, page_size]}},
+                                             'items': 1}},
+                               {'$addFields': {'prev': {'$cond':[{'$eq': [page, 1]}, None, {'$subtract': [page, 1]}]},
+                                               'next': {'$cond':[{'$gt': ['$pages', page]}, {'$add': [page, 1]}, None]}}}]
+            freeze_pipeline.extend(paging_pipeline)
+        freeze = aggregate_from_mongodb(col="an_freeze", pipeline=freeze_pipeline)
+        if page is None:
+            return {'total': len(freeze), 'pages': None, 'prev': None, 'next': None, 'items': freeze}
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return {"items": freeze}
+    return freeze[0]
 
 
 # Loudness

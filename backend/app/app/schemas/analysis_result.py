@@ -13,6 +13,13 @@ class TimestampBaseModel(BaseModel):
         if "timestamp" in values:
             values["timestamp"] = parse_datetime(values["timestamp"]).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
         return values
+    
+
+class PaginationBaseModel(BaseModel):
+    total: int = 0
+    pages: int = None
+    prev: int = None
+    next: int = None
 
 
 class LogLevelFinderBase(TimestampBaseModel):
@@ -72,7 +79,7 @@ class FreezeBase(TimestampBaseModel):
     duration: float
 
 
-class Freeze(BaseModel):
+class Freeze(PaginationBaseModel):
     items: List[FreezeBase]
 
 
