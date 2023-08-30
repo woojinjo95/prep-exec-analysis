@@ -1,7 +1,6 @@
 import React from 'react'
-import { OptionItem, Text } from '@global/ui'
+import { DropdownWithMoreButton, OptionItem, Text } from '@global/ui'
 import { AnalysisConfig } from '@page/AnalysisPage/components/VarAnalysisResultSection/api/entity'
-import DropdownWithMoreButton from '@global/ui/DropdownWithMoreButton'
 
 interface LogPatternProps {
   logPattern: NonNullable<AnalysisConfig['log_pattern_matching']>['items'][number]

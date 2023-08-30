@@ -1,7 +1,6 @@
 import React from 'react'
 import cx from 'classnames'
 import { Text } from '..'
-import DropdownWithMoreButton from '../DropdownWithMoreButton'
 
 interface TagItemProps extends React.LiHTMLAttributes<HTMLLIElement> {
   mode?: 'create' | 'item'

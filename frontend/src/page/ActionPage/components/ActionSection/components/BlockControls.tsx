@@ -5,11 +5,10 @@ import { ReactComponent as PlayIcon } from '@assets/images/icon_play.svg'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
 import { ReactComponent as StopIcon } from '@assets/images/icon_stop.svg'
 
-import { IconButton, OptionItem, Text } from '@global/ui'
+import { IconButton, OptionItem, Text, DropdownWithMoreButton } from '@global/ui'
 import { useWebsocket } from '@global/hook'
 import { useRecoilValue } from 'recoil'
 import { scenarioIdState } from '@global/atom'
-import DropdownWithMoreButton from '@global/ui/DropdownWithMoreButton'
 import { blockControlMenu } from '../constants'
 import SaveBlocksModal from './SaveBlocksModal'
 

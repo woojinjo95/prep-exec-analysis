@@ -123,7 +123,7 @@ def command_parser(command):
     if msg == 'analysis':
         msg_data = data.get('data', {})
         measurement = msg_data.get('measurement', [])
-        if 'loudness' in measurement or 'log_level_finder' in measurement:
+        if 'log_level_finder' in measurement:
             RedisClient.publish('command',
                                 set_redis_pub_msg(msg="analysis_response", data=msg_data))
 
