@@ -7,18 +7,18 @@ from scripts.connection.redis_conn import get_strict_redis_connection
 from scripts.connection.redis_pubsub import Subscribe
 from scripts.config.constant import RedisChannel, RedisDB
 from scripts.log_service.log_organizer import LogOrganizer
-from scripts.modules.freeze_detect import FreezeDetect
+from scripts.modules.warm_boot import WarmBoot
 from scripts.format import Command
 
 
 logger = logging.getLogger('main')
 
-service_name = 'freeze'  # FIXME: service name
+service_name = 'resume'  # FIXME: service name
 
 
 class CommandExecutor:
     def __init__(self):
-        self.service_module = FreezeDetect()  # FIXME: module
+        self.service_module = WarmBoot()  # FIXME: module
 
     def start_service_module(self):
         self.service_module.start()
@@ -27,14 +27,12 @@ class CommandExecutor:
         self.service_module.stop()
 
     def execute(self, command: Dict):
-        # PUBLISH command '{"msg": "analysis", "data": {"measurement": ["freeze"]}}'
-
         if command.get('msg') == 'analysis':
             data = command.get('data', {})
             logger.info(f'msg: analysis. data: {data}')
 
             measurement = data.get('measurement', [])
-            if Command.FREEZE.value in measurement:  # FIXME: measurement command name
+            if Command.RESUME.value in measurement:  # FIXME: measurement command name
                 self.start_service_module()
 
 
