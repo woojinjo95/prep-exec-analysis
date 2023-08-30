@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import { useMutation } from 'react-query'
 
-import { Button, Divider, Input, OptionItem, Select, Title } from '@global/ui'
+import { Button, Divider, Input, OptionItem, Select, Title, Text } from '@global/ui'
 import { IPRegex } from '@global/constant'
 import { HardwareConfiguration } from '@global/api/entity'
 import { useHardwareConfiguration } from '@global/api/hook'
@@ -108,7 +108,14 @@ const DeviceInfo: React.FC = () => {
       <Divider />
 
       <div className="grid grid-cols-1 gap-y-4 px-1">
-        <Select colorScheme="charcoal" value={stbConnection.mode || 'Type'}>
+        <Select
+          colorScheme="charcoal"
+          header={
+            <Text weight="bold" colorScheme="light">
+              {stbConnection.mode || 'Type'}
+            </Text>
+          }
+        >
           {ConnectionTypes.map((connectionType) => (
             <OptionItem
               colorScheme="charcoal"

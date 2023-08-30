@@ -18,7 +18,6 @@ const SaveCustomKeyModal: React.FC<SaveCustomKeyModalProps> = ({ isOpen, close, 
    */
   const [newCustomKeyName, setNewCustomKeyName] = useState<string>(remoconInput.toString())
 
-  // TODO: 이 ref를 적용시키려면 공용 컴포넌트들이 ref를 받을 수 있어야 함..
   const firstFocusableElementRef = useRef<HTMLInputElement>(null)
   const lastFocusableElementRef = useRef<HTMLButtonElement>(null)
 
