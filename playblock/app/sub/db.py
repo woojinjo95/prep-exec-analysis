@@ -27,10 +27,18 @@ async def get_redis_pool():
     return await redis.Redis(
         host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, password=REDIS_PASSWORD, decode_responses=True)
 
+
 def conn_mongodb():
     client = pymongo.MongoClient(
         f"mongodb://{MONGODB_USERNAME}:{MONGODB_PASSWORD}@{MONGODB_SERVER}:{MONGODB_PORT}/{MONGODB_NAME}?authSource={MONGODB_AUTHENTICATION_SOURCE}&readPreference=primary&ssl=false")
     return client
+
+
+def get_db():
+    db = MONGODB_NAME
+    client = conn_mongodb()
+    result_db = client[db]
+    return result_db
 
 
 def get_collection(collection=MONGODB_COLLECTION_NAME) -> pymongo.collection.Collection:
