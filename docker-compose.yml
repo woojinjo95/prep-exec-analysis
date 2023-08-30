@@ -226,8 +226,8 @@ services:
     volumes:
       - ./data/workspace:/app/workspace
 
-  log_pattern:
-    container_name: log_pattern
+  log-pattern:
+    container_name: log-pattern
     restart: always
     image: registry.dev-nextlab.com/qaas-log-pattern:dev-0
     command: python -u main_log_pattern.py
