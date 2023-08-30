@@ -38,6 +38,12 @@ jobs:
           - uses: actions/checkout@v3  
           - run: docker build -t registry.dev-nextlab.com/qaas-shell:dev-${{github.run_id}}${{github.run_number}} -f ./shell/Dockerfile.dev.m32dev4 ./shell
             shell: bash
+    build-dev-playblock:
+        runs-on: [self-hosted, docker, Linux]
+        steps:
+          - uses: actions/checkout@v3  
+          - run: docker build -t registry.dev-nextlab.com/qaas-playblock:dev-${{github.run_id}}${{github.run_number}} -f ./playblock/Dockerfile.dev.m32dev4 ./playblock
+            shell: bash
     build-dev-replay:
         runs-on: [self-hosted, docker, Linux]
         steps:
