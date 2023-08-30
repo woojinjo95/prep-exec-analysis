@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, OptionItem, Select } from '@global/ui'
+import { Button, OptionItem, Select, Text } from '@global/ui'
 import { useWebsocket } from '@global/hook'
 import { AnalysisTypeLabel } from '../../../constant'
 
@@ -16,7 +16,15 @@ const Header: React.FC<HeaderProps> = ({ selectedAnalysisItems, setSelectedAnaly
 
   return (
     <div className="flex gap-x-4 w-full">
-      <Select colorScheme="dark" value="Add Item" className="grow">
+      <Select
+        colorScheme="dark"
+        header={
+          <Text weight="bold" colorScheme="light">
+            Add Item
+          </Text>
+        }
+        className="grow"
+      >
         {Object.keys(AnalysisTypeLabel)
           .filter((type) => !selectedAnalysisItems.includes(type as keyof typeof AnalysisTypeLabel))
           .map((_analysisType) => {

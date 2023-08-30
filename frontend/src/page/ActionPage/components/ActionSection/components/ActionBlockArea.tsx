@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd'
 import cx from 'classnames'
 
-import { Block, BlockGroup, Scenario } from '@page/ActionPage/components/ActionSection/api/entity'
+// import { Block, BlockGroup, Scenario } from '@page/ActionPage/components/ActionSection/api/entity'
 import { useMutation, useQuery } from 'react-query'
 import BackgroundImage from '@assets/images/background_pattern.svg'
 import { remoconService } from '@global/service/RemoconService/RemoconService'
@@ -12,8 +12,10 @@ import { terminalService } from '@global/service/TerminalService/TerminalService
 import { CommandTransmit } from '@global/service/TerminalService/type'
 import { useRecoilValue } from 'recoil'
 import { scenarioIdState } from '@global/atom'
+import { Block, BlockGroup, Scenario } from '@global/api/entity'
+import { getScenarioById } from '@global/api/func'
 import ActionBlockItem from './ActionBlockItem'
-import { getScenarioById, postBlock, postBlocks, putScenario } from '../api/func'
+import { postBlock, postBlocks, putScenario } from '../api/func'
 
 type BlocksRef = {
   [id: string]: HTMLDivElement | null
