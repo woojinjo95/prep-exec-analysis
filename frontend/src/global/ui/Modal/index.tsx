@@ -1,6 +1,6 @@
 import React from 'react'
 import cx from 'classnames'
-import useOutSideRef from '@global/hook/useOutsideRef'
+import useOutSideClick from '@global/hook/useOutsideClick'
 import { Text, Title } from '@global/ui'
 
 interface ModalProps {
@@ -25,9 +25,9 @@ interface ModalProps {
  */
 
 const Modal: React.FC<ModalProps> = ({ mode = 'normal', isOpen, close, children, className, title }) => {
-  const { ref } = useOutSideRef({
-    isOpen,
-    closeHook: () => {
+  const { ref } = useOutSideClick<HTMLDivElement>({
+    mode: 'node',
+    onClickOutside: () => {
       close()
     },
   })
@@ -39,6 +39,7 @@ const Modal: React.FC<ModalProps> = ({ mode = 'normal', isOpen, close, children,
         className={cx(
           'flex flex-col fixed min-h-[200px] min-w-[200px] z-10 p-6 bg-light-black rounded-[10px] pb-7',
           {
+            //  top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
             'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2': mode === 'center',
           },
           className,
