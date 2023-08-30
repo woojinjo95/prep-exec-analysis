@@ -28,12 +28,13 @@ class CommandExecutor:
     def execute(self, command: Dict):
         if command.get('msg') == 'analysis':
             data = command.get('data', {})
-
             measurement = data.get('measurement', [])
             if command_name in measurement:
                 self.start_service_module()
                 publish_msg({'measurement': [command_name]}, 'analysis_started')
 
+        elif command.get('msg') == 'analysis_terminate':
+            self.stop_service_module()
 
 
 def main():
