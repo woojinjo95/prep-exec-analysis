@@ -7,7 +7,6 @@ import os
 from scripts.format import InputData
 from scripts.config.constant import RedisDB
 from scripts.connection.redis_conn import get_strict_redis_connection, parse_bytes_to_value
-from scripts.external.scenario import load_scenario
 
 logger = logging.getLogger('main')
 
