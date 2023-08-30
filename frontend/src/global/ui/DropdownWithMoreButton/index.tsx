@@ -12,6 +12,7 @@ interface DropdownWithMoreButtonProps {
   children: React.ReactNode
   colorScheme?: 'light' | 'charcoal'
   type?: 'icon-button' | 'icon'
+  positionX?: 'left' | 'right'
 }
 
 /**
@@ -22,6 +23,7 @@ const DropdownWithMoreButton: React.FC<DropdownWithMoreButtonProps> = ({
   children,
   colorScheme = 'light',
   type = 'icon-button',
+  positionX = 'right',
 }) => {
   const divRef = useRef<HTMLDivElement | null>(null)
   const [isButtonClicked, setIsButtonClicked] = useState<boolean>(false)
@@ -53,7 +55,7 @@ const DropdownWithMoreButton: React.FC<DropdownWithMoreButtonProps> = ({
         isVisible={isButtonClicked}
         wrapperRef={divRef}
         widthOption="fit-content"
-        positionX="right"
+        positionX={positionX}
         onClick={() => {
           setIsButtonClicked(false)
         }}

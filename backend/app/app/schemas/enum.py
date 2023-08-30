@@ -39,7 +39,6 @@ class BootTypeEnum(ExtendedEnum):
 class AnalysisTypeEnum(ExtendedEnum):
     freeze = "freeze"
     # macroblock = "macroblock"
-    loudness = "loudness"
     resume = "resume"
     boot = "boot"
     channel_change_time = "channel_change_time"

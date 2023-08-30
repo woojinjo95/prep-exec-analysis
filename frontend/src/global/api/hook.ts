@@ -2,8 +2,8 @@ import { useEffect } from 'react'
 import { useQuery } from 'react-query'
 import { PAGE_SIZE_FIFTEEN } from '@global/constant'
 import { useWebsocket } from '@global/hook'
-import { getHardwareConfiguration, getLogConnectionStatus, getScenarios } from './func'
-import { HardwareConfiguration, LogConnectionStatus, PaginationResponse, ScenarioSummary } from './entity'
+import { getHardwareConfiguration, getLogConnectionStatus, getScenarios, getScenarioById } from './func'
+import { HardwareConfiguration, LogConnectionStatus, PaginationResponse, ScenarioSummary, Scenario } from './entity'
 
 /**
  * 시나리오 리스트 조회 hook
@@ -57,6 +57,42 @@ export const useHardwareConfiguration = ({ onSuccess }: { onSuccess?: (data: Har
 
   return {
     hardwareConfiguration: data,
+    isLoading,
+    refetch,
+  }
+}
+
+/**
+ * 단건 시나리오 조회 Hook
+ */
+
+export const useScenarioById = ({
+  onSuccess,
+  scenarioId,
+}: {
+  onSuccess?: (data: Scenario) => void
+  scenarioId: string | null
+}) => {
+  const { data, refetch, isLoading } = useQuery<Scenario>(
+    ['scenario', scenarioId],
+    () => getScenarioById({ scenario_id: scenarioId! }),
+    {
+      onSuccess,
+      onError: (err) => {
+        console.error(err)
+      },
+      enabled: !!scenarioId,
+    },
+  )
+
+  useEffect(() => {
+    if (data) {
+      onSuccess?.(data)
+    }
+  }, [data])
+
+  return {
+    scenario: data,
     isLoading,
     refetch,
   }
