@@ -25,6 +25,14 @@ interface OnOffControlMessage {
 }
 
 /**
+ * 환경설정 - 캡처보드 초기화(Screen) 메시지
+ */
+interface CaptureBoardMessage {
+  msg: 'capture_board'
+  data: { action: 'refresh' }
+}
+
+/**
  * 환경설정 - Network Emulation On 메시지 Body
  */
 interface NetworkEmulationOnMessageBody {
@@ -129,6 +137,7 @@ export type PublishMessage = {
   | RunScenarioMessage
   | StopScenarioMessage
   | OnOffControlMessage
+  | CaptureBoardMessage
   | RemoteControlMessage
   | RemoconTransmitMessage
   | CommandMessage
