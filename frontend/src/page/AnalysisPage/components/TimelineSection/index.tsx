@@ -11,8 +11,11 @@ import MemoryChart from './components/MemoryChart'
 import EventLogChart from './components/EventLogChart'
 import ColorReferenceChart from './components/ColorReferenceChart'
 import FreezeChart from './components/FreezeChart'
+import LogLevelFinderChart from './components/LogLevelFinderChart'
 import TimelineHeader from './components/TimelineHeader'
-// import LogLevelFinderChart from './components/LogLevelFinderChart'
+import LoudnessChart from './components/LoudnessChart'
+import ResumeBootChart from './components/ResumeBootChart'
+import LogPatternMatchingChart from './components/LogPatternMatchingChart'
 
 interface TimelineSectionProps {
   startTime: Date
@@ -59,10 +62,13 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
         <div className="w-48 z-10">
           {[
             'Video',
-            // 'Log Level Finder',
             'Color Reference',
             'Event Log',
             'Video Analysis Result',
+            'Loudness',
+            'Resume, Boot Measurement',
+            'Log Level Finder',
+            'Log Pattern Matching',
             'CPU',
             'Memory',
           ].map((title, index) => (
@@ -103,8 +109,11 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
           />
           <EventLogChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
           <FreezeChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
-          {/* FIXME: 데이터가 너무많음. api 로딩, 페이지 로딩이 오래걸림 */}
-          {/* <LogLevelFinderChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} /> */}
+          <LoudnessChart chartWidth={chartWidth} scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
+          <ResumeBootChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
+          {/* FIXME: 데이터가 너무많음. 페이지 로딩이 오래걸림 */}
+          <LogLevelFinderChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
+          <LogPatternMatchingChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
           <CPUChart chartWidth={chartWidth} scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
           <MemoryChart chartWidth={chartWidth} scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
         </div>

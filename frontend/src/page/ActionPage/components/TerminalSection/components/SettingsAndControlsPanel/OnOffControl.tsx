@@ -4,7 +4,7 @@ import { ToggleButton, Text, Divider, Title } from '@global/ui'
 import { useWebsocket } from '@global/hook'
 import { useHardwareConfiguration } from '@global/api/hook'
 
-type OnOffControlSubscribeMessage = {
+type OnOffControlResponseMessageBody = {
   service: string
   level: string
   time: number
@@ -16,7 +16,7 @@ type OnOffControlSubscribeMessage = {
 
 const OnOffControl: React.FC = () => {
   const { hardwareConfiguration, refetch } = useHardwareConfiguration()
-  const { sendMessage } = useWebsocket<OnOffControlSubscribeMessage>({
+  const { sendMessage } = useWebsocket<OnOffControlResponseMessageBody>({
     onMessage: (message) => {
       if (message.msg === 'on_off_control_response') {
         refetch()
@@ -59,6 +59,20 @@ const OnOffControl: React.FC = () => {
               sendMessage({ msg: 'on_off_control', data: { enable_dut_wan: isOn } })
             }}
           />
+        </li>
+        <li className="flex items-center justify-between">
+          <Text weight="medium">Screen</Text>
+          <button
+            type="button"
+            className="bg-primary w-20 h-7 rounded-full"
+            onClick={() => {
+              sendMessage({ msg: 'capture_board', data: { action: 'refresh' } })
+            }}
+          >
+            <Text colorScheme="light" size="xs" weight="medium">
+              Reset
+            </Text>
+          </button>
         </li>
       </ul>
     </div>

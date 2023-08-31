@@ -24,7 +24,7 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
 
   const scenarioId = useRecoilValue(scenarioIdState)
 
-  const { scenario: currentScenario } = useScenarioById({
+  useScenarioById({
     scenarioId,
     onSuccess: (res) => {
       setBlocksName(res.name)

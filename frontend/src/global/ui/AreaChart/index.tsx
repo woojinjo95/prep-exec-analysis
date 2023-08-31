@@ -24,22 +24,23 @@ const AreaChart: React.FC<AreaChartProps> = ({
   chartWidth,
   scaleX,
   data,
-  minValue,
-  maxValue,
+  minValue: _minValue,
+  maxValue: _maxValue,
   strokeColor,
   fillColor,
 }) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
+  const minValue = useMemo(
+    () => (_minValue !== undefined ? _minValue : Math.min(...data.map(({ value }) => value))),
+    [],
+  )
+  const maxValue = useMemo(
+    () => (_maxValue !== undefined ? _maxValue : Math.max(...data.map(({ value }) => value))),
+    [],
+  )
 
   const scaleY: d3.ScaleLinear<number, number, never> | null = useMemo(
-    () =>
-      d3
-        .scaleLinear()
-        .domain([
-          minValue !== undefined ? minValue : Math.min(...data.map(({ value }) => value)),
-          maxValue !== undefined ? maxValue : Math.max(...data.map(({ value }) => value)),
-        ])
-        .range([CHART_HEIGHT, 0]),
+    () => d3.scaleLinear().domain([minValue, maxValue]).range([CHART_HEIGHT, 0]),
     [data, minValue, maxValue],
   )
 
@@ -53,6 +54,7 @@ const AreaChart: React.FC<AreaChartProps> = ({
       CHART_HEIGHT,
       scaleX,
       scaleY,
+      minValue,
       strokeColor,
       fillColor,
     )

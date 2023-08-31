@@ -59,7 +59,13 @@ const ResumeAnalysisItem: React.FC<ResumeAnalysisItemProps> = ({
             Type
           </Text>
 
-          <Select value={ResumeTypeLabel[resumeType]}>
+          <Select
+            header={
+              <Text weight="bold" colorScheme="light">
+                {ResumeTypeLabel[resumeType]}
+              </Text>
+            }
+          >
             {Object.keys(ResumeTypeLabel).map((_type) => {
               const type = _type as keyof typeof ResumeTypeLabel
 

@@ -1,5 +1,5 @@
 import { IPLimitProtocol } from '@global/api/entity'
-import AnalysisType from '@global/constant/analysisType'
+import { AnalysisType } from '@global/constant'
 
 /**
  * 블럭 재생 시작 publish 메시지
@@ -22,6 +22,14 @@ interface StopScenarioMessage {
 interface OnOffControlMessage {
   msg: 'on_off_control'
   data: { [key in 'enable_dut_power' | 'enable_hdmi' | 'enable_dut_wan']?: boolean }
+}
+
+/**
+ * 환경설정 - 캡처보드 초기화(Screen) 메시지
+ */
+interface CaptureBoardMessage {
+  msg: 'capture_board'
+  data: { action: 'refresh' }
 }
 
 /**
@@ -129,6 +137,7 @@ export type PublishMessage = {
   | RunScenarioMessage
   | StopScenarioMessage
   | OnOffControlMessage
+  | CaptureBoardMessage
   | RemoteControlMessage
   | RemoconTransmitMessage
   | CommandMessage

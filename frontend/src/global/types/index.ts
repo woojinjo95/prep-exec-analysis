@@ -11,6 +11,13 @@ export type AreaChartData = {
   value: number
 }[]
 
+/**
+ * 범위 차트 데이터
+ *
+ * @property {number} duration 지속시간. 단위: ms
+ */
+export type RangeChartData = { date: Date; duration: number }[]
+
 export interface Terminal {
   id: string
   mode: 'adb' | 'ssh'

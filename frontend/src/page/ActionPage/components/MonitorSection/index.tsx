@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import cx from 'classnames'
 import { useNavigate } from 'react-router-dom'
-import AppURL from '@global/constant/appURL'
+import { AppURL } from '@global/constant'
 import { Text } from '@global/ui'
 import HLSPlayer from './components/HLSPlayer'
 
