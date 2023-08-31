@@ -31,7 +31,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, close, children, className, title
   })
 
   return (
-    <div className="fixed top-0 left-0 w-screen h-screen flex justify-center items-center z-20">
+    <div className="fixed top-0 left-0 w-screen h-screen flex justify-center items-center z-10">
       <div
         ref={ref}
         className={cx(

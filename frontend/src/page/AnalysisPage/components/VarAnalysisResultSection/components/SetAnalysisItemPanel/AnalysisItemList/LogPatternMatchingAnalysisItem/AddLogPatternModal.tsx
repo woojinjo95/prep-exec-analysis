@@ -1,5 +1,6 @@
-import React from 'react'
-import { Button, ColorPickerBox, Input, Modal, Title } from '@global/ui'
+import React, { useState } from 'react'
+import { Button, ColorPickerBox, Input, Modal, Select, Title, Text, OptionItem } from '@global/ui'
+import { LogLevel } from '@global/constant'
 
 interface AddLogPatternModalProps {
   isOpen: boolean
@@ -12,6 +13,8 @@ interface AddLogPatternModalProps {
  * TODO:
  */
 const AddLogPatternModal: React.FC<AddLogPatternModalProps> = ({ isOpen, close }) => {
+  const [logLevel, setLogLevel] = useState<keyof typeof LogLevel>('V')
+
   return (
     <Modal
       isOpen={isOpen}
@@ -24,20 +27,56 @@ const AddLogPatternModal: React.FC<AddLogPatternModalProps> = ({ isOpen, close }
           Log Pattern Name
         </Title>
         <div className="flex">
-          <Input placeholder="Untitled Log Pattern" />
+          <Input placeholder="Untitled Log Pattern" className="w-80" />
         </div>
 
         <Title as="h3" colorScheme="light" className="pt-3">
           Log Level
         </Title>
         <div className="flex">
-          <Input />
+          <Select
+            colorScheme="charcoal"
+            className="w-32"
+            widthOption="fit-wrapper"
+            header={
+              <Text weight="bold" colorScheme="light">
+                {logLevel}
+              </Text>
+            }
+          >
+            {Object.keys(LogLevel).map((_level) => {
+              const level = _level as keyof typeof LogLevel
+
+              return (
+                <OptionItem
+                  key={`add-log-pattern-modal-log-level-list-${level}`}
+                  colorScheme="charcoal"
+                  onClick={() => {
+                    setLogLevel(level)
+                  }}
+                  isActive={level === logLevel}
+                >
+                  {level}
+                </OptionItem>
+              )
+            })}
+          </Select>
         </div>
 
         <Title as="h3" colorScheme="light" className="pt-3">
           Regular Expression
         </Title>
-        <div />
+        <div className="grid grid-cols-1 grid-rows-[1fr_auto] gap-y-2">
+          {/* TODO: code editor */}
+          <div />
+
+          <div>
+            <Button className="charcoal">Check Validation</Button>
+            <Text className="ml-7" colorScheme="light">
+              Is valid regular expression.
+            </Text>
+          </div>
+        </div>
 
         <div>
           <Title as="h3" colorScheme="light">
@@ -45,7 +84,7 @@ const AddLogPatternModal: React.FC<AddLogPatternModalProps> = ({ isOpen, close }
           </Title>
         </div>
         <div className="flex items-center">
-          <ColorPickerBox color="red" />
+          <ColorPickerBox color="red" className=" w-14 h-5" />
         </div>
 
         <div className="col-span-2 flex justify-end items-center gap-x-3">
