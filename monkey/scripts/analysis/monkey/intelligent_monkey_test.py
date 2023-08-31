@@ -38,28 +38,19 @@ class IntelligentMonkeyTest:
         self.set_root_keys(external_keys=['home'])
         self.visit()
 
+    ##### Control #####
     def get_current_image(self) -> np.ndarray:
         return get_snapshot()
 
-    def exec_key(self, key: str, save_history: bool = False):
+    def exec_key(self, key: str):
         publish_remocon_msg(self.profile, key, sleep=self.key_interval)
         time.sleep(self.key_interval)
-        if save_history:
-            self.key_histories.append(key)
 
     def exec_keys(self, keys: list, *args, **kwargs):
         logger.info(f'exec_keys: {keys}')
         for key in keys:
             self.exec_key(key, *args, **kwargs)
         # time.sleep(3)
-
-
-
-
-
-
-    def get_cursor(self) -> Tuple:
-        return find_roku_cursor(self.get_current_image())
 
     def check_cursor_is_same(self, prev_image: np.ndarray, prev_cursor: Tuple, image: np.ndarray, cursor: Tuple, 
                                  iou_thld: float=0.9, min_color_depth_diff: int=10, diff_thld: float=0.05) -> bool:
@@ -78,20 +69,7 @@ class IntelligentMonkeyTest:
             # 2. iou가 일정 이상 크지만 diff가 일정이상 큼 => 커서는 움직이지 않았지만, 내용물이 변함
             same = False if iou_rate < iou_thld or (iou_rate > iou_thld and diff_rate > diff_thld) else True
             logger.info(f'same: {same}, iou_rate: {iou_rate}, iou_thld: {iou_thld:.6f}, diff_rate: {diff_rate}, diff_thld: {diff_thld:.6f}')
-            # same = False if iou_rate < iou_thld else True
-            # logger.info(f'same: {same}, iou_rate: {iou_rate}, iou_thld: {iou_thld:.6f}')
             return same
-
-    def check_leftmenu_is_opened(self, prev_image: np.ndarray, prev_cursor: Tuple, image: np.ndarray, cursor: Tuple, max_height_diff: int=10) -> bool:
-        if cursor is None:
-            return False
-        else:
-            height_diff = abs(cursor[3] - self.root_cursor[3])
-            is_height_similar = height_diff < max_height_diff
-
-            is_cursor_same = self.check_cursor_is_same(prev_image, prev_cursor, image, cursor)
-            
-            return True if is_height_similar and not is_cursor_same else False
 
     # 최초 루트 영역으로 이동
     def set_root_keys(self, external_keys: List[str] = []):
@@ -167,6 +145,23 @@ class IntelligentMonkeyTest:
                 self.append_key('down')
                 # 이미 위에서 right이 불가능하다고 판단하였으므로, 다음 시점에 down도 불가능하다면 이것은 leaf node일 것이므로, 현재 cursor를 저장해두기
                 last_fi = fi
+
+
+
+
+    def get_cursor(self) -> Tuple:
+        return find_roku_cursor(self.get_current_image())
+
+    def check_leftmenu_is_opened(self, prev_image: np.ndarray, prev_cursor: Tuple, image: np.ndarray, cursor: Tuple, max_height_diff: int=10) -> bool:
+        if cursor is None:
+            return False
+        else:
+            height_diff = abs(cursor[3] - self.root_cursor[3])
+            is_height_similar = height_diff < max_height_diff
+
+            is_cursor_same = self.check_cursor_is_same(prev_image, prev_cursor, image, cursor)
+            
+            return True if is_height_similar and not is_cursor_same else False
 
 
 class FrameInfo:
