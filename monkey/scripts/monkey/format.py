@@ -10,6 +10,7 @@ class FrameInfo:
 
 
 @dataclass
-class SmartSenseArgs:
+class MonkeyArgs:
+    duration_per_menu: float
     enable_smart_sense: bool
     waiting_time: float

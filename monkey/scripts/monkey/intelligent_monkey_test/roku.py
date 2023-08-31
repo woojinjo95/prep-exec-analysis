@@ -9,18 +9,16 @@ from scripts.monkey.util import (get_current_image, check_cursor_is_same,
                                 exec_keys, head_to_next, optimize_path)
 from scripts.analysis.image import find_roku_cursor
 from scripts.monkey.monkey import Monkey
-from scripts.monkey.format import SmartSenseArgs
+from scripts.monkey.format import MonkeyArgs
 
 logger = logging.getLogger('monkey_test')
 
 
 class IntelligentMonkeyTestRoku:
-    def __init__(self, key_interval: float, duration_per_menu: float,
-                 smart_sense_args: SmartSenseArgs):
+    def __init__(self, key_interval: float, monkey_args: MonkeyArgs):
         # set arguments
         self.key_interval = key_interval
-        self.duration_per_menu = duration_per_menu
-        self.smart_sense_args = smart_sense_args
+        self.monkey_args = monkey_args
 
         # init variables
         self.analysis_type = 'intelligent_monkey'
@@ -108,13 +106,13 @@ class IntelligentMonkeyTestRoku:
 
     def start_monkey(self, current_node: List[str]):
         monkey = Monkey(
-            duration=self.duration_per_menu,
+            duration=self.monkey_args.duration_per_menu,
             key_candidates=['right', 'up', 'down', 'ok'],
             root_keyset=current_node,
             key_interval=self.key_interval,
             profile=self.profile,
-            enable_smart_sense=self.smart_sense_args.enable_smart_sense,
-            waiting_time=self.smart_sense_args.waiting_time,
+            enable_smart_sense=self.monkey_args.enable_smart_sense,
+            waiting_time=self.monkey_args.waiting_time,
             report_data={
                 'analysis_type': self.analysis_type,
                 'section_id': self.section_id,
