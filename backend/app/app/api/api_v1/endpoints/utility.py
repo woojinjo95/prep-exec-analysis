@@ -2,6 +2,7 @@ import io
 import json
 import logging
 import os
+import re
 import traceback
 import zipfile
 from datetime import datetime
@@ -132,3 +133,24 @@ async def import_result(file: UploadFile = File(...)) -> schemas.Msg:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': f"Data from {file.filename} uploaded and restored to corresponding collections"}
+
+
+@router.post("/validate_regex", response_model=schemas.RegexResult)
+async def validate_regex(
+    *,
+    regex_str: schemas.Regex,
+) -> schemas.RegexResult:
+    """
+    Validate regular expression
+    """
+    try:
+        regex_str = regex_str.regex
+        regex = re.compile(regex_str)
+        if regex.groups > 0:
+            if regex.groups != len(regex.groupindex):
+                return {"is_valid": False,
+                        "msg": f"{regex}",
+                        "detail": f"there is no named group: number of groups: {regex.groups}, name_goups: {regex.groupindex.keys()}"}
+        return {"is_valid": True, "msg": f"{regex}", "keys": list(regex.groupindex.keys())}
+    except Exception as e:
+        return {"is_valid": False, "msg": f"{e}"}
