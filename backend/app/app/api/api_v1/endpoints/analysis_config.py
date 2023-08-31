@@ -29,6 +29,7 @@ def read_analysis_config() -> schemas.AnalysisConfigBase:
             analysis_config[key.split(':')[1]] = {k: parse_bytes_to_value(v)
                                                   for k, v in RedisClient.hgetall(key).items()}
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'items': analysis_config}
 
@@ -47,6 +48,7 @@ def update_analysis_config(
                 for k, v in val.items():
                     RedisClient.hset(f'analysis_config:{key}', k, json.dumps(v))
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Update analysis_config'}
 
@@ -67,6 +69,7 @@ def delete_analysis_config(
     try:
         RedisClient.delete(name)
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': f'Delete {analysis_type} analysis_config'}
 
@@ -91,6 +94,7 @@ async def upload_frame(
         with open(os.path.join(workspace_path, f'{file_uuid}.{file_extension}'), 'wb') as f:
             f.write(file.file.read())
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'id': file_uuid, 'path': f"{workspace_path}/{file_uuid}.{file_extension}"}
 
@@ -110,5 +114,6 @@ async def download_frame(
         file_extension = file[0]['extension']
         workspace_path = f"{RedisClient.hget('testrun','workspace_path')}/{RedisClient.hget('testrun','id')}/raw/frame/{frame_id}.{file_extension}"
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return FileResponse(path=workspace_path, filename=f'{file_name}.{file_extension}')

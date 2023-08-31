@@ -24,6 +24,7 @@ def get_shell_modes() -> schemas.ShellList:
                     {'$replaceRoot': {'newRoot': "$_id"}}]
         res = aggregate_from_mongodb(col="shell_log", pipeline=pipeline)
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'items': res}
 
@@ -57,6 +58,7 @@ def get_shell_logs(
         result = aggregate_from_mongodb(col="shell_log", pipeline=pipeline)
         res = result if result == [] else result[0]['lines']
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'items': res}
 
@@ -78,6 +80,7 @@ def connect_shell() -> schemas.Msg:
                                                                "username": conn_info.get('username', None),
                                                                "password": conn_info.get('password', None)}))
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Connect shell'}
 
@@ -90,5 +93,6 @@ def disconnect_shell() -> schemas.Msg:
     try:
         RedisClient.publish('command', set_redis_pub_msg(msg="disconnect_shell"))
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Disconnect shell'}

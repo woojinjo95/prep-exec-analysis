@@ -52,6 +52,7 @@ def create_block(
                                 data={'block_group': new_last_block_group,
                                       'updated_at': get_utc_datetime(time.time())})
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Create new block', 'id': block_id}
 
@@ -79,6 +80,7 @@ def delete_blocks(
                                data={'block_group': {'block': {'$size': 0}}})
         update_by_id_to_mongodb(col='scenario', id=scenario_id, data={"updated_at": get_utc_datetime(time.time())})
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Delete blocks.'}
 
@@ -112,6 +114,7 @@ def update_block(
                        upsert=False)
         update_by_id_to_mongodb(col='scenario', id=scenario_id, data={"updated_at": get_utc_datetime(time.time())})
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Update a block', 'id': block_id}
 
@@ -153,6 +156,7 @@ def bulk_create_blocks(
                                 data={'block_group': new_last_block_group,
                                       'updated_at': get_utc_datetime(time.time())})
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Bulk Create blocks'}
 
@@ -185,5 +189,6 @@ def update_block_group(
                           param=param,
                           data=update_data)
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Update a block_group', 'id': block_group_id}
