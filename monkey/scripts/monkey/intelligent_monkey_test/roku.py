@@ -5,7 +5,7 @@ import time
 
 import numpy as np
 
-from scripts.analysis.image import find_roku_cursor
+from scripts.analysis.image import find_roku_cursor, get_cropped_image
 from scripts.external.report import report_data
 from scripts.monkey.format import FrameInfo, MonkeyArgs
 from scripts.monkey.monkey import Monkey
@@ -81,8 +81,10 @@ class IntelligentMonkeyTestRoku:
             last_fi = fi
 
     ##### Functions #####
-    def get_cursor(self) -> Tuple:
-        return find_roku_cursor(get_current_image())
+    def get_cursor(self, image: np.ndarray=None) -> Tuple:
+        if image is None:
+            image = get_current_image()
+        return find_roku_cursor(image)
 
     def set_root_keyset(self, external_keys: List[str] = []):
         self.key_histories = external_keys
@@ -113,6 +115,7 @@ class IntelligentMonkeyTestRoku:
         # go to root_keyset of section and get snapshot
         self.exec_keys(current_node_keyset)
         image = get_current_image()
+        cursor_image = get_cropped_image(image, self.get_cursor(image))
 
         monkey = Monkey(
             duration=self.monkey_args.duration_per_menu,
@@ -130,7 +133,7 @@ class IntelligentMonkeyTestRoku:
         monkey.run()
 
         end_time = time.time()
-        self.report_section(start_time, end_time, image, monkey.smart_sense_count)
+        self.report_section(start_time, end_time, cursor_image, monkey.smart_sense_count)
 
     def report_section(self, start_time: float, end_time: float, image: np.ndarray, smart_sense_times: int):
         image_path = save_image(get_utc_datetime(time.time()).strftime('%y-%m-%d %H:%M:%S'), image)
