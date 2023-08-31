@@ -114,3 +114,42 @@ export const getTag = async () => {
     throw er
   }
 }
+
+/**
+ * tag 추가
+ * @param tag 태그
+ */
+export const postTag = async (tag: string) => {
+  try {
+    await API.post<{ msg: string }>(apiUrls.tag, {
+      tag,
+    })
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
+/**
+ * tag 삭제
+ */
+export const deleteTag = async (tag: string) => {
+  try {
+    await API.delete<{ msg: string }>(`${apiUrls.tag}/${tag}`)
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
+/**
+ * 테스트런 추가
+ */
+export const postTestrun = async (scenaroId: string) => {
+  try {
+    await API.post<{ msg: string }>(`${apiUrls.testrun}/${scenaroId}`)
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}

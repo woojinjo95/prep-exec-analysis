@@ -1,4 +1,11 @@
-type ApiName = 'scenario' | 'hardware_configuration' | 'connect' | 'disconnect' | 'log_connection_status' | 'tag'
+type ApiName =
+  | 'scenario'
+  | 'hardware_configuration'
+  | 'connect'
+  | 'disconnect'
+  | 'log_connection_status'
+  | 'tag'
+  | 'testrun'
 
 const apiUrls: {
   [key in ApiName]: string
@@ -9,6 +16,7 @@ const apiUrls: {
   disconnect: '/api/v1/shell/disconnect',
   log_connection_status: '/api/v1/log_connection_status',
   tag: '/api/v1/scenario/tag',
+  testrun: '/api/v1/scenario/testrun',
 }
 
 export default apiUrls
