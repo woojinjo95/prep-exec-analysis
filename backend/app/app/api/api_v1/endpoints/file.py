@@ -159,22 +159,20 @@ def get_video_timestamp(
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
 ) -> schemas.VideoTimestamp:
-    try:
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        if testrun_id is None:
-            testrun_id = RedisClient.hget('testrun', 'id')
+    if scenario_id is None:
+        scenario_id = RedisClient.hget('testrun', 'scenario_id')
+    if testrun_id is None:
+        testrun_id = RedisClient.hget('testrun', 'id')
 
-        pipeline = [{'$match': {'id': scenario_id,
-                                'testruns.id': testrun_id}},
-                    {'$unwind': {'path': '$testruns'}},
-                    {'$project': {'_id': 0,
-                                  'start_time': {'$arrayElemAt': ['$testruns.raw.videos.start_time', 0]},
-                                  'end_time': {'$arrayElemAt': ['$testruns.raw.videos.end_time', 0]}}}]
-        video_info = aggregate_from_mongodb(col='scenario', pipeline=pipeline)[0]
-        if len(video_info) == 0:
-            return {'items': {'start_time': '', 'end_time': ''}}
-        return {'items': {'start_time': datetime.fromtimestamp(video_info['start_time'], tz=timezone.utc).isoformat(),
-                            'end_time': datetime.fromtimestamp(video_info['end_time'], tz=timezone.utc).isoformat()}}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    pipeline = [{'$match': {'id': scenario_id,
+                            'testruns.id': testrun_id}},
+                {'$unwind': {'path': '$testruns'}},
+                {'$project': {'_id': 0,
+                                'start_time': {'$arrayElemAt': ['$testruns.raw.videos.start_time', 0]},
+                                'end_time': {'$arrayElemAt': ['$testruns.raw.videos.end_time', 0]}}}]
+    video_info = aggregate_from_mongodb(col='scenario', pipeline=pipeline)[0]
+    if len(video_info) == 0:
+        raise HTTPException(status_code=404, detail='Video data Not Found')
+    return {'items': {'start_time': datetime.fromtimestamp(video_info['start_time'], tz=timezone.utc).isoformat(),
+                        'end_time': datetime.fromtimestamp(video_info['end_time'], tz=timezone.utc).isoformat()}}
+        
