@@ -87,7 +87,7 @@ class Monkey:
 
     def start_smart_sense(self):
         self.smart_sense_stop_event.clear()
-        th = threading.Thread(target=self.smart_sense)
+        th = threading.Thread(target=self.smart_sense, daemon=True)
         th.start()
         logger.info('start smart sense')
 

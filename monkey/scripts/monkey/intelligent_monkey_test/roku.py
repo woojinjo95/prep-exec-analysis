@@ -113,7 +113,7 @@ class IntelligentMonkeyTestRoku:
         start_time = time.time()
 
         # go to root_keyset of section and get snapshot
-        self.exec_keys(current_node_keyset)
+        self.exec_keys(current_node_keyset + ['left'])
         image = get_current_image()
         cursor_image = get_cropped_image(image, self.get_cursor(image))
 
