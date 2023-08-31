@@ -23,6 +23,7 @@ def read_remocon() -> schemas.RemoconRead:
         remocon_list = [{k: parse_bytes_to_value(v) for k, v in RedisClient.hgetall(key).items()}
                         for key in RedisClient.scan_iter(match='remocon:*')]
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'items': remocon_list}
 
@@ -41,6 +42,7 @@ def update_remocon(
             if val is not None:
                 RedisClient.hset(f'remocon:{remocon_name}', key, json.dumps(val))
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': f'Update {remocon_name} remocon'}
 
@@ -65,6 +67,7 @@ def insert_custom_key(
         custom_keys.append(input_data['custom_keys'])
         RedisClient.hset('remocon:'+custom_key_in_base.remocon_name.value, 'custom_keys', str(custom_keys))
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Create new custom_key', 'id': custom_key_in.id}
 
@@ -86,6 +89,7 @@ def delete_custom_keys(
                             in custom_keys if item["id"] not in custom_key_in.custom_key_ids]
         RedisClient.hset(name, 'custom_keys', json.dumps(updated_custom_keys))
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'custom_key Deletion Completed'}
 
@@ -109,5 +113,6 @@ def update_custom_key(
                             for item in custom_keys]
         RedisClient.hset(name, 'custom_keys', json.dumps(updated_custom_keys))
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Update custom_key', 'id': custom_key_id}

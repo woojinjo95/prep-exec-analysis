@@ -56,5 +56,6 @@ def create_testrun(
                                                     "scenario_id": scenario_id}))
 
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Create new testrun', 'id': testrun_id}

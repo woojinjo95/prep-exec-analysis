@@ -20,6 +20,7 @@ def read_scenario_tags() -> schemas.ScenarioTag:
         tags = RedisClient.hget('testrun', 'tags')
         res = {'tags': sorted(parse_bytes_to_value(tags)) if tags else []}
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'items': res}
 
@@ -40,6 +41,7 @@ def create_tag(
         tag_list.append(tag_in.tag)
         RedisClient.hset('testrun', 'tags', str(tag_list))
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Create new tag'}
 
@@ -69,6 +71,7 @@ def update_scenario_tag(
                         {"$set": {"tags.$[elem]": tag_in.tag}},
                         array_filters=[{"elem": tag}])
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Update a scenario tag.'}
 
@@ -93,5 +96,6 @@ def delete_scenario_tag(
         col.update_many({"tags": tag},
                         {"$pull": {"tags": tag}})
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Delete a scenario tag.'}

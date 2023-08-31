@@ -34,6 +34,7 @@ async def file_upload(
         insert_one_to_mongodb(col='file',
                               data={'id': file_uuid, "name": file.filename, "path": file_dir})
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': f'{file.filename} uploaded successfully',
             'id': file_uuid}
@@ -51,6 +52,7 @@ async def file_download(
         file_dir = classify_file_type(file_name)
         file_dir = os.path.join(file_dir, file_id)
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return FileResponse(path=file_dir, filename=file_name)
 
@@ -96,6 +98,7 @@ async def workspace_video_file_download(
             headers = {'Accept-Ranges': 'bytes'}
             return Response(video.read(), headers=headers, media_type="video/mp4")
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
 
 
@@ -149,6 +152,7 @@ async def workspace_partial_video_file_download(
         }
         return Response(content, headers=headers, status_code=206, media_type="video/mp4")
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
 
 
@@ -166,11 +170,10 @@ def get_video_timestamp(
                             'testruns.id': testrun_id}},
                 {'$unwind': {'path': '$testruns'}},
                 {'$project': {'_id': 0,
-                                'start_time': {'$arrayElemAt': ['$testruns.raw.videos.start_time', 0]},
-                                'end_time': {'$arrayElemAt': ['$testruns.raw.videos.end_time', 0]}}}]
+                              'start_time': {'$arrayElemAt': ['$testruns.raw.videos.start_time', 0]},
+                              'end_time': {'$arrayElemAt': ['$testruns.raw.videos.end_time', 0]}}}]
     video_info = aggregate_from_mongodb(col='scenario', pipeline=pipeline)[0]
     if len(video_info) == 0:
         raise HTTPException(status_code=404, detail='Video data Not Found')
     return {'items': {'start_time': datetime.fromtimestamp(video_info['start_time'], tz=timezone.utc).isoformat(),
-                        'end_time': datetime.fromtimestamp(video_info['end_time'], tz=timezone.utc).isoformat()}}
-        
+                      'end_time': datetime.fromtimestamp(video_info['end_time'], tz=timezone.utc).isoformat()}}
