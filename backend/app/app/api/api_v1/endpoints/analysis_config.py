@@ -82,16 +82,17 @@ async def upload_frame(
         raise HTTPException(status_code=400, detail="No upload file")
     try:
         file_uuid = str(uuid4())
-        workspace_path = f"{RedisClient.hget('testrun','workspace_path')}/{RedisClient.hget('testrun','id')}/analysis/frame"
-        local_path = workspace_path.replace(settings.CONTAINER_PATH, settings.HOST_PATH)
-        insert_one_to_mongodb(col='file', data={'id': file_uuid, "name": file.filename, "path": local_path})
-        if not os.path.isdir(local_path):
-            os.mkdir(local_path)
-        with open(os.path.join(local_path, file_uuid), 'wb') as f:
+        filename, file_extension = file.filename.split(".")
+        workspace_path = f"{RedisClient.hget('testrun','workspace_path')}/{RedisClient.hget('testrun','id')}/raw/frame"
+        insert_one_to_mongodb(col='file', data={'id': file_uuid, "name": filename,
+                              "path": workspace_path, "extension": file_extension})
+        if not os.path.isdir(workspace_path):
+            os.mkdir(workspace_path)
+        with open(os.path.join(workspace_path, f'{file_uuid}.{file_extension}'), 'wb') as f:
             f.write(file.file.read())
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return {'id': file_uuid, 'path': f"{workspace_path}/{file_uuid}"}
+    return {'id': file_uuid, 'path': f"{workspace_path}/{file_uuid}.{file_extension}"}
 
 
 @router.get('/frame/{frame_id}', response_class=FileResponse)
@@ -106,8 +107,8 @@ async def download_frame(
         raise HTTPException(status_code=404, detail=f"The frame does not exist in the system.")
     try:
         file_name = file[0]['name']
-        workspace_path = f"{RedisClient.hget('testrun','workspace_path')}/{RedisClient.hget('testrun','id')}/analysis/frame/{frame_id}"
-        local_path = workspace_path.replace(settings.CONTAINER_PATH, settings.HOST_PATH)
+        file_extension = file[0]['extension']
+        workspace_path = f"{RedisClient.hget('testrun','workspace_path')}/{RedisClient.hget('testrun','id')}/raw/frame/{frame_id}.{file_extension}"
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return FileResponse(path=local_path, filename=file_name)
+    return FileResponse(path=workspace_path, filename=f'{file_name}.{file_extension}')

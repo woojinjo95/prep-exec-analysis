@@ -1,6 +1,12 @@
 import { LogConnectionStatus } from '@global/api/entity'
 import PagePath from './pagePath'
 
+export { default as AnalysisType } from './analysisType'
+export { default as AppURL } from './appURL'
+export { default as LogLevel } from './logLevel'
+export { default as PagePath } from './pagePath'
+export { default as FreezeType } from './freezeType'
+
 /**
  * 웹사이트 접속 시 메인페이지
  */

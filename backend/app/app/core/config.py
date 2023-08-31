@@ -11,7 +11,6 @@ class Settings(BaseSettings):
     SERVICE_NAME: str
     FILES_PATH: str = os.getenv("FILES_PATH", '/app/files')
     HOST_PATH: str = os.getenv("HOST_PATH", "/app")
-    CONTAINER_PATH: str = os.getenv("CONTAINER_PATH", "./data")
     REMOCON_COMPANY: str = os.getenv("REMOCON_COMPANY", "vodafone")
 
     MONGODB_SERVER: str

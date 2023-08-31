@@ -5,7 +5,7 @@ import classNames from 'classnames/bind'
 
 import { KeyEvent } from '@page/ActionPage/types'
 
-import AppURL from '@global/constant/appURL'
+import { AppURL } from '@global/constant'
 import { Button, OptionItem, DropdownWithMoreButton } from '@global/ui'
 import { useHardwareConfiguration } from '@global/api/hook'
 import { useWebsocket } from '@global/hook'

@@ -9,6 +9,9 @@ type ApiName =
   | 'measurement'
   | 'process_lifecycle'
   | 'network_filter'
+  | 'loudness'
+  | 'resume'
+  | 'boot'
 
 const apiUrls: {
   [key in ApiName]: string
@@ -23,6 +26,9 @@ const apiUrls: {
   measurement: '/api/v1/analysis_result/measurement', // ???
   process_lifecycle: '/api/v1/analysis_result/process_lifecycle',
   network_filter: '/api/v1/analysis_result/network_filter',
+  loudness: '/api/v1/analysis_result/loudness',
+  resume: '/api/v1/analysis_result/resume',
+  boot: '/api/v1/analysis_result/boot',
 }
 
 export default apiUrls

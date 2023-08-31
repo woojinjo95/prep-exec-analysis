@@ -274,7 +274,7 @@ def get_data_of_resume(
                                                           '$lte': convert_iso_format(end_time)},
                                             'scenario_id': scenario_id,
                                             'testrun_id': testrun_id}},
-                                {'$project': {'_id': 0, 'timestamp': 1, 'measure_time': 1}}]
+                                {'$project': {'_id': 0, 'timestamp': 1, 'measure_time': 1, 'target': '$user_config.type'}}]
         measurement_resume = paginate_from_mongodb_aggregation(col='an_warm_boot',
                                                                pipeline=measurement_pipeline,
                                                                page=page,
@@ -306,7 +306,7 @@ def get_data_of_boot(
                                                           '$lte': convert_iso_format(end_time)},
                                             'scenario_id': scenario_id,
                                             'testrun_id': testrun_id}},
-                                {'$project': {'_id': 0, 'timestamp': 1, 'measure_time': 1}}]
+                                {'$project': {'_id': 0, 'timestamp': 1, 'measure_time': 1, 'target': '$user_config.type'}}]
         measurement_boot = paginate_from_mongodb_aggregation(col='an_cold_boot',
                                                              pipeline=measurement_pipeline,
                                                              page=page,

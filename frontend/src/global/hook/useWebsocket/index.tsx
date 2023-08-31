@@ -1,5 +1,5 @@
-import AppURL from '@global/constant/appURL'
 import { useCallback, useEffect, useRef } from 'react'
+import { AppURL } from '@global/constant'
 import { PublishMessage, SubscribeMessage } from './types'
 
 const ReadyState = {

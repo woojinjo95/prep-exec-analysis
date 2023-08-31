@@ -1,6 +1,7 @@
 import logging
 import os
 import traceback
+from datetime import datetime, timezone
 from typing import Optional
 from uuid import uuid4
 
@@ -91,7 +92,6 @@ async def workspace_video_file_download(
 
     try:
         video_file_path = video[0]['path']
-        video_file_path = video_file_path.replace(settings.CONTAINER_PATH, settings.HOST_PATH)
         with open(video_file_path, "rb") as video:
             headers = {'Accept-Ranges': 'bytes'}
             return Response(video.read(), headers=headers, media_type="video/mp4")
@@ -124,7 +124,6 @@ async def workspace_partial_video_file_download(
 
     try:
         video_file_path = video[0]['path']
-        video_file_path = video_file_path.replace(settings.CONTAINER_PATH, settings.HOST_PATH)
 
         if not range:
             return FileResponse(video_file_path)
@@ -151,3 +150,27 @@ async def workspace_partial_video_file_download(
         return Response(content, headers=headers, status_code=206, media_type="video/mp4")
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
+
+
+@router.get('/video_timestamp', response_model=schemas.VideoTimestamp)
+def get_video_timestamp(
+    scenario_id: Optional[str] = None,
+    testrun_id: Optional[str] = None,
+) -> schemas.VideoTimestamp:
+    if scenario_id is None:
+        scenario_id = RedisClient.hget('testrun', 'scenario_id')
+    if testrun_id is None:
+        testrun_id = RedisClient.hget('testrun', 'id')
+
+    pipeline = [{'$match': {'id': scenario_id,
+                            'testruns.id': testrun_id}},
+                {'$unwind': {'path': '$testruns'}},
+                {'$project': {'_id': 0,
+                                'start_time': {'$arrayElemAt': ['$testruns.raw.videos.start_time', 0]},
+                                'end_time': {'$arrayElemAt': ['$testruns.raw.videos.end_time', 0]}}}]
+    video_info = aggregate_from_mongodb(col='scenario', pipeline=pipeline)[0]
+    if len(video_info) == 0:
+        raise HTTPException(status_code=404, detail='Video data Not Found')
+    return {'items': {'start_time': datetime.fromtimestamp(video_info['start_time'], tz=timezone.utc).isoformat(),
+                        'end_time': datetime.fromtimestamp(video_info['end_time'], tz=timezone.utc).isoformat()}}
+        
