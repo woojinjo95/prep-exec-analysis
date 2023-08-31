@@ -71,9 +71,9 @@ def get_data_of_cpu(
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
         cpu_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
-                                                 '$lte': convert_iso_format(end_time)},
-                                   'scenario_id': scenario_id,
-                                   'testrun_id': testrun_id}},
+                                                  '$lte': convert_iso_format(end_time)},
+                                    'scenario_id': scenario_id,
+                                    'testrun_id': testrun_id}},
                         {'$project': {'_id': 0, 'timestamp': 1, 'cpu_usage': 1, 'total': 1,
                                       'user': 1, 'kernel': 1, 'iowait': 1, 'irq': 1, 'softirq': 1}}]
         cpu = paginate_from_mongodb_aggregation(col='stb_info',
@@ -338,11 +338,14 @@ def get_data_of_log_pattern_matching(
                                                                    '$lte': convert_iso_format(end_time)},
                                                      'scenario_id': scenario_id,
                                                      'testrun_id': testrun_id}},
-                                         {'$project': {'_id': 0, 'timestamp': '$timestamp', 'message': '$message',
+                                         {'$project': {'_id': 0, 'timestamp': 1, 'message': 1,
                                                        'items': '$user_config.items'}},
                                          {'$unwind': {'path': '$items'}},
-                                         {'$project': {'timestamp': '$timestamp', 'log_pattern_name': '$items.name',
-                                                       'log_level': '$items.level', 'message': '$message'}}]
+                                         {'$project': {'timestamp': 1, 'message': 1,
+                                                       'log_pattern_name': '$items.name',
+                                                       'log_level': '$items.level',
+                                                       'color': '$items.color',
+                                                       'regex': '$items.regular_expression'}}]
         log_pattern_matching = paginate_from_mongodb_aggregation(col='an_log_pattern',
                                                                  pipeline=log_pattern_matching_pipeline,
                                                                  page=page,

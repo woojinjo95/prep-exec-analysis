@@ -103,6 +103,8 @@ class MeasurementBoot(PaginationBaseModel):
 class LogPatternMatchingBase(TimestampBaseModel):
     log_pattern_name: str
     log_level: str
+    color: str
+    regex: str
     message: str
 
 
