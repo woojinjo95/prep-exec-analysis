@@ -14,7 +14,7 @@ interface ObservableState {
 }
 
 /**
- * observable에 구독하여 값을 가져오는 hook
+ * observable에 subscribe하여 값을 가져오는 hook
  *
  * @param obs$ 구독하고자 하는 observable
  * @param input$ 값을 변환하는 pipe
