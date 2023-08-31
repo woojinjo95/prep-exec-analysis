@@ -36,13 +36,6 @@ class CroppedInfo:
     video_path: str
     timestamps: List[float]
 
-
-# logger name
-class LogName(Enum):
-    COLOR_REFERENCE = 'color_reference'
-    FREEZE_DETECT = 'freeze_detect'
-    BOOT_TEST = 'boot_test'
-    LOG_PATTERN = 'log_pattern'
     
 # command for subscriber
 class Command(Enum):

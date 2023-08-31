@@ -193,11 +193,55 @@ services:
       - ./shell/app:/app
       - "adb-rsa:/root/.android"
 
-  analyzer:
-    container_name: analyzer
+  freeze:
+    container_name: freeze
     restart: always
     image: registry.dev-nextlab.com/qaas-analyzer:dev-0
-    command: python -u main.py
+    command: python -u main_freeze.py
+    build:
+      context: ./analyzer
+      dockerfile: dockerfile
+    volumes:
+      - ./data/workspace:/app/workspace
+
+  resume:
+    container_name: resume
+    restart: always
+    image: registry.dev-nextlab.com/qaas-analyzer:dev-0
+    command: python -u main_resume.py
+    build:
+      context: ./analyzer
+      dockerfile: dockerfile
+    volumes:
+      - ./data/workspace:/app/workspace
+
+  boot:
+    container_name: boot
+    restart: always
+    image: registry.dev-nextlab.com/qaas-analyzer:dev-0
+    command: python -u main_boot.py
+    build:
+      context: ./analyzer
+      dockerfile: dockerfile
+    volumes:
+      - ./data/workspace:/app/workspace
+
+  log-pattern:
+    container_name: log-pattern
+    restart: always
+    image: registry.dev-nextlab.com/qaas-analyzer:dev-0
+    command: python -u main_log_pattern.py
+    build:
+      context: ./analyzer
+      dockerfile: dockerfile
+    volumes:
+      - ./data/workspace:/app/workspace
+
+  color-reference:
+    container_name: color-reference
+    restart: always
+    image: registry.dev-nextlab.com/qaas-analyzer:dev-0
+    command: python -u main_color_reference.py
     build:
       context: ./analyzer
       dockerfile: dockerfile
@@ -216,6 +260,16 @@ services:
       - "/dev/video0:/dev/video0"
     volumes:
       - ./data/workspace:/app/workspace
+
+  state:
+    container_name: state
+    image: registry.dev-nextlab.com/qaas-state:dev-0
+    command: python -u process.py
+    build:
+      context: ./state
+      dockerfile: Dockerfile.dev.m32dev4
+    volumes:
+      - ./state/app:/app
 
 volumes:
   mongodb_data: {}

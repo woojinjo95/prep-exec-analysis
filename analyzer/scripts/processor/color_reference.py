@@ -7,13 +7,13 @@ from scripts.analysis.image import calc_color_entropy
 from scripts.config.config import get_setting_with_env
 from scripts.external.data import load_input
 from scripts.external.report import report_output
-from scripts.format import LogName, ReportName, Command
+from scripts.format import ReportName, Command
 from scripts.util._timezone import get_utc_datetime
 from scripts.util.decorator import log_decorator
 from scripts.util.video import FrameGenerator
 from scripts.connection.redis_pubsub import publish_msg
 
-logger = logging.getLogger(LogName.COLOR_REFERENCE.value)
+logger = logging.getLogger('main')
 
 
 @log_decorator(logger)
@@ -32,11 +32,11 @@ def test_color_reference():
                     'color_reference': color_entropy,
                 }) 
 
-        publish_msg({'measurement': [Command.COLOR_REFERENCE.value]}, 'analysis_response')
+        publish_msg({'measurement': Command.COLOR_REFERENCE.value}, 'analysis_response')
 
     except Exception as err:
         error_detail = traceback.format_exc()
-        publish_msg({'measurement': [Command.COLOR_REFERENCE.value], 'log': error_detail}, 'analysis_response', level='error')
+        publish_msg({'measurement': Command.COLOR_REFERENCE.value, 'log': error_detail}, 'analysis_response', level='error')
         logger.error(f"error in test_color_reference: {err}")
         logger.warning(error_detail)
 

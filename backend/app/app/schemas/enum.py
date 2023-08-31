@@ -69,6 +69,8 @@ class BlockTypeEnum(ExtendedEnum):
     shell = "shell"
     packet_control = "packet_control"
     packet_block = "packet_block"
+    monkey_test = "monkey_test"
+    intelligent_monkey_test = "intelligent_monkey_test"
 
 
 class LogModuleEnum(ExtendedEnum):

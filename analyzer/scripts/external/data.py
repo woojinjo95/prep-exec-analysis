@@ -1,4 +1,4 @@
-from typing import Dict, Tuple
+from typing import Dict
 import json
 import cv2
 import logging
@@ -7,18 +7,17 @@ import os
 from scripts.format import InputData
 from scripts.config.constant import RedisDB
 from scripts.connection.redis_conn import get_strict_redis_connection, parse_bytes_to_value
-from scripts.external.scenario import load_scenario
+from scripts.external.scenario import load_testrun
 
-logger = logging.getLogger('connection')
+logger = logging.getLogger('main')
 
 
 def load_data() -> Dict:
-    # scenario = load_scenario()
-    # # logger.info(f'scenario: {scenario}')
-    # video_path = scenario['testrun']['raw']['videos'][0]['path']
-    # stat_path = scenario['testrun']['raw']['videos'][0]['stat_path']
-    video_path = "/app/workspace/testruns/2023-08-14T054428F718593/raw/videos/video_2023-08-22T172921F075886+0900_1800.mp4"
-    stat_path = "/app/workspace/testruns/2023-08-14T054428F718593/raw/videos/video_2023-08-22T172921F075886+0900_1800.mp4_stat"
+    testrun = load_testrun()
+    video_path = str(testrun['raw']['videos'][0]['path'])
+    stat_path = str(testrun['raw']['videos'][0]['stat_path'])
+    video_path = video_path.replace('./data', '/app')
+    stat_path = stat_path.replace('./data', '/app')
     return {
         "video_path": video_path,
         "stat_path": stat_path,
