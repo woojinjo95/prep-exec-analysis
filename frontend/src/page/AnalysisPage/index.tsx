@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { PageContainer, Text } from '@global/ui'
 import { useScenarios } from '@global/api/hook'
-import AppURL from '@global/constant/appURL'
-import { scenarioIdState, videoBlobURLState } from '@global/atom'
+import { AppURL } from '@global/constant'
+import { scenarioIdState, testRunIdState, videoBlobURLState } from '@global/atom'
 
 import LogTraceSection from './components/LogTraceSection'
 import VideoDetailSection from './components/VideoDetailSection'
@@ -17,9 +17,10 @@ import apiUrls from './api/url'
  */
 const AnalysisPage: React.FC = () => {
   // FIXME: 시간 주입
-  const [startTime] = useState<Date>(new Date('2023-08-18T07:59:28.731511+00:00'))
-  const [endTime] = useState<Date>(new Date('2023-08-18T08:03:13.925471+00:00'))
+  const [startTime] = useState<Date>(new Date('2023-08-30T10:14:00.000+00:00'))
+  const [endTime] = useState<Date>(new Date('2023-08-30T10:16:00.000+00:00'))
   const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
   const setVideoBlobURL = useSetRecoilState(videoBlobURLState)
 
   useScenarios({
@@ -31,10 +32,10 @@ const AnalysisPage: React.FC = () => {
   })
 
   useEffect(() => {
-    if (!scenarioId) return
+    if (!scenarioId || !testRunId) return
 
     prefetchVideoFile(
-      `${AppURL.backendURL}${apiUrls.video}?scenario_id=${scenarioId}`,
+      `${AppURL.backendURL}${apiUrls.video}?scenario_id=${scenarioId}&testrun_id=${testRunId}`,
       (url) => {
         setVideoBlobURL(url)
       },

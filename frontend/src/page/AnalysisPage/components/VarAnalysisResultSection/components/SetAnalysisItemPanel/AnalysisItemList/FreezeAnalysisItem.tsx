@@ -115,7 +115,14 @@ const FreezeAnalysisItem: React.FC<FreezeAnalysisItemProps> = ({
             Duration
           </Text>
           <Input colorScheme="charcoal" placeholder="3" value={displayDuration} onChange={onChangeDuration} />
-          <Select colorScheme="charcoal" value={durationUnit}>
+          <Select
+            colorScheme="charcoal"
+            header={
+              <Text weight="bold" colorScheme="light">
+                {durationUnit}
+              </Text>
+            }
+          >
             {DurationUnits.map((unit) => (
               <OptionItem
                 colorScheme="charcoal"

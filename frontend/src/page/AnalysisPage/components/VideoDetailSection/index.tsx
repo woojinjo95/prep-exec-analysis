@@ -6,9 +6,9 @@ import { ReactComponent as PlayIcon } from '@assets/images/icon_play.svg'
 import { ReactComponent as StepForwardIcon } from '@assets/images/icon_step_forward_1sec_w.svg'
 import { ReactComponent as GoToLastIcon } from '@assets/images/icon_go_to_last_w.svg'
 import { ReactComponent as StopIcon } from '@assets/images/icon_stop.svg'
-import { Button, IconButton, Text } from '@global/ui'
-import { scenarioIdState } from '@global/atom'
-import AppURL from '@global/constant/appURL'
+import { IconButton, Text } from '@global/ui'
+import { scenarioIdState, testRunIdState } from '@global/atom'
+import { AppURL } from '@global/constant'
 import apiUrls from '@page/AnalysisPage/api/url'
 
 /**
@@ -17,6 +17,7 @@ import apiUrls from '@page/AnalysisPage/api/url'
 const VideoDetailSection: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
   const [isPlaying, setIsPlaying] = useState<boolean>(false)
   const [currentTime, setCurrentTime] = useState<number>(0)
   /**
@@ -93,11 +94,11 @@ const VideoDetailSection: React.FC = () => {
       </div>
 
       <div className="aspect-video">
-        {scenarioId && (
+        {scenarioId && testRunId && (
           <video
             ref={videoRef}
             className="h-full aspect-video"
-            src={`${AppURL.backendURL}${apiUrls.partial_video}?scenario_id=${scenarioId}`}
+            src={`${AppURL.backendURL}${apiUrls.partial_video}?scenario_id=${scenarioId}&testrun_id=${testRunId}`}
             muted
             controls
             loop={false}
@@ -115,11 +116,11 @@ const VideoDetailSection: React.FC = () => {
         )}
       </div>
 
-      {/* FIXME: 버튼의 의미(동영상 다운로드?) */}
+      {/* FIXME: 타임라인 tick 부분에서 시간 크롭, 결과 export 기능. MVP2 에서 개발 */}
       <div className="ml-auto mt-auto py-4 px-3">
-        <Button colorScheme="charcoal" className="w-[132px]">
+        {/* <Button colorScheme="charcoal" className="w-[132px]">
           Save
-        </Button>
+        </Button> */}
       </div>
     </section>
   )
