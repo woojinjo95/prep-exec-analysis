@@ -7,8 +7,8 @@ import numpy as np
 from scripts.analysis.image import find_roku_cursor
 from scripts.monkey.util import (get_current_image, check_cursor_is_same,
                                 exec_key, exec_keys, head_to_next, optimize_path,
-                                check_temporal_similar,
-                                FrameInfo)
+                                check_temporal_similar)
+from scripts.monkey.format import FrameInfo
 
 logger = logging.getLogger('monkey_test')
 
@@ -30,9 +30,9 @@ class IntelligentMonkeyTestRoku:
 
     ##### Entry Point #####
     def run(self):
-        self.set_root_keys(external_keys=['home'])
+        self.set_root_keyset(external_keys=['home'])
         if not self.root_cursor:
-            self.set_root_keys(external_keys=['home'])  # try one more
+            self.set_root_keyset(external_keys=['home'])  # try one more
 
         self.visit()
 
@@ -78,9 +78,9 @@ class IntelligentMonkeyTestRoku:
     def get_cursor(self) -> Tuple:
         return find_roku_cursor(get_current_image())
 
-    def set_root_keys(self, external_keys: List[str] = []):
+    def set_root_keyset(self, external_keys: List[str] = []):
         self.key_histories = external_keys
-        logger.info(f'root keys: {self.key_histories}')
+        logger.info(f'root keyset: {self.key_histories}')
 
         self.exec_keys(self.key_histories)
         self.root_cursor = self.get_cursor()
@@ -97,15 +97,16 @@ class IntelligentMonkeyTestRoku:
             
             return True if is_height_similar and not is_cursor_same else False
 
+    def append_key(self, key: str):
+        self.key_histories.append(key)
+        self.key_histories = optimize_path(self.key_histories)
+
+    ##### Re-Defined Functions #####
     def exec_key(self, key: str):
         exec_key(key, self.key_interval, self.profile)
 
     def exec_keys(self, keys: List[str]):
         exec_keys(keys, self.key_interval, self.profile)
-
-    def append_key(self, key: str):
-        self.key_histories.append(key)
-        self.key_histories = optimize_path(self.key_histories)
 
     def head_to_next(self):
         self.key_histories = head_to_next(self.key_histories, self.depth_key, self.breadth_key)

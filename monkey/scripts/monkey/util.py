@@ -110,10 +110,3 @@ def start_smart_sense(interval: float):
             prev_frame = frame
     th = threading.Thread(target=smart_sense)
     th.start()
-
-
-class FrameInfo:
-    def __init__(self, image: np.ndarray, cursor: Tuple[int, int, int, int]):
-        self.image = image
-        self.cursor = cursor
-    
