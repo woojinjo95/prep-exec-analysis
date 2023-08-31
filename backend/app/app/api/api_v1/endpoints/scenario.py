@@ -69,6 +69,7 @@ def update_scenario(
                                       'tags': scenario_in.tags,
                                       'block_group': jsonable_encoder(scenario_in.block_group)})
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Update a scenario.'}
 
@@ -93,6 +94,7 @@ def delete_scenario(
                                       'updated_at': get_utc_datetime(now),
                                       'name': str(now)})
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Delete a scenario.'}
 
@@ -119,6 +121,7 @@ def read_scenarios(
                                            sorting_keyword='name',
                                            param=param)
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return res
 
@@ -176,6 +179,7 @@ def create_scenario(
                                                     "scenario_id": scenario_id}))
 
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Create new scenario', 'id': scenario_id}
 
@@ -239,5 +243,6 @@ def copy_scenario(
                                                     "scenario_id": scenario_id}))
 
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Copy scenario', 'id': scenario_id}

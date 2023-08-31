@@ -48,6 +48,7 @@ def get_data_of_log_level_finder(
                                                              page=page,
                                                              page_size=page_size)
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return log_level_finder
 
@@ -81,6 +82,7 @@ def get_data_of_cpu(
                                                 page=page,
                                                 page_size=page_size)
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return cpu
 
@@ -114,6 +116,7 @@ def get_data_of_memory(
                                                    page=page,
                                                    page_size=page_size)
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return memory
 
@@ -148,6 +151,7 @@ def get_data_of_event_log(
                                                       page=page,
                                                       page_size=page_size)
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return event_log
 
@@ -180,6 +184,7 @@ def get_data_of_color_reference(
                                                             page=page,
                                                             page_size=page_size)
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return color_reference
 
@@ -213,6 +218,7 @@ def get_data_of_freeze(
                                                    page=page,
                                                    page_size=page_size)
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return freeze
 
@@ -248,6 +254,7 @@ def get_data_of_loudness(
                                                      page=page,
                                                      page_size=page_size)
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return loudness
 
@@ -280,6 +287,7 @@ def get_data_of_resume(
                                                                page=page,
                                                                page_size=page_size)
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return measurement_resume
 
@@ -312,6 +320,7 @@ def get_data_of_boot(
                                                              page=page,
                                                              page_size=page_size)
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return measurement_boot
 
@@ -351,6 +360,7 @@ def get_data_of_log_pattern_matching(
                                                                  page=page,
                                                                  page_size=page_size)
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return log_pattern_matching
 
@@ -375,6 +385,7 @@ def get_data_of_process_lifecycle(
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
         process_lifecycle = load_from_mongodb()
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {"items": process_lifecycle}
 
@@ -399,5 +410,6 @@ def get_data_of_network_filter(
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
         network_filter = load_from_mongodb()
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {"items": network_filter}
