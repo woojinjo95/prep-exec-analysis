@@ -35,6 +35,9 @@ class IntelligentMonkeyTestRoku:
     ##### Entry Point #####
     def run(self):
         self.set_root_keys(external_keys=['home'])
+        if not self.root_cursor:
+            self.set_root_keys(external_keys=['home'])  # try one more
+
         self.visit()
 
     ##### Visit #####
@@ -77,10 +80,10 @@ class IntelligentMonkeyTestRoku:
 
     ##### Re-Defined Functions #####
     def exec_key(self, key: str):
-        exec_key(self.profile, key, self.key_interval)
+        exec_key(key, self.key_interval, self.profile)
 
     def exec_keys(self, keys: List[str]):
-        exec_keys(keys, self.profile, self.key_interval)
+        exec_keys(keys, self.key_interval, self.profile)
 
     def append_key(self, key: str):
         self.key_histories.append(key)

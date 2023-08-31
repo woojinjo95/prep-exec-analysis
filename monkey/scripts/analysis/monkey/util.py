@@ -25,7 +25,7 @@ def get_current_image() -> np.ndarray:
 
 
 # 키 입력
-def exec_key(profile: str, key: str, key_interval: float):
+def exec_key(key: str, key_interval: float, profile: str):
     publish_remocon_msg(profile, key, sleep=key_interval)
 
 

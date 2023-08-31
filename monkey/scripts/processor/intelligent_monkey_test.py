@@ -42,4 +42,12 @@ def test_intelligent_monkey():
 
 
 def get_arguments() -> Dict:
-    return get_all('monkey_test_arguments')
+    # return get_all('monkey_test_arguments')
+    # DUMMY
+    return {
+        'profile': 'roku',
+        'interval': 1.3,
+        'duration_per_menu': 3,
+        'enable_smart_sense': True,
+        'waiting_time': 5
+    }
