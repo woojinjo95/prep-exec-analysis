@@ -103,3 +103,4 @@ def save_image(name: str, image: np.ndarray) -> str:
     os.makedirs(save_dir, exist_ok=True)
     image_path = os.path.join(save_dir, f'{name}.png')
     cv2.imwrite(image_path, image)
+    return image_path
