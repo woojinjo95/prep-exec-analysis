@@ -93,6 +93,7 @@ class Loudness(PaginationBaseModel):
 
 
 class MeasurementBootBase(TimestampBaseModel):
+    target: str
     measure_time: int
 
 
