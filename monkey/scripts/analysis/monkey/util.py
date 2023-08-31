@@ -63,14 +63,14 @@ def optimize_path(path: List[str]) -> List[str]:
 
 
 # 다음 노드로 route를 변경
-def head_to_next(key_histories: List[str], depth_key: str) -> List[str]:
+def head_to_next(key_histories: List[str], depth_key: str, breadth_key: str) -> List[str]:
     try:
         while True:
-            if key_histories[-1] == 'down':
+            if key_histories[-1] == breadth_key:
                 key_histories.pop()
             elif key_histories[-1] == depth_key:
                 key_histories.pop()
-                key_histories.append('down')
+                key_histories.append(breadth_key)
                 return key_histories
             else:
                 logger.warning(f'key_histories: {key_histories}')

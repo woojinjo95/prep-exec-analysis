@@ -7,6 +7,7 @@ import numpy as np
 from scripts.analysis.image import find_roku_cursor
 from scripts.analysis.monkey.util import (get_current_image, check_cursor_is_same,
                                           exec_key, exec_keys, head_to_next, optimize_path,
+                                          check_temporal_similar,
                                           FrameInfo)
 
 logger = logging.getLogger('monkey_test')
@@ -24,6 +25,7 @@ class IntelligentMonkeyTestRoku:
         # init variables
         self.profile = 'roku'
         self.depth_key = 'right'
+        self.breadth_key = 'down'
         self.key_histories = []
 
     ##### Entry Point #####
@@ -40,10 +42,13 @@ class IntelligentMonkeyTestRoku:
         last_fi = None
 
         while True:
-            self.exec_keys(self.key_histories)  # TODO: exit이랑 menu의 경우 interval이 다를 수 있어서, key,interval 형식으로 저장 필요
+            self.exec_keys(self.key_histories)
 
+            # check smart sense
+            # check_temporal_similar(get_current_image(), last_fi.image)
+
+            # check current depth end
             image, cursor = get_current_image(), self.get_cursor()
-
             if last_fi and check_cursor_is_same(last_fi.image, last_fi.cursor, image, cursor):
                 logger.info('cursor does not same.')
                 try:
@@ -55,21 +60,23 @@ class IntelligentMonkeyTestRoku:
                 except IndexError as err:
                     logger.info(f'visit done. {self.key_histories}. {err}')
                     return
-                
-            logger.info('start right menu check.')
+            
+            # check next node exists
+            logger.info('start next node check.')
             image = get_current_image()
             cursor = self.get_cursor()
             fi = FrameInfo(image, cursor)
             self.exec_key(self.depth_key)
             if self.check_leftmenu_is_opened(image, cursor, get_current_image(), self.get_cursor()):
-                logger.info('right menu exists.')
+                logger.info('next node exists.')
                 self.append_key(self.depth_key)
             else:
-                logger.info('right menu does not exist.')
-                candidates.append([*self.key_histories, self.depth_key])
-                logger.info(f'candidates: {len(candidates)}')
-                self.append_key('down')
-                # 이미 위에서 right이 불가능하다고 판단하였으므로, 다음 시점에 down도 불가능하다면 이것은 leaf node일 것이므로, 현재 cursor를 저장해두기
+                logger.info('next node does not exist.')
+                # candidates.append([*self.key_histories, self.depth_key])
+                # logger.info(f'candidates: {len(candidates)}')
+                ### start test ###
+                self.append_key(self.breadth_key)
+                # 이미 위에서 다음 node가 불가능하다고 판단하였으므로, 다음 시점에 breadth_key도 불가능하다면 이것은 leaf node일 것이므로, 현재 cursor를 저장해두기
                 last_fi = fi
 
     ##### Functions #####
@@ -107,4 +114,4 @@ class IntelligentMonkeyTestRoku:
         self.key_histories = optimize_path(self.key_histories)
 
     def head_to_next(self):
-        self.key_histories = head_to_next(self.key_histories, self.depth_key)
+        self.key_histories = head_to_next(self.key_histories, self.depth_key, self.breadth_key)
