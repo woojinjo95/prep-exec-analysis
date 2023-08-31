@@ -50,7 +50,7 @@ def get_arguments() -> Dict:
     return {
         'profile': 'roku',
         'interval': 1.3,
-        'duration_per_menu': 60,
+        'duration_per_menu': 30,
         'enable_smart_sense': True,
         'waiting_time': 3
     }
