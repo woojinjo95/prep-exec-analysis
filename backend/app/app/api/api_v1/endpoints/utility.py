@@ -48,14 +48,6 @@ def serialize_datetime(obj):
     raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
 
 
-def add_directory_to_zip(directory_path, zipf, root_folder_name):
-    for root, _, files in os.walk(directory_path):
-        for file in files:
-            file_path = os.path.join(root, file)
-            relative_path = os.path.relpath(file_path, directory_path)
-            zipf.write(file_path, os.path.join(root_folder_name, relative_path))
-
-
 @router.get("/export_result")
 async def export_result(
     scenario_id: Optional[str] = None,
@@ -80,12 +72,12 @@ async def export_result(
         with zipfile.ZipFile(zip_buffer, "w") as zipf:
             # file
             for file_type in export_item['file']:
-                path = f"{RedisClient.hget('testrun', 'workspace_path').replace(settings.CONTAINER_PATH, settings.HOST_PATH)}/{testrun_id}/raw/{file_type}"
+                path = f"{RedisClient.hget('testrun', 'workspace_path')}/{testrun_id}/raw/{file_type}"
                 for root, _, files in os.walk(path):
                     for file in files:
                         file_path = os.path.join(root, file)
                         relative_path = os.path.relpath(file_path, path)
-                        zipf.write(file_path, os.path.join(testrun_id, 'raw', file_type, relative_path))
+                        zipf.write(file_path, os.path.join(f'raw/{testrun_id}', 'raw', file_type, relative_path))
 
             # redis
             for redis_key in export_item['redis']:
@@ -108,6 +100,7 @@ async def export_result(
         zip_buffer.seek(0)
         headers = {"Content-Disposition": f"attachment; filename=results_{datetime.today().strftime('%Y-%m-%dT%H%M%SF%f')}.zip"}
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return Response(content=zip_buffer.read(), headers=headers, media_type="application/zip")
 
@@ -115,15 +108,40 @@ async def export_result(
 @router.post("/import_result", response_model=schemas.Msg)
 async def import_result(file: UploadFile = File(...)) -> schemas.Msg:
     try:
+        import_type = {
+            'file': ['raw'],
+            'redis': ['analysis_config'],
+            'mongodb': ['scenario', 'stb_log'],
+        }
         zip_data = await file.read()
         with zipfile.ZipFile(io.BytesIO(zip_data), "r") as zipf:
-            for filename in zipf.namelist():
-                collection_name = os.path.dirname(filename)
-                delete_many_to_mongodb(collection_name)
+            name_list = zipf.namelist()
+            if any(item.startswith('analysis_config/') for item in name_list):
+                pattern = 'analysis_config:*'
+                keys_to_delete = list(RedisClient.keys(pattern))
+                if keys_to_delete:
+                    RedisClient.delete(*keys_to_delete)
 
-                file_data = zipf.read(filename).decode("utf-8")
-                document = json.loads(file_data)
-                insert_one_to_mongodb(collection_name, document)
+            for filename in name_list:
+                file_info = filename.split('/')
+                _type = next((key for key, values in import_type.items() if file_info[0] in values), None)
+                # file
+                if _type == 'file':
+                    pass
+
+                if _type in ['redis', 'mongodb']:
+                    file_data = zipf.read(filename).decode("utf-8")
+                    # redis
+                    if _type == 'redis':
+                        for k, v in json.loads(file_data).items():
+                            RedisClient.hset(f'analysis_config:{file_info[1].split(".")[0]}', k, v)
+
+                    # mongodb
+                    if _type == 'mongodb':
+                        collection_name = os.path.dirname(filename)
+                        document = json.loads(file_data)
+                        insert_one_to_mongodb(collection_name, document)
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': f"Data from {file.filename} uploaded and restored to corresponding collections"}
