@@ -24,7 +24,6 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
   const [blocksName, setBlocksName] = useState<string>('')
   const [blocksTags, setBlocksTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState<string>('')
-  // const [searchedTags, setSearchedTags] = useState<string[] | null>(null)
 
   const { data, hasNextPage, isFetching, fetchNextPage } = useFetchScenarios(PAGE_SIZE_TWENTY)
 
@@ -81,10 +80,12 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
   }, [])
 
   const searchedTags = useMemo(() => {
-    if (!tags) return null
-    if (tagInput === '') return null
+    if (!tags || !currentScenario) return null
+    // if (tagInput === '') return null
 
-    return tags.filter((tag) => tagInput !== '' && tag.includes(tagInput))
+    return tags.filter(
+      (tag) => tag.includes(tagInput) && currentScenario.tags.find((_tag) => _tag === tag) === undefined,
+    )
   }, [tagInput, tags])
 
   if (!(tags && currentScenario && scenarios)) return <div />
@@ -136,13 +137,13 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
               </div>
             }
           >
-            <span>test</span>
             {searchedTags &&
               searchedTags.map((tag) => {
                 return (
                   <TagItem colorScheme="charcoal" tag={tag} key={`scenario_${currentScenario.id}_tag_item_${tag}`} />
                 )
               })}
+            {/* {tagInput !== '' && <></>} */}
           </Select>
         </div>
         <div className="mt-5 flex flex-col w-full min-h-[520px]">
