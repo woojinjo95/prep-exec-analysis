@@ -24,12 +24,6 @@ class IntelligentMonkeyTestRoku:
         # init variables
         self.profile = 'roku'
         self.depth_key = 'right'
-        self.inverse_keys = {
-            'up': 'down',
-            'down': 'up',
-            'left': 'right',
-            'right': 'left'
-        }
         self.key_histories = []
 
     ##### Entry Point #####
@@ -78,20 +72,6 @@ class IntelligentMonkeyTestRoku:
                 # 이미 위에서 right이 불가능하다고 판단하였으므로, 다음 시점에 down도 불가능하다면 이것은 leaf node일 것이므로, 현재 cursor를 저장해두기
                 last_fi = fi
 
-    ##### Re-Defined Functions #####
-    def exec_key(self, key: str):
-        exec_key(key, self.key_interval, self.profile)
-
-    def exec_keys(self, keys: List[str]):
-        exec_keys(keys, self.key_interval, self.profile)
-
-    def append_key(self, key: str):
-        self.key_histories.append(key)
-        self.key_histories = optimize_path(self.key_histories)
-
-    def head_to_next(self):
-        self.key_histories = head_to_next(self.key_histories, self.depth_key)
-
     ##### Functions #####
     def get_cursor(self) -> Tuple:
         return find_roku_cursor(get_current_image())
@@ -114,3 +94,17 @@ class IntelligentMonkeyTestRoku:
             is_cursor_same = check_cursor_is_same(prev_image, prev_cursor, image, cursor)
             
             return True if is_height_similar and not is_cursor_same else False
+
+    ##### Re-Defined Functions #####
+    def exec_key(self, key: str):
+        exec_key(key, self.key_interval, self.profile)
+
+    def exec_keys(self, keys: List[str]):
+        exec_keys(keys, self.key_interval, self.profile)
+
+    def append_key(self, key: str):
+        self.key_histories.append(key)
+        self.key_histories = optimize_path(self.key_histories)
+
+    def head_to_next(self):
+        self.key_histories = head_to_next(self.key_histories, self.depth_key)
