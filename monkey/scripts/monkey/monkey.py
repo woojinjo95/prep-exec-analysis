@@ -34,7 +34,7 @@ class Monkey:
         self.smart_sense_stop_event = threading.Event()
 
     def run(self):
-        logger.info('start monkey')
+        logger.info('Start Monkey')
         self.main_stop_event.clear()
         start_time = time.time()
 
@@ -51,7 +51,7 @@ class Monkey:
                     self.go_to_root()
                     self.start_smart_sense()
 
-        logger.info('stop monkey')
+        logger.info('Stop Monkey')
 
     def stop(self):
         self.main_stop_event.set()
