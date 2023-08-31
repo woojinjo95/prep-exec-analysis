@@ -44,9 +44,6 @@ class IntelligentMonkeyTestRoku:
         while True:
             self.exec_keys(self.key_histories)
 
-            # check smart sense
-            # check_temporal_similar(get_current_image(), last_fi.image)
-
             # check current depth end
             image, cursor = get_current_image(), self.get_cursor()
             if last_fi and check_cursor_is_same(last_fi.image, last_fi.cursor, image, cursor):

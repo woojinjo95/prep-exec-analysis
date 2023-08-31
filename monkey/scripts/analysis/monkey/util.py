@@ -2,6 +2,8 @@ import cv2
 import numpy as np
 from typing import Tuple, List
 import logging
+import threading
+import time
 
 from scripts.control.image import get_snapshot
 from scripts.control.remocon import publish_remocon_msg
@@ -94,6 +96,20 @@ def check_temporal_similar(prev_image: np.ndarray, image: np.ndarray, min_color_
     # logger.info(f'check temporal similar. diff_rate: {diff_rate:.6f}, diff_thld: {diff_thld:.6f}')
     return diff_rate < diff_thld
 
+
+def start_smart_sense(interval: float):
+    def smart_sense():
+        prev_frame = None
+        while True:
+            time.sleep(interval)
+            frame = get_current_image()
+            if prev_frame is not None:
+                if check_temporal_similar(prev_frame, frame):
+                    logger.info(f'smart sense is detected.')
+
+            prev_frame = frame
+    th = threading.Thread(target=smart_sense)
+    th.start()
 
 
 class FrameInfo:
