@@ -6,7 +6,7 @@ import time
 from scripts.monkey.util import exec_keys, get_current_image, check_temporal_similar
 from scripts.external.report import report_data
 
-logger = logging.getLogger('monkey_test')
+logger = logging.getLogger('monkey_class')
 
 class Monkey:
     def __init__(self, duration: float, 

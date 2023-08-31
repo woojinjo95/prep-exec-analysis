@@ -4,7 +4,7 @@ from scripts.log_service.log_organizer import LogOrganizer
 
 
 log_organizer = LogOrganizer(name='monkey')
-log_organizer.set_stream_logger('monkey_test')
+log_organizer.set_stream_logger('monkey_class')
 
 logger = logging.getLogger('monkey_test')
 
