@@ -13,13 +13,20 @@ class TimestampBaseModel(BaseModel):
         if "timestamp" in values:
             values["timestamp"] = parse_datetime(values["timestamp"]).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
         return values
+    
+
+class PaginationBaseModel(BaseModel):
+    total: int = 0
+    pages: int = None
+    prev: int = None
+    next: int = None
 
 
 class LogLevelFinderBase(TimestampBaseModel):
     log_level: LogLevelEnum
 
 
-class LogLevelFinder(BaseModel):
+class LogLevelFinder(PaginationBaseModel):
     items: List[LogLevelFinderBase]
 
 
@@ -33,7 +40,7 @@ class CpuBase(TimestampBaseModel):
     softirq: str
 
 
-class Cpu(BaseModel):
+class Cpu(PaginationBaseModel):
     items: List[CpuBase]
 
 
@@ -45,7 +52,7 @@ class MemoryBase(TimestampBaseModel):
     lost_ram: str
 
 
-class Memory(BaseModel):
+class Memory(PaginationBaseModel):
     items: List[MemoryBase]
 
 
@@ -55,7 +62,7 @@ class EventLogBase(TimestampBaseModel):
     data: dict
 
 
-class EventLog(BaseModel):
+class EventLog(PaginationBaseModel):
     items: List[EventLogBase]
 
 
@@ -63,7 +70,7 @@ class ColorReferenceBase(TimestampBaseModel):
     color_reference: float
 
 
-class ColorReference(BaseModel):
+class ColorReference(PaginationBaseModel):
     items: List[ColorReferenceBase]
 
 
@@ -72,7 +79,7 @@ class FreezeBase(TimestampBaseModel):
     duration: float
 
 
-class Freeze(BaseModel):
+class Freeze(PaginationBaseModel):
     items: List[FreezeBase]
 
 
@@ -81,7 +88,7 @@ class LoudnessBase(TimestampBaseModel):
     # i: float # Integrated LKFS
 
 
-class Loudness(BaseModel):
+class Loudness(PaginationBaseModel):
     items: List[LoudnessBase]
 
 
@@ -89,17 +96,19 @@ class MeasurementBootBase(TimestampBaseModel):
     measure_time: int
 
 
-class MeasurementBoot(BaseModel):
+class MeasurementBoot(PaginationBaseModel):
     items: List[MeasurementBootBase]
 
 
 class LogPatternMatchingBase(TimestampBaseModel):
     log_pattern_name: str
     log_level: str
+    color: str
+    regex: str
     message: str
 
 
-class LogPatternMatching(BaseModel):
+class LogPatternMatching(PaginationBaseModel):
     items: List[LogPatternMatchingBase]
 
 
