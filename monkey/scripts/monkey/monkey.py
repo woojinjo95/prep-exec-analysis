@@ -22,10 +22,12 @@ class Monkey:
         self.waiting_time = waiting_time
         self.report_data = report_data
 
+        self.smart_sense_detected = False
         self.main_stop_event = threading.Event()
         self.smart_sense_stop_event = threading.Event()
 
     def run(self):
+        self.main_stop_event.clear()
         start_time = time.time()
         self.go_to_root()
 
@@ -70,9 +72,11 @@ class Monkey:
         self.smart_sense_stop_event.clear()
         th = threading.Thread(target=self.smart_sense)
         th.start()
+        logger.info('start smart sense')
 
     def stop_smart_sense(self):
         self.smart_sense_stop_event.set()
+        logger.info('stop smart sense')
 
     def report_smart_sense(self):
         report_smart_sense(SmartSenseData(
