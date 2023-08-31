@@ -1,6 +1,6 @@
 
 import logging
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 import time
 
 import numpy as np
@@ -18,10 +18,11 @@ logger = logging.getLogger('monkey_test')
 
 
 class IntelligentMonkeyTestRoku:
-    def __init__(self, key_interval: float, monkey_args: MonkeyArgs):
+    def __init__(self, key_interval: float, monkey_args: MonkeyArgs, user_config: Dict):
         # set arguments
         self.key_interval = key_interval
         self.monkey_args = monkey_args
+        self.user_config = user_config  # for reporting
 
         # init variables
         self.analysis_type = 'intelligent_monkey'
@@ -145,6 +146,7 @@ class IntelligentMonkeyTestRoku:
             'section_id': self.section_id,
             'image_path': image_path,
             'smart_sense_times': smart_sense_times,
+            'user_config': self.user_config
         })
 
     ##### Re-Defined Functions #####

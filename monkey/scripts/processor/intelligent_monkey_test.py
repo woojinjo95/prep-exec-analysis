@@ -27,7 +27,8 @@ def test_intelligent_monkey():
                     duration_per_menu=arguments['duration_per_menu'],
                     enable_smart_sense=arguments['enable_smart_sense'],
                     waiting_time=arguments['waiting_time']
-                )
+                ),
+                user_config=arguments
             )
             imt.run()
         elif profile == 'sk':
