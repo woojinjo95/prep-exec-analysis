@@ -8,7 +8,12 @@ from scripts.external.report import report_data
 
 logger = logging.getLogger('monkey_class')
 
+
 class Monkey:
+    """_summary_
+    press random keys for duration seconds.
+    if smart sense is detected, go to root.
+    """
     def __init__(self, duration: float, 
                  key_candidates: List[str], root_keyset: List[str], 
                  key_interval: float, profile: str,
