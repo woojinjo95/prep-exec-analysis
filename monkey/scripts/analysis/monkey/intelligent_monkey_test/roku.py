@@ -5,8 +5,8 @@ import logging
 import numpy as np
 
 from scripts.analysis.image import find_roku_cursor
-from scripts.analysis.monkey.util import (get_current_image, check_cursor_is_same, optimize_path, 
-                                          exec_key, exec_keys,
+from scripts.analysis.monkey.util import (get_current_image, check_cursor_is_same,
+                                          exec_key, exec_keys, head_to_next, append_key,
                                           FrameInfo)
 
 logger = logging.getLogger('monkey_test')
@@ -37,41 +37,7 @@ class IntelligentMonkeyTestRoku:
         self.set_root_keys(external_keys=['home'])
         self.visit()
 
-    def exec_key(self, key: str):
-        exec_key(self.profile, key, self.key_interval)
-
-    def exec_keys(self, keys: List[str]):
-        exec_keys(keys, self.profile, self.key_interval)
-
-    # 최초 루트 영역으로 이동
-    def set_root_keys(self, external_keys: List[str] = []):
-        self.key_histories = external_keys
-        logger.info(f'root keys: {self.key_histories}')
-
-        self.exec_keys(self.key_histories)
-        self.root_cursor = self.get_cursor()
-        logger.info(f'root cursor: {self.root_cursor}')
-
-    def head_to_next(self):
-        try:
-            while True:
-                if self.key_histories[-1] == 'down':
-                    self.key_histories.pop()
-                elif self.key_histories[-1] == self.depth_key:
-                    self.key_histories.pop()
-                    self.append_key('down')
-                    break
-                else:
-                    logger.warning(f'key_histories: {self.key_histories}')
-                    raise ValueError('key_histories is invalid.')
-        except IndexError:
-            logger.warning(f'key_histories: {self.key_histories}')
-            raise IndexError('key_histories is empty.')
-        
-    def append_key(self, key: str):
-        self.key_histories.append(key)
-        self.key_histories = optimize_path(self.key_histories)
-
+    ##### Visit #####
     def visit(self):
         candidates = []
         last_fi = None
@@ -109,8 +75,30 @@ class IntelligentMonkeyTestRoku:
                 # 이미 위에서 right이 불가능하다고 판단하였으므로, 다음 시점에 down도 불가능하다면 이것은 leaf node일 것이므로, 현재 cursor를 저장해두기
                 last_fi = fi
 
+    ##### Re-Defined Functions #####
+    def exec_key(self, key: str):
+        exec_key(self.profile, key, self.key_interval)
+
+    def exec_keys(self, keys: List[str]):
+        exec_keys(keys, self.profile, self.key_interval)
+
+    def append_key(self, key: str):
+        append_key(self.key_histories, key)
+
+    def head_to_next(self):
+        head_to_next(self.key_histories, self.depth_key)
+
+    ##### Functions #####
     def get_cursor(self) -> Tuple:
         return find_roku_cursor(get_current_image())
+
+    def set_root_keys(self, external_keys: List[str] = []):
+        self.key_histories = external_keys
+        logger.info(f'root keys: {self.key_histories}')
+
+        self.exec_keys(self.key_histories)
+        self.root_cursor = self.get_cursor()
+        logger.info(f'root cursor: {self.root_cursor}')
 
     def check_leftmenu_is_opened(self, prev_image: np.ndarray, prev_cursor: Tuple, image: np.ndarray, cursor: Tuple, max_height_diff: int=10) -> bool:
         if cursor is None:

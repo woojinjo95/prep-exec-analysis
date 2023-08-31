@@ -64,6 +64,28 @@ def optimize_path(path: List[str]) -> List[str]:
     return stack
 
 
+def head_to_next(key_histories: List[str], depth_key: str):
+    try:
+        while True:
+            if key_histories[-1] == 'down':
+                key_histories.pop()
+            elif key_histories[-1] == depth_key:
+                key_histories.pop()
+                append_key(key_histories, 'down')
+                break
+            else:
+                logger.warning(f'key_histories: {key_histories}')
+                raise ValueError('key_histories is invalid.')
+    except IndexError:
+        logger.warning(f'key_histories: {key_histories}')
+        raise IndexError('key_histories is empty.')
+
+
+def append_key(key_histories: List[str], key: str):
+    key_histories.append(key)
+    key_histories = optimize_path(key_histories)
+
+
 class FrameInfo:
     def __init__(self, image: np.ndarray, cursor: Tuple[int, int, int, int]):
         self.image = image
