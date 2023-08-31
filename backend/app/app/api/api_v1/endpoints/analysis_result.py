@@ -3,7 +3,8 @@ import traceback
 from typing import Optional
 
 from app import schemas
-from app.api.utility import convert_iso_format, parse_bytes_to_value
+from app.api.utility import (convert_iso_format, parse_bytes_to_value,
+                             paginate_from_mongodb_aggregation)
 from app.crud.base import aggregate_from_mongodb, load_from_mongodb
 from app.db.redis_session import RedisClient
 from fastapi import APIRouter, HTTPException, Query
@@ -183,23 +184,10 @@ def get_data_of_freeze(
                                        'scenario_id': scenario_id,
                                        'testrun_id': testrun_id}},
                            {'$project': {'_id': 0, 'timestamp': 1, 'freeze_type': 1, 'duration': 1}}]
-        if page and page_size:
-            skip_num = (page - 1) * page_size
-            paging_pipeline = [{'$facet': {'page_info': [{'$count': 'total'}],
-                                           'items': [{'$skip': skip_num},
-                                                     {'$limit': page_size}]}},
-                               {'$project': {'total': {'$arrayElemAt': ['$page_info.total', 0]}, 
-                                             'pages': {'$ceil': {'$divide': [{'$arrayElemAt': ['$page_info.total', 0]}, page_size]}},
-                                             'items': 1}},
-                               {'$addFields': {'prev': {'$cond':[{'$eq': [page, 1]}, None, {'$subtract': [page, 1]}]},
-                                               'next': {'$cond':[{'$gt': ['$pages', page]}, {'$add': [page, 1]}, None]}}}]
-            freeze_pipeline.extend(paging_pipeline)
-        freeze = aggregate_from_mongodb(col="an_freeze", pipeline=freeze_pipeline)
-        if page is None:
-            return {'total': len(freeze), 'pages': None, 'prev': None, 'next': None, 'items': freeze}
+        result = paginate_from_mongodb_aggregation(col='an_freeze', pipeline=freeze_pipeline, page=page, page_size=page_size)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return freeze[0]
+    return result
 
 
 # Loudness

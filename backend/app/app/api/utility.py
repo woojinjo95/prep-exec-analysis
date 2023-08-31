@@ -6,7 +6,8 @@ from ast import literal_eval
 from datetime import datetime
 
 from app.core.config import settings
-from app.crud.base import load_from_mongodb, load_paginate_from_mongodb
+from app.crud.base import (load_from_mongodb, load_paginate_from_mongodb,
+                           aggregate_from_mongodb)
 
 
 def convert_pageset(page_param, res):
@@ -104,3 +105,22 @@ def convert_iso_format(input_str: str):
 def set_ilike(param):
     item = param.replace("(", "\\(").replace(")", "\\)")
     return {'$regex': item, '$options': 'i'}
+
+
+def paginate_from_mongodb_aggregation(col: str, pipeline: list, page: int, page_size: int):
+    if page:
+        skip_num = (page - 1) * page_size
+        paging_pipeline = [{'$facet': {'page_info': [{'$count': 'total'}],
+                                       'items': [{'$skip': skip_num},
+                                                 {'$limit': page_size}]}},
+                           {'$project': {'total': {'$arrayElemAt': ['$page_info.total', 0]},
+                                         'pages': {'$ceil': {'$divide': [{'$arrayElemAt': ['$page_info.total', 0]}, page_size]}},
+                                         'items': 1}},
+                           {'$addFields': {'prev': {'$cond': [{'$eq': [page, 1]}, None, {'$subtract': [page, 1]}]},
+                                           'next': {'$cond': [{'$gt': ['$pages', page]}, {'$add': [page, 1]}, None]}}}]
+        pipeline.extend(paging_pipeline)
+    result = aggregate_from_mongodb(col=col, pipeline=pipeline)
+    if page:
+        return result[0]
+    else:
+        return {'total': len(result), 'pages': None, 'prev': None, 'next': None, 'items': result}
