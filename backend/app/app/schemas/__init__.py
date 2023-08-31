@@ -18,4 +18,4 @@ from .scenario import (CopyScenarioCreate, Scenario, ScenarioCreate,
                        ScenarioUpdate)
 from .shell import Shell, ShellList, ShellLogList
 from .trace import ReadLogcat, ReadNetwork
-from .utility import LogConnectionStatus, ServiceState, Timezone
+from .utility import LogConnectionStatus, ServiceState, Timezone, VideoTimestamp
