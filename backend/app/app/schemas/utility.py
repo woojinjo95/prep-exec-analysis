@@ -21,3 +21,12 @@ class LogConnectionStatusBase(BaseModel):
 
 class LogConnectionStatus(BaseModel):
     items: LogConnectionStatusBase
+
+
+class VideoTimestampBase(BaseModel):
+    start_time: str
+    end_time: str
+
+
+class VideoTimestamp(BaseModel):
+    items: VideoTimestampBase
