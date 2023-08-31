@@ -14,12 +14,16 @@ logger = logging.getLogger('monkey_test')
 
 
 class IntelligentMonkeyTest:
-    def __init__(self, company: str, key_interval: float):
-        # set init variables
-        self.company = company
+    def __init__(self, profile: str, key_interval: float, duration_per_menu: float,
+                 enable_smart_sense: bool, waiting_time: float):
+        # set arguments
+        self.profile = profile
         self.key_interval = key_interval
+        self.duration_per_menu = duration_per_menu
+        self.enable_smart_sense = enable_smart_sense
+        self.waiting_time = waiting_time
 
-        # init immutable variables
+        # init variables
         self.depth_key = 'right'
         self.inverse_keys = {
             'up': 'down',
@@ -27,13 +31,10 @@ class IntelligentMonkeyTest:
             'left': 'right',
             'right': 'left'
         }
+        self.key_histories = []
 
     ##### Entry Point #####
     def run(self):
-        # init mutable variables
-        self.key_histories = []
-
-        # init
         self.set_root_keys(external_keys=['home'])
         self.visit()
 
@@ -41,7 +42,7 @@ class IntelligentMonkeyTest:
         return get_snapshot()
 
     def exec_key(self, key: str, save_history: bool = False):
-        publish_remocon_msg(self.company, key, sleep=self.key_interval)
+        publish_remocon_msg(self.profile, key, sleep=self.key_interval)
         time.sleep(self.key_interval)
         if save_history:
             self.key_histories.append(key)
@@ -50,7 +51,7 @@ class IntelligentMonkeyTest:
         logger.info(f'exec_keys: {keys}')
         for key in keys:
             self.exec_key(key, *args, **kwargs)
-        time.sleep(3)
+        # time.sleep(3)
 
 
 
