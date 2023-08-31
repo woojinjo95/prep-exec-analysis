@@ -9,24 +9,26 @@ from scripts.monkey.util import (get_current_image, check_cursor_is_same,
                                 exec_keys, head_to_next, optimize_path)
 from scripts.analysis.image import find_roku_cursor
 from scripts.monkey.monkey import Monkey
+from scripts.monkey.format import SmartSenseArgs
 
 logger = logging.getLogger('monkey_test')
 
 
 class IntelligentMonkeyTestRoku:
     def __init__(self, key_interval: float, duration_per_menu: float,
-                 enable_smart_sense: bool, waiting_time: float):
+                 smart_sense_args: SmartSenseArgs):
         # set arguments
         self.key_interval = key_interval
         self.duration_per_menu = duration_per_menu
-        self.enable_smart_sense = enable_smart_sense
-        self.waiting_time = waiting_time
+        self.smart_sense_args = smart_sense_args
 
         # init variables
+        self.analysis_type = 'intelligent_monkey'
         self.profile = 'roku'
         self.depth_key = 'right'
         self.breadth_key = 'down'
         self.key_histories = []
+        self.section_id = 0
 
     ##### Entry Point #####
     def run(self):
@@ -66,11 +68,12 @@ class IntelligentMonkeyTestRoku:
                 self.append_key(self.depth_key)
             else:
                 logger.info('next node does not exist.')
-                candidates = [*self.key_histories, self.depth_key]
-                logger.info(f'candidates: {candidates}')
+                current_node = [*self.key_histories, self.depth_key]
+                logger.info(f'current_node: {current_node}')
 
-                self.start_monkey()
+                self.start_monkey(current_node)
 
+                self.section_id += 1
                 self.append_key(self.breadth_key)
             last_fi = fi
 
@@ -101,8 +104,21 @@ class IntelligentMonkeyTestRoku:
         self.key_histories.append(key)
         self.key_histories = optimize_path(self.key_histories)
 
-    def start_monkey(self):
-        pass
+    def start_monkey(self, current_node: List[str]):
+        monkey = Monkey(
+            duration=self.duration_per_menu,
+            key_candidates=['right', 'up', 'down', 'ok'],
+            root_key_set=current_node,
+            key_interval=self.key_interval,
+            profile=self.profile,
+            enable_smart_sense=self.smart_sense_args.enable_smart_sense,
+            waiting_time=self.smart_sense_args.waiting_time,
+            report_data={
+                'analysis_type': self.analysis_type,
+                'section_id': self.section_id,
+            }
+        )
+        monkey.run()
 
     ##### Re-Defined Functions #####
     def exec_keys(self, keys: List[str]):

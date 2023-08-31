@@ -5,6 +5,7 @@ from typing import Dict
 from scripts.util.decorator import log_decorator
 from scripts.monkey.intelligent_monkey_test.roku import IntelligentMonkeyTestRoku
 from scripts.connection.redis_conn import get_all
+from scripts.monkey.format import SmartSenseArgs
 
 
 logger = logging.getLogger('main')
@@ -23,8 +24,10 @@ def test_intelligent_monkey():
             imt = IntelligentMonkeyTestRoku(
                 key_interval=arguments['interval'],
                 duration_per_menu=arguments['duration_per_menu'],
-                enable_smart_sense=arguments['enable_smart_sense'],
-                waiting_time=arguments['waiting_time']
+                smart_sense_args=SmartSenseArgs(
+                    enable_smart_sense=arguments['enable_smart_sense'],
+                    waiting_time=arguments['waiting_time']
+                )
             )
             imt.run()
         elif profile == 'sk':
