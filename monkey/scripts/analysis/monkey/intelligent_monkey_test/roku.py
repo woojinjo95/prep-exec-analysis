@@ -13,17 +13,17 @@ from scripts.analysis.image import calc_iou, calc_diff_rate, get_cropped_image, 
 logger = logging.getLogger('monkey_test')
 
 
-class IntelligentMonkeyTest:
-    def __init__(self, profile: str, key_interval: float, duration_per_menu: float,
+class IntelligentMonkeyTestRoku:
+    def __init__(self, key_interval: float, duration_per_menu: float,
                  enable_smart_sense: bool, waiting_time: float):
         # set arguments
-        self.profile = profile
         self.key_interval = key_interval
         self.duration_per_menu = duration_per_menu
         self.enable_smart_sense = enable_smart_sense
         self.waiting_time = waiting_time
 
         # init variables
+        self.profile = 'roku'
         self.depth_key = 'right'
         self.inverse_keys = {
             'up': 'down',

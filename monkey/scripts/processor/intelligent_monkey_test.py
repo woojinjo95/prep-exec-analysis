@@ -3,7 +3,7 @@ import traceback
 from typing import Dict
 
 from scripts.util.decorator import log_decorator
-from scripts.analysis.monkey.intelligent_monkey_test import IntelligentMonkeyTest
+from scripts.analysis.monkey.intelligent_monkey_test.roku import IntelligentMonkeyTestRoku
 from scripts.connection.redis_conn import get_all
 
 
@@ -17,12 +17,20 @@ def test_intelligent_monkey():
         # 현재는 dummy로 처리
         arguments = get_arguments()
         logger.info(f"arguments: {arguments}")
-        imt = IntelligentMonkeyTest(profile=arguments['profile'], 
-                                    key_interval=arguments['interval'],
-                                    duration_per_menu=arguments['duration_per_menu'],
-                                    enable_smart_sense=arguments['enable_smart_sense'],
-                                    waiting_time=arguments['waiting_time'])
-        imt.run()
+
+        profile = arguments['profile']
+        if profile == 'roku':
+            imt = IntelligentMonkeyTestRoku(
+                key_interval=arguments['interval'],
+                duration_per_menu=arguments['duration_per_menu'],
+                enable_smart_sense=arguments['enable_smart_sense'],
+                waiting_time=arguments['waiting_time']
+            )
+            imt.run()
+        elif profile == 'sk':
+            pass
+        else:
+            raise NotImplementedError(f"invalid profile: {profile}")
 
         # publish_msg({'measurement': Command.COLOR_REFERENCE.value}, 'analysis_response')
 
