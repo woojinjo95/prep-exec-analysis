@@ -69,7 +69,7 @@ class IntelligentMonkeyTestRoku:
                 logger.info('next node does not exist.')
                 # candidates.append([*self.key_histories, self.depth_key])
                 # logger.info(f'candidates: {len(candidates)}')
-                ### save current status ###
+                ### save current status ###   -> 몽키를 수행하고나서 다시 원래 상태를 가지고 원래 위치로 돌아와야 함 (load)
                 ### start test ###
                 self.append_key(self.breadth_key)
             last_fi = fi
@@ -97,7 +97,6 @@ class IntelligentMonkeyTestRoku:
             
             return True if is_height_similar and not is_cursor_same else False
 
-    ##### Re-Defined Functions #####
     def exec_key(self, key: str):
         exec_key(key, self.key_interval, self.profile)
 
