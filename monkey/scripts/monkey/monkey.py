@@ -31,9 +31,10 @@ class Monkey:
         self.report_data = report_data
         logger.info(f'set monkey. args: {locals()}')
 
-        self.smart_sense_detected = False
         self.main_stop_event = threading.Event()
+        self.smart_sense_detected = False
         self.smart_sense_stop_event = threading.Event()
+        self.smart_sense_count = 0
 
     def run(self):
         logger.info('Start Monkey')
@@ -80,6 +81,7 @@ class Monkey:
                 if check_temporal_similar(prev_frame, frame):
                     logger.info(f'smart sense is detected.')
                     self.smart_sense_detected = True
+                    self.smart_sense_count += 1
                     break
             prev_frame = frame
 

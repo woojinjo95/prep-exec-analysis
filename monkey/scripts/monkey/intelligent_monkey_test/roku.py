@@ -130,7 +130,7 @@ class IntelligentMonkeyTestRoku:
         monkey.run()
 
         end_time = time.time()
-        self.report_section(start_time, end_time, image, smart_sense_times)
+        self.report_section(start_time, end_time, image, monkey.smart_sense_count)
 
     def report_section(self, start_time: float, end_time: float, image: np.ndarray, smart_sense_times: int):
         image_path = save_image(get_utc_datetime(time.time()).strftime('%y-%m-%d %H:%M:%S'), image)
