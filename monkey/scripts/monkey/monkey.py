@@ -4,15 +4,16 @@ import random
 import threading
 import time
 from scripts.monkey.util import exec_keys, get_current_image, check_temporal_similar
-from scripts.external.report import report_smart_sense
-from scripts.format import SmartSenseData
+from scripts.external.report import report_data
 
 logger = logging.getLogger('monkey_test')
 
 class Monkey:
-    def __init__(self, duration: float, key_candidates: List[str], root_keyset: List[str], 
+    def __init__(self, duration: float, 
+                 key_candidates: List[str], root_keyset: List[str], 
                  key_interval: float, profile: str,
-                 enable_smart_sense: bool, waiting_time: float, report_data: Dict):
+                 enable_smart_sense: bool, waiting_time: float, 
+                 report_data: Dict):
         self.duration = duration
         self.key_interval = key_interval
         self.key_candidates = key_candidates
@@ -29,7 +30,9 @@ class Monkey:
     def run(self):
         self.main_stop_event.clear()
         start_time = time.time()
+
         self.go_to_root()
+        self.start_smart_sense()
 
         while not self.main_stop_event.is_set() and time.time() - start_time < self.duration:
             self.press_random_key()
@@ -49,6 +52,7 @@ class Monkey:
 
     def go_to_root(self):
         self.exec_keys(self.root_keyset)
+        logger.info(f'go to root. {self.root_keyset}')
 
     def press_random_key(self):
         key = random.choice(self.key_candidates)
@@ -79,7 +83,8 @@ class Monkey:
         logger.info('stop smart sense')
 
     def report_smart_sense(self):
-        report_smart_sense(SmartSenseData(
+        data = {
+            'smart_sense_key': self.root_keyset,
             **self.report_data,
-            smart_sense_key=self.root_keyset,
-        ))
+        }
+        report_data('monkey_smart_sense', data)
