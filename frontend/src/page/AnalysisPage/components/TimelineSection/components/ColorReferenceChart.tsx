@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
 import { AreaChart } from '@global/ui'
-import useWebsocket from '@global/module/websocket'
+import { useRecoilValue } from 'recoil'
+import { scenarioIdState } from '@global/atom'
 import { useColorReferences } from '../api/hook'
 
 interface ColorReferenceChartProps {
@@ -14,16 +15,13 @@ interface ColorReferenceChartProps {
  * Color Reference 차트
  */
 const ColorReferenceChart: React.FC<ColorReferenceChartProps> = ({ scaleX, chartWidth, startTime, endTime }) => {
-  const { colorReferences, refetch } = useColorReferences({
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const { colorReferences } = useColorReferences({
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
-  })
-  useWebsocket({
-    onMessage: (message) => {
-      if (message.msg === 'analysis_response') {
-        refetch()
-      }
-    },
+    scenario_id: scenarioId || undefined,
+    // FIXME: 동적으로 주입되도록 변경 필요
+    testrun_id: '2023-08-14T054428F718593',
   })
 
   const colorReferenceData = useMemo(() => {

@@ -3,7 +3,7 @@ import traceback
 
 from scripts.config.config import get_setting_with_env
 from scripts.analysis.freeze_detect import FreezeDetector
-from scripts.format import CollectionName
+from scripts.format import ReportName
 from scripts.external.data import load_input, read_analysis_config
 from scripts.external.report import report_output
 from scripts.connection.redis_pubsub import publish_msg
@@ -11,9 +11,9 @@ from scripts.util._timezone import get_utc_datetime
 from scripts.util.video import FrameGenerator, get_video_info
 from scripts.util.decorator import log_decorator
 from scripts.util.common import seconds_to_time
-from scripts.format import LogName, Command
+from scripts.format import Command
 
-logger = logging.getLogger(LogName.FREEZE_DETECT.value)
+logger = logging.getLogger('main')
 
 
 @log_decorator(logger)
@@ -32,17 +32,17 @@ def test_freeze_detection():
                 relative_time = result['start_time'] - args.timestamps[0]
                 logger.info(f'relative time: {seconds_to_time(relative_time)}')
                 
-                report_output(CollectionName.FREEZE.value, {
+                report_output(ReportName.FREEZE.value, {
                     'timestamp': get_utc_datetime(result['start_time']),
                     'freeze_type': result['freeze_type'],
                     'duration': result['duration'],
                 })
 
-        publish_msg({'measurement': [Command.FREEZE.value]}, 'analysis_response')
+        publish_msg({'measurement': Command.FREEZE.value}, 'analysis_response')
 
     except Exception as err:
         error_detail = traceback.format_exc()
-        publish_msg({'measurement': [Command.FREEZE.value]}, error_detail, level='error')
+        publish_msg({'measurement': Command.FREEZE.value, 'log': error_detail}, 'analysis_response', level='error')
         logger.error(f"error in detect_freeze postprocess: {err}")
         logger.warning(error_detail)
 

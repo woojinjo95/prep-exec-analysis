@@ -1,23 +1,11 @@
 import API from '@global/api'
 import { AxiosError } from 'axios'
-import { Block, BlockGroup, Scenario } from '@page/ActionPage/components/ActionSection/api/entity'
-import { Response } from '@global/api/entity'
+import { Block, Scenario } from '@global/api/entity'
 import apiUrls from './url'
 
-export const getScenarioById = async ({ scenario_id }: { scenario_id: string }) => {
+export const putScenario = async ({ new_scenario }: { new_scenario: Scenario }) => {
   try {
-    const result = await API.get<Response<Scenario>>(`${apiUrls.scenario}/${scenario_id}`)
-
-    return result.data.items
-  } catch (err) {
-    const er = err as AxiosError
-    throw er
-  }
-}
-
-export const putScenario = async ({ block_group, scenario_id }: { block_group: BlockGroup[]; scenario_id: string }) => {
-  try {
-    const result = await API.put<{ msg: string }>(`${apiUrls.scenario}/${scenario_id}`, { block_group })
+    const result = await API.put<{ msg: string }>(`${apiUrls.scenario}/${new_scenario.id}`, new_scenario)
 
     return result.data
   } catch (err) {

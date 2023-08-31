@@ -97,6 +97,11 @@ def delete_by_id_to_mongodb(col, id):
     return col.delete_one({'id': id})
 
 
+def delete_many_to_mongodb(col, param={}):
+    col = get_mongodb_collection(col)
+    return col.delete_many(param)
+
+
 def count_from_mongodb(col, param):
     col = get_mongodb_collection(col)
     return col.count_documents(param)

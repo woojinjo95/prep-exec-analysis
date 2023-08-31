@@ -29,3 +29,5 @@ ENV REDIS_HOST redis
 ENV REDIS_PORT 6379
 ENV REDIS_DB 0
 ENV REDIS_PASSWORD ""
+
+# docker-compose up -d --build --force-recreate freeze resume boot log-pattern color-reference && docker-compose logs -f freeze resume boot log-pattern color-reference

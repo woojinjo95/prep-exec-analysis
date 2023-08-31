@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 import cx from 'classnames'
-import AppURL from '@global/constant/appURL'
+import { AppURL } from '@global/constant'
 import { KeyEvent } from '@page/ActionPage/types'
-import { Button, Text } from '@global/ui'
-import Modal from '@global/ui/Modal'
+import { Button, Text, Modal } from '@global/ui'
 import { Remocon } from '../../api/entity'
 import AddCustomKeyModalRemoconButtons from './AddCustomKeyModalRemoconButtons'
 import SaveCustomKeyModal from './SaveCustomKeyModal'
@@ -57,7 +56,6 @@ const AddCustomKeyModal: React.FC<AddCustomKeyModalProps> = ({
       }
     }
 
-    console.log(firstFocusableElementRef.current)
     firstFocusableElementRef.current?.focus()
 
     document.addEventListener('keydown', handleKeyDown)
@@ -89,15 +87,15 @@ const AddCustomKeyModal: React.FC<AddCustomKeyModalProps> = ({
     <>
       {!isSubmitted && (
         <Modal
-          isOpen
+          isOpen={isOpen}
           close={() => {
             setRemoconInput([])
             close()
           }}
           mode="normal"
-          className={cx('top-[10px] right-3.5')}
+          className={cx('right-3.5 h-[95vh] w-[700px] top-1/2 -translate-y-1/2')}
         >
-          <div className="flex flex-col h-[95vh] w-[700px] bg-[#323339] rounded-[10px] pt-7 pl-[72px] pr-[72px] pb-7 items-center justify-between relative">
+          <div className="h-full w-full flex flex-col items-center justify-between relative">
             <div className="flex flex-col items-center">
               <p className="text-white text-lg">Press the Keys in order and press the [Submit] button</p>
               <div>

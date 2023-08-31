@@ -39,7 +39,6 @@ class BootTypeEnum(ExtendedEnum):
 class AnalysisTypeEnum(ExtendedEnum):
     freeze = "freeze"
     # macroblock = "macroblock"
-    loudness = "loudness"
     resume = "resume"
     boot = "boot"
     channel_change_time = "channel_change_time"
@@ -70,6 +69,8 @@ class BlockTypeEnum(ExtendedEnum):
     shell = "shell"
     packet_control = "packet_control"
     packet_block = "packet_block"
+    monkey_test = "monkey_test"
+    intelligent_monkey_test = "intelligent_monkey_test"
 
 
 class LogModuleEnum(ExtendedEnum):
@@ -88,3 +89,18 @@ class ServiceStateEnum(ExtendedEnum):
     streaming = "streaming"
     playblock = "playblock"
     analysis = "analysis"
+
+
+class FreezeTypeEnum(ExtendedEnum):
+    no_signal = "no_signal"
+    black = "black"
+    white = "white"
+    one_colored = "one_colored"
+    default = "default"
+
+
+class ExportItemEnum(ExtendedEnum):
+    scenario = "scenario"
+    videos = "videos"
+    analysis_config = "analysis_config"
+    stb_log = "stb_log"

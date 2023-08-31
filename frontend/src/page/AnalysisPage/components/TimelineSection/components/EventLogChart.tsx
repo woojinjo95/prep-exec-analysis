@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
 import { PointChart } from '@global/ui'
-import useWebsocket from '@global/module/websocket'
+import { useRecoilValue } from 'recoil'
+import { scenarioIdState } from '@global/atom'
 import { useEventLogs } from '../api/hook'
 
 interface EventLogChartProps {
@@ -13,13 +14,13 @@ interface EventLogChartProps {
  * 이벤트 로그 차트
  */
 const EventLogChart: React.FC<EventLogChartProps> = ({ scaleX, startTime, endTime }) => {
-  const { eventLogs, refetch } = useEventLogs({ start_time: startTime.toISOString(), end_time: endTime.toISOString() })
-  useWebsocket({
-    onMessage: (message) => {
-      if (message.msg === 'analysis_response') {
-        refetch()
-      }
-    },
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const { eventLogs } = useEventLogs({
+    start_time: startTime.toISOString(),
+    end_time: endTime.toISOString(),
+    scenario_id: scenarioId || undefined,
+    // FIXME: 동적으로 주입되도록 변경 필요
+    testrun_id: '2023-08-14T054428F718593',
   })
 
   const eventLogsData = useMemo(() => {

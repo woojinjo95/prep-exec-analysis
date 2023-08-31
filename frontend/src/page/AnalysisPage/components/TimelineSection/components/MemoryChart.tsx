@@ -1,7 +1,8 @@
-import { AreaChart } from '@global/ui'
 import React, { useMemo } from 'react'
-import useWebsocket from '@global/module/websocket'
-import { useCPUAndMemory } from '../api/hook'
+import { AreaChart } from '@global/ui'
+import { useRecoilValue } from 'recoil'
+import { scenarioIdState } from '@global/atom'
+import { useMemory } from '../api/hook'
 
 interface MemoryChartProps {
   chartWidth: Parameters<typeof AreaChart>[0]['chartWidth']
@@ -14,22 +15,19 @@ interface MemoryChartProps {
  * Memory 사용률 차트
  */
 const MemoryChart: React.FC<MemoryChartProps> = ({ chartWidth, scaleX, startTime, endTime }) => {
-  const { cpuAndMemory, refetch } = useCPUAndMemory({
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const { memory } = useMemory({
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
-  })
-  useWebsocket({
-    onMessage: (message) => {
-      if (message.msg === 'analysis_response') {
-        refetch()
-      }
-    },
+    scenario_id: scenarioId || undefined,
+    // FIXME: 동적으로 주입되도록 변경 필요
+    testrun_id: '2023-08-14T054428F718593',
   })
 
   const memoryUsage = useMemo(() => {
-    if (!cpuAndMemory) return null
-    return cpuAndMemory.map(({ timestamp, memory_usage }) => ({ date: new Date(timestamp), value: memory_usage }))
-  }, [cpuAndMemory])
+    if (!memory) return null
+    return memory.map(({ timestamp, memory_usage }) => ({ date: new Date(timestamp), value: Number(memory_usage) }))
+  }, [memory])
 
   if (!memoryUsage) return <div />
   return (

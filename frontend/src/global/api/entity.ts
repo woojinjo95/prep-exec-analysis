@@ -52,6 +52,7 @@ export interface IPLimit {
  */
 export interface HardwareConfiguration {
   remote_control_type: 'ir' | 'bt'
+  dut_ip: string | null
   enable_dut_power: boolean
   enable_hdmi: boolean
   enable_dut_wan: boolean
@@ -81,3 +82,29 @@ export interface HardwareConfiguration {
  * `analysis` 분석 (녹화 및 로그수집 X, 스트리밍 X)
  */
 export type ServiceState = 'idle' | 'streaming' | 'playblock' | 'analysis'
+
+export interface Block {
+  type: string
+  args: { key: string; value: string | number }[]
+  name: string
+  delay_time: number
+  id: string
+}
+
+export interface BlockGroup {
+  id: string
+  repeat_cnt: number
+  block: Block[]
+}
+
+export interface Scenario {
+  id: string
+  name: string
+  is_acive: boolean
+  tags: string[]
+  block_group: BlockGroup[]
+}
+/**
+ * 로그 연결여부
+ */
+export type LogConnectionStatus = 'log_disconnected' | 'log_connected'

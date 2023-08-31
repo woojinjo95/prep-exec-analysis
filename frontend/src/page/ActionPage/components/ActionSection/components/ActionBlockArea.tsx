@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd'
 import cx from 'classnames'
 
-import { Block, BlockGroup, Scenario } from '@page/ActionPage/components/ActionSection/api/entity'
+// import { Block, BlockGroup, Scenario } from '@page/ActionPage/components/ActionSection/api/entity'
 import { useMutation, useQuery } from 'react-query'
 import BackgroundImage from '@assets/images/background_pattern.svg'
 import { remoconService } from '@global/service/RemoconService/RemoconService'
@@ -10,18 +10,20 @@ import { CustomKeyTransmit, RemoconTransmit } from '@global/service/RemoconServi
 
 import { terminalService } from '@global/service/TerminalService/TerminalService'
 import { CommandTransmit } from '@global/service/TerminalService/type'
+import { useRecoilValue } from 'recoil'
+import { scenarioIdState } from '@global/atom'
+import { Block, BlockGroup, Scenario } from '@global/api/entity'
+import { getScenarioById } from '@global/api/func'
 import ActionBlockItem from './ActionBlockItem'
-import { getScenarioById, postBlock, postBlocks, putScenario } from '../api/func'
+import { postBlock, postBlocks, putScenario } from '../api/func'
 
 type BlocksRef = {
   [id: string]: HTMLDivElement | null
 }
 
-interface ActionBlockAreaProps {
-  scenarioId: string | null
-}
+const ActionBlockArea = (): JSX.Element => {
+  const scenarioId = useRecoilValue(scenarioIdState)
 
-const ActionBlockArea = ({ scenarioId }: ActionBlockAreaProps): JSX.Element => {
   // 전체 블럭
   const [blocks, setBlocks] = useState<Block[] | null>(null)
 
@@ -56,6 +58,8 @@ const ActionBlockArea = ({ scenarioId }: ActionBlockAreaProps): JSX.Element => {
     },
     onError: () => {
       alert('시나리오 수정에 실패하였습니다')
+      // 제자리로 돌아오기 위한
+      blockRefetch()
     },
   })
 
@@ -97,8 +101,10 @@ const ActionBlockArea = ({ scenarioId }: ActionBlockAreaProps): JSX.Element => {
 
     if (scenarioId) {
       putScenarioMutate({
-        block_group: [newBlockGroup],
-        scenario_id: scenarioId,
+        new_scenario: {
+          ...scenario,
+          block_group: [newBlockGroup],
+        },
       })
     }
   }
@@ -433,7 +439,6 @@ const ActionBlockArea = ({ scenarioId }: ActionBlockAreaProps): JSX.Element => {
                                       blockRefetch={() => {
                                         blockRefetch()
                                       }}
-                                      scenarioId={scenarioId}
                                     />
                                   </div>
                                 )

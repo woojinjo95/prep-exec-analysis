@@ -1,12 +1,11 @@
+from typing import List, Optional
+
+from app.schemas.enum import ExportItemEnum
 from pydantic import BaseModel
 
 
-class Timezone(BaseModel):
-    timezone: str
-
-
 class ServiceStateBase(BaseModel):
-    state: str
+    state: Optional[str]
 
 
 class ServiceState(BaseModel):
@@ -14,8 +13,23 @@ class ServiceState(BaseModel):
 
 
 class LogConnectionStatusBase(BaseModel):
-    status: str
+    status: Optional[str]
 
 
 class LogConnectionStatus(BaseModel):
     items: LogConnectionStatusBase
+
+
+class VideoTimestampBase(BaseModel):
+    start_time: str
+    end_time: str
+
+
+class VideoTimestamp(BaseModel):
+    items: VideoTimestampBase
+
+
+class ExportResult(BaseModel):
+    scenario_id: Optional[str]
+    testrun_id: Optional[str]
+    items: List[ExportItemEnum]
