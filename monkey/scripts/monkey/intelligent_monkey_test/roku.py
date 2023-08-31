@@ -1,15 +1,18 @@
 
-from typing import Tuple, List
 import logging
+from typing import List, Tuple
+import time
 
 import numpy as np
 
-from scripts.monkey.format import FrameInfo
-from scripts.monkey.util import (get_current_image, check_cursor_is_same,
-                                exec_keys, head_to_next, optimize_path)
 from scripts.analysis.image import find_roku_cursor
+from scripts.external.report import report_data
+from scripts.monkey.format import FrameInfo, MonkeyArgs
 from scripts.monkey.monkey import Monkey
-from scripts.monkey.format import MonkeyArgs
+from scripts.monkey.util import (check_cursor_is_same, exec_keys,
+                                 get_current_image, head_to_next,
+                                 optimize_path, save_image)
+from scripts.util._timezone import get_utc_datetime
 
 logger = logging.getLogger('monkey_test')
 
@@ -68,10 +71,10 @@ class IntelligentMonkeyTestRoku:
                 self.append_key(self.depth_key)
             else:
                 logger.info('next node does not exist.')
-                current_node = [*self.key_histories, self.depth_key]
-                logger.info(f'current_node: {current_node}')
+                current_node_keyset = [*self.key_histories, self.depth_key]
+                logger.info(f'current_node_keyset: {current_node_keyset}')
 
-                self.start_monkey(current_node)
+                self.start_monkey(current_node_keyset)
 
                 self.section_id += 1
                 self.append_key(self.breadth_key)
@@ -104,11 +107,17 @@ class IntelligentMonkeyTestRoku:
         self.key_histories.append(key)
         self.key_histories = optimize_path(self.key_histories)
 
-    def start_monkey(self, current_node: List[str]):
+    def start_monkey(self, current_node_keyset: List[str]):
+        start_time = time.time()
+
+        # go to root_keyset of section and get snapshot
+        self.exec_keys(current_node_keyset)
+        image = get_current_image()
+
         monkey = Monkey(
             duration=self.monkey_args.duration_per_menu,
             key_candidates=['right', 'up', 'down', 'ok'],
-            root_keyset=current_node,
+            root_keyset=current_node_keyset,
             key_interval=self.key_interval,
             profile=self.profile,
             enable_smart_sense=self.monkey_args.enable_smart_sense,
@@ -119,6 +128,21 @@ class IntelligentMonkeyTestRoku:
             }
         )
         monkey.run()
+
+        end_time = time.time()
+        self.report_section(start_time, end_time, image, smart_sense_times)
+
+    def report_section(self, start_time: float, end_time: float, image: np.ndarray, smart_sense_times: int):
+        image_path = save_image(get_utc_datetime(time.time()).strftime('%y-%m-%d %H:%M:%S'), image)
+
+        report_data('monkey_section', {
+            'start_timestamp': get_utc_datetime(start_time),
+            'end_timestamp': get_utc_datetime(end_time),
+            'analysis_type': self.analysis_type,
+            'section_id': self.section_id,
+            'image_path': image_path,
+            'smart_sense_times': smart_sense_times,
+        })
 
     ##### Re-Defined Functions #####
     def exec_keys(self, keys: List[str]):

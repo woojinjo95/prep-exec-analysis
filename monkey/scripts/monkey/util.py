@@ -1,12 +1,14 @@
+import logging
+import os
+from typing import List, Tuple
+
 import cv2
 import numpy as np
-from typing import Tuple, List
-import logging
-
+from scripts.analysis.image import calc_diff_rate, calc_iou, get_cropped_image
+from scripts.config.constant import BASE_TESTRUN_RAW_DIR
 from scripts.control.image import get_snapshot
 from scripts.control.remocon import publish_remocon_msg
-from scripts.analysis.image import calc_iou, calc_diff_rate, get_cropped_image
-
+from scripts.external.scenario import get_scenario_info
 
 logger = logging.getLogger('monkey_test')
 
@@ -93,3 +95,11 @@ def check_temporal_similar(prev_image: np.ndarray, image: np.ndarray, min_color_
     diff_rate = calc_diff_rate(preprocess_image(prev_image), preprocess_image(image), min_color_depth_diff)
     # logger.info(f'check temporal similar. diff_rate: {diff_rate:.6f}, diff_thld: {diff_thld:.6f}')
     return diff_rate < diff_thld
+
+
+def save_image(name: str, image: np.ndarray) -> str:
+    scenario_info = get_scenario_info()
+    save_dir = BASE_TESTRUN_RAW_DIR.format(scenario_info['testrun_id'])
+    os.makedirs(save_dir, exist_ok=True)
+    image_path = os.path.join(save_dir, f'{name}.png')
+    cv2.imwrite(image_path, image)
