@@ -17,7 +17,7 @@ REDIS_PASSWORD = get_setting_with_env("REDIS_PASSWORD")
 
 
 def get_strict_redis_connection(db: int) -> StrictRedis:
-    logger.info(f'get_strict_redis_connection: {REDIS_HOST}:{REDIS_PORT}, password={REDIS_PASSWORD} db={db}')
+    # logger.info(f'get_strict_redis_connection: {REDIS_HOST}:{REDIS_PORT}, password={REDIS_PASSWORD} db={db}')
     return StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=db, password=REDIS_PASSWORD)
 
 
@@ -62,3 +62,9 @@ def get_value(key: str, field: str = None, default: any = None, db: int = RedisD
 def set_value(key: str, field: str = None, value: any = None, db: int = RedisDB.stb_log):
     with get_strict_redis_connection(db) as src:
         hset_value(src, key, field, value)
+
+
+def get_all(key: str, db: int = RedisDB.stb_log) -> dict:
+    with get_strict_redis_connection(db) as src:
+        return hget_all(src, key)
+    

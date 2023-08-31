@@ -1,11 +1,11 @@
 import API from '@global/api'
 import { AxiosError } from 'axios'
-import { Block, BlockGroup, Scenario } from '@page/ActionPage/components/ActionSection/api/entity'
+import { Block, Scenario } from '@global/api/entity'
 import apiUrls from './url'
 
-export const getScenario = async () => {
+export const putScenario = async ({ new_scenario }: { new_scenario: Scenario }) => {
   try {
-    const result = await API.get<Scenario>(apiUrls.scenario)
+    const result = await API.put<{ msg: string }>(`${apiUrls.scenario}/${new_scenario.id}`, new_scenario)
 
     return result.data
   } catch (err) {
@@ -14,9 +14,23 @@ export const getScenario = async () => {
   }
 }
 
-export const putScenario = async ({ block_group }: { block_group: BlockGroup[] }) => {
+// post scenario
+// TODO: 추후 구현 필요
+
+// export const postScenario = async ({ newBlock }: { newBlock: Omit<Block, 'id'> }) => {
+//   try {
+//     const result = await API.post<{ msg: string; id: string }>(apiUrls.block, newBlock)
+
+//     return result.data
+//   } catch (err) {
+//     const er = err as AxiosError
+//     throw er
+//   }
+// }
+
+export const postBlock = async ({ newBlock, scenario_id }: { newBlock: Omit<Block, 'id'>; scenario_id: string }) => {
   try {
-    const result = await API.put<{ msg: string }>(apiUrls.scenario, { block_group })
+    const result = await API.post<{ msg: string; id: string }>(`${apiUrls.block}/${scenario_id}`, newBlock)
 
     return result.data
   } catch (err) {
@@ -25,9 +39,17 @@ export const putScenario = async ({ block_group }: { block_group: BlockGroup[] }
   }
 }
 
-export const postBlock = async ({ newBlock }: { newBlock: Omit<Block, 'id'> }) => {
+export const postBlocks = async ({
+  newBlocks,
+  scenario_id,
+}: {
+  newBlocks: Omit<Block, 'id'>[]
+  scenario_id: string
+}) => {
   try {
-    const result = await API.post<{ msg: string; id: string }>(apiUrls.block, newBlock)
+    const result = await API.post<{ msg: string; id: string }>(`${apiUrls.blocks}/${scenario_id}`, {
+      blocks: newBlocks,
+    })
 
     return result.data
   } catch (err) {
@@ -36,9 +58,9 @@ export const postBlock = async ({ newBlock }: { newBlock: Omit<Block, 'id'> }) =
   }
 }
 
-export const deleteBlock = async ({ block_ids }: { block_ids: string[] }) => {
+export const deleteBlock = async ({ block_ids, scenario_id }: { block_ids: string[]; scenario_id: string }) => {
   try {
-    const result = await API.delete<{ msg: string }>(apiUrls.block, {
+    const result = await API.delete<{ msg: string }>(`${apiUrls.block}/${scenario_id}`, {
       data: {
         block_ids,
       },
@@ -51,9 +73,17 @@ export const deleteBlock = async ({ block_ids }: { block_ids: string[] }) => {
   }
 }
 
-export const putBlock = async ({ block_id, newBlock }: { block_id: string; newBlock: Omit<Block, 'id'> }) => {
+export const putBlock = async ({
+  block_id,
+  newBlock,
+  scenario_id,
+}: {
+  block_id: string
+  newBlock: Omit<Block, 'id'>
+  scenario_id: string
+}) => {
   try {
-    const result = await API.put<{ msg: string; id: string }>(`${apiUrls.block}/${block_id}`, newBlock)
+    const result = await API.put<{ msg: string; id: string }>(`${apiUrls.block}/${scenario_id}/${block_id}`, newBlock)
 
     return result.data
   } catch (err) {
@@ -62,9 +92,17 @@ export const putBlock = async ({ block_id, newBlock }: { block_id: string; newBl
   }
 }
 
-export const putBlockGroup = async ({ block_group_id, repeat_cnt }: { block_group_id: string; repeat_cnt: number }) => {
+export const putBlockGroup = async ({
+  block_group_id,
+  repeat_cnt,
+  scenario_id,
+}: {
+  block_group_id: string
+  repeat_cnt: number
+  scenario_id: string
+}) => {
   try {
-    const result = await API.put<{ msg: string }>(`${apiUrls.block_group}/${block_group_id}`, {
+    const result = await API.put<{ msg: string }>(`${apiUrls.block_group}/${scenario_id}/${block_group_id}`, {
       repeat_cnt,
     })
 

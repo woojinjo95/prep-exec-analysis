@@ -1,11 +1,10 @@
 import json
 import logging
+import traceback
 import uuid
-import json
 
 from app import schemas
 from app.api.utility import parse_bytes_to_value
-from app.crud.base import insert_by_id_to_mongodb_array, load_from_mongodb
 from app.db.redis_session import RedisClient
 from app.schemas.enum import RemoconEnum
 from fastapi import APIRouter, HTTPException
@@ -20,8 +19,11 @@ def read_remocon() -> schemas.RemoconRead:
     """
     리모컨 조회
     """
-    remocon_list = [{k: parse_bytes_to_value(v) for k, v in RedisClient.hgetall(key).items()}
-                    for key in RedisClient.scan_iter(match='remocon:*')]
+    try:
+        remocon_list = [{k: parse_bytes_to_value(v) for k, v in RedisClient.hgetall(key).items()}
+                        for key in RedisClient.scan_iter(match='remocon:*')]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'items': remocon_list}
 
 
@@ -33,10 +35,13 @@ def update_remocon(
     """
     리모컨 정보 덮어쓰기
     """
-    remocon_name = remocon_name.value
-    for key, val in jsonable_encoder(remocon_in).items():
-        if val is not None:
-            RedisClient.hset(f'remocon:{remocon_name}', key, json.dumps(val))
+    try:
+        remocon_name = remocon_name.value
+        for key, val in jsonable_encoder(remocon_in).items():
+            if val is not None:
+                RedisClient.hset(f'remocon:{remocon_name}', key, json.dumps(val))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': f'Update {remocon_name} remocon'}
 
 
@@ -47,17 +52,20 @@ def insert_custom_key(
     """
     리모컨 커스텀 키 추가
     """
-    custom_key_in = schemas.RemoconCustomKeyCreate(
-        id=str(uuid.uuid4()),
-        name=custom_key_in_base.name,
-        custom_code=custom_key_in_base.custom_code,
-    )
-    input_data = {
-        'custom_keys': custom_key_in.dict()
-    }
-    custom_keys = parse_bytes_to_value(RedisClient.hget('remocon:'+custom_key_in_base.remocon_name, 'custom_keys'))
-    custom_keys.append(input_data['custom_keys'])
-    RedisClient.hset('remocon:'+custom_key_in_base.remocon_name, 'custom_keys', str(custom_keys))
+    try:
+        custom_key_in = schemas.RemoconCustomKeyCreate(
+            id=str(uuid.uuid4()),
+            name=custom_key_in_base.name,
+            custom_code=custom_key_in_base.custom_code,
+        )
+        input_data = {
+            'custom_keys': custom_key_in.dict()
+        }
+        custom_keys = parse_bytes_to_value(RedisClient.hget('remocon:'+custom_key_in_base.remocon_name.value, 'custom_keys'))
+        custom_keys.append(input_data['custom_keys'])
+        RedisClient.hset('remocon:'+custom_key_in_base.remocon_name.value, 'custom_keys', str(custom_keys))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Create new custom_key', 'id': custom_key_in.id}
 
 
@@ -72,11 +80,13 @@ def delete_custom_keys(
     if not remocon:
         raise HTTPException(
             status_code=404, detail=f"The remocon with this {remocon_name} does not exist in the system.")
-
-    custom_keys = parse_bytes_to_value(remocon.get('custom_keys', []))
-    updated_custom_keys = [item for item
-                           in custom_keys if item["id"] not in custom_key_in.custom_key_ids]
-    RedisClient.hset(name, 'custom_keys', json.dumps(updated_custom_keys))
+    try:
+        custom_keys = parse_bytes_to_value(remocon.get('custom_keys', []))
+        updated_custom_keys = [item for item
+                            in custom_keys if item["id"] not in custom_key_in.custom_key_ids]
+        RedisClient.hset(name, 'custom_keys', json.dumps(updated_custom_keys))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'custom_key Deletion Completed'}
 
 
@@ -92,10 +102,12 @@ def update_custom_key(
     if not remocon:
         raise HTTPException(
             status_code=404, detail=f"The remocon with this {remocon_name} does not exist in the system.")
-
-    custom_keys = parse_bytes_to_value(remocon.get('custom_keys', []))
-    updated_custom_keys = [{key: val for key, val in jsonable_encoder(custom_key_in).items()}
-                           if item["id"] == custom_key_id else item
-                           for item in custom_keys]
-    RedisClient.hset(name, 'custom_keys', json.dumps(updated_custom_keys))
+    try:
+        custom_keys = parse_bytes_to_value(remocon.get('custom_keys', []))
+        updated_custom_keys = [{key: val for key, val in jsonable_encoder(custom_key_in).items()}
+                            if item["id"] == custom_key_id else item
+                            for item in custom_keys]
+        RedisClient.hset(name, 'custom_keys', json.dumps(updated_custom_keys))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Update custom_key', 'id': custom_key_id}

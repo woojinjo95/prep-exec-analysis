@@ -1,9 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { ReactComponent as EditIcon } from '@assets/images/icon_edit.svg'
 import cx from 'classnames'
-import { Block } from '@page/ActionPage/components/ActionSection/api/entity'
 import { changeMinSecMsToMs, changeMsToMinSecMs, formMsToHundred } from '@global/usecase'
 import { useMutation } from 'react-query'
+import { useRecoilValue } from 'recoil'
+import { scenarioIdState } from '@global/atom'
+import { Block } from '@global/api/entity'
 import { ActionStatus } from '../types'
 import { putBlock } from '../api/func'
 
@@ -37,6 +39,8 @@ const ActionBlockItem = ({
 
   const [changedMSec, setChangedMSec] = useState<string>('')
 
+  const scenarioId = useRecoilValue(scenarioIdState)
+
   useEffect(() => {
     const minSecMillisec = changeMsToMinSecMs(block.delay_time)
     setChangedMin(String(minSecMillisec.m))
@@ -63,14 +67,17 @@ const ActionBlockItem = ({
     }
 
     if (e.target instanceof Node && !itemRef.current.contains(e.target)) {
-      putScenarioMutate({
-        block_id: block.id,
-        newBlock: {
-          ...block,
-          delay_time: changeMinSecMsToMs(Number(changedMin), Number(changedSec), Number(changedMSec)),
-        },
-      })
-      setModifyingBlockId(null)
+      if (scenarioId) {
+        putScenarioMutate({
+          block_id: block.id,
+          newBlock: {
+            ...block,
+            delay_time: changeMinSecMsToMs(Number(changedMin), Number(changedSec), Number(changedMSec)),
+          },
+          scenario_id: scenarioId,
+        })
+        setModifyingBlockId(null)
+      }
     }
   }
 
@@ -127,7 +134,7 @@ const ActionBlockItem = ({
               userSelect: 'none',
             }}
           >
-            {block.type} : {block.value}
+            {block.name}
           </div>
         </div>
         <div className={cx('flex items-center justify-end')}>

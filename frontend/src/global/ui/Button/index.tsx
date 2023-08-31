@@ -3,38 +3,52 @@ import cx from 'classnames'
 
 import Text from '../Text'
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps
+  extends React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement> {
   children: React.ReactNode
-  variant?: 'outline' | 'unstyled'
+  colorScheme?: 'dark' | 'charcoal' | 'grey' | 'primary'
+  className?: string
+  isRoundedFull?: boolean
 }
 
 /**
  * 버튼 컴포넌트
  *
- * @param variant 버튼 스타일
+ * @param isRoundedFull 모서리 둥글기, true면 완전히 동그래짐. false면 기본 rounded
  */
-const Button: React.FC<ButtonProps> = ({ children, type = 'button', variant = 'outline', ...props }) => {
-  return (
-    <button
-      // eslint-disable-next-line react/button-has-type
-      type={type}
-      className={cx(
-        'px-4 py-1 rounded-full inline-flex items-center hover:bg-slate-100 active:bg-slate-200 transition-colors',
-        {
-          'shadow-[0px_1px_5px_#7777775E]': variant === 'outline',
-        },
-        props.className,
-      )}
-      {...props}
-    >
-      {typeof children === 'string' && (
-        <Text size="sm" weight="medium">
-          {children}
-        </Text>
-      )}
-      {typeof children !== 'string' && children}
-    </button>
+const Button: React.ForwardRefExoticComponent<Omit<ButtonProps, 'ref'> & React.RefAttributes<HTMLButtonElement>> =
+  React.forwardRef<HTMLButtonElement, ButtonProps>(
+    ({ children, colorScheme = 'charcoal', isRoundedFull = true, className, ...props }, ref) => {
+      return (
+        <button
+          ref={ref}
+          // eslint-disable-next-line react/button-has-type
+          type="button"
+          className={cx(
+            'py-3 px-10 h-fit',
+            {
+              'bg-light-black': colorScheme === 'dark',
+              'bg-light-charcoal': colorScheme === 'charcoal',
+              'bg-grey': colorScheme === 'grey',
+              'bg-primary': colorScheme === 'primary',
+              'rounded-full': isRoundedFull,
+              'rounded-lg': !isRoundedFull,
+            },
+            className,
+          )}
+          {...props}
+        >
+          {typeof children === 'string' && (
+            <Text size="sm" weight="medium">
+              {children}
+            </Text>
+          )}
+          {typeof children !== 'string' && children}
+        </button>
+      )
+    },
   )
-}
+
+Button.displayName = 'Button'
 
 export default Button

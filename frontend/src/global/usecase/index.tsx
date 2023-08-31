@@ -1,4 +1,4 @@
-import { MILLISECONDS_PER_MINUTE, MILLISECONDS_PER_SECOND } from '@global/constant'
+import { MILLISECONDS_PER_MINUTE, MILLISECONDS_PER_SECOND, MONTH_NAMES } from '@global/constant'
 
 type DateToken =
   | 'YYYYMMDD'
@@ -7,11 +7,13 @@ type DateToken =
   | 'YY.MM.DD'
   | 'HH:MM'
   | 'HH:MM:SS'
+  | 'HH:MM:SS:MS'
   | 'AA HH:MM'
   | 'YYYY-MM-DD HH:MM'
   | 'YYYY-MM-DD HH:MM:SS'
   | 'YYYY-MM-DD HH:MM:SS:MS'
   | 'YYYY_MM_DD_HH_MM_SS_MS'
+  | 'M DD YYYY, HH:MM AA'
 
 /**
  * date format 함수
@@ -20,9 +22,9 @@ export const formatDateTo = (type: DateToken, dateObject = new Date()): string =
   const year = dateObject.getFullYear()
   const month = `0${dateObject.getMonth() + 1}`.slice(-2)
   const date = `0${dateObject.getDate()}`.slice(-2)
-  const hour = dateObject.getHours() < 10 ? `0${dateObject.getHours()}` : dateObject.getHours()
-  const minute = dateObject.getMinutes() < 10 ? `0${dateObject.getMinutes()}` : dateObject.getMinutes()
-  const second = dateObject.getSeconds() < 10 ? `0${dateObject.getSeconds()}` : dateObject.getSeconds()
+  const hour = String(dateObject.getHours()).padStart(2, '0')
+  const minute = String(dateObject.getMinutes()).padStart(2, '0')
+  const second = String(dateObject.getSeconds()).padStart(2, '0')
   const milliSec = dateObject.getMilliseconds()
 
   switch (type) {
@@ -38,6 +40,8 @@ export const formatDateTo = (type: DateToken, dateObject = new Date()): string =
       return `${hour}:${minute}`
     case 'HH:MM:SS':
       return `${hour}:${minute}:${second}`
+    case 'HH:MM:SS:MS':
+      return `${hour}:${minute}:${second}:${String(milliSec).slice(0, 2).padStart(2, '0')}`
     case 'AA HH:MM': {
       if (dateObject.getHours() < 12) {
         return `오전 ${dateObject.getHours() === 0 ? '12' : dateObject.getHours()}:${minute}`
@@ -52,6 +56,18 @@ export const formatDateTo = (type: DateToken, dateObject = new Date()): string =
       return `${year}-${month}-${date} ${hour}:${minute}:${second}.${milliSec}`
     case 'YYYY_MM_DD_HH_MM_SS_MS':
       return `${year}_${month}_${date}_${hour}_${minute}_${second}_${milliSec}`
+    case 'M DD YYYY, HH:MM AA': {
+      const monthName = MONTH_NAMES[dateObject.getMonth()]
+      const currentDate = new Date()
+      const isToday = !!(
+        currentDate.getFullYear() === year ||
+        currentDate.getMonth() === dateObject.getMonth() ||
+        currentDate.getDate() === dateObject.getDate()
+      )
+      const AMPM = dateObject.getHours() < 12 ? 'AM' : 'PM'
+
+      return `${isToday ? 'Today' : `${monthName} ${dateObject.getDate()} ${year}`}, ${hour}:${minute} ${AMPM}`
+    }
     default:
       return `${year}${month}${date}`
   }
@@ -87,6 +103,5 @@ export const changeMsToMinSecMs = (_ms: number) => {
  * 분, 초, ms를 ms로 변환해주는 함수
  */
 export const changeMinSecMsToMs = (m: number, s: number, ms: number) => {
-  console.log(m, s, ms)
   return m * MILLISECONDS_PER_MINUTE + s * MILLISECONDS_PER_SECOND + ms
 }

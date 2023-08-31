@@ -2,18 +2,28 @@ import React, { useEffect, useRef, useState } from 'react'
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd'
 import cx from 'classnames'
 
-import { Block, BlockGroup, Scenario } from '@page/ActionPage/components/ActionSection/api/entity'
+// import { Block, BlockGroup, Scenario } from '@page/ActionPage/components/ActionSection/api/entity'
 import { useMutation, useQuery } from 'react-query'
 import BackgroundImage from '@assets/images/background_pattern.svg'
+import { remoconService } from '@global/service/RemoconService/RemoconService'
+import { CustomKeyTransmit, RemoconTransmit } from '@global/service/RemoconService/type'
+
+import { terminalService } from '@global/service/TerminalService/TerminalService'
+import { CommandTransmit } from '@global/service/TerminalService/type'
+import { useRecoilValue } from 'recoil'
+import { scenarioIdState } from '@global/atom'
+import { Block, BlockGroup, Scenario } from '@global/api/entity'
+import { getScenarioById } from '@global/api/func'
 import ActionBlockItem from './ActionBlockItem'
-import BlockControls from './BlockControls'
-import { getScenario, putScenario } from '../api/func'
+import { postBlock, postBlocks, putScenario } from '../api/func'
 
 type BlocksRef = {
   [id: string]: HTMLDivElement | null
 }
 
 const ActionBlockArea = (): JSX.Element => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+
   // 전체 블럭
   const [blocks, setBlocks] = useState<Block[] | null>(null)
 
@@ -24,15 +34,23 @@ const ActionBlockArea = (): JSX.Element => {
    */
   const [blockDummys, setBlockDummys] = useState<Block[][]>([])
 
-  const { data: scenario, refetch: blockRefetch } = useQuery<Scenario>(['scenario'], () => getScenario(), {
-    onSuccess: (res) => {
-      if (res && res.items.block_group.length > 0) {
-        const newBlocks: Block[] = res.items.block_group[0].block
-        setBlocks(newBlocks)
-        setBlockDummys(newBlocks.map((block) => [block]))
-      }
+  const { data: scenario, refetch: blockRefetch } = useQuery<Scenario>(
+    ['scenario', scenarioId],
+    () => getScenarioById({ scenario_id: scenarioId! }),
+    {
+      onSuccess: (res) => {
+        if (res && res.block_group.length > 0) {
+          const newBlocks: Block[] = res.block_group[0].block
+          setBlocks(newBlocks)
+          setBlockDummys(newBlocks.map((block) => [block]))
+        }
+      },
+      onError: (err) => {
+        console.error(err)
+      },
+      enabled: !!scenarioId,
     },
-  })
+  )
 
   const { mutate: putScenarioMutate } = useMutation(putScenario, {
     onSuccess: () => {
@@ -40,6 +58,8 @@ const ActionBlockArea = (): JSX.Element => {
     },
     onError: () => {
       alert('시나리오 수정에 실패하였습니다')
+      // 제자리로 돌아오기 위한
+      blockRefetch()
     },
   })
 
@@ -77,11 +97,16 @@ const ActionBlockArea = (): JSX.Element => {
 
     // 전체 blocks 최신화
 
-    const newBlockGroup: BlockGroup = { ...scenario.items.block_group[0], block: updatedBlockDummys.flat() }
+    const newBlockGroup: BlockGroup = { ...scenario.block_group[0], block: updatedBlockDummys.flat() }
 
-    putScenarioMutate({
-      block_group: [newBlockGroup],
-    })
+    if (scenarioId) {
+      putScenarioMutate({
+        new_scenario: {
+          ...scenario,
+          block_group: [newBlockGroup],
+        },
+      })
+    }
   }
 
   /**
@@ -250,97 +275,205 @@ const ActionBlockArea = (): JSX.Element => {
     }
   }
 
+  const { mutate: postBlockMutate } = useMutation(postBlock, {
+    onSuccess: () => {
+      blockRefetch()
+    },
+    onError: (err) => {
+      console.error(err)
+    },
+  })
+
+  const { mutate: postBlocksMutate } = useMutation(postBlocks, {
+    onSuccess: () => {
+      blockRefetch()
+    },
+    onError: (err) => {
+      console.error(err)
+    },
+  })
+
+  useEffect(() => {
+    const remoconButtonSubscribe$ = remoconService.onButton$().subscribe((remoconTransmit: RemoconTransmit) => {
+      if (scenarioId) {
+        postBlockMutate({
+          newBlock: {
+            type: remoconTransmit.msg,
+            args: [
+              {
+                key: 'key',
+                value: remoconTransmit.data.key,
+              },
+              {
+                key: 'type',
+                value: remoconTransmit.data.type,
+              },
+              {
+                key: 'press_time',
+                value: remoconTransmit.data.press_time,
+              },
+              {
+                key: 'name',
+                value: remoconTransmit.data.name,
+              },
+            ],
+            delay_time: 3000,
+            name: `RCU (${remoconTransmit.data.type}) : ${remoconTransmit.data.key}`,
+          },
+          scenario_id: scenarioId,
+        })
+      }
+    })
+
+    const remoconCustomKeySubscribe$ = remoconService
+      .onCustomKey$()
+      .subscribe((customKeyTransmit: CustomKeyTransmit) => {
+        if (scenarioId) {
+          const newBlocks = customKeyTransmit.data.map((keyTransmit) => {
+            return {
+              type: customKeyTransmit.msg,
+              args: [
+                {
+                  key: 'key',
+                  value: keyTransmit.key,
+                },
+                {
+                  key: 'type',
+                  value: keyTransmit.type,
+                },
+                {
+                  key: 'press_time',
+                  value: keyTransmit.press_time,
+                },
+                {
+                  key: 'name',
+                  value: keyTransmit.name,
+                },
+              ],
+              delay_time: 0,
+              name: `RCU (${keyTransmit.type}) : ${keyTransmit.key}`,
+            }
+          })
+          postBlocksMutate({
+            newBlocks,
+            scenario_id: scenarioId,
+          })
+        }
+      })
+
+    const terminalButtonSubscribe$ = terminalService.onButton$().subscribe((commandTransmit: CommandTransmit) => {
+      if (scenarioId) {
+        // #TODO: key, value, name에 대한 정확한 정의가 이루어져야 함
+        postBlockMutate({
+          newBlock: {
+            type: commandTransmit.type,
+            args: [
+              {
+                key: '',
+                value: '',
+              },
+            ],
+            delay_time: 3000,
+            name: `${commandTransmit.type} : ${commandTransmit.data.command}`,
+          },
+          scenario_id: scenarioId,
+        })
+      }
+    })
+
+    return () => {
+      remoconButtonSubscribe$.unsubscribe()
+      remoconCustomKeySubscribe$.unsubscribe()
+      terminalButtonSubscribe$.unsubscribe()
+    }
+  }, [scenarioId])
+
   return (
-    <div className="h-full w-full">
-      <div className="grid grid-rows-[auto_56px] h-full">
-        <div
-          className="h-full w-full pt-[30px] overflow-y-auto bg-repeat-y"
-          onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
-          onMouseMove={handleMouseMove}
-          style={{
-            backgroundImage: `url(${BackgroundImage})`,
-            backgroundSize: '100%',
-          }}
-        >
-          {blocks && blockDummys && blocks.length > 0 && (
-            <div className="w-full h-full pl-[30px] pr-[30px] overflow-y-auto pt-[2px] pb-[2px]">
-              <DragDropContext onDragEnd={handleDragEnd}>
-                <Droppable droppableId="droppable">
-                  {(provided) => (
-                    <div ref={provided.innerRef} {...provided.droppableProps} className="flex flex-col">
-                      {blockDummys.map((dummy, dummyIdx) => {
-                        return (
-                          <Draggable
-                            key={dummyIdx}
-                            draggableId={`dummy-${dummyIdx}`}
-                            index={dummyIdx}
-                            isDragDisabled={
-                              !!(modifyingBlockId && dummy.find((block) => block.id === modifyingBlockId))
-                            }
-                          >
-                            {(provided) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                className={cx('w-full cursor-grab ', {})}
-                              >
-                                {dummy.map((block) => {
-                                  return (
-                                    <div
-                                      key={block.id}
-                                      ref={(ele) => {
-                                        blocksRef.current[block.id] = ele
+    <div className="w-full h-full min-h-full">
+      <div
+        className="h-full bg-[#F1F2F4] w-full pt-3 overflow-y-auto bg-repeat-y"
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onMouseMove={handleMouseMove}
+        style={{
+          backgroundImage: `url(${BackgroundImage})`,
+          backgroundSize: '100%',
+        }}
+      >
+        {blocks && blockDummys && blocks.length > 0 && scenarioId && (
+          <div className="w-full h-full pl-3 pr-3 overflow-y-auto pt-[2px] pb-[2px]">
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="droppable">
+                {(provided) => (
+                  <div ref={provided.innerRef} {...provided.droppableProps} className="flex flex-col">
+                    {blockDummys.map((dummy, dummyIdx) => {
+                      return (
+                        <Draggable
+                          key={dummyIdx}
+                          draggableId={`dummy-${dummyIdx}`}
+                          index={dummyIdx}
+                          isDragDisabled={!!(modifyingBlockId && dummy.find((block) => block.id === modifyingBlockId))}
+                        >
+                          {(provided) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className={cx('w-full cursor-grab ', {})}
+                            >
+                              {dummy.map((block) => {
+                                return (
+                                  <div
+                                    key={block.id}
+                                    ref={(ele) => {
+                                      blocksRef.current[block.id] = ele
+                                    }}
+                                  >
+                                    <ActionBlockItem
+                                      actionStatus="normal"
+                                      block={block}
+                                      selectedBlockIds={selectedBlockIds}
+                                      handleBlockClick={handleBlockClick}
+                                      setModifyingBlockId={setModifyingBlockId}
+                                      modifyingBlockId={modifyingBlockId}
+                                      blockRefetch={() => {
+                                        blockRefetch()
                                       }}
-                                    >
-                                      <ActionBlockItem
-                                        actionStatus="normal"
-                                        block={block}
-                                        selectedBlockIds={selectedBlockIds}
-                                        handleBlockClick={handleBlockClick}
-                                        setModifyingBlockId={setModifyingBlockId}
-                                        modifyingBlockId={modifyingBlockId}
-                                        blockRefetch={() => {
-                                          blockRefetch()
-                                        }}
-                                      />
-                                    </div>
-                                  )
-                                })}
-                              </div>
-                            )}
-                          </Draggable>
-                        )
-                      })}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </DragDropContext>
-            </div>
-          )}
+                                    />
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          )}
+                        </Draggable>
+                      )
+                    })}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
+          </div>
+        )}
 
-          {blocks && blockDummys && blocks.length === 0 && (
-            <div className="h-full w-full justify-center items-center">
-              <p className="text-xl">No Blocks</p>
-              <p className="text-base">Start action about device control and adb/ssh access</p>
-            </div>
-          )}
+        {blocks && blockDummys && blocks.length === 0 && (
+          <div className="h-full w-full justify-center items-center">
+            <p className="text-xl">No Blocks</p>
+            <p className="text-base">Start action about device control and adb/ssh access</p>
+          </div>
+        )}
 
-          {dragSelection && (
-            <div
-              className="absolute border border-blue-500 bg-blue-200 opacity-50"
-              style={{
-                top: Math.min(dragSelection.startY, dragSelection.endY),
-                left: Math.min(dragSelection.startX, dragSelection.endX),
-                width: Math.abs(dragSelection.endX - dragSelection.startX),
-                height: Math.abs(dragSelection.endY - dragSelection.startY),
-              }}
-            />
-          )}
-        </div>
-        <BlockControls />
+        {dragSelection && (
+          <div
+            className="absolute border border-blue-500 bg-blue-200 opacity-50"
+            style={{
+              top: Math.min(dragSelection.startY, dragSelection.endY),
+              left: Math.min(dragSelection.startX, dragSelection.endX),
+              width: Math.abs(dragSelection.endX - dragSelection.startX),
+              height: Math.abs(dragSelection.endY - dragSelection.startY),
+            }}
+          />
+        )}
       </div>
       {modifyingBlockId && <div className="absolute top-0 left-0 h-full z-10 w-full bg-gray-100 opacity-50" />}
     </div>

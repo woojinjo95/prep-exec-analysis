@@ -25,7 +25,8 @@
       "@assets/*": ["src/assets/*"],
       "@global/*": ["src/global/*"],
       "@page/*": ["src/page/*"],
-      "@src/*": ["src/*"]
+      "@src/*": ["src/*"],
+      "@service/*": ["src/global/service/*"]
     }
   },
   "include": ["src"],

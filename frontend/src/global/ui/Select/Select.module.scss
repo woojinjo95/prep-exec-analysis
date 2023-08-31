@@ -1,0 +1,12 @@
+.light {
+  path {
+    @apply fill-black;
+  }
+}
+
+.dark,
+.charcoal {
+  path {
+    @apply fill-white;
+  }
+}

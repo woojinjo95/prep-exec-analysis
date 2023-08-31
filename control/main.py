@@ -1,15 +1,13 @@
 import logging
-import time
 
-from scripts.configs.config import RedisDBEnum, get_value
 from scripts.configs.constant import RedisChannel, RemoconSetting
 from scripts.configs.default import init_configs
 from scripts.connection.redis_pubsub import (Subscribe,
                                              get_strict_redis_connection)
 from scripts.device.remocon.remocon_process import RemoconProcess
 from scripts.device.serial.serial_device import (SerialDevice,
-                                                 initial_serial_devices,
-                                                 parse_on_off_control_args)
+                                                 initial_serial_devices)
+from scripts.device.serial_control import change_dut_state, init_dut_state
 from scripts.log_organizer import LogOrganizer
 from scripts.utils._exceptions import handle_errors
 
@@ -19,53 +17,38 @@ logger = logging.getLogger('main')
 @handle_errors
 def init(serial_device: SerialDevice, remocon_process: RemoconProcess):
     # TODO change it to first loaded remocon id
-    remocon_id = RemoconSetting.default_remocon_id
-    hardware_configuration = get_value('hardware_configuration', db=RedisDBEnum.hardware)
-    power_state = parse_on_off_control_args(hardware_configuration.get('enable_dut_power'))
-    hdmi_state = parse_on_off_control_args(hardware_configuration.get('enable_hdmi'))
-    wan_state = parse_on_off_control_args(hardware_configuration.get('enable_dut_wan'))
-    logger.info(f'Init first state: vac: {power_state} / hpd: {hdmi_state} / lan: {wan_state} / remocon_id: {remocon_id}')
-    serial_device.set_packet(vac=power_state, hpd=hdmi_state, lan=wan_state)
-    remocon_process.set_remocon_id(remocon_id)
+    power_state, hdmi_state, wan_state = init_dut_state(serial_device)
+    logger.info(f'Init first state: vac: {power_state} / hpd: {hdmi_state} / lan: {wan_state}')
 
 
 @handle_errors
 def command_parser(command: dict, serial_device: SerialDevice, remocon_process: RemoconProcess):
-    if command.get('remocon'):
-        remocon_args = command.get('remocon')
+    if command.get('msg') == 'remocon_transmit':
+        remocon_args = command.get('data')
         key = remocon_args.get('key')
-        remocon_type = remocon_args.get('type', 'ir')
+        remocon_type = remocon_args.get('type', 'default')
         press_time = remocon_args.get('press_time', 0)
-        remocon_id = remocon_args.get('id')
+        remocon_name = remocon_args.get('name')
 
-        if remocon_id is not None and remocon_id != remocon_process.remocon_id_pointer.value:
-            remocon_process.set_remocon_id(int(remocon_id))
+        if remocon_name is not None and remocon_name != remocon_process.configs['remocon_name']:
+            remocon_process.set_remocon_model(remocon_name)
 
         remocon_process.put_command(key=key, _type=remocon_type, press_time=press_time)
 
-    if command.get('remocon_model'):
-        remocon_type_args = command.get('remocon_model')
-        remocon_id = remocon_type_args.get('id')
-        remocon_process.set_remocon_id(int(remocon_id))
+    if command.get('msg') == 'remocon_properties':
+        remocon_type_args = command.get('data')
+        remocon_name = remocon_type_args.get('name')
+        remocon_type = remocon_type_args.get('type')
 
-    if command.get('on_off_control'):
-        on_off_control_args = command.get('on_off_control')
-        power_state = parse_on_off_control_args(on_off_control_args.get('enable_dut_power'))
-        hdmi_state = parse_on_off_control_args(on_off_control_args.get('enable_hdmi'))
-        wan_state = parse_on_off_control_args(on_off_control_args.get('enable_dut_wan'))
+        if remocon_name is not None:
+            remocon_process.set_remocon_model(remocon_name)
 
-        packet_dict = {}
+        if remocon_type is not None:
+            remocon_process.set_default_remocon_type(remocon_type)
 
-        if power_state is not None:
-            packet_dict['vac'] = power_state
-
-        if hdmi_state is not None:
-            packet_dict['hpd'] = hdmi_state
-
-        if wan_state is not None:
-            packet_dict['lan'] = wan_state
-
-        serial_device.set_packet(**packet_dict)
+    if command.get('msg') == 'on_off_control':
+        on_off_control_args = command.get('data')
+        change_dut_state(serial_device, on_off_control_args)
 
 
 @handle_errors
@@ -83,7 +66,7 @@ def main():
 
 if __name__ == '__main__':
     try:
-        log_organizer = LogOrganizer()
+        log_organizer = LogOrganizer(name='control')
         log_organizer.set_stream_logger('main')
         log_organizer.set_stream_logger('remocon', 1)
         log_organizer.set_stream_logger('serial', 6)

@@ -6,8 +6,8 @@ import sentry_sdk
 from app import schemas
 from app.api.api_v1.api import api_router
 from app.core.config import settings
-from fastapi import APIRouter, FastAPI, HTTPException
-from fastapi.staticfiles import StaticFiles
+from app.db.redis_session import RedisClient
+from fastapi import FastAPI, HTTPException
 from starlette.middleware.cors import CORSMiddleware
 
 logging.config.fileConfig('./app/logging.conf', disable_existing_loggers=False)
@@ -41,7 +41,6 @@ if settings.BACKEND_CORS_ORIGINS:
 def healthcheck() -> schemas.Msg:
     try:
         from app.db.session import db_session
-        from app.db.redis_session import RedisClient
         RedisClient.hget(name='item', key='id')
         db_session
     except Exception as er:
@@ -50,4 +49,3 @@ def healthcheck() -> schemas.Msg:
 
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
-app.mount(settings.FILES_PATH + '/system', StaticFiles(directory=settings.FILES_PATH + '/system'), name="static")

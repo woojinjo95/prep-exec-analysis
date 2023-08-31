@@ -1,15 +1,12 @@
 from typing import List, Optional
 
-from app.schemas.enum import (AnalysisTypeEnum, ChannelChangeTimeTargetEnum,
-                              LogLevelFinderTargetEnum,
-                              ResumeMeasurementRecognizingKeyEventEnum)
+from app.schemas.enum import (BootTypeEnum, ChannelChangeTimeTargetEnum,
+                              LogLevelEnum, ResumeTypeEnum)
 from pydantic import BaseModel
 
 
-class CommonConfig(BaseModel):
-    save_video: bool
-    before_occurrence: int
-    after_occurrence: int
+class CommonBaseModel(BaseModel):
+    color: str
 
 
 class Roi(BaseModel):
@@ -20,58 +17,73 @@ class Roi(BaseModel):
 
 
 class Frame(BaseModel):
-    image_path: str
+    id: str
+    path: str
     roi: Roi
 
 
-class Freeze(CommonConfig):
-    analysis_type: AnalysisTypeEnum = AnalysisTypeEnum.freeze
+class Freeze(CommonBaseModel):
     duration: int
 
 
-class Macroblock(CommonConfig):
-    analysis_type: AnalysisTypeEnum = AnalysisTypeEnum.macroblock
+class Macroblock(CommonBaseModel):
+    frame_sampling_interval: int
+    threshold_score: float
 
 
-class Loudness(BaseModel):
-    analysis_type: AnalysisTypeEnum = AnalysisTypeEnum.loudness
+class Resume(CommonBaseModel):
+    type: ResumeTypeEnum
+    frame: Optional[Frame]
 
 
-class Resume(CommonConfig):
-    analysis_type: AnalysisTypeEnum = AnalysisTypeEnum.resume
-    recognizing_key_event: ResumeMeasurementRecognizingKeyEventEnum
-    frame: Frame
+class Boot(CommonBaseModel):
+    type: BootTypeEnum
+    frame: Optional[Frame]
 
 
-class Boot(CommonConfig):
-    analysis_type: AnalysisTypeEnum = AnalysisTypeEnum.boot
-    frame: Frame
-
-
-class ChannelChangeTime(CommonConfig):
-    analysis_type: AnalysisTypeEnum = AnalysisTypeEnum.channel_change_time
+class ChannelChangeTime(CommonBaseModel):
     targets: List[ChannelChangeTimeTargetEnum]
 
 
-class LogLevelFinder(BaseModel):
-    analysis_type: AnalysisTypeEnum = AnalysisTypeEnum.log_level_finder
-    targets: List[LogLevelFinderTargetEnum]
+class LogLevelFinder(CommonBaseModel):
+    targets: List[LogLevelEnum]
 
 
-class LogPatternMatching(BaseModel):
-    analysis_type: AnalysisTypeEnum = AnalysisTypeEnum.log_pattern_matching
+class LogPatternMatchingItems(CommonBaseModel):
+    name: str
+    level: LogLevelEnum
+    regular_expression: str
+    color: str
+
+
+class LogPatternMatching(CommonBaseModel):
+    items: List[LogPatternMatchingItems]
+
+
+class ProcessLifecycleAnalysis(CommonBaseModel):
+    pass
+
+
+class NetworkFilter(CommonBaseModel):
+    pass
 
 
 class AnalysisConfig(BaseModel):
     freeze: Optional[Freeze]
-    macroblock: Optional[Macroblock]
-    loudness: Optional[Loudness]
+    # macroblock: Optional[Macroblock]
     resume: Optional[Resume]
     boot: Optional[Boot]
     channel_change_time: Optional[ChannelChangeTime]
     log_level_finder: Optional[LogLevelFinder]
     log_pattern_matching: Optional[LogPatternMatching]
+    # process_lifecycle_analysis: Optional[ProcessLifecycleAnalysis]
+    # network_filter: Optional[NetworkFilter]
 
 
 class AnalysisConfigBase(BaseModel):
     items: AnalysisConfig
+
+
+class FrameImage(BaseModel):
+    id: str
+    path: str

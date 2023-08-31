@@ -5,20 +5,66 @@ jobs:
     build-test-backend:
         runs-on: [self-hosted, docker, Linux]
         steps:
+          - uses: actions/checkout@v3  
           - run: docker build -t registry.dev-nextlab.com/qaas-backend:dev-${{github.run_id}}${{github.run_number}} -f ./backend/dockerfile.dev.m32dev4 ./backend
             shell: bash
     build-test-frontend:
         runs-on: [self-hosted, docker, Linux]
         steps:
+          - uses: actions/checkout@v3  
           - run: docker build -t registry.dev-nextlab.com/qaas-frontend:dev-${{github.run_id}}${{github.run_number}} -f ./frontend/dockerfile.development ./frontend
             shell: bash
     build-test-media:
         runs-on: [self-hosted, docker, Linux]
         steps:
+          - uses: actions/checkout@v3  
           - run: docker build -t registry.dev-nextlab.com/qaas-media:dev-${{github.run_id}}${{github.run_number}} -f ./media/dockerfile.dev.m32dev4 ./media
             shell: bash
-    build-dev-m32dev4-stblog:
+    build-dev-stblog:
         runs-on: [self-hosted, docker, Linux]
         steps:
-          - run: docker build -t registry.dev-nextlab.com/qaas-stblog:dev-${{github.run_id}}${{github.run_number}} -f ./stb_log/Dockerfile ./stb_log
+          - uses: actions/checkout@v3  
+          - run: docker build -t registry.dev-nextlab.com/qaas-stblog:dev-${{github.run_id}}${{github.run_number}} -f ./stb_log/dockerfile ./stb_log
             shell: bash
+    build-dev-watcher:
+        runs-on: [self-hosted, docker, Linux]
+        steps:
+          - uses: actions/checkout@v3  
+          - run: docker build -t registry.dev-nextlab.com/qaas-watcher:dev-${{github.run_id}}${{github.run_number}} -f ./watcher/dockerfile ./watcher
+            shell: bash
+    build-dev-shell:
+        runs-on: [self-hosted, docker, Linux]
+        steps:
+          - uses: actions/checkout@v3  
+          - run: docker build -t registry.dev-nextlab.com/qaas-shell:dev-${{github.run_id}}${{github.run_number}} -f ./shell/Dockerfile.dev.m32dev4 ./shell
+            shell: bash
+    build-dev-playblock:
+        runs-on: [self-hosted, docker, Linux]
+        steps:
+          - uses: actions/checkout@v3  
+          - run: docker build -t registry.dev-nextlab.com/qaas-playblock:dev-${{github.run_id}}${{github.run_number}} -f ./playblock/Dockerfile.dev.m32dev4 ./playblock
+            shell: bash
+    build-dev-state:
+        runs-on: [self-hosted, docker, Linux]
+        steps:
+          - uses: actions/checkout@v3  
+          - run: docker build -t registry.dev-nextlab.com/qaas-state:dev-${{github.run_id}}${{github.run_number}} -f ./state/Dockerfile.dev.m32dev4 ./state
+            shell: bash
+    build-dev-replay:
+        runs-on: [self-hosted, docker, Linux]
+        steps:
+          - uses: actions/checkout@v3  
+          - run: docker build -t registry.dev-nextlab.com/qaas-replay:dev-${{github.run_id}}${{github.run_number}} -f ./replay/dockerfile.dev.m32dev4 ./replay
+            shell: bash
+    build-dev-control:
+      runs-on: [self-hosted, docker, Linux]
+      steps:
+        - uses: actions/checkout@v3  
+        - run: docker build -t registry.dev-nextlab.com/qaas-control:dev-${{github.run_id}}${{github.run_number}} -f ./control/dockerfile.dev.m32dev4 ./replay
+          shell: bash
+    build-dev-network:
+      runs-on: [self-hosted, docker, Linux]
+      steps:
+        - uses: actions/checkout@v3  
+        - run: docker build -t registry.dev-nextlab.com/qaas-control:dev-${{github.run_id}}${{github.run_number}} -f ./network/dockerfile.dev.m32dev4 ./network
+          shell: bash

@@ -1,8 +1,10 @@
+.remocon-container,
 .hot-key-container {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
+.remocon-container::-webkit-scrollbar,
 .hot-key-container::-webkit-scrollbar {
   display: none;
 }
