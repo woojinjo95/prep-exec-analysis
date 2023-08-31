@@ -1,10 +1,12 @@
-from typing import List, Dict
 import logging
 import random
 import threading
 import time
-from scripts.monkey.util import exec_keys, get_current_image, check_temporal_similar
+from typing import Dict, List
+
 from scripts.external.report import report_data
+from scripts.monkey.util import (check_temporal_similar, exec_keys,
+                                 get_current_image)
 
 logger = logging.getLogger('monkey_class')
 

@@ -2,8 +2,6 @@ import cv2
 import numpy as np
 from typing import Tuple, List
 import logging
-import threading
-import time
 
 from scripts.control.image import get_snapshot
 from scripts.control.remocon import publish_remocon_msg
