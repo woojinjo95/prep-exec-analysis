@@ -1,6 +1,8 @@
 import React from 'react'
 import cx from 'classnames'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
+import { useMutation } from 'react-query'
+import { deleteTag } from '@global/api/func'
 import { DropdownWithMoreButton, OptionItem, Text } from '..'
 import Tag from '../Tag'
 
@@ -10,6 +12,8 @@ interface TagItemProps extends React.LiHTMLAttributes<HTMLLIElement> {
 
   colorScheme?: 'dark' | 'charcoal' | 'light'
   isActive?: boolean
+  setBlocksTags: React.Dispatch<React.SetStateAction<string[]>>
+  refetch: () => void
 }
 
 /**
@@ -17,7 +21,24 @@ interface TagItemProps extends React.LiHTMLAttributes<HTMLLIElement> {
  *
  * OptionList 컴포넌트와 같이 사용
  */
-const TagItem: React.FC<TagItemProps> = ({ mode = 'item', tag, colorScheme = 'charcoal', isActive, ...props }) => {
+const TagItem: React.FC<TagItemProps> = ({
+  mode = 'item',
+  tag,
+  colorScheme = 'charcoal',
+  isActive,
+  setBlocksTags,
+  refetch,
+  ...props
+}) => {
+  const { mutate: deleteTagMutate } = useMutation(deleteTag, {
+    onSuccess: () => {
+      refetch()
+    },
+    onError: (err) => {
+      console.error(err)
+    },
+  })
+
   return (
     <li
       className={cx(
@@ -38,18 +59,26 @@ const TagItem: React.FC<TagItemProps> = ({ mode = 'item', tag, colorScheme = 'ch
       {mode === 'item' && (
         <div
           className="flex justify-between"
-          // onClick={(e) => {
-          //   e.stopPropagation()
-          //   e.preventDefault()
-          // }}
+          onClick={(e) => {
+            e.stopPropagation()
+            e.preventDefault()
+            setBlocksTags((prev) => [...prev, tag])
+          }}
         >
           <Tag tag={tag} />
           <DropdownWithMoreButton type="icon" colorScheme="charcoal">
-            <OptionItem colorScheme="charcoal">Testing</OptionItem>
+            <OptionItem colorScheme="charcoal">{tag}</OptionItem>
             <OptionItem colorScheme="charcoal">
               <div className="flex">
-                <TrashIcon className="w-4 h-[19px] fill-white" />
-                <Text>Delete</Text>
+                <TrashIcon className="w-4 h-[19px] fill-white mr-2" />
+                <Text
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    deleteTagMutate(tag)
+                  }}
+                >
+                  Delete
+                </Text>
               </div>
             </OptionItem>
           </DropdownWithMoreButton>

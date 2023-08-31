@@ -10,7 +10,7 @@ interface TagProps {
 
 const Tag: React.FC<TagProps> = ({ mode = 'normal', tag, onDelete }) => {
   return (
-    <Text colorScheme="light-charcoal" invertBackground className="border border-grey p-1">
+    <Text colorScheme="light-charcoal" invertBackground className="border border-grey p-1 mr-2">
       {mode === 'delete' ? (
         <div className="flex justify-between items-center ">
           <Text>{tag}</Text>

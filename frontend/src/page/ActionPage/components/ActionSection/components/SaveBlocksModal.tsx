@@ -9,8 +9,11 @@ import { useScenarioById } from '@global/api/hook'
 import { useRecoilValue } from 'recoil'
 import { scenarioIdState } from '@global/atom'
 import Tag from '@global/ui/Tag'
-import { useQuery } from 'react-query'
-import { getTag } from '@global/api/func'
+import { useMutation, useQuery } from 'react-query'
+import { getTag, postTag, postTestrun } from '@global/api/func'
+import { useToast } from '@chakra-ui/react'
+import { AxiosError } from 'axios'
+import { putScenario } from '../api/func'
 
 interface SaveBlocksModalProps {
   isOpen: boolean
@@ -18,6 +21,8 @@ interface SaveBlocksModalProps {
 }
 
 const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
+  const toast = useToast({ duration: 3000, isClosable: true })
+
   const firstFocusableElementRef = useRef<HTMLInputElement>(null)
   const lastFocusableElementRef = useRef<HTMLButtonElement>(null)
 
@@ -83,10 +88,38 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
     if (!tags || !currentScenario) return null
     // if (tagInput === '') return null
 
-    return tags.filter(
-      (tag) => tag.includes(tagInput) && currentScenario.tags.find((_tag) => _tag === tag) === undefined,
-    )
-  }, [tagInput, tags])
+    return tags.filter((tag) => tag.includes(tagInput) && blocksTags.find((_tag) => _tag === tag) === undefined)
+  }, [tagInput, tags, blocksTags])
+
+  const { mutate: postTagMutate } = useMutation(postTag, {
+    onSuccess: () => {
+      refetch()
+    },
+    onError: (err: AxiosError) => {
+      if (err.status === 406) {
+        toast({ status: 'error', title: 'Tag name duplicated' })
+      }
+      console.error(err)
+    },
+  })
+  const { mutate: postTestrunMutate } = useMutation(postTestrun, {
+    onError: (err: AxiosError) => {
+      console.error(err)
+    },
+  })
+
+  const { mutate: putScenarioMutate } = useMutation(putScenario, {
+    onSuccess: () => {
+      refetch()
+
+      if (scenarioId) {
+        postTestrunMutate(scenarioId)
+      }
+    },
+    onError: (err: AxiosError) => {
+      console.error(err)
+    },
+  })
 
   if (!(tags && currentScenario && scenarios)) return <div />
 
@@ -122,7 +155,11 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
                 {currentScenario &&
                   blocksTags.map((tag) => (
                     <React.Fragment key={`blocks_${currentScenario.id}_${tag}`}>
-                      <Tag tag={tag} mode="delete" />
+                      <Tag
+                        tag={tag}
+                        mode="delete"
+                        onDelete={() => setBlocksTags((prev) => prev.filter((_tag) => _tag !== tag))}
+                      />
                     </React.Fragment>
                   ))}
                 <input
@@ -139,10 +176,36 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
             {searchedTags &&
               searchedTags.map((tag) => {
                 return (
-                  <TagItem colorScheme="charcoal" tag={tag} key={`scenario_${currentScenario.id}_tag_item_${tag}`} />
+                  <TagItem
+                    colorScheme="charcoal"
+                    tag={tag}
+                    refetch={() => {
+                      refetch()
+                    }}
+                    key={`scenario_${currentScenario.id}_tag_item_${tag}`}
+                    setBlocksTags={setBlocksTags}
+                  />
                 )
               })}
-            {/* {tagInput !== '' && <></>} */}
+            {tagInput !== '' && (
+              <div
+                className="h-11 flex px-3 py-2 hover:bg-light-charcoal cursor-pointer"
+                onClick={() => {
+                  if (!blocksTags.find((tag) => tag === tagInput)) {
+                    postTagMutate(tagInput)
+                    setBlocksTags((prev) => [...prev, tagInput])
+                    setTagInput('')
+                  } else {
+                    toast({ status: 'error', title: 'Tag name duplicated' })
+                  }
+                }}
+              >
+                <Text colorScheme="light" className="mr-2">
+                  Create :{' '}
+                </Text>
+                <Tag tag={tagInput} />
+              </div>
+            )}
           </Select>
         </div>
         <div className="mt-5 flex flex-col w-full min-h-[520px]">
@@ -164,7 +227,7 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
           >
             {scenarios.map((scenario) => (
               <div className="flex flex-col w-full" key={`file_${scenario.name}`}>
-                <div className="w-full grid grid-cols-[35%_45%_20%] border-b-grey border-b-[1px] min-h-[48px] items-center">
+                <div className="w-full grid grid-cols-[35%_45%_20%]  gap-x-2 border-b-grey border-b-[1px] min-h-[48px] items-center">
                   <div>
                     <Text className="text-white mr-3" invertBackground colorScheme="light-orange">
                       B
@@ -214,8 +277,15 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
           <Button
             colorScheme="primary"
             className="w-[132px] h-[48px] mr-3 text-white rounded-3xl"
-            onClick={() => {
-              console.log('test')
+            onClick={(e) => {
+              e.stopPropagation()
+              putScenarioMutate({
+                new_scenario: {
+                  ...currentScenario,
+                  tags: blocksTags,
+                },
+              })
+              close()
             }}
           >
             Save
