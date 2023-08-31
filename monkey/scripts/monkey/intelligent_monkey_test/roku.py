@@ -108,7 +108,7 @@ class IntelligentMonkeyTestRoku:
         monkey = Monkey(
             duration=self.duration_per_menu,
             key_candidates=['right', 'up', 'down', 'ok'],
-            root_key_set=current_node,
+            root_keyset=current_node,
             key_interval=self.key_interval,
             profile=self.profile,
             enable_smart_sense=self.smart_sense_args.enable_smart_sense,
