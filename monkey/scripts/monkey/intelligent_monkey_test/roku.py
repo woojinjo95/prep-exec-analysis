@@ -5,10 +5,10 @@ import logging
 import numpy as np
 
 from scripts.analysis.image import find_roku_cursor
-from scripts.analysis.monkey.util import (get_current_image, check_cursor_is_same,
-                                          exec_key, exec_keys, head_to_next, optimize_path,
-                                          check_temporal_similar,
-                                          FrameInfo)
+from scripts.monkey.util import (get_current_image, check_cursor_is_same,
+                                exec_key, exec_keys, head_to_next, optimize_path,
+                                check_temporal_similar,
+                                FrameInfo)
 
 logger = logging.getLogger('monkey_test')
 

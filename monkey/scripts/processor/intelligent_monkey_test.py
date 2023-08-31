@@ -3,7 +3,7 @@ import traceback
 from typing import Dict
 
 from scripts.util.decorator import log_decorator
-from scripts.analysis.monkey.intelligent_monkey_test.roku import IntelligentMonkeyTestRoku
+from scripts.monkey.intelligent_monkey_test.roku import IntelligentMonkeyTestRoku
 from scripts.connection.redis_conn import get_all
 
 
