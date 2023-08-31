@@ -36,7 +36,7 @@ def exec_keys(keys: List[str], *args, **kwargs):
 
 def check_cursor_is_same(prev_image: np.ndarray, prev_cursor: Tuple, image: np.ndarray, cursor: Tuple, 
                         iou_thld: float=0.9, min_color_depth_diff: int=10, diff_thld: float=0.05) -> bool:
-    logger.info(f'cursor same check. prev_cursor: {prev_cursor}, cursor: {cursor}')
+    # logger.info(f'cursor same check. prev_cursor: {prev_cursor}, cursor: {cursor}')
     if prev_image is None or image is None or prev_cursor is None or cursor is None:
         return False
     else:
@@ -82,7 +82,7 @@ def head_to_next(key_histories: List[str], depth_key: str, breadth_key: str) -> 
 
 def check_positional_similar(prev_cursor: Tuple, cursor: Tuple, iou_thld: float=0.9) -> bool:
     iou_rate = calc_iou(prev_cursor, cursor)
-    logger.info(f'check positional similar. iou_rate: {iou_rate:.6f}, iou_thld: {iou_thld:.6f}')
+    # logger.info(f'check positional similar. iou_rate: {iou_rate:.6f}, iou_thld: {iou_thld:.6f}')
     return iou_rate > iou_thld
 
 
@@ -91,7 +91,7 @@ def check_temporal_similar(prev_image: np.ndarray, image: np.ndarray, min_color_
         return cv2.cvtColor(cv2.resize(image, (960, 540)), cv2.COLOR_BGR2GRAY)
     
     diff_rate = calc_diff_rate(preprocess_image(prev_image), preprocess_image(image), min_color_depth_diff)
-    logger.info(f'check temporal similar. diff_rate: {diff_rate:.6f}, diff_thld: {diff_thld:.6f}')
+    # logger.info(f'check temporal similar. diff_rate: {diff_rate:.6f}, diff_thld: {diff_thld:.6f}')
     return diff_rate < diff_thld
 
 

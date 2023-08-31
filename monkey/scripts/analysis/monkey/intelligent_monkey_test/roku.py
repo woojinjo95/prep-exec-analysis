@@ -50,7 +50,6 @@ class IntelligentMonkeyTestRoku:
             # check current depth end
             image, cursor = get_current_image(), self.get_cursor()
             if last_fi and check_cursor_is_same(last_fi.image, last_fi.cursor, image, cursor):
-                logger.info('cursor does not same.')
                 try:
                     logger.info('head to next.')
                     self.head_to_next()
@@ -62,7 +61,6 @@ class IntelligentMonkeyTestRoku:
                     return
             
             # check next node exists
-            logger.info('start next node check.')
             image = get_current_image()
             cursor = self.get_cursor()
             fi = FrameInfo(image, cursor)
@@ -74,10 +72,10 @@ class IntelligentMonkeyTestRoku:
                 logger.info('next node does not exist.')
                 # candidates.append([*self.key_histories, self.depth_key])
                 # logger.info(f'candidates: {len(candidates)}')
+                ### save current status ###
                 ### start test ###
                 self.append_key(self.breadth_key)
-                # 이미 위에서 다음 node가 불가능하다고 판단하였으므로, 다음 시점에 breadth_key도 불가능하다면 이것은 leaf node일 것이므로, 현재 cursor를 저장해두기
-                last_fi = fi
+            last_fi = fi
 
     ##### Functions #####
     def get_cursor(self) -> Tuple:
