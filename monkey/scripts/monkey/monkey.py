@@ -50,6 +50,7 @@ class Monkey:
                     self.report_smart_sense()
                     self.go_to_root()
                     self.start_smart_sense()
+
         logger.info('stop monkey')
 
     def stop(self):
