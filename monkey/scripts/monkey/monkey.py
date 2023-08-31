@@ -27,13 +27,14 @@ class Monkey:
         self.enable_smart_sense = enable_smart_sense
         self.waiting_time = waiting_time
         self.report_data = report_data
+        logger.info(f'set monkey. args: {locals()}')
 
         self.smart_sense_detected = False
         self.main_stop_event = threading.Event()
         self.smart_sense_stop_event = threading.Event()
 
     def run(self):
-        logger.info(f'start monkey. args: {self.get_all_args()}')
+        logger.info('start monkey')
         self.main_stop_event.clear()
         start_time = time.time()
 
@@ -95,8 +96,3 @@ class Monkey:
             **self.report_data,
         }
         report_data('monkey_smart_sense', data)
-
-    def get_all_args(self) -> Dict:
-        args = locals()
-        del args['self']
-        return args
