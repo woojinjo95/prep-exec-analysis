@@ -107,7 +107,7 @@ def set_ilike(param):
     return {'$regex': item, '$options': 'i'}
 
 
-def paginate_from_mongodb_aggregation(col: str, pipeline: list, page: int, page_size: int):
+def paginate_from_mongodb_aggregation(col: str, pipeline: list, page: int, page_size: int = 10):
     if page:
         skip_num = (page - 1) * page_size
         paging_pipeline = [{'$facet': {'page_info': [{'$count': 'total'}],
