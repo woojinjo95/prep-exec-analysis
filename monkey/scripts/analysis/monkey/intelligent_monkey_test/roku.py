@@ -6,7 +6,7 @@ import numpy as np
 
 from scripts.analysis.image import find_roku_cursor
 from scripts.analysis.monkey.util import (get_current_image, check_cursor_is_same,
-                                          exec_key, exec_keys, head_to_next, append_key,
+                                          exec_key, exec_keys, head_to_next, optimize_path,
                                           FrameInfo)
 
 logger = logging.getLogger('monkey_test')
@@ -83,10 +83,11 @@ class IntelligentMonkeyTestRoku:
         exec_keys(keys, self.profile, self.key_interval)
 
     def append_key(self, key: str):
-        append_key(self.key_histories, key)
+        self.key_histories.append(key)
+        self.key_histories = optimize_path(self.key_histories)
 
     def head_to_next(self):
-        head_to_next(self.key_histories, self.depth_key)
+        self.key_histories = head_to_next(self.key_histories, self.depth_key)
 
     ##### Functions #####
     def get_cursor(self) -> Tuple:

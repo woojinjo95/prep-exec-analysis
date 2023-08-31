@@ -19,14 +19,17 @@ inverse_keys = {
 }
 
 
+# 이미지 GET
 def get_current_image() -> np.ndarray:
     return get_snapshot()
 
 
+# 키 입력
 def exec_key(profile: str, key: str, key_interval: float):
     publish_remocon_msg(profile, key, sleep=key_interval)
 
 
+# 여러 키 입력
 def exec_keys(keys: List[str], *args, **kwargs):
     logger.info(f'exec_keys: {keys}')
     for key in keys:
@@ -34,6 +37,7 @@ def exec_keys(keys: List[str], *args, **kwargs):
     # time.sleep(3)
 
 
+# 이전과 현재 커서의 동일성 체크
 def check_cursor_is_same(prev_image: np.ndarray, prev_cursor: Tuple, image: np.ndarray, cursor: Tuple, 
                         iou_thld: float=0.9, min_color_depth_diff: int=10, diff_thld: float=0.05) -> bool:
     def preprocess_image(image: np.ndarray) -> np.ndarray:
@@ -54,6 +58,7 @@ def check_cursor_is_same(prev_image: np.ndarray, prev_cursor: Tuple, image: np.n
         return same
 
 
+# 주어진 루트 최적화
 def optimize_path(path: List[str]) -> List[str]:
     stack = []
     for action in path:
@@ -64,15 +69,16 @@ def optimize_path(path: List[str]) -> List[str]:
     return stack
 
 
-def head_to_next(key_histories: List[str], depth_key: str):
+# 다음 노드로 루트를 변경
+def head_to_next(key_histories: List[str], depth_key: str) -> List[str]:
     try:
         while True:
             if key_histories[-1] == 'down':
                 key_histories.pop()
             elif key_histories[-1] == depth_key:
                 key_histories.pop()
-                append_key(key_histories, 'down')
-                break
+                key_histories.append('down')
+                return key_histories
             else:
                 logger.warning(f'key_histories: {key_histories}')
                 raise ValueError('key_histories is invalid.')
@@ -80,11 +86,7 @@ def head_to_next(key_histories: List[str], depth_key: str):
         logger.warning(f'key_histories: {key_histories}')
         raise IndexError('key_histories is empty.')
 
-
-def append_key(key_histories: List[str], key: str):
-    key_histories.append(key)
-    key_histories = optimize_path(key_histories)
-
+    
 
 class FrameInfo:
     def __init__(self, image: np.ndarray, cursor: Tuple[int, int, int, int]):
