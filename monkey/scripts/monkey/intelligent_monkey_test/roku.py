@@ -4,11 +4,11 @@ import logging
 
 import numpy as np
 
-from scripts.analysis.image import find_roku_cursor
-from scripts.monkey.util import (get_current_image, check_cursor_is_same,
-                                exec_key, exec_keys, head_to_next, optimize_path,
-                                check_temporal_similar)
 from scripts.monkey.format import FrameInfo
+from scripts.monkey.util import (get_current_image, check_cursor_is_same,
+                                exec_keys, head_to_next, optimize_path)
+from scripts.analysis.image import find_roku_cursor
+from scripts.monkey.monkey import Monkey
 
 logger = logging.getLogger('monkey_test')
 
@@ -38,7 +38,6 @@ class IntelligentMonkeyTestRoku:
 
     ##### Visit #####
     def visit(self):
-        candidates = []
         last_fi = None
 
         while True:
@@ -67,10 +66,11 @@ class IntelligentMonkeyTestRoku:
                 self.append_key(self.depth_key)
             else:
                 logger.info('next node does not exist.')
-                # candidates.append([*self.key_histories, self.depth_key])
-                # logger.info(f'candidates: {len(candidates)}')
-                ### save current status ###   -> 몽키를 수행하고나서 다시 원래 상태를 가지고 원래 위치로 돌아와야 함 (load)
-                ### start test ###
+                candidates = [*self.key_histories, self.depth_key]
+                logger.info(f'candidates: {candidates}')
+
+                self.start_monkey()
+
                 self.append_key(self.breadth_key)
             last_fi = fi
 
@@ -100,6 +100,9 @@ class IntelligentMonkeyTestRoku:
     def append_key(self, key: str):
         self.key_histories.append(key)
         self.key_histories = optimize_path(self.key_histories)
+
+    def start_monkey(self):
+        pass
 
     ##### Re-Defined Functions #####
     def exec_keys(self, keys: List[str]):
