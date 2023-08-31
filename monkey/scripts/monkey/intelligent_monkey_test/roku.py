@@ -32,11 +32,13 @@ class IntelligentMonkeyTestRoku:
 
     ##### Entry Point #####
     def run(self):
+        logger.info('start intelligent monkey test. mode: ROKU.')
         self.set_root_keyset(external_keys=['home'])
         if not self.root_cursor:
             self.set_root_keyset(external_keys=['home'])  # try one more
 
         self.visit()
+        logger.info('stop intelligent monkey test. mode: ROKU.')
 
     ##### Visit #####
     def visit(self):
