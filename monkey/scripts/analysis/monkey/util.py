@@ -4,6 +4,7 @@ from typing import Tuple, List
 import logging
 
 from scripts.control.image import get_snapshot
+from scripts.control.remocon import publish_remocon_msg
 from scripts.analysis.image import calc_iou, calc_diff_rate, get_cropped_image
 
 
@@ -20,6 +21,17 @@ inverse_keys = {
 
 def get_current_image() -> np.ndarray:
     return get_snapshot()
+
+
+def exec_key(profile: str, key: str, key_interval: float):
+    publish_remocon_msg(profile, key, sleep=key_interval)
+
+
+def exec_keys(keys: List[str], *args, **kwargs):
+    logger.info(f'exec_keys: {keys}')
+    for key in keys:
+        exec_key(key, *args, **kwargs)
+    # time.sleep(3)
 
 
 def check_cursor_is_same(prev_image: np.ndarray, prev_cursor: Tuple, image: np.ndarray, cursor: Tuple, 
@@ -50,3 +62,10 @@ def optimize_path(path: List[str]) -> List[str]:
         else:
             stack.append(action)
     return stack
+
+
+class FrameInfo:
+    def __init__(self, image: np.ndarray, cursor: Tuple[int, int, int, int]):
+        self.image = image
+        self.cursor = cursor
+    

@@ -1,13 +1,13 @@
 
 from typing import Tuple, List
 import logging
-import time
 
 import numpy as np
 
-from scripts.control.remocon import publish_remocon_msg
 from scripts.analysis.image import find_roku_cursor
-from scripts.analysis.monkey.util import get_current_image, check_cursor_is_same, optimize_path
+from scripts.analysis.monkey.util import (get_current_image, check_cursor_is_same, optimize_path, 
+                                          exec_key, exec_keys,
+                                          FrameInfo)
 
 logger = logging.getLogger('monkey_test')
 
@@ -37,16 +37,11 @@ class IntelligentMonkeyTestRoku:
         self.set_root_keys(external_keys=['home'])
         self.visit()
 
-    # Control
     def exec_key(self, key: str):
-        publish_remocon_msg(self.profile, key, sleep=self.key_interval)
-        time.sleep(self.key_interval)
+        exec_key(self.profile, key, self.key_interval)
 
-    def exec_keys(self, keys: list, *args, **kwargs):
-        logger.info(f'exec_keys: {keys}')
-        for key in keys:
-            self.exec_key(key, *args, **kwargs)
-        # time.sleep(3)
+    def exec_keys(self, keys: List[str]):
+        exec_keys(keys, self.profile, self.key_interval)
 
     # 최초 루트 영역으로 이동
     def set_root_keys(self, external_keys: List[str] = []):
@@ -82,7 +77,7 @@ class IntelligentMonkeyTestRoku:
         last_fi = None
 
         while True:
-            self.exec_keys([*self.key_histories])  # TODO: exit이랑 menu의 경우 interval이 다를 수 있어서, key,interval 형식으로 저장 필요
+            self.exec_keys(self.key_histories)  # TODO: exit이랑 menu의 경우 interval이 다를 수 있어서, key,interval 형식으로 저장 필요
 
             image, cursor = get_current_image(), self.get_cursor()
 
@@ -127,10 +122,3 @@ class IntelligentMonkeyTestRoku:
             is_cursor_same = check_cursor_is_same(prev_image, prev_cursor, image, cursor)
             
             return True if is_height_similar and not is_cursor_same else False
-
-
-class FrameInfo:
-    def __init__(self, image: np.ndarray, cursor: Tuple[int, int, int, int]):
-        self.image = image
-        self.cursor = cursor
-    
