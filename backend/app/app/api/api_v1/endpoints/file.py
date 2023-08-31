@@ -92,7 +92,6 @@ async def workspace_video_file_download(
 
     try:
         video_file_path = video[0]['path']
-        video_file_path = video_file_path.replace(settings.CONTAINER_PATH, settings.HOST_PATH)
         with open(video_file_path, "rb") as video:
             headers = {'Accept-Ranges': 'bytes'}
             return Response(video.read(), headers=headers, media_type="video/mp4")
@@ -125,7 +124,6 @@ async def workspace_partial_video_file_download(
 
     try:
         video_file_path = video[0]['path']
-        video_file_path = video_file_path.replace(settings.CONTAINER_PATH, settings.HOST_PATH)
 
         if not range:
             return FileResponse(video_file_path)

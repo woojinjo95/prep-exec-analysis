@@ -14,7 +14,6 @@ ENV BACKEND_CORS_ORIGINS http://localhost:3000
 ENV SERVICE_NAME prep-exec-analysis
 ENV FILES_PATH /app/files
 ENV HOST_PATH /app
-ENV CONTAINER_PATH ./data
 ENV REMOCON_COMPANY vodafone,sk,roku
 
 ENV MONGODB_SERVER mongodb
