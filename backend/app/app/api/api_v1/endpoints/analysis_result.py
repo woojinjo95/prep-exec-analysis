@@ -3,7 +3,8 @@ import traceback
 from typing import Optional
 
 from app import schemas
-from app.api.utility import convert_iso_format, parse_bytes_to_value
+from app.api.utility import (convert_iso_format, parse_bytes_to_value,
+                             paginate_from_mongodb_aggregation)
 from app.crud.base import aggregate_from_mongodb, load_from_mongodb
 from app.db.redis_session import RedisClient
 from fastapi import APIRouter, HTTPException, Query
@@ -20,6 +21,8 @@ def get_data_of_log_level_finder(
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     log_level: Optional[str] = Query(None, description='ex)V,D,I,W,E,F,S'),
+    page_size: Optional[int] = 10,
+    page: Optional[int] = None
 ):
     """
     로그 레벨 데이터 조회
@@ -40,10 +43,13 @@ def get_data_of_log_level_finder(
                                      {'$project': {'_id': 0, 'timestamp': 1, 'log_level': '$lines.log_level'}},
                                      {'$unwind': {'path': '$log_level'}},
                                      {'$match': {'log_level': {'$in': log_level}}}]
-        log_level_finder = aggregate_from_mongodb(col='stb_log', pipeline=log_level_finder_pipeline)
+        log_level_finder = paginate_from_mongodb_aggregation(col='stb_log',
+                                                             pipeline=log_level_finder_pipeline,
+                                                             page=page,
+                                                             page_size=page_size)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return {"items": log_level_finder}
+    return log_level_finder
 
 
 # CPU
@@ -53,6 +59,8 @@ def get_data_of_cpu(
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
+    page_size: Optional[int] = 10,
+    page: Optional[int] = None
 ):
     """
     Cpu 데이터 조회
@@ -62,16 +70,19 @@ def get_data_of_cpu(
             testrun_id = RedisClient.hget('testrun', 'id')
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        time_range_param = {'timestamp': {'$gte': convert_iso_format(start_time),
-                                          '$lte': convert_iso_format(end_time)},
-                            'scenario_id': scenario_id,
-                            'testrun_id': testrun_id}
-        project = {'_id': 0, 'timestamp': 1, 'cpu_usage': 1, 'total': 1,
-                   'user': 1, 'kernel': 1, 'iowait': 1, 'irq': 1, 'softirq': 1}
-        cpu = load_from_mongodb(col="stb_info", param=time_range_param, proj=project)
+        cpu_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
+                                                  '$lte': convert_iso_format(end_time)},
+                                    'scenario_id': scenario_id,
+                                    'testrun_id': testrun_id}},
+                        {'$project': {'_id': 0, 'timestamp': 1, 'cpu_usage': 1, 'total': 1,
+                                      'user': 1, 'kernel': 1, 'iowait': 1, 'irq': 1, 'softirq': 1}}]
+        cpu = paginate_from_mongodb_aggregation(col='stb_info',
+                                                pipeline=cpu_pipeline,
+                                                page=page,
+                                                page_size=page_size)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return {"items": cpu}
+    return cpu
 
 
 # Memory
@@ -81,6 +92,8 @@ def get_data_of_memory(
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
+    page_size: Optional[int] = 10,
+    page: Optional[int] = None
 ):
     """
     Memory 데이터 조회
@@ -90,16 +103,19 @@ def get_data_of_memory(
             testrun_id = RedisClient.hget('testrun', 'id')
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        time_range_param = {'timestamp': {'$gte': convert_iso_format(start_time),
-                                          '$lte': convert_iso_format(end_time)},
-                            'scenario_id': scenario_id,
-                            'testrun_id': testrun_id}
-        project = {'_id': 0, 'timestamp': 1, 'memory_usage': 1,
-                   'total_ram': 1, 'free_ram': 1, 'used_ram': 1, 'lost_ram': 1}
-        memory = load_from_mongodb(col="stb_info", param=time_range_param, proj=project)
+        memory_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
+                                                     '$lte': convert_iso_format(end_time)},
+                                       'scenario_id': scenario_id,
+                                       'testrun_id': testrun_id}},
+                           {'$project': {'_id': 0, 'timestamp': 1, 'memory_usage': 1,
+                                         'total_ram': 1, 'free_ram': 1, 'used_ram': 1, 'lost_ram': 1}}]
+        memory = paginate_from_mongodb_aggregation(col='stb_info',
+                                                   pipeline=memory_pipeline,
+                                                   page=page,
+                                                   page_size=page_size)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return {"items": memory}
+    return memory
 
 
 # Event Log
@@ -109,6 +125,8 @@ def get_data_of_event_log(
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
+    page_size: Optional[int] = 10,
+    page: Optional[int] = None
 ):
     """
     이벤트 로그 데이터 조회
@@ -125,10 +143,13 @@ def get_data_of_event_log(
                               {'$project': {'_id': 0, 'lines': 1}},
                               {'$unwind': {'path': '$lines'}},
                               {'$replaceRoot': {'newRoot': '$lines'}}]
-        event_log = aggregate_from_mongodb(col='event_log', pipeline=event_log_pipeline)
+        event_log = paginate_from_mongodb_aggregation(col='event_log',
+                                                      pipeline=event_log_pipeline,
+                                                      page=page,
+                                                      page_size=page_size)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return {"items": event_log}
+    return event_log
 
 
 # Color Reference
@@ -138,6 +159,8 @@ def get_data_of_color_reference(
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
+    page_size: Optional[int] = 10,
+    page: Optional[int] = None
 ):
     """
     컬러 레퍼런스 데이터 조회
@@ -147,16 +170,18 @@ def get_data_of_color_reference(
             testrun_id = RedisClient.hget('testrun', 'id')
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        color_reference_param = {'timestamp': {'$gte': convert_iso_format(start_time),
-                                               '$lte': convert_iso_format(end_time)},
-                                 'scenario_id': scenario_id,
-                                 'testrun_id': testrun_id}
-        color_reference = load_from_mongodb(col="an_color_reference",
-                                            param=color_reference_param,
-                                            proj={'_id': 0, 'timestamp': 1, 'color_reference': 1})
+        color_reference_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
+                                                              '$lte': convert_iso_format(end_time)},
+                                                'scenario_id': scenario_id,
+                                                'testrun_id': testrun_id}},
+                                    {'$project': {'_id': 0, 'timestamp': 1, 'color_reference': 1}}]
+        color_reference = paginate_from_mongodb_aggregation(col='an_color_reference',
+                                                            pipeline=color_reference_pipeline,
+                                                            page=page,
+                                                            page_size=page_size)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return {"items": color_reference}
+    return color_reference
 
 
 # Freeze
@@ -166,7 +191,8 @@ def get_data_of_freeze(
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
-    freeze_type: Optional[str] = Query(None, description='ex)Black,White'),
+    page_size: Optional[int] = 10,
+    page: Optional[int] = None
 ):
     """
     화면 멈춤 데이터 조회
@@ -176,19 +202,19 @@ def get_data_of_freeze(
             testrun_id = RedisClient.hget('testrun', 'id')
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        freeze_param = {'timestamp': {'$gte': convert_iso_format(start_time),
-                                      '$lte': convert_iso_format(end_time)},
-                        'scenario_id': scenario_id,
-                        'testrun_id': testrun_id}
-        if freeze_type is not None:
-            freeze_type = freeze_type.split(',')
-            freeze_param['freeze_type'] = {'$in': freeze_type}
-        freeze = load_from_mongodb(col="an_freeze",
-                                   param=freeze_param,
-                                   proj={'_id': 0, 'timestamp': 1, 'freeze_type': 1, 'duration': 1})
+
+        freeze_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
+                                                     '$lte': convert_iso_format(end_time)},
+                                       'scenario_id': scenario_id,
+                                       'testrun_id': testrun_id}},
+                           {'$project': {'_id': 0, 'timestamp': 1, 'freeze_type': 1, 'duration': 1}}]
+        freeze = paginate_from_mongodb_aggregation(col='an_freeze',
+                                                   pipeline=freeze_pipeline,
+                                                   page=page,
+                                                   page_size=page_size)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return {"items": freeze}
+    return freeze
 
 
 # Loudness
@@ -198,6 +224,8 @@ def get_data_of_loudness(
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
+    page_size: Optional[int] = 10,
+    page: Optional[int] = None
 ):
     """
     Loudness 데이터 조회
@@ -214,12 +242,14 @@ def get_data_of_loudness(
                              {'$project': {'_id': 0, 'lines': 1}},
                              {'$unwind': {'path': '$lines'}},
                              {'$replaceRoot': {'newRoot': '$lines'}},
-                             {'$project': {'timestamp': '$timestamp', 'm': '$M', 'i': '$I'}}
-                             ]
-        loudness = aggregate_from_mongodb(col='loudness', pipeline=loudness_pipeline)
+                             {'$project': {'timestamp': '$timestamp', 'm': '$M', 'i': '$I'}}]
+        loudness = paginate_from_mongodb_aggregation(col='loudness',
+                                                     pipeline=loudness_pipeline,
+                                                     page=page,
+                                                     page_size=page_size)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return {"items": loudness}
+    return loudness
 
 
 # Measurement_resume (warm boot)
@@ -229,6 +259,8 @@ def get_data_of_resume(
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
+    page_size: Optional[int] = 10,
+    page: Optional[int] = None
 ):
     """
     분석 데이터 조회 : Resume(Warm booting)
@@ -238,15 +270,18 @@ def get_data_of_resume(
             testrun_id = RedisClient.hget('testrun', 'id')
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        measurement_param = {'timestamp': {'$gte': convert_iso_format(start_time),
-                                           '$lte': convert_iso_format(end_time)},
-                             'scenario_id': scenario_id,
-                             'testrun_id': testrun_id}
-        measurement_proj = {'_id': 0, 'timestamp': 1, 'measure_time': 1}
-        measurement = load_from_mongodb(col='an_warm_boot', param=measurement_param, proj=measurement_proj)
+        measurement_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
+                                                          '$lte': convert_iso_format(end_time)},
+                                            'scenario_id': scenario_id,
+                                            'testrun_id': testrun_id}},
+                                {'$project': {'_id': 0, 'timestamp': 1, 'measure_time': 1}}]
+        measurement_resume = paginate_from_mongodb_aggregation(col='an_warm_boot',
+                                                               pipeline=measurement_pipeline,
+                                                               page=page,
+                                                               page_size=page_size)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return {"items": measurement}
+    return measurement_resume
 
 
 # Measurement_resume (cold boot)
@@ -256,6 +291,8 @@ def get_data_of_boot(
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
+    page_size: Optional[int] = 10,
+    page: Optional[int] = None
 ):
     """
     분석 데이터 조회 : Boot(Cold booting)
@@ -265,15 +302,18 @@ def get_data_of_boot(
             testrun_id = RedisClient.hget('testrun', 'id')
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        measurement_param = {'timestamp': {'$gte': convert_iso_format(start_time),
-                                           '$lte': convert_iso_format(end_time)},
-                             'scenario_id': scenario_id,
-                             'testrun_id': testrun_id}
-        measurement_proj = {'_id': 0, 'timestamp': 1, 'measure_time': 1}
-        measurement = load_from_mongodb(col='an_cold_boot', param=measurement_param, proj=measurement_proj)
+        measurement_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
+                                                          '$lte': convert_iso_format(end_time)},
+                                            'scenario_id': scenario_id,
+                                            'testrun_id': testrun_id}},
+                                {'$project': {'_id': 0, 'timestamp': 1, 'measure_time': 1}}]
+        measurement_boot = paginate_from_mongodb_aggregation(col='an_cold_boot',
+                                                             pipeline=measurement_pipeline,
+                                                             page=page,
+                                                             page_size=page_size)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return {"items": measurement}
+    return measurement_boot
 
 
 # Log Pattern Maching
@@ -283,6 +323,8 @@ def get_data_of_log_pattern_matching(
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
+    page_size: Optional[int] = 10,
+    page: Optional[int] = None
 ):
     """
     로그 패턴 매칭 데이터 조회
@@ -292,17 +334,25 @@ def get_data_of_log_pattern_matching(
             testrun_id = RedisClient.hget('testrun', 'id')
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
-                                              '$lte': convert_iso_format(end_time)},
-                                'scenario_id': scenario_id,
-                                'testrun_id': testrun_id}},
-                    {'$project': {'_id': 0, 'timestamp': '$timestamp', 'message': '$message', 'items': '$user_config.items'}}, 
-                    {'$unwind': {'path': '$items'}},
-                    {'$project': {'timestamp': '$timestamp', 'log_pattern_name': '$items.name', 'log_level': '$items.level', 'message': '$message'}}]
-        log_pattern_matching = aggregate_from_mongodb(col='an_log_pattern', pipeline=pipeline)
+        log_pattern_matching_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
+                                                                   '$lte': convert_iso_format(end_time)},
+                                                     'scenario_id': scenario_id,
+                                                     'testrun_id': testrun_id}},
+                                         {'$project': {'_id': 0, 'timestamp': 1, 'message': 1,
+                                                       'items': '$user_config.items'}},
+                                         {'$unwind': {'path': '$items'}},
+                                         {'$project': {'timestamp': 1, 'message': 1,
+                                                       'log_pattern_name': '$items.name',
+                                                       'log_level': '$items.level',
+                                                       'color': '$items.color',
+                                                       'regex': '$items.regular_expression'}}]
+        log_pattern_matching = paginate_from_mongodb_aggregation(col='an_log_pattern',
+                                                                 pipeline=log_pattern_matching_pipeline,
+                                                                 page=page,
+                                                                 page_size=page_size)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return {"items": log_pattern_matching}
+    return log_pattern_matching
 
 
 # Process Lifecycle
@@ -312,6 +362,8 @@ def get_data_of_process_lifecycle(
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
+    page_size: Optional[int] = 10,
+    page: Optional[int] = None
 ):
     """
     프로세스 활동주기 데이터 조회
@@ -334,6 +386,8 @@ def get_data_of_network_filter(
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
+    page_size: Optional[int] = 10,
+    page: Optional[int] = None
 ):
     """
     네트워크 필터 데이터 조회
