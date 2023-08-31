@@ -95,18 +95,3 @@ def check_temporal_similar(prev_image: np.ndarray, image: np.ndarray, min_color_
     diff_rate = calc_diff_rate(preprocess_image(prev_image), preprocess_image(image), min_color_depth_diff)
     # logger.info(f'check temporal similar. diff_rate: {diff_rate:.6f}, diff_thld: {diff_thld:.6f}')
     return diff_rate < diff_thld
-
-
-def start_smart_sense(interval: float):
-    def smart_sense():
-        prev_frame = None
-        while True:
-            time.sleep(interval)
-            frame = get_current_image()
-            if prev_frame is not None:
-                if check_temporal_similar(prev_frame, frame):
-                    logger.info(f'smart sense is detected.')
-
-            prev_frame = frame
-    th = threading.Thread(target=smart_sense)
-    th.start()

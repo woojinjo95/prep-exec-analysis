@@ -20,7 +20,7 @@ def construct_report_data() -> Dict:
 
 
 def report_smart_sense(data: SmartSenseData):
-    report = {**construct_report_data(), **data}
-    logger.info(f'insert {report} to db')
+    report = {**construct_report_data(), **data.__dict__}
+    logger.info(f'insert smart_sense {report} to db')
     insert_to_mongodb('monkey_smart_sense', report)
 
