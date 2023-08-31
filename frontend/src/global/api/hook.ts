@@ -2,8 +2,21 @@ import { useEffect } from 'react'
 import { useQuery } from 'react-query'
 import { PAGE_SIZE_FIFTEEN } from '@global/constant'
 import { useWebsocket } from '@global/hook'
-import { getHardwareConfiguration, getLogConnectionStatus, getScenarios, getScenarioById } from './func'
-import { HardwareConfiguration, LogConnectionStatus, PaginationResponse, ScenarioSummary, Scenario } from './entity'
+import {
+  getHardwareConfiguration,
+  getLogConnectionStatus,
+  getServiceState,
+  getScenarios,
+  getScenarioById,
+} from './func'
+import {
+  HardwareConfiguration,
+  LogConnectionStatus,
+  ServiceState,
+  PaginationResponse,
+  ScenarioSummary,
+  Scenario,
+} from './entity'
 
 /**
  * 시나리오 리스트 조회 hook
@@ -93,6 +106,39 @@ export const useScenarioById = ({
 
   return {
     scenario: data,
+    isLoading,
+    refetch,
+  }
+}
+
+/**
+ * 서비스 상태 조회 hook
+ */
+export const useServiceState = ({
+  onSuccess,
+}: {
+  onSuccess?: (data: ServiceState) => void
+} = {}) => {
+  const { data, isLoading, refetch } = useQuery(['service_state'], getServiceState, {
+    onSuccess,
+  })
+
+  useEffect(() => {
+    if (data) {
+      onSuccess?.(data)
+    }
+  }, [data])
+
+  useWebsocket({
+    onMessage: (message) => {
+      if (message.msg === 'service_state') {
+        refetch()
+      }
+    },
+  })
+
+  return {
+    serviceState: data,
     isLoading,
     refetch,
   }

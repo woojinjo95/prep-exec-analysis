@@ -3,6 +3,7 @@ import API from '.'
 import {
   HardwareConfiguration,
   LogConnectionStatus,
+  ServiceState,
   PaginationResponse,
   Response,
   ScenarioSummary,
@@ -80,6 +81,20 @@ export const postDisconnect = async () => {
     const result = await API.post<{ msg: string }>(apiUrls.disconnect)
 
     return result.data
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
+/**
+ * 서비스 상태 조회 api
+ */
+export const getServiceState = async () => {
+  try {
+    const result = await API.get<Response<{ state: ServiceState }>>(apiUrls.service_state)
+
+    return result.data.items.state
   } catch (err) {
     const er = err as AxiosError
     throw er
