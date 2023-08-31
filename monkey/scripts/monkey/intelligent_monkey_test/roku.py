@@ -61,7 +61,7 @@ class IntelligentMonkeyTestRoku:
             image = get_current_image()
             cursor = self.get_cursor()
             fi = FrameInfo(image, cursor)
-            self.exec_key(self.depth_key)
+            self.exec_keys([self.depth_key])
             if self.check_leftmenu_is_opened(image, cursor, get_current_image(), self.get_cursor()):
                 logger.info('next node exists.')
                 self.append_key(self.depth_key)
@@ -102,9 +102,6 @@ class IntelligentMonkeyTestRoku:
         self.key_histories = optimize_path(self.key_histories)
 
     ##### Re-Defined Functions #####
-    def exec_key(self, key: str):
-        exec_key(key, self.key_interval, self.profile)
-
     def exec_keys(self, keys: List[str]):
         exec_keys(keys, self.key_interval, self.profile)
 
