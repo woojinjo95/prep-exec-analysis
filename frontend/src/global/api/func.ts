@@ -114,3 +114,19 @@ export const getLogConnectionStatus = async () => {
     throw er
   }
 }
+
+/**
+ * 특정 시나리오의 테스트런이 수행한 시작시간 및 종료시간 조회 api
+ */
+export const getVideoTimestamp = async (params: { scenario_id: string; testrun_id: string }) => {
+  try {
+    const result = await API.get<Response<{ start_time: string; end_time: string }>>(apiUrls.video_timestamp, {
+      params,
+    })
+
+    return result.data.items
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}

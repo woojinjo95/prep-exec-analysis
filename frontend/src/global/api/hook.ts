@@ -2,12 +2,15 @@ import { useEffect } from 'react'
 import { useQuery } from 'react-query'
 import { PAGE_SIZE_FIFTEEN } from '@global/constant'
 import { useWebsocket } from '@global/hook'
+import { scenarioIdState, testRunIdState } from '@global/atom'
+import { useRecoilValue } from 'recoil'
 import {
   getHardwareConfiguration,
   getLogConnectionStatus,
   getServiceState,
   getScenarios,
   getScenarioById,
+  getVideoTimestamp,
 } from './func'
 import {
   HardwareConfiguration,
@@ -172,6 +175,42 @@ export const useLogConnectionStatus = ({
 
   return {
     logConnectionStatus: data,
+    isLoading,
+    refetch,
+  }
+}
+
+/**
+ * 특정 시나리오의 테스트런이 수행한 시작시간 및 종료시간 조회 hook
+ */
+export const useVideoTimestamp = ({
+  onSuccess,
+}: {
+  onSuccess?: (data: { start_time: string; end_time: string }) => void
+} = {}) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(
+    ['video_timestamp', { scenarioId, testRunId }],
+    () =>
+      getVideoTimestamp({
+        scenario_id: scenarioId!,
+        testrun_id: testRunId!,
+      }),
+    {
+      onSuccess,
+      enabled: !!scenarioId && !!testRunId,
+    },
+  )
+
+  useEffect(() => {
+    if (data) {
+      onSuccess?.(data)
+    }
+  }, [data])
+
+  return {
+    videoTimestamp: data,
     isLoading,
     refetch,
   }
