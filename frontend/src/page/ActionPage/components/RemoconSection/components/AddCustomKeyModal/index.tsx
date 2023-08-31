@@ -92,7 +92,6 @@ const AddCustomKeyModal: React.FC<AddCustomKeyModalProps> = ({
             setRemoconInput([])
             close()
           }}
-          mode="normal"
           className={cx('right-3.5 h-[95vh] w-[700px] top-1/2 -translate-y-1/2')}
         >
           <div className="h-full w-full flex flex-col items-center justify-between relative">
