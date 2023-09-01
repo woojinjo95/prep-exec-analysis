@@ -42,6 +42,7 @@ class Monkey:
         self.smart_sense_count = 0
 
         self.banned_images = get_banned_images()
+        self.banned_image_detected = False
 
     def run(self):
         logger.info('Start Monkey')
@@ -122,4 +123,4 @@ class Monkey:
         if self.compare_banned_image(snapshot):
             logger.info('banned image is detected.')
             self.stop()
-
+            self.banned_image_detected = True

@@ -2,6 +2,7 @@
 import logging
 from typing import List, Tuple
 import time
+import threading
 
 import numpy as np
 
@@ -35,6 +36,7 @@ class IntelligentMonkeyTestRoku:
         # init variables
         self.key_histories = []
         self.section_id = 0
+        self.main_stop_event = threading.Event()
 
     ##### Entry Point #####
     def run(self):
@@ -46,11 +48,14 @@ class IntelligentMonkeyTestRoku:
         self.visit()
         logger.info('stop intelligent monkey test. mode: ROKU.')
 
+    def stop(self):
+        self.main_stop_event.set()
+
     ##### Visit #####
     def visit(self):
         last_fi = None
 
-        while True:
+        while not self.main_stop_event.is_set():
             self.exec_keys(self.key_histories)
 
             # check current depth end
@@ -140,6 +145,9 @@ class IntelligentMonkeyTestRoku:
 
         end_time = time.time()
         self.report_section(start_time, end_time, cursor_image, monkey.smart_sense_count)
+
+        if monkey.banned_image_detected:
+            self.stop()
 
     def report_section(self, start_time: float, end_time: float, image: np.ndarray, smart_sense_times: int):
         image_path = save_image(get_utc_datetime(time.time()).strftime('%y-%m-%d %H:%M:%S'), image)
