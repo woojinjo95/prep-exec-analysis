@@ -17,6 +17,20 @@ interface StopScenarioMessage {
 }
 
 /**
+ * 액션 페이지 진입(녹화상태 진입) publish 메시지
+ */
+interface EnterActionPageMessage {
+  msg: 'action_mode'
+}
+
+/**
+ * 분석 페이지 진입 publish 메시지
+ */
+interface EnterAnalysisPageMessage {
+  msg: 'analysis_mode'
+}
+
+/**
  * 환경설정 - on/off control 변경 publish 메시지
  */
 interface OnOffControlMessage {
@@ -143,6 +157,8 @@ export type PublishMessage = {
   | CommandMessage
   | AnalysisMessage
   | NetworkEmulationMessage
+  | EnterActionPageMessage
+  | EnterAnalysisPageMessage
 )
 
 type SubscribeCommandMessage<T> = {
