@@ -1,5 +1,6 @@
 from typing import List
 
+from app.schemas.enum import LogLevelEnum, FreezeTypeEnum, ResumeTypeEnum
 from pydantic import BaseModel, root_validator
 from pydantic.datetime_parse import parse_datetime
 
@@ -12,23 +13,47 @@ class TimestampBaseModel(BaseModel):
         if "timestamp" in values:
             values["timestamp"] = parse_datetime(values["timestamp"]).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
         return values
+    
+
+class PaginationBaseModel(BaseModel):
+    total: int = 0
+    pages: int = None
+    prev: int = None
+    next: int = None
 
 
 class LogLevelFinderBase(TimestampBaseModel):
-    log_level: str
+    log_level: LogLevelEnum
 
 
-class LogLevelFinder(BaseModel):
+class LogLevelFinder(PaginationBaseModel):
     items: List[LogLevelFinderBase]
 
 
-class CpuAndMemoryBase(TimestampBaseModel):
+class CpuBase(TimestampBaseModel):
     cpu_usage: str
+    total: str
+    user: str
+    kernel: str
+    iowait: str
+    irq: str
+    softirq: str
+
+
+class Cpu(PaginationBaseModel):
+    items: List[CpuBase]
+
+
+class MemoryBase(TimestampBaseModel):
     memory_usage: str
+    total_ram: str
+    free_ram: str
+    used_ram: str
+    lost_ram: str
 
 
-class CpuAndMemory(BaseModel):
-    items: List[CpuAndMemoryBase]
+class Memory(PaginationBaseModel):
+    items: List[MemoryBase]
 
 
 class EventLogBase(TimestampBaseModel):
@@ -37,7 +62,7 @@ class EventLogBase(TimestampBaseModel):
     data: dict
 
 
-class EventLog(BaseModel):
+class EventLog(PaginationBaseModel):
     items: List[EventLogBase]
 
 
@@ -45,49 +70,47 @@ class ColorReferenceBase(TimestampBaseModel):
     color_reference: float
 
 
-class ColorReference(BaseModel):
+class ColorReference(PaginationBaseModel):
     items: List[ColorReferenceBase]
 
 
 class FreezeBase(TimestampBaseModel):
-    freeze_type: str
+    freeze_type: FreezeTypeEnum
+    duration: float
 
 
-class Freeze(BaseModel):
+class Freeze(PaginationBaseModel):
     items: List[FreezeBase]
 
 
 class LoudnessBase(TimestampBaseModel):
-    m: float # Momentary LKFS
-    i: float # Integrated LKFS
+    m: float  # Momentary LKFS
+    # i: float # Integrated LKFS
 
 
-class Loudness(BaseModel):
+class Loudness(PaginationBaseModel):
     items: List[LoudnessBase]
 
 
-class VideoAnalysisResultBase(BaseModel):
-    pass
+class MeasurementBootBase(TimestampBaseModel):
+    target: ResumeTypeEnum
+    measure_time: int
 
 
-class VideoAnalysisResult(BaseModel):
-    items: List[VideoAnalysisResultBase]
+class MeasurementBoot(PaginationBaseModel):
+    items: List[MeasurementBootBase]
 
 
-class LogPatternMatchingBase(BaseModel):
-    pass
+class LogPatternMatchingBase(TimestampBaseModel):
+    log_pattern_name: str
+    log_level: str
+    color: str
+    regex: str
+    message: str
 
 
-class LogPatternMatching(BaseModel):
+class LogPatternMatching(PaginationBaseModel):
     items: List[LogPatternMatchingBase]
-
-
-class MeasurementBase(BaseModel):
-    pass
-
-
-class Measurement(BaseModel):
-    items: List[MeasurementBase]
 
 
 class ProcessLifecycleBase(BaseModel):

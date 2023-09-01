@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react'
+import { useRecoilValue } from 'recoil'
 import { AreaChart } from '@global/ui'
-import useWebsocket from '@global/module/websocket'
-import { useCPUAndMemory } from '../api/hook'
+import { scenarioIdState } from '@global/atom'
+import { useCPU } from '../api/hook'
 
 interface CPUChartProps {
   chartWidth: Parameters<typeof AreaChart>[0]['chartWidth']
@@ -14,22 +15,19 @@ interface CPUChartProps {
  * CPU 사용률 차트
  */
 const CPUChart: React.FC<CPUChartProps> = ({ chartWidth, scaleX, startTime, endTime }) => {
-  const { cpuAndMemory, refetch } = useCPUAndMemory({
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const { cpu } = useCPU({
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
-  })
-  useWebsocket({
-    onMessage: (message) => {
-      if (message.msg === 'analysis_response') {
-        refetch()
-      }
-    },
+    scenario_id: scenarioId || undefined,
+    // FIXME: 동적으로 주입되도록 변경 필요
+    testrun_id: '2023-08-14T054428F718593',
   })
 
   const cpuData = useMemo(() => {
-    if (!cpuAndMemory) return null
-    return cpuAndMemory.map(({ timestamp, cpu_usage }) => ({ date: new Date(timestamp), value: cpu_usage }))
-  }, [cpuAndMemory])
+    if (!cpu) return null
+    return cpu.map(({ timestamp, cpu_usage }) => ({ date: new Date(timestamp), value: Number(cpu_usage) }))
+  }, [cpu])
 
   if (!cpuData) return <div />
   return (

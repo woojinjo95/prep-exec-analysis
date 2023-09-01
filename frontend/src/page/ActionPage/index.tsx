@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { PageContainer } from '@global/ui'
+
 import ActionSection from './components/ActionSection'
 import MonitorSection from './components/MonitorSection'
 import RemoconSection from './components/RemoconSection'
 import TerminalSection from './components/TerminalSection'
+import ServiceStateSection from './components/ServiceStateSection'
 import { KeyEvent } from './types'
 
 /**
@@ -13,14 +15,16 @@ const ActionPage: React.FC = () => {
   const [keyEvent, setKeyEvent] = useState<KeyEvent | null>(null)
 
   useEffect(() => {
-    const keyDownHandler = (e: KeyEvent) => {
+    const keyDownHandler = (e: KeyboardEvent) => {
+      if (e.repeat) return
+
       if (e.altKey) {
         setKeyEvent(e)
         e.preventDefault()
       }
     }
 
-    const keyUpHandler = (e: KeyEvent) => {
+    const keyUpHandler = (e: KeyboardEvent) => {
       if (!e.altKey) {
         setKeyEvent(null)
         e.preventDefault()
@@ -36,10 +40,11 @@ const ActionPage: React.FC = () => {
   }, [])
 
   return (
-    <PageContainer className="grid grid-cols-[2fr_3fr_1.5fr] grid-rows-[60%_40%]">
+    <PageContainer className="grid grid-cols-[2fr_3fr_1.5fr] grid-rows-[57%_3%_40%]">
       <ActionSection />
       <MonitorSection />
       <RemoconSection keyEvent={keyEvent} />
+      <ServiceStateSection />
       <TerminalSection />
     </PageContainer>
   )

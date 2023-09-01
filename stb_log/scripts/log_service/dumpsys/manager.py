@@ -13,9 +13,15 @@ class DumpsysManager:
         self.postprocessor = None
 
     def __start_postprocessor(self):
-        self.postprocessor = ProcessMaintainer(target=postprocess, kwargs={
-            'connection_info': self.connection_info,
-        }, daemon=True, revive_interval=10)
+        self.postprocessor = ProcessMaintainer(
+            name='dumpsys_postprocessor', 
+            target=postprocess, 
+            kwargs={
+                'connection_info': self.connection_info,
+            }, 
+            daemon=True, 
+            revive_interval=10
+        )
         self.postprocessor.start()
 
     def start(self):

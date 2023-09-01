@@ -24,6 +24,7 @@ def read_hardware_configuration() -> schemas.HardwareConfigurationBase:
         config['stb_connection'] = {field: parse_bytes_to_value(value)
                                     for field, value in stb_conn.items()} if stb_conn else None
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'items': config}
 
@@ -48,6 +49,7 @@ def update_stb_connection(
                                                                "username": conn_info.get('username', None),
                                                                "password": conn_info.get('password', None)}))
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': f'Update {stb_connection_in.mode.value} stb_connection.'}
 
@@ -64,5 +66,6 @@ def delete_stb_connection() -> schemas.Msg:
     try:
         RedisClient.delete('stb_connection')
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Delete stb_connection.'}

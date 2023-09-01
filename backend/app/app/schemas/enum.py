@@ -22,6 +22,9 @@ class ProtocolEnum(ExtendedEnum):
     all = "all"
     tcp = "tcp"
     udp = "udp"
+    ip = "ip"
+    icmp = "icmp"
+    igmp = "igmp"
 
 
 class ResumeTypeEnum(ExtendedEnum):
@@ -64,6 +67,10 @@ class BlockTypeEnum(ExtendedEnum):
     remocon_transmit = "remocon_transmit"
     on_off_control = "on_off_control"
     shell = "shell"
+    packet_control = "packet_control"
+    packet_block = "packet_block"
+    monkey_test = "monkey_test"
+    intelligent_monkey_test = "intelligent_monkey_test"
 
 
 class LogModuleEnum(ExtendedEnum):
@@ -82,3 +89,18 @@ class ServiceStateEnum(ExtendedEnum):
     streaming = "streaming"
     playblock = "playblock"
     analysis = "analysis"
+
+
+class FreezeTypeEnum(ExtendedEnum):
+    no_signal = "no_signal"
+    black = "black"
+    white = "white"
+    one_colored = "one_colored"
+    default = "default"
+
+
+class ExportItemEnum(ExtendedEnum):
+    scenario = "scenario"
+    videos = "videos"
+    analysis_config = "analysis_config"
+    stb_log = "stb_log"

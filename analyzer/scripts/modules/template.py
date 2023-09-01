@@ -32,3 +32,4 @@ class Module:
             logger.info(f'{self.__class__.__name__} stop')
         else:
             logger.warning(f'{self.__class__.__name__} is not alive')
+            

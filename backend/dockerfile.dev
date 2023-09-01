@@ -12,8 +12,9 @@ RUN pip install --default-timeout 1000 -r requirements.txt
 ENV SENTRY_DSN ''
 ENV BACKEND_CORS_ORIGINS http://localhost:3000
 ENV SERVICE_NAME prep-exec-analysis
-ENV FILES_PATH /app/app/files
-ENV REMOCON_COMPANY vodafone,sk
+ENV FILES_PATH /app/files
+ENV HOST_PATH /app
+ENV REMOCON_COMPANY vodafone,sk,roku
 
 ENV MONGODB_SERVER mongodb
 ENV MONGODB_NAME prep-exec-analysis

@@ -9,8 +9,8 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS = os.getenv("BACKEND_CORS_ORIGINS", '')
     SENTRY_DSN: Optional[HttpUrl] = None
     SERVICE_NAME: str
-    FILES_PATH: str = os.getenv("FILES_PATH", '/app/app/files')
-    # REMOCON_COMPANY: str = os.getenv("REMOCON_COMPANY", "lg,kt,sk")
+    FILES_PATH: str = os.getenv("FILES_PATH", '/app/files')
+    HOST_PATH: str = os.getenv("HOST_PATH", "/app")
     REMOCON_COMPANY: str = os.getenv("REMOCON_COMPANY", "vodafone")
 
     MONGODB_SERVER: str

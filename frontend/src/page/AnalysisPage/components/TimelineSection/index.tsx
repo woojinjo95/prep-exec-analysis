@@ -11,7 +11,11 @@ import MemoryChart from './components/MemoryChart'
 import EventLogChart from './components/EventLogChart'
 import ColorReferenceChart from './components/ColorReferenceChart'
 import FreezeChart from './components/FreezeChart'
-// import LogLevelFinderChart from './components/LogLevelFinderChart'
+import LogLevelFinderChart from './components/LogLevelFinderChart'
+import TimelineHeader from './components/TimelineHeader'
+import LoudnessChart from './components/LoudnessChart'
+import ResumeBootChart from './components/ResumeBootChart'
+import LogPatternMatchingChart from './components/LogPatternMatchingChart'
 
 interface TimelineSectionProps {
   startTime: Date
@@ -52,25 +56,19 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
   return (
     <section className="h-full bg-black grid grid-cols-1 grid-rows-[auto_1fr_auto]">
       {/* time ticks */}
-      <div className="h-8">
-        <div className="h-full w-48 bg-charcoal border-b-[1px] border-light-charcoal px-5 flex items-center">
-          <Text colorScheme="light" weight="medium">
-            Filter
-          </Text>
-        </div>
-
-        {/* TODO: time ticks / text 10px */}
-        <div className="h-full" />
-      </div>
+      <TimelineHeader scaleX={scrollbarScaleX} chartWidth={chartWidth} />
 
       <div className="grid grid-cols-[auto_1fr] grid-rows-1 overflow-y-auto overflow-x-hidden">
         <div className="w-48 z-10">
           {[
             'Video',
-            // 'Log Level Finder',
             'Color Reference',
             'Event Log',
             'Video Analysis Result',
+            'Loudness',
+            'Resume, Boot Measurement',
+            'Log Level Finder',
+            'Log Pattern Matching',
             'CPU',
             'Memory',
           ].map((title, index) => (
@@ -111,8 +109,11 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
           />
           <EventLogChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
           <FreezeChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
-          {/* FIXME: 데이터가 너무많음. api 로딩, 페이지 로딩이 오래걸림 */}
-          {/* <LogLevelFinderChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} /> */}
+          <LoudnessChart chartWidth={chartWidth} scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
+          <ResumeBootChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
+          {/* FIXME: 데이터가 너무많음. 페이지 로딩이 오래걸림 */}
+          <LogLevelFinderChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
+          <LogPatternMatchingChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
           <CPUChart chartWidth={chartWidth} scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
           <MemoryChart chartWidth={chartWidth} scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
         </div>

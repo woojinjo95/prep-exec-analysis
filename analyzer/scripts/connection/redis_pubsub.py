@@ -12,7 +12,7 @@ from .redis_conn import StrictRedis, get_strict_redis_connection
 from scripts.config.constant import RedisDB, RedisChannel
 
 
-logger = logging.getLogger('connection')
+logger = logging.getLogger('main')
 
 process_pubsub_error_dict = {'stack_count': 0, 'last_occured_time': time.time()}
 

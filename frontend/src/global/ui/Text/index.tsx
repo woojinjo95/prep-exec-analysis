@@ -60,7 +60,7 @@ const Text: React.FC<TextProps> = ({
           'text-yellow': colorScheme === 'yellow',
           'text-navy': colorScheme === 'navy',
           'text-green': colorScheme === 'green',
-          'text-grey': !isActive || colorScheme === 'grey',
+          '!text-grey': !isActive || colorScheme === 'grey',
         },
         invertBackground && {
           'px-1.5 py-px': true,

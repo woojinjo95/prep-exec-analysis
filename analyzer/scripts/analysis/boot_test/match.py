@@ -7,7 +7,7 @@ import cv2
 from scripts.analysis.image import get_cropped_image, is_similar_by_match_template
 from scripts.util.decorator import log_decorator
 
-logger = logging.getLogger('boot_test')
+logger = logging.getLogger('main')
 
 
 @log_decorator(logger)

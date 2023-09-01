@@ -1,5 +1,6 @@
 import logging
 import traceback
+from typing import Optional
 
 from app import schemas
 from app.api.utility import (convert_iso_format, parse_bytes_to_value,
@@ -23,6 +24,7 @@ def get_shell_modes() -> schemas.ShellList:
                     {'$replaceRoot': {'newRoot': "$_id"}}]
         res = aggregate_from_mongodb(col="shell_log", pipeline=pipeline)
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'items': res}
 
@@ -33,21 +35,30 @@ def get_shell_logs(
     shell_id: str,
     start_time: str = Query(..., description="ex.2009-02-13T23:31:30+00:00"),
     end_time: str = Query(..., description="ex.2009-02-13T23:31:30+00:00"),
+    scenario_id: Optional[str] = None,
+    testrun_id: Optional[str] = None
 ) -> schemas.ShellLogList:
     """
     터미널별 일정기간 로그 조회
     """
     try:
-        pipeline = [{'$match':
-                     {'timestamp': {'$gte': convert_iso_format(start_time),
-                                    '$lte': convert_iso_format(end_time)},
-                      'mode': shell_mode.value, 'shell_id': shell_id}},
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        if testrun_id is None:
+            testrun_id = RedisClient.hget('testrun', 'id')
+        pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
+                                              '$lte': convert_iso_format(end_time)},
+                                'scenario_id': scenario_id,
+                                'testrun_id': testrun_id,
+                                'mode': shell_mode.value,
+                                'shell_id': shell_id}},
                     {'$project': {'_id': 0, 'lines': 1}},
                     {'$unwind': {'path': '$lines'}},
                     {'$group': {'_id': None, 'lines': {'$push': '$lines'}}}]
         result = aggregate_from_mongodb(col="shell_log", pipeline=pipeline)
         res = result if result == [] else result[0]['lines']
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'items': res}
 
@@ -68,8 +79,8 @@ def connect_shell() -> schemas.Msg:
                                                                "port": conn_info.get('port', None),
                                                                "username": conn_info.get('username', None),
                                                                "password": conn_info.get('password', None)}))
-        # TODO shell 응답
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Connect shell'}
 
@@ -81,7 +92,7 @@ def disconnect_shell() -> schemas.Msg:
     """
     try:
         RedisClient.publish('command', set_redis_pub_msg(msg="disconnect_shell"))
-    # TODO shell 응답
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Disconnect shell'}

@@ -1,0 +1,38 @@
+name: qaas-dev-m32dev4-playblock
+run-name: ${{ github.actor }} is deploy qaas-dev-m32dev4-playblock
+# on: push
+on: workflow_dispatch
+jobs:
+  build-dev-m32dev4-playblock:
+    runs-on: [self-hosted, docker, Linux]
+    steps:
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: registry.dev-nextlab.com
+          username: nextlab
+          password: .nextlab1@
+      - uses: actions/checkout@v3  
+        with:
+            submodules: recursive
+      - run: docker build -t registry.dev-nextlab.com/qaas-playblock:dev-${{github.run_id}}${{github.run_number}} -f ./playblock/Dockerfile.dev.m32dev4 ./playblock
+        shell: bash
+      - run: docker image push registry.dev-nextlab.com/qaas-playblock:dev-${{github.run_id}}${{github.run_number}}
+        shell: bash
+
+  deploy-dev-m32dev4-playblock:
+    needs: [build-dev-m32dev4-playblock]
+    runs-on: [self-hosted, qaas_m32dev4]
+    steps:
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: registry.dev-nextlab.com
+          username: nextlab
+          password: .nextlab1@
+      - run: docker image pull registry.dev-nextlab.com/qaas-playblock:dev-${{github.run_id}}${{github.run_number}}
+        shell: bash
+      - run: sed -i "s|\b/qaas-playblock:dev-.*\b|/qaas-playblock:dev-${{github.run_id}}${{github.run_number}}|g" /home/jade-m32-07/service/playblock.yml
+        shell: bash
+      - run: docker-compose --project-directory /home/jade-m32-07/service -f /home/jade-m32-07/service/playblock.yml up -d
+        shell: bash

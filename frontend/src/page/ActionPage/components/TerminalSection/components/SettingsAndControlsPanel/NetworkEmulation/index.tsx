@@ -4,7 +4,7 @@ import { useToast } from '@chakra-ui/react'
 import { ReactComponent as RefreshIcon } from '@assets/images/icon_refresh_w.svg'
 import { Input, Title, ToggleButton, Text, Divider, Button } from '@global/ui'
 import { useHardwareConfiguration } from '@global/api/hook'
-import useWebsocket from '@global/module/websocket'
+import { useWebsocket } from '@global/hook'
 import IPLimitItem from './IPLimitItem'
 
 /**
@@ -149,8 +149,18 @@ const NetworkEmulation: React.FC = () => {
           }}
         />
 
-        {/* FIXME: 클릭 시 -> 초기값으로 설정 */}
-        <button type="button" className="ml-auto">
+        <button
+          type="button"
+          className="ml-auto"
+          onClick={() => {
+            // FIXME: confirm 함수 -> custom confirm으로 대체
+            if (
+              !window.confirm('Do you want to set all values ​​related to Network Emulation to their initial values?')
+            )
+              return
+            sendMessage({ msg: 'network_emulation', data: { action: 'reset' } })
+          }}
+        >
           <RefreshIcon className="w-5 h-5" />
         </button>
       </div>

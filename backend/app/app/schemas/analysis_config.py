@@ -17,7 +17,8 @@ class Roi(BaseModel):
 
 
 class Frame(BaseModel):
-    image_path: str
+    id: str
+    path: str
     roi: Roi
 
 
@@ -81,3 +82,8 @@ class AnalysisConfig(BaseModel):
 
 class AnalysisConfigBase(BaseModel):
     items: AnalysisConfig
+
+
+class FrameImage(BaseModel):
+    id: str
+    path: str
