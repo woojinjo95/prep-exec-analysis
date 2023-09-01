@@ -34,9 +34,11 @@ class CommandExecutor:
 
     def execute(self, command: Dict):
         ''' 
-        1. 인텔리전트 몽키 테스트 실행 (ROKU)
-            PUBLISH command '{"msg": "monkey", "data": {"arguments": {"type": "intelligent_monkey_test", "args": [{"key": "profile", "value": "roku"},{"key": "duration_per_menu", "value": 60},{"key": "interval","value": 1000},{"key": "enable_smart_sense","value": true},{"key": "waiting_time","value": 3}]}}}'
-        2. 몽키테스트 종료
+        - 인텔리전트 몽키 테스트 실행 (ROKU)
+            PUBLISH command '{"msg": "monkey", "data": {"arguments": {"type": "intelligent_monkey_test", "args": [{"key":"profile","value":"roku"},{"key":"duration_per_menu","value": 60},{"key":"interval","value":1000},{"key":"enable_smart_sense","value": true},{"key":"waiting_time","value":3}]}}}'
+        - 몽키 테스트 실행
+            PUBLISH command '{"msg": "monkey", "data": {"arguments": {"type": "monkey_test", "args": [{"key":"duration","value":60},{"key":"interval","value":1000},{"key":"enable_smart_sense","value":true},{"key":"waiting_time","value":3}]}}}'
+        - 몽키테스트 종료
             PUBLISH command '{"msg": "monkey_terminate"}'
         
         '''
