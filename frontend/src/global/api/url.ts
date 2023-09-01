@@ -6,6 +6,7 @@ type ApiName =
   | 'log_connection_status'
   | 'tag'
   | 'testrun'
+  | 'copy_scenario'
 
 const apiUrls: {
   [key in ApiName]: string
@@ -17,6 +18,7 @@ const apiUrls: {
   log_connection_status: '/api/v1/log_connection_status',
   tag: '/api/v1/scenario/tag',
   testrun: '/api/v1/scenario/testrun',
+  copy_scenario: '/api/v1/copy_scenario',
 }
 
 export default apiUrls
