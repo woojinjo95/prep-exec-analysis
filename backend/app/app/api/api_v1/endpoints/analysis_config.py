@@ -74,31 +74,6 @@ def delete_analysis_config(
     return {'msg': f'Delete {analysis_type} analysis_config'}
 
 
-# @router.post("/frame", response_model=schemas.FrameImage)
-async def upload_frame(
-    file: UploadFile = File(...)
-) -> schemas.FrameImage:
-    """
-    Upload frame.
-    """
-    if file is None:
-        raise HTTPException(status_code=400, detail="No upload file")
-    try:
-        file_uuid = str(uuid4())
-        filename, file_extension = file.filename.split(".")
-        workspace_path = f"{RedisClient.hget('testrun','workspace_path')}/{RedisClient.hget('testrun','id')}/raw/frames"
-        insert_one_to_mongodb(col='file', data={'id': file_uuid, "name": filename,
-                              "path": workspace_path, "extension": file_extension})
-        if not os.path.isdir(workspace_path):
-            os.mkdir(workspace_path)
-        with open(os.path.join(workspace_path, f'{file_uuid}.{file_extension}'), 'wb') as f:
-            f.write(file.file.read())
-    except Exception as e:
-        logger.error(traceback.format_exc())
-        raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return {'id': file_uuid, 'path': f"{workspace_path}/{file_uuid}.{file_extension}"}
-
-
 @router.get('/frame/{frame_image_name}', response_class=FileResponse)
 async def download_frame(
     frame_image_name: str
