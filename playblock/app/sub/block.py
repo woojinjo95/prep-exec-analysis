@@ -3,7 +3,7 @@ import copy
 import traceback
 from sub.message import cvt_block_to_message, publish_message
 from sub.db import CHANNEL_NAME
-from sub.state import is_run_state, set_stop_state, set_run_item
+from sub.state import is_run_state, set_stop_state, set_run_item, is_analysis_state
 
 
 def calc_scenario_to_run_blocks(total_loop: int, scenario: dict):
@@ -28,12 +28,14 @@ def calc_analysis_to_run_blocks(analysis_configs: list):
     idx = 0
     blocks = []
     for analysis_config in analysis_configs:
+        module_name = analysis_config.split(':')[1]
         _analysis_config = {
             "type": "analysis",
+            "name": module_name,
             "args": [
                 {
                     "key": "measurement",
-                    "value": analysis_config
+                    "value": module_name
                 }
             ]
         }
@@ -41,9 +43,10 @@ def calc_analysis_to_run_blocks(analysis_configs: list):
         _analysis_config['idx'] = idx
         idx = idx + 1
         blocks.append(copy.deepcopy(_analysis_config))
+    return blocks
 
 
-async def run_blocks(conn, db_blocks, scenario_id, blocks: list, event: asyncio.Event):
+async def run_blocks(conn, db_blocks, scenario_id, testrun_id, blocks: list, event: asyncio.Event):
     try:
         for block in blocks:
             # 블럭 수행 도중에 취소되는 경우
@@ -61,7 +64,7 @@ async def run_blocks(conn, db_blocks, scenario_id, blocks: list, event: asyncio.
             print("wait... message response")
             # 블럭 타입이 분석이면 이벤트 대기
 
-            await asyncio.wait_for(event.wait(), None)
+            await asyncio.wait_for(event.wait(), 60)
             event.clear()
             # # 다른 파트는 시간대기
             # delay_time = block['delay_time']
@@ -69,7 +72,7 @@ async def run_blocks(conn, db_blocks, scenario_id, blocks: list, event: asyncio.
 
             # 완료 처리
             db_blocks.update_one(
-                {"scenario": scenario_id, "blocks.idx": block['idx']},
+                {"scenario": scenario_id, "testrun_id": testrun_id, "blocks.idx": block['idx']},
                 {"$set": {"blocks.$.run": True}}
             )
     except Exception as e:
@@ -79,3 +82,44 @@ async def run_blocks(conn, db_blocks, scenario_id, blocks: list, event: asyncio.
         await set_stop_state(conn)
         await conn.publish(CHANNEL_NAME, publish_message("end_playblock"))
         print("run_blocks end")
+
+
+async def run_analysis(conn, db_blocks, scenario_id, testrun_id, blocks: list, event: asyncio.Event):
+    try:
+        for block in blocks:
+            # 블럭 수행 도중에 취소되는 경우
+            if await is_analysis_state(conn) is False:
+                print("stop analysis")
+                return
+            
+            # 다음 수행될 블럭 정보 송신
+            await conn.publish(CHANNEL_NAME, publish_message(message="next_analysis", data={"analysis": block['name']}))
+            await set_run_item(conn, block_id=block['name'])
+
+            # 수행 메시지 송신
+            await conn.publish(CHANNEL_NAME, cvt_block_to_message(block))
+
+            print("wait... message response")
+            # 블럭 타입이 분석이면 이벤트 대기
+            try:
+                await asyncio.wait_for(event.wait(), 60)
+            except Exception as e:
+                print(e)
+            finally:
+                event.clear()
+            # # 다른 파트는 시간대기
+            # delay_time = block['delay_time']
+            # await asyncio.sleep(delay_time / 1000)
+
+            # 완료 처리
+            db_blocks.update_one(
+                {"scenario": scenario_id, "testrun_id": testrun_id, "blocks.idx": block['idx']},
+                {"$set": {"blocks.$.run": True}}
+            )
+    except Exception as e:
+        print(e)
+        print(traceback.format_exc())
+    finally:
+        await set_stop_state(conn)
+        await conn.publish(CHANNEL_NAME, publish_message("end_analysis"))
+        print("run_analysis end")

@@ -84,12 +84,12 @@ def check_skip_message(raw: any):
             print(f"check_skip_message service == {service}")
             return False, None
 
-        level = message['level']
-        # info가 아닌 모든 메시지 스킵
-        if level != 'info':
-            print(f"check_skip_message level: {level}")
-            print(f"trace: {message}")
-            return False, None
+        # level = message['level']
+        # # info가 아닌 모든 메시지 스킵
+        # if level != 'info':
+        #     print(f"check_skip_message level: {level}")
+        #     print(f"trace: {message}")
+        #     return False, None
 
         # msg가 start or stop이 아닌 모든 메시지 스킵
         # msg = message['msg']

@@ -3,8 +3,8 @@ import asyncio
 import traceback
 from sub.message import check_skip_message
 from sub.db import get_db, get_redis_pool, CHANNEL_NAME
-from sub.state import is_run_state, set_stop_state
-from sub.block import run_blocks
+from sub.state import is_run_state, set_stop_state, is_analysis_state
+from sub.block import run_blocks, run_analysis
 from sub.setup import setup_playblock, setup_analysis
 
 logger = logging.getLogger(__name__)
@@ -27,19 +27,19 @@ async def consumer_handler(conn: any, db_scenario: any, db_blocks: any, CHANNEL_
                 if command == "start_playblock":
                     state = await conn.hgetall("testrun")
                     print(f"state: {state}")
-                    if await is_run_state(conn):
+                    if await is_run_state(conn) or await is_analysis_state(conn):
                         # 이미 동작 수행중으로 보이면 추가 실행 명령은 건너뜀
                         print("already running block")
                         continue
 
-                    await setup_playblock(state, db_blocks, conn)
+                    await setup_playblock(state, db_scenario, db_blocks, conn)
 
                 if command == "start_analysis":
-                    if await is_run_state(conn):
+                    if await is_run_state(conn) or await is_analysis_state(conn):
                         # 이미 동작 수행중으로 보이면 추가 실행 명령은 건너뜀
                         print("already running block")
                         continue
-                    await setup_analysis(state, db_scenario, db_blocks, conn)
+                    await setup_analysis(db_blocks, conn)
 
                 if command == "start_analysis_response" or command == "remocon_response":
                     # 일단 순차적으로 수행할 것이므로 내용물 체크 안함
@@ -66,7 +66,7 @@ async def process_handler(conn: any, db_blocks: any, CHANNEL_NAME: str, event: a
     try:
         while True:
             try:  # 루프 깨지지 않도록 예외처리
-                await asyncio.sleep(1)  # 수행 루프는 1초 단위로
+                await asyncio.sleep(0.01)  # 수행 루프는 1초 단위로
                 if await is_run_state(conn):
                     # 상태가 run일때만.
                     testrun_id = await conn.hget("testrun", "id")
@@ -75,7 +75,15 @@ async def process_handler(conn: any, db_blocks: any, CHANNEL_NAME: str, event: a
                         'scenario': scenario_id,
                         'testrun': testrun_id
                     })
-                    await run_blocks(conn, db_blocks, scenario_id, testrun['blocks'], event)
+                    await run_blocks(conn, db_blocks, scenario_id, testrun_id, testrun['blocks'], event)
+                if await is_analysis_state(conn):
+                    # 상태가 run일때만.
+                    testrun = db_blocks.find_one({
+                        'scenario': "analysis",
+                        'testrun': "analysis"
+                    })
+                    print(f"testrun: {testrun}")
+                    await run_analysis(conn, db_blocks, "analysis", "analysis", testrun['blocks'], event)
             except Exception as e:
                 print(e)
                 print(traceback.format_exc())
