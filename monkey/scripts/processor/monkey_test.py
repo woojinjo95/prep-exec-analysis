@@ -17,6 +17,7 @@ def test_monkey():
         # redis 상에서 갱신된 환경 설정 정보를 가져옴. (sub으로 올 수도 있고, redis에서 직접 가져올 수도 있음.)
         # 현재는 dummy로 처리
         arguments = get_arguments()
+        arguments['interval'] /= 1000
         logger.info(f"arguments: {arguments}")
 
         analysis_type = arguments['analysis_type']
@@ -24,7 +25,7 @@ def test_monkey():
             profile = arguments['profile']
             if profile == 'roku':
                 imt = IntelligentMonkeyTestRoku(
-                    key_interval=arguments['interval'] / 1000,
+                    key_interval=arguments['interval'],
                     monkey_args=MonkeyArgs(
                         duration_per_menu=arguments['duration_per_menu'],
                         enable_smart_sense=arguments['enable_smart_sense'],
