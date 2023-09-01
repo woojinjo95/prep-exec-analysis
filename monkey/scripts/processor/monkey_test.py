@@ -1,12 +1,11 @@
 import logging
 import traceback
-from typing import Dict
 
 from scripts.util.decorator import log_decorator
 from scripts.monkey.intelligent_monkey_test.roku import IntelligentMonkeyTestRoku
-from scripts.connection.redis_conn import get_all
 from scripts.monkey.format import MonkeyArgs
 from scripts.connection.redis_pubsub import publish_msg
+from scripts.external.redis import get_monkey_test_arguments
 
 
 logger = logging.getLogger('main')
@@ -17,7 +16,7 @@ def test_monkey():
     try:
         # redis 상에서 갱신된 환경 설정 정보를 가져옴. (sub으로 올 수도 있고, redis에서 직접 가져올 수도 있음.)
         # 현재는 dummy로 처리
-        arguments = get_arguments()
+        arguments = get_monkey_test_arguments()
         arguments['interval'] /= 1000
         logger.info(f"arguments: {arguments}")
 
@@ -32,7 +31,6 @@ def test_monkey():
                         enable_smart_sense=arguments['enable_smart_sense'],
                         waiting_time=arguments['waiting_time']
                     ),
-                    user_config=arguments
                 )
                 imt.run()
             elif profile == 'skb':
@@ -51,7 +49,3 @@ def test_monkey():
         publish_msg({'log': error_detail}, 'monkey_response', level='error')
         logger.error(f"error in test_color_reference: {err}")
         logger.warning(error_detail)
-
-
-def get_arguments() -> Dict:
-    return get_all('monkey_test_arguments')

@@ -1,6 +1,6 @@
 
 import logging
-from typing import List, Tuple, Dict
+from typing import List, Tuple
 import time
 
 import numpy as np
@@ -11,18 +11,19 @@ from scripts.monkey.format import FrameInfo, MonkeyArgs
 from scripts.monkey.monkey import Monkey
 from scripts.monkey.util import (check_cursor_is_same, exec_keys,
                                  get_current_image, head_to_next,
-                                 optimize_path, save_image)
+                                 optimize_path)
 from scripts.util._timezone import get_utc_datetime
+from scripts.external.image import save_image
+from scripts.external.redis import get_monkey_test_arguments
 
 logger = logging.getLogger('monkey_test')
 
 
 class IntelligentMonkeyTestRoku:
-    def __init__(self, key_interval: float, monkey_args: MonkeyArgs, user_config: Dict):
+    def __init__(self, key_interval: float, monkey_args: MonkeyArgs):
         # set arguments
         self.key_interval = key_interval
         self.monkey_args = monkey_args
-        self.user_config = user_config  # for reporting
 
         # init variables
         self.analysis_type = 'intelligent_monkey'
@@ -146,7 +147,7 @@ class IntelligentMonkeyTestRoku:
             'section_id': self.section_id,
             'image_path': image_path,
             'smart_sense_times': smart_sense_times,
-            'user_config': self.user_config
+            'user_config': get_monkey_test_arguments()
         })
 
     ##### Re-Defined Functions #####
