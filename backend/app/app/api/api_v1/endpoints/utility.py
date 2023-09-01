@@ -34,7 +34,7 @@ def read_log_connection_status() -> schemas.LogConnectionStatus:
     return {'items': {'status': RedisClient.hget('log_connection_status', 'is_connected')}}
 
 
-@router.post("/export_result")
+# @router.post("/export_result")
 async def export_result(
     export_in: schemas.ExportResult,
 ):
@@ -89,7 +89,7 @@ async def export_result(
     return Response(content=zip_buffer.read(), headers=headers, media_type="application/zip")
 
 
-@router.post("/import_result", response_model=schemas.Msg)
+# @router.post("/import_result", response_model=schemas.Msg)
 async def import_result(file: UploadFile = File(...)) -> schemas.Msg:
     try:
         import_type = {
