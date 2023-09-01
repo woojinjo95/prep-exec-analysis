@@ -4,9 +4,12 @@ import threading
 import time
 from typing import Dict, List
 
+import numpy as np
+
 from scripts.external.report import report_data
 from scripts.external.redis import get_monkey_test_arguments
-from scripts.monkey.util import (check_temporal_similar, exec_keys,
+from scripts.external.image import get_banned_images
+from scripts.monkey.util import (check_image_similar, exec_keys,
                                  get_current_image)
 
 logger = logging.getLogger('monkey_agent')
@@ -38,6 +41,8 @@ class Monkey:
         self.smart_sense_stop_event = threading.Event()
         self.smart_sense_count = 0
 
+        self.banned_images = get_banned_images()
+
     def run(self):
         logger.info('Start Monkey')
         self.main_stop_event.clear()
@@ -48,7 +53,9 @@ class Monkey:
 
         while not self.main_stop_event.is_set() and time.time() - start_time < self.duration:
             self.press_random_key()
-            
+
+            self.check_banned_image()
+
             if self.enable_smart_sense:
                 if self.smart_sense_detected:
                     self.stop_smart_sense()
@@ -61,6 +68,7 @@ class Monkey:
     def stop(self):
         self.main_stop_event.set()
 
+    ##### Control Keys #####
     def exec_keys(self, keys: List[str]):
         exec_keys(keys, self.key_interval, self.company, self.remocon_type)
 
@@ -72,7 +80,7 @@ class Monkey:
         key = random.choice(self.key_candidates)
         self.exec_keys([key])
 
-    # if detected, update status and suicide
+    ##### Smart Sense #####
     def smart_sense(self):
         prev_frame = None
         self.smart_sense_detected = False
@@ -80,7 +88,7 @@ class Monkey:
             time.sleep(self.waiting_time)
             frame = get_current_image()
             if prev_frame is not None:
-                if check_temporal_similar(prev_frame, frame):
+                if check_image_similar(prev_frame, frame):
                     logger.info(f'smart sense is detected.')
                     self.smart_sense_detected = True
                     self.smart_sense_count += 1
@@ -104,3 +112,14 @@ class Monkey:
             'user_config': get_monkey_test_arguments()
         }
         report_data('monkey_smart_sense', data)
+
+    ##### Banned Image #####
+    def compare_banned_image(self, image: np.ndarray) -> bool:
+        return any([check_image_similar(image, banned_image) for banned_image in self.banned_images])
+
+    def check_banned_image(self):
+        snapshot = get_current_image()
+        if self.compare_banned_image(snapshot):
+            logger.info('banned image is detected.')
+            self.stop()
+
