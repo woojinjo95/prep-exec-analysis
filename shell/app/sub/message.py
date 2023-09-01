@@ -19,7 +19,7 @@ def check_skip_message(message: any, shell_id: int):
 
         # msg가 shell이 아닌 모든 메시지 스킵
         msg = message.get('msg')
-        if msg != 'shell':
+        if not (msg == 'shell' or msg == 'config' or msg == 'workspace'):
             print(f"check_skip_message shell: {msg}")
             return False
 
