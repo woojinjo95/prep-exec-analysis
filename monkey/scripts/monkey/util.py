@@ -22,8 +22,8 @@ def get_current_image() -> np.ndarray:
     return get_snapshot()
 
 
-def exec_key(key: str, key_interval: float, profile: str):
-    publish_remocon_msg(profile, key, sleep=key_interval)
+def exec_key(key: str, key_interval: float, profile: str, type: str):
+    publish_remocon_msg(profile, key, sleep=key_interval, type=type)
 
 
 def exec_keys(keys: List[str], *args, **kwargs):

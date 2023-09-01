@@ -25,11 +25,14 @@ class IntelligentMonkeyTestRoku:
         self.key_interval = key_interval
         self.monkey_args = monkey_args
 
-        # init variables
+        # init constant
         self.analysis_type = 'intelligent_monkey'
         self.profile = 'roku'
+        self.remocon_type = 'ir'
         self.depth_key = 'right'
         self.breadth_key = 'down'
+
+        # init variables
         self.key_histories = []
         self.section_id = 0
 
@@ -124,7 +127,8 @@ class IntelligentMonkeyTestRoku:
             key_candidates=['right', 'up', 'down', 'ok'],
             root_keyset=current_node_keyset,
             key_interval=self.key_interval,
-            profile=self.profile,
+            company=self.profile,
+            remocon_type=self.remocon_type,
             enable_smart_sense=self.monkey_args.enable_smart_sense,
             waiting_time=self.monkey_args.waiting_time,
             report_data={
@@ -152,7 +156,7 @@ class IntelligentMonkeyTestRoku:
 
     ##### Re-Defined Functions #####
     def exec_keys(self, keys: List[str]):
-        exec_keys(keys, self.key_interval, self.profile)
+        exec_keys(keys, self.key_interval, self.profile, self.remocon_type)
 
     def head_to_next(self):
         self.key_histories = head_to_next(self.key_histories, self.depth_key, self.breadth_key)

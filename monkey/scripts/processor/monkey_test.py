@@ -4,7 +4,7 @@ import traceback
 from scripts.util.decorator import log_decorator
 from scripts.monkey.intelligent_monkey_test.roku import IntelligentMonkeyTestRoku
 from scripts.monkey.monkey_test.default import MonkeyTest
-from scripts.monkey.format import MonkeyArgs
+from scripts.monkey.format import MonkeyArgs, RemoconInfo
 from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.redis import get_monkey_test_arguments
 
@@ -50,6 +50,10 @@ def test_monkey():
                     enable_smart_sense=arguments['enable_smart_sense'],
                     waiting_time=arguments['waiting_time']
                 ),
+                remocon_info=RemoconInfo(
+                    remocon_name=arguments['remocon_name'],
+                    remote_control_type=arguments['remote_control_type']
+                )
             )
             mt.run()
         else:

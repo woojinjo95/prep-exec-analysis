@@ -18,14 +18,15 @@ class Monkey:
     """
     def __init__(self, duration: float, 
                  key_candidates: List[str], root_keyset: List[str], 
-                 key_interval: float, profile: str,
+                 key_interval: float, company: str, remocon_type: str,
                  enable_smart_sense: bool, waiting_time: float, 
                  report_data: Dict):
         self.duration = duration
         self.key_interval = key_interval
         self.key_candidates = key_candidates
         self.root_keyset = root_keyset
-        self.profile = profile
+        self.company = company
+        self.remocon_type = remocon_type
         self.enable_smart_sense = enable_smart_sense
         self.waiting_time = waiting_time
         self.report_data = report_data
@@ -60,7 +61,7 @@ class Monkey:
         self.main_stop_event.set()
 
     def exec_keys(self, keys: List[str]):
-        exec_keys(keys, self.key_interval, self.profile)
+        exec_keys(keys, self.key_interval, self.company, self.remocon_type)
 
     def go_to_root(self):
         self.exec_keys(self.root_keyset)

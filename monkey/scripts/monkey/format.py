@@ -14,3 +14,9 @@ class MonkeyArgs:
     duration: float
     enable_smart_sense: bool
     waiting_time: float
+
+
+@dataclass
+class RemoconInfo:
+    remocon_name: str
+    remote_control_type: str
