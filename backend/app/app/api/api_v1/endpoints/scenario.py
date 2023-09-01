@@ -63,8 +63,8 @@ def update_scenario(
 
         update_by_id_to_mongodb(col='scenario',
                                 id=scenario_id,
-                                data={'is_active': scenario_in.is_active,
-                                      'updated_at': get_utc_datetime(time.time()),
+                                data={'updated_at': get_utc_datetime(time.time()),
+                                      'is_active': scenario_in.is_active,
                                       'name': scenario_in.name,
                                       'tags': scenario_in.tags,
                                       'block_group': jsonable_encoder(scenario_in.block_group)})
@@ -90,8 +90,8 @@ def delete_scenario(
         now = time.time()
         update_by_id_to_mongodb(col='scenario',
                                 id=scenario_id,
-                                data={'is_active': False,
-                                      'updated_at': get_utc_datetime(now),
+                                data={'updated_at': get_utc_datetime(now),
+                                      'is_active': False,
                                       'name': str(now)})
     except Exception as e:
         logger.error(traceback.format_exc())
@@ -150,15 +150,18 @@ def create_scenario(
         workspace_path = RedisClient.hget('testrun', 'workspace_path')
         scenario_id = str(uuid.uuid4())
         testrun_id = datetime.now().strftime("%Y-%m-%dT%H%M%SF%f")
-        data = {'id': scenario_id,
-                'is_active': scenario_in.is_active,
-                'updated_at': get_utc_datetime(time.time()),
-                'block_group': jsonable_encoder(scenario_in.block_group) if scenario_in.block_group else [],
-                'name': scenario_in.name,
-                'tags': scenario_in.tags,
-                'testruns': [{'id': testrun_id,
-                              'raw': {'videos': []},
-                              'analysis': {'videos': []}}]}
+        block_groups = jsonable_encoder(scenario_in.block_group) if scenario_in.block_group else []
+        block_group_data = [
+            {
+                **block_group,
+                "id": str(uuid.uuid4()),
+                "block": [
+                    {**block, "id": str(uuid.uuid4())}
+                    for block in block_group.get('block', [])
+                ]
+            }
+            for block_group in block_groups
+        ]
 
         # 폴더 생성
         path = f"{workspace_path}/{testrun_id}"
@@ -166,7 +169,15 @@ def create_scenario(
         os.makedirs(f'{path}/analysis')
 
         # 시나리오 등록
-        insert_one_to_mongodb(col='scenario', data=data)
+        insert_one_to_mongodb(col='scenario', data={'id': scenario_id,
+                                                    'updated_at': get_utc_datetime(time.time()),
+                                                    'is_active': scenario_in.is_active,
+                                                    'name': scenario_in.name,
+                                                    'tags': scenario_in.tags,
+                                                    'block_group': block_group_data,
+                                                    'testruns': [{'id': testrun_id,
+                                                                  'raw': {'videos': []},
+                                                                  'analysis': {'videos': []}}]})
 
         # 워크스페이스 변경
         RedisClient.hset('testrun', 'id', testrun_id)
@@ -217,13 +228,18 @@ def copy_scenario(
         workspace_path = RedisClient.hget('testrun', 'workspace_path')
         scenario_id = str(uuid.uuid4())
         testrun_id = datetime.now().strftime("%Y-%m-%dT%H%M%SF%f")
-        data = {'id': scenario_id,
-                'updated_at': get_utc_datetime(time.time()),
-                'is_active': True,
-                'name': scenario_in.name,
-                'tags': scenario_in.tags,
-                'block_group': scenario_in.block_group,
-                'testruns': scenario.get('testruns', [])}
+        block_groups = jsonable_encoder(scenario_in.block_group) if scenario_in.block_group else []
+        block_group_data = [
+            {
+                **block_group,
+                "id": str(uuid.uuid4()),
+                "block": [
+                    {**block, "id": str(uuid.uuid4())}
+                    for block in block_group.get('block', [])
+                ]
+            }
+            for block_group in block_groups
+        ]
 
         # 폴더 생성
         path = f'{workspace_path}/{testrun_id}'
@@ -231,7 +247,13 @@ def copy_scenario(
         os.makedirs(f'{path}/analysis')
 
         # 시나리오 복제
-        insert_one_to_mongodb(col='scenario', data=data)
+        insert_one_to_mongodb(col='scenario', data={'id': scenario_id,
+                                                    'updated_at': get_utc_datetime(time.time()),
+                                                    'is_active': True,
+                                                    'name': scenario_in.name,
+                                                    'tags': scenario_in.tags,
+                                                    'block_group': block_group_data,
+                                                    'testruns': scenario.get('testruns', [])})
 
         # 워크스페이스 변경
         RedisClient.hset('testrun', 'id', testrun_id)
