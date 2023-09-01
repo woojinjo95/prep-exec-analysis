@@ -348,14 +348,10 @@ def get_data_of_log_pattern_matching(
                                                                    '$lte': convert_iso_format(end_time)},
                                                      'scenario_id': scenario_id,
                                                      'testrun_id': testrun_id}},
-                                         {'$project': {'_id': 0, 'timestamp': 1, 'message': 1,
-                                                       'items': '$user_config.items'}},
-                                         {'$unwind': {'path': '$items'}},
-                                         {'$project': {'timestamp': 1, 'message': 1,
-                                                       'log_pattern_name': '$items.name',
-                                                       'log_level': '$items.level',
-                                                       'color': '$items.color',
-                                                       'regex': '$items.regular_expression'}}]
+                                         {'$project': {'_id': 0, 'log_level': 1, 'timestamp': 1, 'message': 1,
+                                                       'regex': '$matched_target.regular_expression',
+                                                       'color': '$matched_target.color', 'log_pattern_name': '$matched_target.name'}}]
+
         log_pattern_matching = paginate_from_mongodb_aggregation(col='an_log_pattern',
                                                                  pipeline=log_pattern_matching_pipeline,
                                                                  page=page,
