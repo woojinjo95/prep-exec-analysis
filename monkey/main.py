@@ -5,7 +5,7 @@ from scripts.connection.redis_conn import get_strict_redis_connection, set_value
 from scripts.connection.redis_pubsub import Subscribe
 from scripts.config.constant import RedisChannel, RedisDB
 from scripts.log_service.log_organizer import LogOrganizer
-from scripts.modules.intelligent_monkey_test import IntelligentMonkeyTestModule
+from scripts.modules.monkey_test import MonkeyTestModule
 
 
 logger = logging.getLogger('main')
@@ -13,13 +13,13 @@ logger = logging.getLogger('main')
 
 class CommandExecutor:
     def __init__(self):
-        self.imt_module = IntelligentMonkeyTestModule()
+        self.mt_module = MonkeyTestModule()
 
-    def start_imt_module(self):
-        self.imt_module.start()
+    def start_mt_module(self):
+        self.mt_module.start()
 
-    def stop_imt_module(self):
-        self.imt_module.stop()
+    def stop_mt_module(self):
+        self.mt_module.stop()
 
     # sub의 data로 오면 파싱해서 monkey test db에 별도로 기록
     def set_arguments(self, data: Dict):
@@ -28,15 +28,12 @@ class CommandExecutor:
 
     def execute(self, command: Dict):
         ''' 
-        start: PUBLISH command '{"msg": "monkey", "data": {"analysis_type": "intelligent_monkey_test"}}'
+        start: PUBLISH command '{"msg": "monkey", "data": {}}'
         '''
         if command.get('msg', '') == 'monkey':
             data = command.get('data', {})
             self.set_arguments(data)
-
-            analysis_type = data.get('analysis_type', '')
-            if analysis_type == 'intelligent_monkey_test':
-                self.start_imt_module()
+            self.start_mt_module()
 
 
 def main():
