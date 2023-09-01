@@ -26,3 +26,11 @@ export const testRunIdState = atom<string | null>({
   // FIXME: null로 변경, 분석 페이지 진입 시 설정되도록 변경필요
   default: '2023-08-14T054428F718593',
 })
+
+/**
+ * 타임라인에서 파란색 커서가 가리키는 시간
+ */
+export const cursorDateTimeState = atom<Date | null>({
+  key: 'cursorDateTimeState',
+  default: null,
+})

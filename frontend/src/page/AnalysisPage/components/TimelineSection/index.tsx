@@ -5,17 +5,21 @@ import { Text, VideoSnapshots } from '@global/ui'
 import { CHART_HEIGHT } from '@global/constant'
 import { videoBlobURLState } from '@global/atom'
 
-import HorizontalScrollBar from './components/HorizontalScrollBar'
-import CPUChart from './components/CPUChart'
-import MemoryChart from './components/MemoryChart'
-import EventLogChart from './components/EventLogChart'
-import ColorReferenceChart from './components/ColorReferenceChart'
-import FreezeChart from './components/FreezeChart'
-import LogLevelFinderChart from './components/LogLevelFinderChart'
-import TimelineHeader from './components/TimelineHeader'
-import LoudnessChart from './components/LoudnessChart'
-import ResumeBootChart from './components/ResumeBootChart'
-import LogPatternMatchingChart from './components/LogPatternMatchingChart'
+import { useCursorEvent } from './hook'
+import {
+  HorizontalScrollBar,
+  CPUChart,
+  MemoryChart,
+  EventLogChart,
+  ColorReferenceChart,
+  FreezeChart,
+  LogLevelFinderChart,
+  TimelineHeader,
+  LoudnessChart,
+  ResumeBootChart,
+  LogPatternMatchingChart,
+  TimelineChartContainer,
+} from './components'
 
 interface TimelineSectionProps {
   startTime: Date | null
@@ -28,6 +32,7 @@ interface TimelineSectionProps {
 const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime }) => {
   const chartWrapperRef = useRef<HTMLDivElement | null>(null)
   const [chartWidth, setChartWidth] = useState<number | null>(null)
+  const [chartOffsetLeft, setChartOffsetLeft] = useState<number | null>(null)
   const [scrollBarTwoPosX, setScrollBarTwoPosX] = useState<[number, number] | null>(null)
   const src = useRecoilValue(videoBlobURLState)
 
@@ -46,10 +51,18 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
       .range([0, chartWidth])
   }, [chartWidth, timelineScaleX, scrollBarTwoPosX])
 
+  // 커서 드래그 관련 state
+  const { onCursorPointerDown, onCursorPointerMove, onCursorPointerUp, cursorTranslateX } = useCursorEvent({
+    scaleX: scrollbarScaleX,
+    offsetLeft: chartOffsetLeft,
+    width: chartWidth,
+  })
+
   useEffect(() => {
     if (!chartWrapperRef.current) return
 
     setChartWidth(chartWrapperRef.current.clientWidth)
+    setChartOffsetLeft(chartWrapperRef.current.offsetLeft)
     setScrollBarTwoPosX([0, chartWrapperRef.current.clientWidth])
     // dependency array: chartWrapperRef 렌더링 조건
   }, [startTime, endTime])
@@ -80,7 +93,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
   return (
     <section className="h-full bg-black grid grid-cols-1 grid-rows-[auto_1fr_auto]">
       {/* time ticks */}
-      <TimelineHeader scaleX={scrollbarScaleX} chartWidth={chartWidth} />
+      <TimelineHeader scaleX={scrollbarScaleX} chartWidth={chartWidth} cursorTranslateX={cursorTranslateX} />
 
       <div className="grid grid-cols-[auto_1fr] grid-rows-1 overflow-y-auto overflow-x-hidden">
         <div className="w-48 z-10">
@@ -109,7 +122,13 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
         </div>
 
         {/* chart */}
-        <div ref={chartWrapperRef} className="border-l-[0.5px] border-r-[0.5px] border-[#37383E]">
+        <TimelineChartContainer
+          ref={chartWrapperRef}
+          cursorTranslateX={cursorTranslateX}
+          onPointerDown={onCursorPointerDown}
+          onPointerMove={onCursorPointerMove}
+          onPointerUp={onCursorPointerUp}
+        >
           {/* TODO: src가 없을 때 -> progress 표시 ? */}
           <VideoSnapshots
             src={src}
@@ -132,7 +151,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
           <LogPatternMatchingChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
           <CPUChart chartWidth={chartWidth} scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
           <MemoryChart chartWidth={chartWidth} scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
-        </div>
+        </TimelineChartContainer>
       </div>
 
       <div className="grid grid-cols-[auto_1fr]">

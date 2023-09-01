@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react'
-import { useRecoilValue, useSetRecoilState } from 'recoil'
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { PageContainer, Text } from '@global/ui'
 import { useVideoSummary } from '@global/api/hook'
 import { AppURL } from '@global/constant'
-import { scenarioIdState, testRunIdState, videoBlobURLState } from '@global/atom'
+import { cursorDateTimeState, scenarioIdState, testRunIdState, videoBlobURLState } from '@global/atom'
 
 import LogTraceSection from './components/LogTraceSection'
 import VideoDetailSection from './components/VideoDetailSection'
@@ -20,7 +20,15 @@ const AnalysisPage: React.FC = () => {
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
   const setVideoBlobURL = useSetRecoilState(videoBlobURLState)
+  const [cursorDateTime, setCursorDateTime] = useRecoilState(cursorDateTimeState)
 
+  // testrun 시작시간으로 cursorDateTime 초기값 설정
+  useEffect(() => {
+    if (!!cursorDateTime || !videoSummary) return
+    setCursorDateTime(new Date(videoSummary.start_time))
+  }, [videoSummary])
+
+  // 비디오 스냅샷 컴포넌트에서 사용할 video fetch
   useEffect(() => {
     if (!scenarioId || !testRunId) return
 
