@@ -49,8 +49,8 @@ def create_block(
                                          "block": new_blocks})
         update_by_id_to_mongodb(col='scenario',
                                 id=scenario_id,
-                                data={'block_group': new_last_block_group,
-                                      'updated_at': get_utc_datetime(time.time())})
+                                data={'updated_at': get_utc_datetime(time.time()),
+                                      'block_group': new_last_block_group})
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
@@ -153,8 +153,8 @@ def bulk_create_blocks(
                                          "block": new_blocks+block_in})
         update_by_id_to_mongodb(col='scenario',
                                 id=scenario_id,
-                                data={'block_group': new_last_block_group,
-                                      'updated_at': get_utc_datetime(time.time())})
+                                data={'updated_at': get_utc_datetime(time.time()),
+                                      'block_group': new_last_block_group})
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
