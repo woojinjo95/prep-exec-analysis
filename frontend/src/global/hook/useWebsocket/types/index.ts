@@ -124,7 +124,8 @@ interface CommandMessage {
 interface AnalysisMessage {
   msg: 'analysis'
   data: {
-    measurement: (keyof typeof AnalysisType)[]
+    // 분석 모듈이 수신가능한 분석유형
+    measurement: (keyof Pick<typeof AnalysisType, 'freeze' | 'resume' | 'boot' | 'log_pattern_matching'>)[]
   }
 }
 

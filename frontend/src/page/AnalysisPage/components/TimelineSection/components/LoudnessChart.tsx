@@ -1,4 +1,4 @@
-import { scenarioIdState } from '@global/atom'
+import { scenarioIdState, testRunIdState } from '@global/atom'
 import { AreaChart } from '@global/ui'
 import React, { useMemo } from 'react'
 import { useRecoilValue } from 'recoil'
@@ -16,12 +16,12 @@ interface LoudnessChartProps {
  */
 const LoudnessChart: React.FC<LoudnessChartProps> = ({ chartWidth, scaleX, startTime, endTime }) => {
   const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
   const { loudness } = useLoudness({
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
     scenario_id: scenarioId || undefined,
-    // FIXME: 동적으로 주입되도록 변경 필요
-    testrun_id: '2023-08-14T054428F718593',
+    testrun_id: testRunId || undefined,
   })
 
   const loudnessData = useMemo(() => {
