@@ -10,7 +10,9 @@ interface TimelineChartContainerProps {
 }
 
 /**
- * 분석 페이지에서 포커스하고있는 측정결과 시간 커서
+ * 차트를 감싸는 컨테이너 컴포넌트
+ *
+ * 분석 페이지에서 포커스하고있는 측정결과 시간 커서 막대기 컴포넌트 또한 표시
  */
 const TimelineChartContainer = React.forwardRef<HTMLDivElement, TimelineChartContainerProps>(
   ({ cursorTranslateX, onPointerDown, onPointerMove, onPointerUp, children }, ref) => {
