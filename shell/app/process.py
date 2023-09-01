@@ -21,6 +21,11 @@ async def main():
         try:
             stb_connection = await conn.hgetall('stb_connection')
             testrun = await conn.hgetall('testrun')
+
+            testinfo = {}
+            testinfo['scenario_id'] = testrun.get('scenario_id', '')
+            testinfo['testrun_id'] = testrun.get('id', '')
+
             SHELL_TYPE = stb_connection.get('mode', 'adb')
             ADB_HOST = stb_connection.get('host', 'localhost')
             ADB_PORT = stb_connection.get('port', 22)
@@ -33,11 +38,11 @@ async def main():
             print(testrun)
             if SHELL_TYPE == 'adb':
                 await adb_connect(conn=conn, shell_id=1, ADB_HOST=ADB_HOST,
-                                  ADB_PORT=int(ADB_PORT), CHANNEL_NAME=CHANNEL_NAME)
+                                  ADB_PORT=int(ADB_PORT), CHANNEL_NAME=CHANNEL_NAME, testinfo=testinfo)
             if SHELL_TYPE == 'ssh':
                 await ssh_connect(conn=conn, shell_id=2, SSH_HOST=SSH_HOST,
                                   SSH_PORT=int(SSH_PORT), SSH_USERNAME=SSH_USERNAME,
-                                  SSH_PASSWORD=SSH_PASSWORD, CHANNEL_NAME=CHANNEL_NAME)
+                                  SSH_PASSWORD=SSH_PASSWORD, CHANNEL_NAME=CHANNEL_NAME, testinfo=testinfo)
         except Exception as e:
             print(e)
             print(traceback.format_exc())

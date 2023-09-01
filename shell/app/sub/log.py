@@ -5,7 +5,7 @@ from datetime import datetime
 from .mongodb import get_collection
 
 
-async def process_log_queue(queue: asyncio.Queue, conn: any, CHANNEL_NAME: str, mode: str, shell_id: int):
+async def process_log_queue(queue: asyncio.Queue, conn: any, CHANNEL_NAME: str, mode: str, shell_id: int, testinfo: dict):
     buffer = []
     sec = 0
     collection = get_collection()
@@ -15,6 +15,9 @@ async def process_log_queue(queue: asyncio.Queue, conn: any, CHANNEL_NAME: str, 
         timestamp = datetime.fromtimestamp(data['timestamp'])
         data['timestamp'] = timestamp
         _sec = data['timestamp'].second
+        data['scenario_id'] = testinfo['scenario_id']
+        data['testrun_id'] = testinfo['testrun_id']
+        
         if sec != _sec and len(buffer) > 0:
             # 저장
             ret = collection.insert_one(
