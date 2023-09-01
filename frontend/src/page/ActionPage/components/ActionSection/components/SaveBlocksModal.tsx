@@ -72,7 +72,6 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
   }, [])
   return (
     <Modal
-      mode="center"
       isOpen={isOpen}
       close={() => {
         close()
