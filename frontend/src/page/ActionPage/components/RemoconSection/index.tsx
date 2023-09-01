@@ -4,6 +4,7 @@ import { OptionItem, Select, Text } from '@global/ui'
 import BackgroundImage from '@assets/images/background_pattern.svg'
 
 import { KeyEvent } from '@page/ActionPage/types'
+import { useServiceState } from '@global/api/hook'
 import { Remocon } from './api/entity'
 import { getRemocon } from './api/func'
 import RemoconComponent from './components/RemoconComponent'
@@ -17,6 +18,8 @@ interface RemoconSectionProps {
  */
 const RemoconSection: React.FC<RemoconSectionProps> = ({ keyEvent }) => {
   const [selectedRemocon, setSelectedRemocon] = useState<Remocon | null>(null)
+
+  const { serviceState } = useServiceState()
 
   const { data: remocons } = useQuery<Remocon[]>(['remocon'], () => getRemocon(), {
     onSuccess: (res) => {
@@ -39,7 +42,7 @@ const RemoconSection: React.FC<RemoconSectionProps> = ({ keyEvent }) => {
 
   return (
     <section
-      className="row-span-2 h-full p-[20px] pb-0 bg-[#F1F2F4]"
+      className="row-span-2 h-full p-[20px] pb-0 bg-[#F1F2F4] relative"
       style={{
         backgroundImage: `url(${BackgroundImage})`,
         backgroundSize: '100%',
@@ -72,6 +75,9 @@ const RemoconSection: React.FC<RemoconSectionProps> = ({ keyEvent }) => {
       </div>
 
       {selectedRemocon && <RemoconComponent remocon={selectedRemocon} keyEvent={keyEvent} />}
+      {serviceState === 'playblock' && (
+        <div className="absolute top-0 left-0 w-full h-full z-10 bg-black opacity-[0.6]" />
+      )}
     </section>
   )
 }

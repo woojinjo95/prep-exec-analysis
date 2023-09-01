@@ -146,6 +146,8 @@ const FilesSection: React.FC = () => {
           </Scrollbars>
         </div>
       </div>
+      {/* scenario 생성 모달
+      생성했을 때 post scenario */}
     </div>
   )
 }
