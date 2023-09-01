@@ -5,6 +5,7 @@ import time
 from typing import Dict, List
 
 from scripts.external.report import report_data
+from scripts.external.redis import get_monkey_test_arguments
 from scripts.monkey.util import (check_temporal_similar, exec_keys,
                                  get_current_image)
 
@@ -98,7 +99,8 @@ class Monkey:
 
     def report_smart_sense(self):
         data = {
-            'smart_sense_key': self.root_keyset,
             **self.report_data,
+            'smart_sense_key': self.root_keyset,
+            'user_config': get_monkey_test_arguments()
         }
         report_data('monkey_smart_sense', data)
