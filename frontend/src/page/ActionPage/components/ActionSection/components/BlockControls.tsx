@@ -52,7 +52,7 @@ const BlockControls: React.FC = () => {
             onClick={() => {
               sendMessage({
                 level: 'info',
-                msg: 'stop_scenario',
+                msg: 'stop_playback',
               })
             }}
           />
@@ -63,7 +63,7 @@ const BlockControls: React.FC = () => {
               if (!scenarioId) return
               sendMessage({
                 level: 'info',
-                msg: 'run_scenario',
+                msg: 'start_playback',
                 data: { scenario_id: scenarioId },
               })
             }}
