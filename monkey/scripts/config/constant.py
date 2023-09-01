@@ -10,3 +10,5 @@ class RedisDB:
 class RedisChannel:
     command = 'command'
 
+
+BASE_TESTRUN_RAW_DIR = "/app/workspace/testruns/{}/raw/monkey/section/images"
