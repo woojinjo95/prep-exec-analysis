@@ -25,9 +25,6 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ code, setCode }) => {
       <AceEditor
         mode="xml"
         theme="monokai"
-        onLoad={() => {
-          //
-        }}
         onChange={(value) => {
           setCode(value)
         }}
