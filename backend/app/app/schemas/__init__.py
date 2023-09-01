@@ -18,5 +18,5 @@ from .scenario import (CopyScenarioCreate, Scenario, ScenarioCreate,
                        ScenarioUpdate)
 from .shell import Shell, ShellList, ShellLogList
 from .trace import ReadLogcat, ReadNetwork
-from .utility import (ExportResult, LogConnectionStatus, ServiceState,
-                      VideoTimestamp)
+from .utility import (ExportResult, LogConnectionStatus, Regex, RegexResult,
+                      ServiceState, VideoTimestamp)
