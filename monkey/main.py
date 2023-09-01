@@ -23,7 +23,12 @@ class CommandExecutor:
 
     # sub의 data로 오면 파싱해서 monkey test db에 별도로 기록
     def set_arguments(self, data: Dict):
-        for key, value in data.items():
+        arguments = data['arguments']
+        analysis_type = arguments['type']
+        set_value('monkey_test_arguments', 'analysis_type', analysis_type)
+        for arg in arguments['args']:
+            key = arg['key']
+            value = arg['value']
             set_value('monkey_test_arguments', key, value)
 
     def execute(self, command: Dict):

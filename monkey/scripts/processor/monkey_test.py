@@ -20,11 +20,11 @@ def test_monkey():
         logger.info(f"arguments: {arguments}")
 
         analysis_type = arguments['analysis_type']
-        if analysis_type == 'intelligent_monkey':
+        if analysis_type == 'intelligent_monkey_test':
             profile = arguments['profile']
             if profile == 'roku':
                 imt = IntelligentMonkeyTestRoku(
-                    key_interval=arguments['interval'],
+                    key_interval=arguments['interval'] / 1000,
                     monkey_args=MonkeyArgs(
                         duration_per_menu=arguments['duration_per_menu'],
                         enable_smart_sense=arguments['enable_smart_sense'],
@@ -33,11 +33,11 @@ def test_monkey():
                     user_config=arguments
                 )
                 imt.run()
-            elif profile == 'sk':
+            elif profile == 'skb':
                 pass
             else:
                 raise NotImplementedError(f"invalid profile: {profile}")
-        elif analysis_type == 'monkey':
+        elif analysis_type == 'monkey_test':
             pass
         else:
             raise NotImplementedError(f"invalid analysis_type: {analysis_type}")
@@ -52,13 +52,4 @@ def test_monkey():
 
 
 def get_arguments() -> Dict:
-    # return get_all('monkey_test_arguments')
-    # DUMMY
-    return {
-        'analysis_type': 'intelligent_monkey',
-        'profile': 'roku',
-        'interval': 1.3,
-        'duration_per_menu': 30,
-        'enable_smart_sense': True,
-        'waiting_time': 3
-    }
+    return get_all('monkey_test_arguments')
