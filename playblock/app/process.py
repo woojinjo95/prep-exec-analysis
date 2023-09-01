@@ -46,7 +46,26 @@ def calc_scenario_to_run_blocks(total_loop: int, scenario: dict):
     return blocks
 
 
-async def consumer_handler(conn: any, db_scenario: any, db_blocks: any, CHANNEL_NAME: str):
+def calc_analysis_to_run_blocks(analysis_configs: list):
+    idx = 0
+    blocks = []
+    for analysis_config in analysis_configs:
+        _analysis_config = {
+            "type": "analysis",
+            "args": [
+                {
+                    "key": "measurement",
+                    "value": analysis_config
+                }
+            ]
+        }
+        _analysis_config['run'] = False
+        _analysis_config['idx'] = idx
+        idx = idx + 1
+        blocks.append(copy.deepcopy(_analysis_config))
+
+
+async def consumer_handler(conn: any, db_scenario: any, db_blocks: any, CHANNEL_NAME: str, event: asyncio.Event):
     try:
         pubsub = conn.pubsub()
         await pubsub.subscribe(CHANNEL_NAME)
@@ -88,7 +107,33 @@ async def consumer_handler(conn: any, db_scenario: any, db_blocks: any, CHANNEL_
                     # 동작 상태를 run으로 설정함
                     await set_run_state(conn)
 
-                if command == "stop_playblock":
+                if command == "start_analysis":
+                    analysis_configs = await conn.keys("analysis_config:*")
+                    print(f"state: {analysis_configs}")
+                    if await is_run_state(conn):
+                        # 이미 동작 수행중으로 보이면 추가 실행 명령은 건너뜀
+                        print("already running block")
+                        continue
+
+                    blocks = calc_analysis_to_run_blocks(analysis_configs)
+
+                    # 수행할 때마다 테스트런이 증가해야 하지만 현재 증가하지 않으므로 임시로 upsert 사용
+                    db_blocks.update_one({
+                        "testrun": "analysis",
+                        "scenario": "analysis",
+                        "blocks": blocks
+                    }, {'$set': {
+                        "testrun": "analysis",
+                        "scenario": "analysis",
+                    }}, upsert=True)
+
+                    # 동작 상태를 run으로 설정함
+                    await set_run_state(conn)
+                if command == "start_analysis_response" or command == "remocon_response":
+                    # 일단 순차적으로 수행할 것이므로 내용물 체크 안함
+                    event.set()
+
+                if command == "stop_playblock" or command == "stop_analysis":
                     await set_stop_state(conn)
                     # 또는 여기서 중지하고 동작아이템 정리 해야 함
 
@@ -132,7 +177,7 @@ def cvt_block_to_message(block: dict):
     return json.dumps(message)
 
 
-async def run_blocks(conn, db_blocks, scenario_id, blocks: list):
+async def run_blocks(conn, db_blocks, scenario_id, blocks: list, event: asyncio.Event):
     try:
         for block in blocks:
             # 블럭 수행 도중에 취소되는 경우
@@ -145,10 +190,13 @@ async def run_blocks(conn, db_blocks, scenario_id, blocks: list):
             # 수행 메시지 송신
             await conn.publish(CHANNEL_NAME, cvt_block_to_message(block))
 
-            # 여기서 대기 (원래는 여기서 작업완료 (보낸 명령에 대한)대기)
-            delay_time = block['delay_time']
-            await asyncio.sleep(delay_time / 1000)
             print("wait... message response")
+            # 블럭 타입이 분석이면 이벤트 대기
+
+            await event.wait()
+            # # 다른 파트는 시간대기
+            # delay_time = block['delay_time']
+            # await asyncio.sleep(delay_time / 1000)
 
             # 완료 처리
             db_blocks.update_one(
@@ -164,7 +212,7 @@ async def run_blocks(conn, db_blocks, scenario_id, blocks: list):
         print("run_blocks end")
 
 
-async def process_handler(conn: any, db_blocks: any, CHANNEL_NAME: str):
+async def process_handler(conn: any, db_blocks: any, CHANNEL_NAME: str, event: asyncio.Event):
     print("process_handler")
     try:
         while True:
@@ -178,7 +226,7 @@ async def process_handler(conn: any, db_blocks: any, CHANNEL_NAME: str):
                         'scenario': scenario_id,
                         'testrun': testrun_id
                     })
-                    await run_blocks(conn, db_blocks, scenario_id, testrun['blocks'])
+                    await run_blocks(conn, db_blocks, scenario_id, testrun['blocks'], event)
             except Exception as e:
                 print(e)
                 print(traceback.format_exc())
@@ -192,6 +240,7 @@ async def process_handler(conn: any, db_blocks: any, CHANNEL_NAME: str):
 
 
 async def main():
+    event = asyncio.Event()
     conn = await get_redis_pool()
     _mongodb = get_db()
     db_scenario = _mongodb['scenario']
@@ -201,8 +250,9 @@ async def main():
 
     try:
         consumer_task = asyncio.create_task(consumer_handler(
-            conn=conn, db_scenario=db_scenario, db_blocks=db_blocks, CHANNEL_NAME=CHANNEL_NAME))
-        process_task = asyncio.create_task(process_handler(conn=conn, db_blocks=db_blocks, CHANNEL_NAME=CHANNEL_NAME))
+            conn=conn, db_scenario=db_scenario, db_blocks=db_blocks, CHANNEL_NAME=CHANNEL_NAME, event=event))
+        process_task = asyncio.create_task(process_handler(
+            conn=conn, db_blocks=db_blocks, CHANNEL_NAME=CHANNEL_NAME, event=event))
 
         print("Start task")
         done, pending = await asyncio.wait(
