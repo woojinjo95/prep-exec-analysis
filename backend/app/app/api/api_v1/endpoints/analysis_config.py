@@ -74,7 +74,7 @@ def delete_analysis_config(
     return {'msg': f'Delete {analysis_type} analysis_config'}
 
 
-@router.post("/frame", response_model=schemas.FrameImage)
+# @router.post("/frame", response_model=schemas.FrameImage)
 async def upload_frame(
     file: UploadFile = File(...)
 ) -> schemas.FrameImage:
@@ -86,7 +86,7 @@ async def upload_frame(
     try:
         file_uuid = str(uuid4())
         filename, file_extension = file.filename.split(".")
-        workspace_path = f"{RedisClient.hget('testrun','workspace_path')}/{RedisClient.hget('testrun','id')}/raw/frame"
+        workspace_path = f"{RedisClient.hget('testrun','workspace_path')}/{RedisClient.hget('testrun','id')}/raw/frames"
         insert_one_to_mongodb(col='file', data={'id': file_uuid, "name": filename,
                               "path": workspace_path, "extension": file_extension})
         if not os.path.isdir(workspace_path):
@@ -99,21 +99,15 @@ async def upload_frame(
     return {'id': file_uuid, 'path': f"{workspace_path}/{file_uuid}.{file_extension}"}
 
 
-@router.get('/frame/{frame_id}', response_class=FileResponse)
+@router.get('/frame/{frame_image_name}', response_class=FileResponse)
 async def download_frame(
-    frame_id: str
+    frame_image_name: str
 ) -> FileResponse:
     """
     Download frame.
     """
-    file = load_from_mongodb(col='file', param={'id': frame_id})
-    if not file:
-        raise HTTPException(status_code=404, detail=f"The frame does not exist in the system.")
-    try:
-        file_name = file[0]['name']
-        file_extension = file[0]['extension']
-        workspace_path = f"{RedisClient.hget('testrun','workspace_path')}/{RedisClient.hget('testrun','id')}/raw/frame/{frame_id}.{file_extension}"
-    except Exception as e:
-        logger.error(traceback.format_exc())
-        raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return FileResponse(path=workspace_path, filename=f'{file_name}.{file_extension}')
+    workspace_path = f"{RedisClient.hget('testrun','workspace_path')}/{RedisClient.hget('testrun','id')}/raw/frames"
+    file_dir = os.path.join(workspace_path, frame_image_name)
+    if not os.path.isfile(path=file_dir):
+        raise HTTPException(status_code=400, detail="No file")
+    return FileResponse(path=file_dir, filename=frame_image_name)
