@@ -19,6 +19,7 @@ interface TextProps extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLSpa
     | 'grey'
     | 'dark-grey'
     | 'light-orange'
+    | 'light-charcoal'
   invertBackground?: boolean
 }
 
@@ -78,6 +79,7 @@ const Text: React.FC<TextProps> = ({
           'bg-grey': colorScheme === 'grey',
           'bg-dark-grey': colorScheme === 'dark-grey',
           'bg-light-orange': colorScheme === 'light-orange',
+          'bg-light-charcoal': colorScheme === 'light-charcoal',
         },
         className,
       )}
