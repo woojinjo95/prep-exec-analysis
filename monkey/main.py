@@ -71,6 +71,7 @@ class CommandExecutor:
             self.set_arguments(data)
             self.start_mt_module()
             publish_msg({}, 'monkey_started')
+        # PUBLISH command '{"msg": "monkey_terminate"}'
         elif command.get('msg', '') == 'monkey_terminate':
             self.stop_mt_module()
 
