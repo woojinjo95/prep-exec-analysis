@@ -97,3 +97,10 @@ class FreezeTypeEnum(ExtendedEnum):
     white = "white"
     one_colored = "one_colored"
     default = "default"
+
+
+class ExportItemEnum(ExtendedEnum):
+    scenario = "scenario"
+    videos = "videos"
+    analysis_config = "analysis_config"
+    stb_log = "stb_log"

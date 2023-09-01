@@ -44,6 +44,7 @@ def healthcheck() -> schemas.Msg:
         RedisClient.hget(name='item', key='id')
         db_session
     except Exception as er:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {"msg": "OK"}
 

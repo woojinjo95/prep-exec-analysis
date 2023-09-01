@@ -102,11 +102,11 @@ async def consumer_handler(conn: any, db_scenario: any, db_blocks: any, CHANNEL_
         print("consumer_handler end")
 
 
-def publish_message(message: str):
+def publish_message(message: str, data: dict = dict()):
     return json.dumps({
         "msg": message,
         "level": "info",
-        "data": {},
+        "data": data,
         "service": "playblock",
         "time": datetime.utcnow().timestamp()
     })
@@ -139,6 +139,8 @@ async def run_blocks(conn, db_blocks, scenario_id, blocks: list):
             if await is_run_state(conn) is False:
                 print("stop running block")
                 return
+            # 다음 수행될 블럭 정보 송신
+            await conn.publish(CHANNEL_NAME, publish_message(message="next_playblock", data={"block_id": block['id']}))
 
             # 수행 메시지 송신
             await conn.publish(CHANNEL_NAME, cvt_block_to_message(block))

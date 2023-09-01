@@ -27,10 +27,11 @@ def create_testrun(
         raise HTTPException(status_code=404, detail="The scenario with this id does not exist in the system.")
 
     try:
+        workspace_path = RedisClient.hget('testrun', 'workspace_path')
         testrun_id = datetime.now().strftime("%Y-%m-%dT%H%M%SF%f")
 
         # 폴더 생성
-        path = f'/app/workspace/testruns/{testrun_id}'
+        path = f'{workspace_path}/{testrun_id}'
         os.makedirs(f'{path}/raw')
         os.makedirs(f'{path}/analysis')
 
@@ -51,10 +52,11 @@ def create_testrun(
         # 워크스페이스 변경 메세지 전송
         RedisClient.publish('command',
                             set_redis_pub_msg(msg="workspace",
-                                              data={"workspace_path": RedisClient.hget('testrun', 'workspace_path'),
+                                              data={"workspace_path": workspace_path,
                                                     "testrun_id": testrun_id,
                                                     "scenario_id": scenario_id}))
 
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Create new testrun', 'id': testrun_id}

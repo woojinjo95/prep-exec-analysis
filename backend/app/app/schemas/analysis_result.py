@@ -1,6 +1,6 @@
 from typing import List
 
-from app.schemas.enum import LogLevelEnum, FreezeTypeEnum
+from app.schemas.enum import LogLevelEnum, FreezeTypeEnum, ResumeTypeEnum
 from pydantic import BaseModel, root_validator
 from pydantic.datetime_parse import parse_datetime
 
@@ -93,6 +93,7 @@ class Loudness(PaginationBaseModel):
 
 
 class MeasurementBootBase(TimestampBaseModel):
+    target: ResumeTypeEnum
     measure_time: int
 
 

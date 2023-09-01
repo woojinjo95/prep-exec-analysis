@@ -124,3 +124,24 @@ def paginate_from_mongodb_aggregation(col: str, pipeline: list, page: int, page_
         return result[0]
     else:
         return {'total': len(result), 'pages': None, 'prev': None, 'next': None, 'items': result}
+
+
+def deserialize_datetime(json_obj):
+    if isinstance(json_obj, dict):
+        for key, value in json_obj.items():
+            json_obj[key] = deserialize_datetime(value)
+    elif isinstance(json_obj, list):
+        for i in range(len(json_obj)):
+            json_obj[i] = deserialize_datetime(json_obj[i])
+    elif isinstance(json_obj, str):
+        try:
+            return datetime.fromisoformat(json_obj)
+        except (TypeError, ValueError):
+            pass
+    return json_obj
+
+
+def serialize_datetime(obj):
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")

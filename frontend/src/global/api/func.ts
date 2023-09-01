@@ -8,6 +8,7 @@ import {
   Response,
   ScenarioSummary,
   Scenario,
+  BlockGroup,
 } from './entity'
 import apiUrls from './url'
 
@@ -125,6 +126,95 @@ export const getVideoTimestamp = async (params: { scenario_id: string; testrun_i
     })
 
     return result.data.items
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
+/**
+ * tag 조회
+ */
+
+export const getTag = async () => {
+  try {
+    const result = await API.get<Response<{ tags: string[] }>>(apiUrls.tag)
+
+    return result.data.items.tags
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
+/**
+ * tag 추가
+ * @param tag 태그
+ */
+export const postTag = async (tag: string) => {
+  try {
+    await API.post<{ msg: string }>(apiUrls.tag, {
+      tag,
+    })
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
+/**
+ * tag 수정
+ * @param targetTag 바꿀 목표 태그
+ * @param newTag 새로운 태그값
+ */
+export const putTag = async ({ targetTag, newTag }: { targetTag: string; newTag: string }) => {
+  try {
+    await API.put<{ msg: string }>(`${apiUrls.tag}/${targetTag}`, {
+      tag: newTag,
+    })
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
+/**
+ * tag 삭제
+ */
+export const deleteTag = async (tag: string) => {
+  try {
+    await API.delete<{ msg: string }>(`${apiUrls.tag}/${tag}`)
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
+/**
+ * 테스트런 추가
+ */
+export const postTestrun = async (scenaroId: string) => {
+  try {
+    await API.post<{ msg: string }>(`${apiUrls.testrun}/${scenaroId}`)
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
+interface postCopyScenarioParams {
+  src_scenario_id: string
+  name: string
+  tags: string[]
+  block_group: BlockGroup[]
+}
+
+/**
+ * scenario copy
+ */
+export const postCopyScenario = async ({ copy_scenario }: { copy_scenario: postCopyScenarioParams }) => {
+  try {
+    await API.post<{ msg: string; id: string }>(`${apiUrls.copy_scenario}`, copy_scenario)
   } catch (err) {
     const er = err as AxiosError
     throw er
