@@ -28,14 +28,14 @@ def check_skip_message(message: any, shell_id: int):
             print(f"check_skip_message data: {data}")
             return False
 
-        # 쉘 아이디 비교
-        id = data.get('shell_id')
-        if id is None:
-            print(f"check_skip_message id: {id}")
-            return False
-        if id != shell_id:
-            print(f"check_skip_message shell_id != {id}")
-            return False
+        # # 쉘 아이디 비교
+        # id = data.get('shell_id')
+        # if id is None:
+        #     print(f"check_skip_message id: {id}")
+        #     return False
+        # if id != shell_id:
+        #     print(f"check_skip_message shell_id != {id}")
+        #     return False
 
         return True
     except Exception as e:
