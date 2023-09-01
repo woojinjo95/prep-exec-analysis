@@ -21,7 +21,7 @@ async def process_log_queue(queue: asyncio.Queue, conn: any, CHANNEL_NAME: str, 
         if sec != _sec and len(buffer) > 0:
             # 저장
             ret = collection.insert_one(
-                {'time': timestamp, "shell_id": shell_id, 'mode': mode, 'lines': buffer})
+                {'timestamp': timestamp, "shell_id": shell_id, 'mode': mode, 'lines': buffer})
             print(f"insert_to_mongodb: {sec} != {_sec} / {len(buffer)}: {ret.inserted_id}")
             buffer = []
             sec = _sec
@@ -35,7 +35,7 @@ async def process_log_queue(queue: asyncio.Queue, conn: any, CHANNEL_NAME: str, 
                 "data": data
             },
             "service": "shell",
-            "time": data['timestamp']
+            "timestamp": data['timestamp']
         }))
         buffer.append(data)
         queue.task_done()
