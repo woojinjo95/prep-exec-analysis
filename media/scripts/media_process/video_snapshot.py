@@ -23,6 +23,7 @@ def save_video_snapshot(video_path: str = None, relative_time: float = None):
 
     log = ''
     log_level = 'info'
+    image_name = ''
     image_path = ''
     try:
         logger.info(f'Image capture from {video_path}, relative_time: {relative_time}')
@@ -87,4 +88,4 @@ def save_video_snapshot(video_path: str = None, relative_time: float = None):
         with get_strict_redis_connection() as redis_connection:
             publish(redis_connection, RedisChannel.command, {'msg': 'video_snapshot_response',
                                                              'level': log_level,
-                                                             'data':  {'path': image_path, 'log': log}})
+                                                             'data':  {'path': image_path, 'name': image_name, 'log': log}})
