@@ -1,8 +1,7 @@
 import React from 'react'
 import { Text } from '@global/ui'
 import { LogConnectionStatusLabel } from '@global/constant'
-import { useLogConnectionStatus } from '@global/api/hook'
-import { useServiceState } from './api/hook'
+import { useLogConnectionStatus, useServiceState } from '@global/api/hook'
 
 /**
  * 서비스 상태 표시 영역

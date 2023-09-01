@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react'
 import cx from 'classnames'
 import { createPortal } from 'react-dom'
-import { Portal } from '..'
 
 /**
  * 리스트와 상위컴포넌트 사이의 간격
