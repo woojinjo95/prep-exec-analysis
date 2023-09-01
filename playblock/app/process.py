@@ -32,7 +32,7 @@ async def consumer_handler(conn: any, db_scenario: any, db_blocks: any, CHANNEL_
                         print("already running block")
                         continue
 
-                    await setup_playblock(state, db_scenario, db_blocks, conn)
+                    await setup_playblock(state, db_blocks, conn)
 
                 if command == "start_analysis":
                     if await is_run_state(conn):
@@ -44,6 +44,7 @@ async def consumer_handler(conn: any, db_scenario: any, db_blocks: any, CHANNEL_
                 if command == "start_analysis_response" or command == "remocon_response":
                     # 일단 순차적으로 수행할 것이므로 내용물 체크 안함
                     # 여기가 애매하고 문제가 되는 부분.
+                    print(f"response set event ==> {message}")
                     event.set()
 
                 if command == "stop_playblock" or command == "stop_analysis":

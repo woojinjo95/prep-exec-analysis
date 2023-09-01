@@ -65,6 +65,12 @@ async def consumer_adb_handler(conn: any, shell_id: int, proc: any, CHANNEL_NAME
                     queue.put_nowait({'timestamp': datetime.utcnow().timestamp(), 'module':  "stdin", 'message': command})
                     await proc.stdin.drain()
                     await asyncio.sleep(0.5)
+                    await conn.publish(CHANNEL_NAME, json.dumps({
+                        "msg": "shell_response",
+                        "level": "info",
+                        "service": "shell",
+                        "timestamp": datetime.utcnow().timestamp()
+                    }))
             except Exception as e:
                 print(e)
     except Exception as exc:

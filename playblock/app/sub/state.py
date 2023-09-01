@@ -22,4 +22,4 @@ async def set_stop_state(redis_connection):
 
 async def set_run_item(redis_connection, block_id: str):
     print(f"set_run_item: {block_id}")
-    await redis_connection.hmset("testrun", "run_block", block_id)
+    await redis_connection.hset("testrun", "run_block", block_id)
