@@ -1,3 +1,4 @@
+import itertools
 import logging
 import traceback
 from typing import Optional
@@ -416,32 +417,78 @@ def get_data_of_network_filter(
 
 
 # Data Summary
-@router.get("/summary")  # TODO Response 달아라
+@router.get("/summary", response_model=schemas.DataSummary)
 def get_summary_data_of_measure_result(
-    scenario_id: Optional[str] = None,
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    scenario_id: Optional[str] = None,
+    testrun_id: Optional[str] = None
 ):
     """
     분석 결과 데이터 개요
     """
     try:
-        pipeline = [{'$match': {'scenario_id': scenario_id,
-                                'timestamp': {'$gte': convert_iso_format(start_time),
-                                              '$lte': convert_iso_format(end_time)}}},
-                    {'$count': 'count'}]
-        freeze_summary = aggregate_from_mongodb(col='an_freeze', pipeline=pipeline) or [{}]
-        loudness_summary = aggregate_from_mongodb(col='loudness', pipeline=pipeline) or [{}]
-        resume_summary = aggregate_from_mongodb(col='an_warm_boot', pipeline=pipeline) or [{}]
-        boot_summary = aggregate_from_mongodb(col='an_cold_boot', pipeline=pipeline) or [{}]
-        log_level_summary = aggregate_from_mongodb(col='stb_log', pipeline=pipeline) or [{}]
+        if testrun_id is None:
+            testrun_id = RedisClient.hget('testrun', 'id')
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
 
-        result = [{'freeze': {'count': freeze_summary[0].get('count', 0)}},
-                  {'loudness': {'count': loudness_summary[0].get('count', 0)}},
-                  {'resume': {'count': resume_summary[0].get('count', 0)}},
-                  {'boot': {'count': boot_summary[0].get('count', 0)}},
-                  {'log_level_finder': {'count': log_level_summary[0].get('count', 0)}},
-                  ]
+        result = {}
+        basic_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
+                                                    '$lte': convert_iso_format(end_time)},
+                                      'scenario_id': scenario_id,
+                                      'testrun_id': testrun_id}}]
+
+        active_analysis_list = RedisClient.scan_iter(match="analysis_config:*")
+        for active_analysis in itertools.chain(active_analysis_list, ['loudness']):
+            active_analysis = active_analysis.split(':')[-1]
+
+            pipeline = []
+            additional_pipeline = []
+            if active_analysis == 'log_level_finder':
+                collection = 'stb_log'
+                additional_pipeline = [{'$project': {'_id': 0, 'lines.log_level': 1}},
+                                       {'$unwind': {'path': '$lines'}},
+                                       {'$group': {'_id': '$lines.log_level', 'total': {'$sum': 1}}},
+                                       {'$project': {'_id': 0, 'target': '$_id', 'total': 1}}]
+            elif active_analysis == 'freeze':
+                collection = 'an_freeze'
+                additional_pipeline = [{'$group': {'_id': '$freeze_type', 'total': {'$sum': 1}}},
+                                       {'$project': {'_id': 0, 'target': '$_id', 'total': 1}}]
+            elif active_analysis == 'resume':
+                collection = 'an_warm_boot'
+                additional_pipeline = [{'$group': {'_id': '$user_config.type', 'total': {'$sum': 1},
+                                                   'avg_time': {'$avg': '$measure_time'}}},
+                                       {'$project': {'_id': 0, 'target': '$_id',
+                                                     'total': 1, 'avg_time': '$avg_time'}}]
+            elif active_analysis == 'boot':
+                collection = 'an_cold_boot'
+                additional_pipeline = [{'$group': {'_id': '$user_config.type', 'total': {'$sum': 1},
+                                                   'avg_time': {'$avg': '$measure_time'}}},
+                                       {'$project': {'_id': 0, 'target': '$_id',
+                                                     'total': 1, 'avg_time': '$avg_time'}}]
+            elif active_analysis == 'log_pattern_matching':
+                collection = 'an_log_pattern'
+                additional_pipeline = [{'$project': {'_id': 0, 'log_pattern_name': '$matched_target.name', 'color': '$matched_target.color'}},
+                                       {'$group': {'_id': {'name': '$log_pattern_name', 'color': '$color'}, 'total': {'$sum': 1}}},
+                                       {'$project': {'_id': 0, 'log_pattern_name': '$_id.name', 'total': 1, 'color': '$_id.color'}}]
+            elif active_analysis == 'macroblock':
+                continue
+            elif active_analysis == 'channel_change_time':
+                continue
+            elif active_analysis == 'process_lifecycle_analysis':
+                continue
+            else:
+                collection = 'loudness'
+                additional_pipeline = [{'$project': {'_id': 0, 'lines': 1}},
+                                       {'$unwind': {'path': '$lines'}},
+                                       {'$group': {'_id': None, 'lkfs': {'$avg': '$lines.I'}}},
+                                       {'$project': {'_id': 0, 'lkfs': 1}}]
+            pipeline = basic_pipeline + additional_pipeline
+            aggregation = aggregate_from_mongodb(col=collection, pipeline=pipeline)
+            if len(aggregation) == 0:
+                continue
+            result[active_analysis] = aggregation
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {"items": result}
