@@ -34,15 +34,18 @@ class CommandExecutor:
 
     def execute(self, command: Dict):
         ''' 
-        # 1. 인텔리전트 몽키 테스트 실행 (ROKU)
-            PUBLISH command '{"msg": "monkey", "data": {"arguments": {"type": "intelligent_monkey_test", "args": [{"key": "profile", "value": "roku"},{"key": "duration_per_menu", "value": 60},{"key": "interval","value": 1000},{"key": "enable_smart_sense","value": true},{"key": "waiting_time","value": 5}]}}}'
+        1. 인텔리전트 몽키 테스트 실행 (ROKU)
+            PUBLISH command '{"msg": "monkey", "data": {"arguments": {"type": "intelligent_monkey_test", "args": [{"key": "profile", "value": "roku"},{"key": "duration_per_menu", "value": 60},{"key": "interval","value": 1000},{"key": "enable_smart_sense","value": true},{"key": "waiting_time","value": 3}]}}}'
+        2. 몽키테스트 종료
+            PUBLISH command '{"msg": "monkey_terminate"}'
+        
         '''
         if command.get('msg', '') == 'monkey':
             data = command.get('data', {})
             self.set_arguments(data)
             self.start_mt_module()
             publish_msg({}, 'monkey_started')
-        # PUBLISH command '{"msg": "monkey_terminate"}'
+            
         elif command.get('msg', '') == 'monkey_terminate':
             self.stop_mt_module()
 
