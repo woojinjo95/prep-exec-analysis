@@ -38,6 +38,6 @@ def update_analysis_to_scenario(analysis_item: dict, analysis_last_time: datetim
     mongo_client.update_one({'id': scenario_id}, {'$push': update_query})
 
     update_query = {
-        f'testruns.{index}.analysis.analysis_last_timestamp': analysis_last_time
+        f'testruns.{index}.analysis.last_timestamp': analysis_last_time
     }
     mongo_client.update_one({'id': scenario_id}, {'$set': update_query})
