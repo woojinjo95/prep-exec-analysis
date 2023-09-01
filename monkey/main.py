@@ -53,7 +53,7 @@ if __name__ == '__main__':
         log_organizer.set_stream_logger('main')
         log_organizer.set_stream_logger('connection')
         log_organizer.set_stream_logger('monkey_test')
-        log_organizer.set_stream_logger('monkey_class')
+        log_organizer.set_stream_logger('monkey_agent')
         logger.info('Start monkey container')
         
         main()

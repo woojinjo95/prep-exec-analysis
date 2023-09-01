@@ -8,7 +8,7 @@ from scripts.external.report import report_data
 from scripts.monkey.util import (check_temporal_similar, exec_keys,
                                  get_current_image)
 
-logger = logging.getLogger('monkey_class')
+logger = logging.getLogger('monkey_agent')
 
 
 class Monkey:
