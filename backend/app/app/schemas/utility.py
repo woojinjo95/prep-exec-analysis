@@ -33,3 +33,14 @@ class ExportResult(BaseModel):
     scenario_id: Optional[str]
     testrun_id: Optional[str]
     items: List[ExportItemEnum]
+
+
+class Regex(BaseModel):
+    regex: str
+
+
+class RegexResult(BaseModel):
+    is_valid: bool
+    msg: str
+    detail: Optional[str]
+    keys: Optional[list]
