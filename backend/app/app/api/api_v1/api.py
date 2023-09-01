@@ -16,8 +16,8 @@ api_router.include_router(block.block_group_router, prefix="/scenario/block_grou
 
 api_router.include_router(analysis_config.router, prefix="/analysis_config", tags=["analysis_config"])
 
-api_router.include_router(trace.router, prefix="/trace", tags=["trace"])
-api_router.include_router(shell.router, prefix="/shell", tags=["shell"])
+api_router.include_router(trace.router, prefix="/trace", tags=["raw:trace"])
+api_router.include_router(shell.router, prefix="/shell", tags=["raw:shell"])
 api_router.include_router(analysis_result.router, prefix="/analysis_result", tags=["analysis_result"])
 api_router.include_router(analysis_result_file.router, prefix="/analysis_result/file", tags=["analysis_result:file"])
 

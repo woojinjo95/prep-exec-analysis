@@ -52,17 +52,11 @@ async def consumer_handler(conn: any, CHANNEL_NAME: str):
                 data = json.loads(command_data) if isinstance(command_data, str) else {}
                 msg = data.get('msg', None)
 
-                # 액션블럭이 종료되면 리플레이가 전송한 메세지 수신 -> 대기
+                # 액션블럭이 종료되면 리플레이가 전송한 메세지 수신 -> 녹화
                 if msg == 'end_playblock':
                     print('----> end_playblock')
-                    # 로그수집 중단 메세지 전송
-                    await pub_msg(conn, msg="stb_log", data={"control": "stop"})
-
-                    # 스트리밍 중단 메세지 전송
-                    await pub_msg(conn, msg="streaming", data={"action": "stop"})
-
                     # 상태 변경 및 메세지 전송
-                    await set_service_state_and_pub(conn, ServiceStateEnum.idle)
+                    await set_service_state_and_pub(conn, ServiceStateEnum.streaming)
 
                 # 액션 페이지에서 액션블럭 재생시 -> 재생
                 elif msg == 'start_playblock_response':

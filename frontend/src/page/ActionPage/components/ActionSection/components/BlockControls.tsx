@@ -11,6 +11,7 @@ import { useRecoilValue } from 'recoil'
 import { scenarioIdState } from '@global/atom'
 import { blockControlMenu } from '../constants'
 import SaveBlocksModal from './SaveBlocksModal'
+import OpenBlocksModal from './OpenBlocksModal'
 
 const BlockControls: React.FC = () => {
   const { sendMessage } = useWebsocket()
@@ -18,6 +19,7 @@ const BlockControls: React.FC = () => {
   const scenarioId = useRecoilValue(scenarioIdState)
 
   const [isSaveBlocksModalOpen, setIsSaveBlocksModalOpen] = useState<boolean>(false)
+  const [isOpenBlocksModalOpen, setIsOpenBlocksModalOpen] = useState<boolean>(false)
 
   return (
     <>
@@ -31,6 +33,9 @@ const BlockControls: React.FC = () => {
                 onClick={() => {
                   if (menu === 'Save') {
                     setIsSaveBlocksModalOpen(true)
+                  }
+                  if (menu === 'Open') {
+                    setIsOpenBlocksModalOpen(true)
                   }
                 }}
               >
@@ -52,7 +57,7 @@ const BlockControls: React.FC = () => {
             onClick={() => {
               sendMessage({
                 level: 'info',
-                msg: 'stop_playback',
+                msg: 'stop_playblock',
               })
             }}
           />
@@ -63,7 +68,7 @@ const BlockControls: React.FC = () => {
               if (!scenarioId) return
               sendMessage({
                 level: 'info',
-                msg: 'start_playback',
+                msg: 'start_playblock',
                 data: { scenario_id: scenarioId },
               })
             }}
@@ -78,6 +83,9 @@ const BlockControls: React.FC = () => {
             setIsSaveBlocksModalOpen(false)
           }}
         />
+      )}
+      {isOpenBlocksModalOpen && (
+        <OpenBlocksModal isOpen={isOpenBlocksModalOpen} close={() => setIsOpenBlocksModalOpen(false)} />
       )}
     </>
   )

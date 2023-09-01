@@ -80,7 +80,7 @@ def check_skip_message(raw: any):
 
         # 에코 메시지 체크
         service = message['service']
-        if service == 'shell':
+        if service == 'playblock':
             print(f"check_skip_message service == {service}")
             return False, None
 
