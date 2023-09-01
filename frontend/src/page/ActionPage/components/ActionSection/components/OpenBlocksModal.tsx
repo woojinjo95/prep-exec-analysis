@@ -3,8 +3,12 @@ import useFetchScenarios from '@global/hook/useFetchScenarios'
 import useIntersect from '@global/hook/useIntersect'
 import { Button, Modal, Text } from '@global/ui'
 import { formatDateTo } from '@global/usecase'
-import React, { useMemo, useRef } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import { Scrollbars } from 'react-custom-scrollbars-2'
+import cx from 'classnames'
+import { useRecoilState } from 'recoil'
+import { scenarioIdState } from '@global/atom'
+import { Navigate, useNavigate } from 'react-router-dom'
 
 interface OpenBlocksModalProps {
   isOpen: boolean
@@ -30,6 +34,12 @@ const OpenBlocksModal: React.FC<OpenBlocksModalProps> = ({ isOpen, close }) => {
 
   const firstFocusableElementRef = useRef<HTMLButtonElement>(null)
   const lastFocusableElementRef = useRef<HTMLButtonElement>(null)
+
+  const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null)
+
+  const [, setScenarioId] = useRecoilState(scenarioIdState)
+
+  const navigate = useNavigate()
 
   return (
     <Modal
@@ -58,13 +68,21 @@ const OpenBlocksModal: React.FC<OpenBlocksModalProps> = ({ isOpen, close }) => {
             )}
           >
             {scenarios.map((scenario) => (
-              <div className="flex flex-col w-full" key={`file_${scenario.name}`}>
+              <div
+                className={cx('flex flex-col w-full cursor-pointer', {
+                  'bg-grey': selectedScenarioId && selectedScenarioId === scenario.id,
+                })}
+                key={`file_${scenario.name}`}
+                onClick={() => {
+                  setSelectedScenarioId(scenario.id)
+                }}
+              >
                 <div className="w-[calc(100%-16px)] grid grid-cols-[35%_45%_20%]  gap-x-2 border-b-grey border-b-[1px] min-h-[48px] items-center">
                   <div>
                     <Text className="text-white mr-3" invertBackground colorScheme="light-orange">
                       B
                     </Text>
-                    <Text size="md" colorScheme="light" className="cursor-pointer">
+                    <Text size="md" colorScheme="light">
                       {scenario.name}
                     </Text>
                   </div>
@@ -103,6 +121,12 @@ const OpenBlocksModal: React.FC<OpenBlocksModalProps> = ({ isOpen, close }) => {
             ref={firstFocusableElementRef}
             colorScheme="primary"
             className="w-[132px] h-[48px] mr-3 text-white rounded-3xl"
+            onClick={() => {
+              setScenarioId(selectedScenarioId)
+              // 새로고침하지 않고 강제로 이동하게 해야 함
+              navigate('/action', { state: { force: true } })
+              close()
+            }}
           >
             Open
           </Button>
