@@ -4,6 +4,7 @@ import time
 import traceback
 from typing import Dict, List
 
+from scripts.config.constant import RedisDB
 from scripts.connection.redis_conn import set_value
 from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.data import load_input, read_analysis_config
@@ -35,8 +36,8 @@ def test_log_pattern_matching():
         logger.info(f'matched log count: {count}')
 
         publish_msg({'measurement': Command.LOG_PATTERN_MATCHING.value}, 'analysis_response')
-        set_value('last_analysis_info', 'analysis_name', Command.LOG_PATTERN_MATCHING.value)
-        set_value('last_analysis_info', 'end_time', get_utc_datetime(time.time()))
+        set_value('last_analysis_info', 'analysis_name', Command.LOG_PATTERN_MATCHING.value, db=RedisDB.hardware)
+        set_value('last_analysis_info', 'end_time', get_utc_datetime(time.time()), db=RedisDB.hardware)
 
     except Exception as err:
         error_detail = traceback.format_exc()

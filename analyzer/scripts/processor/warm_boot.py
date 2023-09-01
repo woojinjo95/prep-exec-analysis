@@ -10,6 +10,7 @@ from scripts.analysis.boot_test.diff import task_boot_test_with_diff
 from scripts.analysis.boot_test.match import task_boot_test_with_match
 from scripts.analysis.video import check_poweroff_video
 from scripts.config.config import get_setting_with_env
+from scripts.config.constant import RedisDB
 from scripts.connection.redis_conn import set_value
 from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.data import load_input, read_analysis_config
@@ -36,8 +37,8 @@ def test_warm_boot():
             test_warm_boot_with_diff()
 
         publish_msg({'measurement': Command.RESUME.value}, 'analysis_response')
-        set_value('last_analysis_info', 'analysis_name', Command.RESUME.value)
-        set_value('last_analysis_info', 'end_time', get_utc_datetime(time.time()))
+        set_value('last_analysis_info', 'analysis_name', Command.RESUME.value, db=RedisDB.hardware)
+        set_value('last_analysis_info', 'end_time', get_utc_datetime(time.time()), db=RedisDB.hardware)
 
     except Exception as err:
         error_detail = traceback.format_exc()

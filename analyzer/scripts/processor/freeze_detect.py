@@ -4,6 +4,7 @@ import traceback
 
 from scripts.analysis.freeze_detect import FreezeDetector
 from scripts.config.config import get_setting_with_env
+from scripts.config.constant import RedisDB
 from scripts.connection.redis_conn import set_value
 from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.data import load_input, read_analysis_config
@@ -40,8 +41,8 @@ def test_freeze_detection():
                 })
 
         publish_msg({'measurement': Command.FREEZE.value}, 'analysis_response')
-        set_value('last_analysis_info', 'analysis_name', Command.FREEZE.value)
-        set_value('last_analysis_info', 'end_time', get_utc_datetime(time.time()))
+        set_value('last_analysis_info', 'analysis_name', Command.FREEZE.value, db=RedisDB.hardware)
+        set_value('last_analysis_info', 'end_time', get_utc_datetime(time.time()), db=RedisDB.hardware)
 
     except Exception as err:
         error_detail = traceback.format_exc()
