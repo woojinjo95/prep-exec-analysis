@@ -3,6 +3,7 @@ import traceback
 
 from scripts.util.decorator import log_decorator
 from scripts.monkey.intelligent_monkey_test.roku import IntelligentMonkeyTestRoku
+from scripts.monkey.monkey_test.default import MonkeyTest
 from scripts.monkey.format import MonkeyArgs
 from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.redis import get_monkey_test_arguments
@@ -23,22 +24,34 @@ def test_monkey():
         analysis_type = arguments['analysis_type']
         if analysis_type == 'intelligent_monkey_test':
             profile = arguments['profile']
+
             if profile == 'roku':
                 imt = IntelligentMonkeyTestRoku(
                     key_interval=arguments['interval'],
                     monkey_args=MonkeyArgs(
-                        duration_per_menu=arguments['duration_per_menu'],
+                        duration=arguments['duration_per_menu'],
                         enable_smart_sense=arguments['enable_smart_sense'],
                         waiting_time=arguments['waiting_time']
                     ),
                 )
                 imt.run()
+
             elif profile == 'skb':
                 pass
+
             else:
                 raise NotImplementedError(f"invalid profile: {profile}")
+            
         elif analysis_type == 'monkey_test':
-            pass
+            mt = MonkeyTest(
+                key_interval=arguments['interval'],
+                monkey_args=MonkeyArgs(
+                    duration=arguments['duration'],
+                    enable_smart_sense=arguments['enable_smart_sense'],
+                    waiting_time=arguments['waiting_time']
+                ),
+            )
+            mt.run()
         else:
             raise NotImplementedError(f"invalid analysis_type: {analysis_type}")
 

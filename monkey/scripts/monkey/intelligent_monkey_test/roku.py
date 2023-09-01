@@ -120,7 +120,7 @@ class IntelligentMonkeyTestRoku:
         cursor_image = get_cropped_image(image, self.get_cursor(image))
 
         monkey = Monkey(
-            duration=self.monkey_args.duration_per_menu,
+            duration=self.monkey_args.duration,
             key_candidates=['right', 'up', 'down', 'ok'],
             root_keyset=current_node_keyset,
             key_interval=self.key_interval,
