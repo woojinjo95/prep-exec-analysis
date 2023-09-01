@@ -35,7 +35,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, close, children, className, title
       <div
         ref={ref}
         className={cx(
-          'flex flex-col fixed min-h-[200px] min-w-[200px] z-10 p-6 bg-light-black rounded-[10px] pb-7',
+          'flex flex-col fixed min-h-[200px] min-w-[200px] max-w-[90vw] max-h-[90vh] z-10 p-6 bg-light-black rounded-[10px] pb-7',
           className,
         )}
         style={{ display: !isOpen ? 'none' : '' }}

@@ -28,7 +28,8 @@ const Title: React.FC<TitleProps> = ({ as = 'h1', colorScheme = 'dark', active =
       '-tracking-[0.6px]': as === 'h1',
 
       'leading-[26px]': as === 'h3',
-      'leading-6': as === 'h2' || as === 'h1',
+      'leading-7': as === 'h2',
+      'leading-9': as === 'h1',
 
       'font-medium': as === 'h3' || as === 'h2',
       'font-bold': as === 'h1',
