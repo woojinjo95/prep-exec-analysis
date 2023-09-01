@@ -5,7 +5,7 @@ import { AnalysisType } from '@global/constant'
  * 블럭 재생 시작 publish 메시지
  */
 interface RunScenarioMessage {
-  msg: 'run_scenario'
+  msg: 'start_playblock'
   data: { scenario_id: string }
 }
 
@@ -13,7 +13,7 @@ interface RunScenarioMessage {
  * 블럭 재생 중단 publish 메시지
  */
 interface StopScenarioMessage {
-  msg: 'stop_scenario'
+  msg: 'stop_playblock'
 }
 
 /**

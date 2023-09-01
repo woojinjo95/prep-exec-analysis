@@ -18,8 +18,8 @@ import ResumeBootChart from './components/ResumeBootChart'
 import LogPatternMatchingChart from './components/LogPatternMatchingChart'
 
 interface TimelineSectionProps {
-  startTime: Date
-  endTime: Date
+  startTime: Date | null
+  endTime: Date | null
 }
 
 /**
@@ -33,7 +33,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
 
   // X축 전체 scale
   const timelineScaleX: d3.ScaleTime<number, number, never> | null = useMemo(() => {
-    if (!chartWidth) return null
+    if (!chartWidth || !startTime || !endTime) return null
     return d3.scaleTime().domain([startTime, endTime]).range([0, chartWidth])
   }, [chartWidth, startTime, endTime])
 
@@ -51,8 +51,32 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
 
     setChartWidth(chartWrapperRef.current.clientWidth)
     setScrollBarTwoPosX([0, chartWrapperRef.current.clientWidth])
-  }, [])
+    // dependency array: chartWrapperRef 렌더링 조건
+  }, [startTime, endTime])
 
+  /**
+   * 스냅샷 시작 시간
+   */
+  const snapshotStartMillisecond = useMemo(() => {
+    if (!startTime || !timelineScaleX || !scrollBarTwoPosX) return null
+    return timelineScaleX.invert(scrollBarTwoPosX[0]).getTime() - startTime.getTime()
+  }, [startTime, timelineScaleX, scrollBarTwoPosX])
+
+  /**
+   * 스냅샷 끝 시간
+   */
+  const snapshotEndMillisecond = useMemo(() => {
+    if (!startTime || !timelineScaleX || !scrollBarTwoPosX) return null
+    return timelineScaleX.invert(scrollBarTwoPosX[1]).getTime() - startTime.getTime()
+  }, [startTime, timelineScaleX, scrollBarTwoPosX])
+
+  if (!startTime || !endTime) {
+    return (
+      <section className="h-full bg-black grid grid-cols-1 grid-rows-[auto_1fr_auto]">
+        <TimelineHeader scaleX={scrollbarScaleX} chartWidth={chartWidth} />
+      </section>
+    )
+  }
   return (
     <section className="h-full bg-black grid grid-cols-1 grid-rows-[auto_1fr_auto]">
       {/* time ticks */}
@@ -90,16 +114,8 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
           <VideoSnapshots
             src={src}
             tickCount={15}
-            startMillisecond={
-              timelineScaleX && scrollBarTwoPosX
-                ? timelineScaleX.invert(scrollBarTwoPosX[0]).getTime() - startTime.getTime()
-                : null
-            }
-            endMillisecond={
-              timelineScaleX && scrollBarTwoPosX
-                ? timelineScaleX.invert(scrollBarTwoPosX[1]).getTime() - startTime.getTime()
-                : null
-            }
+            startMillisecond={snapshotStartMillisecond}
+            endMillisecond={snapshotEndMillisecond}
           />
           <ColorReferenceChart
             chartWidth={chartWidth}
@@ -111,7 +127,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
           <FreezeChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
           <LoudnessChart chartWidth={chartWidth} scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
           <ResumeBootChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
-          {/* FIXME: 데이터가 너무많음. 페이지 로딩이 오래걸림 */}
+          {/* FIXME: 데이터가 너무많음. api 로딩이 오래걸림 */}
           <LogLevelFinderChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
           <LogPatternMatchingChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
           <CPUChart chartWidth={chartWidth} scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />

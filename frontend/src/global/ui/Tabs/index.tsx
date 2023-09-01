@@ -40,7 +40,7 @@ const Tabs: React.FC<TabsProps> = ({ header, children, className, colorScheme })
           <button
             key={`tab-header-name-${name}`}
             type="button"
-            className={cx('p-2 mr-2', {
+            className={cx('p-2 pb-1 mr-2', {
               'border-b-2 border-primary': index === activeIndex,
               'cursor-default': header.length < 2,
             })}

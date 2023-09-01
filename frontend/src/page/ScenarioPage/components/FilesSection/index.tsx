@@ -91,7 +91,7 @@ const FilesSection: React.FC = () => {
             <div />
           </div>
           <Scrollbars
-            renderThumbVertical={({ ...props }) => <div {...props} className="bg-[#4E525A] w-2 rounded-[5px]" />}
+            renderThumbVertical={({ ...props }) => <div {...props} className="bg-light-charcoal w-2 rounded-[5px]" />}
           >
             {scenarios?.map((scenario) => (
               <div className="flex flex-col w-full" key={`file_${scenario.name}`}>

@@ -2,10 +2,10 @@ import os
 import redis.asyncio as redis
 
 
-REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
+REDIS_HOST = os.getenv("REDIS_HOST", "192.168.1.45")
 REDIS_PORT = os.getenv("REDIS_PORT", 6379)
 REDIS_DB = os.getenv("REDIS_DB", 0)
-REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", '')
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", '66b44dcb7f981904f8536b19e4464725')
 CHANNEL_NAME = os.getenv("CHANNEL_NAME", 'shell')
 
 ADB_HOST = os.getenv("ADB_HOST", "192.168.1.208")

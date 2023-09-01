@@ -62,6 +62,7 @@ def update_scenario_tag(
             status_code=406, detail="The scenario tag already exists in the system.")
     try:
         # 태그 수정
+        tag_list.remove(tag)
         tag_list.append(tag_in.tag)
         RedisClient.hset('testrun', 'tags', str(tag_list))
 

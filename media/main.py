@@ -13,7 +13,9 @@ from scripts.log_organizer import LogOrganizer
 from scripts.media_process.capture import refresh_capture_board, streaming
 from scripts.media_process.loudness import update_loudness_to_mongodb
 from scripts.media_process.rotation import MakeVideo
+from scripts.media_process.video_snapshot import save_video_snapshot
 from scripts.utils._exceptions import handle_errors
+
 
 logger = logging.getLogger('main')
 
@@ -86,6 +88,10 @@ def command_parser(command: dict, streaming_stop_event: Event):
         if capture_board_args.get('refresh'):
             refresh_capture_board()
 
+    if command.get('msg') == 'video_snapshot':
+        video_snapshot_args = command.get('data')
+        save_video_snapshot(**video_snapshot_args)
+
 
 @handle_errors
 def main():
@@ -104,6 +110,7 @@ if __name__ == '__main__':
         log_organizer.set_stream_logger('main')
         log_organizer.set_stream_logger('video')
         log_organizer.set_stream_logger('audio')
+        log_organizer.set_stream_logger('snapshot')
         log_organizer.set_stream_logger('connection')
         log_organizer.set_stream_logger('file', 5)
         log_organizer.set_stream_logger('error', 10)
