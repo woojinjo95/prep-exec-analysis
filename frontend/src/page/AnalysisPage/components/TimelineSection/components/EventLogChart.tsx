@@ -32,4 +32,4 @@ const EventLogChart: React.FC<EventLogChartProps> = ({ scaleX, startTime, endTim
   return <PointChart scaleX={scaleX} data={eventLogsData} />
 }
 
-export default EventLogChart
+export default React.memo(EventLogChart)

@@ -36,4 +36,4 @@ const ColorReferenceChart: React.FC<ColorReferenceChartProps> = ({ scaleX, chart
   return <AreaChart chartWidth={chartWidth} scaleX={scaleX} data={colorReferenceData} minValue={0} maxValue={8} />
 }
 
-export default ColorReferenceChart
+export default React.memo(ColorReferenceChart)

@@ -43,4 +43,4 @@ const MemoryChart: React.FC<MemoryChartProps> = ({ chartWidth, scaleX, startTime
   )
 }
 
-export default MemoryChart
+export default React.memo(MemoryChart)

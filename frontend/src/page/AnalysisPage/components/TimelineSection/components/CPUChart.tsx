@@ -43,4 +43,4 @@ const CPUChart: React.FC<CPUChartProps> = ({ chartWidth, scaleX, startTime, endT
   )
 }
 
-export default CPUChart
+export default React.memo(CPUChart)

@@ -45,4 +45,4 @@ const ResumeBootChart: React.FC<ResumeBootChartProps> = ({ scaleX, startTime, en
   return <RangeChart scaleX={scaleX} data={data} color="green" />
 }
 
-export default ResumeBootChart
+export default React.memo(ResumeBootChart)

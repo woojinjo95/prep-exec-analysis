@@ -32,4 +32,4 @@ const LogPatternMatchingChart: React.FC<LogPatternMatchingChartProps> = ({ scale
   return <PointChart scaleX={scaleX} data={logPatternMatchingData} />
 }
 
-export default LogPatternMatchingChart
+export default React.memo(LogPatternMatchingChart)

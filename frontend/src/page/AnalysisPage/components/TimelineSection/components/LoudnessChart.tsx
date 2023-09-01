@@ -46,4 +46,4 @@ const LoudnessChart: React.FC<LoudnessChartProps> = ({ chartWidth, scaleX, start
   )
 }
 
-export default LoudnessChart
+export default React.memo(LoudnessChart)
