@@ -6,7 +6,7 @@ from dataclasses import dataclass
 class FrameInfo:
     def __init__(self, image: np.ndarray, cursor: Tuple[int, int, int, int]):
         self.image = image
-        self.cursor = cursor
+        self.cursor = cursor  # x,y,w,h
 
 
 @dataclass
