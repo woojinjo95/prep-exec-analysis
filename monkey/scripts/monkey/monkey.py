@@ -67,6 +67,7 @@ class Monkey:
         logger.info('Stop Monkey')
 
     def stop(self):
+        self.stop_smart_sense()
         self.main_stop_event.set()
 
     ##### Control Keys #####
