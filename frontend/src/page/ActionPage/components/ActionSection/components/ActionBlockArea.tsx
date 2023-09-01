@@ -10,8 +10,8 @@ import { CustomKeyTransmit, RemoconTransmit } from '@global/service/RemoconServi
 
 import { terminalService } from '@global/service/TerminalService/TerminalService'
 import { CommandTransmit } from '@global/service/TerminalService/type'
-import { useRecoilValue } from 'recoil'
-import { scenarioIdState } from '@global/atom'
+import { useRecoilState, useRecoilValue } from 'recoil'
+import { isBlockRecordModeState, scenarioIdState, selectedBlockIdsState } from '@global/atom'
 import { Block, BlockGroup, Scenario } from '@global/api/entity'
 import { getScenarioById } from '@global/api/func'
 import ActionBlockItem from './ActionBlockItem'
@@ -39,10 +39,15 @@ const ActionBlockArea = (): JSX.Element => {
     () => getScenarioById({ scenario_id: scenarioId! }),
     {
       onSuccess: (res) => {
-        if (res && res.block_group.length > 0) {
-          const newBlocks: Block[] = res.block_group[0].block
-          setBlocks(newBlocks)
-          setBlockDummys(newBlocks.map((block) => [block]))
+        if (res) {
+          if (res.block_group.length > 0) {
+            const newBlocks: Block[] = res.block_group[0].block
+            setBlocks(newBlocks)
+            setBlockDummys(newBlocks.map((block) => [block]))
+          } else {
+            setBlocks([])
+            setBlockDummys([])
+          }
         }
       },
       onError: (err) => {
@@ -64,7 +69,7 @@ const ActionBlockArea = (): JSX.Element => {
   })
 
   // 선택된 블럭 id list
-  const [selectedBlockIds, setSelectedBlockIds] = useState<string[]>([])
+  const [selectedBlockIds, setSelectedBlockIds] = useRecoilState(selectedBlockIdsState)
 
   const blocksRef = useRef<BlocksRef>({})
 
@@ -293,9 +298,11 @@ const ActionBlockArea = (): JSX.Element => {
     },
   })
 
+  const isBlockRecordMode = useRecoilValue(isBlockRecordModeState)
+
   useEffect(() => {
     const remoconButtonSubscribe$ = remoconService.onButton$().subscribe((remoconTransmit: RemoconTransmit) => {
-      if (scenarioId) {
+      if (scenarioId && isBlockRecordMode) {
         postBlockMutate({
           newBlock: {
             type: remoconTransmit.msg,
@@ -328,7 +335,7 @@ const ActionBlockArea = (): JSX.Element => {
     const remoconCustomKeySubscribe$ = remoconService
       .onCustomKey$()
       .subscribe((customKeyTransmit: CustomKeyTransmit) => {
-        if (scenarioId) {
+        if (scenarioId && isBlockRecordMode) {
           const newBlocks = customKeyTransmit.data.map((keyTransmit) => {
             return {
               type: customKeyTransmit.msg,
@@ -362,7 +369,7 @@ const ActionBlockArea = (): JSX.Element => {
       })
 
     const terminalButtonSubscribe$ = terminalService.onButton$().subscribe((commandTransmit: CommandTransmit) => {
-      if (scenarioId) {
+      if (scenarioId && isBlockRecordMode) {
         // #TODO: key, value, name에 대한 정확한 정의가 이루어져야 함
         postBlockMutate({
           newBlock: {
@@ -386,7 +393,7 @@ const ActionBlockArea = (): JSX.Element => {
       remoconCustomKeySubscribe$.unsubscribe()
       terminalButtonSubscribe$.unsubscribe()
     }
-  }, [scenarioId])
+  }, [scenarioId, isBlockRecordMode])
 
   return (
     <div className="w-full h-full min-h-full">
@@ -457,9 +464,11 @@ const ActionBlockArea = (): JSX.Element => {
         )}
 
         {blocks && blockDummys && blocks.length === 0 && (
-          <div className="h-full w-full justify-center items-center">
-            <p className="text-xl">No Blocks</p>
-            <p className="text-base">Start action about device control and adb/ssh access</p>
+          <div className="h-full w-full justify-center items-center flex">
+            <div className="flex flex-col items-center">
+              <p className="text-xl">No Blocks</p>
+              <p className="text-base">Start action about device control and adb/ssh access</p>
+            </div>
           </div>
         )}
 

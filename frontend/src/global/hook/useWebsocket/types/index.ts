@@ -5,7 +5,7 @@ import { AnalyzableTypes } from '@global/constant'
  * 블럭 재생 시작 publish 메시지
  */
 interface RunScenarioMessage {
-  msg: 'start_playback'
+  msg: 'start_playblock'
   data: { scenario_id: string }
 }
 
@@ -13,7 +13,21 @@ interface RunScenarioMessage {
  * 블럭 재생 중단 publish 메시지
  */
 interface StopScenarioMessage {
-  msg: 'stop_playback'
+  msg: 'stop_playblock'
+}
+
+/**
+ * 액션 페이지 진입(녹화상태 진입) publish 메시지
+ */
+interface EnterActionPageMessage {
+  msg: 'action_mode'
+}
+
+/**
+ * 분석 페이지 진입 publish 메시지
+ */
+interface EnterAnalysisPageMessage {
+  msg: 'analysis_mode'
 }
 
 /**
@@ -144,6 +158,8 @@ export type PublishMessage = {
   | CommandMessage
   | AnalysisMessage
   | NetworkEmulationMessage
+  | EnterActionPageMessage
+  | EnterAnalysisPageMessage
 )
 
 type SubscribeCommandMessage<T> = {

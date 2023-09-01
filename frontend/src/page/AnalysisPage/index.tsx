@@ -5,6 +5,7 @@ import { useVideoSummary } from '@global/api/hook'
 import { AppURL } from '@global/constant'
 import { cursorDateTimeState, scenarioIdState, testRunIdState, videoBlobURLState } from '@global/atom'
 
+import { useNavigate } from 'react-router-dom'
 import LogTraceSection from './components/LogTraceSection'
 import VideoDetailSection from './components/VideoDetailSection'
 import TimelineSection from './components/TimelineSection'
@@ -16,11 +17,20 @@ import apiUrls from './api/url'
  * 분석 조회 페이지
  */
 const AnalysisPage: React.FC = () => {
+  const navigate = useNavigate()
   const { videoSummary } = useVideoSummary()
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
   const setVideoBlobURL = useSetRecoilState(videoBlobURLState)
   const [cursorDateTime, setCursorDateTime] = useRecoilState(cursorDateTimeState)
+
+  // 서비스 진입 시 선택된 시나리오 id가 없을 경우 -> 시나리오 선택 페이지로 이동
+  // FIXME: testRunId가 없을때는 ..?
+  useEffect(() => {
+    if (!scenarioId) {
+      navigate('/', { replace: true })
+    }
+  }, [])
 
   // testrun 시작시간으로 cursorDateTime 초기값 설정
   useEffect(() => {

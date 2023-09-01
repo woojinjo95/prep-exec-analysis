@@ -6,7 +6,7 @@ const cx = classnames.bind(styles)
 
 interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: React.ReactNode
-  colorScheme?: 'charcoal' | 'light'
+  colorScheme?: 'charcoal' | 'light' | 'none'
   className?: string
 }
 

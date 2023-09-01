@@ -1,6 +1,7 @@
 import { Button, Text } from '@global/ui'
 import React, { useEffect, useState } from 'react'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
+import { ReactComponent as WindowIcon } from '@assets/images/icon_open_window_w.svg'
 import { useMutation } from 'react-query'
 import { useToast } from '@chakra-ui/react'
 import { useHardwareConfiguration } from '@global/api/hook'
@@ -94,7 +95,7 @@ const TerminalPanel: React.FC = () => {
                   {terminal.mode} #{idx}
                 </Text>
                 <div className="flex">
-                  <TrashIcon
+                  <WindowIcon
                     className="h-5 w-5 mr-3 fill-white"
                     onClick={() => {
                       if (currentTerminal) {
