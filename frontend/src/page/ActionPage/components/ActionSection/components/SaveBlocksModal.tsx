@@ -43,7 +43,12 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
   const { scenario: currentScenario, refetch: currentScenarioRefetch } = useScenarioById({
     scenarioId,
     onSuccess: (res) => {
-      setBlocksName(res.name)
+      if (!res.is_active) {
+        setBlocksName(res.name)
+      } else {
+        setBlocksName('undefined blocks')
+      }
+
       setBlocksTags(res.tags)
     },
   })
@@ -314,6 +319,16 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
                     },
                   })
                 }
+              } else {
+                // 처음 만든 시나리오 일 때
+                putScenarioMutate({
+                  new_scenario: {
+                    ...currentScenario,
+                    is_active: true,
+                    tags: blocksTags,
+                    name: blocksName,
+                  },
+                })
               }
             }}
           >
