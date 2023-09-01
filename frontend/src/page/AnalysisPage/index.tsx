@@ -5,6 +5,7 @@ import { useVideoTimestamp } from '@global/api/hook'
 import { AppURL } from '@global/constant'
 import { scenarioIdState, testRunIdState, videoBlobURLState } from '@global/atom'
 
+import { useNavigate } from 'react-router-dom'
 import LogTraceSection from './components/LogTraceSection'
 import VideoDetailSection from './components/VideoDetailSection'
 import TimelineSection from './components/TimelineSection'
@@ -20,6 +21,14 @@ const AnalysisPage: React.FC = () => {
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
   const setVideoBlobURL = useSetRecoilState(videoBlobURLState)
+
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (!scenarioId) {
+      navigate('/', { replace: true })
+    }
+  }, [])
 
   useEffect(() => {
     if (!scenarioId || !testRunId) return
