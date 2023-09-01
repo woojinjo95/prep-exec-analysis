@@ -43,7 +43,7 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
   const { scenario: currentScenario, refetch: currentScenarioRefetch } = useScenarioById({
     scenarioId,
     onSuccess: (res) => {
-      if (!res.is_active) {
+      if (res.is_active) {
         setBlocksName(res.name)
       } else {
         setBlocksName('undefined blocks')
