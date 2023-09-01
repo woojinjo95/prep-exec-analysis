@@ -69,6 +69,7 @@ def update_scenario(
                                       'tags': scenario_in.tags,
                                       'block_group': jsonable_encoder(scenario_in.block_group)})
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Update a scenario.'}
 
@@ -93,6 +94,7 @@ def delete_scenario(
                                       'updated_at': get_utc_datetime(now),
                                       'name': str(now)})
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Delete a scenario.'}
 
@@ -119,6 +121,7 @@ def read_scenarios(
                                            sorting_keyword='name',
                                            param=param)
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return res
 
@@ -144,6 +147,7 @@ def create_scenario(
             RedisClient.hset('testrun', 'tags',
                              f'{list(set([tag for tag in scenario_in.tags if tag not in tag_list] + tag_list))}')
 
+        workspace_path = RedisClient.hget('testrun', 'workspace_path')
         scenario_id = str(uuid.uuid4())
         testrun_id = datetime.now().strftime("%Y-%m-%dT%H%M%SF%f")
         data = {'id': scenario_id,
@@ -157,7 +161,7 @@ def create_scenario(
                               'analysis': {'videos': []}}]}
 
         # 폴더 생성
-        path = f'/app/workspace/testruns/{testrun_id}'
+        path = f"{workspace_path}/{testrun_id}"
         os.makedirs(f'{path}/raw')
         os.makedirs(f'{path}/analysis')
 
@@ -171,11 +175,12 @@ def create_scenario(
         # 워크스페이스 변경 메세지 전송
         RedisClient.publish('command',
                             set_redis_pub_msg(msg="workspace",
-                                              data={"workspace_path": RedisClient.hget('testrun', 'workspace_path'),
+                                              data={"workspace_path": workspace_path,
                                                     "testrun_id": testrun_id,
                                                     "scenario_id": scenario_id}))
 
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Create new scenario', 'id': scenario_id}
 
@@ -209,6 +214,7 @@ def copy_scenario(
             RedisClient.hset('testrun', 'tags',
                              f'{list(set([tag for tag in scenario_in.tags if tag not in tag_list] + tag_list))}')
 
+        workspace_path = RedisClient.hget('testrun', 'workspace_path')
         scenario_id = str(uuid.uuid4())
         testrun_id = datetime.now().strftime("%Y-%m-%dT%H%M%SF%f")
         data = {'id': scenario_id,
@@ -220,7 +226,7 @@ def copy_scenario(
                 'testruns': scenario.get('testruns', [])}
 
         # 폴더 생성
-        path = f'/app/workspace/testruns/{testrun_id}'
+        path = f'{workspace_path}/{testrun_id}'
         os.makedirs(f'{path}/raw')
         os.makedirs(f'{path}/analysis')
 
@@ -234,10 +240,11 @@ def copy_scenario(
         # 워크스페이스 변경 메세지 전송
         RedisClient.publish('command',
                             set_redis_pub_msg(msg="workspace",
-                                              data={"workspace_path": RedisClient.hget('testrun', 'workspace_path'),
+                                              data={"workspace_path": workspace_path,
                                                     "testrun_id": testrun_id,
                                                     "scenario_id": scenario_id}))
 
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Copy scenario', 'id': scenario_id}

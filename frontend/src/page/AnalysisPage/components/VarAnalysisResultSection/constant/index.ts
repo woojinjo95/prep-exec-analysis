@@ -1,4 +1,15 @@
-import AnalysisType from '@global/constant/analysisType'
+import { AnalysisType } from '@global/constant'
+
+/**
+ * 설정 가능한 분석유형 리스트
+ */
+export const ConfigurableAnalysisTypes: (keyof typeof AnalysisType)[] = [
+  'freeze',
+  'resume',
+  'boot',
+  'log_level_finder',
+  'log_pattern_matching',
+] as const
 
 /**
  * 측정타입 라벨

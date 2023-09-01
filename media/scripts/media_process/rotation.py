@@ -91,8 +91,8 @@ class MakeVideo:
 
         self.workspace_info = get_value('testrun', db=RedisDBEnum.hardware)
         scenario_dirname = str(self.workspace_info['id'])
-        output_path = os.path.join('/app/workspace/testruns', scenario_dirname, 'raw', 'videos')
-        self.mounted_output_path = os.path.join(self.workspace_info['workspace_path'], scenario_dirname, 'raw', 'videos')
+        output_path = os.path.join(self.workspace_info['workspace_path'], scenario_dirname, 'raw', 'videos')
+        self.mounted_output_path = output_path
 
         os.makedirs(self.temp_path, exist_ok=True)
         os.makedirs(output_path, exist_ok=True)

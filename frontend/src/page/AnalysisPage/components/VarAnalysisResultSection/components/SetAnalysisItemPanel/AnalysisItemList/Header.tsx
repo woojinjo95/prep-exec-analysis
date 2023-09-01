@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button, OptionItem, Select, Text } from '@global/ui'
 import { useWebsocket } from '@global/hook'
-import { AnalysisTypeLabel } from '../../../constant'
+import { AnalysisTypeLabel, ConfigurableAnalysisTypes } from '../../../constant'
 
 interface HeaderProps {
   selectedAnalysisItems: (keyof typeof AnalysisTypeLabel)[]
@@ -25,27 +25,21 @@ const Header: React.FC<HeaderProps> = ({ selectedAnalysisItems, setSelectedAnaly
         }
         className="grow"
       >
-        {Object.keys(AnalysisTypeLabel)
-          .filter((type) => !selectedAnalysisItems.includes(type as keyof typeof AnalysisTypeLabel))
-          .map((_analysisType) => {
-            const analysisType = _analysisType as keyof typeof AnalysisTypeLabel
-
-            return (
-              <OptionItem
-                colorScheme="dark"
-                key={`set-analysis-items-${analysisType}`}
-                onClick={() => {
-                  setSelectedAnalysisItems((prev) =>
-                    prev.find((type) => type === analysisType)
-                      ? prev.filter((type) => type === analysisType)
-                      : [...prev, analysisType],
-                  )
-                }}
-              >
-                {AnalysisTypeLabel[analysisType]}
-              </OptionItem>
-            )
-          })}
+        {ConfigurableAnalysisTypes.filter((type) => !selectedAnalysisItems.includes(type)).map((analysisType) => (
+          <OptionItem
+            colorScheme="dark"
+            key={`set-analysis-items-${analysisType}`}
+            onClick={() => {
+              setSelectedAnalysisItems((prev) =>
+                prev.find((type) => type === analysisType)
+                  ? prev.filter((type) => type === analysisType)
+                  : [...prev, analysisType],
+              )
+            }}
+          >
+            {AnalysisTypeLabel[analysisType]}
+          </OptionItem>
+        ))}
       </Select>
 
       {/* TODO: 분석 시작 명령 전송 후 응답(analysis_response) 오기 전까지 로딩 표시 */}

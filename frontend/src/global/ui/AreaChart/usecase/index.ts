@@ -15,6 +15,7 @@ export class AreaChartGenerator {
     private height: number,
     private scaleX: NonNullable<ReturnType<typeof useScale>['scaleX']>,
     private scaleY: NonNullable<ReturnType<typeof useScale>['scaleY']>,
+    private minValue: number,
     private strokeColor?: string,
     private fillColor?: string,
   ) {}
@@ -99,7 +100,7 @@ export class AreaChartGenerator {
     const area = d3
       .area<AreaChartData[number]>()
       .x((d) => this.scaleX(d.date))
-      .y0(this.scaleY(0))
+      .y0(this.scaleY(this.minValue))
       .y1((d) => this.scaleY(d.value))
     this.svg
       .append('path')

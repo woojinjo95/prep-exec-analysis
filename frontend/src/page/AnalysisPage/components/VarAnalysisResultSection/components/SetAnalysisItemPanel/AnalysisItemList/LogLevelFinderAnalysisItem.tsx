@@ -1,7 +1,7 @@
 import React from 'react'
 import { Accordion, Checkbox, ColorPickerBox, Text } from '@global/ui'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
-import LogLevel from '@global/constant/logLevel'
+import { LogLevel } from '@global/constant'
 import { AnalysisTypeLabel } from '../../../constant'
 import { UnsavedAnalysisConfig } from '../../../types'
 
