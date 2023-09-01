@@ -33,6 +33,7 @@ class CommandExecutor:
 
     def execute(self, command: Dict):
         ''' 
+        # 1. 인텔리전트 몽키 테스트 실행 (ROKU)
         PUBLISH command '{
             "msg": "monkey",
             "data": {
