@@ -6,6 +6,7 @@ from scripts.connection.redis_pubsub import Subscribe
 from scripts.config.constant import RedisChannel, RedisDB
 from scripts.log_service.log_organizer import LogOrganizer
 from scripts.modules.monkey_test import MonkeyTestModule
+from scripts.connection.redis_pubsub import publish_msg
 
 
 logger = logging.getLogger('main')
@@ -69,6 +70,10 @@ class CommandExecutor:
             data = command.get('data', {})
             self.set_arguments(data)
             self.start_mt_module()
+            publish_msg({}, 'monkey_started')
+        elif command.get('msg', '') == 'monkey_terminate':
+            self.stop_mt_module()
+
 
 
 def main():

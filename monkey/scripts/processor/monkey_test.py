@@ -6,6 +6,7 @@ from scripts.util.decorator import log_decorator
 from scripts.monkey.intelligent_monkey_test.roku import IntelligentMonkeyTestRoku
 from scripts.connection.redis_conn import get_all
 from scripts.monkey.format import MonkeyArgs
+from scripts.connection.redis_pubsub import publish_msg
 
 
 logger = logging.getLogger('main')
@@ -43,11 +44,11 @@ def test_monkey():
         else:
             raise NotImplementedError(f"invalid analysis_type: {analysis_type}")
 
-        # publish_msg({'measurement': Command.COLOR_REFERENCE.value}, 'analysis_response')
+        publish_msg({}, 'monkey_response')
 
     except Exception as err:
         error_detail = traceback.format_exc()
-        # publish_msg({'measurement': Command.COLOR_REFERENCE.value, 'log': error_detail}, 'analysis_response', level='error')
+        publish_msg({'log': error_detail}, 'monkey_response', level='error')
         logger.error(f"error in test_color_reference: {err}")
         logger.warning(error_detail)
 
