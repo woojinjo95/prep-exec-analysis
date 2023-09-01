@@ -10,7 +10,7 @@ import { useRecoilValue } from 'recoil'
 import { scenarioIdState } from '@global/atom'
 import Tag from '@global/ui/Tag'
 import { useMutation, useQuery } from 'react-query'
-import { getTag, postTag, postTestrun } from '@global/api/func'
+import { getTag, postCopyScenario, postTag, postTestrun } from '@global/api/func'
 import { useToast } from '@chakra-ui/react'
 import { AxiosError } from 'axios'
 import { putScenario } from '../api/func'
@@ -30,11 +30,17 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
   const [blocksTags, setBlocksTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState<string>('')
 
-  const { data, hasNextPage, isFetching, fetchNextPage } = useFetchScenarios(PAGE_SIZE_TWENTY)
+  const {
+    data,
+    hasNextPage,
+    isFetching,
+    fetchNextPage,
+    refetch: scenariosRefetch,
+  } = useFetchScenarios(PAGE_SIZE_TWENTY)
 
   const scenarioId = useRecoilValue(scenarioIdState)
 
-  const { scenario: currentScenario } = useScenarioById({
+  const { scenario: currentScenario, refetch: currentScenarioRefetch } = useScenarioById({
     scenarioId,
     onSuccess: (res) => {
       setBlocksName(res.name)
@@ -42,7 +48,7 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
     },
   })
 
-  const { data: tags, refetch } = useQuery<string[]>(['tags'], () => getTag())
+  const { data: tags, refetch: tagRefetch } = useQuery<string[]>(['tags'], () => getTag())
 
   const ref = useIntersect((entry, observer) => {
     // 발견시 실행될 callback
@@ -93,7 +99,8 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
 
   const { mutate: postTagMutate } = useMutation(postTag, {
     onSuccess: () => {
-      refetch()
+      tagRefetch()
+      scenariosRefetch()
     },
     onError: (err: AxiosError) => {
       if (err.status === 406) {
@@ -103,6 +110,9 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
     },
   })
   const { mutate: postTestrunMutate } = useMutation(postTestrun, {
+    onSuccess: () => {
+      close()
+    },
     onError: (err: AxiosError) => {
       console.error(err)
     },
@@ -110,11 +120,20 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
 
   const { mutate: putScenarioMutate } = useMutation(putScenario, {
     onSuccess: () => {
-      refetch()
+      tagRefetch()
 
       if (scenarioId) {
         postTestrunMutate(scenarioId)
       }
+    },
+    onError: (err: AxiosError) => {
+      console.error(err)
+    },
+  })
+
+  const { mutate: postCopyScenarioMutate } = useMutation(postCopyScenario, {
+    onSuccess: () => {
+      currentScenarioRefetch()
     },
     onError: (err: AxiosError) => {
       console.error(err)
@@ -152,16 +171,15 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
             colorScheme="charcoal"
             header={
               <div className="flex w-full">
-                {currentScenario &&
-                  blocksTags.map((tag) => (
-                    <React.Fragment key={`blocks_${currentScenario.id}_${tag}`}>
-                      <Tag
-                        tag={tag}
-                        mode="delete"
-                        onDelete={() => setBlocksTags((prev) => prev.filter((_tag) => _tag !== tag))}
-                      />
-                    </React.Fragment>
-                  ))}
+                {blocksTags.map((tag) => (
+                  <React.Fragment key={`blocks_${currentScenario.id}_${tag}`}>
+                    <Tag
+                      tag={tag}
+                      mode="delete"
+                      onDelete={() => setBlocksTags((prev) => prev.filter((_tag) => _tag !== tag))}
+                    />
+                  </React.Fragment>
+                ))}
                 <input
                   className="ml-3 border-none bg-transparent w-full outline-none text-white"
                   value={tagInput}
@@ -179,8 +197,11 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
                   <TagItem
                     colorScheme="charcoal"
                     tag={tag}
-                    refetch={() => {
-                      refetch()
+                    tagRefetch={() => {
+                      tagRefetch()
+                    }}
+                    scenariosRefetch={() => {
+                      scenariosRefetch()
                     }}
                     key={`scenario_${currentScenario.id}_tag_item_${tag}`}
                     setBlocksTags={setBlocksTags}
@@ -232,14 +253,7 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
                     <Text className="text-white mr-3" invertBackground colorScheme="light-orange">
                       B
                     </Text>
-                    <Text
-                      size="md"
-                      colorScheme="light"
-                      className="cursor-pointer"
-                      onClick={() => {
-                        // setScenarioId(scenario.id)
-                      }}
-                    >
+                    <Text size="md" colorScheme="light" className="cursor-pointer">
                       {scenario.name}
                     </Text>
                   </div>
@@ -279,13 +293,28 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
             className="w-[132px] h-[48px] mr-3 text-white rounded-3xl"
             onClick={(e) => {
               e.stopPropagation()
-              putScenarioMutate({
-                new_scenario: {
-                  ...currentScenario,
-                  tags: blocksTags,
-                },
-              })
-              close()
+
+              // 이미 있는 시나리오일 때
+              if (currentScenario.is_active) {
+                // 이름 변경하였을 때
+                if (currentScenario.name !== blocksName) {
+                  postCopyScenarioMutate({
+                    copy_scenario: {
+                      src_scenario_id: currentScenario.id,
+                      name: blocksName,
+                      tags: blocksTags,
+                      block_group: currentScenario.block_group,
+                    },
+                  })
+                } else {
+                  putScenarioMutate({
+                    new_scenario: {
+                      ...currentScenario,
+                      tags: blocksTags,
+                    },
+                  })
+                }
+              }
             }}
           >
             Save

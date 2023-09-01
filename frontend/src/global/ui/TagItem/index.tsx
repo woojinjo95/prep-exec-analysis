@@ -1,9 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 import cx from 'classnames'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
 import { useMutation } from 'react-query'
-import { deleteTag } from '@global/api/func'
-import { DropdownWithMoreButton, OptionItem, Text } from '..'
+import { deleteTag, putTag } from '@global/api/func'
+import { AxiosError } from 'axios'
+import { useToast } from '@chakra-ui/react'
+import { DropdownWithMoreButton, Input, OptionItem, Text } from '..'
 import Tag from '../Tag'
 
 interface TagItemProps extends React.LiHTMLAttributes<HTMLLIElement> {
@@ -13,7 +15,8 @@ interface TagItemProps extends React.LiHTMLAttributes<HTMLLIElement> {
   colorScheme?: 'dark' | 'charcoal' | 'light'
   isActive?: boolean
   setBlocksTags: React.Dispatch<React.SetStateAction<string[]>>
-  refetch: () => void
+  tagRefetch: () => void
+  scenariosRefetch: () => void
 }
 
 /**
@@ -27,14 +30,33 @@ const TagItem: React.FC<TagItemProps> = ({
   colorScheme = 'charcoal',
   isActive,
   setBlocksTags,
-  refetch,
+  tagRefetch,
+  scenariosRefetch,
   ...props
 }) => {
+  const toast = useToast({ duration: 3000, isClosable: true })
   const { mutate: deleteTagMutate } = useMutation(deleteTag, {
     onSuccess: () => {
-      refetch()
+      tagRefetch()
+      scenariosRefetch()
     },
     onError: (err) => {
+      console.error(err)
+    },
+  })
+
+  const [tagInput, setTagInput] = useState<string>(tag)
+
+  const { mutate: putTagMutate } = useMutation(putTag, {
+    onSuccess: () => {
+      tagRefetch()
+      scenariosRefetch()
+    },
+    onError: (err: AxiosError) => {
+      if (err.status === 406) {
+        toast({ status: 'error', title: 'Tag name duplicated' })
+        return
+      }
       console.error(err)
     },
   })
@@ -67,7 +89,23 @@ const TagItem: React.FC<TagItemProps> = ({
         >
           <Tag tag={tag} />
           <DropdownWithMoreButton type="icon" colorScheme="charcoal">
-            <OptionItem colorScheme="charcoal">{tag}</OptionItem>
+            <OptionItem colorScheme="charcoal">
+              <Input
+                colorScheme="charcoal"
+                onChange={(e) => {
+                  setTagInput(e.target.value)
+                }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    putTagMutate({ targetTag: tag, newTag: tagInput })
+                  }
+                }}
+                value={tagInput}
+              />
+            </OptionItem>
             <OptionItem colorScheme="charcoal">
               <div className="flex">
                 <TrashIcon className="w-4 h-[19px] fill-white mr-2" />
