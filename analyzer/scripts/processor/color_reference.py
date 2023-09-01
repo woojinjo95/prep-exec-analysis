@@ -1,17 +1,19 @@
 import logging
+import time
 import traceback
 from typing import Dict
 
 import cv2
 from scripts.analysis.image import calc_color_entropy
 from scripts.config.config import get_setting_with_env
+from scripts.connection.redis_conn import set_value
+from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.data import load_input
 from scripts.external.report import report_output
-from scripts.format import ReportName, Command
+from scripts.format import Command, ReportName
 from scripts.util._timezone import get_utc_datetime
 from scripts.util.decorator import log_decorator
 from scripts.util.video import FrameGenerator
-from scripts.connection.redis_pubsub import publish_msg
 
 logger = logging.getLogger('main')
 
@@ -33,6 +35,8 @@ def test_color_reference():
                 }) 
 
         publish_msg({'measurement': Command.COLOR_REFERENCE.value}, 'analysis_response')
+        set_value('last_analysis_info', 'analysis_name', Command.COLOR_REFERENCE.value)
+        set_value('last_analysis_info', 'end_time', get_utc_datetime(time.time()))
 
     except Exception as err:
         error_detail = traceback.format_exc()

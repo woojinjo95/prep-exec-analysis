@@ -1,22 +1,23 @@
 import logging
 import tempfile
+import time
 import traceback
 from typing import Tuple
-import numpy as np
-import cv2
 
+import cv2
+import numpy as np
 from scripts.analysis.boot_test.match import task_boot_test_with_match
 from scripts.analysis.video import check_poweroff_video
 from scripts.config.config import get_setting_with_env
+from scripts.connection.redis_conn import set_value
 from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.data import load_input, read_analysis_config
 from scripts.external.event import get_data_of_event_log, get_dut_power_times
 from scripts.external.report import report_output
-from scripts.format import ReportName
+from scripts.format import Command, ReportName
 from scripts.util._timezone import get_utc_datetime
 from scripts.util.decorator import log_decorator
 from scripts.util.video import crop_video_with_opencv
-from scripts.format import Command
 
 logger = logging.getLogger('main')
 
@@ -33,6 +34,8 @@ def test_cold_boot():
             raise NotImplementedError
 
         publish_msg({'measurement': Command.BOOT.value}, 'analysis_response')
+        set_value('last_analysis_info', 'analysis_name', Command.BOOT.value)
+        set_value('last_analysis_info', 'end_time', get_utc_datetime(time.time()))
 
     except Exception as err:
         error_detail = traceback.format_exc()

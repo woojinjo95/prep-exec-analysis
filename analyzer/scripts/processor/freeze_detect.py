@@ -1,17 +1,18 @@
 import logging
+import time
 import traceback
 
-from scripts.config.config import get_setting_with_env
 from scripts.analysis.freeze_detect import FreezeDetector
-from scripts.format import ReportName
+from scripts.config.config import get_setting_with_env
+from scripts.connection.redis_conn import set_value
+from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.data import load_input, read_analysis_config
 from scripts.external.report import report_output
-from scripts.connection.redis_pubsub import publish_msg
+from scripts.format import Command, ReportName
 from scripts.util._timezone import get_utc_datetime
-from scripts.util.video import FrameGenerator, get_video_info
-from scripts.util.decorator import log_decorator
 from scripts.util.common import seconds_to_time
-from scripts.format import Command
+from scripts.util.decorator import log_decorator
+from scripts.util.video import FrameGenerator, get_video_info
 
 logger = logging.getLogger('main')
 
@@ -39,6 +40,8 @@ def test_freeze_detection():
                 })
 
         publish_msg({'measurement': Command.FREEZE.value}, 'analysis_response')
+        set_value('last_analysis_info', 'analysis_name', Command.FREEZE.value)
+        set_value('last_analysis_info', 'end_time', get_utc_datetime(time.time()))
 
     except Exception as err:
         error_detail = traceback.format_exc()
