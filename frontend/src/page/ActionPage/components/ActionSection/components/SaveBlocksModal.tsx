@@ -139,6 +139,8 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
   const { mutate: postCopyScenarioMutate } = useMutation(postCopyScenario, {
     onSuccess: () => {
       currentScenarioRefetch()
+      scenariosRefetch()
+      close()
     },
     onError: (err: AxiosError) => {
       console.error(err)
@@ -235,7 +237,7 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
           </Select>
         </div>
         <div className="mt-5 flex flex-col w-full min-h-[520px]">
-          <div className="mt-9 w-full grid grid-cols-[35%_45%_20%] gap-x-2 min-h-[48px] items-end border-b-grey border-b-[1px] pb-2">
+          <div className="mt-9 w-[calc(100%-16px)] grid grid-cols-[35%_45%_20%] gap-x-2 min-h-[48px] items-end border-b-grey border-b-[1px] pb-2">
             <Text className="text-sm" colorScheme="grey">
               Name
             </Text>
@@ -253,7 +255,7 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
           >
             {scenarios.map((scenario) => (
               <div className="flex flex-col w-full" key={`file_${scenario.name}`}>
-                <div className="w-full grid grid-cols-[35%_45%_20%]  gap-x-2 border-b-grey border-b-[1px] min-h-[48px] items-center">
+                <div className="w-[calc(100%-16px)] grid grid-cols-[35%_45%_20%]  gap-x-2 border-b-grey border-b-[1px] min-h-[48px] items-center">
                   <div>
                     <Text className="text-white mr-3" invertBackground colorScheme="light-orange">
                       B
