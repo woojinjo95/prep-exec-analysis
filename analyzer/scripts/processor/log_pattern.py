@@ -7,7 +7,7 @@ from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.data import load_input, read_analysis_config
 from scripts.external.log import get_data_of_log
 from scripts.external.report import report_output
-from scripts.external.redis import set_last_analysis_info
+from scripts.external.redis import set_analysis_info
 from scripts.format import Command, ReportName
 from scripts.util.decorator import log_decorator
 
@@ -35,7 +35,7 @@ def test_log_pattern_matching():
         logger.info(f'matched log count: {count}')
 
         publish_msg({'measurement': Command.LOG_PATTERN_MATCHING.value}, 'analysis_response')
-        set_last_analysis_info(Command.LOG_PATTERN_MATCHING.value)
+        set_analysis_info(Command.LOG_PATTERN_MATCHING.value)
 
     except Exception as err:
         error_detail = traceback.format_exc()

@@ -6,7 +6,7 @@ from scripts.config.config import get_setting_with_env
 from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.data import load_input, read_analysis_config
 from scripts.external.report import report_output
-from scripts.external.redis import set_last_analysis_info
+from scripts.external.redis import set_analysis_info
 from scripts.format import Command, ReportName
 from scripts.util._timezone import get_utc_datetime
 from scripts.util.common import seconds_to_time
@@ -39,7 +39,7 @@ def test_freeze_detection():
                 })
 
         publish_msg({'measurement': Command.FREEZE.value}, 'analysis_response')
-        set_last_analysis_info(Command.FREEZE.value)
+        set_analysis_info(Command.FREEZE.value)
 
     except Exception as err:
         error_detail = traceback.format_exc()
