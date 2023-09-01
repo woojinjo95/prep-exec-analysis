@@ -35,36 +35,7 @@ class CommandExecutor:
     def execute(self, command: Dict):
         ''' 
         # 1. 인텔리전트 몽키 테스트 실행 (ROKU)
-        PUBLISH command '{
-            "msg": "monkey",
-            "data": {
-                "arguments": {
-                    "type": "intelligent_monkey_test",
-                    "args": [
-                        {
-                        "key": "profile",
-                        "value": "roku"
-                        },
-                        {
-                        "key": "duration_per_menu",
-                        "value": 60
-                        },
-                        {
-                        "key": "interval",
-                        "value": 1000
-                        },
-                        {
-                        "key": "enable_smart_sense",
-                        "value": true
-                        },
-                        {
-                        "key": "waiting_time",
-                        "value": 5
-                        }
-                    ]
-                }
-            }
-        }'
+            PUBLISH command '{"msg": "monkey", "data": {"arguments": {"type": "intelligent_monkey_test", "args": [{"key": "profile", "value": "roku"},{"key": "duration_per_menu", "value": 60},{"key": "interval","value": 1000},{"key": "enable_smart_sense","value": true},{"key": "waiting_time","value": 5}]}}}'
         '''
         if command.get('msg', '') == 'monkey':
             data = command.get('data', {})
