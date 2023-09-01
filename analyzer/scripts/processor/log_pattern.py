@@ -7,7 +7,7 @@ from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.data import load_input, read_analysis_config
 from scripts.external.log import get_data_of_log
 from scripts.external.report import report_output
-from scripts.external.redis import set_analysis_info
+from scripts.external.analysis import set_analysis_info
 from scripts.format import Command, ReportName
 from scripts.util.decorator import log_decorator
 

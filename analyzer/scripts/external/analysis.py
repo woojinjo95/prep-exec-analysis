@@ -5,7 +5,9 @@ from scripts.external.scenario import update_analysis_to_scenario
 
 
 def set_analysis_info(command: str):
+    current_time = get_utc_datetime(time.time())
     update_analysis_to_scenario({
         'type': command,
-        'end_timestamp': get_utc_datetime(time.time())
-    })
+        'end_timestamp': current_time
+    }, current_time)
+    

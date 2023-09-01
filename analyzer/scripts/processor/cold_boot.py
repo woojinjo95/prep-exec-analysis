@@ -12,7 +12,7 @@ from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.data import load_input, read_analysis_config
 from scripts.external.event import get_data_of_event_log, get_dut_power_times
 from scripts.external.report import report_output
-from scripts.external.redis import set_analysis_info
+from scripts.external.analysis import set_analysis_info
 from scripts.format import Command, ReportName
 from scripts.util._timezone import get_utc_datetime
 from scripts.util.decorator import log_decorator
