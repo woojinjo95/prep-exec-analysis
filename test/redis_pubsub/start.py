@@ -9,14 +9,14 @@ def main():
         "data": {
             "mode": "adb",
             # "host": "192.168.10.35",
-            "host": "192.168.30.30",
+            "host": "192.168.30.12",
             "port": "5555",
             "username": "",
             "password": "",
         }
     }
 
-    # new_scenario()
+    new_scenario()
 
     # unit_publish(payload=log_config_95)
     unit_publish(payload={'msg': 'streaming', 'data': {'action': 'start'}})
