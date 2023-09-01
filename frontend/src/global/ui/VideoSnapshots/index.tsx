@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react'
+import React, { useMemo, useState } from 'react'
 import * as d3 from 'd3'
 
 import { VIDEO_SNAPSHOT_HEIGHT } from '@global/ui/VideoSnapshots/constant'
@@ -17,30 +17,37 @@ interface VideoSnapshotsProps {
  * @param src 비디오 주소
  */
 const VideoSnapshots: React.FC<VideoSnapshotsProps> = ({ startMillisecond, endMillisecond, tickCount = 10, src }) => {
-  const divRef = useRef<HTMLDivElement | null>(null)
+  const [clientWidth, setClientWidth] = useState<number | null>(null)
 
   // video x축 scale
   const scaleX: d3.ScaleLinear<number, number, never> | null = useMemo(() => {
-    if (startMillisecond === null || endMillisecond === null || !divRef.current) return null
+    if (startMillisecond === null || endMillisecond === null || !clientWidth) return null
     return d3
       .scaleLinear()
       .domain([startMillisecond / 1000, endMillisecond / 1000])
-      .range([0, divRef.current.clientWidth])
-  }, [startMillisecond, endMillisecond])
+      .range([0, clientWidth])
+  }, [startMillisecond, endMillisecond, clientWidth])
 
-  if (!src) return <div ref={divRef} style={{ height: VIDEO_SNAPSHOT_HEIGHT }} />
   return (
-    <div ref={divRef} className="relative" style={{ height: VIDEO_SNAPSHOT_HEIGHT }}>
-      {scaleX?.ticks(tickCount).map((currentTime) => {
-        return (
-          <VideoSnapshot
-            key={`snapshot-${currentTime}`}
-            currentTime={currentTime}
-            translateX={scaleX(currentTime)}
-            src={src}
-          />
-        )
-      })}
+    <div
+      ref={(ref) => {
+        if (!ref || clientWidth !== null) return
+        setClientWidth(ref.clientWidth)
+      }}
+      className="relative overflow-hidden"
+      style={{ height: VIDEO_SNAPSHOT_HEIGHT }}
+    >
+      {src &&
+        scaleX?.ticks(tickCount).map((currentTime) => {
+          return (
+            <VideoSnapshot
+              key={`snapshot-${currentTime}`}
+              currentTime={currentTime}
+              translateX={scaleX(currentTime)}
+              src={src}
+            />
+          )
+        })}
     </div>
   )
 }

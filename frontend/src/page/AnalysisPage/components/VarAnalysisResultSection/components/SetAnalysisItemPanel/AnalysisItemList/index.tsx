@@ -1,9 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react'
+import { useMutation } from 'react-query'
 import { Title } from '@global/ui'
+import { AnalysisService } from '@global/service'
+import { useObservableState, useWebsocket } from '@global/hook'
 
 import { AnalysisTypeLabel } from '../../../constant'
 import { useAnalysisConfig } from '../../../api/hook'
 import { UnsavedAnalysisConfig } from '../../../types'
+import { putAnalysisConfig } from '../../../api/func'
 import FreezeAnalysisItem from './FreezeAnalysisItem'
 import BootAnalysisItem from './BootAnalysisItem'
 import ResumeAnalysisItem from './ResumeAnalysisItem'
@@ -53,6 +57,7 @@ interface AnalysisItemListProps {
  * 분석 아이템 리스트
  */
 const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisItems, setSelectedAnalysisItems }) => {
+  const { sendMessage } = useWebsocket()
   const [unsavedAnalysisConfig, setUnsavedAnalysisConfig] = useState<UnsavedAnalysisConfig>({})
   const { analysisConfig } = useAnalysisConfig({
     onSuccess: (data) => {
@@ -65,6 +70,20 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
             }
           : undefined,
       }))
+    },
+  })
+  const { mutate: updateAnalysisConfig } = useMutation(putAnalysisConfig, {
+    onSuccess: (_, config) => {
+      if (!Object.keys(config).length) return
+
+      // 분석 설정 수정에 성공하면 -> 분석 시작 메시지 전송
+      sendMessage({
+        msg: 'analysis',
+        data: {
+          measurement: Object.keys(config) as (keyof typeof config)[],
+        },
+      })
+      //
     },
   })
 
@@ -86,13 +105,35 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
         return
       }
 
-      // redis 분석설정(analysisConfig)이 없을 경우 -> default config로 설정
+      // TODO: Remember current setting으로 설정된 경우 -> localstorage에 저장된 설정값으로 설정
+
+      // default config로 설정
       setUnsavedAnalysisConfig((prev) => ({
         ...prev,
         [type]: DefaultAnalysisConfig[type],
       }))
     })
   }, [selectedAnalysisItems, analysisConfig])
+
+  useObservableState({
+    obs$: AnalysisService.onAnalysis$(),
+    callback: (state) => {
+      if (state?.msg !== 'analysis') return
+
+      // TODO: validation check, 경고 표시
+
+      // TODO: validate할 시 -> put analysis_config
+      updateAnalysisConfig({
+        // TODO: ...unsavedAnalysisConfig,
+        freeze: unsavedAnalysisConfig.freeze
+          ? {
+              ...unsavedAnalysisConfig.freeze,
+              duration: Number(unsavedAnalysisConfig.freeze.duration),
+            }
+          : undefined,
+      })
+    },
+  })
 
   /**
    * 분석 아이템 삭제

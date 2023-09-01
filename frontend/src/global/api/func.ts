@@ -3,6 +3,7 @@ import API from '.'
 import {
   HardwareConfiguration,
   LogConnectionStatus,
+  ServiceState,
   PaginationResponse,
   Response,
   ScenarioSummary,
@@ -88,6 +89,20 @@ export const postDisconnect = async () => {
 }
 
 /**
+ * 서비스 상태 조회 api
+ */
+export const getServiceState = async () => {
+  try {
+    const result = await API.get<Response<{ state: ServiceState }>>(apiUrls.service_state)
+
+    return result.data.items.state
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
+/**
  * 로그 연결여부 조회 api
  */
 export const getLogConnectionStatus = async () => {
@@ -95,6 +110,22 @@ export const getLogConnectionStatus = async () => {
     const result = await API.get<Response<{ status: LogConnectionStatus }>>(apiUrls.log_connection_status)
 
     return result.data.items.status
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
+/**
+ * 특정 시나리오의 테스트런이 수행한 시작시간 및 종료시간 조회 api
+ */
+export const getVideoTimestamp = async (params: { scenario_id: string; testrun_id: string }) => {
+  try {
+    const result = await API.get<Response<{ start_time: string; end_time: string }>>(apiUrls.video_timestamp, {
+      params,
+    })
+
+    return result.data.items
   } catch (err) {
     const er = err as AxiosError
     throw er
