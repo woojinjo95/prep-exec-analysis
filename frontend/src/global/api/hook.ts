@@ -10,7 +10,7 @@ import {
   getServiceState,
   getScenarios,
   getScenarioById,
-  getVideoTimestamp,
+  getVideoSummary,
 } from './func'
 import {
   HardwareConfiguration,
@@ -19,6 +19,7 @@ import {
   PaginationResponse,
   ScenarioSummary,
   Scenario,
+  VideoSummary,
 } from './entity'
 
 /**
@@ -183,17 +184,17 @@ export const useLogConnectionStatus = ({
 /**
  * 특정 시나리오의 테스트런이 수행한 시작시간 및 종료시간 조회 hook
  */
-export const useVideoTimestamp = ({
+export const useVideoSummary = ({
   onSuccess,
 }: {
-  onSuccess?: (data: { start_time: string; end_time: string }) => void
+  onSuccess?: (data: VideoSummary) => void
 } = {}) => {
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
   const { data, isLoading, refetch } = useQuery(
-    ['video_timestamp', { scenarioId, testRunId }],
+    ['video_summary', { scenarioId, testRunId }],
     () =>
-      getVideoTimestamp({
+      getVideoSummary({
         scenario_id: scenarioId!,
         testrun_id: testRunId!,
       }),
@@ -210,7 +211,7 @@ export const useVideoTimestamp = ({
   }, [data])
 
   return {
-    videoTimestamp: data,
+    videoSummary: data,
     isLoading,
     refetch,
   }

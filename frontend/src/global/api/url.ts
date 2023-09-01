@@ -5,7 +5,7 @@ type ApiName =
   | 'disconnect'
   | 'log_connection_status'
   | 'service_state'
-  | 'video_timestamp'
+  | 'video_summary'
   | 'tag'
   | 'testrun'
   | 'copy_scenario'
@@ -19,7 +19,7 @@ const apiUrls: {
   disconnect: '/api/v1/shell/disconnect',
   log_connection_status: '/api/v1/log_connection_status',
   service_state: '/api/v1/service_state',
-  video_timestamp: '/api/v1/file/video_timestamp',
+  video_summary: '/api/v1/analysis_result/file/video_summary',
   tag: '/api/v1/scenario/tag',
   testrun: '/api/v1/scenario/testrun',
   copy_scenario: '/api/v1/copy_scenario',

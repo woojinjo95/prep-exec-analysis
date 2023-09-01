@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { PageContainer, Text } from '@global/ui'
-import { useVideoTimestamp } from '@global/api/hook'
+import { useVideoSummary } from '@global/api/hook'
 import { AppURL } from '@global/constant'
 import { scenarioIdState, testRunIdState, videoBlobURLState } from '@global/atom'
 
@@ -16,7 +16,7 @@ import apiUrls from './api/url'
  * 분석 조회 페이지
  */
 const AnalysisPage: React.FC = () => {
-  const { videoTimestamp } = useVideoTimestamp()
+  const { videoSummary } = useVideoSummary()
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
   const setVideoBlobURL = useSetRecoilState(videoBlobURLState)
@@ -41,8 +41,8 @@ const AnalysisPage: React.FC = () => {
       <VarAnalysisResultSection />
       <LogTraceSection />
       <TimelineSection
-        startTime={videoTimestamp?.start_time ? new Date(videoTimestamp.start_time) : null}
-        endTime={videoTimestamp?.end_time ? new Date(videoTimestamp.end_time) : null}
+        startTime={videoSummary?.start_time ? new Date(videoSummary.start_time) : null}
+        endTime={videoSummary?.end_time ? new Date(videoSummary.end_time) : null}
       />
       <div className="col-span-2 bg-black border-t border-[#37383E] flex items-center px-5">
         <Text size="xs" colorScheme="grey">
