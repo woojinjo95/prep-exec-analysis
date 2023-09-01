@@ -50,6 +50,15 @@ async def consumer_adb_handler(conn: any, shell_id: int, proc: any, CHANNEL_NAME
                     if not check_skip_message(message, shell_id):
                         continue
 
+                    # config 변경 메시지 수신
+                    # 두가지 변경 메시지가 있음
+                    # 연결 정보가 변경되는 메시지 
+                    # 테스트런과 프로젝트가 변경되는 메시지
+                    if message['msg'] == 'config' or message['msg'] == 'workspace':
+                        # 현재 작업을 종료함.
+                        # 컨피그가 변경되었거나 워크스페이스가 변경되었기 때문에
+                        return
+
                     command = message['data']['command']
                     proc.stdin.write(f"{command}\n".encode('utf-8'))
                     print(f"stderr: {command}")
@@ -70,6 +79,7 @@ async def adb_connect(conn: any, shell_id: int, ADB_HOST: str, ADB_PORT: int, CH
     # 1. 연결된 디바이스가 하나임
     adb_devices = await asyncio.create_subprocess_shell("adb devices", shell=True)
     await adb_devices.wait()
+
     print(f"adb_connect {ADB_HOST}:{ADB_PORT}")
     adb_connect = await asyncio.create_subprocess_shell(f"adb connect {ADB_HOST}:{ADB_PORT}", shell=True)
     await adb_connect.wait()

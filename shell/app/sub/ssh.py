@@ -49,6 +49,15 @@ async def consumer_ssh_handler(conn: any, channel: any, shell_id: int, CHANNEL_N
                     if not check_skip_message(message, shell_id):
                         continue
 
+                    # config 변경 메시지 수신
+                    # 두가지 변경 메시지가 있음
+                    # 연결 정보가 변경되는 메시지 
+                    # 테스트런과 프로젝트가 변경되는 메시지
+                    if message['msg'] == 'config' or message['msg'] == 'workspace':
+                        # 현재 작업을 종료함.
+                        # 컨피그가 변경되었거나 워크스페이스가 변경되었기 때문에
+                        return
+                    
                     print(message)
                     command = f"{message['data']['command']}\n"
                     channel.write(command)
