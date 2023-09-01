@@ -1,0 +1,80 @@
+import asyncio
+import copy
+import traceback
+from sub.message import cvt_block_to_message, publish_message
+from sub.db import CHANNEL_NAME
+from sub.state import is_run_state, set_stop_state, set_run_item
+
+
+def calc_scenario_to_run_blocks(total_loop: int, scenario: dict):
+    idx = 0
+    blocks = []
+    # 수행해야 하는 블럭을 반복조건에 맞춰서 배열로 만드는 단계
+    for loop_cnt in range(total_loop):  # 시나리오 전체 루프
+        print(f"name: {scenario['name']} loop_cnt: {loop_cnt}")
+        for block_group in scenario['block_group']:  # 개별 블록그룹 루프
+            for block_loop_cnt in range(block_group['repeat_cnt']):
+                for block_item in block_group['block']:  # 그룹내 아이템 루프
+                    _block_item = copy.deepcopy(block_item)
+                    print(f"block: {idx} / {_block_item['name']} block_loop_cnt: {block_loop_cnt}")
+                    _block_item['run'] = False
+                    _block_item['idx'] = idx
+                    idx = idx + 1
+                    blocks.append(copy.deepcopy(_block_item))
+    return blocks
+
+
+def calc_analysis_to_run_blocks(analysis_configs: list):
+    idx = 0
+    blocks = []
+    for analysis_config in analysis_configs:
+        _analysis_config = {
+            "type": "analysis",
+            "args": [
+                {
+                    "key": "measurement",
+                    "value": analysis_config
+                }
+            ]
+        }
+        _analysis_config['run'] = False
+        _analysis_config['idx'] = idx
+        idx = idx + 1
+        blocks.append(copy.deepcopy(_analysis_config))
+
+
+async def run_blocks(conn, db_blocks, scenario_id, blocks: list, event: asyncio.Event):
+    try:
+        for block in blocks:
+            # 블럭 수행 도중에 취소되는 경우
+            if await is_run_state(conn) is False:
+                print("stop running block")
+                return
+            
+            # 다음 수행될 블럭 정보 송신
+            await conn.publish(CHANNEL_NAME, publish_message(message="next_playblock", data={"block_id": block['id']}))
+            await set_run_item(block_id=block['id'])
+
+            # 수행 메시지 송신
+            await conn.publish(CHANNEL_NAME, cvt_block_to_message(block))
+
+            print("wait... message response")
+            # 블럭 타입이 분석이면 이벤트 대기
+
+            await event.wait()
+            # # 다른 파트는 시간대기
+            # delay_time = block['delay_time']
+            # await asyncio.sleep(delay_time / 1000)
+
+            # 완료 처리
+            db_blocks.update_one(
+                {"scenario": scenario_id, "blocks.idx": block['idx']},
+                {"$set": {"blocks.$.run": True}}
+            )
+    except Exception as e:
+        print(e)
+        print(traceback.format_exc())
+    finally:
+        await set_stop_state(conn)
+        await conn.publish(CHANNEL_NAME, publish_message("end_playblock"))
+        print("run_blocks end")
