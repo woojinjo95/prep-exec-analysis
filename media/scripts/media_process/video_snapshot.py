@@ -30,11 +30,21 @@ def save_video_snapshot(video_path: str = None, relative_time: float = None):
             log_level = 'error'
             log = f'no video path or relative_time: {video_path} / {relative_time}'
 
-        stat_path = f'{video_path}_stat'
-        with open(stat_path, 'r') as f:
-            json_data = json.load(f)
+        cap = cv2.VideoCapture(video_path)
+        total_frame_num = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
-        timestamps = json_data['data']['timestamps']
+        stat_path = f'{video_path}_stat'
+        try:
+            with open(stat_path, 'r') as f:
+                json_data = json.load(f)
+
+            timestamps = json_data['data']['timestamps']
+
+        except:
+            logger.warning('stat file is not exist. just calculate video')
+            fps = cap.get(cv2.CAP_PROP_FPS)
+            timestamps = [i / fps for i in range(total_frame_num)]
+
         target_time = timestamps[0] + relative_time
 
         if target_time > timestamps[-1]:
@@ -53,9 +63,8 @@ def save_video_snapshot(video_path: str = None, relative_time: float = None):
         else:
             target_idx = idx
 
-        cap = cv2.VideoCapture(video_path)
         cap.set(cv2.CAP_PROP_POS_FRAMES, target_idx)
-        total_frame_num = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
         logger.info(f'index {target_idx} / {total_frame_num}, abs time: {timestamps[target_idx]} / {timestamp_to_datetime_with_timezone_str(timestamps[target_idx])}')
 
         time_info = timestamp_to_datetime_with_timezone_str(format="%Y-%m-%dT%H%M%SF%f%z")
