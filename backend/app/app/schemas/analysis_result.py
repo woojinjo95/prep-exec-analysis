@@ -168,24 +168,29 @@ class LoudnessSummary(BaseModel):
 
 
 class MonkeyTestSummary(BaseModel):
-    duration_time: int
+    duration_time: int # TBD
     smart_sense: int
-    # TBD
+
 
 class IntelligentMonkeyTestSummary(BaseModel):
-    smart_sense: int
-    # TBD
+    smart_sense: int # TBD
+
+
+class MacroblockSummary(BaseModel):
+    pass # TBD
+
 
 class DataSummaryBase(BaseModel):
-    freeze: Optional[List[FreezeSummary]] = None
-    resume: Optional[List[ResumeSummary]] = None
     boot: Optional[List[BootSummary]] = None
-    channel_change_time: Optional[List[ChannelChangeTimeSummary]] = None
+    # channel_change_time: Optional[List[ChannelChangeTimeSummary]] = None
+    freeze: Optional[List[FreezeSummary]] = None
+    intelligent_monkey_test: Optional[List[IntelligentMonkeyTestSummary]] = None
     log_level_finder: Optional[List[LogLevelFinderSummary]] = None
     log_pattern_matching: Optional[List[LogPatternMatchingSummary]] = None
     loudness: Optional[List[LoudnessSummary]] = None
+    resume: Optional[List[ResumeSummary]] = None
+    # macro_block: Optional[List[MacroblockSummary]] = None
     monkey_test: Optional[List[MonkeyTestSummary]] = None
-    intelligent_monkey_test: Optional[List[IntelligentMonkeyTestSummary]] = None
 
 
 class DataSummary(BaseModel):
