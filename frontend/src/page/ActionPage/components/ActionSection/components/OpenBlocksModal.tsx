@@ -3,12 +3,12 @@ import useFetchScenarios from '@global/hook/useFetchScenarios'
 import useIntersect from '@global/hook/useIntersect'
 import { Button, Modal, Text } from '@global/ui'
 import { formatDateTo } from '@global/usecase'
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Scrollbars } from 'react-custom-scrollbars-2'
 import cx from 'classnames'
 import { useRecoilState } from 'recoil'
 import { scenarioIdState } from '@global/atom'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 interface OpenBlocksModalProps {
   isOpen: boolean
@@ -34,6 +34,31 @@ const OpenBlocksModal: React.FC<OpenBlocksModalProps> = ({ isOpen, close }) => {
 
   const firstFocusableElementRef = useRef<HTMLButtonElement>(null)
   const lastFocusableElementRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Tab') {
+        // shift : 역으로 이동
+        if (event.shiftKey) {
+          if (document.activeElement === firstFocusableElementRef.current) {
+            event.preventDefault()
+            lastFocusableElementRef.current?.focus()
+          }
+        } else if (document.activeElement === lastFocusableElementRef.current) {
+          event.preventDefault()
+          firstFocusableElementRef.current?.focus()
+        }
+      }
+    }
+
+    firstFocusableElementRef.current?.focus()
+
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [])
 
   const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null)
 
