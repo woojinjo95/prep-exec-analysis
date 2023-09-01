@@ -149,7 +149,7 @@ const OpenBlocksModal: React.FC<OpenBlocksModalProps> = ({ isOpen, close }) => {
             onClick={() => {
               setScenarioId(selectedScenarioId)
               // 새로고침하지 않고 강제로 이동하게 해야 함
-              navigate('/action', { state: { force: true } })
+              navigate('/action', { replace: true, state: { force: true } })
               close()
             }}
           >
