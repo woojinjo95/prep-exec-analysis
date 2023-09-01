@@ -62,7 +62,6 @@ const SaveCustomKeyModal: React.FC<SaveCustomKeyModalProps> = ({ isOpen, close, 
 
   return (
     <Modal
-      mode="center"
       isOpen={isOpen}
       close={() => {
         setNewCustomKeyName('')

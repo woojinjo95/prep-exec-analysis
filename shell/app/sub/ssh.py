@@ -73,7 +73,7 @@ async def consumer_ssh_handler(conn: any, channel: any, shell_id: int, CHANNEL_N
 
 
 async def ssh_connect(conn: any, shell_id: int, SSH_HOST: str,
-                      SSH_PORT: int, SSH_USERNAME: str, SSH_PASSWORD: str, CHANNEL_NAME: str):
+                      SSH_PORT: int, SSH_USERNAME: str, SSH_PASSWORD: str, CHANNEL_NAME: str, testinfo: dict):
     queue = asyncio.Queue()
 
     connection, client = await asyncssh.create_connection(QAASSSHClient, host=SSH_HOST, port=SSH_PORT,
@@ -86,7 +86,7 @@ async def ssh_connect(conn: any, shell_id: int, SSH_HOST: str,
         consumer_task = asyncio.create_task(consumer_ssh_handler(conn=conn,
                                                                  channel=channel, shell_id=shell_id,
                                                                  CHANNEL_NAME=CHANNEL_NAME, queue=queue))
-        process_log_task = asyncio.create_task(process_log_queue(queue, conn, CHANNEL_NAME, "ssh", shell_id))
+        process_log_task = asyncio.create_task(process_log_queue(queue, conn, CHANNEL_NAME, "ssh", shell_id, testinfo))
         # await channel.wait_closed()
         done, pending = await asyncio.wait(
             [consumer_task, process_log_task], return_when=asyncio.FIRST_COMPLETED,
