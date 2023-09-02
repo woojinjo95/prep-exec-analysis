@@ -59,7 +59,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
   })
 
   useEffect(() => {
-    if (!chartWrapperRef.current) return
+    if (!chartWrapperRef.current || chartWidth || chartOffsetLeft || scrollBarTwoPosX) return
 
     setChartWidth(chartWrapperRef.current.clientWidth)
     setChartOffsetLeft(chartWrapperRef.current.offsetLeft)
