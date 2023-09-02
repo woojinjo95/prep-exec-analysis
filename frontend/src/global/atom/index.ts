@@ -29,6 +29,14 @@ export const testRunIdState = atom<string | null>({
 })
 
 /**
+ * 타임라인에서 파란색 커서가 가리키는 시간
+ */
+export const cursorDateTimeState = atom<Date | null>({
+  key: 'cursorDateTimeState',
+  default: null,
+})
+
+/**
  * block 녹화 모드 상태
  */
 export const isBlockRecordModeState = atom<boolean>({

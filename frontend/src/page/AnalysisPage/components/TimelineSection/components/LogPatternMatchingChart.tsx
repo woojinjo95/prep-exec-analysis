@@ -1,4 +1,4 @@
-import { scenarioIdState } from '@global/atom'
+import { scenarioIdState, testRunIdState } from '@global/atom'
 import { PointChart } from '@global/ui'
 import React, { useMemo } from 'react'
 import { useRecoilValue } from 'recoil'
@@ -15,12 +15,12 @@ interface LogPatternMatchingChartProps {
  */
 const LogPatternMatchingChart: React.FC<LogPatternMatchingChartProps> = ({ scaleX, startTime, endTime }) => {
   const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
   const { logPatternMatching } = useLogPatternMatching({
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
     scenario_id: scenarioId || undefined,
-    // FIXME: 동적으로 주입되도록 변경 필요
-    testrun_id: '2023-08-14T054428F718593',
+    testrun_id: testRunId || undefined,
   })
 
   const logPatternMatchingData = useMemo(() => {
@@ -32,4 +32,4 @@ const LogPatternMatchingChart: React.FC<LogPatternMatchingChartProps> = ({ scale
   return <PointChart scaleX={scaleX} data={logPatternMatchingData} />
 }
 
-export default LogPatternMatchingChart
+export default React.memo(LogPatternMatchingChart)

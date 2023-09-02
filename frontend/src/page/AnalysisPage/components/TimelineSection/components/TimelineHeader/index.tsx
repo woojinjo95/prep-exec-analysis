@@ -1,10 +1,12 @@
 import React, { useMemo } from 'react'
 import { Text } from '@global/ui'
+import { ReactComponent as CursorIcon } from '@assets/images/pentagon.svg'
 import Tick from './Tick'
 
 interface TimelineHeaderProps {
   scaleX: d3.ScaleTime<number, number, never> | null
   chartWidth: number | null
+  cursorTranslateX?: number
 }
 
 /**
@@ -12,7 +14,7 @@ interface TimelineHeaderProps {
  *
  * 필터 버튼, 시간 tick 표시
  */
-const TimelineHeader: React.FC<TimelineHeaderProps> = ({ scaleX, chartWidth }) => {
+const TimelineHeader: React.FC<TimelineHeaderProps> = ({ scaleX, chartWidth, cursorTranslateX }) => {
   const ticks = useMemo(() => {
     if (!scaleX) return null
     return scaleX.ticks(10)
@@ -39,6 +41,14 @@ const TimelineHeader: React.FC<TimelineHeaderProps> = ({ scaleX, chartWidth }) =
             width: chartWidth,
           }}
         >
+          {cursorTranslateX !== undefined && (
+            <CursorIcon
+              className="absolute w-3 h-3 fill-primary bottom-0 -left-1.5 z-[5]"
+              style={{
+                transform: `translateX(${cursorTranslateX}px)`,
+              }}
+            />
+          )}
           {scaleX && ticks && tickWidth && (
             <>
               {/* 맨 앞쪽 tick은 안보이기 때문에 채우기용 tick 추가 */}
