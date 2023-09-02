@@ -52,7 +52,15 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
   }, [chartWidth, timelineScaleX, scrollBarTwoPosX])
 
   // 커서 드래그 관련 state
-  const { onCursorPointerDown, onCursorPointerMove, onCursorPointerUp, cursorTranslateX } = useCursorEvent({
+  const {
+    onCursorPointerDown,
+    onCursorPointerMove,
+    onCursorPointerUp,
+    onTooltipMouseMove,
+    onTooltipMouseLeave,
+    cursorTranslateX,
+    tooltipPosX,
+  } = useCursorEvent({
     scaleX: scrollbarScaleX,
     offsetLeft: chartOffsetLeft,
     width: chartWidth,
@@ -125,9 +133,12 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
         <TimelineChartContainer
           ref={chartWrapperRef}
           cursorTranslateX={cursorTranslateX}
+          tooltipPosX={tooltipPosX}
           onPointerDown={onCursorPointerDown}
           onPointerMove={onCursorPointerMove}
           onPointerUp={onCursorPointerUp}
+          onMouseMove={onTooltipMouseMove}
+          onMouseLeave={onTooltipMouseLeave}
         >
           {/* TODO: src가 없을 때 -> progress 표시 ? */}
           <VideoSnapshots

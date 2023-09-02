@@ -1,9 +1,9 @@
 import { useCallback, useMemo, useState } from 'react'
-import { useRecoilState } from 'recoil'
-import { cursorDateTimeState } from '@global/atom'
+import { useRecoilState, useSetRecoilState } from 'recoil'
+import { cursorDateTimeState, tooltipDateTimeState } from '@global/atom'
 
 /**
- * 커서 드래그 관련 hook
+ * 커서 드래그, 호버 툴팁 관련 hook
  */
 export const useCursorEvent = ({
   scaleX,
@@ -17,6 +17,8 @@ export const useCursorEvent = ({
   const [isCursorDragging, setIsCursorDragging] = useState<boolean>(false)
   const [cursorPosX, setCursorPosX] = useState<number>(0)
   const [cursorDateTime, setCursorDateTime] = useRecoilState(cursorDateTimeState)
+  const [tooltipPosX, setTooltipPosX] = useState<number | null>(null)
+  const setTooltipDateTime = useSetRecoilState(tooltipDateTimeState)
 
   const cursorTranslateX = useMemo(() => {
     if (!scaleX || !cursorDateTime) return 0
@@ -30,6 +32,7 @@ export const useCursorEvent = ({
       e.currentTarget.setPointerCapture(e.pointerId)
       setIsCursorDragging(true)
       setCursorPosX(Math.min(width, Math.max(0, e.clientX - offsetLeft)))
+      setTooltipPosX(null)
     },
     [width, offsetLeft],
   )
@@ -53,10 +56,29 @@ export const useCursorEvent = ({
     [scaleX, cursorPosX],
   )
 
+  const onTooltipMouseMove: React.MouseEventHandler<HTMLDivElement> = useCallback(
+    (e) => {
+      e.preventDefault()
+      if (isCursorDragging || !offsetLeft || !width || !scaleX) return
+      const newPosX = Math.min(width, Math.max(0, e.clientX - offsetLeft))
+      setTooltipPosX(newPosX)
+      setTooltipDateTime(scaleX.invert(newPosX))
+    },
+    [isCursorDragging, offsetLeft, width, scaleX],
+  )
+
+  const onTooltipMouseLeave: React.MouseEventHandler<HTMLDivElement> = useCallback(() => {
+    setTooltipDateTime(null)
+    setTooltipPosX(null)
+  }, [])
+
   return {
     onCursorPointerDown,
     onCursorPointerMove,
     onCursorPointerUp,
+    onTooltipMouseMove,
+    onTooltipMouseLeave,
     cursorTranslateX,
+    tooltipPosX,
   }
 }

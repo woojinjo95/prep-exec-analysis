@@ -37,6 +37,14 @@ export const cursorDateTimeState = atom<Date | null>({
 })
 
 /**
+ * 타임라인의 툴팁이 가리키는 시간
+ */
+export const tooltipDateTimeState = atom<Date | null>({
+  key: 'tooltipDateTimeState',
+  default: null,
+})
+
+/**
  * block 녹화 모드 상태
  */
 export const isBlockRecordModeState = atom<boolean>({
