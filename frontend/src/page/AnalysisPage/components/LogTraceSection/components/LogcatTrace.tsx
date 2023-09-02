@@ -1,28 +1,19 @@
 import React from 'react'
-import { useQuery } from 'react-query'
-import { Text } from '@global/ui'
 import { Scrollbars } from 'react-custom-scrollbars-2'
-import { Logcat } from '../api/entity'
-import { getLogcat } from '../api/func'
+import { Text } from '@global/ui'
+import { useVideoSummary } from '@global/api/hook'
+import { formatDateTo } from '@global/usecase'
 import { LogcatLogLevelColors } from '../constants'
-
-// 차트 pin을 통해서 정해지는 전역적 시간 값
-const tempTime = new Date('2023-08-08T14:49:40Z')
+import { useLogcat } from '../api/hook'
 
 const LogcatTrace: React.FC = () => {
-  const { data: logcats } = useQuery<Logcat[]>(
-    ['logcat'],
-    () =>
-      getLogcat({
-        start_time: tempTime.toISOString(),
-        end_time: new Date(tempTime.getTime() + 5 * 1000).toISOString(),
-      }),
-    {
-      onError: (err) => {
-        console.error(err)
-      },
-    },
-  )
+  const { videoSummary } = useVideoSummary()
+  // FIXME: 시간 cursorDateTime에 맞춤
+  const { logcats } = useLogcat({
+    start_time: videoSummary?.start_time!,
+    end_time: videoSummary?.end_time!,
+    enabled: !!videoSummary?.start_time,
+  })
 
   return (
     <div className="w-full flex flex-col h-full overflow-x-hidden overflow-y-auto">
@@ -30,13 +21,13 @@ const LogcatTrace: React.FC = () => {
         renderThumbVertical={({ ...props }) => <div {...props} className="bg-light-charcoal w-2 rounded-[5px]" />}
       >
         {logcats && (
-          <>
-            <div className="w-[calc(100%-48px)] grid grid-cols-[14%_6%_9%_9%_5%_5%_52%] gap-x-2 text-grey">
+          <div>
+            <div className="w-[calc(100%-48px)] grid grid-cols-[16%_6%_9%_9%_5%_5%_50%] gap-x-2 text-grey sticky top-0 bg-black">
               <Text size="sm" colorScheme="grey">
                 Timestamp
               </Text>
               <Text size="sm" colorScheme="grey">
-                log_level
+                Log Level
               </Text>
               <Text size="sm" colorScheme="grey">
                 Module
@@ -55,57 +46,45 @@ const LogcatTrace: React.FC = () => {
               </Text>
             </div>
             <div className="flex flex-col w-full mt-1">
-              {logcats.map((logcat) => (
+              {logcats.map(({ timestamp, module, log_level, process_name, pid, tid, message }, index) => (
                 <div
-                  key={`logcat_${logcat.timestamp}`}
-                  className="w-[calc(100%-48px)] grid grid-cols-[14%_6%_9%_9%_5%_5%_52%] gap-x-2 text-grey text-sm"
+                  key={`logcat-trace-log-${timestamp}-${index}`}
+                  className="w-[calc(100%-48px)] grid grid-cols-[16%_6%_9%_9%_5%_5%_50%] gap-x-2 text-grey text-sm"
                 >
                   <Text size="sm" colorScheme="grey">
-                    {logcat.timestamp.substring(0, logcat.timestamp.length - 6)}
+                    {formatDateTo('YYYY-MM-DD HH:MM:SS:MS', new Date(timestamp))}
                   </Text>
                   <Text
                     size="sm"
-                    colorScheme={LogcatLogLevelColors[logcat.log_level]}
+                    colorScheme={LogcatLogLevelColors[log_level]}
                     invertBackground
                     className="h-[20px] w-[20px] flex justify-center"
                   >
-                    {logcat.log_level}
+                    {log_level}
+                  </Text>
+                  <Text size="sm" colorScheme={log_level !== 'I' ? LogcatLogLevelColors[log_level] : 'grey'}>
+                    {module}
+                  </Text>
+                  <Text size="sm" colorScheme={log_level !== 'I' ? LogcatLogLevelColors[log_level] : 'grey'}>
+                    {process_name}
+                  </Text>
+                  <Text size="sm" colorScheme={log_level !== 'I' ? LogcatLogLevelColors[log_level] : 'grey'}>
+                    {pid}
+                  </Text>
+                  <Text size="sm" colorScheme={log_level !== 'I' ? LogcatLogLevelColors[log_level] : 'grey'}>
+                    {tid}
                   </Text>
                   <Text
                     size="sm"
-                    colorScheme={logcat.log_level !== 'I' ? LogcatLogLevelColors[logcat.log_level] : 'grey'}
-                  >
-                    {logcat.module}
-                  </Text>
-                  <Text
-                    size="sm"
-                    colorScheme={logcat.log_level !== 'I' ? LogcatLogLevelColors[logcat.log_level] : 'grey'}
-                  >
-                    {logcat.process_name}
-                  </Text>
-                  <Text
-                    size="sm"
-                    colorScheme={logcat.log_level !== 'I' ? LogcatLogLevelColors[logcat.log_level] : 'grey'}
-                  >
-                    {logcat.pid}
-                  </Text>
-                  <Text
-                    size="sm"
-                    colorScheme={logcat.log_level !== 'I' ? LogcatLogLevelColors[logcat.log_level] : 'grey'}
-                  >
-                    {logcat.tid}
-                  </Text>
-                  <Text
-                    size="sm"
-                    colorScheme={logcat.log_level !== 'I' ? LogcatLogLevelColors[logcat.log_level] : 'grey'}
+                    colorScheme={log_level !== 'I' ? LogcatLogLevelColors[log_level] : 'grey'}
                     className="whitespace-pre-wrap"
                   >
-                    {logcat.message}
+                    {message}
                   </Text>
                 </div>
               ))}
             </div>
-          </>
+          </div>
         )}
       </Scrollbars>
     </div>

@@ -1,27 +1,18 @@
 import React from 'react'
-import { useQuery } from 'react-query'
-import { Button, Text } from '@global/ui'
+import { Text } from '@global/ui'
 import { Scrollbars } from 'react-custom-scrollbars-2'
-import { Network } from '../api/entity'
-import { getNetwork } from '../api/func'
-
-// 차트 pin을 통해서 정해지는 전역적 시간 값
-const tempTime = new Date('2023-08-08T14:49:40Z')
+import { useVideoSummary } from '@global/api/hook'
+import { formatDateTo } from '@global/usecase'
+import { useNetwork } from '../api/hook'
 
 const NetworkTrace: React.FC = () => {
-  const { data: networks } = useQuery<Network[]>(
-    ['network'],
-    () =>
-      getNetwork({
-        start_time: tempTime.toISOString(),
-        end_time: new Date(tempTime.getTime() + 5 * 1000).toISOString(),
-      }),
-    {
-      onError: (err) => {
-        console.error(err)
-      },
-    },
-  )
+  const { videoSummary } = useVideoSummary()
+  // FIXME: 시간 cursorDateTime에 맞춤
+  const { networks } = useNetwork({
+    start_time: videoSummary?.start_time!,
+    end_time: videoSummary?.end_time!,
+    enabled: !!videoSummary?.start_time,
+  })
 
   return (
     <div className="w-full flex flex-col overflow-y-auto h-full overflow-x-hidden relative">
@@ -30,7 +21,7 @@ const NetworkTrace: React.FC = () => {
       >
         {networks && (
           <>
-            <div className="w-[calc(100%-40px)] grid grid-cols-[15%_9%_10%_6%_5%_55%] gap-x-2 text-grey">
+            <div className="w-[calc(100%-40px)] grid grid-cols-[16%_9%_10%_6%_5%_54%] gap-x-2 text-grey sticky top-0 bg-black">
               <Text size="sm" colorScheme="grey">
                 Timestamp
               </Text>
@@ -51,28 +42,28 @@ const NetworkTrace: React.FC = () => {
               </Text>
             </div>
             <div className="flex flex-col w-full mt-1">
-              {networks.map((network) => (
+              {networks.map(({ timestamp, source, destination, protocol, length, info }, index) => (
                 <div
-                  key={`network${network.timestamp}`}
-                  className="w-[calc(100%-40px)] grid grid-cols-[15%_9%_10%_6%_5%_55%] gap-x-2 text-grey text-sm"
+                  key={`network-trace-log-${timestamp}-${index}`}
+                  className="w-[calc(100%-40px)] grid grid-cols-[16%_9%_10%_6%_5%_54%] gap-x-2 text-grey text-sm"
                 >
                   <Text size="sm" colorScheme="grey">
-                    {network.timestamp.substring(0, network.timestamp.length - 6)}
+                    {formatDateTo('YYYY-MM-DD HH:MM:SS:MS', new Date(timestamp))}
                   </Text>
                   <Text size="sm" colorScheme="grey">
-                    {network.source}
+                    {source}
                   </Text>
                   <Text size="sm" colorScheme="grey">
-                    {network.destination}
+                    {destination}
                   </Text>
                   <Text size="sm" colorScheme="grey">
-                    {network.protocol}
+                    {protocol}
                   </Text>
                   <Text size="sm" colorScheme="grey">
-                    {network.length}
+                    {length}
                   </Text>
                   <Text size="sm" colorScheme="grey" className="whitespace-pre-wrap">
-                    {network.info}
+                    {info}
                   </Text>
                 </div>
               ))}
@@ -80,12 +71,12 @@ const NetworkTrace: React.FC = () => {
           </>
         )}
       </Scrollbars>
-      <Button className="absolute top-0 right-6 border-none bg-black">
+      {/* <Button className="absolute top-0 right-6 border-none bg-black">
         <span className="text-base">Search</span>
       </Button>
       <Button className="absolute bottom-4 right-6 w-[132px] h-12 bg-charcoal rounded-3xl">
         <span className="text-base">Download</span>
-      </Button>
+      </Button> */}
     </div>
   )
 }
