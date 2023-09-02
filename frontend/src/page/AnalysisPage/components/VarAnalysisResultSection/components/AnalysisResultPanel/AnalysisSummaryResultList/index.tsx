@@ -24,7 +24,9 @@ const AnalysisSummaryResultList: React.FC = () => {
   return (
     <div className="overflow-y-auto flex flex-col gap-y-1">
       {analysisResultSummary.freeze?.length && <FreezeSummaryResultItem results={analysisResultSummary.freeze} />}
-      <LoudnessSummaryResultItem />
+      {analysisResultSummary.loudness?.length && (
+        <LoudnessSummaryResultItem result={analysisResultSummary.loudness[0]} />
+      )}
       <ResumeSummaryResultItem />
       <BootSummaryResultItem />
       <ChannelChangeTimeSummaryResultItem />
