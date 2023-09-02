@@ -4,7 +4,7 @@ import FreezeSummaryResultItem from './FreezeSummaryResultItem'
 import LoudnessSummaryResultItem from './LoudnessSummaryResultItem'
 import ResumeSummaryResultItem from './ResumeSummaryResultItem'
 import BootSummaryResultItem from './BootSummaryResultItem'
-import ChannelChangeTimeSummaryResultItem from './ChannelChangeTimeSummaryResultItem'
+// import ChannelChangeTimeSummaryResultItem from './ChannelChangeTimeSummaryResultItem'
 import LogLevelFinderSummaryResultItem from './LogLevelFinderSummaryResultItem'
 import LogPatternMatchingSummaryResultItem from './LogPatternMatchingSummaryResultItem'
 import { useAnalysisResultSummary } from '../../../api/hook'
@@ -29,8 +29,10 @@ const AnalysisSummaryResultList: React.FC = () => {
       )}
       {analysisResultSummary.resume?.length && <ResumeSummaryResultItem results={analysisResultSummary.resume} />}
       {analysisResultSummary.boot?.length && <BootSummaryResultItem results={analysisResultSummary.boot} />}
-      <ChannelChangeTimeSummaryResultItem />
-      <LogLevelFinderSummaryResultItem />
+      {/* <ChannelChangeTimeSummaryResultItem /> */}
+      {analysisResultSummary.log_level_finder?.length && (
+        <LogLevelFinderSummaryResultItem results={analysisResultSummary.log_level_finder} />
+      )}
       <LogPatternMatchingSummaryResultItem />
     </div>
   )
