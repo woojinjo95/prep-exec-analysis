@@ -160,6 +160,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
         {/* horizontal scrollbar */}
         <HorizontalScrollBar
           chartWidth={chartWidth}
+          chartOffsetLeft={chartOffsetLeft}
           scrollBarTwoPosX={scrollBarTwoPosX}
           setScrollBarTwoPosX={setScrollBarTwoPosX}
         />
