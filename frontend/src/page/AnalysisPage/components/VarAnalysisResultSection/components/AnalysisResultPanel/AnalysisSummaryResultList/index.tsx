@@ -28,7 +28,7 @@ const AnalysisSummaryResultList: React.FC = () => {
         <LoudnessSummaryResultItem result={analysisResultSummary.loudness[0]} />
       )}
       {analysisResultSummary.resume?.length && <ResumeSummaryResultItem results={analysisResultSummary.resume} />}
-      <BootSummaryResultItem />
+      {analysisResultSummary.boot?.length && <BootSummaryResultItem results={analysisResultSummary.boot} />}
       <ChannelChangeTimeSummaryResultItem />
       <LogLevelFinderSummaryResultItem />
       <LogPatternMatchingSummaryResultItem />

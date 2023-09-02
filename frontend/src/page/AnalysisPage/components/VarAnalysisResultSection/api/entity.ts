@@ -67,7 +67,7 @@ export interface AnalysisResultSummary {
     total: number
     target: BootType
     avg_time: number // 단위: ms
-  }
+  }[]
   freeze?: {
     total: number
     target: keyof typeof FreezeType
