@@ -1,7 +1,5 @@
 import React, { useMemo } from 'react'
-import { useRecoilValue } from 'recoil'
 import { AreaChart } from '@global/ui'
-import { scenarioIdState, testRunIdState } from '@global/atom'
 import { useCPU } from '../api/hook'
 
 interface CPUChartProps {
@@ -15,13 +13,9 @@ interface CPUChartProps {
  * CPU 사용률 차트
  */
 const CPUChart: React.FC<CPUChartProps> = ({ chartWidth, scaleX, startTime, endTime }) => {
-  const scenarioId = useRecoilValue(scenarioIdState)
-  const testRunId = useRecoilValue(testRunIdState)
   const { cpu } = useCPU({
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
-    scenario_id: scenarioId || undefined,
-    testrun_id: testRunId || undefined,
   })
 
   const cpuData = useMemo(() => {

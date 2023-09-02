@@ -1,13 +1,8 @@
 import React from 'react'
 import { Accordion, ColorPickerBox, SetROIButton, Text } from '@global/ui'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
-import { AnalysisTypeLabel } from '../../../constant'
-import { AnalysisConfig } from '../../../api/entity'
+import { AnalysisTypeLabel, BootTypeLabel } from '../../../constant'
 import { UnsavedAnalysisConfig } from '../../../types'
-
-const BootTypeLabel: { [key in NonNullable<AnalysisConfig['boot']>['type']]: string } = {
-  image_matching: 'Image Matching',
-} as const
 
 interface BootAnalysisItemProps {
   color: NonNullable<UnsavedAnalysisConfig['boot']>['color']

@@ -1,7 +1,5 @@
 import React, { useMemo } from 'react'
 import { AreaChart } from '@global/ui'
-import { useRecoilValue } from 'recoil'
-import { scenarioIdState, testRunIdState } from '@global/atom'
 import { useColorReferences } from '../api/hook'
 
 interface ColorReferenceChartProps {
@@ -15,13 +13,9 @@ interface ColorReferenceChartProps {
  * Color Reference 차트
  */
 const ColorReferenceChart: React.FC<ColorReferenceChartProps> = ({ scaleX, chartWidth, startTime, endTime }) => {
-  const scenarioId = useRecoilValue(scenarioIdState)
-  const testRunId = useRecoilValue(testRunIdState)
   const { colorReferences } = useColorReferences({
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
-    scenario_id: scenarioId || undefined,
-    testrun_id: testRunId || undefined,
   })
 
   const colorReferenceData = useMemo(() => {

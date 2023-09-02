@@ -105,3 +105,12 @@ export const changeMsToMinSecMs = (_ms: number) => {
 export const changeMinSecMsToMs = (m: number, s: number, ms: number) => {
   return m * MILLISECONDS_PER_MINUTE + s * MILLISECONDS_PER_SECOND + ms
 }
+
+/**
+ * 숫자를 3자리씩 끊어서 comma를 찍어주는 함수
+ *
+ * @param x comma를 찍을 숫자
+ */
+export const numberWithCommas = (x: number): string => {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}

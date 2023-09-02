@@ -1,5 +1,7 @@
 import { useQuery } from 'react-query'
 import { useWebsocket } from '@global/hook'
+import { scenarioIdState, testRunIdState } from '@global/atom'
+import { useRecoilValue } from 'recoil'
 import {
   getBoot,
   getCPU,
@@ -18,7 +20,11 @@ import { AnalysisResponseMessageBody } from '../types'
  * Log Level Finder 리스트 조회 hook
  */
 export const useLogLevelFinders = (params: Parameters<typeof getLogLevelFinders>[0]) => {
-  const { data, isLoading, refetch } = useQuery(['log_level_finder', params], () => getLogLevelFinders(params))
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['log_level_finder', params], () =>
+    getLogLevelFinders({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
+  )
 
   useWebsocket<AnalysisResponseMessageBody>({
     onMessage: (message) => {
@@ -35,8 +41,11 @@ export const useLogLevelFinders = (params: Parameters<typeof getLogLevelFinders>
  * CPU 사용률 리스트 조회 hook
  */
 export const useCPU = (params: Parameters<typeof getCPU>[0]) => {
-  // TODO: 서비스 상태가 analysis이면 -> enabled: false
-  const { data, isLoading, refetch } = useQuery(['cpu', params], () => getCPU(params))
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['cpu', params], () =>
+    getCPU({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
+  )
 
   return { cpu: data, isLoading, refetch }
 }
@@ -45,7 +54,11 @@ export const useCPU = (params: Parameters<typeof getCPU>[0]) => {
  * Memory 사용률 리스트 조회 hook
  */
 export const useMemory = (params: Parameters<typeof getMemory>[0]) => {
-  const { data, isLoading, refetch } = useQuery(['memory', params], () => getMemory(params))
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['memory', params], () =>
+    getMemory({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
+  )
 
   return { memory: data, isLoading, refetch }
 }
@@ -54,7 +67,11 @@ export const useMemory = (params: Parameters<typeof getMemory>[0]) => {
  * 이벤트 로그 리스트 조회 hook
  */
 export const useEventLogs = (params: Parameters<typeof getEventLogs>[0]) => {
-  const { data, isLoading, refetch } = useQuery(['event_log', params], () => getEventLogs(params))
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['event_log', params], () =>
+    getEventLogs({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
+  )
 
   return { eventLogs: data, isLoading, refetch }
 }
@@ -63,7 +80,11 @@ export const useEventLogs = (params: Parameters<typeof getEventLogs>[0]) => {
  * Color Reference 리스트 조회 hook
  */
 export const useColorReferences = (params: Parameters<typeof getColorReferences>[0]) => {
-  const { data, isLoading, refetch } = useQuery(['color_reference', params], () => getColorReferences(params))
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['color_reference', params], () =>
+    getColorReferences({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
+  )
 
   useWebsocket<AnalysisResponseMessageBody>({
     onMessage: (message) => {
@@ -80,7 +101,11 @@ export const useColorReferences = (params: Parameters<typeof getColorReferences>
  * Freeze 리스트 조회 hook
  */
 export const useFreeze = (params: Parameters<typeof getFreeze>[0]) => {
-  const { data, isLoading, refetch } = useQuery(['freeze', params], () => getFreeze(params))
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['freeze', params], () =>
+    getFreeze({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
+  )
 
   useWebsocket<AnalysisResponseMessageBody>({
     onMessage: (message) => {
@@ -97,7 +122,11 @@ export const useFreeze = (params: Parameters<typeof getFreeze>[0]) => {
  * Loudness 리스트 조회 hook
  */
 export const useLoudness = (params: Parameters<typeof getLoudness>[0]) => {
-  const { data, isLoading, refetch } = useQuery(['loudness', params], () => getLoudness(params))
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['loudness', params], () =>
+    getLoudness({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
+  )
 
   return { loudness: data, isLoading, refetch }
 }
@@ -106,7 +135,11 @@ export const useLoudness = (params: Parameters<typeof getLoudness>[0]) => {
  * Resume 리스트 조회 hook
  */
 export const useResume = (params: Parameters<typeof getResume>[0]) => {
-  const { data, isLoading, refetch } = useQuery(['resume', params], () => getResume(params))
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['resume', params], () =>
+    getResume({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
+  )
 
   useWebsocket<AnalysisResponseMessageBody>({
     onMessage: (message) => {
@@ -123,7 +156,11 @@ export const useResume = (params: Parameters<typeof getResume>[0]) => {
  * Boot 리스트 조회 hook
  */
 export const useBoot = (params: Parameters<typeof getBoot>[0]) => {
-  const { data, isLoading, refetch } = useQuery(['boot', params], () => getBoot(params))
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['boot', params], () =>
+    getBoot({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
+  )
 
   useWebsocket<AnalysisResponseMessageBody>({
     onMessage: (message) => {
@@ -140,7 +177,11 @@ export const useBoot = (params: Parameters<typeof getBoot>[0]) => {
  * Log Pattern Matching 리스트 조회 hook
  */
 export const useLogPatternMatching = (params: Parameters<typeof getLogPatternMatching>[0]) => {
-  const { data, isLoading, refetch } = useQuery(['log_pattern_matching', params], () => getLogPatternMatching(params))
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['log_pattern_matching', params], () =>
+    getLogPatternMatching({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
+  )
 
   useWebsocket<AnalysisResponseMessageBody>({
     onMessage: (message) => {

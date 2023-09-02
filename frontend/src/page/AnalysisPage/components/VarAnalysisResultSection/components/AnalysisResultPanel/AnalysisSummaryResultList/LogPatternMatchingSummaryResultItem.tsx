@@ -2,13 +2,19 @@ import React from 'react'
 import { Accordion, Text } from '@global/ui'
 import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.svg'
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
-import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
+// import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
+import { numberWithCommas } from '@global/usecase'
 import { AnalysisTypeLabel } from '../../../constant'
+import { AnalysisResultSummary } from '../../../api/entity'
+
+interface LogPatternMatchingSummaryResultItemProps {
+  results: NonNullable<AnalysisResultSummary['log_pattern_matching']>
+}
 
 /**
  * log pattern matching 분석 결과 아이템
  */
-const LogPatternMatchingSummaryResultItem: React.FC = () => {
+const LogPatternMatchingSummaryResultItem: React.FC<LogPatternMatchingSummaryResultItemProps> = ({ results }) => {
   return (
     <Accordion
       header={
@@ -26,7 +32,7 @@ const LogPatternMatchingSummaryResultItem: React.FC = () => {
             </Text>
           </div>
 
-          <Text weight="medium">times</Text>
+          <Text weight="medium">{numberWithCommas(results.reduce((acc, curr) => acc + curr.total, 0))} times</Text>
         </div>
       }
     >
@@ -41,38 +47,25 @@ const LogPatternMatchingSummaryResultItem: React.FC = () => {
           </Text>
           <div />
 
-          {/* TODO: items */}
-          <div className="flex items-center gap-x-3">
-            <div
-              className="w-4 h-4"
-              style={{
-                backgroundColor: 'red',
-              }}
-            />
-            <Text size="sm">Untitled Log Pattren (1)</Text>
-          </div>
-          <Text size="sm" className="text-right">
-            2
-          </Text>
-          <button type="button">
-            <ShowEyeIcon className="w-5" />
-          </button>
-
-          <div className="flex items-center gap-x-3">
-            <div
-              className="w-4 h-4"
-              style={{
-                backgroundColor: 'red',
-              }}
-            />
-            <Text size="sm">Untitled Log Pattren (2)</Text>
-          </div>
-          <Text size="sm" className="text-right">
-            2
-          </Text>
-          <button type="button">
-            <HiddenEyeIcon className="w-5" />
-          </button>
+          {results.map(({ total, log_pattern_name, color }, index) => (
+            <React.Fragment key={`log-pattern-matching-summary-result-${index}`}>
+              <div className="flex items-center gap-x-3">
+                <div
+                  className="w-4 h-4"
+                  style={{
+                    backgroundColor: color,
+                  }}
+                />
+                <Text size="sm">{log_pattern_name}</Text>
+              </div>
+              <Text size="sm" className="text-right">
+                {numberWithCommas(total)}
+              </Text>
+              <button type="button">
+                <ShowEyeIcon className="w-5" />
+              </button>
+            </React.Fragment>
+          ))}
         </div>
 
         <button type="button" className="flex justify-end items-center gap-x-3">

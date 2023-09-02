@@ -1,7 +1,5 @@
 import React, { useMemo } from 'react'
 import { PointChart } from '@global/ui'
-import { useRecoilValue } from 'recoil'
-import { scenarioIdState, testRunIdState } from '@global/atom'
 import { useEventLogs } from '../api/hook'
 
 interface EventLogChartProps {
@@ -14,13 +12,9 @@ interface EventLogChartProps {
  * 이벤트 로그 차트
  */
 const EventLogChart: React.FC<EventLogChartProps> = ({ scaleX, startTime, endTime }) => {
-  const scenarioId = useRecoilValue(scenarioIdState)
-  const testRunId = useRecoilValue(testRunIdState)
   const { eventLogs } = useEventLogs({
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
-    scenario_id: scenarioId || undefined,
-    testrun_id: testRunId || undefined,
   })
 
   const eventLogsData = useMemo(() => {
