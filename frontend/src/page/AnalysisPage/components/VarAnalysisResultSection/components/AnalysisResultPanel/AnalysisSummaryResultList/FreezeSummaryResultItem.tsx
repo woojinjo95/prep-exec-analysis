@@ -3,6 +3,7 @@ import { Accordion, Text } from '@global/ui'
 import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.svg'
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
 // import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
+import { numberWithCommas } from '@global/usecase'
 import { AnalysisTypeLabel, FreezeTypeLabel } from '../../../constant'
 import { AnalysisResultSummary } from '../../../api/entity'
 
@@ -31,7 +32,7 @@ const FreezeSummaryResultItem: React.FC<FreezeSummaryResultItemProps> = ({ resul
             </Text>
           </div>
 
-          <Text weight="medium">times</Text>
+          <Text weight="medium">{numberWithCommas(results.reduce((acc, curr) => acc + curr.total, 0))} times</Text>
         </div>
       }
     >
@@ -50,7 +51,7 @@ const FreezeSummaryResultItem: React.FC<FreezeSummaryResultItemProps> = ({ resul
             <React.Fragment key={`freeze-summary-result-${index}`}>
               <Text size="sm">{FreezeTypeLabel[target]}</Text>
               <Text size="sm" className="text-right">
-                {total}
+                {numberWithCommas(total)}
               </Text>
               <button type="button">
                 <ShowEyeIcon className="w-5" />
