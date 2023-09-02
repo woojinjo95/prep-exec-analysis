@@ -33,7 +33,9 @@ const AnalysisSummaryResultList: React.FC = () => {
       {analysisResultSummary.log_level_finder?.length && (
         <LogLevelFinderSummaryResultItem results={analysisResultSummary.log_level_finder} />
       )}
-      <LogPatternMatchingSummaryResultItem />
+      {analysisResultSummary.log_pattern_matching?.length && (
+        <LogPatternMatchingSummaryResultItem results={analysisResultSummary.log_pattern_matching} />
+      )}
     </div>
   )
 }
