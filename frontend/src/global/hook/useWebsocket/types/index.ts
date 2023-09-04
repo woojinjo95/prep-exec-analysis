@@ -111,7 +111,7 @@ interface RemoteControlMessage {
 /**
  * 리모컨 명령 publish 메시지
  */
-interface RemoconTransmitMessage {
+export interface RemoconTransmitMessage {
   msg: 'remocon_transmit'
   data: {
     key: string

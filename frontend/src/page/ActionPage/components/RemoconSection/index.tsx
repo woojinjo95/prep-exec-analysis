@@ -5,6 +5,8 @@ import BackgroundImage from '@assets/images/background_pattern.svg'
 
 import { KeyEvent } from '@page/ActionPage/types'
 import { useServiceState } from '@global/api/hook'
+import { useRecoilState } from 'recoil'
+import { selectedRemoconNameState } from '@global/atom'
 import { Remocon } from './api/entity'
 import { getRemocon } from './api/func'
 import RemoconComponent from './components/RemoconComponent'
@@ -21,17 +23,22 @@ const RemoconSection: React.FC<RemoconSectionProps> = ({ keyEvent }) => {
 
   const { serviceState } = useServiceState()
 
+  // recoil 상태 set
+  const [, _setSelectedRemoconName] = useRecoilState(selectedRemoconNameState)
+
   const { data: remocons } = useQuery<Remocon[]>(['remocon'], () => getRemocon(), {
     onSuccess: (res) => {
       if (res) {
         if (!selectedRemocon) {
           setSelectedRemocon(res[0])
+          _setSelectedRemoconName(res[0].name)
         }
 
         const newSelectedRemocon = res.find((remocon) => remocon.name === selectedRemocon?.name)
 
         if (newSelectedRemocon) {
           setSelectedRemocon(newSelectedRemocon)
+          _setSelectedRemoconName(newSelectedRemocon.name)
         }
       }
     },
@@ -64,6 +71,7 @@ const RemoconSection: React.FC<RemoconSectionProps> = ({ keyEvent }) => {
                 key={`remocon_${remocon.name}`}
                 onClick={() => {
                   setSelectedRemocon(remocon)
+                  _setSelectedRemoconName(remocon.name)
                 }}
                 isActive={selectedRemocon.name === remocon.name}
               >

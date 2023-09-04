@@ -51,3 +51,11 @@ export const selectedBlockIdsState = atom<string[]>({
   key: 'selectedBlockIdsState',
   default: [],
 })
+
+/**
+ * 현재 선택한 remocon
+ */
+export const selectedRemoconNameState = atom<string | null>({
+  key: 'selectedRemoconState',
+  default: null,
+})
