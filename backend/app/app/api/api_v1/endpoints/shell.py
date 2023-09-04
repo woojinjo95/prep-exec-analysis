@@ -51,7 +51,7 @@ def get_shell_logs(
                                 'scenario_id': scenario_id,
                                 'testrun_id': testrun_id,
                                 'mode': shell_mode.value,
-                                'shell_id': shell_id}},
+                                'shell_id': int(shell_id)}},
                     {'$project': {'_id': 0, 'lines': 1}},
                     {'$unwind': {'path': '$lines'}},
                     {'$group': {'_id': None, 'lines': {'$push': '$lines'}}}]
