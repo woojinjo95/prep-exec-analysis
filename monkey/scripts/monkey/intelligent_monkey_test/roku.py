@@ -32,8 +32,10 @@ class IntelligentMonkeyTestRoku:
         self.remocon_type = 'ir'
         self.depth_key = 'right'
         self.breadth_key = 'down'
+        self.root_keyset = ['home']
 
         # init variables
+        self.last_fi = None
         self.key_histories = []
         self.section_id = 0
         self.main_stop_event = threading.Event()
@@ -41,9 +43,9 @@ class IntelligentMonkeyTestRoku:
     ##### Entry Point #####
     def run(self):
         logger.info('start intelligent monkey test. mode: ROKU.')
-        self.set_root_keyset(external_keys=['home'])
+        self.set_root_keyset(self.root_keyset)
         if not self.root_cursor:
-            self.set_root_keyset(external_keys=['home'])  # try one more
+            self.set_root_keyset(self.root_keyset)  # try one more
 
         self.visit()
         logger.info('stop intelligent monkey test. mode: ROKU.')
@@ -53,42 +55,55 @@ class IntelligentMonkeyTestRoku:
 
     ##### Visit #####
     def visit(self):
-        last_fi = None
-
         while not self.main_stop_event.is_set():
             self.exec_keys(self.key_histories)
+            status = self.check_status()
+            if status == 'depth_end':
+                continue
+            elif status == 'visit_end':
+                return
 
-            # check current depth end
-            image, cursor = get_current_image(), self.get_cursor()
-            if last_fi and check_cursor_is_same(last_fi.image, last_fi.cursor, image, cursor):
-                try:
-                    logger.info('head to next.')
-                    self.head_to_next()
-                    logger.info(f'head to next done. {self.key_histories}')
-                    last_fi = None
-                    continue
-                except IndexError as err:
-                    logger.info(f'visit done. {self.key_histories}. {err}')
-                    return
-            
-            # check next node exists
-            image = get_current_image()
-            cursor = self.get_cursor()
-            fi = FrameInfo(image, cursor)
-            self.exec_keys([self.depth_key])
-            if self.check_leftmenu_is_opened(image, cursor, get_current_image(), self.get_cursor()):
-                logger.info('next node exists.')
-                self.append_key(self.depth_key)
-            else:
-                logger.info('next node does not exist.')
+            if self.check_leaf_node():
                 current_node_keyset = [*self.key_histories, self.depth_key]
                 logger.info(f'current_node_keyset: {current_node_keyset}')
-
-                self.start_monkey(current_node_keyset)
-
-                self.section_id += 1
+                self.start_monkey(current_node_keyset, self.cursor_image)
                 self.append_key(self.breadth_key)
-            last_fi = fi
+            else:
+                self.append_key(self.depth_key)
+
+    def check_status(self) -> str:
+        logger.info('check status.')
+        image, cursor = get_current_image(), self.get_cursor()
+        if self.last_fi and check_cursor_is_same(self.last_fi.image, self.last_fi.cursor, image, cursor):
+            try:
+                self.head_to_next()
+                logger.info(f'head to next done. {self.key_histories}')
+                self.last_fi = None
+                return 'depth_end'
+            except IndexError as err:
+                logger.info(f'visit done. {self.key_histories}. {err}')
+                return 'visit_end'
+        else:
+            return 'none'
+
+    def check_leaf_node(self) -> bool:
+        logger.info('check leaf node.')
+        image = get_current_image()
+        cursor = self.get_cursor()
+        fi = FrameInfo(image, cursor)
+        self.cursor_image = self.get_cursor_image(image, cursor)
+
+        self.exec_keys([self.depth_key])
+
+        leaf_node = False
+        if self.check_leftmenu_is_opened(image, cursor, get_current_image(), self.get_cursor()):
+            leaf_node = False
+        else:
+            leaf_node = True
+        logger.info(f'leaf node: {leaf_node}')
+
+        self.last_fi = fi
+        return leaf_node
 
     ##### Functions #####
     def get_cursor(self, image: np.ndarray=None) -> Tuple:
@@ -96,8 +111,8 @@ class IntelligentMonkeyTestRoku:
             image = get_current_image()
         return find_roku_cursor(image)
 
-    def set_root_keyset(self, external_keys: List[str] = []):
-        self.key_histories = external_keys
+    def set_root_keyset(self, keys: List[str] = []):
+        self.key_histories = keys
         logger.info(f'root keyset: {self.key_histories}')
 
         self.exec_keys(self.key_histories)
@@ -118,6 +133,13 @@ class IntelligentMonkeyTestRoku:
     def append_key(self, key: str):
         self.key_histories.append(key)
         self.key_histories = optimize_path(self.key_histories)
+
+    def get_cursor_image(self, image: np.ndarray=None, cursor: Tuple=None) -> np.ndarray:
+        if image is None:
+            image = get_current_image()
+        if cursor is None:
+            cursor = self.get_cursor(image)
+        return get_cropped_image(image, cursor)
 
     def start_monkey(self, current_node_keyset: List[str]):
         start_time = time.time()
@@ -148,6 +170,8 @@ class IntelligentMonkeyTestRoku:
 
         if monkey.banned_image_detected:
             self.stop()
+        
+        self.section_id += 1
 
     def report_section(self, start_time: float, end_time: float, image: np.ndarray, smart_sense_times: int):
         image_path = save_image(get_utc_datetime(time.time()).strftime('%y-%m-%d %H:%M:%S'), image)
