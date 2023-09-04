@@ -126,11 +126,11 @@ def read_scenarios(
     return res
 
 
-@router.post("", response_model=schemas.MsgWithId)
+@router.post("", response_model=schemas.ScenarioCreateResult)
 def create_scenario(
     *,
     scenario_in: schemas.ScenarioCreate,
-) -> schemas.MsgWithId:
+) -> schemas.ScenarioCreateResult:
     """
     Create new scenario.
     """
@@ -163,6 +163,7 @@ def create_scenario(
             for block_group in block_groups
         ]
 
+        # TODO 조회로 이동해야 할 듯
         # 폴더 생성
         path = f"{workspace_path}/{testrun_id}"
         os.makedirs(f'{path}/raw')
@@ -193,7 +194,7 @@ def create_scenario(
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return {'msg': 'Create new scenario', 'id': scenario_id}
+    return {'msg': 'Create new scenario', 'id': scenario_id, 'testrun_id': testrun_id}
 
 
 router_detail = APIRouter()

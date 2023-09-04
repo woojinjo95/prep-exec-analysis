@@ -1,7 +1,7 @@
 from .analysis_config import AnalysisConfig, AnalysisConfigBase, FrameImage
-from .analysis_result import (ColorReference, Cpu, DataSummary, EventLog, Freeze,
-                              LogLevelFinder, LogPatternMatching, Loudness,
-                              MeasurementBoot, Memory, NetworkFilter,
+from .analysis_result import (ColorReference, Cpu, DataSummary, EventLog,
+                              Freeze, LogLevelFinder, LogPatternMatching,
+                              Loudness, MeasurementBoot, Memory, NetworkFilter,
                               ProcessLifecycle)
 from .block import (Block, BlockBulkCreate, BlockCreate, BlockDelete,
                     BlockGroup, BlockGroupUpdate, BlockUpdate)
@@ -14,8 +14,8 @@ from .remocon import (Remocon, RemoconCustomKeyCreate,
                       RemoconCustomKeyCreateBase, RemoconCustomKeyUpdate,
                       RemoconCustomKeyUpdateMulti, RemoconRead, RemoconUpdate)
 from .scenario import (CopyScenarioCreate, Scenario, ScenarioCreate,
-                       ScenarioPage, ScenarioTag, ScenarioTagUpdate,
-                       ScenarioUpdate)
+                       ScenarioCreateResult, ScenarioPage, ScenarioTag,
+                       ScenarioTagUpdate, ScenarioUpdate)
 from .shell import Shell, ShellList, ShellLogList
 from .trace import ReadLogcat, ReadNetwork
 from .utility import (ExportResult, LogConnectionStatus, Regex, RegexResult,
