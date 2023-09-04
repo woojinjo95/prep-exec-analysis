@@ -1,3 +1,4 @@
+import { Remocon } from '@page/ActionPage/components/RemoconSection/api/entity'
 import { atom } from 'recoil'
 
 /**
@@ -50,4 +51,12 @@ export const isBlockRecordModeState = atom<boolean>({
 export const selectedBlockIdsState = atom<string[]>({
   key: 'selectedBlockIdsState',
   default: [],
+})
+
+/**
+ * 현재 선택한 remocon
+ */
+export const selectedRemoconState = atom<Remocon | null>({
+  key: 'selectedRemoconState',
+  default: null,
 })
