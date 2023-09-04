@@ -33,9 +33,9 @@ class IntelligentMonkeyTestSK:
         self.depth_key = 'right'
         self.breadth_key = 'down'
         # root keyset 근거
-        # 1. 배터리 방전 화면 없애기 위해 home 두번 입력
-        # 2. 검증 대상 셋탑의 경우, up 4회지만 여유를 두고 5번 입력
-        self.root_keyset = ['home', 'home', 'left'] + ['up'] * 5
+        # 1. 배터리 방전 팝업 없애기 위해 home 두번 입력
+        # 2. 검증 대상 셋탑의 경우, up 4회
+        self.root_keyset = ['home', 'home', 'left'] + ['up'] * 4
 
         # init variables
         self.key_histories = []
@@ -79,7 +79,10 @@ class IntelligentMonkeyTestSK:
             image = get_current_image()
             cursor = self.get_cursor()
             fi = FrameInfo(image, cursor)
+            cursor_image = self.get_cursor_image(image, cursor)
             self.exec_keys([self.depth_key])
+            
+            logger.info('check next node exists.')
             if self.check_leftmenu_is_opened(image, cursor, get_current_image(), self.get_cursor()):
                 logger.info('next node exists.')
                 self.append_key(self.depth_key)
@@ -88,7 +91,7 @@ class IntelligentMonkeyTestSK:
                 current_node_keyset = [*self.key_histories, self.depth_key]
                 logger.info(f'current_node_keyset: {current_node_keyset}')
 
-                self.start_monkey(current_node_keyset)
+                self.start_monkey(current_node_keyset, cursor_image)
 
                 self.section_id += 1
                 self.append_key(self.breadth_key)
@@ -126,13 +129,15 @@ class IntelligentMonkeyTestSK:
         self.key_histories.append(key)
         self.key_histories = optimize_path(self.key_histories)
 
-    def start_monkey(self, current_node_keyset: List[str]):
-        start_time = time.time()
+    def get_cursor_image(self, image: np.ndarray=None, cursor: Tuple=None) -> np.ndarray:
+        if image is None:
+            image = get_current_image()
+        if cursor is None:
+            cursor = self.get_cursor(image)
+        return get_cropped_image(image, cursor)
 
-        # go to root_keyset of section and get snapshot
-        self.exec_keys(current_node_keyset + ['left'])
-        image = get_current_image()
-        cursor_image = get_cropped_image(image, self.get_cursor(image))
+    def start_monkey(self, current_node_keyset: List[str], cursor_image: np.ndarray):
+        start_time = time.time()
 
         monkey = Monkey(
             duration=self.monkey_args.duration,
@@ -171,6 +176,7 @@ class IntelligentMonkeyTestSK:
 
     ##### Re-Defined Functions #####
     def exec_keys(self, keys: List[str]):
+        logger.info(f'exec_keys: {keys}')
         key_and_intervals = [(key, self.key_interval) if key != 'home' else (key, 3) for key in keys]
         exec_keys_with_each_interval(key_and_intervals, self.profile, self.remocon_type)
 
