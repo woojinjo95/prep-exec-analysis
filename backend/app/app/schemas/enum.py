@@ -69,6 +69,7 @@ class ChannelChangeTimeTargetEnum(ExtendedEnum):
 class BlockTypeEnum(ExtendedEnum):
     remocon_transmit = "remocon_transmit"
     on_off_control = "on_off_control"
+    device_info = "device_info"
     shell = "shell"
     packet_control = "packet_control"
     packet_block = "packet_block"
