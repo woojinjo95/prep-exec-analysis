@@ -18,7 +18,7 @@ def test_monkey():
         # redis 상에서 갱신된 환경 설정 정보를 가져옴. (sub으로 올 수도 있고, redis에서 직접 가져올 수도 있음.)
         # 현재는 dummy로 처리
         arguments = get_monkey_test_arguments()
-        arguments['interval'] /= 1000
+        arguments['interval'] /= 1000  # ms -> s
         logger.info(f"arguments: {arguments}")
 
         analysis_type = arguments['analysis_type']
