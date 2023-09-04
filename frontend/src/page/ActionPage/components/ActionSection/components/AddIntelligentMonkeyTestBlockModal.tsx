@@ -95,6 +95,7 @@ const AddIntelligentMonkeyTestBlockModal: React.FC<AddIntelligentMonkeyTestBlock
               >
                 {profiles.map((_profile) => (
                   <OptionItem
+                    isActive={_profile === profile}
                     colorScheme="charcoal"
                     key={`profile-${_profile}`}
                     onClick={() => {
@@ -129,6 +130,7 @@ const AddIntelligentMonkeyTestBlockModal: React.FC<AddIntelligentMonkeyTestBlock
                   .filter((_unit) => _unit !== 'ms')
                   .map((unit) => (
                     <OptionItem
+                      isActive={unit === durationTimeUnit}
                       colorScheme="charcoal"
                       key={`duration-time-unit-${unit}`}
                       onClick={() => {
@@ -163,6 +165,7 @@ const AddIntelligentMonkeyTestBlockModal: React.FC<AddIntelligentMonkeyTestBlock
                   .filter((_unit) => _unit !== 'Min')
                   .map((unit) => (
                     <OptionItem
+                      isActive={unit === intervalTimeUnit}
                       colorScheme="charcoal"
                       key={`interval-time-unit-${unit}`}
                       onClick={() => {
@@ -210,6 +213,7 @@ const AddIntelligentMonkeyTestBlockModal: React.FC<AddIntelligentMonkeyTestBlock
                   .filter((_unit) => _unit !== 'ms')
                   .map((unit) => (
                     <OptionItem
+                      isActive={unit === waitingTimeTimeUnit}
                       colorScheme="charcoal"
                       key={`waiting-time-time-unit-${unit}`}
                       onClick={() => {
