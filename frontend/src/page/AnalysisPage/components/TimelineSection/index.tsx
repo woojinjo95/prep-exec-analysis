@@ -140,8 +140,13 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
           <LoudnessChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} dimension={dimension} />
           <ResumeBootChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
           {/* FIXME: 데이터가 너무많음. api 로딩이 오래걸림 */}
-          <LogLevelFinderChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
-          <LogPatternMatchingChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
+          <LogLevelFinderChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} dimension={dimension} />
+          <LogPatternMatchingChart
+            scaleX={scrollbarScaleX}
+            startTime={startTime}
+            endTime={endTime}
+            dimension={dimension}
+          />
           <CPUChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} dimension={dimension} />
           <MemoryChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} dimension={dimension} />
         </TimelineChartContainer>
