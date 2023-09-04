@@ -4,7 +4,7 @@ from .analysis_result import (ColorReference, Cpu, DataSummary, EventLog,
                               Loudness, MeasurementBoot, Memory, NetworkFilter,
                               ProcessLifecycle)
 from .block import (Block, BlockBulkCreate, BlockCreate, BlockDelete,
-                    BlockGroup, BlockGroupUpdate, BlockUpdate)
+                    BlockGroup, BlockGroupUpdate, BlockUpdate, RunBlock)
 from .hardware_configuration import (HardwareConfigurationBase,
                                      HardwareConfigurationUpdate,
                                      StbConnection, StbConnectionBase)

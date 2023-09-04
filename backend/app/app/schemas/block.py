@@ -43,3 +43,11 @@ class BlockGroup(BaseModel):
     id: str
     repeat_cnt: int
     block: List[Block]
+
+
+class RunBlockBase(BaseModel):
+    id: Optional[str]
+
+
+class RunBlock(BaseModel):
+    items: RunBlockBase
