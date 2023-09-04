@@ -46,6 +46,7 @@ const RemoconComponent: React.FC<RemoconProps> = ({ remocon, keyEvent }) => {
         // 커스텀 키 조합의 맨 마지막 신호가 왔다면
         if (message.data.key === clickedCustomKeyMessage.data[clickedCustomKeyMessage.data.length - 1].key) {
           remoconService.customKeyClick(clickedCustomKeyMessage)
+          setClickedCustomKeyMessage(null)
         }
       }
     },
