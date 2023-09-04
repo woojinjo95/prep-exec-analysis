@@ -9,7 +9,7 @@ export type PointChartData = {
  * 영역 차트 데이터
  */
 export type AreaChartData = {
-  date: Date
+  datetime: number // millisecond
   value: number
 }[]
 
@@ -35,4 +35,3 @@ export interface ShellMessage {
   mode: 'adb' | 'ssh'
   data: { timestamp: string; module: 'stdin' | 'stdout' | 'stderr'; message: string }
 }
-

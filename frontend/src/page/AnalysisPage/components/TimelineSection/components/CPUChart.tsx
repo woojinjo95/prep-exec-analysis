@@ -1,5 +1,7 @@
 import React, { useMemo } from 'react'
+import * as d3 from 'd3'
 import { AreaChart } from '@global/ui'
+import { CHART_HEIGHT } from '@global/constant'
 import { useCPU } from '../api/hook'
 
 interface CPUChartProps {
@@ -20,21 +22,29 @@ const CPUChart: React.FC<CPUChartProps> = ({ scaleX, startTime, endTime, dimensi
 
   const cpuData = useMemo(() => {
     if (!cpu) return null
-    return cpu.map(({ timestamp, cpu_usage }) => ({ date: new Date(timestamp), value: Number(cpu_usage) }))
+    return cpu.map(({ timestamp, cpu_usage }) => ({
+      datetime: new Date(timestamp).getTime(),
+      value: Number(cpu_usage),
+    }))
   }, [cpu])
+
+  const scaleY: d3.ScaleLinear<number, number, never> | null = useMemo(
+    () => d3.scaleLinear().domain([0, 100]).range([CHART_HEIGHT, 0]),
+    [],
+  )
 
   if (!cpuData) return <div />
   return (
     <AreaChart
       chartWidth={dimension?.width}
       scaleX={scaleX}
+      scaleY={scaleY}
       data={cpuData}
       minValue={0}
-      maxValue={100}
       strokeColor="#f29213"
       fillColor="#f29213"
     />
   )
 }
 
-export default React.memo(CPUChart)
+export default CPUChart

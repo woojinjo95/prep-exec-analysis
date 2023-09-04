@@ -26,4 +26,4 @@ const FreezeChart: React.FC<FreezeChartProps> = ({ scaleX, startTime, endTime })
   return <RangeChart scaleX={scaleX} data={freezeData} color="blue" />
 }
 
-export default React.memo(FreezeChart)
+export default FreezeChart

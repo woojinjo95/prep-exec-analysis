@@ -1,5 +1,7 @@
 import React, { useMemo } from 'react'
+import * as d3 from 'd3'
 import { AreaChart } from '@global/ui'
+import { CHART_HEIGHT } from '@global/constant'
 import { useColorReferences } from '../api/hook'
 
 interface ColorReferenceChartProps {
@@ -21,13 +23,20 @@ const ColorReferenceChart: React.FC<ColorReferenceChartProps> = ({ scaleX, start
   const colorReferenceData = useMemo(() => {
     if (!colorReferences) return null
     return colorReferences.map(({ timestamp, color_reference }) => ({
-      date: new Date(timestamp),
+      datetime: new Date(timestamp).getTime(),
       value: color_reference,
     }))
   }, [colorReferences])
 
+  const scaleY: d3.ScaleLinear<number, number, never> | null = useMemo(
+    () => d3.scaleLinear().domain([0, 8]).range([CHART_HEIGHT, 0]),
+    [],
+  )
+
   if (!colorReferenceData) return <div />
-  return <AreaChart chartWidth={dimension?.width} scaleX={scaleX} data={colorReferenceData} minValue={0} maxValue={8} />
+  return (
+    <AreaChart chartWidth={dimension?.width} scaleX={scaleX} scaleY={scaleY} data={colorReferenceData} minValue={0} />
+  )
 }
 
-export default React.memo(ColorReferenceChart)
+export default ColorReferenceChart

@@ -59,4 +59,4 @@ const LogLevelFinderChart: React.FC<LogLevelFinderChartProps> = ({ scaleX, start
   )
 }
 
-export default React.memo(LogLevelFinderChart)
+export default LogLevelFinderChart
