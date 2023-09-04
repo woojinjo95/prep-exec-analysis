@@ -196,7 +196,9 @@ export const deleteTag = async (tag: string) => {
  */
 export const postTestrun = async (scenaroId: string) => {
   try {
-    await API.post<{ msg: string }>(`${apiUrls.testrun}/${scenaroId}`)
+    const result = await API.post<{ msg: string; id: string }>(`${apiUrls.testrun}/${scenaroId}`)
+
+    return result.data
   } catch (err) {
     const er = err as AxiosError
     throw er
