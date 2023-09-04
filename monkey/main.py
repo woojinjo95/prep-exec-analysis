@@ -38,8 +38,8 @@ class CommandExecutor:
         ''' 
         - 인텔리전트 몽키 테스트 실행 (ROKU)
             PUBLISH command '{"msg": "monkey", "data": {"arguments": {"type": "intelligent_monkey_test", "args": [{"key":"profile","value":"roku"},{"key":"duration_per_menu","value": 30},{"key":"interval","value":1300},{"key":"enable_smart_sense","value": true},{"key":"waiting_time","value":3}]}}}'
-        - 인텔리전트 몽키 테스트 실행 (ROKU)
-            PUBLISH command '{"msg": "monkey", "data": {"arguments": {"type": "intelligent_monkey_test", "args": [{"key":"profile","value":"skb"},{"key":"duration_per_menu","value": 30},{"key":"interval","value":1300},{"key":"enable_smart_sense","value": true},{"key":"waiting_time","value":3}]}}}'            
+        - 인텔리전트 몽키 테스트 실행 (SKB)
+            PUBLISH command '{"msg": "monkey", "data": {"arguments": {"type": "intelligent_monkey_test", "args": [{"key":"profile","value":"skb"},{"key":"duration_per_menu","value": 30},{"key":"interval","value":1300},{"key":"enable_smart_sense","value": true},{"key":"waiting_time","value":3}]}}}'
         - 몽키 테스트 실행
             PUBLISH command '{"msg": "monkey", "data": {"arguments": {"type": "monkey_test", "args": [{"key":"duration","value":60},{"key":"interval","value":1300},{"key":"enable_smart_sense","value":true},{"key":"waiting_time","value":3},{"key":"remocon_name","value":"roku"},{"key":"remote_control_type","value":"ir"}]}}}'
         - 몽키테스트 종료
