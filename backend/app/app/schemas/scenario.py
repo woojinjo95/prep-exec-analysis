@@ -19,6 +19,12 @@ class ScenarioCreate(BaseModel):
     block_group: Optional[List[BlockGroup]]
 
 
+class ScenarioCreateResult(BaseModel):
+    msg: str
+    id: str
+    testrun_id: str
+
+
 class ScenarioUpdate(BaseModel):
     is_active: bool
     name: str

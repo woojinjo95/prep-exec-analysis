@@ -1,16 +1,8 @@
 import React from 'react'
 import { Accordion, ColorPickerBox, OptionItem, Select, SetROIButton, Text } from '@global/ui'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
-import { AnalysisTypeLabel } from '../../../constant'
-import { AnalysisConfig } from '../../../api/entity'
+import { AnalysisTypeLabel, ResumeTypeLabel } from '../../../constant'
 import { UnsavedAnalysisConfig } from '../../../types'
-
-type ResumeType = NonNullable<AnalysisConfig['resume']>['type']
-
-const ResumeTypeLabel: { [key in ResumeType]: string } = {
-  image_matching: 'Image Matching',
-  screen_change_rate: 'Screen Change Rate',
-} as const
 
 interface ResumeAnalysisItemProps {
   color: NonNullable<UnsavedAnalysisConfig['resume']>['color']

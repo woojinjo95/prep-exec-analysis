@@ -126,11 +126,11 @@ def read_scenarios(
     return res
 
 
-@router.post("", response_model=schemas.MsgWithId)
+@router.post("", response_model=schemas.ScenarioCreateResult)
 def create_scenario(
     *,
     scenario_in: schemas.ScenarioCreate,
-) -> schemas.MsgWithId:
+) -> schemas.ScenarioCreateResult:
     """
     Create new scenario.
     """
@@ -177,7 +177,7 @@ def create_scenario(
                                                     'block_group': block_group_data,
                                                     'testruns': [{'id': testrun_id,
                                                                   'raw': {'videos': []},
-                                                                  'analysis': {'videos': []}}]})
+                                                                  'analysis': {}}]})
 
         # 워크스페이스 변경
         RedisClient.hset('testrun', 'id', testrun_id)
@@ -193,17 +193,17 @@ def create_scenario(
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return {'msg': 'Create new scenario', 'id': scenario_id}
+    return {'msg': 'Create new scenario', 'id': scenario_id, 'testrun_id': testrun_id}
 
 
 router_detail = APIRouter()
 
 
-@router_detail.post("", response_model=schemas.MsgWithId)
+@router_detail.post("", response_model=schemas.ScenarioCreateResult)
 def copy_scenario(
     *,
     scenario_in: schemas.CopyScenarioCreate,
-) -> schemas.MsgWithId:
+) -> schemas.ScenarioCreateResult:
     """
     Copy scenario.
     """
@@ -269,4 +269,4 @@ def copy_scenario(
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return {'msg': 'Copy scenario', 'id': scenario_id}
+    return {'msg': 'Copy scenario', 'id': scenario_id, 'testrun_id': testrun_id}

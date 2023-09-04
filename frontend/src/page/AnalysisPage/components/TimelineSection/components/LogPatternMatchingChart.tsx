@@ -1,7 +1,5 @@
-import { scenarioIdState, testRunIdState } from '@global/atom'
 import { PointChart } from '@global/ui'
 import React, { useMemo } from 'react'
-import { useRecoilValue } from 'recoil'
 import { useLogPatternMatching } from '../api/hook'
 
 interface LogPatternMatchingChartProps {
@@ -14,13 +12,9 @@ interface LogPatternMatchingChartProps {
  * 패턴에 매칭된 로그(log pattern matching) 차트
  */
 const LogPatternMatchingChart: React.FC<LogPatternMatchingChartProps> = ({ scaleX, startTime, endTime }) => {
-  const scenarioId = useRecoilValue(scenarioIdState)
-  const testRunId = useRecoilValue(testRunIdState)
   const { logPatternMatching } = useLogPatternMatching({
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
-    scenario_id: scenarioId || undefined,
-    testrun_id: testRunId || undefined,
   })
 
   const logPatternMatchingData = useMemo(() => {

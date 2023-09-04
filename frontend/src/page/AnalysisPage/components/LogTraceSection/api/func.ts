@@ -4,13 +4,18 @@ import { Response } from '@global/api/entity'
 import apiUrls from './url'
 import { Logcat, Network } from './entity'
 
-export const getLogcat = async ({ start_time, end_time }: { start_time: string; end_time: string }) => {
+/**
+ * 로그캣 로그 조회 api
+ */
+export const getLogcat = async (params: {
+  start_time: string
+  end_time: string
+  scenario_id?: string
+  testrun_id?: string
+}) => {
   try {
     const result = await API.get<Response<Logcat[]>>(apiUrls.logcat, {
-      params: {
-        start_time,
-        end_time,
-      },
+      params,
     })
 
     return result.data.items
@@ -20,13 +25,18 @@ export const getLogcat = async ({ start_time, end_time }: { start_time: string; 
   }
 }
 
-export const getNetwork = async ({ start_time, end_time }: { start_time: string; end_time: string }) => {
+/**
+ * 네트워크 로그 조회 api
+ */
+export const getNetwork = async (params: {
+  start_time: string
+  end_time: string
+  scenario_id?: string
+  testrun_id?: string
+}) => {
   try {
     const result = await API.get<Response<Network[]>>(apiUrls.network, {
-      params: {
-        start_time,
-        end_time,
-      },
+      params,
     })
 
     return result.data.items
