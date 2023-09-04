@@ -89,7 +89,7 @@ class IntelligentMonkeyTestSK:
         else:
             return 'none'
 
-    def check_leaf_node(self):
+    def check_leaf_node(self) -> bool:
         logger.info('check leaf node.')
         image = get_current_image()
         cursor = self.get_cursor()
