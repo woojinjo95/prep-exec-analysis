@@ -1,4 +1,4 @@
-import { Remocon } from '@page/ActionPage/components/RemoconSection/api/entity'
+// import { Remocon } from '@page/ActionPage/components/RemoconSection/api/entity'
 import { atom } from 'recoil'
 
 /**
@@ -56,7 +56,7 @@ export const selectedBlockIdsState = atom<string[]>({
 /**
  * 현재 선택한 remocon
  */
-export const selectedRemoconState = atom<Remocon | null>({
+export const selectedRemoconNameState = atom<string | null>({
   key: 'selectedRemoconState',
   default: null,
 })

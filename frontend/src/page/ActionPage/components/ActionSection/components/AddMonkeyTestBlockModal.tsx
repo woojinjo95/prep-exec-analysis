@@ -2,7 +2,7 @@ import { Button, Input, Modal, OptionItem, Select, Text, ToggleButton } from '@g
 import React, { useEffect, useRef, useState } from 'react'
 import { useHardwareConfiguration, useScenarioById } from '@global/api/hook'
 import { useRecoilValue } from 'recoil'
-import { scenarioIdState, selectedRemoconState } from '@global/atom'
+import { scenarioIdState, selectedRemoconNameState } from '@global/atom'
 import { useMutation } from 'react-query'
 import { TimeUnit } from '../types'
 import { timeUnit } from '../constants'
@@ -66,7 +66,7 @@ const AddMonkeyTestBlockModal: React.FC<AddMonkeyTestBlockModalProps> = ({ isOpe
     }
   }, [])
 
-  const selectedRemocon = useRecoilValue(selectedRemoconState)
+  const selectedRemocon = useRecoilValue(selectedRemoconNameState)
 
   const { hardwareConfiguration } = useHardwareConfiguration()
 
@@ -221,7 +221,7 @@ const AddMonkeyTestBlockModal: React.FC<AddMonkeyTestBlockModalProps> = ({ isOpe
                     },
                     {
                       key: 'remocon_name',
-                      value: selectedRemocon.name,
+                      value: selectedRemocon,
                     },
                     {
                       key: 'remote_control_type',
