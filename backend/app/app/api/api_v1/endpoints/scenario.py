@@ -199,11 +199,11 @@ def create_scenario(
 router_detail = APIRouter()
 
 
-@router_detail.post("", response_model=schemas.MsgWithId)
+@router_detail.post("", response_model=schemas.ScenarioCreateResult)
 def copy_scenario(
     *,
     scenario_in: schemas.CopyScenarioCreate,
-) -> schemas.MsgWithId:
+) -> schemas.ScenarioCreateResult:
     """
     Copy scenario.
     """
@@ -269,4 +269,4 @@ def copy_scenario(
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return {'msg': 'Copy scenario', 'id': scenario_id}
+    return {'msg': 'Copy scenario', 'id': scenario_id, 'testrun_id': testrun_id}
