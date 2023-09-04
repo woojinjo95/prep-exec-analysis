@@ -60,8 +60,12 @@ class IntelligentMonkeyTestSK:
     def visit(self):
         while not self.main_stop_event.is_set():
             self.exec_keys(self.key_histories)
-            if self.check_depth_end():
+            status = self.check_status()
+            if status == 'depth_end':
                 continue
+            elif status == 'visit_end':
+                return
+
             if self.check_leaf_node():
                 current_node_keyset = [*self.key_histories, self.depth_key]
                 logger.info(f'current_node_keyset: {current_node_keyset}')
@@ -70,18 +74,20 @@ class IntelligentMonkeyTestSK:
             else:
                 self.append_key(self.depth_key)
 
-    def check_depth_end(self):
-        logger.info('check depth end.')
+    def check_status(self) -> str:
+        logger.info('check status.')
         image, cursor = get_current_image(), self.get_cursor()
         if self.last_fi and check_cursor_is_same(self.last_fi.image, self.last_fi.cursor, image, cursor):
             try:
                 self.head_to_next()
                 logger.info(f'head to next done. {self.key_histories}')
                 self.last_fi = None
-                return False
+                return 'depth_end'
             except IndexError as err:
                 logger.info(f'visit done. {self.key_histories}. {err}')
-                return True
+                return 'visit_end'
+        else:
+            return 'none'
 
     def check_leaf_node(self):
         logger.info('check leaf node.')
