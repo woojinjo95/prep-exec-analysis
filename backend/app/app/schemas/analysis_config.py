@@ -31,6 +31,10 @@ class Macroblock(CommonBaseModel):
     threshold_score: float
 
 
+class Loudness(CommonBaseModel):
+    pass
+
+
 class Resume(CommonBaseModel):
     type: ResumeTypeEnum
     frame: Optional[Frame]
@@ -68,9 +72,18 @@ class NetworkFilter(CommonBaseModel):
     pass
 
 
+class MonkeyTest(CommonBaseModel):
+    pass
+
+
+class IntelligentMonkeyTest(CommonBaseModel):
+    pass
+
+
 class AnalysisConfig(BaseModel):
     freeze: Optional[Freeze]
     # macroblock: Optional[Macroblock]
+    loudness: Optional[Loudness]
     resume: Optional[Resume]
     boot: Optional[Boot]
     channel_change_time: Optional[ChannelChangeTime]
@@ -78,6 +91,8 @@ class AnalysisConfig(BaseModel):
     log_pattern_matching: Optional[LogPatternMatching]
     # process_lifecycle_analysis: Optional[ProcessLifecycleAnalysis]
     # network_filter: Optional[NetworkFilter]
+    monkey_test: Optional[MonkeyTest]
+    intelligent_monkey_test: Optional[IntelligentMonkeyTest]
 
 
 class AnalysisConfigBase(BaseModel):

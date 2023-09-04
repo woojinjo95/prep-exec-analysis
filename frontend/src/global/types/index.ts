@@ -1,7 +1,9 @@
 /**
  * 포인트 차트 데이터
  */
-export type PointChartData = Date[]
+export type PointChartData = {
+  datetime: number // millisecond
+}[]
 
 /**
  * 영역 차트 데이터
@@ -33,3 +35,4 @@ export interface ShellMessage {
   mode: 'adb' | 'ssh'
   data: { timestamp: string; module: 'stdin' | 'stdout' | 'stderr'; message: string }
 }
+

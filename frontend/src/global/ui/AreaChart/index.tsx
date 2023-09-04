@@ -6,7 +6,7 @@ import { CHART_HEIGHT } from '@global/constant'
 import { AreaChartGenerator } from './usecase'
 
 interface AreaChartProps {
-  chartWidth: number | null
+  chartWidth?: number | null
   scaleX: d3.ScaleTime<number, number, never> | null
   data: AreaChartData
   minValue?: number
@@ -68,4 +68,4 @@ const AreaChart: React.FC<AreaChartProps> = ({
   )
 }
 
-export default AreaChart
+export default React.memo(AreaChart)

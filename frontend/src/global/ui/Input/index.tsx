@@ -20,6 +20,7 @@ const Input: React.ForwardRefExoticComponent<InputProps & React.RefAttributes<HT
     <div
       className={cx({
         'flex flex-col gap-y-2': !!warningMessage,
+        'opacity-40': props.disabled,
       })}
     >
       <input

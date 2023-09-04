@@ -3,16 +3,16 @@ import { AreaChart } from '@global/ui'
 import { useMemory } from '../api/hook'
 
 interface MemoryChartProps {
-  chartWidth: Parameters<typeof AreaChart>[0]['chartWidth']
   scaleX: Parameters<typeof AreaChart>[0]['scaleX']
   startTime: Date
   endTime: Date
+  dimension: { left: number; width: number } | null
 }
 
 /**
  * Memory 사용률 차트
  */
-const MemoryChart: React.FC<MemoryChartProps> = ({ chartWidth, scaleX, startTime, endTime }) => {
+const MemoryChart: React.FC<MemoryChartProps> = ({ scaleX, startTime, endTime, dimension }) => {
   const { memory } = useMemory({
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
@@ -26,7 +26,7 @@ const MemoryChart: React.FC<MemoryChartProps> = ({ chartWidth, scaleX, startTime
   if (!memoryUsage) return <div />
   return (
     <AreaChart
-      chartWidth={chartWidth}
+      chartWidth={dimension?.width}
       scaleX={scaleX}
       data={memoryUsage}
       minValue={0}

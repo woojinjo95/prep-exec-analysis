@@ -24,6 +24,7 @@ const TimelineChartContainer = React.forwardRef<HTMLDivElement, TimelineChartCon
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
       >
+        {/* cursor 막대기 */}
         <div
           className="absolute top-0 -left-px h-full w-0.5 bg-primary z-[5]"
           style={{

@@ -13,9 +13,9 @@ from scripts.log_organizer import LogOrganizer
 from scripts.media_process.capture import refresh_capture_board, streaming
 from scripts.media_process.loudness import update_loudness_to_mongodb
 from scripts.media_process.rotation import MakeVideo
+from scripts.media_process.utils import kill_active_capture_process
 from scripts.media_process.video_snapshot import save_video_snapshot
 from scripts.utils._exceptions import handle_errors
-
 
 logger = logging.getLogger('main')
 
@@ -45,6 +45,7 @@ def command_parser(command: dict, streaming_stop_event: Event):
                 streaming_stop_event.clear()
                 streaming(streaming_stop_event)
                 log = 'Start streaming service'
+                time.sleep(1)   # prevent multiple process by waiting state update time
             else:
                 log_level = 'warning'
                 log = 'Already streaming service Started'
@@ -58,11 +59,14 @@ def command_parser(command: dict, streaming_stop_event: Event):
                 streaming_stop_event.set()
                 log = 'Stop streaming service'
                 time.sleep(2)
+                kill_active_capture_process()
 
         elif action == 'restart':
             log = 'Restart streaming service'
             streaming_stop_event.set()
             time.sleep(2)
+            kill_active_capture_process()
+            time.sleep(1)
             streaming_stop_event.clear()
             streaming(streaming_stop_event)
         else:
@@ -85,7 +89,7 @@ def command_parser(command: dict, streaming_stop_event: Event):
 
     if command.get('msg') == 'capture_board':
         capture_board_args = command.get('data')
-        if capture_board_args.get('refresh'):
+        if capture_board_args.get('action') == 'refresh':
             refresh_capture_board()
 
     if command.get('msg') == 'video_snapshot':

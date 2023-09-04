@@ -3,16 +3,16 @@ import { AreaChart } from '@global/ui'
 import { useLoudness } from '../api/hook'
 
 interface LoudnessChartProps {
-  chartWidth: Parameters<typeof AreaChart>[0]['chartWidth']
   scaleX: Parameters<typeof AreaChart>[0]['scaleX']
   startTime: Date
   endTime: Date
+  dimension: { left: number; width: number } | null
 }
 
 /**
  * Loudness(소리) 변화 차트
  */
-const LoudnessChart: React.FC<LoudnessChartProps> = ({ chartWidth, scaleX, startTime, endTime }) => {
+const LoudnessChart: React.FC<LoudnessChartProps> = ({ scaleX, startTime, endTime, dimension }) => {
   const { loudness } = useLoudness({
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
@@ -29,7 +29,7 @@ const LoudnessChart: React.FC<LoudnessChartProps> = ({ chartWidth, scaleX, start
   if (!loudnessData) return <div />
   return (
     <AreaChart
-      chartWidth={chartWidth}
+      chartWidth={dimension?.width}
       scaleX={scaleX}
       data={loudnessData}
       minValue={-70}
