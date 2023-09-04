@@ -65,3 +65,8 @@ def set_value(key: str, field: str = None, value: any = None, db: int = RedisDB.
 def get_all(key: str, db: int = RedisDB.monkey) -> dict:
     with get_strict_redis_connection(db) as src:
         return hget_all(src, key)
+
+
+def delete(key: str, db: int = RedisDB.monkey):
+    with get_strict_redis_connection(db) as src:
+        src.delete(key)

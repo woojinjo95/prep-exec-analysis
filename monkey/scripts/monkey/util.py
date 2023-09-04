@@ -22,8 +22,8 @@ def get_current_image() -> np.ndarray:
     return get_snapshot()
 
 
-def exec_key(key: str, key_interval: float, profile: str, type: str):
-    publish_remocon_msg(profile, key, sleep=key_interval, type=type)
+def exec_key(key: str, key_interval: float, company: str, type: str):
+    publish_remocon_msg(company, key, sleep=key_interval, type=type)
 
 
 def exec_keys(keys: List[str], *args, **kwargs):
@@ -31,6 +31,11 @@ def exec_keys(keys: List[str], *args, **kwargs):
     for key in keys:
         exec_key(key, *args, **kwargs)
     # time.sleep(3)
+
+
+def exec_keys_with_each_interval(key_and_intervals: List[Tuple[str, float]], company: str, type: str):
+    for key, interval in key_and_intervals:
+        exec_key(key, interval, company, type)
 
 
 def check_cursor_is_same(prev_image: np.ndarray, prev_cursor: Tuple, image: np.ndarray, cursor: Tuple, 
