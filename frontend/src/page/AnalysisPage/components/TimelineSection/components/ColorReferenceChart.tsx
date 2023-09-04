@@ -49,7 +49,7 @@ const ColorReferenceChart: React.FC<ColorReferenceChartProps> = ({ scaleX, start
       {!!posX && (
         <div
           ref={wrapperRef}
-          className="absolute top-0 h-full w-1 bg-white opacity-30 z-10"
+          className="absolute top-0 h-full w-1 bg-white opacity-30 z-[5]"
           style={{
             transform: `translateX(${posX - 2}px)`,
           }}
