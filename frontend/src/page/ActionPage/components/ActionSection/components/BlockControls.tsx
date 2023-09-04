@@ -7,28 +7,30 @@ import { ReactComponent as StopIcon } from '@assets/images/icon_stop.svg'
 import { IconButton, OptionItem, Text, DropdownWithMoreButton } from '@global/ui'
 import { useWebsocket } from '@global/hook'
 import { useRecoilState, useRecoilValue } from 'recoil'
-import { isBlockRecordModeState, scenarioIdState, selectedBlockIdsState } from '@global/atom'
+import { isBlockRecordModeState, scenarioIdState, selectedBlockIdsState, testRunIdState } from '@global/atom'
 import { useScenarioById, useServiceState } from '@global/api/hook'
 import { useMutation } from 'react-query'
 import cx from 'classnames'
+import { postTestrun } from '@global/api/func'
+import { AxiosError } from 'axios'
+import { useNavigate } from 'react-router-dom'
 import { blockControlMenu } from '../constants'
 import SaveBlocksModal from './SaveBlocksModal'
 import OpenBlocksModal from './OpenBlocksModal'
 import { deleteBlock } from '../api/func'
+import AddMonkeyTestBlockModal from './AddMonkeyTestBlockModal'
+import AddIntelligentMonkeyTestBlockModal from './AddIntelligentMonkeyTestBlockModal'
 
 const BlockControls: React.FC = () => {
-  const { sendMessage } = useWebsocket({
-    onMessage: (message) => {
-      if (message.msg === 'end_playblock') {
-        // testrun post && scenario get
-      }
-    },
-  })
-
   const scenarioId = useRecoilValue(scenarioIdState)
+
+  const navigate = useNavigate()
 
   const [isSaveBlocksModalOpen, setIsSaveBlocksModalOpen] = useState<boolean>(false)
   const [isOpenBlocksModalOpen, setIsOpenBlocksModalOpen] = useState<boolean>(false)
+  const [isAddMonkeyTestBlockModalOpen, setIsAddMonkeyTestBlockModalOpen] = useState<boolean>(false)
+  const [isAddIntelligentMonkeyTestBlockModalOpen, setIsAddIntelligentMonkeyTestBlockModalOpen] =
+    useState<boolean>(false)
 
   const [isBlockRecordMode, setIsBlockRecordMode] = useRecoilState(isBlockRecordModeState)
 
@@ -42,7 +44,30 @@ const BlockControls: React.FC = () => {
     },
   })
 
+  const [, setTestRunId] = useRecoilState(testRunIdState)
+
   const selectedBlockIds = useRecoilValue(selectedBlockIdsState)
+
+  const { mutate: postTestrunMutate } = useMutation(postTestrun, {
+    onSuccess: (res) => {
+      refetch()
+      setTestRunId(res.id)
+      navigate('/analysis')
+    },
+    onError: (err: AxiosError) => {
+      console.error(err)
+    },
+  })
+
+  const { sendMessage } = useWebsocket({
+    onMessage: (message) => {
+      if (message.msg === 'end_playblock') {
+        if (!scenarioId) return
+        // testrun post && scenario get
+        postTestrunMutate(scenarioId)
+      }
+    },
+  })
 
   if (!scenario) return <div />
 
@@ -61,6 +86,12 @@ const BlockControls: React.FC = () => {
                   }
                   if (menu === 'Open') {
                     setIsOpenBlocksModalOpen(true)
+                  }
+                  if (menu === 'Add Monkey Test Block') {
+                    setIsAddMonkeyTestBlockModalOpen(true)
+                  }
+                  if (menu === 'Add Intelligent Monkey Test Block') {
+                    setIsAddIntelligentMonkeyTestBlockModalOpen(true)
                   }
                 }}
               >
@@ -167,6 +198,18 @@ const BlockControls: React.FC = () => {
       )}
       {isOpenBlocksModalOpen && (
         <OpenBlocksModal isOpen={isOpenBlocksModalOpen} close={() => setIsOpenBlocksModalOpen(false)} />
+      )}
+      {isAddMonkeyTestBlockModalOpen && (
+        <AddMonkeyTestBlockModal
+          isOpen={isAddMonkeyTestBlockModalOpen}
+          close={() => setIsAddMonkeyTestBlockModalOpen(false)}
+        />
+      )}
+      {isAddIntelligentMonkeyTestBlockModalOpen && (
+        <AddIntelligentMonkeyTestBlockModal
+          isOpen={isAddIntelligentMonkeyTestBlockModalOpen}
+          close={() => setIsAddIntelligentMonkeyTestBlockModalOpen(false)}
+        />
       )}
     </>
   )
