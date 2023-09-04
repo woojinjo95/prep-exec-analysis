@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v3  
         with:
             submodules: recursive
-      - run: docker build -t registry.dev-nextlab.com/qaas-monkey:dev-${{github.run_id}}${{github.run_number}} -f ./stb_log/dockerfile.dev.m32dev4 ./stb_log
+      - run: docker build -t registry.dev-nextlab.com/qaas-monkey:dev-${{github.run_id}}${{github.run_number}} -f ./monkey/dockerfile.dev.m32dev4 ./monkey
         shell: bash
       - run: docker image push registry.dev-nextlab.com/qaas-monkey:dev-${{github.run_id}}${{github.run_number}}
         shell: bash
