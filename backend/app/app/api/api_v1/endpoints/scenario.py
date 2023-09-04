@@ -163,7 +163,6 @@ def create_scenario(
             for block_group in block_groups
         ]
 
-        # TODO 조회로 이동해야 할 듯
         # 폴더 생성
         path = f"{workspace_path}/{testrun_id}"
         os.makedirs(f'{path}/raw')
@@ -178,7 +177,7 @@ def create_scenario(
                                                     'block_group': block_group_data,
                                                     'testruns': [{'id': testrun_id,
                                                                   'raw': {'videos': []},
-                                                                  'analysis': {'videos': []}}]})
+                                                                  'analysis': {}}]})
 
         # 워크스페이스 변경
         RedisClient.hset('testrun', 'id', testrun_id)
