@@ -38,4 +38,6 @@ const TimelineTooltip = <T extends DefaultDataType>({
   )
 }
 
+TimelineTooltip.displayName = 'TimelineTooltip'
+
 export default TimelineTooltip
