@@ -23,7 +23,9 @@ def get_data_of_log_level_finder(
     testrun_id: Optional[str] = None,
     log_level: Optional[str] = Query(None, description='ex)V,D,I,W,E,F,S'),
     page_size: Optional[int] = 10,
-    page: Optional[int] = None
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
 ):
     """
     로그 레벨 데이터 조회
@@ -44,6 +46,9 @@ def get_data_of_log_level_finder(
                                      {'$project': {'_id': 0, 'timestamp': 1, 'log_level': '$lines.log_level'}},
                                      {'$unwind': {'path': '$log_level'}},
                                      {'$match': {'log_level': {'$in': log_level}}}]
+        if sort_by is not None:
+            sorting_pipeline = [{'$sort': {sort_by: -1 if sort_desc else 1}}]
+            log_level_finder_pipeline += sorting_pipeline
         log_level_finder = paginate_from_mongodb_aggregation(col='stb_log',
                                                              pipeline=log_level_finder_pipeline,
                                                              page=page,
@@ -62,7 +67,9 @@ def get_data_of_cpu(
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
-    page: Optional[int] = None
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
 ):
     """
     Cpu 데이터 조회
@@ -78,6 +85,9 @@ def get_data_of_cpu(
                                     'testrun_id': testrun_id}},
                         {'$project': {'_id': 0, 'timestamp': 1, 'cpu_usage': 1, 'total': 1,
                                       'user': 1, 'kernel': 1, 'iowait': 1, 'irq': 1, 'softirq': 1}}]
+        if sort_by is not None:
+            sorting_pipeline = [{'$sort': {sort_by: -1 if sort_desc else 1}}]
+            cpu_pipeline += sorting_pipeline
         cpu = paginate_from_mongodb_aggregation(col='stb_info',
                                                 pipeline=cpu_pipeline,
                                                 page=page,
@@ -96,7 +106,9 @@ def get_data_of_memory(
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
-    page: Optional[int] = None
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
 ):
     """
     Memory 데이터 조회
@@ -112,6 +124,9 @@ def get_data_of_memory(
                                        'testrun_id': testrun_id}},
                            {'$project': {'_id': 0, 'timestamp': 1, 'memory_usage': 1,
                                          'total_ram': 1, 'free_ram': 1, 'used_ram': 1, 'lost_ram': 1}}]
+        if sort_by is not None:
+            sorting_pipeline = [{'$sort': {sort_by: -1 if sort_desc else 1}}]
+            memory_pipeline += sorting_pipeline
         memory = paginate_from_mongodb_aggregation(col='stb_info',
                                                    pipeline=memory_pipeline,
                                                    page=page,
@@ -130,7 +145,9 @@ def get_data_of_event_log(
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
-    page: Optional[int] = None
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
 ):
     """
     이벤트 로그 데이터 조회
@@ -147,6 +164,9 @@ def get_data_of_event_log(
                               {'$project': {'_id': 0, 'lines': 1}},
                               {'$unwind': {'path': '$lines'}},
                               {'$replaceRoot': {'newRoot': '$lines'}}]
+        if sort_by is not None:
+            sorting_pipeline = [{'$sort': {sort_by: -1 if sort_desc else 1}}]
+            event_log_pipeline += sorting_pipeline
         event_log = paginate_from_mongodb_aggregation(col='event_log',
                                                       pipeline=event_log_pipeline,
                                                       page=page,
@@ -165,7 +185,9 @@ def get_data_of_color_reference(
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
-    page: Optional[int] = None
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
 ):
     """
     컬러 레퍼런스 데이터 조회
@@ -180,6 +202,9 @@ def get_data_of_color_reference(
                                                 'scenario_id': scenario_id,
                                                 'testrun_id': testrun_id}},
                                     {'$project': {'_id': 0, 'timestamp': 1, 'color_reference': 1}}]
+        if sort_by is not None:
+            sorting_pipeline = [{'$sort': {sort_by: -1 if sort_desc else 1}}]
+            color_reference_pipeline += sorting_pipeline
         color_reference = paginate_from_mongodb_aggregation(col='an_color_reference',
                                                             pipeline=color_reference_pipeline,
                                                             page=page,
@@ -198,7 +223,9 @@ def get_data_of_freeze(
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
-    page: Optional[int] = None
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
 ):
     """
     화면 멈춤 데이터 조회
@@ -214,6 +241,9 @@ def get_data_of_freeze(
                                        'scenario_id': scenario_id,
                                        'testrun_id': testrun_id}},
                            {'$project': {'_id': 0, 'timestamp': 1, 'freeze_type': 1, 'duration': 1}}]
+        if sort_by is not None:
+            sorting_pipeline = [{'$sort': {sort_by: -1 if sort_desc else 1}}]
+            freeze_pipeline += sorting_pipeline
         freeze = paginate_from_mongodb_aggregation(col='an_freeze',
                                                    pipeline=freeze_pipeline,
                                                    page=page,
@@ -232,7 +262,9 @@ def get_data_of_loudness(
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
-    page: Optional[int] = None
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
 ):
     """
     Loudness 데이터 조회
@@ -250,6 +282,9 @@ def get_data_of_loudness(
                              {'$unwind': {'path': '$lines'}},
                              {'$replaceRoot': {'newRoot': '$lines'}},
                              {'$project': {'timestamp': '$timestamp', 'm': '$M', 'i': '$I'}}]
+        if sort_by is not None:
+            sorting_pipeline = [{'$sort': {sort_by: -1 if sort_desc else 1}}]
+            loudness_pipeline += sorting_pipeline
         loudness = paginate_from_mongodb_aggregation(col='loudness',
                                                      pipeline=loudness_pipeline,
                                                      page=page,
@@ -268,7 +303,9 @@ def get_data_of_resume(
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
-    page: Optional[int] = None
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
 ):
     """
     분석 데이터 조회 : Resume(Warm booting)
@@ -283,6 +320,9 @@ def get_data_of_resume(
                                             'scenario_id': scenario_id,
                                             'testrun_id': testrun_id}},
                                 {'$project': {'_id': 0, 'timestamp': 1, 'measure_time': 1, 'target': '$user_config.type'}}]
+        if sort_by is not None:
+            sorting_pipeline = [{'$sort': {sort_by: -1 if sort_desc else 1}}]
+            measurement_pipeline += sorting_pipeline
         measurement_resume = paginate_from_mongodb_aggregation(col='an_warm_boot',
                                                                pipeline=measurement_pipeline,
                                                                page=page,
@@ -301,7 +341,9 @@ def get_data_of_boot(
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
-    page: Optional[int] = None
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
 ):
     """
     분석 데이터 조회 : Boot(Cold booting)
@@ -316,6 +358,9 @@ def get_data_of_boot(
                                             'scenario_id': scenario_id,
                                             'testrun_id': testrun_id}},
                                 {'$project': {'_id': 0, 'timestamp': 1, 'measure_time': 1, 'target': '$user_config.type'}}]
+        if sort_by is not None:
+            sorting_pipeline = [{'$sort': {sort_by: -1 if sort_desc else 1}}]
+            measurement_pipeline += sorting_pipeline
         measurement_boot = paginate_from_mongodb_aggregation(col='an_cold_boot',
                                                              pipeline=measurement_pipeline,
                                                              page=page,
@@ -334,7 +379,9 @@ def get_data_of_log_pattern_matching(
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
-    page: Optional[int] = None
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
 ):
     """
     로그 패턴 매칭 데이터 조회
@@ -351,7 +398,9 @@ def get_data_of_log_pattern_matching(
                                          {'$project': {'_id': 0, 'log_level': 1, 'timestamp': 1, 'message': 1,
                                                        'regex': '$matched_target.regular_expression',
                                                        'color': '$matched_target.color', 'log_pattern_name': '$matched_target.name'}}]
-
+        if sort_by is not None:
+            sorting_pipeline = [{'$sort': {sort_by: -1 if sort_desc else 1}}]
+            log_pattern_matching_pipeline += sorting_pipeline
         log_pattern_matching = paginate_from_mongodb_aggregation(col='an_log_pattern',
                                                                  pipeline=log_pattern_matching_pipeline,
                                                                  page=page,
@@ -370,7 +419,9 @@ def get_data_of_process_lifecycle(
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
-    page: Optional[int] = None
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
 ):
     """
     프로세스 활동주기 데이터 조회
@@ -395,7 +446,9 @@ def get_data_of_network_filter(
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
-    page: Optional[int] = None
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
 ):
     """
     네트워크 필터 데이터 조회
