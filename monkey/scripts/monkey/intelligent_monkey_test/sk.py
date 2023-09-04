@@ -32,7 +32,10 @@ class IntelligentMonkeyTestSK:
         self.remocon_type = 'ir'
         self.depth_key = 'right'
         self.breadth_key = 'down'
-        self.root_keyset = ['home', 'left'] + ['up'] * 10
+        # root keyset 근거
+        # 1. 배터리 방전 화면 없애기 위해 home 두번 입력
+        # 2. 검증 대상 셋탑의 경우, up 4회지만 여유를 두고 5번 입력
+        self.root_keyset = ['home', 'home', 'left'] + ['up'] * 5
 
         # init variables
         self.key_histories = []
@@ -105,16 +108,19 @@ class IntelligentMonkeyTestSK:
         self.root_cursor = self.get_cursor()
         logger.info(f'root cursor: {self.root_cursor}')
 
-    def check_leftmenu_is_opened(self, prev_image: np.ndarray, prev_cursor: Tuple, image: np.ndarray, cursor: Tuple, max_height_diff: int=10) -> bool:
+    def check_leftmenu_is_opened(self, prev_image: np.ndarray, prev_cursor: Tuple, image: np.ndarray, cursor: Tuple, 
+                                 max_width_diff: int=10, max_height_diff: int=10) -> bool:
         if cursor is None:
             return False
         else:
+            width_diff = abs(cursor[2] - self.root_cursor[2])
             height_diff = abs(cursor[3] - self.root_cursor[3])
+            is_width_similar = width_diff < max_width_diff
             is_height_similar = height_diff < max_height_diff
 
             is_cursor_same = check_cursor_is_same(prev_image, prev_cursor, image, cursor)
             
-            return True if is_height_similar and not is_cursor_same else False
+            return True if is_width_similar and is_height_similar and not is_cursor_same else False
 
     def append_key(self, key: str):
         self.key_histories.append(key)
@@ -166,7 +172,7 @@ class IntelligentMonkeyTestSK:
     ##### Re-Defined Functions #####
     def exec_keys(self, keys: List[str]):
         if 'home' in keys:
-            key_interval = 5
+            key_interval = 3
         else:
             key_interval = self.key_interval
         exec_keys(keys, key_interval, self.profile, self.remocon_type)

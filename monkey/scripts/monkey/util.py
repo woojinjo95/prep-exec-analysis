@@ -33,6 +33,11 @@ def exec_keys(keys: List[str], *args, **kwargs):
     # time.sleep(3)
 
 
+def exec_keys_with_each_interval(key_and_intervals: List[Tuple[str, float]], company: str, type: str):
+    for key, interval in key_and_intervals:
+        exec_key(key, interval, company, type)
+
+
 def check_cursor_is_same(prev_image: np.ndarray, prev_cursor: Tuple, image: np.ndarray, cursor: Tuple, 
                         iou_thld: float=0.9, min_color_depth_diff: int=10, diff_thld: float=0.05) -> bool:
     # logger.info(f'cursor same check. prev_cursor: {prev_cursor}, cursor: {cursor}')
