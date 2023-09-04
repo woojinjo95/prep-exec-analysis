@@ -4,6 +4,8 @@ import shlex
 import subprocess
 import traceback
 
+from typing import Tuple
+
 logger = logging.getLogger('main')
 
 
@@ -47,7 +49,7 @@ def command_generator(command: str, max_count: int = None):
     return rc
 
 
-def get_pid(name):
+def get_pid(name: str) -> Tuple[str]:
     if os.name == 'posix':
         pids = get_output(f'pidof {name}').split()
     else:
@@ -55,15 +57,16 @@ def get_pid(name):
     return pids
 
 
-def get_pid_grep(name):
+def get_pid_grep(*names: str) -> Tuple[str]:
     if os.name == 'posix':
-        pids = get_output(f'ps -eaf | grep "{name}" | grep -v grep | awk' + ' ' + "'{print $2}'").split()
+        grep_cmd = " | grep ".join([f'"{name}"' for name in names])
+        pids = get_output(f'ps -eaf | grep {grep_cmd} | grep -v grep | awk \'{{print $2}}\'').split()
     else:
         pids = None
     return pids
 
 
-def kill_pid(name):
+def kill_pid(name: str):
     try:
         pids = get_pid(name)
         if pids is not None:
@@ -73,9 +76,9 @@ def kill_pid(name):
         print(str(e).encode())
 
 
-def kill_pid_grep(name):
+def kill_pid_grep(*names: str):
     try:
-        pids = get_pid_grep(name)
+        pids = get_pid_grep(*names)
         if pids is not None:
             for pid in pids:
                 os.kill(int(pid), 9)
