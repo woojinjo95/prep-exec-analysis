@@ -5,7 +5,7 @@ import { cursorDateTimeState } from '@global/atom'
 import { findNearIndex } from '../usecase'
 
 /**
- * 커서 드래그, 호버 툴팁 관련 hook
+ * 커서 드래그 관련 hook
  */
 export const useCursorEvent = ({
   scaleX,
@@ -67,7 +67,9 @@ export const useCursorEvent = ({
 }
 
 /**
- * 차트 데이터 중 tooltip으로 표현해야 할 데이터를 찾는 hook
+ * 툴팁 표현 관련 hook
+ *
+ * @return 툴팁 event handler, 툴팁에 표현할 데이터, 툴팁을 표시할 x좌표
  */
 export const useTooltipEvent = <T extends { datetime: number }>({
   scaleX,
