@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React from 'react'
 import { createPortal } from 'react-dom'
 import { createPortalStyle, formatDateTo } from '@global/usecase'
 import { Text } from '@global/ui'
@@ -7,7 +7,8 @@ type DefaultDataType = { datetime: number }
 
 interface TimelineTooltipProps<T extends DefaultDataType> {
   posX: number
-  data: T | null
+  data: T
+  wrapperRef: React.MutableRefObject<HTMLDivElement | null>
   children?: React.ReactNode | React.ReactNode[]
 }
 
@@ -15,35 +16,25 @@ interface TimelineTooltipProps<T extends DefaultDataType> {
  * 타임라인 차트의 툴팁 컴포넌트
  */
 const TimelineTooltip = <T extends DefaultDataType>({
-  posX,
   data,
   children,
+  wrapperRef,
 }: TimelineTooltipProps<T>): React.ReactElement => {
-  const wrapperRef = useRef<HTMLDivElement | null>(null)
-
-  return (
+  return createPortal(
     <div
-      ref={wrapperRef}
-      className="absolute top-0 h-full w-1 bg-white opacity-30"
-      style={{
-        transform: `translateX(${posX - 2}px)`,
-      }}
+      // FIXME: 툴팁 내에서 스크롤 가능하도록
+      className="fixed bg-light-black border border-charcoal rounded-lg p-4 grid grid-cols-1 gap-y-2 shadow-lg shadow-black z-10"
+      style={createPortalStyle({ wrapperRef, spaceY: 8 })}
     >
-      {!!data &&
-        createPortal(
-          <div
-            className="fixed bg-light-black border border-charcoal rounded-lg p-4 grid grid-cols-1 gap-y-2 shadow-lg shadow-black z-10"
-            style={createPortalStyle({ wrapperRef, spaceY: 8 })}
-          >
-            <Text colorScheme="light" weight="medium">
-              {formatDateTo('YYYY-MM-DD HH:MM:SS:MS', new Date(data.datetime))}
-            </Text>
+      <Text colorScheme="light" weight="medium">
+        {formatDateTo('YYYY-MM-DD HH:MM:SS:MS', new Date(data.datetime))}
+      </Text>
 
-            {children}
-          </div>,
-          document.body,
-        )}
-    </div>
+      <table className="border-t border-l border-charcoal">
+        <tbody>{children}</tbody>
+      </table>
+    </div>,
+    document.body,
   )
 }
 

@@ -138,6 +138,8 @@ export const createPortalStyle = ({
   const dimensions = wrapperRef.current.getBoundingClientRect()
 
   styles.left = dimensions.left + spaceX
+  styles.marginRight = 16
+  // TODO: 오른쪽이 기준일 경우 -> marginLeft
   if (dimensions.top < window.innerHeight / 2) {
     styles.top = dimensions.top + dimensions.height + spaceY
   } else {
