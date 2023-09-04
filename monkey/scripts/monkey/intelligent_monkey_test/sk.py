@@ -28,7 +28,7 @@ class IntelligentMonkeyTestSK:
 
         # init constant
         self.analysis_type = 'intelligent_monkey'
-        self.profile = 'sk'
+        self.profile = 'skb'
         self.remocon_type = 'ir'
         self.depth_key = 'right'
         self.breadth_key = 'down'
