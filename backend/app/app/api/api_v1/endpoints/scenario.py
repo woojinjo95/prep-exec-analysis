@@ -122,7 +122,7 @@ def read_scenarios(
                                   'name': '$name',
                                   'tags': '$tags',
                                   'updated_at': '$updated_at',
-                                  'testrun_count': {'$size': '$testruns'},
+                                  'testrun_count': {'$size': '$testruns'}, # TODO 활성된 testrun만
                                   'has_block': {'$cond': {'if': {'$eq': [{'$size': '$block_group'}, 0]},
                                                           'then': False,
                                                           'else': True}}}}]
