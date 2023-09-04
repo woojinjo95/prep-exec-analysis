@@ -53,9 +53,8 @@ class Monkey:
         self.start_smart_sense()
 
         while not self.main_stop_event.is_set() and time.time() - start_time < self.duration:
-            self.press_random_key()
-
             self.check_banned_image()
+            self.press_random_key()
 
             if self.enable_smart_sense:
                 if self.smart_sense_detected:
