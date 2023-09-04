@@ -3,6 +3,7 @@ import traceback
 
 from scripts.util.decorator import log_decorator
 from scripts.monkey.intelligent_monkey_test.roku import IntelligentMonkeyTestRoku
+from scripts.monkey.intelligent_monkey_test.sk import IntelligentMonkeyTestSK
 from scripts.monkey.monkey_test.default import MonkeyTest
 from scripts.monkey.format import MonkeyArgs, RemoconInfo
 from scripts.connection.redis_pubsub import publish_msg
@@ -37,7 +38,15 @@ def test_monkey():
                 imt.run()
 
             elif profile == 'skb':
-                pass
+                imt = IntelligentMonkeyTestSK(
+                    key_interval=arguments['interval'],
+                    monkey_args=MonkeyArgs(
+                        duration=arguments['duration_per_menu'],
+                        enable_smart_sense=arguments['enable_smart_sense'],
+                        waiting_time=arguments['waiting_time']
+                    ),
+                )
+                imt.run()
 
             else:
                 raise NotImplementedError(f"invalid profile: {profile}")
