@@ -56,8 +56,9 @@ const ActionPage: React.FC = () => {
   })
 
   useEffect(() => {
-    if (!scenarioId || scenario) {
+    if (!scenarioId && !scenario) {
       navigate('/', { replace: true })
+      return
     }
 
     sendMessage({ level: 'info', msg: 'action_mode' })
