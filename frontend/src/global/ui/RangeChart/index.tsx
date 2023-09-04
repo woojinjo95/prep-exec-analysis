@@ -26,14 +26,14 @@ const RangeChart: React.FC<RangeChartProps> = ({ data, scaleX, color }) => {
       </div>
 
       <div>
-        {data.map(({ date, duration }, index) => {
+        {data.map(({ datetime, duration }, index) => {
           return (
             <div
-              key={`point-chart-${date.toISOString()}-${index}`}
+              key={`point-chart-${datetime}-${index}`}
               className="h-full absolute top-0"
               style={{
-                transform: `translateX(${scaleX(date) - 1}px)`,
-                width: Math.max(scaleX(new Date(date.getTime() + duration)) - scaleX(date), 2),
+                transform: `translateX(${scaleX(new Date(datetime)) - 1}px)`,
+                width: Math.max(scaleX(new Date(datetime + duration)) - scaleX(new Date(datetime)), 2),
                 backgroundColor: color,
               }}
             />

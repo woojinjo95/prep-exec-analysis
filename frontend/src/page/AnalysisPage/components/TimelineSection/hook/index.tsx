@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useRecoilState } from 'recoil'
 import * as d3 from 'd3'
 import { cursorDateTimeState } from '@global/atom'
+import { DefaultChartDataType } from '@global/types'
 import { findNearIndex } from '../usecase'
 
 /**
@@ -68,7 +69,7 @@ export const useCursorEvent = ({
  *
  * @return 툴팁 event handler, 툴팁에 표현할 데이터, 툴팁을 표시할 x좌표
  */
-export const useTooltipEvent = <T extends { datetime: number }>({
+export const useTooltipEvent = <T extends DefaultChartDataType>({
   scaleX,
   offsetLeft,
   width,
@@ -91,7 +92,17 @@ export const useTooltipEvent = <T extends { datetime: number }>({
         const findedData = data[nearIndex]
 
         // 가장 가까운 데이터가 마우스 기준 4px 이상 떨어져 있다면 -> 데이터를 표시하지 않음
-        if (Math.abs(scaleX(new Date(findedData.datetime)) - posX) > 4) {
+        if (findedData.duration === undefined && Math.abs(scaleX(new Date(findedData.datetime)) - posX) > 4) {
+          setTooltipData(null)
+          return
+        }
+
+        // 지속시간이 있는(duration) 데이터이고 마우스가 지속시간 양옆으로 4px 이상 떨어져 있다면 -> 데이터를 표시하지 않음
+        if (
+          findedData.duration !== undefined &&
+          (posX + 4 < scaleX(new Date(findedData.datetime)) ||
+            scaleX(new Date(findedData.datetime + findedData.duration)) + 4 < posX)
+        ) {
           setTooltipData(null)
           return
         }
