@@ -71,6 +71,18 @@ export interface HardwareConfiguration {
 }
 
 /**
+ * Block type
+ */
+type BlockType =
+  | 'remocon_transmit'
+  | 'on_off_control'
+  | 'shell'
+  | 'packet_control'
+  | 'packet_block'
+  | 'monkey_test'
+  | 'intelligent_monkey_test'
+
+/**
  * 서비스 상태
  *
  * `idle` 대기 (녹화 및 로그수집 X, 스트리밍 X)
@@ -84,8 +96,8 @@ export interface HardwareConfiguration {
 export type ServiceState = 'idle' | 'streaming' | 'playblock' | 'analysis'
 
 export interface Block {
-  type: string
-  args: { key: string; value: string | number }[]
+  type: BlockType
+  args: { key: string; value: string | number | boolean }[]
   name: string
   delay_time: number
   id: string

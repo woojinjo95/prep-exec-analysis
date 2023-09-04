@@ -35,6 +35,8 @@ def read_log_connection_status() -> schemas.LogConnectionStatus:
 
 
 # @router.post("/export_result")
+
+
 async def export_result(
     export_in: schemas.ExportResult,
 ):
@@ -136,7 +138,7 @@ async def import_result(file: UploadFile = File(...)) -> schemas.Msg:
 
 
 @router.post("/validate_regex", response_model=schemas.RegexResult)
-async def validate_regex(
+def validate_regex(
     *,
     regex_str: schemas.Regex,
 ) -> schemas.RegexResult:

@@ -240,6 +240,7 @@ const ActionBlockArea = (): JSX.Element => {
 
   // 드래그 중일 때
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.preventDefault()
     if (dragSelection) {
       const x = event.clientX
       const y = event.clientY
@@ -402,6 +403,12 @@ const ActionBlockArea = (): JSX.Element => {
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onMouseMove={handleMouseMove}
+        onPointerMove={(e) => {
+          e.preventDefault()
+        }}
+        onPointerLeave={(e) => {
+          e.preventDefault()
+        }}
         style={{
           backgroundImage: `url(${BackgroundImage})`,
           backgroundSize: '100%',

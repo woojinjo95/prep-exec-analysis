@@ -12,3 +12,5 @@ class RedisChannel:
 
 
 BASE_TESTRUN_RAW_DIR = "/app/workspace/testruns/{}/raw/monkey/section/images"
+
+BANNED_IMAGE_DIR = '/app/static/banned_images'

@@ -6,11 +6,17 @@ from dataclasses import dataclass
 class FrameInfo:
     def __init__(self, image: np.ndarray, cursor: Tuple[int, int, int, int]):
         self.image = image
-        self.cursor = cursor
+        self.cursor = cursor  # x,y,w,h
 
 
 @dataclass
 class MonkeyArgs:
-    duration_per_menu: float
+    duration: float
     enable_smart_sense: bool
     waiting_time: float
+
+
+@dataclass
+class RemoconInfo:
+    remocon_name: str
+    remote_control_type: str

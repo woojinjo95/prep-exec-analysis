@@ -27,7 +27,7 @@ const AnalysisPage: React.FC = () => {
   // 서비스 진입 시 선택된 시나리오 id가 없을 경우 -> 시나리오 선택 페이지로 이동
   // FIXME: testRunId가 없을때는 ..?
   useEffect(() => {
-    if (!scenarioId) {
+    if (!scenarioId || !testRunId) {
       navigate('/', { replace: true })
     }
   }, [])

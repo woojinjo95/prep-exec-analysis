@@ -35,3 +35,4 @@ export interface ShellMessage {
   mode: 'adb' | 'ssh'
   data: { timestamp: string; module: 'stdin' | 'stdout' | 'stderr'; message: string }
 }
+
