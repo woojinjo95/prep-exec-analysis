@@ -6,20 +6,18 @@ import React, { useCallback, useState } from 'react'
 const SCROLL_BAR_HEIGHT = 12
 
 interface HorizontalScrollBarProps {
-  chartWidth: number | null
-  chartOffsetLeft: number | null
   scrollBarTwoPosX: [number, number] | null
   setScrollBarTwoPosX: React.Dispatch<React.SetStateAction<[number, number] | null>>
+  dimension: { left: number; width: number } | null
 }
 
 /**
  * 타임라인 차트 가로 스크롤바
  */
 const HorizontalScrollBar: React.FC<HorizontalScrollBarProps> = ({
-  chartWidth,
-  chartOffsetLeft,
   scrollBarTwoPosX,
   setScrollBarTwoPosX,
+  dimension,
 }) => {
   const [isDragging, setIsDragging] = useState<boolean>(false)
 
@@ -33,7 +31,7 @@ const HorizontalScrollBar: React.FC<HorizontalScrollBarProps> = ({
     setIsDragging(false)
   }, [])
 
-  if (chartWidth === null || scrollBarTwoPosX === null) return <div style={{ height: SCROLL_BAR_HEIGHT }} />
+  if (dimension === null || scrollBarTwoPosX === null) return <div style={{ height: SCROLL_BAR_HEIGHT }} />
 
   return (
     <div className="text-white">
@@ -44,7 +42,7 @@ const HorizontalScrollBar: React.FC<HorizontalScrollBarProps> = ({
           width: `${scrollBarTwoPosX[1] - scrollBarTwoPosX[0]}px`,
           minWidth: SCROLL_BAR_HEIGHT,
           height: SCROLL_BAR_HEIGHT,
-          maxWidth: `${chartWidth}px`,
+          maxWidth: `${dimension.width}px`,
           transform: `translateX(${scrollBarTwoPosX[0]}px)`,
         }}
         onPointerDown={onPointerDownHandler}
@@ -57,8 +55,8 @@ const HorizontalScrollBar: React.FC<HorizontalScrollBarProps> = ({
             setScrollBarTwoPosX([0, scrollBarTwoPosX[1] - scrollBarTwoPosX[0]])
             return
           }
-          if (scrollBarTwoPosX[1] + e.movementX > chartWidth) {
-            setScrollBarTwoPosX([scrollBarTwoPosX[0] + (chartWidth - scrollBarTwoPosX[1]), chartWidth])
+          if (scrollBarTwoPosX[1] + e.movementX > dimension.width) {
+            setScrollBarTwoPosX([scrollBarTwoPosX[0] + (dimension.width - scrollBarTwoPosX[1]), dimension.width])
             return
           }
 
@@ -78,11 +76,11 @@ const HorizontalScrollBar: React.FC<HorizontalScrollBarProps> = ({
           onPointerMove={(e) => {
             e.preventDefault()
             e.stopPropagation()
-            if (!isDragging || !chartOffsetLeft) return
+            if (!isDragging || !dimension.left) return
 
             setScrollBarTwoPosX([
               Math.min(
-                Math.max(0, e.clientX - chartOffsetLeft - SCROLL_BAR_HEIGHT / 2),
+                Math.max(0, e.clientX - dimension.left - SCROLL_BAR_HEIGHT / 2),
                 scrollBarTwoPosX[1] - SCROLL_BAR_HEIGHT,
               ),
               scrollBarTwoPosX[1],
@@ -103,13 +101,13 @@ const HorizontalScrollBar: React.FC<HorizontalScrollBarProps> = ({
           onPointerMove={(e) => {
             e.preventDefault()
             e.stopPropagation()
-            if (!isDragging || !chartOffsetLeft) return
+            if (!isDragging || !dimension.left) return
 
             setScrollBarTwoPosX([
               scrollBarTwoPosX[0],
               Math.max(
                 scrollBarTwoPosX[0] + SCROLL_BAR_HEIGHT,
-                Math.min(chartWidth, e.clientX - chartOffsetLeft + SCROLL_BAR_HEIGHT / 2),
+                Math.min(dimension.width, e.clientX - dimension.left + SCROLL_BAR_HEIGHT / 2),
               ),
             ])
           }}

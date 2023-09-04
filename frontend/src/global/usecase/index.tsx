@@ -114,3 +114,37 @@ export const changeMinSecMsToMs = (m: number, s: number, ms: number) => {
 export const numberWithCommas = (x: number): string => {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 }
+
+/**
+ * Portal 엘리먼트의 기본적인 스타일을 생성하는 함수
+ *
+ * @param wrapperRef createPortal을 사용하는 엘리먼트의 상위 엘리먼트
+ * @param spaceX 상위 엘리먼트와 createPortal로 생성된 엘리먼트 사이의 가로 간격
+ * @param spaceY 상위 엘리먼트와 createPortal로 생성된 엘리먼트 사이의 세로 간격
+ * @returns createPortal 엘리먼트의 style
+ */
+export const createPortalStyle = ({
+  wrapperRef,
+  spaceX = 0,
+  spaceY = 4,
+}: {
+  wrapperRef: React.MutableRefObject<HTMLDivElement | null>
+  spaceX?: number
+  spaceY?: number
+}) => {
+  if (!wrapperRef.current) return {}
+
+  const styles: React.CSSProperties = {}
+  const dimensions = wrapperRef.current.getBoundingClientRect()
+
+  styles.left = dimensions.left + spaceX
+  styles.marginRight = 16
+  // TODO: 오른쪽이 기준일 경우 -> marginLeft
+  if (dimensions.top < window.innerHeight / 2) {
+    styles.top = dimensions.top + dimensions.height + spaceY
+  } else {
+    styles.bottom = window.innerHeight - dimensions.top + spaceY
+  }
+
+  return styles
+}
