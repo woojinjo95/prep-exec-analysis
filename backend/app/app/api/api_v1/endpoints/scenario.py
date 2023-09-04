@@ -187,6 +187,7 @@ def create_scenario(
                                                     'tags': scenario_in.tags,
                                                     'block_group': block_group_data,
                                                     'testruns': [{'id': testrun_id,
+                                                                  'is_active': True,
                                                                   'raw': {'videos': []},
                                                                   'analysis': {}}]})
 
