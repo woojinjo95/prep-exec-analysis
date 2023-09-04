@@ -51,19 +51,17 @@ const ActionPage: React.FC = () => {
 
   const { sendMessage } = useWebsocket()
 
-  useEffect(() => {
-    if (!scenarioId) {
-      navigate('/', { replace: true })
-    }
-  }, [])
-
-  useScenarioById({
-    onSuccess: () => {
-      // scenario를 성공적으로 받아왔으면
-      sendMessage({ level: 'info', msg: 'action_mode' })
-    },
+  const { scenario } = useScenarioById({
     scenarioId,
   })
+
+  useEffect(() => {
+    if (!scenarioId || scenario) {
+      navigate('/', { replace: true })
+    }
+
+    sendMessage({ level: 'info', msg: 'action_mode' })
+  }, [])
 
   return (
     <PageContainer
