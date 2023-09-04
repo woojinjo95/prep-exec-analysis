@@ -73,5 +73,5 @@ def test_monkey():
     except Exception as err:
         error_detail = traceback.format_exc()
         publish_msg({'log': error_detail}, 'monkey_response', level='error')
-        logger.error(f"error in test_color_reference: {err}")
+        logger.error(f"error in test_monkey: {err}")
         logger.warning(error_detail)
