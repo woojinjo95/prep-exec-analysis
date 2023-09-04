@@ -19,7 +19,6 @@ export const useCursorEvent = ({
   const [isCursorDragging, setIsCursorDragging] = useState<boolean>(false)
   const [cursorPosX, setCursorPosX] = useState<number>(0)
   const [cursorDateTime, setCursorDateTime] = useRecoilState(cursorDateTimeState)
-  const [tooltipPosX, setTooltipPosX] = useState<number | null>(null)
 
   const cursorTranslateX = useMemo(() => {
     if (!scaleX || !cursorDateTime) return 0
@@ -33,7 +32,6 @@ export const useCursorEvent = ({
       e.currentTarget.setPointerCapture(e.pointerId)
       setIsCursorDragging(true)
       setCursorPosX(Math.min(width, Math.max(0, e.clientX - offsetLeft)))
-      setTooltipPosX(null)
     },
     [width, offsetLeft],
   )
@@ -62,7 +60,6 @@ export const useCursorEvent = ({
     onCursorPointerMove,
     onCursorPointerUp,
     cursorTranslateX,
-    tooltipPosX,
   }
 }
 
@@ -106,6 +103,7 @@ export const useTooltipEvent = <T extends { datetime: number }>({
 
   const onMouseLeave: React.MouseEventHandler<HTMLDivElement> = useCallback(() => {
     setPosX(null)
+    setTooltipData(null)
   }, [])
 
   return {
