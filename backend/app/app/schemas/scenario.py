@@ -77,3 +77,19 @@ class ScenarioTag(BaseModel):
 
 class ScenarioTagUpdate(BaseModel):
     tag: str
+
+
+class TestrunBase(BaseModel):
+    id: str
+    analysis_targets: List[str]
+    last_updated: Optional[str]
+
+    @root_validator(pre=True)
+    def convert_timestamp_with_timezone(cls, values):
+        if "last_updated" in values:
+            values["last_updated"] = parse_datetime(values["last_updated"]).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        return values
+
+
+class Testrun(BaseModel):
+    items: List[TestrunBase]
