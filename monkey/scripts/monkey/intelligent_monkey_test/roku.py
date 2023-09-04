@@ -141,13 +141,8 @@ class IntelligentMonkeyTestRoku:
             cursor = self.get_cursor(image)
         return get_cropped_image(image, cursor)
 
-    def start_monkey(self, current_node_keyset: List[str]):
+    def start_monkey(self, current_node_keyset: List[str], cursor_image: np.ndarray):
         start_time = time.time()
-
-        # go to root_keyset of section and get snapshot
-        self.exec_keys(current_node_keyset + ['left'])
-        image = get_current_image()
-        cursor_image = get_cropped_image(image, self.get_cursor(image))
 
         monkey = Monkey(
             duration=self.monkey_args.duration,
