@@ -1,4 +1,3 @@
-// import { Remocon } from '@page/ActionPage/components/RemoconSection/api/entity'
 import { atom } from 'recoil'
 
 /**
