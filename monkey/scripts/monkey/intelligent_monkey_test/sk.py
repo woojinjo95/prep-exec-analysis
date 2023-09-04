@@ -32,6 +32,7 @@ class IntelligentMonkeyTestSK:
         self.remocon_type = 'ir'
         self.depth_key = 'right'
         self.breadth_key = 'down'
+        self.root_keyset = ['home', 'left'] + ['up'] * 10
 
         # init variables
         self.key_histories = []
@@ -41,9 +42,9 @@ class IntelligentMonkeyTestSK:
     ##### Entry Point #####
     def run(self):
         logger.info('start intelligent monkey test. mode: SK.')
-        self.set_root_keyset(external_keys=['home'])
+        self.set_root_keyset(self.root_keyset)
         if not self.root_cursor:
-            self.set_root_keyset(external_keys=['home'])  # try one more
+            self.set_root_keyset(self.root_keyset)  # try one more
 
         self.visit()
         logger.info('stop intelligent monkey test. mode: SK.')
@@ -96,8 +97,8 @@ class IntelligentMonkeyTestSK:
             image = get_current_image()
         return get_cursor_xywh(image)
 
-    def set_root_keyset(self, external_keys: List[str] = []):
-        self.key_histories = external_keys
+    def set_root_keyset(self, keys: List[str] = []):
+        self.key_histories = keys
         logger.info(f'root keyset: {self.key_histories}')
 
         self.exec_keys(self.key_histories)
@@ -164,7 +165,11 @@ class IntelligentMonkeyTestSK:
 
     ##### Re-Defined Functions #####
     def exec_keys(self, keys: List[str]):
-        exec_keys(keys, self.key_interval, self.profile, self.remocon_type)
+        if 'home' in keys:
+            key_interval = 5
+        else:
+            key_interval = self.key_interval
+        exec_keys(keys, key_interval, self.profile, self.remocon_type)
 
     def head_to_next(self):
         self.key_histories = head_to_next(self.key_histories, self.depth_key, self.breadth_key)
