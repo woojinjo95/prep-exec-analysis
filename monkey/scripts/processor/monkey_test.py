@@ -65,6 +65,7 @@ def test_monkey():
                 )
             )
             mt.run()
+            
         else:
             raise NotImplementedError(f"invalid analysis_type: {analysis_type}")
 
