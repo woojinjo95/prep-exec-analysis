@@ -189,9 +189,9 @@ const AddIntelligentMonkeyTestBlockModal: React.FC<AddIntelligentMonkeyTestBlock
               }}
             />
           </div>
-          <div className="flex w-full mt-2 items-center h-[50px] opacity-40">
+          <div className="flex w-full mt-2 items-center h-[50px] ">
             <div className="w-[180px]">
-              <Text className="bg-transparent">Waiting Time</Text>
+              <Text className="bg-transparent opacity-40">Waiting Time</Text>
             </div>
             <div className="flex">
               <Input

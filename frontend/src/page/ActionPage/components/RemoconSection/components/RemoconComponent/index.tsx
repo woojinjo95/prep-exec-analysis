@@ -23,6 +23,13 @@ interface RemoconProps {
   keyEvent: KeyEvent | null
 }
 
+type RemoconResponseMessageDataBody = {
+  key: string
+  type: 'ir' | 'bt'
+  press_time: number
+  sensor_time: number
+}
+
 const RemoconComponent: React.FC<RemoconProps> = ({ remocon, keyEvent }) => {
   const remoconRef = useRef<HTMLImageElement | null>(null)
   const [isLoadedRemoconImage, setIsLoadedRemoconImage] = useState<boolean>(false)
@@ -30,8 +37,19 @@ const RemoconComponent: React.FC<RemoconProps> = ({ remocon, keyEvent }) => {
   const [isRendered, setIsRendered] = useState<boolean>(false)
 
   const { hardwareConfiguration } = useHardwareConfiguration()
+  const [clickedCustomKeyMessage, setClickedCustomKeyMessage] = useState<CustomKeyTransmit | null>(null)
 
-  const { sendMessage } = useWebsocket()
+  const { sendMessage } = useWebsocket<RemoconResponseMessageDataBody>({
+    onMessage: (message) => {
+      if (!clickedCustomKeyMessage) return
+      if (message.msg === 'remocon_response' && message.level === 'info') {
+        // 커스텀 키 조합의 맨 마지막 신호가 왔다면
+        if (message.data.key === clickedCustomKeyMessage.data[clickedCustomKeyMessage.data.length - 1].key) {
+          remoconService.customKeyClick(clickedCustomKeyMessage)
+        }
+      }
+    },
+  })
 
   const dropdownMenu = useMemo(() => {
     return ['Add', 'Modify', 'Delete']
@@ -104,7 +122,7 @@ const RemoconComponent: React.FC<RemoconProps> = ({ remocon, keyEvent }) => {
                           }
                         }),
                       }
-                      remoconService.customKeyClick(message)
+                      setClickedCustomKeyMessage(message)
 
                       custom_key.custom_code.forEach((code) => {
                         const message: RemoconTransmit = {
