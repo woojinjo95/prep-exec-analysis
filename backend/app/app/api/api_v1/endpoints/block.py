@@ -8,6 +8,7 @@ from app.api.utility import get_utc_datetime
 from app.crud.base import (delete_part_to_mongodb, get_mongodb_collection,
                            load_by_id_from_mongodb, load_from_mongodb,
                            update_by_id_to_mongodb, update_to_mongodb)
+from app.db.redis_session import RedisClient
 from fastapi import APIRouter, HTTPException
 from fastapi.encoders import jsonable_encoder
 
@@ -192,3 +193,11 @@ def update_block_group(
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Update a block_group', 'id': block_group_id}
+
+
+@router.get("/run_block", response_model=schemas.RunBlock)
+def read_run_block() -> schemas.RunBlock:
+    """
+    Retrieve run block id.
+    """
+    return {'items': {'id': RedisClient.hget('testrun', 'run_block')}}
