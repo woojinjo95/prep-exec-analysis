@@ -1,7 +1,7 @@
 # 이미지 처리와 관련된 일반 함수 (응용 함수를 여기서 정의하지 말 것.)
 
 import logging
-from typing import List
+from typing import List, Tuple
 
 import cv2
 import numpy as np
@@ -154,17 +154,13 @@ def calc_image_colorfulness(image: np.ndarray) -> float:
     return stdRoot + (0.3 * meanRoot)
 
 
-def get_cursor_xywh(image: np.ndarray, cursor_type: str = 'universal') -> dict:
+def get_cursor_xywh(image: np.ndarray, cursor_type: str = 'universal') -> Tuple[int, int, int, int]:
     detector = CursorDetector(cursor_type)
     cursor_info = detector.get_cursor(image)
     if cursor_info is None:
-        x, y, w, h = 0, 0, 0, 0
+        return None
     else:
-        x, y, w, h = cursor_info
-
-    cursor = {'x': x, 'y': y, 'w': w, 'h': h}
-
-    return cursor
+        return cursor_info
 
 
 def calc_color_entropy(image: np.ndarray) -> float:
@@ -207,7 +203,7 @@ def calc_iou(box1, box2):
     return iou
 
 
-def find_roku_cursor(image: np.ndarray, min_width: int=10):
+def find_roku_cursor(image: np.ndarray, min_width: int=10) -> Tuple[int, int, int, int]:
     def is_rectangle(contour):
         epsilon = 0.02 * cv2.arcLength(contour, True)
         approx = cv2.approxPolyDP(contour, epsilon, True)
