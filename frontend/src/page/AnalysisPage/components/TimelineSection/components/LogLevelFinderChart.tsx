@@ -19,7 +19,7 @@ const LogLevelFinderChart: React.FC<LogLevelFinderChartProps> = ({ scaleX, start
 
   const logLevelFinderData = useMemo(() => {
     if (!logLevelFinders) return null
-    return logLevelFinders.map(({ timestamp }) => new Date(timestamp))
+    return logLevelFinders.map(({ timestamp }) => ({ datetime: new Date(timestamp).getTime() }))
   }, [logLevelFinders])
 
   if (!logLevelFinderData) return <div />

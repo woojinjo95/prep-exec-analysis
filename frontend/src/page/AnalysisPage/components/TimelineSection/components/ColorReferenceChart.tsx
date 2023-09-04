@@ -4,15 +4,15 @@ import { useColorReferences } from '../api/hook'
 
 interface ColorReferenceChartProps {
   scaleX: Parameters<typeof AreaChart>[0]['scaleX']
-  chartWidth: Parameters<typeof AreaChart>[0]['chartWidth']
   startTime: Date
   endTime: Date
+  dimension: { left: number; width: number } | null
 }
 
 /**
  * Color Reference 차트
  */
-const ColorReferenceChart: React.FC<ColorReferenceChartProps> = ({ scaleX, chartWidth, startTime, endTime }) => {
+const ColorReferenceChart: React.FC<ColorReferenceChartProps> = ({ scaleX, startTime, endTime, dimension }) => {
   const { colorReferences } = useColorReferences({
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
@@ -27,7 +27,7 @@ const ColorReferenceChart: React.FC<ColorReferenceChartProps> = ({ scaleX, chart
   }, [colorReferences])
 
   if (!colorReferenceData) return <div />
-  return <AreaChart chartWidth={chartWidth} scaleX={scaleX} data={colorReferenceData} minValue={0} maxValue={8} />
+  return <AreaChart chartWidth={dimension?.width} scaleX={scaleX} data={colorReferenceData} minValue={0} maxValue={8} />
 }
 
 export default React.memo(ColorReferenceChart)
