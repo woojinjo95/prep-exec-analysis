@@ -78,7 +78,7 @@ const AddIntelligentMonkeyTestBlockModal: React.FC<AddIntelligentMonkeyTestBlock
       close={() => {
         close()
       }}
-      title="Monkey Test Block Option"
+      title="Intelligent Monkey Test Block Option"
     >
       <div className="flex flex-col w-[580px] justify-between">
         <div className="flex flex-col">
