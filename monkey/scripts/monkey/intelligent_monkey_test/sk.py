@@ -10,7 +10,7 @@ from scripts.analysis.image import get_cursor_xywh, get_cropped_image
 from scripts.external.report import report_data
 from scripts.monkey.format import FrameInfo, MonkeyArgs
 from scripts.monkey.monkey import Monkey
-from scripts.monkey.util import (check_cursor_is_same, exec_keys,
+from scripts.monkey.util import (check_cursor_is_same, exec_keys_with_each_interval,
                                  get_current_image, head_to_next,
                                  optimize_path)
 from scripts.util._timezone import get_utc_datetime
@@ -171,11 +171,8 @@ class IntelligentMonkeyTestSK:
 
     ##### Re-Defined Functions #####
     def exec_keys(self, keys: List[str]):
-        if 'home' in keys:
-            key_interval = 3
-        else:
-            key_interval = self.key_interval
-        exec_keys(keys, key_interval, self.profile, self.remocon_type)
+        key_and_intervals = [(key, self.key_interval) if key != 'home' else (key, 3) for key in keys]
+        exec_keys_with_each_interval(key_and_intervals, self.profile, self.remocon_type)
 
     def head_to_next(self):
         self.key_histories = head_to_next(self.key_histories, self.depth_key, self.breadth_key)
