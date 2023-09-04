@@ -73,8 +73,7 @@ const VideoSnapshotsCursor: React.FC<VideoSnapshotsCursorProps> = ({
           <CursorIcon
             className="absolute w-3 h-3 fill-primary -top-3 -left-1.5"
             style={{
-              // posX가 마이너스인 이유: rotate때문에 반대로 동작함
-              transform: `rotate(180deg) translateX(${-posX}px)`,
+              transform: `translateX(${posX}px)`,
             }}
           />
           <div

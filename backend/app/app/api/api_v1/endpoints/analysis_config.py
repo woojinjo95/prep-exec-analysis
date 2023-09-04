@@ -1,18 +1,13 @@
 import json
 import logging
-import os
 import traceback
-from uuid import uuid4
 
 from app import schemas
 from app.api.utility import parse_bytes_to_value
-from app.core.config import settings
-from app.crud.base import insert_one_to_mongodb, load_from_mongodb
 from app.db.redis_session import RedisClient
 from app.schemas.enum import AnalysisTypeEnum
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, HTTPException
 from fastapi.encoders import jsonable_encoder
-from fastapi.responses import FileResponse
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -72,17 +67,3 @@ def delete_analysis_config(
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': f'Delete {analysis_type} analysis_config'}
-
-
-@router.get('/frame/{frame_image_name}', response_class=FileResponse)
-async def download_frame(
-    frame_image_name: str
-) -> FileResponse:
-    """
-    Download frame.
-    """
-    workspace_path = f"{RedisClient.hget('testrun','workspace_path')}/{RedisClient.hget('testrun','id')}/raw/frames"
-    file_dir = os.path.join(workspace_path, frame_image_name)
-    if not os.path.isfile(path=file_dir):
-        raise HTTPException(status_code=400, detail="No file")
-    return FileResponse(path=file_dir, filename=frame_image_name)

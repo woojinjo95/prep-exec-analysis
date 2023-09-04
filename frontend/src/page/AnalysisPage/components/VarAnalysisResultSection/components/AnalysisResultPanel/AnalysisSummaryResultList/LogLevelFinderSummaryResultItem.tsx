@@ -1,13 +1,19 @@
 import React from 'react'
 import { Accordion, Text } from '@global/ui'
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
-import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
+// import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
+import { numberWithCommas } from '@global/usecase'
 import { AnalysisTypeLabel } from '../../../constant'
+import { AnalysisResultSummary } from '../../../api/entity'
+
+interface LogLevelFinderSummaryResultItemProps {
+  results: NonNullable<AnalysisResultSummary['log_level_finder']>
+}
 
 /**
  * log level finder 분석결과 요약 아이템
  */
-const LogLevelFinderSummaryResultItem: React.FC = () => {
+const LogLevelFinderSummaryResultItem: React.FC<LogLevelFinderSummaryResultItemProps> = ({ results }) => {
   return (
     <Accordion
       header={
@@ -25,7 +31,7 @@ const LogLevelFinderSummaryResultItem: React.FC = () => {
             </Text>
           </div>
 
-          <Text weight="medium">times</Text>
+          <Text weight="medium">{numberWithCommas(results.reduce((acc, curr) => acc + curr.total, 0))} times</Text>
         </div>
       }
     >
@@ -39,22 +45,17 @@ const LogLevelFinderSummaryResultItem: React.FC = () => {
         </Text>
         <div />
 
-        {/* TODO: items */}
-        <Text size="sm">Logcat F</Text>
-        <Text size="sm" className="text-right">
-          2
-        </Text>
-        <button type="button">
-          <ShowEyeIcon className="w-5" />
-        </button>
-
-        <Text size="sm">Logcat E</Text>
-        <Text size="sm" className="text-right">
-          2
-        </Text>
-        <button type="button">
-          <HiddenEyeIcon className="w-5" />
-        </button>
+        {results.map(({ total, target }, index) => (
+          <React.Fragment key={`log-level-finder-summary-result-${index}`}>
+            <Text size="sm">Logcat {target}</Text>
+            <Text size="sm" className="text-right">
+              {numberWithCommas(total)}
+            </Text>
+            <button type="button">
+              <ShowEyeIcon className="w-5" />
+            </button>
+          </React.Fragment>
+        ))}
       </div>
     </Accordion>
   )

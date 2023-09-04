@@ -108,3 +108,16 @@ export interface Scenario {
  * 로그 연결여부
  */
 export type LogConnectionStatus = 'log_disconnected' | 'log_connected'
+
+/**
+ * 비디오 정보
+ *
+ * @param start_time 비디오 시작시간(테스트런 시작시간)
+ * @param end_time 비디오 종료시간(테스트런 종료시간)
+ * @param path 비디오 저장경로
+ */
+export interface VideoSummary {
+  start_time: string
+  end_time: string
+  path: string
+}

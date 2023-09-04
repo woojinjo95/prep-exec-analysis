@@ -1,5 +1,5 @@
 import { IPLimitProtocol } from '@global/api/entity'
-import { AnalysisType } from '@global/constant'
+import { AnalyzableTypes } from '@global/constant'
 
 /**
  * 블럭 재생 시작 publish 메시지
@@ -138,7 +138,8 @@ interface CommandMessage {
 interface AnalysisMessage {
   msg: 'analysis'
   data: {
-    measurement: (keyof typeof AnalysisType)[]
+    // 분석 모듈이 수신가능한 분석유형
+    measurement: (typeof AnalyzableTypes)[number][]
   }
 }
 

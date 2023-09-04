@@ -4,7 +4,7 @@ import { useRecoilValue } from 'recoil'
 import { scenarioIdState, testRunIdState, videoBlobURLState } from '@global/atom'
 import { Button, Modal, Text, VideoSnapshots } from '@global/ui'
 import { AppURL } from '@global/constant'
-import { useVideoTimestamp } from '@global/api/hook'
+import { useVideoSummary } from '@global/api/hook'
 
 import apiUrls from '@page/AnalysisPage/api/url'
 import { formatDateTo } from '@global/usecase'
@@ -20,7 +20,7 @@ interface SetROIModalProps {
  * ROI 설정 모달
  */
 const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose }) => {
-  const { videoTimestamp } = useVideoTimestamp()
+  const { videoSummary } = useVideoSummary()
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
   const src = useRecoilValue(videoBlobURLState)
@@ -36,11 +36,11 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose }) => {
   const [cropHeight, setCropHeight] = useState<number | null>(null)
 
   const timestampScaleX: d3.ScaleTime<number, number, never> | null = useMemo(() => {
-    if (!videoTimestamp) return null
-    return d3.scaleTime().domain([new Date(videoTimestamp.start_time), new Date(videoTimestamp.end_time)])
+    if (!videoSummary) return null
+    return d3.scaleTime().domain([new Date(videoSummary.start_time), new Date(videoSummary.end_time)])
   }, [])
 
-  if (!isOpen || !videoTimestamp) return null
+  if (!isOpen || !videoSummary) return null
   return (
     <Modal isOpen={isOpen} close={onClose} title="Set ROI" className="w-[60vw]">
       <div className="flex flex-col items-center h-full">
@@ -96,9 +96,7 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose }) => {
             <VideoSnapshots
               src={src}
               startMillisecond={0}
-              endMillisecond={
-                new Date(videoTimestamp.end_time).getTime() - new Date(videoTimestamp.start_time).getTime()
-              }
+              endMillisecond={new Date(videoSummary.end_time).getTime() - new Date(videoSummary.start_time).getTime()}
               tickCount={12}
             />
             {duration && (

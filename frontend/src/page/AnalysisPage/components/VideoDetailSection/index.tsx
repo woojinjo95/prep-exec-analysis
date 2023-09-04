@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { ReactComponent as GoToFirstIcon } from '@assets/images/icon_go_to_first_w.svg'
 import { ReactComponent as StepBackIcon } from '@assets/images/icon_step_back_1sec_w.svg'
@@ -7,9 +7,10 @@ import { ReactComponent as StepForwardIcon } from '@assets/images/icon_step_forw
 import { ReactComponent as GoToLastIcon } from '@assets/images/icon_go_to_last_w.svg'
 import { ReactComponent as StopIcon } from '@assets/images/icon_stop.svg'
 import { IconButton, Text } from '@global/ui'
-import { scenarioIdState, testRunIdState } from '@global/atom'
+import { cursorDateTimeState, scenarioIdState, testRunIdState } from '@global/atom'
 import { AppURL } from '@global/constant'
 import apiUrls from '@page/AnalysisPage/api/url'
+import { useVideoSummary } from '@global/api/hook'
 
 /**
  * 결과영상 및 정보 영역
@@ -30,6 +31,17 @@ const VideoDetailSection: React.FC = () => {
 
     return `${minute < 10 ? `0${minute}` : minute}:${second < 10 ? `0${second}` : second}.${millisecond}`
   }, [currentTime])
+  const cursorDateTime = useRecoilValue(cursorDateTimeState)
+  const { videoSummary } = useVideoSummary()
+
+  // 커서 시간이 변경될 경우 -> 비디오 엘리먼트에 시간 반영
+  useEffect(() => {
+    if (!videoSummary || !cursorDateTime || !videoRef.current) return
+
+    const newCurrentTime = (cursorDateTime.getTime() - new Date(videoSummary.start_time).getTime()) / 1000
+    setCurrentTime(newCurrentTime)
+    videoRef.current.currentTime = newCurrentTime
+  }, [cursorDateTime])
 
   return (
     <section className="bg-black text-white grid grid-rows-1 grid-cols-[1fr_1.5fr_1fr]">

@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react'
-import { useRecoilValue, useSetRecoilState } from 'recoil'
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { PageContainer, Text } from '@global/ui'
-import { useVideoTimestamp } from '@global/api/hook'
+import { useVideoSummary } from '@global/api/hook'
 import { AppURL } from '@global/constant'
-import { scenarioIdState, testRunIdState, videoBlobURLState } from '@global/atom'
+import { cursorDateTimeState, scenarioIdState, testRunIdState, videoBlobURLState } from '@global/atom'
 
 import { useNavigate } from 'react-router-dom'
 import LogTraceSection from './components/LogTraceSection'
@@ -17,19 +17,28 @@ import apiUrls from './api/url'
  * 분석 조회 페이지
  */
 const AnalysisPage: React.FC = () => {
-  const { videoTimestamp } = useVideoTimestamp()
+  const navigate = useNavigate()
+  const { videoSummary } = useVideoSummary()
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
   const setVideoBlobURL = useSetRecoilState(videoBlobURLState)
+  const [cursorDateTime, setCursorDateTime] = useRecoilState(cursorDateTimeState)
 
-  const navigate = useNavigate()
-
+  // 서비스 진입 시 선택된 시나리오 id가 없을 경우 -> 시나리오 선택 페이지로 이동
+  // FIXME: testRunId가 없을때는 ..?
   useEffect(() => {
     if (!scenarioId) {
       navigate('/', { replace: true })
     }
   }, [])
 
+  // testrun 시작시간으로 cursorDateTime 초기값 설정
+  useEffect(() => {
+    if (!!cursorDateTime || !videoSummary) return
+    setCursorDateTime(new Date(videoSummary.start_time))
+  }, [videoSummary])
+
+  // 비디오 스냅샷 컴포넌트에서 사용할 video fetch
   useEffect(() => {
     if (!scenarioId || !testRunId) return
 
@@ -50,8 +59,8 @@ const AnalysisPage: React.FC = () => {
       <VarAnalysisResultSection />
       <LogTraceSection />
       <TimelineSection
-        startTime={videoTimestamp?.start_time ? new Date(videoTimestamp.start_time) : null}
-        endTime={videoTimestamp?.end_time ? new Date(videoTimestamp.end_time) : null}
+        startTime={videoSummary?.start_time ? new Date(videoSummary.start_time) : null}
+        endTime={videoSummary?.end_time ? new Date(videoSummary.end_time) : null}
       />
       <div className="col-span-2 bg-black border-t border-[#37383E] flex items-center px-5">
         <Text size="xs" colorScheme="grey">

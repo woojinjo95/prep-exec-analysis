@@ -2,13 +2,19 @@ import React from 'react'
 import { Accordion, Text } from '@global/ui'
 import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.svg'
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
-import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
-import { AnalysisTypeLabel } from '../../../constant'
+// import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
+import { numberWithCommas } from '@global/usecase'
+import { AnalysisTypeLabel, ResumeTypeLabel } from '../../../constant'
+import { AnalysisResultSummary } from '../../../api/entity'
+
+interface ResumeSummaryResultItemProps {
+  results: NonNullable<AnalysisResultSummary['resume']>
+}
 
 /**
  * resume 분석결과 요약 아이템
  */
-const ResumeSummaryResultItem: React.FC = () => {
+const ResumeSummaryResultItem: React.FC<ResumeSummaryResultItemProps> = ({ results }) => {
   return (
     <Accordion
       header={
@@ -26,7 +32,7 @@ const ResumeSummaryResultItem: React.FC = () => {
             </Text>
           </div>
 
-          <Text weight="medium">times</Text>
+          <Text weight="medium">{numberWithCommas(results.reduce((acc, curr) => acc + curr.total, 0))} times</Text>
         </div>
       }
     >
@@ -44,28 +50,20 @@ const ResumeSummaryResultItem: React.FC = () => {
           </Text>
           <div />
 
-          {/* TODO: items */}
-          <Text size="sm">Matching Image</Text>
-          <Text size="sm" className="text-right">
-            2
-          </Text>
-          <Text size="sm" className="text-right">
-            869ms
-          </Text>
-          <button type="button">
-            <ShowEyeIcon className="w-5" />
-          </button>
-
-          <Text size="sm">Screen Change Rate</Text>
-          <Text size="sm" className="text-right">
-            2
-          </Text>
-          <Text size="sm" className="text-right">
-            1,021ms
-          </Text>
-          <button type="button">
-            <HiddenEyeIcon className="w-5" />
-          </button>
+          {results.map(({ total, target, avg_time }, index) => (
+            <React.Fragment key={`resume-summary-result-${index}`}>
+              <Text size="sm">{ResumeTypeLabel[target]}</Text>
+              <Text size="sm" className="text-right">
+                {numberWithCommas(total)}
+              </Text>
+              <Text size="sm" className="text-right">
+                {numberWithCommas(avg_time)} ms
+              </Text>
+              <button type="button">
+                <ShowEyeIcon className="w-5" />
+              </button>
+            </React.Fragment>
+          ))}
         </div>
 
         <button type="button" className="flex justify-end items-center gap-x-3">

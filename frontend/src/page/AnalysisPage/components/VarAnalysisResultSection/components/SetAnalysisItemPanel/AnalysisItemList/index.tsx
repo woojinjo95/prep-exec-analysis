@@ -3,6 +3,7 @@ import { useMutation } from 'react-query'
 import { Title } from '@global/ui'
 import { AnalysisService } from '@global/service'
 import { useObservableState, useWebsocket } from '@global/hook'
+import { AnalyzableTypes } from '@global/constant'
 
 import { AnalysisTypeLabel } from '../../../constant'
 import { useAnalysisConfig } from '../../../api/hook'
@@ -80,10 +81,11 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
       sendMessage({
         msg: 'analysis',
         data: {
-          measurement: Object.keys(config) as (keyof typeof config)[],
+          measurement: Object.keys(config).filter((type) =>
+            AnalyzableTypes.includes(type as (typeof AnalyzableTypes)[number]),
+          ) as (typeof AnalyzableTypes)[number][],
         },
       })
-      //
     },
   })
 

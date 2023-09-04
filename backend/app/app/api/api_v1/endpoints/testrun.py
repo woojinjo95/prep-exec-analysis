@@ -39,7 +39,7 @@ def create_testrun(
         testruns = scenario.get('testruns', [])
         testruns.append({'id': testrun_id,
                          'raw': {'videos': []},
-                         'analysis': {'videos': []}})
+                         'analysis': {}})
         update_by_id_to_mongodb(col='scenario',
                                 id=scenario_id,
                                 data={'updated_at': get_utc_datetime(time.time()),

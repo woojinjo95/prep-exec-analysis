@@ -3,12 +3,18 @@ import { Accordion, Text } from '@global/ui'
 import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.svg'
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
 // import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
-import { AnalysisTypeLabel } from '../../../constant'
+import { numberWithCommas } from '@global/usecase'
+import { AnalysisTypeLabel, BootTypeLabel } from '../../../constant'
+import { AnalysisResultSummary } from '../../../api/entity'
+
+interface BootSummaryResultItemProps {
+  results: NonNullable<AnalysisResultSummary['boot']>
+}
 
 /**
  * boot 분석결과 요약 아이템
  */
-const BootSummaryResultItem: React.FC = () => {
+const BootSummaryResultItem: React.FC<BootSummaryResultItemProps> = ({ results }) => {
   return (
     <Accordion
       header={
@@ -26,7 +32,7 @@ const BootSummaryResultItem: React.FC = () => {
             </Text>
           </div>
 
-          <Text weight="medium">times</Text>
+          <Text weight="medium">{numberWithCommas(results.reduce((acc, curr) => acc + curr.total, 0))} times</Text>
         </div>
       }
     >
@@ -44,17 +50,20 @@ const BootSummaryResultItem: React.FC = () => {
           </Text>
           <div />
 
-          {/* TODO: items */}
-          <Text size="sm">Matching Image</Text>
-          <Text size="sm" className="text-right">
-            2
-          </Text>
-          <Text size="sm" className="text-right">
-            869ms
-          </Text>
-          <button type="button">
-            <ShowEyeIcon className="w-5" />
-          </button>
+          {results.map(({ total, target, avg_time }, index) => (
+            <React.Fragment key={`boot-summary-result-item-${index}`}>
+              <Text size="sm">{BootTypeLabel[target]}</Text>
+              <Text size="sm" className="text-right">
+                {numberWithCommas(total)}
+              </Text>
+              <Text size="sm" className="text-right">
+                {numberWithCommas(avg_time)} ms
+              </Text>
+              <button type="button">
+                <ShowEyeIcon className="w-5" />
+              </button>
+            </React.Fragment>
+          ))}
         </div>
 
         <button type="button" className="flex justify-end items-center gap-x-3">

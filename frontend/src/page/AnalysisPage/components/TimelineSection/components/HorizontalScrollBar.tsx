@@ -7,6 +7,7 @@ const SCROLL_BAR_HEIGHT = 12
 
 interface HorizontalScrollBarProps {
   chartWidth: number | null
+  chartOffsetLeft: number | null
   scrollBarTwoPosX: [number, number] | null
   setScrollBarTwoPosX: React.Dispatch<React.SetStateAction<[number, number] | null>>
 }
@@ -16,6 +17,7 @@ interface HorizontalScrollBarProps {
  */
 const HorizontalScrollBar: React.FC<HorizontalScrollBarProps> = ({
   chartWidth,
+  chartOffsetLeft,
   scrollBarTwoPosX,
   setScrollBarTwoPosX,
 }) => {
@@ -50,6 +52,7 @@ const HorizontalScrollBar: React.FC<HorizontalScrollBarProps> = ({
           e.preventDefault()
           if (!isDragging) return
 
+          // FIXME: clientX 기반으로 대체
           if (scrollBarTwoPosX[0] + e.movementX < 0) {
             setScrollBarTwoPosX([0, scrollBarTwoPosX[1] - scrollBarTwoPosX[0]])
             return
@@ -75,10 +78,13 @@ const HorizontalScrollBar: React.FC<HorizontalScrollBarProps> = ({
           onPointerMove={(e) => {
             e.preventDefault()
             e.stopPropagation()
-            if (!isDragging) return
+            if (!isDragging || !chartOffsetLeft) return
 
             setScrollBarTwoPosX([
-              Math.min(Math.max(0, scrollBarTwoPosX[0] + e.movementX), scrollBarTwoPosX[1] - SCROLL_BAR_HEIGHT),
+              Math.min(
+                Math.max(0, e.clientX - chartOffsetLeft - SCROLL_BAR_HEIGHT / 2),
+                scrollBarTwoPosX[1] - SCROLL_BAR_HEIGHT,
+              ),
               scrollBarTwoPosX[1],
             ])
           }}
@@ -97,13 +103,13 @@ const HorizontalScrollBar: React.FC<HorizontalScrollBarProps> = ({
           onPointerMove={(e) => {
             e.preventDefault()
             e.stopPropagation()
-            if (!isDragging) return
+            if (!isDragging || !chartOffsetLeft) return
 
             setScrollBarTwoPosX([
               scrollBarTwoPosX[0],
               Math.max(
                 scrollBarTwoPosX[0] + SCROLL_BAR_HEIGHT,
-                Math.min(chartWidth, scrollBarTwoPosX[1] + e.movementX),
+                Math.min(chartWidth, e.clientX - chartOffsetLeft + SCROLL_BAR_HEIGHT / 2),
               ),
             ])
           }}
