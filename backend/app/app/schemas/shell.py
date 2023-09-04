@@ -12,7 +12,7 @@ class Shell(BaseModel):
 
     time: str
     mode: str
-    shell_id: str
+    shell_id: int
     lines: List[log]
 
 
