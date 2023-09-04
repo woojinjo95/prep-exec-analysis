@@ -102,7 +102,7 @@ def delete_scenario(
 @router.get("", response_model=schemas.ScenarioPage)
 def read_scenarios(
     page: int = Query(None, ge=1),
-    page_size: int = Query(None, ge=1, le=100),
+    page_size: int = Query(None, ge=1, le=30),
     name: Optional[str] = None,
     tag: Optional[str] = None,
 ) -> schemas.ScenarioPage:
@@ -114,7 +114,7 @@ def read_scenarios(
         if name:
             param['name'] = set_ilike(name)
         if tag:
-            param['tags'] = {'$elemMatch': set_ilike(tag)}
+            param['tags'] = tag
         res = get_multi_or_paginate_by_res(col='scenario',
                                            page=page,
                                            page_size=page_size,
