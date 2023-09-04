@@ -49,6 +49,8 @@ class ScenarioSummary(BaseModel):
     name: str
     tags: Optional[List[str]]
     updated_at: str
+    testrun_count: int
+    has_block: bool
 
     @root_validator(pre=True)
     def convert_timestamp_with_timezone(cls, values):

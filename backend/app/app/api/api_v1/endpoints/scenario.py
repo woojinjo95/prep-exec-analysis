@@ -7,7 +7,8 @@ from datetime import datetime
 from typing import Optional
 
 from app import schemas
-from app.api.utility import (get_multi_or_paginate_by_res, get_utc_datetime,
+from app.api.utility import (get_utc_datetime,
+                             paginate_from_mongodb_aggregation,
                              parse_bytes_to_value, set_ilike,
                              set_redis_pub_msg)
 from app.crud.base import (count_from_mongodb, insert_one_to_mongodb,
@@ -115,11 +116,21 @@ def read_scenarios(
             param['name'] = set_ilike(name)
         if tag:
             param['tags'] = tag
-        res = get_multi_or_paginate_by_res(col='scenario',
-                                           page=page,
-                                           page_size=page_size,
-                                           sorting_keyword='name',
-                                           param=param)
+
+        pipeline = [{'$match': param},
+                    {'$project': {'id': '$id',
+                                  'name': '$name',
+                                  'tags': '$tags',
+                                  'updated_at': '$updated_at',
+                                  'testrun_count': {'$size': '$testruns'},
+                                  'has_block': {'$cond': {'if': {'$eq': [{'$size': '$block_group'}, 0]},
+                                                          'then': False,
+                                                          'else': True}}}}]
+        res = paginate_from_mongodb_aggregation(col='scenario',
+                                                pipeline=pipeline,
+                                                page=page,
+                                                page_size=page_size)  # TODO 디폴트 정렬 설정
+
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
