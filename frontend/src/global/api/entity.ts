@@ -85,7 +85,7 @@ export type ServiceState = 'idle' | 'streaming' | 'playblock' | 'analysis'
 
 export interface Block {
   type: string
-  args: { key: string; value: string | number }[]
+  args: { key: string; value: string | number | boolean }[]
   name: string
   delay_time: number
   id: string
