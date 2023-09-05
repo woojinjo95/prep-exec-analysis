@@ -91,7 +91,7 @@ class IntelligentMonkeyTestRoku:
         # node
         image = get_current_image()
         cursor = self.get_cursor()
-        fi = FrameInfo(image, cursor)
+        node_fi = FrameInfo(image, cursor)
         self.cursor_image = self.get_cursor_image(image, cursor)
 
         self.exec_keys([self.depth_key])
@@ -102,9 +102,8 @@ class IntelligentMonkeyTestRoku:
             leaf_node = False
         else:
             leaf_node = True
+            self.last_fi = node_fi
         logger.info(f'leaf node: {leaf_node}')
-
-        self.last_fi = fi
         return leaf_node
 
     ##### Functions #####
