@@ -8,12 +8,15 @@ from typing import Dict
 from .configs.config import get_value
 from .configs.constant import RedisDBEnum
 from .connection.mongo_db.create import insert_to_mongodb
+from .connection.mongo_db.update import update_loundess_to_scenario
 from .utils._multi_process import ProcessMaintainer
 from .utils._timezone import get_utc_datetime
+from .utils._exceptions import handle_errors, handle_none_return
 
 logger = logging.getLogger('mongodb')
 
 
+@handle_errors
 def get_testrun_info() -> Dict[str, str]:
     all_testrun_info = get_value('testrun', db=RedisDBEnum.hardware)
 
@@ -24,13 +27,14 @@ def get_testrun_info() -> Dict[str, str]:
     return testrun_info
 
 
+@handle_errors
 def format_subscribed_log(subscribed_log: Dict) -> Dict:
     return {'timestamp': get_utc_datetime(subscribed_log.get('time', time.time())),
             'M': subscribed_log.get('M', -90.0),
             'I': subscribed_log.get('I', -90.0)}
 
 
-class InsertToMongoDB:
+class InsertLoudnessToDB:
 
     def __init__(self):
         self.log_queue = Queue()
@@ -46,17 +50,18 @@ class InsertToMongoDB:
 
     def put(self, log: dict):
         # add filter
-        # if log.get('msg') in target_msg:
         if True:
             self.log_queue.put(log)
 
     def consume(self, stop_event: Event, run_state_event: Event):
         document = None
+        loudness_stream = False
 
         while not stop_event.is_set():
             try:
                 log = self.log_queue.get(timeout=1)
                 log_time = get_utc_datetime(log.get('time', time.time()))
+                loudness_stream = True
 
                 if document is None:
                     # document가 없음
@@ -72,9 +77,18 @@ class InsertToMongoDB:
             except queues.Empty:
                 if document is not None:
                     # 1초가 지나고 document가 비지 않으면 업데이트
-                    logger.info(f'Timeout for 1 second and update to mongodb')
+                    logger.debug(f'Timeout for 1 second and update to mongodb')
                     insert_to_mongodb('loudness', document)
                     document = None
+
+                if loudness_stream:
+                    logger.info('Timeout for update last loudness time. update to current active sceanrio info')
+                    loudness_info = {'type': 'loudness', 'timestamp': log_time}
+                    testrun_info = get_testrun_info()
+                    scenario_id = testrun_info['scenario_id']
+                    testrun_id = testrun_info['testrun_id']
+                    update_loundess_to_scenario('scenario', scenario_id, testrun_id, loudness_info)
+                    loudness_stream = False
 
             except Exception as e:
                 logger.error(f'Comsumeing log to upload mongodb failed: {e}')
