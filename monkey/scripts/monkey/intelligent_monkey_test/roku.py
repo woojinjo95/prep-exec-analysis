@@ -8,7 +8,7 @@ import numpy as np
 
 from scripts.analysis.image import find_roku_cursor, get_cropped_image
 from scripts.external.report import report_data
-from scripts.monkey.format import FrameInfo, MonkeyArgs
+from scripts.monkey.format import MonkeyArgs, NodeInfo
 from scripts.monkey.monkey import Monkey
 from scripts.monkey.util import (check_cursor_is_same, exec_keys,
                                  get_current_image, head_to_parent_sibling,
@@ -35,7 +35,7 @@ class IntelligentMonkeyTestRoku:
         self.root_keyset = ['home']
 
         # init variables
-        self.last_fi = None
+        self.node_histories = []
         self.key_histories = []
         self.section_id = 0
         self.main_stop_event = threading.Event()
@@ -55,7 +55,9 @@ class IntelligentMonkeyTestRoku:
     def visit(self):
         while not self.main_stop_event.is_set():
             self.exec_keys(self.key_histories)
-            status = self.check_end()
+            node_info = NodeInfo(image=get_current_image(), cursor=self.get_cursor())
+
+            status = self.check_end(node_info)
             if status == 'breadth_end':
                 continue
             elif status == 'visit_end':
@@ -69,19 +71,24 @@ class IntelligentMonkeyTestRoku:
             else:
                 self.append_key(self.depth_key)
 
-    def check_end(self) -> str:
-        logger.info('check status.')
-        image, cursor = get_current_image(), self.get_cursor()
-        if self.last_fi and check_cursor_is_same(self.last_fi.image, self.last_fi.cursor, image, cursor):
-            try:
-                self.head_to_next()
-                logger.info(f'head to next done. {self.key_histories}')
-                self.last_fi = None
-                return 'breadth_end'
-            except IndexError as err:
-                logger.info(f'visit done. {self.key_histories}. {err}')
-                return 'visit_end'
-        else:
+            self.node_histories.append(node_info)
+
+    def check_end(self, node_info: NodeInfo) -> str:
+        try:
+            logger.info('check status.')
+            if check_cursor_is_same(self.node_histories[-1].image, self.node_histories[-1].cursor, 
+                                    node_info.image, node_info.cursor):
+                try:
+                    self.head_to_next()
+                    logger.info(f'head to next done. {self.key_histories}')
+                    return 'breadth_end'
+                except IndexError as err:
+                    logger.info(f'visit done. {self.key_histories}. {err}')
+                    return 'visit_end'
+            else:
+                return ''
+        except Exception:
+            logger.exception('check end error.')
             return ''
 
     def check_leaf_node(self) -> bool:
@@ -89,7 +96,6 @@ class IntelligentMonkeyTestRoku:
         # node
         image = get_current_image()
         cursor = self.get_cursor()
-        node_fi = FrameInfo(image, cursor)
         self.cursor_image = self.get_cursor_image(image, cursor)
 
         self.exec_keys([self.depth_key])
@@ -100,7 +106,6 @@ class IntelligentMonkeyTestRoku:
             leaf_node = False
         else:
             leaf_node = True
-            self.last_fi = node_fi
         logger.info(f'leaf node: {leaf_node}')
         return leaf_node
 

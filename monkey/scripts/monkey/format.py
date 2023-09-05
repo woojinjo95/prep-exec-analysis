@@ -9,6 +9,14 @@ class FrameInfo:
         self.cursor = cursor  # x,y,w,h
 
 
+class NodeInfo:
+    def __init__(self, image: np.ndarray, cursor: Tuple[int, int, int, int], name: str=''):
+        self.name = name
+        self.image = image
+        self.cursor = cursor  # x,y,w,h
+
+
+
 @dataclass
 class MonkeyArgs:
     duration: float
@@ -20,3 +28,4 @@ class MonkeyArgs:
 class RemoconInfo:
     remocon_name: str
     remote_control_type: str
+
