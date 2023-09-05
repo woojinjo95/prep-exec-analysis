@@ -7,15 +7,12 @@ import threading
 import numpy as np
 
 from scripts.analysis.image import get_cursor_xywh, get_cropped_image
-from scripts.external.report import report_data
 from scripts.monkey.format import FrameInfo, MonkeyArgs
 from scripts.monkey.monkey import Monkey
 from scripts.monkey.util import (check_cursor_is_same, exec_keys_with_each_interval,
-                                 get_current_image, head_to_next,
+                                 get_current_image, head_to_parent_sibling,
                                  optimize_path)
-from scripts.util._timezone import get_utc_datetime
-from scripts.external.image import save_image
-from scripts.external.redis import get_monkey_test_arguments
+from scripts.external.report import report_section
 
 logger = logging.getLogger('monkey_test')
 
@@ -166,26 +163,17 @@ class IntelligentMonkeyTestSK:
         )
         monkey.run()
 
-        end_time = time.time()
-        self.report_section(start_time, end_time, cursor_image, monkey.smart_sense_count)
+        report_section(start_time=start_time,
+                       end_time=time.time(),
+                       analysis_type=self.analysis_type,
+                       section_id=self.section_id,
+                       image=cursor_image,
+                       smart_sense_times=monkey.smart_sense_count)
 
         if monkey.banned_image_detected:
             self.stop()
         
         self.section_id += 1
-
-    def report_section(self, start_time: float, end_time: float, image: np.ndarray, smart_sense_times: int):
-        image_path = save_image(get_utc_datetime(time.time()).strftime('%y-%m-%d %H:%M:%S'), image)
-
-        report_data('monkey_section', {
-            'start_timestamp': get_utc_datetime(start_time),
-            'end_timestamp': get_utc_datetime(end_time),
-            'analysis_type': self.analysis_type,
-            'section_id': self.section_id,
-            'image_path': image_path,
-            'smart_sense_times': smart_sense_times,
-            'user_config': get_monkey_test_arguments()
-        })
 
     ##### Re-Defined Functions #####
     def exec_keys(self, keys: List[str]):
@@ -194,4 +182,4 @@ class IntelligentMonkeyTestSK:
         exec_keys_with_each_interval(key_and_intervals, self.profile, self.remocon_type)
 
     def head_to_next(self):
-        self.key_histories = head_to_next(self.key_histories, self.depth_key, self.breadth_key)
+        self.key_histories = head_to_parent_sibling(self.key_histories, self.depth_key, self.breadth_key)
