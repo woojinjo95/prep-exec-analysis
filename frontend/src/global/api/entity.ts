@@ -81,6 +81,8 @@ type BlockType =
   | 'packet_block'
   | 'monkey_test'
   | 'intelligent_monkey_test'
+  | 'device_info'
+  | 'remocon_properties'
 
 /**
  * 서비스 상태
@@ -97,7 +99,7 @@ export type ServiceState = 'idle' | 'streaming' | 'playblock' | 'analysis'
 
 export interface Block {
   type: BlockType
-  args: { key: string; value: string | number | boolean }[]
+  args: { key: string; value: string | number | boolean | object | null | undefined }[]
   name: string
   delay_time: number
   id: string
