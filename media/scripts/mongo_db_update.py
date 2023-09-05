@@ -30,24 +30,8 @@ def get_testrun_info() -> Dict[str, str]:
 @handle_errors
 def format_subscribed_log(subscribed_log: Dict) -> Dict:
     return {'timestamp': get_utc_datetime(subscribed_log.get('time', time.time())),
-            'service': subscribed_log.get('service', 'Unknown'),
-            'msg': subscribed_log.get('msg', 'Unknown'),
-            'data': subscribed_log.get('data', {})}
-
-
-@handle_none_return(int)
-@handle_errors
-def check_valid_event_log(subscribed_log: Dict) -> bool:
-    result = False
-    if subscribed_log.get('service') in ('control', 'media', 'network', 'stb_log', 'shell'):
-        result = True
-    elif subscribed_log.get('msg') in ('config'):
-        result = True
-    else:
-        # backend, replay, analysis stb-log
-        pass
-
-    return result
+            'M': subscribed_log.get('M', -90.0),
+            'I': subscribed_log.get('I', -90.0)}
 
 
 class InsertLoudnessToDB:
