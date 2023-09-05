@@ -50,17 +50,11 @@ jobs:
           - uses: actions/checkout@v3  
           - run: docker build -t registry.dev-nextlab.com/qaas-state:dev-${{github.run_id}}${{github.run_number}} -f ./state/Dockerfile.dev.m32dev4 ./state
             shell: bash
-    build-dev-replay:
-        runs-on: [self-hosted, docker, Linux]
-        steps:
-          - uses: actions/checkout@v3  
-          - run: docker build -t registry.dev-nextlab.com/qaas-replay:dev-${{github.run_id}}${{github.run_number}} -f ./replay/dockerfile.dev.m32dev4 ./replay
-            shell: bash
     build-dev-control:
       runs-on: [self-hosted, docker, Linux]
       steps:
         - uses: actions/checkout@v3  
-        - run: docker build -t registry.dev-nextlab.com/qaas-control:dev-${{github.run_id}}${{github.run_number}} -f ./control/dockerfile.dev.m32dev4 ./replay
+        - run: docker build -t registry.dev-nextlab.com/qaas-control:dev-${{github.run_id}}${{github.run_number}} -f ./control/dockerfile.dev.m32dev4 ./control
           shell: bash
     build-dev-network:
       runs-on: [self-hosted, docker, Linux]
