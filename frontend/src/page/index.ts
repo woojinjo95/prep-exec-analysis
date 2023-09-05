@@ -1,3 +1,5 @@
 export { default as ActionPage } from './ActionPage'
 export { default as AnalysisPage } from './AnalysisPage'
 export { default as NotFoundPage } from './NotFoundPage'
+export { default as ScenarioPage } from './ScenarioPage'
+export { default as TerminalPage } from './TerminalPage'

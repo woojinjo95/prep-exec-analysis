@@ -8,9 +8,9 @@ import { AreaChartGenerator } from './usecase'
 interface AreaChartProps {
   chartWidth?: number | null
   scaleX: d3.ScaleTime<number, number, never> | null
+  scaleY: d3.ScaleLinear<number, number, never> | null
   data: AreaChartData
   minValue?: number
-  maxValue?: number
   strokeColor?: string
   fillColor?: string
 }
@@ -23,9 +23,9 @@ interface AreaChartProps {
 const AreaChart: React.FC<AreaChartProps> = ({
   chartWidth,
   scaleX,
+  scaleY,
   data,
   minValue: _minValue,
-  maxValue: _maxValue,
   strokeColor,
   fillColor,
 }) => {
@@ -33,15 +33,6 @@ const AreaChart: React.FC<AreaChartProps> = ({
   const minValue = useMemo(
     () => (_minValue !== undefined ? _minValue : Math.min(...data.map(({ value }) => value))),
     [],
-  )
-  const maxValue = useMemo(
-    () => (_maxValue !== undefined ? _maxValue : Math.max(...data.map(({ value }) => value))),
-    [],
-  )
-
-  const scaleY: d3.ScaleLinear<number, number, never> | null = useMemo(
-    () => d3.scaleLinear().domain([minValue, maxValue]).range([CHART_HEIGHT, 0]),
-    [data, minValue, maxValue],
   )
 
   useEffect(() => {
