@@ -141,7 +141,6 @@ class IntelligentMonkeyTestRoku:
 
     def start_monkey(self, node_info: NodeInfo, current_node_keyset: List[str]):
         start_time = time.time()
-
         monkey = Monkey(
             duration=self.monkey_args.duration,
             key_candidates=['right', 'up', 'down', 'ok'],
@@ -166,10 +165,8 @@ class IntelligentMonkeyTestRoku:
                        image=node_info.cursor_image,
                        smart_sense_times=monkey.smart_sense_count)
 
-
         if monkey.banned_image_detected:
             self.stop()
-        
         self.section_id += 1
 
     ##### Re-Defined Functions #####
