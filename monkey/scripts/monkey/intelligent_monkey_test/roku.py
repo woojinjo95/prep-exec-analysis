@@ -66,7 +66,7 @@ class IntelligentMonkeyTestRoku:
             if self.check_leaf_node():
                 current_node_keyset = [*self.key_histories, self.depth_key]
                 logger.info(f'current_node_keyset: {current_node_keyset}')
-                self.start_monkey(current_node_keyset, self.cursor_image)
+                self.start_monkey(current_node_keyset)
                 self.append_key(self.breadth_key)
             else:
                 self.append_key(self.depth_key)
@@ -88,6 +88,7 @@ class IntelligentMonkeyTestRoku:
 
     def check_leaf_node(self) -> bool:
         logger.info('check leaf node.')
+        # node
         image = get_current_image()
         cursor = self.get_cursor()
         fi = FrameInfo(image, cursor)
@@ -95,6 +96,7 @@ class IntelligentMonkeyTestRoku:
 
         self.exec_keys([self.depth_key])
 
+        # inner node
         leaf_node = False
         if self.check_leftmenu_is_opened(image, cursor, get_current_image(), self.get_cursor()):
             leaf_node = False
@@ -141,7 +143,7 @@ class IntelligentMonkeyTestRoku:
             cursor = self.get_cursor(image)
         return get_cropped_image(image, cursor)
 
-    def start_monkey(self, current_node_keyset: List[str], cursor_image: np.ndarray):
+    def start_monkey(self, current_node_keyset: List[str]):
         start_time = time.time()
 
         monkey = Monkey(
@@ -162,7 +164,7 @@ class IntelligentMonkeyTestRoku:
         monkey.run()
 
         end_time = time.time()
-        self.report_section(start_time, end_time, cursor_image, monkey.smart_sense_count)
+        self.report_section(start_time, end_time, self.cursor_image, monkey.smart_sense_count)
 
         if monkey.banned_image_detected:
             self.stop()
