@@ -10,6 +10,7 @@ import {
   Scenario,
   BlockGroup,
   VideoSummary,
+  TestRun,
 } from './entity'
 import apiUrls from './url'
 
@@ -199,6 +200,22 @@ export const postTestrun = async (scenaroId: string) => {
     const result = await API.post<{ msg: string; id: string }>(`${apiUrls.testrun}/${scenaroId}`)
 
     return result.data
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
+/**
+ * 테스트런 조회
+ */
+export const getTestrun = async (params: { scenaroId: string }) => {
+  try {
+    const result = await API.get<Response<TestRun[]>>(`${apiUrls.testrun}`, {
+      params,
+    })
+
+    return result.data.items
   } catch (err) {
     const er = err as AxiosError
     throw er
