@@ -99,11 +99,7 @@ class IntelligentMonkeyTestRoku:
         self.exec_keys([self.depth_key])
 
         # inner node
-        leaf_node = False
-        if self.check_leftmenu_is_opened(image, cursor, get_current_image(), self.get_cursor()):
-            leaf_node = False
-        else:
-            leaf_node = True
+        leaf_node = False if self.check_leftmenu_is_opened(image, cursor, get_current_image(), self.get_cursor()) else True
         logger.info(f'leaf node: {leaf_node}')
         return leaf_node
 
