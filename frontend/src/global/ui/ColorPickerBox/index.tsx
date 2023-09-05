@@ -1,10 +1,9 @@
-import React, { useCallback, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { SketchPicker } from 'react-color'
 import cx from 'classnames'
 import { createPortal } from 'react-dom'
 import { useOutsideClick } from '@global/hook'
-
-const SPACE = 4
+import { createPortalStyle } from '@global/usecase'
 
 interface ColorPickerBoxProps {
   color: string
@@ -25,22 +24,6 @@ const ColorPickerBox: React.FC<ColorPickerBoxProps> = ({ color, className, onCha
     },
   })
 
-  const createDefaultStyle = useCallback((_wrapperRef: React.MutableRefObject<HTMLDivElement | null>) => {
-    if (!_wrapperRef.current) return {}
-
-    const styles: React.CSSProperties = {}
-    const dimensions = _wrapperRef.current.getBoundingClientRect()
-
-    styles.left = dimensions.left
-    if (dimensions.top < window.innerHeight / 2) {
-      styles.top = dimensions.top + dimensions.height + SPACE
-    } else {
-      styles.bottom = window.innerHeight - dimensions.top + SPACE
-    }
-
-    return styles
-  }, [])
-
   return (
     <div ref={wrapperRef} className="relative" onClick={(e) => e.stopPropagation()}>
       <div
@@ -57,7 +40,7 @@ const ColorPickerBox: React.FC<ColorPickerBoxProps> = ({ color, className, onCha
         createPortal(
           <div
             ref={ref}
-            style={createDefaultStyle(wrapperRef)}
+            style={createPortalStyle({ wrapperRef })}
             className="fixed z-50"
             onClick={(e) => e.stopPropagation()}
           >

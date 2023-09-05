@@ -114,3 +114,59 @@ export const changeMinSecMsToMs = (m: number, s: number, ms: number) => {
 export const numberWithCommas = (x: number): string => {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 }
+
+/**
+ * Portal 엘리먼트의 기본적인 스타일을 생성하는 함수
+ *
+ * @param wrapperRef createPortal을 사용하는 엘리먼트의 상위 엘리먼트
+ * @param spaceX 상위 엘리먼트와 createPortal로 생성된 엘리먼트 사이의 가로 간격
+ * @param spaceY 상위 엘리먼트와 createPortal로 생성된 엘리먼트 사이의 세로 간격
+ * @returns createPortal 엘리먼트의 style
+ */
+export const createPortalStyle = ({
+  wrapperRef,
+  spaceX = 0,
+  spaceY = 4,
+}: {
+  wrapperRef: React.MutableRefObject<HTMLDivElement | null>
+  spaceX?: number
+  spaceY?: number
+}) => {
+  if (!wrapperRef.current) return {}
+
+  const styles: React.CSSProperties = {}
+  const dimensions = wrapperRef.current.getBoundingClientRect()
+
+  styles.left = dimensions.left + spaceX
+  styles.marginRight = 16
+  // TODO: 오른쪽이 기준일 경우 -> marginLeft
+  if (dimensions.top < window.innerHeight / 2) {
+    styles.top = dimensions.top + dimensions.height + spaceY
+  } else {
+    styles.bottom = window.innerHeight - dimensions.top + spaceY
+  }
+
+  return styles
+}
+
+/**
+ * 소수점이 .0일 땐 정수만 표시, 소수점이 있을 땐 소수점 1번째 자리까지 표시
+ */
+const dropDecimalPoint = (number: number, point?: number) =>
+  numberWithCommas(Number(Number.isInteger(number) ? number.toFixed() : number.toFixed(point || 1)))
+
+/**
+ * byte 단위의 숫자를 적절한 단위와 함께 변환하여 표시해주는 함수
+ *
+ * @example
+ * byteToSize(5870372) // return '5.6 MB'
+ */
+export const bytesToSize = (bytes: number) => {
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
+
+  if (bytes === 0) return ''
+
+  const i = Math.floor(Math.log(bytes) / Math.log(1024))
+  if (i === 0) return `${dropDecimalPoint(bytes)} ${sizes[i]}`
+  return `${dropDecimalPoint(bytes / 1024 ** i)} ${sizes[i]}`
+}

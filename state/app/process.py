@@ -52,20 +52,13 @@ async def consumer_handler(conn: any, CHANNEL_NAME: str):
                 data = json.loads(command_data) if isinstance(command_data, str) else {}
                 msg = data.get('msg', None)
 
-                # 액션블럭이 종료되면 리플레이가 전송한 메세지 수신 -> 녹화
-                if msg == 'end_playblock':
-                    print('----> end_playblock')
-                    # 상태 변경 및 메세지 전송
-                    await set_service_state_and_pub(conn, ServiceStateEnum.streaming)
-
-                # 액션 페이지에서 액션블럭 재생시 -> 재생
-                elif msg == 'start_playblock_response':
+                if msg == 'start_playblock_response':
                     print('----> start_playblock_response')
                     # 상태 변경 및 메세지 전송
                     await set_service_state_and_pub(conn, ServiceStateEnum.playblock)
 
                 # 분석 페이지에 진입했을때 -> 분석
-                elif msg == 'analysis_mode':
+                if msg == 'analysis_mode':
                     print('----> analysis_mode')
                     # 로그수집 중단 메세지 전송
                     await pub_msg(conn, msg="stb_log", data={"control": "stop"})
@@ -80,7 +73,7 @@ async def consumer_handler(conn: any, CHANNEL_NAME: str):
                     await set_service_state_and_pub(conn, ServiceStateEnum.idle)
 
                 # 액션 페이지에 진입했을때 -> 녹화
-                elif msg == 'action_mode':
+                if msg == 'action_mode':
                     print('----> action_mode')
                     # 분석 중단 메세지 전송
                     await pub_msg(conn, msg="analysis_terminate", data={})

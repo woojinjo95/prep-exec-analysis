@@ -19,11 +19,12 @@ class Roi(BaseModel):
 class Frame(BaseModel):
     id: str
     path: str
+    relative_time: float
     roi: Roi
 
 
 class Freeze(CommonBaseModel):
-    duration: int
+    duration: int = 3
 
 
 class Macroblock(CommonBaseModel):
