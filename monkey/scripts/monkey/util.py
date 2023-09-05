@@ -67,7 +67,7 @@ def optimize_path(path: List[str]) -> List[str]:
 
 
 # 다음 노드로 route를 변경
-def head_to_next(key_histories: List[str], depth_key: str, breadth_key: str) -> List[str]:
+def head_to_parent_sibling(key_histories: List[str], depth_key: str, breadth_key: str) -> List[str]:
     try:
         while True:
             if key_histories[-1] == breadth_key:

@@ -9,7 +9,7 @@ from ..configs.config import set_value
 from ..configs.constant import AudioDevice, RedisChannel
 from ..connection.local_connect import run_command_in_docker_host
 from ..connection.redis_pubsub import Subscribe, get_strict_redis_connection
-from ..mongo_db_update import InsertToMongoDB
+from ..mongo_db_update import InsertLoudnessToDB
 
 
 logger = logging.getLogger('audio')
@@ -81,7 +81,7 @@ def get_sound_values(start_time: float, line: str) -> dict:
 
 
 def update_loudness_to_mongodb(stop_event: Event):
-    mongo_session = InsertToMongoDB()
+    mongo_session = InsertLoudnessToDB()
 
     def job():
         with get_strict_redis_connection() as src:

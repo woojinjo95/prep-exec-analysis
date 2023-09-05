@@ -2,11 +2,9 @@
 import logging
 import time
 
-from scripts.external.report import report_data
 from scripts.monkey.format import MonkeyArgs, RemoconInfo
 from scripts.monkey.monkey import Monkey
-from scripts.util._timezone import get_utc_datetime
-from scripts.external.redis import get_monkey_test_arguments
+from scripts.external.report import report_section
 
 logger = logging.getLogger('monkey_test')
 
@@ -48,16 +46,11 @@ class MonkeyTest:
         )
         monkey.run()
 
-        end_time = time.time()
-        self.report_section(start_time, end_time, monkey.smart_sense_count)
-
-    def report_section(self, start_time: float, end_time: float, smart_sense_times: int):
-        report_data('monkey_section', {
-            'start_timestamp': get_utc_datetime(start_time),
-            'end_timestamp': get_utc_datetime(end_time),
-            'analysis_type': self.analysis_type,
-            'section_id': self.section_id,
-            'image_path': '',
-            'smart_sense_times': smart_sense_times,
-            'user_config': get_monkey_test_arguments()
-        })
+        report_section(
+            start_time=start_time,
+            end_time=time.time(),
+            analysis_type=self.analysis_type,
+            section_id=self.section_id,
+            image=None,
+            smart_sense_times=monkey.smart_sense_count
+        )
