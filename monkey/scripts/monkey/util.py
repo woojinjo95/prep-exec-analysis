@@ -1,14 +1,11 @@
 import logging
-import os
 from typing import List, Tuple
 
 import cv2
 import numpy as np
 from scripts.analysis.image import calc_diff_rate, calc_iou, get_cropped_image
-from scripts.config.constant import BASE_TESTRUN_RAW_DIR
 from scripts.control.image import get_snapshot
 from scripts.control.remocon import publish_remocon_msg
-from scripts.external.scenario import get_scenario_info
 
 logger = logging.getLogger('monkey_test')
 
@@ -25,8 +22,8 @@ def get_current_image() -> np.ndarray:
     return get_snapshot()
 
 
-def exec_key(key: str, key_interval: float, profile: str):
-    publish_remocon_msg(profile, key, sleep=key_interval)
+def exec_key(key: str, key_interval: float, company: str, type: str):
+    publish_remocon_msg(company, key, sleep=key_interval, type=type)
 
 
 def exec_keys(keys: List[str], *args, **kwargs):
@@ -36,6 +33,11 @@ def exec_keys(keys: List[str], *args, **kwargs):
     # time.sleep(3)
 
 
+def exec_keys_with_each_interval(key_and_intervals: List[Tuple[str, float]], company: str, type: str):
+    for key, interval in key_and_intervals:
+        exec_key(key, interval, company, type)
+
+
 def check_cursor_is_same(prev_image: np.ndarray, prev_cursor: Tuple, image: np.ndarray, cursor: Tuple, 
                         iou_thld: float=0.9, min_color_depth_diff: int=10, diff_thld: float=0.05) -> bool:
     # logger.info(f'cursor same check. prev_cursor: {prev_cursor}, cursor: {cursor}')
@@ -43,7 +45,7 @@ def check_cursor_is_same(prev_image: np.ndarray, prev_cursor: Tuple, image: np.n
         return False
     else:
         positional_similar = check_positional_similar(prev_cursor, cursor, iou_thld)
-        temporal_similar = check_temporal_similar(get_cropped_image(prev_image, prev_cursor), 
+        temporal_similar = check_image_similar(get_cropped_image(prev_image, prev_cursor), 
                                         get_cropped_image(image, cursor), 
                                         min_color_depth_diff, 
                                         diff_thld)
@@ -88,19 +90,10 @@ def check_positional_similar(prev_cursor: Tuple, cursor: Tuple, iou_thld: float=
     return iou_rate > iou_thld
 
 
-def check_temporal_similar(prev_image: np.ndarray, image: np.ndarray, min_color_depth_diff: int=10, diff_thld: float=0.05) -> bool:
+def check_image_similar(image1: np.ndarray, image2: np.ndarray, min_color_depth_diff: int=10, diff_thld: float=0.05) -> bool:
     def preprocess_image(image: np.ndarray) -> np.ndarray:
         return cv2.cvtColor(cv2.resize(image, (960, 540)), cv2.COLOR_BGR2GRAY)
     
-    diff_rate = calc_diff_rate(preprocess_image(prev_image), preprocess_image(image), min_color_depth_diff)
+    diff_rate = calc_diff_rate(preprocess_image(image1), preprocess_image(image2), min_color_depth_diff)
     # logger.info(f'check temporal similar. diff_rate: {diff_rate:.6f}, diff_thld: {diff_thld:.6f}')
     return diff_rate < diff_thld
-
-
-def save_image(name: str, image: np.ndarray) -> str:
-    scenario_info = get_scenario_info()
-    save_dir = BASE_TESTRUN_RAW_DIR.format(scenario_info['testrun_id'])
-    os.makedirs(save_dir, exist_ok=True)
-    image_path = os.path.join(save_dir, f'{name}.png')
-    cv2.imwrite(image_path, image)
-    return image_path

@@ -1,5 +1,5 @@
 import { IPLimitProtocol } from '@global/api/entity'
-import { AnalysisType } from '@global/constant'
+import { AnalyzableTypes } from '@global/constant'
 
 /**
  * 블럭 재생 시작 publish 메시지
@@ -14,6 +14,20 @@ interface RunScenarioMessage {
  */
 interface StopScenarioMessage {
   msg: 'stop_playblock'
+}
+
+/**
+ * 액션 페이지 진입(녹화상태 진입) publish 메시지
+ */
+interface EnterActionPageMessage {
+  msg: 'action_mode'
+}
+
+/**
+ * 분석 페이지 진입 publish 메시지
+ */
+interface EnterAnalysisPageMessage {
+  msg: 'analysis_mode'
 }
 
 /**
@@ -97,7 +111,7 @@ interface RemoteControlMessage {
 /**
  * 리모컨 명령 publish 메시지
  */
-interface RemoconTransmitMessage {
+export interface RemoconTransmitMessage {
   msg: 'remocon_transmit'
   data: {
     key: string
@@ -124,7 +138,8 @@ interface CommandMessage {
 interface AnalysisMessage {
   msg: 'analysis'
   data: {
-    measurement: (keyof typeof AnalysisType)[]
+    // 분석 모듈이 수신가능한 분석유형
+    measurement: (typeof AnalyzableTypes)[number][]
   }
 }
 
@@ -143,6 +158,8 @@ export type PublishMessage = {
   | CommandMessage
   | AnalysisMessage
   | NetworkEmulationMessage
+  | EnterActionPageMessage
+  | EnterAnalysisPageMessage
 )
 
 type SubscribeCommandMessage<T> = {

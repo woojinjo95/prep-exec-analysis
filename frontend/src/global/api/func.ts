@@ -9,6 +9,7 @@ import {
   ScenarioSummary,
   Scenario,
   BlockGroup,
+  VideoSummary,
 } from './entity'
 import apiUrls from './url'
 
@@ -117,11 +118,11 @@ export const getLogConnectionStatus = async () => {
 }
 
 /**
- * 특정 시나리오의 테스트런이 수행한 시작시간 및 종료시간 조회 api
+ * 비디오 정보 조회 api
  */
-export const getVideoTimestamp = async (params: { scenario_id: string; testrun_id: string }) => {
+export const getVideoSummary = async (params: { scenario_id: string; testrun_id: string }) => {
   try {
-    const result = await API.get<Response<{ start_time: string; end_time: string }>>(apiUrls.video_timestamp, {
+    const result = await API.get<Response<VideoSummary>>(apiUrls.video_summary, {
       params,
     })
 
@@ -195,7 +196,9 @@ export const deleteTag = async (tag: string) => {
  */
 export const postTestrun = async (scenaroId: string) => {
   try {
-    await API.post<{ msg: string }>(`${apiUrls.testrun}/${scenaroId}`)
+    const result = await API.post<{ msg: string; id: string }>(`${apiUrls.testrun}/${scenaroId}`)
+
+    return result.data
   } catch (err) {
     const er = err as AxiosError
     throw er

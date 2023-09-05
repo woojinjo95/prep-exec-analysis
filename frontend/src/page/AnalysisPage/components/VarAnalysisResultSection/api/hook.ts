@@ -1,7 +1,9 @@
 import { useQuery } from 'react-query'
 import { useEffect } from 'react'
-import { getAnalysisConfig } from './func'
-import { AnalysisConfig } from './entity'
+import { scenarioIdState, testRunIdState } from '@global/atom'
+import { useRecoilValue } from 'recoil'
+import { getAnalysisConfig, getAnalysisResultSummary } from './func'
+import { AnalysisConfig, AnalysisResultSummary } from './entity'
 
 /**
  *
@@ -19,4 +21,40 @@ export const useAnalysisConfig = ({ onSuccess }: { onSuccess?: (data: AnalysisCo
   }, [data])
 
   return { analysisConfig: data, isLoading, refetch }
+}
+
+/**
+ * 분석 결과(요약 데이터) 조회 api
+ */
+export const useAnalysisResultSummary = ({
+  onSuccess,
+  enabled,
+  ...params
+}: Parameters<typeof getAnalysisResultSummary>[0] & {
+  onSuccess?: (data: AnalysisResultSummary) => void
+  enabled?: boolean
+}) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(
+    ['analysis_result_summary', params],
+    () =>
+      getAnalysisResultSummary({
+        ...params,
+        scenario_id: scenarioId || undefined,
+        testrun_id: testRunId || undefined,
+      }),
+    {
+      onSuccess,
+      enabled,
+    },
+  )
+
+  useEffect(() => {
+    if (data) {
+      onSuccess?.(data)
+    }
+  }, [data])
+
+  return { analysisResultSummary: data, isLoading, refetch }
 }

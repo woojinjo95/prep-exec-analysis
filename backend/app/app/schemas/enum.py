@@ -39,6 +39,7 @@ class BootTypeEnum(ExtendedEnum):
 class AnalysisTypeEnum(ExtendedEnum):
     freeze = "freeze"
     # macroblock = "macroblock"
+    loudness = "loudness"
     resume = "resume"
     boot = "boot"
     channel_change_time = "channel_change_time"
@@ -46,6 +47,8 @@ class AnalysisTypeEnum(ExtendedEnum):
     log_pattern_matching = "log_pattern_matching"
     # process_lifecycle_analysis = "process_lifecycle_analysis"
     # network_filter = "network_filter"
+    monkey_test = "monkey_test"
+    intelligent_monkey_test = "intelligent_monkey_test"
 
 
 class LogLevelEnum(ExtendedEnum):
@@ -65,10 +68,12 @@ class ChannelChangeTimeTargetEnum(ExtendedEnum):
 
 class BlockTypeEnum(ExtendedEnum):
     remocon_transmit = "remocon_transmit"
+    remocon_properties = "remocon_properties"
     on_off_control = "on_off_control"
-    shell = "shell"
     packet_control = "packet_control"
     packet_block = "packet_block"
+    device_info = "device_info"
+    shell = "shell"
     monkey_test = "monkey_test"
     intelligent_monkey_test = "intelligent_monkey_test"
 

@@ -71,6 +71,20 @@ export interface HardwareConfiguration {
 }
 
 /**
+ * Block type
+ */
+type BlockType =
+  | 'remocon_transmit'
+  | 'on_off_control'
+  | 'shell'
+  | 'packet_control'
+  | 'packet_block'
+  | 'monkey_test'
+  | 'intelligent_monkey_test'
+  | 'device_info'
+  | 'remocon_properties'
+
+/**
  * 서비스 상태
  *
  * `idle` 대기 (녹화 및 로그수집 X, 스트리밍 X)
@@ -84,8 +98,8 @@ export interface HardwareConfiguration {
 export type ServiceState = 'idle' | 'streaming' | 'playblock' | 'analysis'
 
 export interface Block {
-  type: string
-  args: { key: string; value: string | number }[]
+  type: BlockType
+  args: { key: string; value: string | number | boolean | object | null | undefined }[]
   name: string
   delay_time: number
   id: string
@@ -108,3 +122,16 @@ export interface Scenario {
  * 로그 연결여부
  */
 export type LogConnectionStatus = 'log_disconnected' | 'log_connected'
+
+/**
+ * 비디오 정보
+ *
+ * @param start_time 비디오 시작시간(테스트런 시작시간)
+ * @param end_time 비디오 종료시간(테스트런 종료시간)
+ * @param path 비디오 저장경로
+ */
+export interface VideoSummary {
+  start_time: string
+  end_time: string
+  path: string
+}

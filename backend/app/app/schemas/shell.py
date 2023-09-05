@@ -1,23 +1,23 @@
 from typing import List
 
-from app.schemas.enum import LogModuleEnum
+from app.schemas.analysis_result import TimestampBaseModel
+from app.schemas.enum import LogModuleEnum, ShellModeEnum
 from pydantic import BaseModel
 
 
-class Shell(BaseModel):
-    class log(BaseModel):
-        timestamp: str
-        module: LogModuleEnum
-        message: str
+class Log(TimestampBaseModel):
+    module: LogModuleEnum
+    message: str
 
-    time: str
-    mode: str
-    shell_id: str
-    lines: List[log]
+
+class Shell(TimestampBaseModel):
+    mode: ShellModeEnum
+    shell_id: int
+    lines: List[Log]
 
 
 class ShellLogList(BaseModel):
-    items: List[Shell.log]
+    items: List[Log]
 
 
 class ShellList(BaseModel):

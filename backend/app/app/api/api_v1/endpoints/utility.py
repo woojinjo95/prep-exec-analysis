@@ -42,7 +42,6 @@ async def export_result(
         now = datetime.today().strftime('%Y-%m-%dT%H%M%SF%f')
         export_type = {
             'file': ['videos'],
-            'redis': ['analysis_config'],
             'mongodb': ['scenario', 'stb_log']
         }
         export_item = {key: [item for item in jsonable_encoder(export_in.items) if item in values]
@@ -60,15 +59,6 @@ async def export_result(
                         file_path = os.path.join(root, file)
                         relative_path = os.path.relpath(file_path, path)
                         zipf.write(file_path, os.path.join(f'{testrun_id}', 'raw', file_type, relative_path))
-
-            # redis
-            for redis_key in export_item['redis']:
-                matching_keys = RedisClient.scan_iter(match=f"{redis_key}:*")
-                for key in matching_keys:
-                    json_filename = f'{redis_key}/{key.split(":")[1]}.json'
-                    data = json.dumps(RedisClient.hgetall(key))
-                    zipf.writestr(json_filename, data)
-
             # mongodb
             for collection_name in export_item['mongodb']:
                 param = {'id': scenario_id} if collection_name == 'scenario' \
@@ -93,19 +83,11 @@ async def export_result(
 async def import_result(file: UploadFile = File(...)) -> schemas.Msg:
     try:
         import_type = {
-            'redis': ['analysis_config'],
             'mongodb': ['scenario', 'stb_log'],
         }
         zip_data = await file.read()
         with zipfile.ZipFile(io.BytesIO(zip_data), "r") as zipf:
-            name_list = zipf.namelist()
-            if any(item.startswith('analysis_config/') for item in name_list):
-                pattern = 'analysis_config:*'
-                keys_to_delete = list(RedisClient.keys(pattern))
-                if keys_to_delete:
-                    RedisClient.delete(*keys_to_delete)
-
-            for filename in name_list:
+            for filename in zipf.namelist():
                 file_info = filename.split('/')
                 _type = next((key for key, values in import_type.items() if file_info[0] in values), 'file')
                 # file
@@ -117,13 +99,8 @@ async def import_result(file: UploadFile = File(...)) -> schemas.Msg:
                     with open(f'{workspace_path}/{filename}', 'wb') as f:
                         f.write(file.file.read())
 
-                if _type in ['redis', 'mongodb']:
+                if _type == 'mongodb':
                     file_data = zipf.read(filename).decode("utf-8")
-                    # redis
-                    if _type == 'redis':
-                        for k, v in json.loads(file_data).items():
-                            RedisClient.hset(f'{file_info[0]}:{file_info[1].split(".")[0]}', k, v)
-
                     # mongodb
                     if _type == 'mongodb':
                         collection_name = os.path.dirname(filename)
@@ -136,7 +113,7 @@ async def import_result(file: UploadFile = File(...)) -> schemas.Msg:
 
 
 @router.post("/validate_regex", response_model=schemas.RegexResult)
-async def validate_regex(
+def validate_regex(
     *,
     regex_str: schemas.Regex,
 ) -> schemas.RegexResult:
