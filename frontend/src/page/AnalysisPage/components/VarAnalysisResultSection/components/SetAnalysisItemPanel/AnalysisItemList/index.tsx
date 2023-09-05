@@ -1,14 +1,14 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { useMutation } from 'react-query'
 import { Title } from '@global/ui'
 import { AnalysisService } from '@global/service'
 import { useObservableState, useWebsocket } from '@global/hook'
-import { AnalyzableTypes } from '@global/constant'
+import { AnalyzableType, AnalyzableTypes } from '@global/constant'
 
+import { useAnalysisConfig } from '@page/AnalysisPage/api/hook'
+import { AnalysisConfig } from '@page/AnalysisPage/api/entity'
 import { AnalysisTypeLabel } from '../../../constant'
-import { useAnalysisConfig } from '../../../api/hook'
+import { useUpdateAnalysisConfig } from '../../../api/hook'
 import { UnsavedAnalysisConfig } from '../../../types'
-import { putAnalysisConfig } from '../../../api/func'
 import FreezeAnalysisItem from './FreezeAnalysisItem'
 import BootAnalysisItem from './BootAnalysisItem'
 import ResumeAnalysisItem from './ResumeAnalysisItem'
@@ -62,6 +62,12 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
   const [unsavedAnalysisConfig, setUnsavedAnalysisConfig] = useState<UnsavedAnalysisConfig>({})
   const { analysisConfig } = useAnalysisConfig({
     onSuccess: (data) => {
+      if (Object.keys(unsavedAnalysisConfig).length) return
+
+      // 처음 진입하여 unsavedAnalysisConfig가 빈 객체일 경우
+      setSelectedAnalysisItems(
+        Object.keys(data).filter((key) => !!data[key as keyof AnalysisConfig]) as (keyof AnalysisConfig)[],
+      )
       setUnsavedAnalysisConfig(() => ({
         ...data,
         freeze: data.freeze
@@ -73,17 +79,23 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
       }))
     },
   })
-  const { mutate: updateAnalysisConfig } = useMutation(putAnalysisConfig, {
+
+  const { updateAnalysisConfig } = useUpdateAnalysisConfig({
     onSuccess: (_, config) => {
       if (!Object.keys(config).length) return
+
+      const measurement = Object.keys(config).filter(
+        (type) => AnalyzableTypes.includes(type as AnalyzableType) && !!config[type as AnalyzableType],
+      ) as AnalyzableType[]
+
+      // 설정한 분석아이템이 없을 경우
+      if (!measurement.length) return
 
       // 분석 설정 수정에 성공하면 -> 분석 시작 메시지 전송
       sendMessage({
         msg: 'analysis',
         data: {
-          measurement: Object.keys(config).filter((type) =>
-            AnalyzableTypes.includes(type as (typeof AnalyzableTypes)[number]),
-          ) as (typeof AnalyzableTypes)[number][],
+          measurement,
         },
       })
     },
@@ -133,6 +145,7 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
               duration: Number(unsavedAnalysisConfig.freeze.duration),
             }
           : undefined,
+        log_level_finder: unsavedAnalysisConfig.log_level_finder,
       })
     },
   })
