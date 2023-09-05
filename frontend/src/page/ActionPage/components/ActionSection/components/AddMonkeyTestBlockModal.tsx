@@ -4,6 +4,7 @@ import { useHardwareConfiguration, useScenarioById } from '@global/api/hook'
 import { useRecoilValue } from 'recoil'
 import { scenarioIdState, selectedRemoconNameState } from '@global/atom'
 import { useMutation } from 'react-query'
+import cx from 'classnames'
 import { TimeUnit } from '../types'
 import { timeUnit } from '../constants'
 import { postBlock } from '../api/func'
@@ -164,10 +165,11 @@ const AddMonkeyTestBlockModal: React.FC<AddMonkeyTestBlockModalProps> = ({ isOpe
           </div>
           <div className="flex w-full mt-2 items-center h-[50px]">
             <div className="w-[180px]">
-              <Text className="bg-transparent">Waiting Time</Text>
+              <Text className={cx('bg-transparent', { 'opacity-40': !isSmartSense })}>Waiting Time</Text>
             </div>
             <div className="flex">
               <Input
+                disabled={!isSmartSense}
                 className="!w-[100px]"
                 type="number"
                 value={waitingTime}
@@ -176,6 +178,7 @@ const AddMonkeyTestBlockModal: React.FC<AddMonkeyTestBlockModalProps> = ({ isOpe
                 }}
               />
               <Select
+                disabled={!isSmartSense}
                 className="!w-[140px] ml-1"
                 colorScheme="charcoal"
                 header={<Text colorScheme="light">{waitingTimeTimeUnit}</Text>}
