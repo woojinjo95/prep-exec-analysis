@@ -59,18 +59,19 @@ async def run_blocks(conn, db_blocks, scenario_id, testrun_id, blocks: list, eve
             # 다음 수행될 블럭 정보 송신
             await conn.publish(CHANNEL_NAME, publish_message(message="next_playblock", data={"block_id": block['id']}))
             await set_run_item(conn, block_id=block['id'])
-
+            message = cvt_block_to_message(block)
+            print(f"run block: {message}")
             # 수행 메시지 송신
-            await conn.publish(CHANNEL_NAME, cvt_block_to_message(block))
+            await conn.publish(CHANNEL_NAME, message)
 
             print("wait... message response")
             # 블럭 타입이 분석이면 이벤트 대기
 
-            await asyncio.wait_for(event.wait(), 60)
+            # await asyncio.wait_for(event.wait(), 60)
             event.clear()
             # # 다른 파트는 시간대기
-            # delay_time = block['delay_time']
-            # await asyncio.sleep(delay_time / 1000)
+            delay_time = block['delay_time']
+            await asyncio.sleep(delay_time / 1000)
 
             # 완료 처리
             db_blocks.update_one(
