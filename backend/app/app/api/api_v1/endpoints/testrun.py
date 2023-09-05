@@ -119,7 +119,8 @@ def read_testruns(
                     {"$project": {"_id": 0,
                                   "id": "$_id.testrun_id",
                                   "updated_at": "$_id.last_timestamp",
-                                  "analysis_targets": "$_id.targets"}}]
+                                  "analysis_targets": "$_id.targets"}},
+                    {'$sort': {'updated_at': -1}}]
         res = aggregate_from_mongodb('scenario', pipeline)
 
         items = []

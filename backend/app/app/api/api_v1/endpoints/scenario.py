@@ -104,6 +104,8 @@ def delete_scenario(
 def read_scenarios(
     page: int = Query(None, ge=1),
     page_size: int = Query(None, ge=1, le=30),
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = None,
     name: Optional[str] = None,
     tag: Optional[str] = None,
 ) -> schemas.ScenarioPage:
@@ -131,7 +133,9 @@ def read_scenarios(
         res = paginate_from_mongodb_aggregation(col='scenario',
                                                 pipeline=pipeline,
                                                 page=page,
-                                                page_size=page_size)  # TODO 디폴트 정렬 설정
+                                                page_size=page_size,
+                                                sort_by=sort_by if sort_by else 'updated_at',
+                                                sort_desc=sort_desc if sort_desc is not None else True)
 
     except Exception as e:
         logger.error(traceback.format_exc())
