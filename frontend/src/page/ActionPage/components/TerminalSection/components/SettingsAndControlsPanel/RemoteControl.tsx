@@ -4,14 +4,52 @@ import { ReactComponent as IRIcon } from '@assets/images/icon_remote_ir_w.svg'
 import { ReactComponent as BluetoothIcon } from '@assets/images/icon_remote_bt_w.svg'
 import { ButtonGroup, Divider, GroupButton, Title } from '@global/ui'
 import { useWebsocket } from '@global/hook'
-import { useHardwareConfiguration } from '@global/api/hook'
+import { useHardwareConfiguration, useScenarioById } from '@global/api/hook'
+import { useRecoilValue } from 'recoil'
+import { scenarioIdState } from '@global/atom'
+import { useMutation } from 'react-query'
+import { postBlock } from '@page/ActionPage/components/ActionSection/api/func'
+
+type RemoteControlResponseMessageBody = {
+  type: 'ir' | 'bt'
+}
 
 const RemoteControl: React.FC = () => {
   const { hardwareConfiguration, refetch } = useHardwareConfiguration()
-  const { sendMessage } = useWebsocket({
+
+  const scenarioId = useRecoilValue(scenarioIdState)
+
+  const { refetch: scenarioRefetch } = useScenarioById({ scenarioId })
+
+  const { mutate: postBlockMutate } = useMutation(postBlock, {
+    onSuccess: () => {
+      scenarioRefetch()
+    },
+    onError: (err) => {
+      console.error(err)
+    },
+  })
+
+  const { sendMessage } = useWebsocket<RemoteControlResponseMessageBody>({
     onMessage: (message) => {
       if (message.msg === 'remocon_properties_response') {
         refetch()
+
+        // if (!scenarioId) return
+        // postBlockMutate({
+        //   newBlock: {
+        //     type: 'remocon_properties', // 미정
+        //     name: `Remote Control: ${message.data.type}`,
+        //     delay_time: 3000,
+        //     args: [
+        //       {
+        //         key: 'type',
+        //         value: message.data.type,
+        //       },
+        //     ],
+        //   },
+        //   scenario_id: scenarioId,
+        // })
       }
     },
   })

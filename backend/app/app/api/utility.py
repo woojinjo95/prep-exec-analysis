@@ -38,7 +38,7 @@ def paginate_from_mongodb(col, page, page_size=None, param={}, sorting_keyword=N
     return convert_pageset(page_param, list(res.get('items', [])))
 
 
-def get_multi_or_paginate_by_res(col, page, page_size, sorting_keyword=None, is_descending=None, proj=None, param={}):
+def get_multi_or_paginate_by_res(col, page, page_size=10, sorting_keyword=None, is_descending=None, proj=None, param={}):
     if page:
         res_dict = paginate_from_mongodb(col=col,
                                          page=page,

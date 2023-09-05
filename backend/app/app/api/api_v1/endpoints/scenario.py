@@ -7,7 +7,8 @@ from datetime import datetime
 from typing import Optional
 
 from app import schemas
-from app.api.utility import (get_multi_or_paginate_by_res, get_utc_datetime,
+from app.api.utility import (get_utc_datetime,
+                             paginate_from_mongodb_aggregation,
                              parse_bytes_to_value, set_ilike,
                              set_redis_pub_msg)
 from app.crud.base import (count_from_mongodb, insert_one_to_mongodb,
@@ -102,7 +103,9 @@ def delete_scenario(
 @router.get("", response_model=schemas.ScenarioPage)
 def read_scenarios(
     page: int = Query(None, ge=1),
-    page_size: int = Query(None, ge=1, le=100),
+    page_size: int = Query(None, ge=1, le=30),
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = None,
     name: Optional[str] = None,
     tag: Optional[str] = None,
 ) -> schemas.ScenarioPage:
@@ -114,12 +117,26 @@ def read_scenarios(
         if name:
             param['name'] = set_ilike(name)
         if tag:
-            param['tags'] = {'$elemMatch': set_ilike(tag)}
-        res = get_multi_or_paginate_by_res(col='scenario',
-                                           page=page,
-                                           page_size=page_size,
-                                           sorting_keyword='name',
-                                           param=param)
+            param['tags'] = tag
+
+        pipeline = [{'$match': param},
+                    {'$project': {'id': '$id',
+                                  'name': '$name',
+                                  'tags': '$tags',
+                                  'updated_at': '$updated_at',
+                                  "testrun_count": {"$size": {"$filter": {"input": "$testruns",
+                                                                          "as": "testrun",
+                                                                          "cond": {"$eq": ["$$testrun.is_active", True]}}}},
+                                  'has_block': {'$cond': {'if': {'$eq': [{'$size': '$block_group'}, 0]},
+                                                          'then': False,
+                                                          'else': True}}}}]
+        res = paginate_from_mongodb_aggregation(col='scenario',
+                                                pipeline=pipeline,
+                                                page=page,
+                                                page_size=page_size,
+                                                sort_by=sort_by if sort_by else 'updated_at',
+                                                sort_desc=sort_desc if sort_desc is not None else True)
+
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
@@ -176,6 +193,7 @@ def create_scenario(
                                                     'tags': scenario_in.tags,
                                                     'block_group': block_group_data,
                                                     'testruns': [{'id': testrun_id,
+                                                                  'is_active': True,
                                                                   'raw': {'videos': []},
                                                                   'analysis': {}}]})
 

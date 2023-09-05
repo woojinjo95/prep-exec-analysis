@@ -4,6 +4,7 @@ import { useHardwareConfiguration, useScenarioById } from '@global/api/hook'
 import { useRecoilValue } from 'recoil'
 import { scenarioIdState, selectedRemoconNameState } from '@global/atom'
 import { useMutation } from 'react-query'
+import cx from 'classnames'
 import { TimeUnit } from '../types'
 import { profiles, timeUnit } from '../constants'
 import { postBlock } from '../api/func'
@@ -18,7 +19,7 @@ const AddIntelligentMonkeyTestBlockModal: React.FC<AddIntelligentMonkeyTestBlock
   const [duration, setDuration] = useState<number>(60)
   const [durationTimeUnit, setDurationTimeUnit] = useState<Extract<TimeUnit, 'Sec' | 'Min'>>('Sec')
 
-  const [interval, setInterval] = useState<number>(1)
+  const [interval, setInterval] = useState<number>(1.3)
   const [intervalTimeUnit, setIntervalTimeUnit] = useState<Extract<TimeUnit, 'Sec' | 'ms'>>('Sec')
 
   const [isSmartSense, setIsSmartSense] = useState<boolean>(false)
@@ -191,21 +192,21 @@ const AddIntelligentMonkeyTestBlockModal: React.FC<AddIntelligentMonkeyTestBlock
           </div>
           <div className="flex w-full mt-2 items-center h-[50px] ">
             <div className="w-[180px]">
-              <Text className="bg-transparent opacity-40">Waiting Time</Text>
+              <Text className={cx('bg-transparent', { 'opacity-40': !isSmartSense })}>Waiting Time</Text>
             </div>
             <div className="flex">
               <Input
+                disabled={!isSmartSense}
                 className="!w-[100px]"
                 type="number"
-                disabled
                 value={waitingTime}
                 onChange={(e) => {
                   setWaitingTime(Number(e.target.value))
                 }}
               />
               <Select
+                disabled={!isSmartSense}
                 className="!w-[140px] ml-1"
-                disabled
                 colorScheme="charcoal"
                 header={<Text colorScheme="light">{waitingTimeTimeUnit}</Text>}
               >

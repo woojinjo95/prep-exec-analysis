@@ -2,10 +2,9 @@ import React from 'react'
 import { createPortal } from 'react-dom'
 import { createPortalStyle, formatDateTo } from '@global/usecase'
 import { Text } from '@global/ui'
+import { DefaultChartDataType } from '@global/types'
 
-type DefaultDataType = { datetime: number }
-
-interface TimelineTooltipProps<T extends DefaultDataType> {
+interface TimelineTooltipProps<T extends DefaultChartDataType> {
   posX: number
   data: T
   wrapperRef: React.MutableRefObject<HTMLDivElement | null>
@@ -15,7 +14,7 @@ interface TimelineTooltipProps<T extends DefaultDataType> {
 /**
  * 타임라인 차트의 툴팁 컴포넌트
  */
-const TimelineTooltip = <T extends DefaultDataType>({
+const TimelineTooltip = <T extends DefaultChartDataType>({
   data,
   children,
   wrapperRef,
