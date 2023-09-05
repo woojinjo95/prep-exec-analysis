@@ -66,11 +66,11 @@ async def run_blocks(conn, db_blocks, scenario_id, testrun_id, blocks: list, eve
             print("wait... message response")
             # 블럭 타입이 분석이면 이벤트 대기
 
-            await asyncio.wait_for(event.wait(), 60)
+            # await asyncio.wait_for(event.wait(), 60)
             event.clear()
             # # 다른 파트는 시간대기
-            # delay_time = block['delay_time']
-            # await asyncio.sleep(delay_time / 1000)
+            delay_time = block['delay_time']
+            await asyncio.sleep(delay_time / 1000)
 
             # 완료 처리
             db_blocks.update_one(
