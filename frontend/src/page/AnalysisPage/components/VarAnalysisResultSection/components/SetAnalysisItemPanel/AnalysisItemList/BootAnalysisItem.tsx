@@ -1,11 +1,13 @@
 import React from 'react'
 import { Accordion, ColorPickerBox, SetROIButton, Text } from '@global/ui'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
+import { ReactComponent as ISValidIcon } from '@assets/images/icon_Is_valid.svg'
 import { AnalysisTypeLabel, BootTypeLabel } from '../../../constant'
 import { UnsavedAnalysisConfig } from '../../../types'
 
 interface BootAnalysisItemProps {
   color: NonNullable<UnsavedAnalysisConfig['boot']>['color']
+  frame: NonNullable<UnsavedAnalysisConfig['boot']>['frame']
   bootType: NonNullable<UnsavedAnalysisConfig['boot']>['type']
   onClickDeleteItem: () => void
   setUnsavedAnalysisConfig: React.Dispatch<React.SetStateAction<UnsavedAnalysisConfig>>
@@ -16,6 +18,7 @@ interface BootAnalysisItemProps {
  */
 const BootAnalysisItem: React.FC<BootAnalysisItemProps> = ({
   color,
+  frame,
   bootType,
   onClickDeleteItem,
   setUnsavedAnalysisConfig,
@@ -57,11 +60,26 @@ const BootAnalysisItem: React.FC<BootAnalysisItemProps> = ({
         </div>
 
         <div className="flex justify-between items-center">
-          <Text colorScheme="light" weight="medium">
-            Set ROI
-          </Text>
+          <div className="flex items-center gap-x-2">
+            <Text colorScheme="light" weight="medium">
+              Set ROI
+            </Text>
+            {!!frame && <ISValidIcon className="w-5 h-5" />}
+          </div>
 
-          <SetROIButton />
+          <SetROIButton
+            defaultCurrentTime={frame?.relative_time}
+            defaultROI={frame?.roi}
+            onSave={(frame) => {
+              setUnsavedAnalysisConfig((prev) => ({
+                ...prev,
+                boot: {
+                  ...prev.boot!,
+                  frame,
+                },
+              }))
+            }}
+          />
         </div>
       </div>
     </Accordion>

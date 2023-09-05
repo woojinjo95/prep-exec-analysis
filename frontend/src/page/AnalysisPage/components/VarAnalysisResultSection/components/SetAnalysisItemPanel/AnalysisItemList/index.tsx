@@ -153,6 +153,12 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
               frame: unsavedAnalysisConfig.resume.frame!,
             }
           : undefined,
+        boot: unsavedAnalysisConfig.boot
+          ? {
+              ...unsavedAnalysisConfig.boot,
+              frame: unsavedAnalysisConfig.boot.frame!,
+            }
+          : undefined,
       })
     },
   })
@@ -214,6 +220,7 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
       {selectedAnalysisItems.includes('boot') && unsavedAnalysisConfig.boot && (
         <BootAnalysisItem
           color={unsavedAnalysisConfig.boot.color}
+          frame={unsavedAnalysisConfig.boot.frame}
           bootType={unsavedAnalysisConfig.boot.type}
           setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
           onClickDeleteItem={onClickDeleteItem('boot')}

@@ -18,7 +18,7 @@ const SetROIButton: React.FC<SetROIButtonProps> = ({ onSave, defaultCurrentTime,
   return (
     <>
       <Button colorScheme="charcoal" className="w-[132px]" onClick={() => setIsOpen(true)}>
-        Add
+        {defaultCurrentTime !== undefined && defaultROI !== undefined ? 'Modify' : 'Add'}
       </Button>
       <SetROIModal
         isOpen={isOpen}

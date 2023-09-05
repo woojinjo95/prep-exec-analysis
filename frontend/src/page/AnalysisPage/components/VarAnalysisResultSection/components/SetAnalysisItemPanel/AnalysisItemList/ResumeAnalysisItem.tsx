@@ -1,6 +1,7 @@
 import React from 'react'
 import { Accordion, ColorPickerBox, OptionItem, Select, SetROIButton, Text } from '@global/ui'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
+import { ReactComponent as ISValidIcon } from '@assets/images/icon_Is_valid.svg'
 import { AnalysisTypeLabel, ResumeTypeLabel } from '../../../constant'
 import { UnsavedAnalysisConfig } from '../../../types'
 
@@ -69,7 +70,7 @@ const ResumeAnalysisItem: React.FC<ResumeAnalysisItemProps> = ({
                   onClick={() => {
                     setUnsavedAnalysisConfig((prev) => ({
                       ...prev,
-                      resume: { ...prev.resume!, type },
+                      resume: { ...prev.resume!, type, frame: undefined },
                     }))
                   }}
                   isActive={type === resumeType}
@@ -83,9 +84,12 @@ const ResumeAnalysisItem: React.FC<ResumeAnalysisItemProps> = ({
 
         {resumeType === 'image_matching' && (
           <div className="flex justify-between items-center">
-            <Text colorScheme="light" weight="medium">
-              Set ROI
-            </Text>
+            <div className="flex items-center gap-x-2">
+              <Text colorScheme="light" weight="medium">
+                Set ROI
+              </Text>
+              {!!frame && <ISValidIcon className="w-5 h-5" />}
+            </div>
 
             <SetROIButton
               defaultCurrentTime={frame?.relative_time}
