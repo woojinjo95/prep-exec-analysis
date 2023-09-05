@@ -44,8 +44,6 @@ class IntelligentMonkeyTestRoku:
     def run(self):
         logger.info('start intelligent monkey test. mode: ROKU.')
         self.set_root_keyset(self.root_keyset)
-        if not self.root_cursor:
-            self.set_root_keyset(self.root_keyset)  # try one more
 
         self.visit()
         logger.info('stop intelligent monkey test. mode: ROKU.')
@@ -112,13 +110,19 @@ class IntelligentMonkeyTestRoku:
             image = get_current_image()
         return find_roku_cursor(image)
 
-    def set_root_keyset(self, keys: List[str] = []):
-        self.key_histories = keys
-        logger.info(f'root keyset: {self.key_histories}')
-
-        self.exec_keys(self.key_histories)
-        self.root_cursor = self.get_cursor()
-        logger.info(f'root cursor: {self.root_cursor}')
+    def set_root_keyset(self, keys: List[str] = [], find_root_cursor_max_try: int=3):
+        for try_count in range(find_root_cursor_max_try):
+            self.key_histories = keys
+            logger.info(f'root keyset: {self.key_histories}')
+            self.exec_keys(self.key_histories)
+            self.root_cursor = self.get_cursor()
+            logger.info(f'root cursor: {self.root_cursor}. try_count: {try_count}')
+            if self.root_cursor:
+                break
+        else:
+            logger.info(f'cannot find root cursor. try_count: {try_count}')
+            raise Exception('cannot find root cursor')
+        
 
     def check_leftmenu_is_opened(self, prev_image: np.ndarray, prev_cursor: Tuple, image: np.ndarray, cursor: Tuple, max_height_diff: int=10) -> bool:
         if cursor is None:
