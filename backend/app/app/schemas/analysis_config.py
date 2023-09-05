@@ -23,7 +23,7 @@ class Frame(BaseModel):
 
 
 class Freeze(CommonBaseModel):
-    duration: int
+    duration: int = 3
 
 
 class Macroblock(CommonBaseModel):

@@ -44,4 +44,4 @@ const RangeChart: React.FC<RangeChartProps> = ({ data, scaleX, color }) => {
   )
 }
 
-export default RangeChart
+export default React.memo(RangeChart)

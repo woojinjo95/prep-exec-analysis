@@ -5,7 +5,7 @@ import Tick from './Tick'
 
 interface TimelineHeaderProps {
   scaleX: d3.ScaleTime<number, number, never> | null
-  chartWidth: number | null
+  chartWidth?: number
   cursorTranslateX?: number
 }
 
