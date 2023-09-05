@@ -104,7 +104,13 @@ async def consumer_handler(conn: any, CHANNEL_NAME: str):
                     print('----> analysis')
                     msg_data = data.get('data', {})
                     measurement = msg_data.get('measurement', [])
-                    if 'log_level_finder' in measurement:
+
+                    if 'loudness' in measurement \
+                            or 'monkey_test' in measurement \
+                            or 'log_level_finder' in measurement \
+                            or 'intelligent_monkey_test' in measurement:
+                        target_measurement = msg_data.get('measurement', [''])
+                        msg_data['measurement'] = target_measurement[0]
                         await pub_msg(conn, msg="analysis_response", data=msg_data)
 
                         # 상태 변경 및 메세지 전송
