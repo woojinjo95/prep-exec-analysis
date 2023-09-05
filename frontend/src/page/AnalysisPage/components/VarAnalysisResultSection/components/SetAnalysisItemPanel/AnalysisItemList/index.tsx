@@ -136,8 +136,6 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
       let isValid = false
       if (state?.msg !== 'analysis') return
 
-      // TODO: validation check, 경고 표시
-
       // 로그 패턴을 하나도 추가하지 않은 경우
       if (unsavedAnalysisConfig.log_pattern_matching && !unsavedAnalysisConfig.log_pattern_matching.items.length) {
         setWarningMessage((prev) => ({ ...prev, log_pattern_matching: 'Please set log pattern.' }))
