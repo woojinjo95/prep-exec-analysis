@@ -90,14 +90,14 @@ class InsertLoudnessToDB:
                     document['lines'].append(format_subscribed_log(log))
                 else:
                     # 이미 document가 있고 로그 초는 늘어남
-                    insert_to_mongodb('event_log', document)
+                    insert_to_mongodb('loudness', document)
                     document = self.init_document(log_time, format_subscribed_log(log))
 
             except queues.Empty:
                 if document is not None:
                     # 1초가 지나고 document가 비지 않으면 업데이트
-                    logger.info(f'Timeout for 1 second and update to mongodb')
-                    insert_to_mongodb('event_log', document)
+                    logger.debug(f'Timeout for 1 second and update to mongodb')
+                    insert_to_mongodb('loudness', document)
                     document = None
 
                 if loudness_stream and log_time.timestamp() + SCENARIO_UPDATE_WAITING_INTERVAL < time.time():

@@ -116,6 +116,7 @@ if __name__ == '__main__':
         log_organizer.set_stream_logger('audio')
         log_organizer.set_stream_logger('snapshot')
         log_organizer.set_stream_logger('connection')
+        log_organizer.set_stream_logger('mongodb')
         log_organizer.set_stream_logger('file', 5)
         log_organizer.set_stream_logger('error', 10)
         logger.info('Start media container')
