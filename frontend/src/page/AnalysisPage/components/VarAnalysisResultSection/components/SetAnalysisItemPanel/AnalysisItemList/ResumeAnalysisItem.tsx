@@ -6,6 +6,7 @@ import { UnsavedAnalysisConfig } from '../../../types'
 
 interface ResumeAnalysisItemProps {
   color: NonNullable<UnsavedAnalysisConfig['resume']>['color']
+  frame: NonNullable<UnsavedAnalysisConfig['resume']>['frame']
   resumeType: NonNullable<UnsavedAnalysisConfig['resume']>['type']
   onClickDeleteItem: () => void
   setUnsavedAnalysisConfig: React.Dispatch<React.SetStateAction<UnsavedAnalysisConfig>>
@@ -16,6 +17,7 @@ interface ResumeAnalysisItemProps {
  */
 const ResumeAnalysisItem: React.FC<ResumeAnalysisItemProps> = ({
   color,
+  frame,
   resumeType,
   onClickDeleteItem,
   setUnsavedAnalysisConfig,
@@ -85,7 +87,19 @@ const ResumeAnalysisItem: React.FC<ResumeAnalysisItemProps> = ({
               Set ROI
             </Text>
 
-            <SetROIButton />
+            <SetROIButton
+              defaultCurrentTime={frame?.relative_time}
+              defaultROI={frame?.roi}
+              onSave={(frame) => {
+                setUnsavedAnalysisConfig((prev) => ({
+                  ...prev,
+                  resume: {
+                    ...prev.resume!,
+                    frame,
+                  },
+                }))
+              }}
+            />
           </div>
         )}
       </div>

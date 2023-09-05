@@ -147,6 +147,12 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
           : undefined,
         log_level_finder: unsavedAnalysisConfig.log_level_finder,
         log_pattern_matching: unsavedAnalysisConfig.log_pattern_matching,
+        resume: unsavedAnalysisConfig.resume
+          ? {
+              ...unsavedAnalysisConfig.resume,
+              frame: unsavedAnalysisConfig.resume.frame!,
+            }
+          : undefined,
       })
     },
   })
@@ -198,6 +204,7 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
       {selectedAnalysisItems.includes('resume') && unsavedAnalysisConfig.resume && (
         <ResumeAnalysisItem
           color={unsavedAnalysisConfig.resume.color}
+          frame={unsavedAnalysisConfig.resume.frame}
           resumeType={unsavedAnalysisConfig.resume.type}
           setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
           onClickDeleteItem={onClickDeleteItem('resume')}

@@ -1,3 +1,4 @@
+import { AnalysisFrame } from '@global/api/entity'
 import { LogLevel } from '@global/constant'
 
 export type ResumeType = 'image_matching' | 'screen_change_rate'
@@ -17,28 +18,12 @@ export interface AnalysisConfig {
   resume?: {
     color: string
     type: ResumeType
-    frame: {
-      image_path: string
-      roi: {
-        x: number
-        y: number
-        w: number
-        h: number
-      }
-    }
+    frame: AnalysisFrame
   }
   boot?: {
     color: string
     type: BootType
-    frame: {
-      image_path: string
-      roi: {
-        x: number
-        y: number
-        w: number
-        h: number
-      }
-    }
+    frame: AnalysisFrame
   }
   channel_change_time?: {
     color: string
