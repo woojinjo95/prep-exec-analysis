@@ -2,7 +2,7 @@ import os
 
 
 def is_running_in_docker():
-    return True if os.environ.get('is_not_docker') else False
+    return False if os.environ.get('is_not_docker') else True
     try:
         folder_path = '/proc'
         folder_list = os.listdir(folder_path)
