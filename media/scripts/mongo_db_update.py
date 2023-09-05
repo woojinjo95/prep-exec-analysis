@@ -16,9 +16,6 @@ from .utils._exceptions import handle_errors, handle_none_return
 logger = logging.getLogger('mongodb')
 
 
-SCENARIO_UPDATE_WAITING_INTERVAL = 2
-
-
 @handle_errors
 def get_testrun_info() -> Dict[str, str]:
     all_testrun_info = get_value('testrun', db=RedisDBEnum.hardware)
@@ -100,13 +97,14 @@ class InsertLoudnessToDB:
                     insert_to_mongodb('loudness', document)
                     document = None
 
-                if loudness_stream and log_time.timestamp() + SCENARIO_UPDATE_WAITING_INTERVAL < time.time():
+                if loudness_stream:
                     logger.info('Timeout for update last loudness time. update to current active sceanrio info')
                     loudness_info = {'type': 'loudness', 'timestamp': log_time}
                     testrun_info = get_testrun_info()
                     scenario_id = testrun_info['scenario_id']
                     testrun_id = testrun_info['testrun_id']
                     update_loundess_to_scenario('scenario', scenario_id, testrun_id, loudness_info)
+                    loudness_stream = False
 
             except Exception as e:
                 logger.error(f'Comsumeing log to upload mongodb failed: {e}')
