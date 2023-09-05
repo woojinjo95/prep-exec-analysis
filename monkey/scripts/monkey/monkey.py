@@ -107,7 +107,7 @@ class Monkey:
 
     def stop_smart_sense(self):
         self.smart_sense_stop_event.set()
-        logger.info('stop smart sense')
+        logger.info('stop smart sense')  # can delayed to stop (because of waiting_time)
 
     def report_smart_sense(self):
         data = {

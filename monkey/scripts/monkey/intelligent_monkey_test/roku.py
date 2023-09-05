@@ -55,8 +55,8 @@ class IntelligentMonkeyTestRoku:
     def visit(self):
         while not self.main_stop_event.is_set():
             self.exec_keys(self.key_histories)
-            node_info = NodeInfo(image=get_current_image())
-            node_info.cursor = self.get_cursor(node_info.image)
+            image = get_current_image()
+            node_info = NodeInfo(image=image, cursor=self.get_cursor(image))
             node_info.cursor_image = self.get_cursor_image(node_info.image, node_info.cursor)
 
             status = self.check_end(node_info)
@@ -87,8 +87,8 @@ class IntelligentMonkeyTestRoku:
                     return 'visit_end'
             else:
                 return ''
-        except Exception:
-            logger.warning('check end error.')
+        except Exception as err:
+            logger.warning(f'check end error. {err}')
             return ''
 
     def check_leaf_node(self, node_info: NodeInfo) -> bool:
