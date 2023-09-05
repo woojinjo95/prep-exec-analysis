@@ -57,7 +57,7 @@ class IntelligentMonkeyTestRoku:
     def visit(self):
         while not self.main_stop_event.is_set():
             self.exec_keys(self.key_histories)
-            status = self.check_status()
+            status = self.check_depth()
             if status == 'depth_end':
                 continue
             elif status == 'visit_end':
@@ -71,7 +71,7 @@ class IntelligentMonkeyTestRoku:
             else:
                 self.append_key(self.depth_key)
 
-    def check_status(self) -> str:
+    def check_depth(self) -> str:
         logger.info('check status.')
         image, cursor = get_current_image(), self.get_cursor()
         if self.last_fi and check_cursor_is_same(self.last_fi.image, self.last_fi.cursor, image, cursor):
@@ -84,7 +84,7 @@ class IntelligentMonkeyTestRoku:
                 logger.info(f'visit done. {self.key_histories}. {err}')
                 return 'visit_end'
         else:
-            return 'none'
+            return ''
 
     def check_leaf_node(self) -> bool:
         logger.info('check leaf node.')
