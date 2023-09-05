@@ -69,19 +69,17 @@ const ScenarioItem: React.FC<ScenarioItemProps> = ({ scenario }) => {
             <Text size="md" colorScheme="light">
               {formatDateTo('M DD YYYY, HH:MM AA', new Date(scenario.updated_at))}
             </Text>
-            <button
-              className="w-[74px] h-7 bg-light-charcoal"
-              type="button"
+            <Text
+              className="w-[74px] h-7 cursor-pointer"
+              colorScheme="light"
               onClick={(e) => {
                 e.stopPropagation()
                 postTestrunMutate(scenario.id)
               }}
             >
               Open
-            </button>
-            <button className="w-[74px] h-7 bg-light-charcoal" type="button">
-              More
-            </button>
+            </Text>
+            <Text className="w-[74px] h-7 bg-light-charcoal">More</Text>
           </div>
         }
       >
