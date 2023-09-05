@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 
 import { ToggleButton, Text, Divider, Title } from '@global/ui'
 import { useWebsocket } from '@global/hook'
@@ -18,6 +18,9 @@ type OnOffControlResponseMessageBody = {
   enable_dut_wan_transition?: string
 }
 
+type blockType = 'DUT Power' | 'HDMI' | 'DUT Wan'
+type blockArgKey = 'enable_dut_power' | 'enable_hdmi' | 'enable_dut_wan'
+
 const OnOffControl: React.FC = () => {
   const { hardwareConfiguration, refetch } = useHardwareConfiguration()
 
@@ -36,6 +39,35 @@ const OnOffControl: React.FC = () => {
 
   const isBlockRecordMode = useRecoilValue(isBlockRecordModeState)
 
+  const postBlockWithMessageData = useCallback(
+    ({
+      blockType,
+      blockArgKey,
+      blockValue,
+    }: {
+      blockType: blockType
+      blockArgKey: blockArgKey
+      blockValue: 'on' | 'off'
+    }) => {
+      if (!scenarioId) return
+      postBlockMutate({
+        newBlock: {
+          type: 'on_off_control',
+          name: `Control: ${blockType} ${blockValue}`,
+          delay_time: 3000,
+          args: [
+            {
+              key: blockArgKey,
+              value: blockValue,
+            },
+          ],
+        },
+        scenario_id: scenarioId,
+      })
+    },
+    [],
+  )
+
   const { sendMessage } = useWebsocket<OnOffControlResponseMessageBody>({
     onMessage: (message) => {
       if (message.msg === 'on_off_control_response') {
@@ -43,40 +75,27 @@ const OnOffControl: React.FC = () => {
 
         if (!scenarioId || !isBlockRecordMode) return
 
-        let blockType = ''
-        let blockArgKey: 'enable_dut_power' | 'enable_hdmi' | 'enable_dut_wan' = 'enable_dut_power'
-        let blockArgValueType: 'vac' | 'hpd' | 'lan' = 'vac'
-
         if (message.data.enable_dut_power_transition) {
-          blockType = 'DUT Power'
-          blockArgKey = 'enable_dut_power'
-          blockArgValueType = 'vac'
+          postBlockWithMessageData({
+            blockType: 'DUT Power',
+            blockArgKey: 'enable_dut_power',
+            blockValue: message.data.vac!,
+          })
         }
         if (message.data.enable_hdmi_transition) {
-          blockType = 'HDMI'
-          blockArgKey = 'enable_hdmi'
-          blockArgValueType = 'hpd'
+          postBlockWithMessageData({
+            blockType: 'HDMI',
+            blockArgKey: 'enable_hdmi',
+            blockValue: message.data.hpd!,
+          })
         }
         if (message.data.enable_dut_wan_transition) {
-          blockType = 'DUT Wan'
-          blockArgKey = 'enable_dut_wan'
-          blockArgValueType = 'lan'
+          postBlockWithMessageData({
+            blockType: 'DUT Wan',
+            blockArgKey: 'enable_dut_wan',
+            blockValue: message.data.lan!,
+          })
         }
-
-        postBlockMutate({
-          newBlock: {
-            type: 'on_off_control',
-            name: `Control: ${blockType} ${message.data[blockArgValueType]!}`,
-            delay_time: 3000,
-            args: [
-              {
-                key: blockArgKey,
-                value: message.data[blockArgValueType],
-              },
-            ],
-          },
-          scenario_id: scenarioId,
-        })
       }
     },
   })
