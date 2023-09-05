@@ -24,18 +24,20 @@ def calc_scenario_to_run_blocks(total_loop: int, scenario: dict):
     return blocks
 
 
-def calc_analysis_to_run_blocks(analysis_configs: list):
+def calc_analysis_to_run_blocks(configs: list):
     idx = 0
     blocks = []
-    for analysis_config in analysis_configs:
-        module_name = analysis_config.split(':')[1]
+    for config_key in configs.keys():
+        config = configs[config_key]
+        if config is None:
+            continue
         _analysis_config = {
             "type": "analysis",
-            "name": module_name,
+            "name": config_key,
             "args": [
                 {
                     "key": "measurement",
-                    "value": module_name
+                    "value": config_key
                 }
             ]
         }
@@ -86,6 +88,7 @@ async def run_blocks(conn, db_blocks, scenario_id, testrun_id, blocks: list, eve
 
 async def run_analysis(conn, db_blocks, scenario_id, testrun_id, blocks: list, event: asyncio.Event):
     try:
+        print("run_analysis")
         for block in blocks:
             # 블럭 수행 도중에 취소되는 경우
             if await is_analysis_state(conn) is False:

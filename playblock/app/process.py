@@ -39,9 +39,11 @@ async def consumer_handler(conn: any, db_scenario: any, db_blocks: any, CHANNEL_
                         # 이미 동작 수행중으로 보이면 추가 실행 명령은 건너뜀
                         print("already running block")
                         continue
-                    await setup_analysis(db_blocks, conn)
+                    state = await conn.hgetall("testrun")
+                    print(f"state: {state}")
+                    await setup_analysis(state, db_scenario, db_blocks, conn)
 
-                if command == "start_analysis_response" or command == "remocon_response":
+                if command == "analysis_response" or command == "remocon_response":
                     # 일단 순차적으로 수행할 것이므로 내용물 체크 안함
                     # 여기가 애매하고 문제가 되는 부분.
                     print(f"response set event ==> {message}")
