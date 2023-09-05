@@ -1,4 +1,5 @@
 import { LogLevel } from '@global/constant'
+import { LogModule } from '../constants'
 
 export interface Logcat {
   timestamp: string
@@ -17,4 +18,21 @@ export interface Network {
   protocol: 'all' | 'tcp' | 'udp' | 'ip' | 'icmp' | 'igmp'
   length: number
   info: string
+}
+
+/**
+ * 열린 쉘 정보
+ */
+export interface Shell {
+  mode: 'adb' | 'ssh'
+  shell_id: number
+}
+
+/**
+ * 쉘 로그
+ */
+export interface ShellLog {
+  timestamp: string
+  module: keyof typeof LogModule
+  message: string
 }
