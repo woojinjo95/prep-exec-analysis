@@ -39,3 +39,20 @@ export const getAnalysisResultSummary = async (params: {
     throw er
   }
 }
+
+/**
+ * 로그 패턴 정규표현식 체크 api
+ */
+export const postValidateRegex = async ({ regex }: { regex: string }) => {
+  try {
+    const result = await API.post<{
+      is_valid: boolean
+      msg: string
+    }>(apiUrls.validate_regex, { regex })
+
+    return result.data
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}

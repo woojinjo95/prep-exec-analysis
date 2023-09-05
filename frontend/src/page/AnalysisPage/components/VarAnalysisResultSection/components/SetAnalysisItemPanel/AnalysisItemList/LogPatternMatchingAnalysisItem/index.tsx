@@ -4,7 +4,7 @@ import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
 import { UnsavedAnalysisConfig } from '@page/AnalysisPage/components/VarAnalysisResultSection/types'
 import { AnalysisTypeLabel } from '../../../../constant'
 import LogPattern from './LogPattern'
-import AddLogPatternModal from './AddLogPatternModal'
+import LogPatternModal from './LogPatternModal'
 
 interface LogPatternMatchingAnalysisItemProps {
   color: NonNullable<UnsavedAnalysisConfig['log_pattern_matching']>['color']
@@ -53,7 +53,12 @@ const LogPatternMatchingAnalysisItem: React.FC<LogPatternMatchingAnalysisItemPro
       <div>
         <div className="grid grid-cols-1 gap-y-4 pt-2">
           {patterns.map((pattern, index) => (
-            <LogPattern key={`log-pattern-matching-analysis-item-${index}`} logPattern={pattern} />
+            <LogPattern
+              key={`log-pattern-matching-analysis-item-${index}`}
+              logPattern={pattern}
+              patterns={patterns}
+              setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
+            />
           ))}
         </div>
 
@@ -70,7 +75,12 @@ const LogPatternMatchingAnalysisItem: React.FC<LogPatternMatchingAnalysisItemPro
         />
 
         {isOpenAddLogPatternModal && (
-          <AddLogPatternModal isOpen={isOpenAddLogPatternModal} close={() => setIsOpenAddLogPatternModal(false)} />
+          <LogPatternModal
+            isOpen={isOpenAddLogPatternModal}
+            close={() => setIsOpenAddLogPatternModal(false)}
+            patterns={patterns}
+            setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
+          />
         )}
       </div>
     </Accordion>

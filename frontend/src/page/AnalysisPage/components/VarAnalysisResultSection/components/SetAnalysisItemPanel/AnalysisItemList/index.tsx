@@ -146,6 +146,7 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
             }
           : undefined,
         log_level_finder: unsavedAnalysisConfig.log_level_finder,
+        log_pattern_matching: unsavedAnalysisConfig.log_pattern_matching,
       })
     },
   })
