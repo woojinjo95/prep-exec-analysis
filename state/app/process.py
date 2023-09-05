@@ -47,7 +47,7 @@ async def consumer_handler(conn: any, CHANNEL_NAME: str):
         while True:
             try:  # 루프 깨지지 않도록 예외처리
                 raw = await pubsub.get_message(ignore_subscribe_messages=True)
-                await asyncio.sleep(0.001)
+                await asyncio.sleep(0.01)
                 command_data = raw.get('data', None) if raw else None
                 data = json.loads(command_data) if isinstance(command_data, str) else {}
                 msg = data.get('msg', None)
@@ -104,7 +104,13 @@ async def consumer_handler(conn: any, CHANNEL_NAME: str):
                     print('----> analysis')
                     msg_data = data.get('data', {})
                     measurement = msg_data.get('measurement', [])
-                    if 'log_level_finder' in measurement:
+
+                    if 'loudness' in measurement \
+                            or 'monkey_test' in measurement \
+                            or 'log_level_finder' in measurement \
+                            or 'intelligent_monkey_test' in measurement:
+                        target_measurement = msg_data.get('measurement', [''])
+                        msg_data['measurement'] = target_measurement[0]
                         await pub_msg(conn, msg="analysis_response", data=msg_data)
 
                         # 상태 변경 및 메세지 전송

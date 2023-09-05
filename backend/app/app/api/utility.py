@@ -38,7 +38,7 @@ def paginate_from_mongodb(col, page, page_size=None, param={}, sorting_keyword=N
     return convert_pageset(page_param, list(res.get('items', [])))
 
 
-def get_multi_or_paginate_by_res(col, page, page_size, sorting_keyword=None, is_descending=None, proj=None, param={}):
+def get_multi_or_paginate_by_res(col, page, page_size=10, sorting_keyword=None, is_descending=None, proj=None, param={}):
     if page:
         res_dict = paginate_from_mongodb(col=col,
                                          page=page,
@@ -107,7 +107,7 @@ def set_ilike(param):
     return {'$regex': item, '$options': 'i'}
 
 
-def paginate_from_mongodb_aggregation(col: str, pipeline: list, page: int, page_size: int = 10):
+def paginate_from_mongodb_aggregation(col: str, pipeline: list, sort_by: str, page: int, page_size: int = 10, sort_desc: bool = False):
     if page:
         skip_num = (page - 1) * page_size
         paging_pipeline = [{'$facet': {'page_info': [{'$count': 'total'}],
@@ -119,6 +119,9 @@ def paginate_from_mongodb_aggregation(col: str, pipeline: list, page: int, page_
                            {'$addFields': {'prev': {'$cond': [{'$eq': [page, 1]}, None, {'$subtract': [page, 1]}]},
                                            'next': {'$cond': [{'$gt': ['$pages', page]}, {'$add': [page, 1]}, None]}}}]
         pipeline.extend(paging_pipeline)
+    if sort_by is not None:
+        sorting_pipeline = [{'$sort': {sort_by: -1 if sort_desc else 1}}]
+        pipeline.extend(sorting_pipeline)
     result = aggregate_from_mongodb(col=col, pipeline=pipeline)
     if page:
         return result[0]

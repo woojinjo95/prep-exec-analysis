@@ -5,14 +5,17 @@ import redis.asyncio as redis
 import pymongo
 
 REDIS_HOST = os.getenv("REDIS_HOST", "192.168.1.45")
+REDIS_HOST = os.getenv("REDIS_HOST", "192.168.1.95")
+
 REDIS_PORT = os.getenv("REDIS_PORT", 6379)
 REDIS_DB = os.getenv("REDIS_DB", 0)
 REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", '66b44dcb7f981904f8536b19e4464725')
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", '')
 CHANNEL_NAME = os.getenv("CHANNEL_NAME", 'command')
 
 MONGODB_USERNAME = os.getenv("MONGODB_USERNAME", "admin")
 MONGODB_PASSWORD = os.getenv("MONGODB_PASSWORD", ".nextlab6318!")
-MONGODB_SERVER = os.getenv("MONGODB_SERVER", "192.168.1.45")
+MONGODB_SERVER = os.getenv("MONGODB_SERVER", "192.168.1.95")
 MONGODB_PORT = os.getenv("MONGODB_PORT", 27017)
 MONGODB_NAME = os.getenv("MONGODB_NAME", "prep-exec-analysis")
 MONGODB_AUTHENTICATION_SOURCE = os.getenv("MONGODB_AUTHENTICATION_SOURCE", "admin")
@@ -68,8 +71,6 @@ if __name__ == '__main__':
     # res = col.find_one({'_id': ObjectId('64d9bf3caeb91b6a6ef87810')})
     # res = scenario.find_one({'id': '5e731960-616a-436e-9cad-84fdbb39bbf4'})
 
-
-
     # # print(len(exec_block_plan))
 
     # # # print(block['name'])
@@ -83,8 +84,8 @@ if __name__ == '__main__':
     for block in res['blocks']:
         print(block)
         ret = blockrun.update_one(
-            { "scenario": '5e731960-616a-436e-9cad-84fdbb39bbf4', "blocks.idx": block['idx']},
-            { "$set": { "blocks.$.run": True}}
+            {"scenario": '5e731960-616a-436e-9cad-84fdbb39bbf4', "blocks.idx": block['idx']},
+            {"$set": {"blocks.$.run": True}}
         )
         print(ret.matched_count)
 
