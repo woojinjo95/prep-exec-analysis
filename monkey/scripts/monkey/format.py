@@ -10,10 +10,12 @@ class FrameInfo:
 
 
 class NodeInfo:
-    def __init__(self, image: np.ndarray, cursor: Tuple[int, int, int, int], name: str=''):
+    def __init__(self, image: np.ndarray, cursor: Tuple[int, int, int, int], 
+                 name: str='', cursor_image: np.ndarray=None):
         self.name = name
         self.image = image
         self.cursor = cursor  # x,y,w,h
+        self.cursor_image = cursor_image
 
 
 

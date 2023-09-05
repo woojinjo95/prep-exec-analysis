@@ -55,7 +55,9 @@ class IntelligentMonkeyTestRoku:
     def visit(self):
         while not self.main_stop_event.is_set():
             self.exec_keys(self.key_histories)
-            node_info = NodeInfo(image=get_current_image(), cursor=self.get_cursor())
+            node_info = NodeInfo(image=get_current_image())
+            node_info.cursor = self.get_cursor(node_info.image)
+            node_info.cursor_image = self.get_cursor_image(node_info.image, node_info.cursor)
 
             status = self.check_end(node_info)
             if status == 'breadth_end':
@@ -63,8 +65,8 @@ class IntelligentMonkeyTestRoku:
             elif status == 'visit_end':
                 return
 
-            if self.check_leaf_node():
-                self.start_monkey([*self.key_histories, self.depth_key])
+            if self.check_leaf_node(node_info):
+                self.start_monkey(node_info, [*self.key_histories, self.depth_key])
                 self.append_key(self.breadth_key)
             else:
                 self.append_key(self.depth_key)
@@ -86,20 +88,15 @@ class IntelligentMonkeyTestRoku:
             else:
                 return ''
         except Exception:
-            logger.exception('check end error.')
+            logger.warning('check end error.')
             return ''
 
-    def check_leaf_node(self) -> bool:
+    def check_leaf_node(self, node_info: NodeInfo) -> bool:
         logger.info('check leaf node.')
-        # node
-        image = get_current_image()
-        cursor = self.get_cursor()
-        self.cursor_image = self.get_cursor_image(image, cursor)
-
         self.exec_keys([self.depth_key])
 
         # inner node
-        leaf_node = False if self.check_leftmenu_is_opened(image, cursor, get_current_image(), self.get_cursor()) else True
+        leaf_node = False if self.check_leftmenu_is_opened(node_info.image, node_info.cursor, get_current_image(), self.get_cursor()) else True
         logger.info(f'leaf node: {leaf_node}')
         return leaf_node
 
@@ -145,7 +142,7 @@ class IntelligentMonkeyTestRoku:
             cursor = self.get_cursor(image)
         return get_cropped_image(image, cursor)
 
-    def start_monkey(self, current_node_keyset: List[str]):
+    def start_monkey(self, node_info: NodeInfo, current_node_keyset: List[str]):
         start_time = time.time()
 
         monkey = Monkey(
@@ -166,7 +163,7 @@ class IntelligentMonkeyTestRoku:
         monkey.run()
 
         end_time = time.time()
-        self.report_section(start_time, end_time, self.cursor_image, monkey.smart_sense_count)
+        self.report_section(start_time, end_time, node_info.cursor_image, monkey.smart_sense_count)
 
         if monkey.banned_image_detected:
             self.stop()
