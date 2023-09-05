@@ -71,6 +71,7 @@ if __name__ == '__main__':
         log_organizer.set_stream_logger('remocon', 1)
         log_organizer.set_stream_logger('serial', 6)
         log_organizer.set_stream_logger('connection')
+        log_organizer.set_stream_logger('service')
         log_organizer.set_stream_logger('error', 10)
         logger.info('Start control container')
 
