@@ -7,16 +7,21 @@ from sub.state import is_run_state, set_stop_state, set_run_item, is_analysis_st
 
 
 def calc_scenario_to_run_blocks(total_loop: int, scenario: dict):
+    print(f"calc_scenario_to_run_blocks:")
     idx = 0
     blocks = []
     # 수행해야 하는 블럭을 반복조건에 맞춰서 배열로 만드는 단계
     for loop_cnt in range(total_loop):  # 시나리오 전체 루프
-        print(f"name: {scenario['name']} loop_cnt: {loop_cnt}")
+        print(f"name: {scenario['name']} loop_cnt: {loop_cnt}, block_group: {scenario['block_group']}")
         for block_group in scenario['block_group']:  # 개별 블록그룹 루프
-            for block_loop_cnt in range(block_group['repeat_cnt']):
+            print(f"block_group-id: {block_group['id']}, block_group-repeat_cnt: {block_group['repeat_cnt']}")
+            # print(f"block_group-repeat_cnt: {block_group['block']}")
+            block_group_cnt = block_group['repeat_cnt'] if block_group['repeat_cnt'] > 0 else 1
+
+            for block_loop_idx in range(block_group_cnt):
                 for block_item in block_group['block']:  # 그룹내 아이템 루프
+                    print(f"block: {idx} / {block_item['name']} block_loop_cnt: {block_loop_idx}")
                     _block_item = copy.deepcopy(block_item)
-                    print(f"block: {idx} / {_block_item['name']} block_loop_cnt: {block_loop_cnt}")
                     _block_item['run'] = False
                     _block_item['idx'] = idx
                     idx = idx + 1
