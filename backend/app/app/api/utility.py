@@ -148,3 +148,14 @@ def serialize_datetime(obj):
     if isinstance(obj, datetime):
         return obj.isoformat()
     raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
+
+
+def get_config_from_scenario_mongodb(scenario_id:str, testrun_id:str):
+    pipeline = [{"$match": {'id': scenario_id}},
+                {"$unwind": "$testruns"},
+                {"$project": {"testrun_id": "$testruns.id",
+                              "config": f"$testruns.analysis.config"}},
+                {"$match": {"testrun_id": testrun_id}},
+                {"$project": {"config": 1}}]
+    res = aggregate_from_mongodb('scenario', pipeline)
+    return res[0] if len(res) > 0 else None

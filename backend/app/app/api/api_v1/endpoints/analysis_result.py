@@ -5,7 +5,7 @@ from typing import Optional
 
 from app import schemas
 from app.api.utility import (convert_iso_format, parse_bytes_to_value,
-                             paginate_from_mongodb_aggregation)
+                             paginate_from_mongodb_aggregation, get_config_from_scenario_mongodb)
 from app.crud.base import aggregate_from_mongodb, load_from_mongodb
 from app.db.redis_session import RedisClient
 from fastapi import APIRouter, HTTPException, Query
@@ -491,18 +491,23 @@ def get_summary_data_of_measure_result(
                                       'testrun_id': testrun_id}}]
 
         active_analysis_list = RedisClient.scan_iter(match="analysis_config:*")
+        config = get_config_from_scenario_mongodb(scenario_id=scenario_id, testrun_id=testrun_id)
         for active_analysis in itertools.chain(active_analysis_list, ['loudness']):
             active_analysis = active_analysis.split(':')[-1]
-
+            color = ''
             pipeline = []
             additional_pipeline = []
             if active_analysis == 'log_level_finder':
                 collection = 'stb_log'
+                log_level_finder_config = config.get(active_analysis, {})
+                log_level_list = log_level_finder_config.get('targets', [])
+                color = log_level_finder_config.get('color', '')
                 additional_pipeline = [{'$project': {'_id': 0, 'lines.log_level': 1}},
                                        {'$unwind': {'path': '$lines'}},
+                                       {'$match': {'lines.log_level': {'$in': log_level_list}}},
                                        {'$group': {'_id': '$lines.log_level', 'total': {'$sum': 1}}},
                                        {'$group': {'_id': None, 'results': {'$push': {'target': '$_id', 'total': '$total'}}}},
-                                       {'$project': {'_id': 0, 'results': 1, 'color': '#0106FF'}}]  # TODO: color 색상코드 관리 필요
+                                       {'$project': {'_id': 0, 'results': 1}}]
             elif active_analysis == 'freeze':
                 collection = 'an_freeze'
                 additional_pipeline = [{'$group': {'_id': '$freeze_type', 'total': {'$sum': 1}, 'color': {'$first': '$user_config.color'}}},
@@ -510,18 +515,24 @@ def get_summary_data_of_measure_result(
                                        {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'resume':
                 collection = 'an_warm_boot'
-                additional_pipeline = [{'$group': {'_id': '$user_config.type', 'total': {'$sum': 1}, 'avg_time': {'$avg': '$measure_time'}, 'color': {'$first': '$user_config.color'}}},
+                additional_pipeline = [{'$group': {'_id': '$user_config.type', 'total': {'$sum': 1},
+                                                   'avg_time': {'$avg': '$measure_time'}, 'color': {'$first': '$user_config.color'}}},
                                        {'$group': {'_id': '$color', 'results': {'$push': {'target': '$_id', 'total': '$total', 'avg_time': '$avg_time'}}}},
                                        {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'boot':
                 collection = 'an_cold_boot'
-                additional_pipeline = [{'$group': {'_id': None, 'total': {'$sum': 1}, 'avg_time': {'$avg': '$measure_time'}, "target":{'$first': '$user_config.type'}}},
-                                       {'$project': {'_id': 0}}]
+                # additional_pipeline = [{'$group': {'_id': None, 'total': {'$sum': 1}, 'avg_time': {'$avg': '$measure_time'}, "target":{'$first': '$user_config.type'}}},
+                #                        {'$project': {'_id': 0, 'results': [{'total': '$total', 'avg_time': '$avg_time', 'target': '$target'}]}}]
+                additional_pipeline = [{'$group': {'_id': '$user_config.type', 'total': {'$sum': 1},
+                                                   'avg_time': {'$avg': '$measure_time'}, 'color': {'$first': '$user_config.color'}}},
+                                       {'$group': {'_id': '$color', 'results': {'$push': {'target': '$_id', 'total': '$total', 'avg_time': '$avg_time'}}}},
+                                       {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'log_pattern_matching':
                 collection = 'an_log_pattern'
                 additional_pipeline = [{'$project': {'_id': 0, 'list': ['$matched_target.name', '$matched_target.color'], 'color': '$user_config.color'}},
                                        {'$group': {'_id': '$list', 'total': {'$sum': 1}, 'color': {'$first': '$color'}}},
-                                       {'$group': {'_id': '$color', 'results': {'$push': {'total': '$total', 'log_pattern_name': {'$arrayElemAt': ['$_id', 0]}, 'color': {'$arrayElemAt': ['$_id', 1]}}}}},
+                                       {'$group': {'_id': '$color', 'results': {
+                                           '$push': {'total': '$total', 'log_pattern_name': {'$arrayElemAt': ['$_id', 0]}, 'color': {'$arrayElemAt': ['$_id', 1]}}}}},
                                        {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'macroblock':
                 continue
@@ -533,6 +544,8 @@ def get_summary_data_of_measure_result(
                 continue
             else:
                 collection = 'loudness'
+                loudness_config = config.get(collection, {})
+                color = loudness_config.get('color', '')
                 additional_pipeline = [{'$project': {'_id': 0, 'lines': 1}},
                                        {'$unwind': {'path': '$lines'}},
                                        {'$group': {'_id': None, 'lkfs': {'$avg': '$lines.I'}}},
@@ -541,7 +554,11 @@ def get_summary_data_of_measure_result(
             aggregation = aggregate_from_mongodb(col=collection, pipeline=pipeline)
             if len(aggregation) == 0:
                 continue
-            result[active_analysis] = aggregation[0]
+            else:
+                aggregation = aggregation[0]
+            if color != '':
+                aggregation['color'] = color
+            result[active_analysis] = aggregation
         timestamp_pipeline = [{'$match': {'id': scenario_id}},
                               {'$project': {'_id': 0, 'testruns': 1}},
                               {'$unwind': {'path': '$testruns'}},
