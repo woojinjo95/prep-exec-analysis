@@ -1,10 +1,8 @@
 import React from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
-import { ActionPage, AnalysisPage, NotFoundPage } from '@page/index'
+import { ActionPage, AnalysisPage, NotFoundPage, ScenarioPage, TerminalPage } from '@page/index'
 import { PagePath, DEFAULT_PAGE_PATH } from '@global/constant'
-import TerminalPage from '@page/TerminalPage'
-import ScenarioPage from '@page/ScenarioPage'
 
 /**
  * 페이지 라우트 컴포넌트

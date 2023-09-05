@@ -1,24 +1,26 @@
+export type DefaultChartDataType = {
+  datetime: number // millisecond
+  duration?: number // millisecond
+}
+
 /**
  * 포인트 차트 데이터
  */
-export type PointChartData = {
-  datetime: number // millisecond
-}[]
+export type PointChartData = Pick<DefaultChartDataType, 'datetime'>[]
 
 /**
  * 영역 차트 데이터
  */
-export type AreaChartData = {
-  date: Date
+export type AreaChartData = (Pick<DefaultChartDataType, 'datetime'> & {
   value: number
-}[]
+})[]
 
 /**
  * 범위 차트 데이터
  *
  * @property {number} duration 지속시간. 단위: ms
  */
-export type RangeChartData = { date: Date; duration: number }[]
+export type RangeChartData = Required<DefaultChartDataType>[]
 
 export interface Terminal {
   id: string
@@ -35,4 +37,3 @@ export interface ShellMessage {
   mode: 'adb' | 'ssh'
   data: { timestamp: string; module: 'stdin' | 'stdout' | 'stderr'; message: string }
 }
-
