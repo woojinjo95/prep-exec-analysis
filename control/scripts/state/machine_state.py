@@ -4,7 +4,7 @@ from collections import defaultdict
 
 import psutil
 
-from ..configs.config import get_value, RedisDBEnum
+from ..configs.config import RedisDBEnum, get_value
 from ..utils._exceptions import handle_errors, handle_none_return
 from ..utils._subprocess import get_output
 
@@ -19,7 +19,16 @@ def percent_round(value: float, ndigits: int = 1) -> float:
 @handle_none_return(float)
 @handle_errors
 def get_representive_temperature() -> float:
-    x86_pkg_temp_milidegreecelcius = get_output('/sys/class/thermal/thermal_zone0/temp')
+    milidegreecelcius = get_output('cat /sys/class/thermal/thermal_zone*/temp')
+    types = get_output('cat /sys/class/thermal/thermal_zone*/type')
+
+    for _type, milidegree in zip(types.split(), milidegreecelcius.split()):
+        if _type == 'x86_pkg_temp':
+            x86_pkg_temp_milidegreecelcius = milidegree
+            break
+    else:
+        x86_pkg_temp_milidegreecelcius = max(milidegreecelcius.split())
+
     '''
     /sys/class/thermal/thermal_zone0/type = x86_pkg_temp
     x86_pkg_temp_milidegreecelcius = '87000'
@@ -37,24 +46,26 @@ def get_sensors_temperture() -> dict:
     이 함수는 정의는 하나 사용하지 않음.
 
     sensors_output = 
-    iwlwifi_1-virtual-0
-    Adapter: Virtual device
-    temp1:        +81.0°C  
-
-    nvme-pci-0200
-    Adapter: PCI adapter
-    Composite:    +75.8°C  (low  =  -0.1°C, high = +82.8°C)
-                        (crit = +83.8°C)
-    Sensor 1:     +68.8°C  (low  = -273.1°C, high = +65261.8°C)
-    Sensor 2:     +72.8°C  (low  = -273.1°C, high = +65261.8°C)
-
-    coretemp-isa-0000
     Adapter: ISA adapter
-    Package id 0:  +83.0°C  (high = +80.0°C, crit = +100.0°C)
-    Core 0:        +81.0°C  (high = +80.0°C, crit = +100.0°C)
-    Core 1:        +82.0°C  (high = +80.0°C, crit = +100.0°C)
-    Core 2:        +82.0°C  (high = +80.0°C, crit = +100.0°C)
-    Core 3:        +83.0°C  (high = +80.0°C, crit = +100.0°C)
+    Package id 0:  +31.0°C  (high = +100.0°C, crit = +100.0°C)
+    Core 0:        +30.0°C  (high = +100.0°C, crit = +100.0°C)
+    Core 1:        +29.0°C  (high = +100.0°C, crit = +100.0°C)
+    Adapter: ISA adapter
+    cpu_fan:     6553500 RPM
+    temp1:       +6280.4°C  
+    Adapter: ACPI interface
+    temp1:        +27.8°C  (crit = +119.0°C)
+    Adapter: ISA adapter
+    VCORE_Voltage:  67.00 mV 
+    VMEM_Voltage:    1.19 V  
+    +12_Voltage:    12.22 V  
+    5VSB_Voltage:    5.00 V  
+    SYS1_FAN:      6341 RPM
+    CPU_Temp:       +32.0°C  
+    SYS1_Temp:      +29.0°C  
+    SYS2_Temp:      +28.0°C  
+    Adapter: Virtual device
+    temp1:        +31.0°C  
     '''
     lines = sensors_output.strip().split("\n")
     current_adapter = None
