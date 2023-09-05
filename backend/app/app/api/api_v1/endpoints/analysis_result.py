@@ -298,7 +298,7 @@ def get_data_of_loudness(
 
 
 # Measurement_resume (warm boot)
-@router.get("/resume", response_model=schemas.MeasurementBoot)
+@router.get("/resume", response_model=schemas.Resume)
 def get_data_of_resume(
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
@@ -336,7 +336,7 @@ def get_data_of_resume(
 
 
 # Measurement_resume (cold boot)
-@router.get("/boot", response_model=schemas.MeasurementBoot)
+@router.get("/boot", response_model=schemas.Boot)
 def get_data_of_boot(
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
@@ -501,45 +501,55 @@ def get_summary_data_of_measure_result(
                 additional_pipeline = [{'$project': {'_id': 0, 'lines.log_level': 1}},
                                        {'$unwind': {'path': '$lines'}},
                                        {'$group': {'_id': '$lines.log_level', 'total': {'$sum': 1}}},
-                                       {'$project': {'_id': 0, 'target': '$_id', 'total': 1}}]
+                                       {'$group': {'_id': None, 'results': {'$push': {'target': '$_id', 'total': '$total'}}}},
+                                       {'$project': {'_id': 0, 'results': 1, 'color': '#0106FF'}}]  # TODO: color 색상코드 관리 필요
             elif active_analysis == 'freeze':
                 collection = 'an_freeze'
-                additional_pipeline = [{'$group': {'_id': '$freeze_type', 'total': {'$sum': 1}}},
-                                       {'$project': {'_id': 0, 'target': '$_id', 'total': 1}}]
+                additional_pipeline = [{'$group': {'_id': '$freeze_type', 'total': {'$sum': 1}, 'color': {'$first': '$user_config.color'}}},
+                                       {'$group': {'_id': '$color', 'results': {'$push': {'total': '$total', 'error_type': '$_id'}}}},
+                                       {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'resume':
                 collection = 'an_warm_boot'
-                additional_pipeline = [{'$group': {'_id': '$user_config.type', 'total': {'$sum': 1},
-                                                   'avg_time': {'$avg': '$measure_time'}}},
-                                       {'$project': {'_id': 0, 'target': '$_id',
-                                                     'total': 1, 'avg_time': '$avg_time'}}]
+                additional_pipeline = [{'$group': {'_id': '$user_config.type', 'total': {'$sum': 1}, 'avg_time': {'$avg': '$measure_time'}, 'color': {'$first': '$user_config.color'}}},
+                                       {'$group': {'_id': '$color', 'results': {'$push': {'target': '$_id', 'total': '$total', 'avg_time': '$avg_time'}}}},
+                                       {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'boot':
                 collection = 'an_cold_boot'
-                additional_pipeline = [{'$group': {'_id': '$user_config.type', 'total': {'$sum': 1},
-                                                   'avg_time': {'$avg': '$measure_time'}}},
-                                       {'$project': {'_id': 0, 'target': '$_id',
-                                                     'total': 1, 'avg_time': '$avg_time'}}]
+                additional_pipeline = [{'$group': {'_id': None, 'total': {'$sum': 1}, 'avg_time': {'$avg': '$measure_time'}, "target":{'$first': '$user_config.type'}}},
+                                       {'$project': {'_id': 0}}]
             elif active_analysis == 'log_pattern_matching':
                 collection = 'an_log_pattern'
-                additional_pipeline = [{'$project': {'_id': 0, 'log_pattern_name': '$matched_target.name', 'color': '$matched_target.color'}},
-                                       {'$group': {'_id': {'name': '$log_pattern_name', 'color': '$color'}, 'total': {'$sum': 1}}},
-                                       {'$project': {'_id': 0, 'log_pattern_name': '$_id.name', 'total': 1, 'color': '$_id.color'}}]
+                additional_pipeline = [{'$project': {'_id': 0, 'list': ['$matched_target.name', '$matched_target.color'], 'color': '$user_config.color'}},
+                                       {'$group': {'_id': '$list', 'total': {'$sum': 1}, 'color': {'$first': '$color'}}},
+                                       {'$group': {'_id': '$color', 'results': {'$push': {'total': '$total', 'log_pattern_name': {'$arrayElemAt': ['$_id', 0]}, 'color': {'$arrayElemAt': ['$_id', 1]}}}}},
+                                       {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'macroblock':
                 continue
             elif active_analysis == 'channel_change_time':
                 continue
             elif active_analysis == 'process_lifecycle_analysis':
                 continue
+            elif active_analysis == 'network_filter':
+                continue
             else:
                 collection = 'loudness'
                 additional_pipeline = [{'$project': {'_id': 0, 'lines': 1}},
                                        {'$unwind': {'path': '$lines'}},
                                        {'$group': {'_id': None, 'lkfs': {'$avg': '$lines.I'}}},
-                                       {'$project': {'_id': 0, 'lkfs': 1}}]
+                                       {'$project': {'_id': 0, 'lkfs': 1, 'color': '#FF9900'}}] # TODO: color 색상코드 관리 필요
             pipeline = basic_pipeline + additional_pipeline
             aggregation = aggregate_from_mongodb(col=collection, pipeline=pipeline)
             if len(aggregation) == 0:
                 continue
-            result[active_analysis] = aggregation
+            result[active_analysis] = aggregation[0]
+        timestamp_pipeline = [{'$match': {'id': scenario_id}},
+                              {'$project': {'_id': 0, 'testruns': 1}},
+                              {'$unwind': {'path': '$testruns'}},
+                              {'$match': {'testruns.id': testrun_id}},
+                              {'$project': {'last_timestamp': '$testruns.analysis.last_timestamp'}}]
+        last_timestamp = aggregate_from_mongodb(col='scenario', pipeline=timestamp_pipeline)
+        last_timestamp = last_timestamp[0] if len(last_timestamp) > 0 else None
+        result['last_timestamp'] = last_timestamp['last_timestamp'].strftime('%Y-%m-%dT%H:%M:%S.%fZ') if last_timestamp is not None else None
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {"items": result}
