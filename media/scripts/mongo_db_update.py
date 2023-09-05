@@ -50,7 +50,7 @@ class InsertLoudnessToDB:
 
     def put(self, log: dict):
         # add filter
-        if check_valid_event_log(log):
+        if True:
             self.log_queue.put(log)
 
     def consume(self, stop_event: Event, run_state_event: Event):
