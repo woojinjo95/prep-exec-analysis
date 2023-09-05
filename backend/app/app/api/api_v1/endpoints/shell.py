@@ -15,12 +15,21 @@ router = APIRouter()
 
 
 @router.get("", response_model=schemas.ShellList)
-def get_shell_modes() -> schemas.ShellList:
+def get_shell_modes(
+    scenario_id: Optional[str] = None,
+    testrun_id: Optional[str] = None
+) -> schemas.ShellList:
     """
     터미널 목록
     """
     try:
-        pipeline = [{'$group': {'_id': {'mode': '$mode', 'shell_id': '$shell_id'}}},
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        if testrun_id is None:
+            testrun_id = RedisClient.hget('testrun', 'id')
+
+        pipeline = [{'$match': {'scenario_id': scenario_id, 'testrun_id': testrun_id}},
+                    {'$group': {'_id': {'mode': '$mode', 'shell_id': '$shell_id'}}},
                     {'$replaceRoot': {'newRoot': "$_id"}}]
         res = aggregate_from_mongodb(col="shell_log", pipeline=pipeline)
     except Exception as e:
@@ -32,7 +41,7 @@ def get_shell_modes() -> schemas.ShellList:
 @router.get("/logs", response_model=schemas.ShellLogList)
 def get_shell_logs(
     shell_mode: ShellModeEnum,
-    shell_id: str,
+    shell_id: int,
     start_time: str = Query(..., description="ex.2009-02-13T23:31:30+00:00"),
     end_time: str = Query(..., description="ex.2009-02-13T23:31:30+00:00"),
     scenario_id: Optional[str] = None,
@@ -51,7 +60,7 @@ def get_shell_logs(
                                 'scenario_id': scenario_id,
                                 'testrun_id': testrun_id,
                                 'mode': shell_mode.value,
-                                'shell_id': int(shell_id)}},
+                                'shell_id': shell_id}},
                     {'$project': {'_id': 0, 'lines': 1}},
                     {'$unwind': {'path': '$lines'}},
                     {'$group': {'_id': None, 'lines': {'$push': '$lines'}}}]
