@@ -1,8 +1,5 @@
 import { Button, Text, Title } from '@global/ui'
-import React, { useMemo, useState } from 'react'
-import cx from 'classnames'
-import { ReactComponent as MoreIcon } from '@assets/images/button_more.svg'
-import { formatDateTo } from '@global/usecase'
+import React, { useMemo } from 'react'
 import Scrollbars from 'react-custom-scrollbars-2'
 import useIntersect from '@global/hook/useIntersect'
 import { useRecoilState } from 'recoil'
@@ -84,43 +81,6 @@ const FilesSection: React.FC = () => {
             {scenarios?.map((scenario) => (
               <div className="flex flex-col w-full" key={`file_${scenario.name}`}>
                 <ScenarioItem scenario={scenario} />
-                {/* <div className="w-full grid grid-cols-[30%_40%_25%_5%] border-b-grey border-b-[1px] min-h-[48px] items-center">
-                  <div>
-                    <Text className="text-white mr-3" invertBackground colorScheme="light-orange">
-                      B
-                    </Text>
-                    <Text
-                      size="md"
-                      colorScheme="light"
-                      className="cursor-pointer"
-                      onClick={() => {
-                        setScenarioId(scenario.id)
-                        navigate('/action')
-                      }}
-                    >
-                      {scenario.name}
-                    </Text>
-                  </div>
-
-                  <div className="flex flex-wrap w-full h-full pt-[10px] items-center">
-                    {scenario.tags.map((tag) => (
-                      <Text
-                        className="text-white mr-2 mb-2"
-                        invertBackground
-                        colorScheme="dark-grey"
-                        key={`${scenario.name}_tag_${tag}`}
-                      >
-                        {tag}
-                      </Text>
-                    ))}
-                  </div>
-                  <Text size="md" colorScheme="light">
-                    {formatDateTo('M DD YYYY, HH:MM AA', new Date(scenario.updated_at))}
-                  </Text>
-                  <div className="flex justify-center cursor-pointer h-full">
-                    <MoreIcon className="w-[20px] fill-white " />
-                  </div>
-                </div> */}
               </div>
             ))}
             {/* Intersect Target */}
