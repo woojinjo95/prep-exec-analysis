@@ -3,7 +3,7 @@ sudo apt install -y ffmpeg
 sudo apt install -y v4l-utils
 sudo apt install -y ubuntu-restricted-extras
 sudo apt install -y libavcodec58
-sudo apt install -y cpufrequtils
+sudo apt install -y cpufrequtils lm-sensors
 sudo apt install -y ifmetric
 sudo apt install -y dkms
 sudo apt install -y alsa-utils
