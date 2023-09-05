@@ -64,9 +64,7 @@ class IntelligentMonkeyTestRoku:
                 return
 
             if self.check_leaf_node():
-                current_node_keyset = [*self.key_histories, self.depth_key]
-                logger.info(f'current_node_keyset: {current_node_keyset}')
-                self.start_monkey(current_node_keyset)
+                self.start_monkey([*self.key_histories, self.depth_key])
                 self.append_key(self.breadth_key)
             else:
                 self.append_key(self.depth_key)
