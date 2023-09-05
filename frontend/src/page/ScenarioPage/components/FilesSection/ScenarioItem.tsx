@@ -29,10 +29,9 @@ const ScenarioItem: React.FC<ScenarioItemProps> = ({ scenario }) => {
 
   const { mutate: postTestrunMutate } = useMutation(postTestrun, {
     onSuccess: (res) => {
-      refetch()
       setScenarioId(scenario.id)
-      navigate('/action')
       setTestRunId(res.id)
+      navigate('/action')
     },
     onError: (err: AxiosError) => {
       console.error(err)
