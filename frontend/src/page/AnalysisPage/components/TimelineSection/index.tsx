@@ -136,9 +136,9 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
           />
           <ColorReferenceChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} dimension={dimension} />
           <EventLogChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} dimension={dimension} />
-          <FreezeChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
+          <FreezeChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} dimension={dimension} />
           <LoudnessChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} dimension={dimension} />
-          <ResumeBootChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} />
+          <ResumeBootChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} dimension={dimension} />
           {/* FIXME: 데이터가 너무많음. api 로딩이 오래걸림 */}
           <LogLevelFinderChart scaleX={scrollbarScaleX} startTime={startTime} endTime={endTime} dimension={dimension} />
           <LogPatternMatchingChart
