@@ -9,6 +9,7 @@ interface ResumeAnalysisItemProps {
   color: NonNullable<UnsavedAnalysisConfig['resume']>['color']
   frame: NonNullable<UnsavedAnalysisConfig['resume']>['frame']
   resumeType: NonNullable<UnsavedAnalysisConfig['resume']>['type']
+  warningMessage?: string
   onClickDeleteItem: () => void
   setUnsavedAnalysisConfig: React.Dispatch<React.SetStateAction<UnsavedAnalysisConfig>>
 }
@@ -20,11 +21,13 @@ const ResumeAnalysisItem: React.FC<ResumeAnalysisItemProps> = ({
   color,
   frame,
   resumeType,
+  warningMessage,
   onClickDeleteItem,
   setUnsavedAnalysisConfig,
 }) => {
   return (
     <Accordion
+      warningMessage={warningMessage}
       header={
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-x-3">
@@ -104,6 +107,12 @@ const ResumeAnalysisItem: React.FC<ResumeAnalysisItemProps> = ({
                 }))
               }}
             />
+          </div>
+        )}
+
+        {!!warningMessage && (
+          <div className="pt-2">
+            <Text colorScheme="orange">{warningMessage}</Text>
           </div>
         )}
       </div>

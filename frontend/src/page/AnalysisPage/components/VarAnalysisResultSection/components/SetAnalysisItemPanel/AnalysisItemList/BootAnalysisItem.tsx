@@ -9,6 +9,7 @@ interface BootAnalysisItemProps {
   color: NonNullable<UnsavedAnalysisConfig['boot']>['color']
   frame: NonNullable<UnsavedAnalysisConfig['boot']>['frame']
   bootType: NonNullable<UnsavedAnalysisConfig['boot']>['type']
+  warningMessage?: string
   onClickDeleteItem: () => void
   setUnsavedAnalysisConfig: React.Dispatch<React.SetStateAction<UnsavedAnalysisConfig>>
 }
@@ -20,11 +21,13 @@ const BootAnalysisItem: React.FC<BootAnalysisItemProps> = ({
   color,
   frame,
   bootType,
+  warningMessage,
   onClickDeleteItem,
   setUnsavedAnalysisConfig,
 }) => {
   return (
     <Accordion
+      warningMessage={warningMessage}
       header={
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-x-3">
@@ -81,6 +84,12 @@ const BootAnalysisItem: React.FC<BootAnalysisItemProps> = ({
             }}
           />
         </div>
+
+        {!!warningMessage && (
+          <div className="pt-2">
+            <Text colorScheme="orange">{warningMessage}</Text>
+          </div>
+        )}
       </div>
     </Accordion>
   )

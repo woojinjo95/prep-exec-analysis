@@ -9,6 +9,7 @@ import LogPatternModal from './LogPatternModal'
 interface LogPatternMatchingAnalysisItemProps {
   color: NonNullable<UnsavedAnalysisConfig['log_pattern_matching']>['color']
   patterns: NonNullable<UnsavedAnalysisConfig['log_pattern_matching']>['items']
+  warningMessage?: string
   setUnsavedAnalysisConfig: React.Dispatch<React.SetStateAction<UnsavedAnalysisConfig>>
   onClickDeleteItem: () => void
 }
@@ -19,6 +20,7 @@ interface LogPatternMatchingAnalysisItemProps {
 const LogPatternMatchingAnalysisItem: React.FC<LogPatternMatchingAnalysisItemProps> = ({
   color,
   patterns,
+  warningMessage,
   setUnsavedAnalysisConfig,
   onClickDeleteItem,
 }) => {
@@ -27,6 +29,7 @@ const LogPatternMatchingAnalysisItem: React.FC<LogPatternMatchingAnalysisItemPro
 
   return (
     <Accordion
+      warningMessage={warningMessage}
       header={
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-x-3">
@@ -73,6 +76,12 @@ const LogPatternMatchingAnalysisItem: React.FC<LogPatternMatchingAnalysisItemPro
           label="Remember current settings"
           onClick={(isChecked) => setIsRememberChecked(isChecked)}
         />
+
+        {!!warningMessage && (
+          <div className="pt-2">
+            <Text colorScheme="orange">{warningMessage}</Text>
+          </div>
+        )}
 
         {isOpenAddLogPatternModal && (
           <LogPatternModal
