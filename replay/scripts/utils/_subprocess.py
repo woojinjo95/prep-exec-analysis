@@ -4,6 +4,9 @@ import shlex
 import subprocess
 import traceback
 
+from signal import SIGKILL, SIGTERM
+from typing import Tuple
+
 logger = logging.getLogger('main')
 
 
@@ -47,7 +50,7 @@ def command_generator(command: str, max_count: int = None):
     return rc
 
 
-def get_pid(name):
+def get_pid(name: str) -> Tuple[str]:
     if os.name == 'posix':
         pids = get_output(f'pidof {name}').split()
     else:
@@ -55,29 +58,39 @@ def get_pid(name):
     return pids
 
 
-def get_pid_grep(name):
+def get_pid_grep(*names: str) -> Tuple[str]:
     if os.name == 'posix':
-        pids = get_output(f'ps -eaf | grep "{name}" | grep -v grep | awk' + ' ' + "'{print $2}'").split()
+        grep_cmd = " | grep ".join([f'"{name}"' for name in names])
+        pids = get_output(f'ps -eaf | grep {grep_cmd} | grep -v grep | awk \'{{print $2}}\'').split()
     else:
         pids = None
     return pids
 
 
-def kill_pid(name):
+'''
+1 - SIGHUP: Hangup detected on controlling terminal or death of controlling process. Often used to reload configuration files and reopen log files in daemon processes.
+2 - SIGINT: Interrupt from keyboard (like pressing Ctrl+C).
+3 - SIGQUIT: Quit from keyboard.
+9 - SIGKILL: Kill signal. It forces the process to terminate immediately. This signal cannot be caught, blocked, or ignored, making it surefire but also potentially dangerous if not used judiciously.
+15 - SIGTERM: Termination signal. This is the default and safest way to kill a process as it allows the process to release resources and perform cleanup operations before shutting down.
+'''
+
+
+def kill_pid(name: str, signal=SIGKILL):
     try:
         pids = get_pid(name)
         if pids is not None:
             for pid in pids:
-                os.kill(int(pid), 9)
+                os.kill(int(pid), signal)
     except Exception as e:
         print(str(e).encode())
 
 
-def kill_pid_grep(name):
+def kill_pid_grep(*names: str, signal=SIGKILL):
     try:
-        pids = get_pid_grep(name)
+        pids = get_pid_grep(*names)
         if pids is not None:
             for pid in pids:
-                os.kill(int(pid), 9)
+                os.kill(int(pid), signal)
     except Exception as e:
         print(str(e).encode())

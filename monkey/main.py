@@ -1,12 +1,11 @@
 import logging
 from typing import Dict
 
-from scripts.connection.redis_conn import get_strict_redis_connection, set_value
-from scripts.connection.redis_pubsub import Subscribe
+from scripts.connection.redis_conn import get_strict_redis_connection, set_value, delete
+from scripts.connection.redis_pubsub import Subscribe, publish_msg
 from scripts.config.constant import RedisChannel, RedisDB
 from scripts.log_service.log_organizer import LogOrganizer
 from scripts.modules.monkey_test import MonkeyTestModule
-from scripts.connection.redis_pubsub import publish_msg
 
 
 logger = logging.getLogger('main')
@@ -24,18 +23,23 @@ class CommandExecutor:
 
     # sub의 data로 오면 파싱해서 monkey test db에 별도로 기록
     def set_arguments(self, data: Dict):
+        hash_name = 'monkey_test_arguments'
+        delete(hash_name)
         arguments = data['arguments']
         analysis_type = arguments['type']
-        set_value('monkey_test_arguments', 'analysis_type', analysis_type)
+        set_value(hash_name, 'type', analysis_type)
+        
         for arg in arguments['args']:
             key = arg['key']
             value = arg['value']
-            set_value('monkey_test_arguments', key, value)
+            set_value(hash_name, key, value)
 
     def execute(self, command: Dict):
         ''' 
         - 인텔리전트 몽키 테스트 실행 (ROKU)
             PUBLISH command '{"msg": "monkey", "data": {"arguments": {"type": "intelligent_monkey_test", "args": [{"key":"profile","value":"roku"},{"key":"duration_per_menu","value": 30},{"key":"interval","value":1300},{"key":"enable_smart_sense","value": true},{"key":"waiting_time","value":3}]}}}'
+        - 인텔리전트 몽키 테스트 실행 (SKB)
+            PUBLISH command '{"msg": "monkey", "data": {"arguments": {"type": "intelligent_monkey_test", "args": [{"key":"profile","value":"skb"},{"key":"duration_per_menu","value": 30},{"key":"interval","value":1300},{"key":"enable_smart_sense","value": true},{"key":"waiting_time","value":3}]}}}'
         - 몽키 테스트 실행
             PUBLISH command '{"msg": "monkey", "data": {"arguments": {"type": "monkey_test", "args": [{"key":"duration","value":60},{"key":"interval","value":1300},{"key":"enable_smart_sense","value":true},{"key":"waiting_time","value":3},{"key":"remocon_name","value":"roku"},{"key":"remote_control_type","value":"ir"}]}}}'
         - 몽키테스트 종료

@@ -5,9 +5,8 @@ import logging
 import os
 
 from scripts.format import InputData
-from scripts.config.constant import RedisDB
-from scripts.connection.redis_conn import get_strict_redis_connection, parse_bytes_to_value
-from scripts.external.scenario import load_testrun
+from scripts.external.scenario import load_testrun, get_scenario_info
+from scripts.connection.mongo_db.crud import aggregate_from_mongodb
 
 logger = logging.getLogger('main')
 
@@ -51,10 +50,16 @@ def load_input() -> InputData:
 
 
 def read_analysis_config() -> Dict:
-    with get_strict_redis_connection(RedisDB.hardware) as src:
+    scenario_info = get_scenario_info()
+    pipeline = [{"$match": {'id': scenario_info['scenario_id']}},
+                {"$unwind": "$testruns"},
+                {"$project": {"testrun_id": "$testruns.id",
+                            "config": "$testruns.analysis.config"}},
+                {"$match": {"testrun_id": scenario_info['testrun_id']}},
+                {"$project": {"_id": 0, "config": "$config"}}]
+    res = aggregate_from_mongodb('scenario', pipeline)
+    if res:
+        analysis_config = res[0].get('config', {})
+    else:
         analysis_config = {}
-        for key in src.scan_iter(match="analysis_config:*"):
-            group = parse_bytes_to_value(key).split(':')[1]
-            analysis_config[group] = {parse_bytes_to_value(k): parse_bytes_to_value(v)
-                                        for k, v in src.hgetall(key).items()}
     return analysis_config
