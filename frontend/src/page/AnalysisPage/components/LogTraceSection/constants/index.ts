@@ -1,3 +1,5 @@
+export * from './logModule'
+
 export const LogcatLogLevelColors: {
   [log_level: string]: 'pink' | 'red' | 'orange' | 'yellow' | 'navy' | 'green' | 'grey'
 } = {
