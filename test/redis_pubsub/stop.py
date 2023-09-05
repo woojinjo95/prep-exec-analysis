@@ -9,7 +9,7 @@ def main():
     with get_strict_redis_connection() as src:
         if hget_value(src, 'state', 'streaming') != 'idle':
             unit_publish(payload={"msg": "recording",
-                                  "data": {"interval": 1800}})
+                                  "data": {"interval": 180}})
             for command in Subscribe(src, 'command'):
                 if command.get('msg') == 'recording_response':
                     break

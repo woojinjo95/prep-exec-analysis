@@ -1,0 +1,5 @@
+from scripts.processor.freeze_detect import test_freeze_detection
+from scripts.processor.warm_boot import test_warm_boot
+from scripts.processor.cold_boot import test_cold_boot
+from scripts.processor.log_pattern import test_log_pattern_matching
+from scripts.processor.color_reference import test_color_reference

@@ -33,6 +33,7 @@ const Button: React.ForwardRefExoticComponent<Omit<ButtonProps, 'ref'> & React.R
               'bg-primary': colorScheme === 'primary',
               'rounded-full': isRoundedFull,
               'rounded-lg': !isRoundedFull,
+              'grayscale-[.75] brightness-75': props.disabled,
             },
             className,
           )}

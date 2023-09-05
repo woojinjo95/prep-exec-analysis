@@ -1,4 +1,12 @@
+import { LogConnectionStatus } from '@global/api/entity'
 import PagePath from './pagePath'
+import AnalysisType from './analysisType'
+
+export { default as AnalysisType } from './analysisType'
+export { default as AppURL } from './appURL'
+export { default as LogLevel } from './logLevel'
+export { default as PagePath } from './pagePath'
+export { default as FreezeType } from './freezeType'
 
 /**
  * 웹사이트 접속 시 메인페이지
@@ -27,3 +35,21 @@ export const CHART_HEIGHT = 64
  * 월 영어 이름
  */
 export const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+/**
+ * 로그 연결여부 라벨
+ */
+export const LogConnectionStatusLabel: { [key in LogConnectionStatus]: string } = {
+  log_connected: 'Log Connected',
+  log_disconnected: 'Log Disconnected',
+} as const
+
+/**
+ * 분석 모듈에 전달 가능한 분석유형
+ */
+export const AnalyzableTypes: (keyof typeof AnalysisType)[] = [
+  'freeze',
+  'resume',
+  'boot',
+  'log_pattern_matching',
+] as const

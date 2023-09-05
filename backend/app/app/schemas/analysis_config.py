@@ -19,11 +19,12 @@ class Roi(BaseModel):
 class Frame(BaseModel):
     id: str
     path: str
+    relative_time: float
     roi: Roi
 
 
 class Freeze(CommonBaseModel):
-    duration: int
+    duration: int = 3
 
 
 class Macroblock(CommonBaseModel):
@@ -72,6 +73,14 @@ class NetworkFilter(CommonBaseModel):
     pass
 
 
+class MonkeyTest(CommonBaseModel):
+    pass
+
+
+class IntelligentMonkeyTest(CommonBaseModel):
+    pass
+
+
 class AnalysisConfig(BaseModel):
     freeze: Optional[Freeze]
     # macroblock: Optional[Macroblock]
@@ -83,6 +92,8 @@ class AnalysisConfig(BaseModel):
     log_pattern_matching: Optional[LogPatternMatching]
     # process_lifecycle_analysis: Optional[ProcessLifecycleAnalysis]
     # network_filter: Optional[NetworkFilter]
+    monkey_test: Optional[MonkeyTest]
+    intelligent_monkey_test: Optional[IntelligentMonkeyTest]
 
 
 class AnalysisConfigBase(BaseModel):

@@ -8,6 +8,7 @@ from app.api.utility import get_utc_datetime
 from app.crud.base import (delete_part_to_mongodb, get_mongodb_collection,
                            load_by_id_from_mongodb, load_from_mongodb,
                            update_by_id_to_mongodb, update_to_mongodb)
+from app.db.redis_session import RedisClient
 from fastapi import APIRouter, HTTPException
 from fastapi.encoders import jsonable_encoder
 
@@ -49,9 +50,10 @@ def create_block(
                                          "block": new_blocks})
         update_by_id_to_mongodb(col='scenario',
                                 id=scenario_id,
-                                data={'block_group': new_last_block_group,
-                                      'updated_at': get_utc_datetime(time.time())})
+                                data={'updated_at': get_utc_datetime(time.time()),
+                                      'block_group': new_last_block_group})
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Create new block', 'id': block_id}
 
@@ -79,6 +81,7 @@ def delete_blocks(
                                data={'block_group': {'block': {'$size': 0}}})
         update_by_id_to_mongodb(col='scenario', id=scenario_id, data={"updated_at": get_utc_datetime(time.time())})
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Delete blocks.'}
 
@@ -112,6 +115,7 @@ def update_block(
                        upsert=False)
         update_by_id_to_mongodb(col='scenario', id=scenario_id, data={"updated_at": get_utc_datetime(time.time())})
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Update a block', 'id': block_id}
 
@@ -150,9 +154,10 @@ def bulk_create_blocks(
                                          "block": new_blocks+block_in})
         update_by_id_to_mongodb(col='scenario',
                                 id=scenario_id,
-                                data={'block_group': new_last_block_group,
-                                      'updated_at': get_utc_datetime(time.time())})
+                                data={'updated_at': get_utc_datetime(time.time()),
+                                      'block_group': new_last_block_group})
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Bulk Create blocks'}
 
@@ -185,5 +190,14 @@ def update_block_group(
                           param=param,
                           data=update_data)
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Update a block_group', 'id': block_group_id}
+
+
+@router.get("/run_block", response_model=schemas.RunBlock)
+def read_run_block() -> schemas.RunBlock:
+    """
+    Retrieve run block id.
+    """
+    return {'items': {'id': RedisClient.hget('testrun', 'run_block')}}

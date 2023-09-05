@@ -7,6 +7,7 @@ type DateToken =
   | 'YY.MM.DD'
   | 'HH:MM'
   | 'HH:MM:SS'
+  | 'HH:MM:SS:MS'
   | 'AA HH:MM'
   | 'YYYY-MM-DD HH:MM'
   | 'YYYY-MM-DD HH:MM:SS'
@@ -21,9 +22,9 @@ export const formatDateTo = (type: DateToken, dateObject = new Date()): string =
   const year = dateObject.getFullYear()
   const month = `0${dateObject.getMonth() + 1}`.slice(-2)
   const date = `0${dateObject.getDate()}`.slice(-2)
-  const hour = dateObject.getHours() < 10 ? `0${dateObject.getHours()}` : dateObject.getHours()
-  const minute = dateObject.getMinutes() < 10 ? `0${dateObject.getMinutes()}` : dateObject.getMinutes()
-  const second = dateObject.getSeconds() < 10 ? `0${dateObject.getSeconds()}` : dateObject.getSeconds()
+  const hour = String(dateObject.getHours()).padStart(2, '0')
+  const minute = String(dateObject.getMinutes()).padStart(2, '0')
+  const second = String(dateObject.getSeconds()).padStart(2, '0')
   const milliSec = dateObject.getMilliseconds()
 
   switch (type) {
@@ -39,6 +40,8 @@ export const formatDateTo = (type: DateToken, dateObject = new Date()): string =
       return `${hour}:${minute}`
     case 'HH:MM:SS':
       return `${hour}:${minute}:${second}`
+    case 'HH:MM:SS:MS':
+      return `${hour}:${minute}:${second}:${String(milliSec).slice(0, 2).padStart(2, '0')}`
     case 'AA HH:MM': {
       if (dateObject.getHours() < 12) {
         return `오전 ${dateObject.getHours() === 0 ? '12' : dateObject.getHours()}:${minute}`
@@ -101,4 +104,69 @@ export const changeMsToMinSecMs = (_ms: number) => {
  */
 export const changeMinSecMsToMs = (m: number, s: number, ms: number) => {
   return m * MILLISECONDS_PER_MINUTE + s * MILLISECONDS_PER_SECOND + ms
+}
+
+/**
+ * 숫자를 3자리씩 끊어서 comma를 찍어주는 함수
+ *
+ * @param x comma를 찍을 숫자
+ */
+export const numberWithCommas = (x: number): string => {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
+
+/**
+ * Portal 엘리먼트의 기본적인 스타일을 생성하는 함수
+ *
+ * @param wrapperRef createPortal을 사용하는 엘리먼트의 상위 엘리먼트
+ * @param spaceX 상위 엘리먼트와 createPortal로 생성된 엘리먼트 사이의 가로 간격
+ * @param spaceY 상위 엘리먼트와 createPortal로 생성된 엘리먼트 사이의 세로 간격
+ * @returns createPortal 엘리먼트의 style
+ */
+export const createPortalStyle = ({
+  wrapperRef,
+  spaceX = 0,
+  spaceY = 4,
+}: {
+  wrapperRef: React.MutableRefObject<HTMLDivElement | null>
+  spaceX?: number
+  spaceY?: number
+}) => {
+  if (!wrapperRef.current) return {}
+
+  const styles: React.CSSProperties = {}
+  const dimensions = wrapperRef.current.getBoundingClientRect()
+
+  styles.left = dimensions.left + spaceX
+  styles.marginRight = 16
+  // TODO: 오른쪽이 기준일 경우 -> marginLeft
+  if (dimensions.top < window.innerHeight / 2) {
+    styles.top = dimensions.top + dimensions.height + spaceY
+  } else {
+    styles.bottom = window.innerHeight - dimensions.top + spaceY
+  }
+
+  return styles
+}
+
+/**
+ * 소수점이 .0일 땐 정수만 표시, 소수점이 있을 땐 소수점 1번째 자리까지 표시
+ */
+const dropDecimalPoint = (number: number, point?: number) =>
+  numberWithCommas(Number(Number.isInteger(number) ? number.toFixed() : number.toFixed(point || 1)))
+
+/**
+ * byte 단위의 숫자를 적절한 단위와 함께 변환하여 표시해주는 함수
+ *
+ * @example
+ * byteToSize(5870372) // return '5.6 MB'
+ */
+export const bytesToSize = (bytes: number) => {
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
+
+  if (bytes === 0) return ''
+
+  const i = Math.floor(Math.log(bytes) / Math.log(1024))
+  if (i === 0) return `${dropDecimalPoint(bytes)} ${sizes[i]}`
+  return `${dropDecimalPoint(bytes / 1024 ** i)} ${sizes[i]}`
 }

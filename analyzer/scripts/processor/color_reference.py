@@ -1,43 +1,52 @@
 import logging
-import cv2
 import traceback
+from typing import Dict
 
+import cv2
 from scripts.analysis.image import calc_color_entropy
 from scripts.config.config import get_setting_with_env
-from scripts.format import CollectionName
+from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.data import load_input
 from scripts.external.report import report_output
+from scripts.external.analysis import set_analysis_info
+from scripts.format import Command, ReportName
+from scripts.util._timezone import get_utc_datetime
 from scripts.util.decorator import log_decorator
-from scripts.format import LogName
+from scripts.util.video import FrameGenerator
 
-logger = logging.getLogger(LogName.COLOR_REFERENCE.value)
+logger = logging.getLogger('main')
 
 
 @log_decorator(logger)
-def process():
+def test_color_reference():
     try:
         args = load_input()
-        skip_frame = get_setting_with_env('COLOR_REFERENCE_SKIP_FRAME', 60)
+        config = get_config()
         
-        cap = cv2.VideoCapture(args.video_path)
-        logger.info(f"frame count: {cap.get(cv2.CAP_PROP_FRAME_COUNT)}")
-
-        idx = 0
-
-        while True:
-            ret, frame = cap.read()
-            if not ret:
-                break
-            if idx % skip_frame == 0:
+        for idx, (frame, cur_time) in enumerate(FrameGenerator(args.video_path, args.timestamps)):
+            if idx % config['skip_frame'] == 0:
+                frame = cv2.resize(frame, config['resolution'])
                 color_entropy = calc_color_entropy(frame)
                 logger.info(f"idx: {idx}, color_entropy: {color_entropy}")
-                report_output(CollectionName.COLOR_REFERENCE.value, {
+                report_output(ReportName.COLOR_REFERENCE.value, {
+                    'timestamp': get_utc_datetime(cur_time),
                     'color_reference': color_entropy,
-                })
-            idx += 1
-        
-        cap.release()
+                }) 
+
+        publish_msg({'measurement': Command.COLOR_REFERENCE.value}, 'analysis_response')
+        set_analysis_info(Command.COLOR_REFERENCE.value)
 
     except Exception as err:
-        logger.error(f"error in color_reference process: {err}")
-        logger.warning(traceback.format_exc())
+        error_detail = traceback.format_exc()
+        publish_msg({'measurement': Command.COLOR_REFERENCE.value, 'log': error_detail}, 'analysis_response', level='error')
+        logger.error(f"error in test_color_reference: {err}")
+        logger.warning(error_detail)
+
+
+def get_config() -> Dict:
+    resolution = get_setting_with_env('COLOR_REFERENCE_RESOLUTION', (960, 540))
+    skip_frame = get_setting_with_env('COLOR_REFERENCE_SKIP_FRAME', 60)
+    return {
+        'resolution': resolution,
+        'skip_frame': skip_frame,
+    }

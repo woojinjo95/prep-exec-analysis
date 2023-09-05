@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd'
 import cx from 'classnames'
 
-import { Block, BlockGroup, Scenario } from '@page/ActionPage/components/ActionSection/api/entity'
+// import { Block, BlockGroup, Scenario } from '@page/ActionPage/components/ActionSection/api/entity'
 import { useMutation, useQuery } from 'react-query'
 import BackgroundImage from '@assets/images/background_pattern.svg'
 import { remoconService } from '@global/service/RemoconService/RemoconService'
@@ -10,18 +10,20 @@ import { CustomKeyTransmit, RemoconTransmit } from '@global/service/RemoconServi
 
 import { terminalService } from '@global/service/TerminalService/TerminalService'
 import { CommandTransmit } from '@global/service/TerminalService/type'
+import { useRecoilState, useRecoilValue } from 'recoil'
+import { isBlockRecordModeState, scenarioIdState, selectedBlockIdsState } from '@global/atom'
+import { Block, BlockGroup, Scenario } from '@global/api/entity'
+import { getScenarioById } from '@global/api/func'
 import ActionBlockItem from './ActionBlockItem'
-import { getScenarioById, postBlock, postBlocks, putScenario } from '../api/func'
+import { postBlock, postBlocks, putScenario } from '../api/func'
 
 type BlocksRef = {
   [id: string]: HTMLDivElement | null
 }
 
-interface ActionBlockAreaProps {
-  scenarioId: string | null
-}
+const ActionBlockArea = (): JSX.Element => {
+  const scenarioId = useRecoilValue(scenarioIdState)
 
-const ActionBlockArea = ({ scenarioId }: ActionBlockAreaProps): JSX.Element => {
   // 전체 블럭
   const [blocks, setBlocks] = useState<Block[] | null>(null)
 
@@ -37,10 +39,15 @@ const ActionBlockArea = ({ scenarioId }: ActionBlockAreaProps): JSX.Element => {
     () => getScenarioById({ scenario_id: scenarioId! }),
     {
       onSuccess: (res) => {
-        if (res && res.block_group.length > 0) {
-          const newBlocks: Block[] = res.block_group[0].block
-          setBlocks(newBlocks)
-          setBlockDummys(newBlocks.map((block) => [block]))
+        if (res) {
+          if (res.block_group.length > 0) {
+            const newBlocks: Block[] = res.block_group[0].block
+            setBlocks(newBlocks)
+            setBlockDummys(newBlocks.map((block) => [block]))
+          } else {
+            setBlocks([])
+            setBlockDummys([])
+          }
         }
       },
       onError: (err) => {
@@ -56,11 +63,13 @@ const ActionBlockArea = ({ scenarioId }: ActionBlockAreaProps): JSX.Element => {
     },
     onError: () => {
       alert('시나리오 수정에 실패하였습니다')
+      // 제자리로 돌아오기 위한
+      blockRefetch()
     },
   })
 
   // 선택된 블럭 id list
-  const [selectedBlockIds, setSelectedBlockIds] = useState<string[]>([])
+  const [selectedBlockIds, setSelectedBlockIds] = useRecoilState(selectedBlockIdsState)
 
   const blocksRef = useRef<BlocksRef>({})
 
@@ -97,8 +106,10 @@ const ActionBlockArea = ({ scenarioId }: ActionBlockAreaProps): JSX.Element => {
 
     if (scenarioId) {
       putScenarioMutate({
-        block_group: [newBlockGroup],
-        scenario_id: scenarioId,
+        new_scenario: {
+          ...scenario,
+          block_group: [newBlockGroup],
+        },
       })
     }
   }
@@ -229,6 +240,7 @@ const ActionBlockArea = ({ scenarioId }: ActionBlockAreaProps): JSX.Element => {
 
   // 드래그 중일 때
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.preventDefault()
     if (dragSelection) {
       const x = event.clientX
       const y = event.clientY
@@ -287,9 +299,11 @@ const ActionBlockArea = ({ scenarioId }: ActionBlockAreaProps): JSX.Element => {
     },
   })
 
+  const isBlockRecordMode = useRecoilValue(isBlockRecordModeState)
+
   useEffect(() => {
     const remoconButtonSubscribe$ = remoconService.onButton$().subscribe((remoconTransmit: RemoconTransmit) => {
-      if (scenarioId) {
+      if (scenarioId && isBlockRecordMode) {
         postBlockMutate({
           newBlock: {
             type: remoconTransmit.msg,
@@ -322,7 +336,7 @@ const ActionBlockArea = ({ scenarioId }: ActionBlockAreaProps): JSX.Element => {
     const remoconCustomKeySubscribe$ = remoconService
       .onCustomKey$()
       .subscribe((customKeyTransmit: CustomKeyTransmit) => {
-        if (scenarioId) {
+        if (scenarioId && isBlockRecordMode) {
           const newBlocks = customKeyTransmit.data.map((keyTransmit) => {
             return {
               type: customKeyTransmit.msg,
@@ -356,7 +370,7 @@ const ActionBlockArea = ({ scenarioId }: ActionBlockAreaProps): JSX.Element => {
       })
 
     const terminalButtonSubscribe$ = terminalService.onButton$().subscribe((commandTransmit: CommandTransmit) => {
-      if (scenarioId) {
+      if (scenarioId && isBlockRecordMode) {
         // #TODO: key, value, name에 대한 정확한 정의가 이루어져야 함
         postBlockMutate({
           newBlock: {
@@ -380,7 +394,7 @@ const ActionBlockArea = ({ scenarioId }: ActionBlockAreaProps): JSX.Element => {
       remoconCustomKeySubscribe$.unsubscribe()
       terminalButtonSubscribe$.unsubscribe()
     }
-  }, [scenarioId])
+  }, [scenarioId, isBlockRecordMode])
 
   return (
     <div className="w-full h-full min-h-full">
@@ -389,6 +403,12 @@ const ActionBlockArea = ({ scenarioId }: ActionBlockAreaProps): JSX.Element => {
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onMouseMove={handleMouseMove}
+        onPointerMove={(e) => {
+          e.preventDefault()
+        }}
+        onPointerLeave={(e) => {
+          e.preventDefault()
+        }}
         style={{
           backgroundImage: `url(${BackgroundImage})`,
           backgroundSize: '100%',
@@ -433,7 +453,6 @@ const ActionBlockArea = ({ scenarioId }: ActionBlockAreaProps): JSX.Element => {
                                       blockRefetch={() => {
                                         blockRefetch()
                                       }}
-                                      scenarioId={scenarioId}
                                     />
                                   </div>
                                 )
@@ -452,9 +471,11 @@ const ActionBlockArea = ({ scenarioId }: ActionBlockAreaProps): JSX.Element => {
         )}
 
         {blocks && blockDummys && blocks.length === 0 && (
-          <div className="h-full w-full justify-center items-center">
-            <p className="text-xl">No Blocks</p>
-            <p className="text-base">Start action about device control and adb/ssh access</p>
+          <div className="h-full w-full justify-center items-center flex">
+            <div className="flex flex-col items-center">
+              <p className="text-xl">No Blocks</p>
+              <p className="text-base">Start action about device control and adb/ssh access</p>
+            </div>
           </div>
         )}
 

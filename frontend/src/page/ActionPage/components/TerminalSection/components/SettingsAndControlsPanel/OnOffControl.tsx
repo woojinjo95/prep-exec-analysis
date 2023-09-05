@@ -1,25 +1,101 @@
-import React from 'react'
+import React, { useCallback, useState } from 'react'
 
 import { ToggleButton, Text, Divider, Title } from '@global/ui'
-import useWebsocket from '@global/module/websocket'
-import { useHardwareConfiguration } from '@global/api/hook'
+import { useWebsocket } from '@global/hook'
+import { useHardwareConfiguration, useScenarioById } from '@global/api/hook'
+import { useRecoilValue } from 'recoil'
+import { isBlockRecordModeState, scenarioIdState } from '@global/atom'
+import { useMutation } from 'react-query'
+import { postBlock } from '@page/ActionPage/components/ActionSection/api/func'
 
-type OnOffControlSubscribeMessage = {
-  service: string
-  level: string
-  time: number
-  msg: string
-  data: {
-    vac: 'on' | 'off'
-  }
+type OnOffControlResponseMessageBody = {
+  vac?: 'on' | 'off'
+  enable_dut_power_transition?: string
+  sensor_time: number
+  hpd?: 'on' | 'off'
+  enable_hdmi_transition?: string
+  lan?: 'on' | 'off'
+  enable_dut_wan_transition?: string
 }
+
+type blockType = 'DUT Power' | 'HDMI' | 'DUT Wan'
+type blockArgKey = 'enable_dut_power' | 'enable_hdmi' | 'enable_dut_wan'
 
 const OnOffControl: React.FC = () => {
   const { hardwareConfiguration, refetch } = useHardwareConfiguration()
-  const { sendMessage } = useWebsocket<OnOffControlSubscribeMessage>({
+
+  const scenarioId = useRecoilValue(scenarioIdState)
+
+  const { refetch: scenarioRefetch } = useScenarioById({ scenarioId })
+
+  const { mutate: postBlockMutate } = useMutation(postBlock, {
+    onSuccess: () => {
+      scenarioRefetch()
+    },
+    onError: (err) => {
+      console.error(err)
+    },
+  })
+
+  const isBlockRecordMode = useRecoilValue(isBlockRecordModeState)
+
+  const postBlockWithMessageData = useCallback(
+    ({
+      blockType,
+      blockArgKey,
+      blockValue,
+    }: {
+      blockType: blockType
+      blockArgKey: blockArgKey
+      blockValue: 'on' | 'off'
+    }) => {
+      if (!scenarioId) return
+      postBlockMutate({
+        newBlock: {
+          type: 'on_off_control',
+          name: `Control: ${blockType} ${blockValue}`,
+          delay_time: 3000,
+          args: [
+            {
+              key: blockArgKey,
+              value: blockValue,
+            },
+          ],
+        },
+        scenario_id: scenarioId,
+      })
+    },
+    [],
+  )
+
+  const { sendMessage } = useWebsocket<OnOffControlResponseMessageBody>({
     onMessage: (message) => {
       if (message.msg === 'on_off_control_response') {
         refetch()
+
+        if (!scenarioId || !isBlockRecordMode) return
+
+        if (message.data.enable_dut_power_transition) {
+          postBlockWithMessageData({
+            blockType: 'DUT Power',
+            blockArgKey: 'enable_dut_power',
+            blockValue: message.data.vac!,
+          })
+        }
+        if (message.data.enable_hdmi_transition) {
+          postBlockWithMessageData({
+            blockType: 'HDMI',
+            blockArgKey: 'enable_hdmi',
+            blockValue: message.data.hpd!,
+          })
+        }
+        if (message.data.enable_dut_wan_transition) {
+          postBlockWithMessageData({
+            blockType: 'DUT Wan',
+            blockArgKey: 'enable_dut_wan',
+            blockValue: message.data.lan!,
+          })
+        }
       }
     },
   })
@@ -59,6 +135,20 @@ const OnOffControl: React.FC = () => {
               sendMessage({ msg: 'on_off_control', data: { enable_dut_wan: isOn } })
             }}
           />
+        </li>
+        <li className="flex items-center justify-between">
+          <Text weight="medium">Screen</Text>
+          <button
+            type="button"
+            className="bg-primary w-20 h-7 rounded-full"
+            onClick={() => {
+              sendMessage({ msg: 'capture_board', data: { action: 'refresh' } })
+            }}
+          >
+            <Text colorScheme="light" size="xs" weight="medium">
+              Reset
+            </Text>
+          </button>
         </li>
       </ul>
     </div>

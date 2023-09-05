@@ -2,15 +2,14 @@ import React, { useRef, useState } from 'react'
 import classnames from 'classnames/bind'
 
 import { ReactComponent as DropdownIcon } from '@assets/images/select_arrow.svg'
-import { OptionList, Text } from '@global/ui'
+import { OptionList } from '@global/ui'
 import useOutsideClick from '@global/hook/useOutsideClick'
 import styles from './Select.module.scss'
 
 const cx = classnames.bind(styles)
 
 interface SelectProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  value?: React.SelectHTMLAttributes<HTMLSelectElement>['value']
-  defaultValue?: React.SelectHTMLAttributes<HTMLSelectElement>['defaultValue']
+  header: React.ReactNode
   className?: string
   children?: React.ReactNode
 
@@ -26,13 +25,22 @@ interface SelectProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 const Select: React.ForwardRefExoticComponent<SelectProps & React.RefAttributes<HTMLButtonElement>> = React.forwardRef<
   HTMLButtonElement,
   SelectProps
->(({ value, className, children, defaultValue, colorScheme = 'charcoal', widthOption, ...props }, ref) => {
+>(({ header, className, children, colorScheme = 'charcoal', widthOption, ...props }, ref) => {
   const divRef = useRef<HTMLDivElement | null>(null)
   const [isFocused, setIsFocused] = useState<boolean>(false)
   const { ref: selectListRef } = useOutsideClick<HTMLUListElement>({ onClickOutside: () => setIsFocused(false) })
 
   return (
-    <div ref={divRef} className={cx('relative', className)}>
+    <div
+      ref={divRef}
+      className={cx(
+        'relative',
+        {
+          'opacity-40': props.disabled,
+        },
+        className,
+      )}
+    >
       <button
         ref={ref}
         type="button"
@@ -52,9 +60,7 @@ const Select: React.ForwardRefExoticComponent<SelectProps & React.RefAttributes<
         }}
         {...props}
       >
-        <Text weight="bold" colorScheme={colorScheme === 'light' ? 'dark' : 'light'}>
-          {value || defaultValue}
-        </Text>
+        {header}
         <DropdownIcon className={cx('w-3', colorScheme)} />
       </button>
 

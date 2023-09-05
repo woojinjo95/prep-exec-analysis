@@ -1,9 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { ReactComponent as EditIcon } from '@assets/images/icon_edit.svg'
 import cx from 'classnames'
-import { Block } from '@page/ActionPage/components/ActionSection/api/entity'
 import { changeMinSecMsToMs, changeMsToMinSecMs, formMsToHundred } from '@global/usecase'
 import { useMutation } from 'react-query'
+import { useRecoilValue } from 'recoil'
+import { scenarioIdState } from '@global/atom'
+import { Block } from '@global/api/entity'
 import { ActionStatus } from '../types'
 import { putBlock } from '../api/func'
 
@@ -15,7 +17,6 @@ interface ActionBlockItemProps {
   setModifyingBlockId: React.Dispatch<React.SetStateAction<string | null>>
   modifyingBlockId: string | null
   blockRefetch: () => void
-  scenarioId: string
 }
 
 const ActionBlockItem = ({
@@ -26,7 +27,6 @@ const ActionBlockItem = ({
   setModifyingBlockId,
   modifyingBlockId,
   blockRefetch,
-  scenarioId,
 }: ActionBlockItemProps): JSX.Element => {
   const handleDragStart = (e: React.MouseEvent<HTMLDivElement>) => {
     // 부모 컴포넌트의 onMouseDown 이벤트 발생을 막기 위해서
@@ -38,6 +38,8 @@ const ActionBlockItem = ({
   const [changedSec, setChangedSec] = useState<string>('')
 
   const [changedMSec, setChangedMSec] = useState<string>('')
+
+  const scenarioId = useRecoilValue(scenarioIdState)
 
   useEffect(() => {
     const minSecMillisec = changeMsToMinSecMs(block.delay_time)
@@ -65,15 +67,17 @@ const ActionBlockItem = ({
     }
 
     if (e.target instanceof Node && !itemRef.current.contains(e.target)) {
-      putScenarioMutate({
-        block_id: block.id,
-        newBlock: {
-          ...block,
-          delay_time: changeMinSecMsToMs(Number(changedMin), Number(changedSec), Number(changedMSec)),
-        },
-        scenario_id: scenarioId,
-      })
-      setModifyingBlockId(null)
+      if (scenarioId) {
+        putScenarioMutate({
+          block_id: block.id,
+          newBlock: {
+            ...block,
+            delay_time: changeMinSecMsToMs(Number(changedMin), Number(changedSec), Number(changedMSec)),
+          },
+          scenario_id: scenarioId,
+        })
+        setModifyingBlockId(null)
+      }
     }
   }
 

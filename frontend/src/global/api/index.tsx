@@ -1,5 +1,5 @@
-import AppURL from '@global/constant/appURL'
 import axios, { AxiosError } from 'axios'
+import { AppURL } from '@global/constant'
 
 const API = axios.create({
   baseURL: AppURL.backendURL,

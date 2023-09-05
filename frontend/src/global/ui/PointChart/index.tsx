@@ -12,6 +12,7 @@ interface PointChartProps {
  * 포인트 차트
  *
  * TODO: resizing event
+ * TODO: data 개별 color
  */
 const PointChart: React.FC<PointChartProps> = ({ data, scaleX, color = '#269' }) => {
   if (!scaleX) return <div />
@@ -25,12 +26,12 @@ const PointChart: React.FC<PointChartProps> = ({ data, scaleX, color = '#269' })
       </div>
 
       <div>
-        {data.map((date, index) => (
+        {data.map(({ datetime }, index) => (
           <div
-            key={`point-chart-${date.toISOString()}-${index}`}
+            key={`point-chart-${datetime}-${index}`}
             className="w-0.5 h-full absolute top-0"
             style={{
-              transform: `translateX(${scaleX(date) - 1}px)`,
+              transform: `translateX(${scaleX(new Date(datetime)) - 1}px)`,
               backgroundColor: color,
             }}
           />
@@ -40,4 +41,4 @@ const PointChart: React.FC<PointChartProps> = ({ data, scaleX, color = '#269' })
   )
 }
 
-export default PointChart
+export default React.memo(PointChart)

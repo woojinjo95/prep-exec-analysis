@@ -6,11 +6,11 @@ import { CHART_HEIGHT } from '@global/constant'
 import { AreaChartGenerator } from './usecase'
 
 interface AreaChartProps {
-  chartWidth: number | null
+  chartWidth?: number | null
   scaleX: d3.ScaleTime<number, number, never> | null
+  scaleY: d3.ScaleLinear<number, number, never> | null
   data: AreaChartData
   minValue?: number
-  maxValue?: number
   strokeColor?: string
   fillColor?: string
 }
@@ -23,24 +23,16 @@ interface AreaChartProps {
 const AreaChart: React.FC<AreaChartProps> = ({
   chartWidth,
   scaleX,
+  scaleY,
   data,
-  minValue,
-  maxValue,
+  minValue: _minValue,
   strokeColor,
   fillColor,
 }) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
-
-  const scaleY: d3.ScaleLinear<number, number, never> | null = useMemo(
-    () =>
-      d3
-        .scaleLinear()
-        .domain([
-          minValue !== undefined ? minValue : Math.min(...data.map(({ value }) => value)),
-          maxValue !== undefined ? maxValue : Math.max(...data.map(({ value }) => value)),
-        ])
-        .range([CHART_HEIGHT, 0]),
-    [data, minValue, maxValue],
+  const minValue = useMemo(
+    () => (_minValue !== undefined ? _minValue : Math.min(...data.map(({ value }) => value))),
+    [],
   )
 
   useEffect(() => {
@@ -53,6 +45,7 @@ const AreaChart: React.FC<AreaChartProps> = ({
       CHART_HEIGHT,
       scaleX,
       scaleY,
+      minValue,
       strokeColor,
       fillColor,
     )
@@ -66,4 +59,4 @@ const AreaChart: React.FC<AreaChartProps> = ({
   )
 }
 
-export default AreaChart
+export default React.memo(AreaChart)

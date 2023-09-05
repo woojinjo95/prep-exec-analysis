@@ -1,10 +1,13 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useMutation } from 'react-query'
 
-import { Button, Divider, Input, OptionItem, Select, Title } from '@global/ui'
+import { Button, Divider, Input, OptionItem, Select, Title, Text } from '@global/ui'
 import { IPRegex } from '@global/constant'
 import { HardwareConfiguration } from '@global/api/entity'
-import { useHardwareConfiguration } from '@global/api/hook'
+import { useHardwareConfiguration, useLogConnectionStatus, useScenarioById } from '@global/api/hook'
+import { postBlock } from '@page/ActionPage/components/ActionSection/api/func'
+import { useRecoilValue } from 'recoil'
+import { isBlockRecordModeState, scenarioIdState } from '@global/atom'
 import { putHardwareConfigurationSTBConnection } from '../../api/func'
 
 const validateIP = (ip?: string | null) => {
@@ -67,11 +70,83 @@ const DeviceInfo: React.FC = () => {
       ),
     [stbConnection, hardwareConfiguration],
   )
+
+  const scenarioId = useRecoilValue(scenarioIdState)
+
+  const { refetch: scenarioRefetch } = useScenarioById({ scenarioId })
+
+  const { mutate: postBlockMutate } = useMutation(postBlock, {
+    onSuccess: () => {
+      scenarioRefetch()
+    },
+    onError: (err) => {
+      console.error(err)
+    },
+  })
+
+  const isBlockRecordMode = useRecoilValue(isBlockRecordModeState)
+
+  const { logConnectionStatus } = useLogConnectionStatus()
+
+  const [isStbConnectionUpdated, setIsStbConnectionUpdated] = useState<boolean>(false)
+
   const { mutate: updateSTBConnection } = useMutation(putHardwareConfigurationSTBConnection, {
     onSuccess: () => {
       refetch()
+      setIsStbConnectionUpdated(true)
     },
   })
+
+  // stbConnection이 updated 되고, logConnectionStatus가 성공적으로 connected 되었을 때만 block 추가
+  useEffect(() => {
+    if (isStbConnectionUpdated && logConnectionStatus === 'log_connected') {
+      if (!scenarioId || !isBlockRecordMode) return
+
+      // 이미 데이터 검증이 끝난 상태
+      const { mode, host, port, username, password } = stbConnection
+      if (!mode) return
+
+      const data: Partial<HardwareConfiguration['stb_connection']> =
+        mode === 'adb' ? { mode, host, port } : { mode, host, port, username, password }
+
+      postBlockMutate({
+        newBlock: {
+          type: 'device_info',
+          name: `Device Info: ${mode} / ${
+            mode === 'adb'
+              ? `${data.host!}:${data.port!}`
+              : `${data.host!}:${data.port!} ID: ${data.username!} PW: ${data.password!}`
+          }`,
+          delay_time: 3000,
+          args: [
+            {
+              key: 'host',
+              value: data.host!,
+            },
+            {
+              key: 'mode',
+              value: data.mode!,
+            },
+            {
+              key: 'port',
+              value: data.port!,
+            },
+            {
+              key: 'password',
+              value: data.password ? data.password : null,
+            },
+            {
+              key: 'username',
+              value: data.username ? data.username : null,
+            },
+          ],
+        },
+        scenario_id: scenarioId,
+      })
+
+      setIsStbConnectionUpdated(false)
+    }
+  }, [logConnectionStatus, isStbConnectionUpdated])
 
   const onClickSubmit = () => {
     const { mode, host, port, username, password } = stbConnection
@@ -108,7 +183,14 @@ const DeviceInfo: React.FC = () => {
       <Divider />
 
       <div className="grid grid-cols-1 gap-y-4 px-1">
-        <Select colorScheme="charcoal" value={stbConnection.mode || 'Type'}>
+        <Select
+          colorScheme="charcoal"
+          header={
+            <Text weight="bold" colorScheme="light">
+              {stbConnection.mode || 'Type'}
+            </Text>
+          }
+        >
           {ConnectionTypes.map((connectionType) => (
             <OptionItem
               colorScheme="charcoal"
@@ -130,7 +212,15 @@ const DeviceInfo: React.FC = () => {
           <>
             <div className="grid grid-rows-1 grid-cols-[2fr_1fr] gap-x-2">
               <Input
-                placeholder="IP"
+                onClick={() => {
+                  if (stbConnection.host) return
+
+                  setSTBConnection((prev) => ({
+                    ...prev,
+                    host: hardwareConfiguration?.dut_ip,
+                  }))
+                }}
+                placeholder={hardwareConfiguration?.dut_ip || 'IP'}
                 value={stbConnection.host || ''}
                 onChange={(e) => setSTBConnection((prev) => ({ ...prev, host: e.target.value }))}
                 warningMessage={warningMessage.host}

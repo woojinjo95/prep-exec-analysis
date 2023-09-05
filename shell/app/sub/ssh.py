@@ -1,12 +1,13 @@
 import sys
 import json
+from datetime import datetime
 import asyncio
 import traceback
 from typing import Optional
 import asyncssh
-from .utils import log
 from .log import process_log_queue
 from .message import check_skip_message
+
 
 class QAASClientSession(asyncssh.SSHClientSession):
     def set_queue(self, queue: asyncio.Queue):
@@ -14,7 +15,7 @@ class QAASClientSession(asyncssh.SSHClientSession):
 
     def data_received(self, data: str, datatype: asyncssh.DataType) -> None:
         print(data, end='')
-        self._queue.put_nowait(log(data, "stdout"))
+        self._queue.put_nowait({'timestamp': datetime.utcnow().timestamp(), 'module':  "stdout", 'message': data})
 
     def connection_lost(self, exc: Optional[Exception]) -> None:
         if exc:
@@ -38,6 +39,7 @@ async def consumer_ssh_handler(conn: any, channel: any, shell_id: int, CHANNEL_N
             try:  # 루프 깨지지 않도록 예외처리
                 raw = await pubsub.get_message(ignore_subscribe_messages=True)
                 await asyncio.sleep(0.001)
+                
                 # 필요없는 메시지는 여기서 걸러줌
                 if raw is None:
                     continue
@@ -47,11 +49,20 @@ async def consumer_ssh_handler(conn: any, channel: any, shell_id: int, CHANNEL_N
                     if not check_skip_message(message, shell_id):
                         continue
 
+                    # config 변경 메시지 수신
+                    # 두가지 변경 메시지가 있음
+                    # 연결 정보가 변경되는 메시지 
+                    # 테스트런과 프로젝트가 변경되는 메시지
+                    if message['msg'] == 'config' or message['msg'] == 'workspace':
+                        # 현재 작업을 종료함.
+                        # 컨피그가 변경되었거나 워크스페이스가 변경되었기 때문에
+                        return
+                    
                     print(message)
                     command = f"{message['data']['command']}\n"
                     channel.write(command)
-                    queue.put_nowait(log(command, "stdin"))
-                
+                    queue.put_nowait({'timestamp': datetime.utcnow().timestamp(), 'module':  "stdin", 'message': command})
+
             except Exception as e:
                 print(e)
                 print(traceback.format_exc())
@@ -61,7 +72,8 @@ async def consumer_ssh_handler(conn: any, channel: any, shell_id: int, CHANNEL_N
     print("consumer_handler end")
 
 
-async def ssh_connect(conn: any, shell_id: int, SSH_HOST: str, SSH_PORT: int, SSH_USERNAME: str, SSH_PASSWORD: str, CHANNEL_NAME: str):
+async def ssh_connect(conn: any, shell_id: int, SSH_HOST: str,
+                      SSH_PORT: int, SSH_USERNAME: str, SSH_PASSWORD: str, CHANNEL_NAME: str, testinfo: dict):
     queue = asyncio.Queue()
 
     connection, client = await asyncssh.create_connection(QAASSSHClient, host=SSH_HOST, port=SSH_PORT,
@@ -74,7 +86,7 @@ async def ssh_connect(conn: any, shell_id: int, SSH_HOST: str, SSH_PORT: int, SS
         consumer_task = asyncio.create_task(consumer_ssh_handler(conn=conn,
                                                                  channel=channel, shell_id=shell_id,
                                                                  CHANNEL_NAME=CHANNEL_NAME, queue=queue))
-        process_log_task = asyncio.create_task(process_log_queue(queue, conn, CHANNEL_NAME, "ssh", shell_id))
+        process_log_task = asyncio.create_task(process_log_queue(queue, conn, CHANNEL_NAME, "ssh", shell_id, testinfo))
         # await channel.wait_closed()
         done, pending = await asyncio.wait(
             [consumer_task, process_log_task], return_when=asyncio.FIRST_COMPLETED,

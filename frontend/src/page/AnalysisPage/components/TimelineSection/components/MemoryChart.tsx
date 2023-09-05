@@ -1,47 +1,101 @@
-import { AreaChart } from '@global/ui'
-import React, { useMemo } from 'react'
-import useWebsocket from '@global/module/websocket'
-import { useCPUAndMemory } from '../api/hook'
+import React, { useMemo, useRef } from 'react'
+import * as d3 from 'd3'
+import { AreaChart, TimelineTooltip, TimelineTooltipItem, Text } from '@global/ui'
+import { CHART_HEIGHT } from '@global/constant'
+import { bytesToSize } from '@global/usecase'
+import { useMemory } from '../api/hook'
+import { useTooltipEvent } from '../hook'
 
 interface MemoryChartProps {
-  chartWidth: Parameters<typeof AreaChart>[0]['chartWidth']
   scaleX: Parameters<typeof AreaChart>[0]['scaleX']
   startTime: Date
   endTime: Date
+  dimension: { left: number; width: number } | null
 }
 
 /**
  * Memory 사용률 차트
  */
-const MemoryChart: React.FC<MemoryChartProps> = ({ chartWidth, scaleX, startTime, endTime }) => {
-  const { cpuAndMemory, refetch } = useCPUAndMemory({
+const MemoryChart: React.FC<MemoryChartProps> = ({ scaleX, startTime, endTime, dimension }) => {
+  const wrapperRef = useRef<HTMLDivElement | null>(null)
+  const { memory } = useMemory({
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
   })
-  useWebsocket({
-    onMessage: (message) => {
-      if (message.msg === 'analysis_response') {
-        refetch()
-      }
-    },
+
+  const memoryData = useMemo(() => {
+    if (!memory) return null
+    return memory.map(({ timestamp, memory_usage, ...data }) => ({
+      datetime: new Date(timestamp).getTime(),
+      value: Number(memory_usage),
+      ...data,
+    }))
+  }, [memory])
+
+  const scaleY: d3.ScaleLinear<number, number, never> | null = useMemo(
+    () => d3.scaleLinear().domain([0, 100]).range([CHART_HEIGHT, 0]),
+    [],
+  )
+
+  const { posX, tooltipData, onMouseMove, onMouseLeave } = useTooltipEvent<NonNullable<typeof memoryData>[number]>({
+    scaleX,
+    offsetLeft: dimension?.left,
+    width: dimension?.width,
   })
 
-  const memoryUsage = useMemo(() => {
-    if (!cpuAndMemory) return null
-    return cpuAndMemory.map(({ timestamp, memory_usage }) => ({ date: new Date(timestamp), value: memory_usage }))
-  }, [cpuAndMemory])
-
-  if (!memoryUsage) return <div />
+  if (!memoryData) return <div />
   return (
-    <AreaChart
-      chartWidth={chartWidth}
-      scaleX={scaleX}
-      data={memoryUsage}
-      minValue={0}
-      maxValue={100}
-      strokeColor="#fa70d8"
-      fillColor="#fa70d8"
-    />
+    <div onMouseMove={onMouseMove(memoryData)} onMouseLeave={onMouseLeave} className="relative overflow-hidden">
+      {!!posX && (
+        <div
+          ref={wrapperRef}
+          className="absolute top-0 h-full w-1 bg-white opacity-30 z-[5]"
+          style={{
+            transform: `translateX(${posX - 2}px)`,
+          }}
+        >
+          {!!tooltipData && (
+            <TimelineTooltip posX={posX} data={tooltipData} wrapperRef={wrapperRef}>
+              <TimelineTooltipItem label="Total RAM">
+                <Text colorScheme="light">{bytesToSize(Number(tooltipData.total_ram))}</Text>
+              </TimelineTooltipItem>
+
+              <TimelineTooltipItem label="Used RAM">
+                <Text colorScheme="light">{bytesToSize(Number(tooltipData.used_ram))}</Text>
+              </TimelineTooltipItem>
+
+              <TimelineTooltipItem label="Free RAM">
+                <Text colorScheme="light">{bytesToSize(Number(tooltipData.free_ram))}</Text>
+              </TimelineTooltipItem>
+
+              <TimelineTooltipItem label="Lost RAM">
+                <Text colorScheme="light">{bytesToSize(Number(tooltipData.lost_ram))}</Text>
+              </TimelineTooltipItem>
+            </TimelineTooltip>
+          )}
+        </div>
+      )}
+
+      {/* 툴팁 데이터 위치를 표시하는 포인트 */}
+      {!!tooltipData && !!scaleX && (
+        <div
+          className="absolute -top-[3px] -left-[3px] w-[6px] h-[6px] rounded-full z-10 opacity-70 border border-white"
+          style={{
+            transform: `translate(${scaleX(new Date(tooltipData.datetime))}px, ${scaleY(tooltipData.value)}px)`,
+          }}
+        />
+      )}
+
+      <AreaChart
+        chartWidth={dimension?.width}
+        scaleX={scaleX}
+        scaleY={scaleY}
+        data={memoryData}
+        minValue={0}
+        strokeColor="#fa70d8"
+        fillColor="#fa70d8"
+      />
+    </div>
   )
 }
 

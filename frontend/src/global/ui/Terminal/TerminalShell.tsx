@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Text } from '@global/ui'
-import useWebsocket from '@global/module/websocket'
+import { useWebsocket } from '@global/hook'
 import { History, ShellMessage, Terminal } from '@global/types'
 import { terminalService } from '@global/service/TerminalService/TerminalService'
 import CommandInput from './CommandInput'

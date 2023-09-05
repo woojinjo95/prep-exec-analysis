@@ -2,9 +2,9 @@ import logging
 import tempfile
 import traceback
 from typing import Tuple
-import numpy as np
-import cv2
 
+import cv2
+import numpy as np
 from scripts.analysis.boot_test.diff import task_boot_test_with_diff
 from scripts.analysis.boot_test.match import task_boot_test_with_match
 from scripts.analysis.video import check_poweroff_video
@@ -13,13 +13,13 @@ from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.data import load_input, read_analysis_config
 from scripts.external.event import get_data_of_event_log, get_power_key_times
 from scripts.external.report import report_output
-from scripts.format import CollectionName
+from scripts.external.analysis import set_analysis_info
+from scripts.format import Command, ReportName
 from scripts.util._timezone import get_utc_datetime
 from scripts.util.decorator import log_decorator
 from scripts.util.video import crop_video_with_opencv
-from scripts.format import LogName, Command
 
-logger = logging.getLogger(LogName.BOOT_TEST.value)
+logger = logging.getLogger('main')
 
 
 @log_decorator(logger)
@@ -34,11 +34,12 @@ def test_warm_boot():
         elif processing_mode == 'screen_change_rate':
             test_warm_boot_with_diff()
 
-        publish_msg({'measurement': [Command.RESUME.value]}, 'analysis_response')
+        publish_msg({'measurement': Command.RESUME.value}, 'analysis_response')
+        set_analysis_info(Command.RESUME.value)
 
     except Exception as err:
         error_detail = traceback.format_exc()
-        publish_msg({'measurement': [Command.RESUME.value]}, error_detail, level='error')
+        publish_msg({'measurement': Command.RESUME.value, 'log': error_detail}, 'analysis_response', level='error')
         logger.error(f"error in test_warm_boot: {err}")
         logger.warning(error_detail)
 
@@ -61,7 +62,7 @@ def test_warm_boot_with_diff():
 
     for result in warm_boot_results:
         if result['status'] == 'success':
-            report_output(CollectionName.WARM_BOOT.value, {
+            report_output(ReportName.WARM_BOOT.value, {
                 'timestamp': get_utc_datetime(result['diff_timestamp']),
                 'measure_time': result['diff_time'],
             })
@@ -88,7 +89,7 @@ def test_warm_boot_with_match():
 
     for result in warm_boot_results:
         if result['status'] == 'success':
-            report_output(CollectionName.WARM_BOOT.value, {
+            report_output(ReportName.WARM_BOOT.value, {
                 'timestamp': get_utc_datetime(result['match_timestamp']),
                 'measure_time': result['match_time'],
             })
@@ -96,7 +97,7 @@ def test_warm_boot_with_match():
 
 def get_template_from_config() -> np.ndarray:
     analysis_config = read_analysis_config()
-    image_path = analysis_config['resume']['frame']['image_path']
+    image_path = analysis_config['resume']['frame']['path']
     image = cv2.imread(image_path)
     logger.info(f'image shape: {image.shape}')
     return image

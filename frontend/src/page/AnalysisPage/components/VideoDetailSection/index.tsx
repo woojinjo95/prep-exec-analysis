@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { ReactComponent as GoToFirstIcon } from '@assets/images/icon_go_to_first_w.svg'
 import { ReactComponent as StepBackIcon } from '@assets/images/icon_step_back_1sec_w.svg'
@@ -6,10 +6,11 @@ import { ReactComponent as PlayIcon } from '@assets/images/icon_play.svg'
 import { ReactComponent as StepForwardIcon } from '@assets/images/icon_step_forward_1sec_w.svg'
 import { ReactComponent as GoToLastIcon } from '@assets/images/icon_go_to_last_w.svg'
 import { ReactComponent as StopIcon } from '@assets/images/icon_stop.svg'
-import { Button, IconButton, Text } from '@global/ui'
-import { scenarioIdState } from '@global/atom'
-import AppURL from '@global/constant/appURL'
+import { IconButton, Text } from '@global/ui'
+import { cursorDateTimeState, scenarioIdState, testRunIdState } from '@global/atom'
+import { AppURL } from '@global/constant'
 import apiUrls from '@page/AnalysisPage/api/url'
+import { useVideoSummary } from '@global/api/hook'
 
 /**
  * 결과영상 및 정보 영역
@@ -17,6 +18,7 @@ import apiUrls from '@page/AnalysisPage/api/url'
 const VideoDetailSection: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
   const [isPlaying, setIsPlaying] = useState<boolean>(false)
   const [currentTime, setCurrentTime] = useState<number>(0)
   /**
@@ -29,6 +31,17 @@ const VideoDetailSection: React.FC = () => {
 
     return `${minute < 10 ? `0${minute}` : minute}:${second < 10 ? `0${second}` : second}.${millisecond}`
   }, [currentTime])
+  const cursorDateTime = useRecoilValue(cursorDateTimeState)
+  const { videoSummary } = useVideoSummary()
+
+  // 커서 시간이 변경될 경우 -> 비디오 엘리먼트에 시간 반영
+  useEffect(() => {
+    if (!videoSummary || !cursorDateTime || !videoRef.current) return
+
+    const newCurrentTime = (cursorDateTime.getTime() - new Date(videoSummary.start_time).getTime()) / 1000
+    setCurrentTime(newCurrentTime)
+    videoRef.current.currentTime = newCurrentTime
+  }, [cursorDateTime])
 
   return (
     <section className="bg-black text-white grid grid-rows-1 grid-cols-[1fr_1.5fr_1fr]">
@@ -93,11 +106,11 @@ const VideoDetailSection: React.FC = () => {
       </div>
 
       <div className="aspect-video">
-        {scenarioId && (
+        {scenarioId && testRunId && (
           <video
             ref={videoRef}
             className="h-full aspect-video"
-            src={`${AppURL.backendURL}${apiUrls.partial_video}?scenario_id=${scenarioId}`}
+            src={`${AppURL.backendURL}${apiUrls.partial_video}?scenario_id=${scenarioId}&testrun_id=${testRunId}`}
             muted
             controls
             loop={false}
@@ -115,9 +128,11 @@ const VideoDetailSection: React.FC = () => {
         )}
       </div>
 
-      {/* FIXME: 버튼의 의미(동영상 다운로드?) */}
+      {/* FIXME: 타임라인 tick 부분에서 시간 크롭, 결과 export 기능. MVP2 에서 개발 */}
       <div className="ml-auto mt-auto py-4 px-3">
-        <Button colorScheme="charcoal">Save</Button>
+        {/* <Button colorScheme="charcoal" className="w-[132px]">
+          Save
+        </Button> */}
       </div>
     </section>
   )

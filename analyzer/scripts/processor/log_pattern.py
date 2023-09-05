@@ -1,6 +1,5 @@
 import logging
 import re
-import time
 import traceback
 from typing import Dict, List
 
@@ -8,11 +7,11 @@ from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.data import load_input, read_analysis_config
 from scripts.external.log import get_data_of_log
 from scripts.external.report import report_output
-from scripts.format import CollectionName
+from scripts.external.analysis import set_analysis_info
+from scripts.format import Command, ReportName
 from scripts.util.decorator import log_decorator
-from scripts.format import LogName, Command
 
-logger = logging.getLogger(LogName.LOG_PATTERN.value)
+logger = logging.getLogger('main')
 
 
 @log_decorator(logger)
@@ -25,19 +24,22 @@ def test_log_pattern_matching():
 
         count = 0
         for log in log_data['items']:
-            if check_log_pattern_match(log, target_items):
+            matched_target = check_log_pattern_match(log, target_items)
+            if matched_target:
                 # logger.info(f'log: {log}')
-                report_output(CollectionName.LOG_PATTERN.value, {
+                report_output(ReportName.LOG_PATTERN.value, {
                     **log,
+                    'matched_target': matched_target
                 })
                 count += 1
         logger.info(f'matched log count: {count}')
 
-        publish_msg({'measurement': [Command.LOG_PATTERN_MATCHING.value]}, 'analysis_response')
+        publish_msg({'measurement': Command.LOG_PATTERN_MATCHING.value}, 'analysis_response')
+        set_analysis_info(Command.LOG_PATTERN_MATCHING.value)
 
     except Exception as err:
         error_detail = traceback.format_exc()
-        publish_msg({'measurement': [Command.LOG_PATTERN_MATCHING.value]}, error_detail, level='error')
+        publish_msg({'measurement': Command.LOG_PATTERN_MATCHING.value, 'log': error_detail}, 'analysis_response', level='error')
         logger.error(f"error in match_log_pattern: {err}")
         logger.warning(error_detail)
 
@@ -54,8 +56,8 @@ def check_pattern_match(msg: str, pattern: str) -> bool:
     return True if found else False
 
 
-# n개의 target 조건 중 하나라도 충족하면 True
-def check_log_pattern_match(log: Dict, target_items: List[Dict]) -> bool:
+# n개의 target 조건 중 하나라도 충족하면 True  -> 매칭된 타겟을 반환
+def check_log_pattern_match(log: Dict, target_items: List[Dict]) -> Dict:
     log_level = log['log_level']
     log_msg = log['message']
 
@@ -63,5 +65,5 @@ def check_log_pattern_match(log: Dict, target_items: List[Dict]) -> bool:
         target_level = target['level']
         target_re = target['regular_expression']
         if log_level == target_level and check_pattern_match(log_msg, target_re):
-            return True
-    return False
+            return target
+    return None

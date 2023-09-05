@@ -1,111 +1,109 @@
 import json
 import logging
-import os
 import traceback
-from uuid import uuid4
+from typing import Optional
 
 from app import schemas
-from app.api.utility import parse_bytes_to_value
-from app.core.config import settings
-from app.crud.base import insert_one_to_mongodb, load_from_mongodb
+from app.crud.base import aggregate_from_mongodb, update_to_mongodb
 from app.db.redis_session import RedisClient
 from app.schemas.enum import AnalysisTypeEnum
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, HTTPException
 from fastapi.encoders import jsonable_encoder
-from fastapi.responses import FileResponse
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
 @router.get("", response_model=schemas.AnalysisConfigBase)
-def read_analysis_config() -> schemas.AnalysisConfigBase:
+def read_analysis_config(
+    scenario_id: Optional[str] = None,
+    testrun_id: Optional[str] = None,
+) -> schemas.AnalysisConfigBase:
     """
     Retrieve analysis_config.
     """
     try:
         analysis_config = {}
-        for key in RedisClient.scan_iter(match="analysis_config:*"):
-            analysis_config[key.split(':')[1]] = {k: parse_bytes_to_value(v)
-                                                  for k, v in RedisClient.hgetall(key).items()}
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        if testrun_id is None:
+            testrun_id = RedisClient.hget('testrun', 'id')
+
+        scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        testrun_id = RedisClient.hget('testrun', 'id')
+        pipeline = [{"$match": {'id': scenario_id}},
+                    {"$unwind": "$testruns"},
+                    {"$project": {"testrun_id": "$testruns.id",
+                                  "config": "$testruns.analysis.config"}},
+                    {"$match": {"testrun_id": testrun_id}},
+                    {"$project": {"_id": 0, "config": "$config"}}]
+        res = aggregate_from_mongodb('scenario', pipeline)
+        if res:
+            analysis_config = res[0].get('config', {})
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'items': analysis_config}
 
 
-@router.put("", response_model=schemas.Msg)
+@router.put("/{scenario_id}/{testrun_id}", response_model=schemas.Msg)
 def update_analysis_config(
-    *,
+    scenario_id: str,
+    testrun_id: str,
     analysis_config_in: schemas.AnalysisConfig,
 ) -> schemas.Msg:
     """
     Update analysis_config.
     """
+    pipeline = [{'$match': {'id': scenario_id}},
+                {'$unwind': "$testruns"},
+                {'$match': {"testruns.id": testrun_id}},
+                {'$project': {'_id': 1}}]
+    testrun = aggregate_from_mongodb(col='scenario', pipeline=pipeline)
+    if not testrun:
+        raise HTTPException(status_code=404,
+                            detail="The testrun with this id does not exist in the system.")
     try:
-        for key, val in jsonable_encoder(analysis_config_in).items():
-            if val is not None and key in AnalysisTypeEnum.list():
-                for k, v in val.items():
-                    RedisClient.hset(f'analysis_config:{key}', k, json.dumps(v))
+        update_to_mongodb(col="scenario",
+                          param={"id": scenario_id,
+                                 "testruns.id": testrun_id},
+                          data={"testruns.$.analysis.config": jsonable_encoder(analysis_config_in)})
     except Exception as e:
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Update analysis_config'}
 
 
-@router.delete("/{analysis_type}", response_model=schemas.Msg)
+@router.delete("/{scenario_id}/{testrun_id}/{analysis_type}", response_model=schemas.Msg)
 def delete_analysis_config(
-    *,
+    scenario_id: str,
+    testrun_id: str,
     analysis_type: AnalysisTypeEnum,
 ) -> schemas.Msg:
     """
     Delete analysis_config.
     """
-    analysis_type = analysis_type.value
-    name = f'analysis_config:{analysis_type}'
-    if not RedisClient.hgetall(name=name):
-        raise HTTPException(
-            status_code=404, detail=f"The analysis_config with this {analysis_type} does not exist in the system.")
+    pipeline = [{"$match": {'id': scenario_id}},
+                {"$unwind": "$testruns"},
+                {"$project": {"testrun_id": "$testruns.id",
+                              "config": "$testruns.analysis.config"}},
+                {"$match": {"testrun_id": testrun_id}},
+                {"$project": {"_id": 0, "config": "$config"}}]
+    testrun = aggregate_from_mongodb(col='scenario', pipeline=pipeline)
+    if not testrun:
+        raise HTTPException(status_code=404,
+                            detail="The testrun with this id does not exist in the system.")
+    try:
+        analysis_type = analysis_type.value
+        config = testrun[0].get('config', {})
+        if analysis_type in config:
+            del config[analysis_type]
 
-    RedisClient.delete(name)
+        update_to_mongodb(col="scenario",
+                          param={"id": scenario_id,
+                                 "testruns.id": testrun_id},
+                          data={"testruns.$.analysis.config": config})
+    except Exception as e:
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': f'Delete {analysis_type} analysis_config'}
-
-
-@router.post("/frame", response_model=schemas.FrameImage)
-async def upload_frame(
-    file: UploadFile = File(...)
-) -> schemas.FrameImage:
-    """
-    Upload frame.
-    """
-    if file is None:
-        raise HTTPException(status_code=400, detail="No upload file")
-    try:
-        file_uuid = str(uuid4())
-        workspace_path = f"{RedisClient.hget('testrun','workspace_path')}/{RedisClient.hget('testrun','id')}/analysis/frame"
-        local_path = workspace_path.replace(settings.CONTAINER_PATH, settings.HOST_PATH)
-        insert_one_to_mongodb(col='file', data={'id': file_uuid, "name": file.filename, "path": local_path})
-        if not os.path.isdir(local_path):
-            os.mkdir(local_path)
-        with open(os.path.join(local_path, file_uuid), 'wb') as f:
-            f.write(file.file.read())
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return {'id': file_uuid, 'path': f"{workspace_path}/{file_uuid}"}
-
-
-@router.get('/frame/{frame_id}', response_class=FileResponse)
-async def download_frame(
-    frame_id: str
-) -> FileResponse:
-    """
-    Download frame.
-    """
-    file = load_from_mongodb(col='file', param={'id': frame_id})
-    if not file:
-        raise HTTPException(status_code=404, detail=f"The frame does not exist in the system.")
-    try:
-        file_name = file[0]['name']
-        workspace_path = f"{RedisClient.hget('testrun','workspace_path')}/{RedisClient.hget('testrun','id')}/analysis/frame/{frame_id}"
-        local_path = workspace_path.replace(settings.CONTAINER_PATH, settings.HOST_PATH)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return FileResponse(path=local_path, filename=file_name)

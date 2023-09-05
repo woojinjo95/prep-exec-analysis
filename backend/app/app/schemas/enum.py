@@ -47,6 +47,8 @@ class AnalysisTypeEnum(ExtendedEnum):
     log_pattern_matching = "log_pattern_matching"
     # process_lifecycle_analysis = "process_lifecycle_analysis"
     # network_filter = "network_filter"
+    monkey_test = "monkey_test"
+    intelligent_monkey_test = "intelligent_monkey_test"
 
 
 class LogLevelEnum(ExtendedEnum):
@@ -66,10 +68,14 @@ class ChannelChangeTimeTargetEnum(ExtendedEnum):
 
 class BlockTypeEnum(ExtendedEnum):
     remocon_transmit = "remocon_transmit"
+    remocon_properties = "remocon_properties"
     on_off_control = "on_off_control"
-    shell = "shell"
     packet_control = "packet_control"
     packet_block = "packet_block"
+    device_info = "device_info"
+    shell = "shell"
+    monkey_test = "monkey_test"
+    intelligent_monkey_test = "intelligent_monkey_test"
 
 
 class LogModuleEnum(ExtendedEnum):
@@ -88,3 +94,18 @@ class ServiceStateEnum(ExtendedEnum):
     streaming = "streaming"
     playblock = "playblock"
     analysis = "analysis"
+
+
+class FreezeTypeEnum(ExtendedEnum):
+    no_signal = "no_signal"
+    black = "black"
+    white = "white"
+    one_colored = "one_colored"
+    default = "default"
+
+
+class ExportItemEnum(ExtendedEnum):
+    scenario = "scenario"
+    videos = "videos"
+    analysis_config = "analysis_config"
+    stb_log = "stb_log"

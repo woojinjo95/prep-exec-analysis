@@ -6,7 +6,7 @@ from scripts.connection.mongo_db.crud import aggregate_from_mongodb
 from scripts.external.scenario import get_scenario_info
 from scripts.util._timezone import get_utc_datetime
 
-logger = logging.getLogger('connection')
+logger = logging.getLogger('main')
 
 
 def get_data_of_event_log(start_time: float, end_time: float):
