@@ -11,7 +11,7 @@ from scripts.external.report import report_data
 from scripts.monkey.format import FrameInfo, MonkeyArgs
 from scripts.monkey.monkey import Monkey
 from scripts.monkey.util import (check_cursor_is_same, exec_keys_with_each_interval,
-                                 get_current_image, head_to_next,
+                                 get_current_image, head_to_parent_sibling,
                                  optimize_path)
 from scripts.util._timezone import get_utc_datetime
 from scripts.external.image import save_image
@@ -194,4 +194,4 @@ class IntelligentMonkeyTestSK:
         exec_keys_with_each_interval(key_and_intervals, self.profile, self.remocon_type)
 
     def head_to_next(self):
-        self.key_histories = head_to_next(self.key_histories, self.depth_key, self.breadth_key)
+        self.key_histories = head_to_parent_sibling(self.key_histories, self.depth_key, self.breadth_key)

@@ -11,7 +11,7 @@ from scripts.external.report import report_data
 from scripts.monkey.format import FrameInfo, MonkeyArgs
 from scripts.monkey.monkey import Monkey
 from scripts.monkey.util import (check_cursor_is_same, exec_keys,
-                                 get_current_image, head_to_next,
+                                 get_current_image, head_to_parent_sibling,
                                  optimize_path)
 from scripts.util._timezone import get_utc_datetime
 from scripts.external.image import save_image
@@ -57,8 +57,8 @@ class IntelligentMonkeyTestRoku:
     def visit(self):
         while not self.main_stop_event.is_set():
             self.exec_keys(self.key_histories)
-            status = self.check_depth()
-            if status == 'depth_end':
+            status = self.check_end()
+            if status == 'breadth_end':
                 continue
             elif status == 'visit_end':
                 return
@@ -71,7 +71,7 @@ class IntelligentMonkeyTestRoku:
             else:
                 self.append_key(self.depth_key)
 
-    def check_depth(self) -> str:
+    def check_end(self) -> str:
         logger.info('check status.')
         image, cursor = get_current_image(), self.get_cursor()
         if self.last_fi and check_cursor_is_same(self.last_fi.image, self.last_fi.cursor, image, cursor):
@@ -79,7 +79,7 @@ class IntelligentMonkeyTestRoku:
                 self.head_to_next()
                 logger.info(f'head to next done. {self.key_histories}')
                 self.last_fi = None
-                return 'depth_end'
+                return 'breadth_end'
             except IndexError as err:
                 logger.info(f'visit done. {self.key_histories}. {err}')
                 return 'visit_end'
@@ -189,4 +189,4 @@ class IntelligentMonkeyTestRoku:
         exec_keys(keys, self.key_interval, self.profile, self.remocon_type)
 
     def head_to_next(self):
-        self.key_histories = head_to_next(self.key_histories, self.depth_key, self.breadth_key)
+        self.key_histories = head_to_parent_sibling(self.key_histories, self.depth_key, self.breadth_key)
