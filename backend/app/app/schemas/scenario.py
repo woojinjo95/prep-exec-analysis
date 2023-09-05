@@ -5,6 +5,16 @@ from pydantic import BaseModel, root_validator
 from pydantic.datetime_parse import parse_datetime
 
 
+class TimestampBaseModel(BaseModel):
+    updated_at: Optional[str]
+
+    @root_validator(pre=True)
+    def convert_timestamp_with_timezone(cls, values):
+        if "updated_at" in values:
+            values["updated_at"] = parse_datetime(values["updated_at"]).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        return values
+
+
 class CopyScenarioCreate(BaseModel):
     src_scenario_id: str
     name: str
@@ -44,19 +54,12 @@ class Scenario(BaseModel):
     items: ScenarioBlock
 
 
-class ScenarioSummary(BaseModel):
+class ScenarioSummary(TimestampBaseModel):
     id: str
     name: str
     tags: Optional[List[str]]
-    updated_at: str
     testrun_count: int
     has_block: bool
-
-    @root_validator(pre=True)
-    def convert_timestamp_with_timezone(cls, values):
-        if "updated_at" in values:
-            values["updated_at"] = parse_datetime(values["updated_at"]).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-        return values
 
 
 class ScenarioPage(BaseModel):
@@ -79,16 +82,9 @@ class ScenarioTagUpdate(BaseModel):
     tag: str
 
 
-class TestrunBase(BaseModel):
+class TestrunBase(TimestampBaseModel):
     id: str
     analysis_targets: List[str]
-    last_updated: Optional[str]
-
-    @root_validator(pre=True)
-    def convert_timestamp_with_timezone(cls, values):
-        if "last_updated" in values:
-            values["last_updated"] = parse_datetime(values["last_updated"]).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-        return values
 
 
 class Testrun(BaseModel):
