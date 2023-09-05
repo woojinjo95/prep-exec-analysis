@@ -23,8 +23,9 @@ class Monkey:
     def __init__(self, duration: float, 
                  key_candidates: List[str], root_keyset: List[str], 
                  key_interval: float, company: str, remocon_type: str,
-                 enable_smart_sense: bool, waiting_time: float, 
-                 report_data: Dict):
+                 enable_smart_sense: bool=False, waiting_time: float=3, 
+                 report_data: Dict={},
+                 root_when_start: bool=True):
         self.duration = duration
         self.key_interval = key_interval
         self.key_candidates = key_candidates
@@ -34,6 +35,7 @@ class Monkey:
         self.enable_smart_sense = enable_smart_sense
         self.waiting_time = waiting_time
         self.report_data = report_data
+        self.root_when_start = root_when_start
         logger.info(f'set monkey. args: {locals()}')
 
         self.main_stop_event = threading.Event()
@@ -49,7 +51,8 @@ class Monkey:
         self.main_stop_event.clear()
         start_time = time.time()
 
-        self.go_to_root()
+        if self.root_when_start:
+            self.go_to_root()
         self.start_smart_sense()
 
         while not self.main_stop_event.is_set() and time.time() - start_time < self.duration:
@@ -58,6 +61,7 @@ class Monkey:
 
             if self.enable_smart_sense:
                 if self.smart_sense_detected:
+                    self.smart_sense_detected = False
                     self.stop_smart_sense()
                     self.report_smart_sense()
                     self.go_to_root()
@@ -84,7 +88,6 @@ class Monkey:
     ##### Smart Sense #####
     def smart_sense(self):
         prev_frame = None
-        self.smart_sense_detected = False
         while not self.smart_sense_stop_event.is_set():
             time.sleep(self.waiting_time)
             frame = get_current_image()
