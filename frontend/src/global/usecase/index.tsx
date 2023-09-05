@@ -148,3 +148,25 @@ export const createPortalStyle = ({
 
   return styles
 }
+
+/**
+ * 소수점이 .0일 땐 정수만 표시, 소수점이 있을 땐 소수점 1번째 자리까지 표시
+ */
+const dropDecimalPoint = (number: number, point?: number) =>
+  numberWithCommas(Number(Number.isInteger(number) ? number.toFixed() : number.toFixed(point || 1)))
+
+/**
+ * byte 단위의 숫자를 적절한 단위와 함께 변환하여 표시해주는 함수
+ *
+ * @example
+ * byteToSize(5870372) // return '5.6 MB'
+ */
+export const bytesToSize = (bytes: number) => {
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
+
+  if (bytes === 0) return ''
+
+  const i = Math.floor(Math.log(bytes) / Math.log(1024))
+  if (i === 0) return `${dropDecimalPoint(bytes)} ${sizes[i]}`
+  return `${dropDecimalPoint(bytes / 1024 ** i)} ${sizes[i]}`
+}

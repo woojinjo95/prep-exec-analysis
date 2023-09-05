@@ -74,4 +74,4 @@ const LogPatternMatchingChart: React.FC<LogPatternMatchingChartProps> = ({ scale
   )
 }
 
-export default React.memo(LogPatternMatchingChart)
+export default LogPatternMatchingChart
