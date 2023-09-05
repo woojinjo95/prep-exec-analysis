@@ -7,12 +7,10 @@ import { ReactComponent as StopIcon } from '@assets/images/icon_stop.svg'
 import { IconButton, OptionItem, Text, DropdownWithMoreButton } from '@global/ui'
 import { useWebsocket } from '@global/hook'
 import { useRecoilState, useRecoilValue } from 'recoil'
-import { isBlockRecordModeState, scenarioIdState, selectedBlockIdsState, testRunIdState } from '@global/atom'
+import { isBlockRecordModeState, scenarioIdState, selectedBlockIdsState } from '@global/atom'
 import { useScenarioById, useServiceState } from '@global/api/hook'
 import { useMutation } from 'react-query'
 import cx from 'classnames'
-import { postTestrun } from '@global/api/func'
-import { AxiosError } from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { blockControlMenu } from '../constants'
 import SaveBlocksModal from './SaveBlocksModal'
@@ -44,27 +42,12 @@ const BlockControls: React.FC = () => {
     },
   })
 
-  const [, setTestRunId] = useRecoilState(testRunIdState)
-
   const selectedBlockIds = useRecoilValue(selectedBlockIdsState)
-
-  const { mutate: postTestrunMutate } = useMutation(postTestrun, {
-    onSuccess: (res) => {
-      refetch()
-      setTestRunId(res.id)
-      navigate('/analysis')
-    },
-    onError: (err: AxiosError) => {
-      console.error(err)
-    },
-  })
 
   const { sendMessage } = useWebsocket({
     onMessage: (message) => {
       if (message.msg === 'end_playblock') {
-        if (!scenarioId) return
-        // testrun post && scenario get
-        postTestrunMutate(scenarioId)
+        navigate('/analysis')
       }
     },
   })

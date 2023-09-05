@@ -32,12 +32,23 @@ def update_analysis_to_scenario(analysis_item: dict, analysis_last_time: datetim
     testruns = doc.get('testruns', [])
     index = next((i for i, item in enumerate(testruns) if item.get('id') == testrun_id), None)
 
-    update_query = {
-        f'testruns.{index}.analysis.targets': analysis_item
-    }
-    mongo_client.update_one({'id': scenario_id}, {'$push': update_query})
+    # Fetch the existing 'measure_targets' list from MongoDB
+    testrun = testruns[index]
+    existing_measure_targets = testrun.get('measure_targets', [])
+    # Check if an item with the same type exists
+    for i, target in enumerate(existing_measure_targets):
+        if target.get('type') == analysis_item['type']:
+            # Update the item if it exists
+            update_query = {f'testruns.{index}.measure_targets.{i}': analysis_item}
+            mongo_client.update_one({'id': scenario_id}, {'$set': update_query})
+            break
+    # If not found, append the new element
+    else:
+        update_query = {f'testruns.{index}.measure_targets': analysis_item}
+        mongo_client.update_one({'id': scenario_id}, {'$push': update_query})
+
 
     update_query = {
-        f'testruns.{index}.analysis.last_timestamp': analysis_last_time
+        f'testruns.{index}.last_updated_timestamp': analysis_last_time
     }
     mongo_client.update_one({'id': scenario_id}, {'$set': update_query})

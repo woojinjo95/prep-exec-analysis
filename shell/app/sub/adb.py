@@ -39,7 +39,7 @@ async def consumer_adb_handler(conn: any, shell_id: int, proc: any, CHANNEL_NAME
         while True:
             try:  # 루프 깨지지 않도록 예외처리
                 raw = await pubsub.get_message(ignore_subscribe_messages=True)
-                await asyncio.sleep(0.001)
+                await asyncio.sleep(0.01)
                 # 필요없는 메시지는 여기서 걸러줌
                 if raw is None:
                     continue
@@ -65,6 +65,12 @@ async def consumer_adb_handler(conn: any, shell_id: int, proc: any, CHANNEL_NAME
                     queue.put_nowait({'timestamp': datetime.utcnow().timestamp(), 'module':  "stdin", 'message': command})
                     await proc.stdin.drain()
                     await asyncio.sleep(0.5)
+                    await conn.publish(CHANNEL_NAME, json.dumps({
+                        "msg": "shell_response",
+                        "level": "info",
+                        "service": "shell",
+                        "timestamp": datetime.utcnow().timestamp()
+                    }))
             except Exception as e:
                 print(e)
     except Exception as exc:
