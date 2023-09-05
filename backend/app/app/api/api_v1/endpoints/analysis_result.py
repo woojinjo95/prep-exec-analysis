@@ -43,8 +43,9 @@ def get_data_of_log_level_finder(
                                                                '$lte': convert_iso_format(end_time)},
                                                  'scenario_id': scenario_id,
                                                  'testrun_id': testrun_id}},
-                                     {'$project': {'_id': 0, 'timestamp': 1, 'log_level': '$lines.log_level'}},
-                                     {'$unwind': {'path': '$log_level'}},
+                                     {'$project': {'_id': 0, 'lines.timestamp': 1, 'lines.log_level': 1}},
+                                     {'$unwind': {'path': '$lines'}},
+                                     {'$replaceRoot':{'newRoot': '$lines'}},
                                      {'$match': {'log_level': {'$in': log_level}}}]
 
         log_level_finder = paginate_from_mongodb_aggregation(col='stb_log',
@@ -163,6 +164,7 @@ def get_data_of_event_log(
                                           'testrun_id': testrun_id}},
                               {'$project': {'_id': 0, 'lines': 1}},
                               {'$unwind': {'path': '$lines'}},
+                              {'$match': {'lines.msg': {'$in': ['remocon_response', 'on_off_control_response', 'network_emulation_response', 'shell', 'config']}}},
                               {'$replaceRoot': {'newRoot': '$lines'}}]
 
         event_log = paginate_from_mongodb_aggregation(col='event_log',
