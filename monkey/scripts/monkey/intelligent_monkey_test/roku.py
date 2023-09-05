@@ -116,7 +116,6 @@ class IntelligentMonkeyTestRoku:
             logger.info(f'cannot find root cursor. try_count: {try_count}')
             raise Exception('cannot find root cursor')
         
-
     def check_leftmenu_is_opened(self, prev_image: np.ndarray, prev_cursor: Tuple, image: np.ndarray, cursor: Tuple, max_height_diff: int=10) -> bool:
         if cursor is None:
             return False
