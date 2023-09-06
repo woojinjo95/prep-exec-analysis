@@ -136,6 +136,17 @@ class IntelligentMonkeyTestRoku:
             cursor = self.get_cursor(image)
         return get_cropped_image(image, cursor)
 
+    def get_last_breadth_start_cursor_image(self, node_histories: List[NodeInfo]):
+        try:
+            for i in range(len(node_histories) - 1, 0, -1):
+                if node_histories[i].is_breadth_end:
+                    return node_histories[i+1].cursor_image
+            else:
+                return node_histories[0].cursor_image
+        except Exception as err:
+            logger.warning(f'get last breadth start cursor image error. {err}')
+            return None
+
     def start_monkey(self, node_info: NodeInfo, current_node_keyset: List[str]):
         start_time = time.time()
         monkey = Monkey(
