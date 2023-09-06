@@ -32,10 +32,10 @@ class IntelligentMonkeyTestRoku:
         self.root_keyset = ['home']
 
         # init variables
+        self.main_stop_event = threading.Event()
         self.node_histories = []
         self.keyset = []
         self.section_id = 0
-        self.main_stop_event = threading.Event()
 
     ##### Entry Point #####
     def run(self):
