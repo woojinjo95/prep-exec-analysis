@@ -11,6 +11,6 @@ def get_active_capture_process() -> bool:
         return False
 
 
-def kill_active_capture_process():
+def kill_active_capture_process(signal=SIGTERM):
     # SIGTERM = 15
-    kill_pid_grep(*streaming_ffmpeg_command_key_args, signal=SIGTERM)
+    kill_pid_grep(*streaming_ffmpeg_command_key_args, signal=signal)
