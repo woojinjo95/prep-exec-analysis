@@ -76,8 +76,8 @@ class IntelligentMonkeyTestRoku:
         try:
             cursor_same = check_cursor_is_same(self.node_histories[-1].image, self.node_histories[-1].cursor, 
                                                 node_info.image, node_info.cursor)
-            last_breadth_start_cursor_image = self.get_last_breadth_start_cursor_image(self.node_histories)
-            cursor_rotation = check_cursor_is_same(last_breadth_start_cursor_image, self.get_cursor(last_breadth_start_cursor_image),
+            last_breadth_start_image = self.get_last_breadth_start_image(self.node_histories)
+            cursor_rotation = check_cursor_is_same(last_breadth_start_image, self.get_cursor(last_breadth_start_image),
                                                     node_info.image, node_info.cursor)
             is_breadth_end = True if cursor_same or cursor_rotation else False
             logger.info(f'check breadth end done. is_breadth_end: {is_breadth_end}, cursor_same: {cursor_same}, cursor_rotation: {cursor_rotation}')
@@ -132,13 +132,13 @@ class IntelligentMonkeyTestRoku:
             cursor = self.get_cursor(image)
         return get_cropped_image(image, cursor)
 
-    def get_last_breadth_start_cursor_image(self, node_histories: List[NodeInfo]):
+    def get_last_breadth_start_image(self, node_histories: List[NodeInfo]):
         try:
             for i in range(len(node_histories) - 1, 0, -1):
                 if node_histories[i].is_breadth_end:
-                    return node_histories[i+1].cursor_image
+                    return node_histories[i+1].image
             else:
-                return node_histories[0].cursor_image
+                return node_histories[0].image
         except Exception as err:
             raise Exception(f'get last breadth start cursor image error. {err}')
 
