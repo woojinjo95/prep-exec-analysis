@@ -61,7 +61,7 @@ def change_network_emulation():
             if value is not None and value != prev_settings.get(element):
                 state.update(change_traffic_control(nic, **{element: value}))
             else:
-                pass
+                state.update({element: prev_settings.get(element)})
                 # do nothing
         else:
             # 원래는 requested_state와 prev_settings 비교 후 변경/삭제/추가 된 항목 확인, 개별로 규칙 삭제 구문을 command_executor에 추가해야 함
