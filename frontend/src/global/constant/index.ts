@@ -51,5 +51,8 @@ export const AnalyzableTypes: (keyof typeof AnalysisType)[] = [
   'freeze',
   'resume',
   'boot',
+  'log_level_finder',
   'log_pattern_matching',
 ] as const
+
+export type AnalyzableType = (typeof AnalyzableTypes)[number]

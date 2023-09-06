@@ -5,7 +5,7 @@ from typing import Optional
 
 from app import schemas
 from app.api.utility import (convert_iso_format, parse_bytes_to_value,
-                             paginate_from_mongodb_aggregation)
+                             paginate_from_mongodb_aggregation, get_config_from_scenario_mongodb)
 from app.crud.base import aggregate_from_mongodb, load_from_mongodb
 from app.db.redis_session import RedisClient
 from fastapi import APIRouter, HTTPException, Query
@@ -298,7 +298,7 @@ def get_data_of_loudness(
 
 
 # Measurement_resume (warm boot)
-@router.get("/resume", response_model=schemas.MeasurementBoot)
+@router.get("/resume", response_model=schemas.Resume)
 def get_data_of_resume(
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
@@ -336,7 +336,7 @@ def get_data_of_resume(
 
 
 # Measurement_resume (cold boot)
-@router.get("/boot", response_model=schemas.MeasurementBoot)
+@router.get("/boot", response_model=schemas.Boot)
 def get_data_of_boot(
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
@@ -490,44 +490,58 @@ def get_summary_data_of_measure_result(
                                       'scenario_id': scenario_id,
                                       'testrun_id': testrun_id}}]
 
-        active_analysis_list = RedisClient.scan_iter(match="analysis_config:*")
-        for active_analysis in itertools.chain(active_analysis_list, ['loudness']):
-            active_analysis = active_analysis.split(':')[-1]
-
+        testrun_config = get_config_from_scenario_mongodb(scenario_id=scenario_id, testrun_id=testrun_id)
+        active_analysis_list = testrun_config.get('config', {})
+        for active_analysis, config in active_analysis_list.items():
+            if config is None:
+                continue
+            color = config.get('color', '')
             pipeline = []
             additional_pipeline = []
             if active_analysis == 'log_level_finder':
                 collection = 'stb_log'
+                log_level_list = config.get('targets', [])
                 additional_pipeline = [{'$project': {'_id': 0, 'lines.log_level': 1}},
                                        {'$unwind': {'path': '$lines'}},
+                                       {'$match': {'lines.log_level': {'$in': log_level_list}}},
                                        {'$group': {'_id': '$lines.log_level', 'total': {'$sum': 1}}},
-                                       {'$project': {'_id': 0, 'target': '$_id', 'total': 1}}]
+                                       {'$group': {'_id': None, 'results': {'$push': {'target': '$_id', 'total': '$total'}}}},
+                                       {'$project': {'_id': 0, 'results': 1}}]
             elif active_analysis == 'freeze':
                 collection = 'an_freeze'
-                additional_pipeline = [{'$group': {'_id': '$freeze_type', 'total': {'$sum': 1}}},
-                                       {'$project': {'_id': 0, 'target': '$_id', 'total': 1}}]
+                additional_pipeline = [{'$group': {'_id': '$freeze_type', 'total': {'$sum': 1}, 'color': {'$first': '$user_config.color'}}},
+                                       {'$group': {'_id': '$color', 'results': {'$push': {'total': '$total', 'error_type': '$_id'}}}},
+                                       {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'resume':
                 collection = 'an_warm_boot'
                 additional_pipeline = [{'$group': {'_id': '$user_config.type', 'total': {'$sum': 1},
-                                                   'avg_time': {'$avg': '$measure_time'}}},
-                                       {'$project': {'_id': 0, 'target': '$_id',
-                                                     'total': 1, 'avg_time': '$avg_time'}}]
+                                                   'avg_time': {'$avg': '$measure_time'}, 'color': {'$first': '$user_config.color'}}},
+                                       {'$group': {'_id': '$color', 'results': {'$push': {'target': '$_id', 'total': '$total', 'avg_time': '$avg_time'}}}},
+                                       {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'boot':
                 collection = 'an_cold_boot'
                 additional_pipeline = [{'$group': {'_id': '$user_config.type', 'total': {'$sum': 1},
-                                                   'avg_time': {'$avg': '$measure_time'}}},
-                                       {'$project': {'_id': 0, 'target': '$_id',
-                                                     'total': 1, 'avg_time': '$avg_time'}}]
+                                                   'avg_time': {'$avg': '$measure_time'}, 'color': {'$first': '$user_config.color'}}},
+                                       {'$group': {'_id': '$color', 'results': {'$push': {'target': '$_id', 'total': '$total', 'avg_time': '$avg_time'}}}},
+                                       {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'log_pattern_matching':
                 collection = 'an_log_pattern'
-                additional_pipeline = [{'$project': {'_id': 0, 'log_pattern_name': '$matched_target.name', 'color': '$matched_target.color'}},
-                                       {'$group': {'_id': {'name': '$log_pattern_name', 'color': '$color'}, 'total': {'$sum': 1}}},
-                                       {'$project': {'_id': 0, 'log_pattern_name': '$_id.name', 'total': 1, 'color': '$_id.color'}}]
+                additional_pipeline = [{'$project': {'_id': 0, 'list': ['$matched_target.name', '$matched_target.color'], 'color': '$user_config.color'}},
+                                       {'$group': {'_id': '$list', 'total': {'$sum': 1}, 'color': {'$first': '$color'}}},
+                                       {'$group': {'_id': '$color', 'results': {
+                                           '$push': {'total': '$total', 'log_pattern_name': {'$arrayElemAt': ['$_id', 0]}, 'color': {'$arrayElemAt': ['$_id', 1]}}}}},
+                                       {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'macroblock':
                 continue
             elif active_analysis == 'channel_change_time':
                 continue
             elif active_analysis == 'process_lifecycle_analysis':
+                continue
+            elif active_analysis == 'network_filter':
+                continue
+            elif active_analysis == 'monkey_test':
+                continue
+            elif active_analysis == 'intelligent_monkey_test':
                 continue
             else:
                 collection = 'loudness'
@@ -539,7 +553,18 @@ def get_summary_data_of_measure_result(
             aggregation = aggregate_from_mongodb(col=collection, pipeline=pipeline)
             if len(aggregation) == 0:
                 continue
+            else:
+                aggregation = aggregation[0]
+            aggregation['color'] = color
             result[active_analysis] = aggregation
+        timestamp_pipeline = [{'$match': {'id': scenario_id}},
+                              {'$project': {'_id': 0, 'testruns': 1}},
+                              {'$unwind': {'path': '$testruns'}},
+                              {'$match': {'testruns.id': testrun_id}},
+                              {'$project': {'last_updated_timestamp': '$testruns.last_updated_timestamp'}}]
+        last_updated_timestamp = aggregate_from_mongodb(col='scenario', pipeline=timestamp_pipeline)
+        last_updated_timestamp = last_updated_timestamp[0] if len(last_updated_timestamp) > 0 else None
+        result['last_updated_timestamp'] = last_updated_timestamp['last_updated_timestamp'].strftime('%Y-%m-%dT%H:%M:%S.%fZ') if (last_updated_timestamp is not None) else None
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {"items": result}

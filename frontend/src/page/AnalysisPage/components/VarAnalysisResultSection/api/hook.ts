@@ -1,26 +1,73 @@
-import { useQuery } from 'react-query'
 import { useEffect } from 'react'
-import { scenarioIdState, testRunIdState } from '@global/atom'
+import { useMutation, useQuery } from 'react-query'
 import { useRecoilValue } from 'recoil'
-import { getAnalysisConfig, getAnalysisResultSummary } from './func'
-import { AnalysisConfig, AnalysisResultSummary } from './entity'
+import { scenarioIdState, testRunIdState } from '@global/atom'
+import { AnalysisConfig } from '@page/AnalysisPage/api/entity'
+import { AnalysisType } from '@global/constant'
+import { deleteAnalysisConfig, getAnalysisResultSummary, putAnalysisConfig } from './func'
+import { AnalysisResultSummary } from './entity'
 
 /**
- *
- * 분석 설정 조회 hook
+ * 분석 설정 변경 hook
  */
-export const useAnalysisConfig = ({ onSuccess }: { onSuccess?: (data: AnalysisConfig) => void } = {}) => {
-  const { data, isLoading, refetch } = useQuery(['analysis_config'], getAnalysisConfig, {
+export const useUpdateAnalysisConfig = ({
+  onSuccess,
+}: {
+  onSuccess?: (
+    data: void,
+    variables: {
+      scenario_id: string
+      testrun_id: string
+    } & AnalysisConfig,
+    context: unknown,
+  ) => void
+}) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { mutate } = useMutation(putAnalysisConfig, {
     onSuccess,
   })
 
-  useEffect(() => {
-    if (data) {
-      onSuccess?.(data)
-    }
-  }, [data])
+  const updateAnalysisConfig = (data: AnalysisConfig) => {
+    if (!scenarioId || !testRunId) return
+    mutate({ scenario_id: scenarioId, testrun_id: testRunId, ...data })
+  }
 
-  return { analysisConfig: data, isLoading, refetch }
+  return {
+    updateAnalysisConfig,
+  }
+}
+
+/**
+ * 분석 설정 삭제 hook
+ */
+export const useRemoveAnalysisConfig = ({
+  onSuccess,
+}: {
+  onSuccess?: (
+    data: void,
+    variables: {
+      scenario_id: string
+      testrun_id: string
+      analysis_type: keyof typeof AnalysisType
+    },
+    context: unknown,
+  ) => void
+}) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { mutate } = useMutation(deleteAnalysisConfig, {
+    onSuccess,
+  })
+
+  const removeAnalysisConfig = (analysis_type: keyof typeof AnalysisType) => {
+    if (!scenarioId || !testRunId) return
+    mutate({ scenario_id: scenarioId, testrun_id: testRunId, analysis_type })
+  }
+
+  return {
+    removeAnalysisConfig,
+  }
 }
 
 /**
@@ -37,7 +84,7 @@ export const useAnalysisResultSummary = ({
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
   const { data, isLoading, refetch } = useQuery(
-    ['analysis_result_summary', params],
+    ['analysis_result_summary', { ...params, scenarioId, testRunId }],
     () =>
       getAnalysisResultSummary({
         ...params,

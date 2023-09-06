@@ -84,7 +84,7 @@ class ScenarioTagUpdate(BaseModel):
 
 class TestrunBase(TimestampBaseModel):
     id: str
-    analysis_targets: List[str]
+    measure_targets: List[str]
 
 
 class Testrun(BaseModel):

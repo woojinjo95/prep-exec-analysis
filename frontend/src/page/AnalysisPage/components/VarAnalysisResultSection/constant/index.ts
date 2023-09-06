@@ -1,5 +1,5 @@
 import { AnalysisType, FreezeType } from '@global/constant'
-import { BootType, ResumeType } from '../api/entity'
+import { BootType, ResumeType } from '@page/AnalysisPage/api/entity'
 
 /**
  * 설정 가능한 분석유형 리스트
