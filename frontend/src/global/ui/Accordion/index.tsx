@@ -9,7 +9,6 @@ interface AccordionProps {
   header: React.ReactNode
   children?: React.ReactNode
   colorScheme?: 'dark'
-  onClick?: () => void
 }
 
 /**
@@ -17,7 +16,7 @@ interface AccordionProps {
  *
  * TODO: 테두리 색 주입
  */
-const Accordion: React.FC<AccordionProps> = ({ header, children, colorScheme = 'dark', onClick }) => {
+const Accordion: React.FC<AccordionProps> = ({ header, children, colorScheme = 'dark' }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
 
   return (
@@ -34,9 +33,6 @@ const Accordion: React.FC<AccordionProps> = ({ header, children, colorScheme = '
         onClick={() => {
           if (!children) return
           setIsOpen((prev) => !prev)
-          if (!isOpen) {
-            onClick?.()
-          }
         }}
       >
         <DropdownIcon
