@@ -13,6 +13,8 @@ from scripts.monkey.util import (check_cursor_is_same, exec_keys,
                                  get_current_image, head_to_parent_sibling,
                                  optimize_path)
 from scripts.external.report import report_section
+from scripts.external.image import save_test_image
+from scripts.util._timezone import get_time_str
 
 logger = logging.getLogger('monkey_test')
 
@@ -74,21 +76,32 @@ class IntelligentMonkeyTestRoku:
 
     def check_breadth_end(self, node_info: NodeInfo) -> bool:
         try:
+            logger.info('check breadth end.')
+            similar_thld = 0.98
             cursor_same = check_cursor_is_same(self.node_histories[-1].image, self.node_histories[-1].cursor, 
-                                                node_info.image, node_info.cursor)
+                                                node_info.image, node_info.cursor, 
+                                                sim_thld=similar_thld)
             last_breadth_start_image = self.get_last_breadth_start_image(self.node_histories)
             cursor_rotation = check_cursor_is_same(last_breadth_start_image, self.get_cursor(last_breadth_start_image),
-                                                    node_info.image, node_info.cursor)
+                                                    node_info.image, node_info.cursor, 
+                                                    sim_thld=similar_thld)
             is_breadth_end = True if cursor_same or cursor_rotation else False
             logger.info(f'check breadth end done. is_breadth_end: {is_breadth_end}, cursor_same: {cursor_same}, cursor_rotation: {cursor_rotation}')
+            # # test
+            # time_str = get_time_str()
+            # save_test_image(f'{time_str}_cursor_cur', get_cropped_image(node_info.image, node_info.cursor))
+            # save_test_image(f'{time_str}_cursor_prev', get_cropped_image(self.node_histories[-1].image, self.node_histories[-1].cursor))
+            # save_test_image(f'{time_str}_cursor_last_breadth_start', get_cropped_image(last_breadth_start_image, self.get_cursor(last_breadth_start_image)))
+            # #####
             return is_breadth_end
         except Exception as err:
             logger.warning(f'check breadth end error. {err}')
             return False
 
     def check_leaf_node(self, node_info: NodeInfo) -> bool:
+        logger.info('check leaf node.')
         leaf_node = False if self.check_leftmenu_is_opened(node_info.image, node_info.cursor, get_current_image(), self.get_cursor()) else True
-        logger.info(f'leaf node: {leaf_node}')
+        logger.info(f'check leaf node done. leaf node: {leaf_node}')
         return leaf_node
 
     ##### Functions #####
