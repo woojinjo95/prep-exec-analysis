@@ -2,14 +2,18 @@ import { Button, Text, Title } from '@global/ui'
 import React, { useMemo } from 'react'
 import Scrollbars from 'react-custom-scrollbars-2'
 import useIntersect from '@global/hook/useIntersect'
-import { useRecoilState } from 'recoil'
-import { scenarioIdState } from '@global/atom'
-import { useNavigate } from 'react-router-dom'
 import useFetchScenarios from '@global/hook/useFetchScenarios'
 import { PAGE_SIZE_TWENTY } from '@global/constant'
+import { useMutation } from 'react-query'
+import { postScenario } from '@global/api/func'
+import { useNavigate } from 'react-router-dom'
+import { useRecoilState } from 'recoil'
+import { scenarioIdState, testRunIdState } from '@global/atom'
+import { useWebsocket } from '@global/hook'
 import ScenarioItem from './ScenarioItem'
 
 const FilesSection: React.FC = () => {
+  const navigate = useNavigate()
   const { data, hasNextPage, isFetching, fetchNextPage } = useFetchScenarios(PAGE_SIZE_TWENTY)
 
   const ref = useIntersect((entry, observer) => {
@@ -22,17 +26,29 @@ const FilesSection: React.FC = () => {
     }
   })
 
+  const { sendMessage } = useWebsocket()
+
   const scenarios = useMemo(() => {
     // InfiniteData type의 data를 flatMap으로 1 depth 배열로 평탄화 작업
     return data ? data.pages.flatMap(({ items }) => items) : []
   }, [data])
 
-  // const [, setScenarioId] =
-  useRecoilState(scenarioIdState)
+  const [, setScenarioId] = useRecoilState(scenarioIdState)
 
-  // const navigate =
-  useNavigate()
+  const [, setTestRunId] = useRecoilState(testRunIdState)
 
+  const { mutate: postScenarioMutate } = useMutation(postScenario, {
+    onSuccess: (res) => {
+      setScenarioId(res.id)
+      setTestRunId(res.testrun_id)
+
+      sendMessage({
+        level: 'info',
+        msg: 'action_mode',
+      })
+      navigate('/action')
+    },
+  })
   return (
     <div className="flex flex-col w-full h-full p-7 min-h-full border-r-[1px] border-b-grey">
       <div className="min-h-[100px]">
@@ -40,7 +56,13 @@ const FilesSection: React.FC = () => {
           <Title as="h1" className="text-white flex">
             Project
           </Title>
-          <Button className="!w-[190px] !h-[50px]" colorScheme="primary">
+          <Button
+            className="!w-[190px] !h-[50px]"
+            colorScheme="primary"
+            onClick={() => {
+              postScenarioMutate({ is_active: false })
+            }}
+          >
             New Workspace
           </Button>
         </div>
@@ -58,24 +80,28 @@ const FilesSection: React.FC = () => {
       </div>
       <div className="mt-5 flex w-full min-h-[calc(100%-100px)]">
         <div className="flex flex-col w-full">
-          <div className="pl-[48px] w-[calc(100%-24px)] grid grid-cols-[17.5%_35%_5%_12.5%_17.5%_5%_5%] h-8 items-center gap-x-1">
-            <Text className="text-sm" colorScheme="grey">
-              Name
-            </Text>
-            <Text className="text-sm" colorScheme="grey">
-              Tag
-            </Text>
-            <Text className="text-sm" colorScheme="grey">
-              Block
-            </Text>
-            <Text className="text-sm" colorScheme="grey">
-              Number of Analysis Result
-            </Text>
-            <Text className="text-sm" colorScheme="grey">
-              Last Modified
-            </Text>
-            <div />
-            <div />
+          <div className="px-5 py-3 w-full">
+            <div className="pl-[28px]">
+              <div className="w-[calc(100%-96px)] grid grid-cols-[17.5%_35%_5%_12.5%_17.5%_5%_5%] min-h-8 items-center gap-x-4">
+                <Text className="text-sm" colorScheme="grey">
+                  Name
+                </Text>
+                <Text className="text-sm" colorScheme="grey">
+                  Tag
+                </Text>
+                <Text className="text-sm" colorScheme="grey">
+                  Block
+                </Text>
+                <Text className="text-sm" colorScheme="grey">
+                  Number of Analysis Result
+                </Text>
+                <Text className="text-sm" colorScheme="grey">
+                  Last Modified
+                </Text>
+                <div />
+                <div />
+              </div>
+            </div>
           </div>
           <Scrollbars
             renderThumbVertical={({ ...props }) => <div {...props} className="bg-light-charcoal w-2 rounded-[5px]" />}

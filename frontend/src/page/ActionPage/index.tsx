@@ -3,8 +3,7 @@ import { PageContainer } from '@global/ui'
 
 import { useScenarioById } from '@global/api/hook'
 import { useRecoilValue } from 'recoil'
-import { isBlockRecordModeState, scenarioIdState } from '@global/atom'
-import { useWebsocket } from '@global/hook'
+import { scenarioIdState } from '@global/atom'
 import { useNavigate } from 'react-router-dom'
 import cx from 'classnames'
 import ActionSection from './components/ActionSection'
@@ -37,6 +36,8 @@ const ActionPage: React.FC = () => {
       }
     }
 
+    
+
     window.addEventListener('keydown', keyDownHandler)
     window.addEventListener('keyup', keyUpHandler)
     return () => {
@@ -47,10 +48,6 @@ const ActionPage: React.FC = () => {
 
   const scenarioId = useRecoilValue(scenarioIdState)
 
-  const isBlockRecordMode = useRecoilValue(isBlockRecordModeState)
-
-  const { sendMessage } = useWebsocket()
-
   const { scenario } = useScenarioById({
     scenarioId,
   })
@@ -58,18 +55,11 @@ const ActionPage: React.FC = () => {
   useEffect(() => {
     if (!scenarioId && !scenario) {
       navigate('/', { replace: true })
-      return
     }
-
-    sendMessage({ level: 'info', msg: 'action_mode' })
   }, [])
 
   return (
-    <PageContainer
-      className={cx('grid grid-cols-[2fr_3fr_1.5fr] grid-rows-[57%_3%_40%]', {
-        'border-4 border-red': !!isBlockRecordMode,
-      })}
-    >
+    <PageContainer className={cx('grid grid-cols-[2fr_3fr_1.5fr] grid-rows-[57%_3%_40%]')}>
       <ActionSection />
       <MonitorSection />
       <RemoconSection keyEvent={keyEvent} />
