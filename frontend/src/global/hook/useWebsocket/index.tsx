@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react'
 import { AppURL } from '@global/constant'
+import { delay } from '@global/usecase'
 import { PublishMessage, SubscribeMessage } from './types'
 
 const ReadyState = {
@@ -8,12 +9,6 @@ const ReadyState = {
   CLOSING: 2, // 연결을 닫는 중입니다.
   CLOSED: 3, // 연결이 닫혔거나, 개방할 수 없었습니다.
 } as const
-
-const delay = (sec: number) => {
-  return new Promise((resolve) => {
-    setTimeout(resolve, sec * 1000)
-  })
-}
 
 /**
  * 웹소켓 연결 hook

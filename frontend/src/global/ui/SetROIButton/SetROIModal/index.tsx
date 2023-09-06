@@ -1,11 +1,11 @@
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import * as d3 from 'd3'
 import { useRecoilValue } from 'recoil'
 import { scenarioIdState, testRunIdState, videoBlobURLState } from '@global/atom'
 import { Button, Modal, Text, VideoSnapshots } from '@global/ui'
 import { AppURL } from '@global/constant'
 import { useVideoSummary } from '@global/api/hook'
-import { formatDateTo } from '@global/usecase'
+import { delay, formatDateTo } from '@global/usecase'
 import { AnalysisFrame } from '@global/api/entity'
 import { useWebsocket } from '@global/hook'
 
@@ -79,6 +79,13 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose, onSave, defa
     })
   }
 
+  const onLoadVideoError = useCallback(async () => {
+    if (!videoRef.current) return
+
+    await delay(2)
+    videoRef.current.load()
+  }, [])
+
   if (!isOpen || !videoSummary) return null
   return (
     <Modal isOpen={isOpen} close={onClose} title="Set ROI" className="w-[60vw]">
@@ -115,6 +122,9 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose, onSave, defa
                 if (defaultCurrentTime) {
                   videoRef.current!.currentTime = defaultCurrentTime
                 }
+              }}
+              onError={() => {
+                onLoadVideoError()
               }}
             />
           )}
