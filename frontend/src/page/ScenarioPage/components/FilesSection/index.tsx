@@ -27,9 +27,11 @@ const FilesSection: React.FC = () => {
     return data ? data.pages.flatMap(({ items }) => items) : []
   }, [data])
 
-  const [, setScenarioId] = useRecoilState(scenarioIdState)
+  // const [, setScenarioId] =
+  useRecoilState(scenarioIdState)
 
-  const navigate = useNavigate()
+  // const navigate =
+  useNavigate()
 
   return (
     <div className="flex flex-col w-full h-full p-7 min-h-full border-r-[1px] border-b-grey">
