@@ -5,7 +5,6 @@ import { PointChartData } from '@global/types'
 interface PointChartProps {
   data: PointChartData
   scaleX: d3.ScaleTime<number, number, never> | null
-  color?: string
 }
 
 /**
@@ -14,7 +13,7 @@ interface PointChartProps {
  * TODO: resizing event
  * TODO: data 개별 color
  */
-const PointChart: React.FC<PointChartProps> = ({ data, scaleX, color = '#269' }) => {
+const PointChart: React.FC<PointChartProps> = ({ data, scaleX }) => {
   if (!scaleX) return <div />
   return (
     <div className="w-full relative">
@@ -26,7 +25,7 @@ const PointChart: React.FC<PointChartProps> = ({ data, scaleX, color = '#269' })
       </div>
 
       <div>
-        {data.map(({ datetime }, index) => (
+        {data.map(({ datetime, color }, index) => (
           <div
             key={`point-chart-${datetime}-${index}`}
             className="w-0.5 h-full absolute top-0"

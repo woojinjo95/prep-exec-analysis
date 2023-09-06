@@ -209,6 +209,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
                   startTime={startTime}
                   endTime={endTime}
                   dimension={dimension}
+                  summary={analysisResultSummary}
                 />
               )
             }
@@ -221,6 +222,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
                   startTime={startTime}
                   endTime={endTime}
                   dimension={dimension}
+                  summary={analysisResultSummary}
                 />
               )
             }
@@ -233,6 +235,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
                   startTime={startTime}
                   endTime={endTime}
                   dimension={dimension}
+                  summary={analysisResultSummary}
                 />
               )
             }
@@ -246,6 +249,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
                   startTime={startTime}
                   endTime={endTime}
                   dimension={dimension}
+                  summary={analysisResultSummary}
                 />
               )
             }
@@ -258,6 +262,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
                   startTime={startTime}
                   endTime={endTime}
                   dimension={dimension}
+                  summary={analysisResultSummary}
                 />
               )
             }

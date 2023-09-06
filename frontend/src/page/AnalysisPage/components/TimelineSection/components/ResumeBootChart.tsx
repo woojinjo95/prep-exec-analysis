@@ -1,5 +1,6 @@
 import React, { useMemo, useRef } from 'react'
 import { PointChart, RangeChart, TimelineTooltip, TimelineTooltipItem, Text } from '@global/ui'
+import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { useBoot, useResume } from '../api/hook'
 import { useTooltipEvent } from '../hook'
 
@@ -8,40 +9,45 @@ interface ResumeBootChartProps {
   startTime: Date
   endTime: Date
   dimension: { left: number; width: number } | null
+  summary: AnalysisResultSummary
 }
 
 /**
  * Resume(warm booting), Boot(cold booting) 시간 차트
  */
-const ResumeBootChart: React.FC<ResumeBootChartProps> = ({ scaleX, startTime, endTime, dimension }) => {
+const ResumeBootChart: React.FC<ResumeBootChartProps> = ({ scaleX, startTime, endTime, dimension, summary }) => {
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const { resume } = useResume({
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
+    // TODO: 타겟별 보기 / 숨기기 기능
   })
   const { boot } = useBoot({
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
+    // TODO: 타겟별 보기 / 숨기기 기능
   })
 
-  const data: { datetime: number; duration: number; type: 'Resume' | 'Boot' }[] | null = useMemo(() => {
+  const data: { datetime: number; duration: number; color: string; type: 'Resume' | 'Boot' }[] | null = useMemo(() => {
     if (!resume || !boot) return null
 
     return [
       resume.map(({ timestamp, measure_time }) => ({
         datetime: new Date(timestamp).getTime(),
         duration: measure_time,
+        color: summary.resume?.color || 'white',
         type: 'Resume' as const,
       })),
       boot.map(({ timestamp, measure_time }) => ({
         datetime: new Date(timestamp).getTime(),
         duration: measure_time,
+        color: summary.boot?.color || 'white',
         type: 'Boot' as const,
       })),
     ]
       .flat()
       .sort(({ datetime: aDatetime }, { datetime: bDatetime }) => (aDatetime > bDatetime ? 1 : 0))
-  }, [resume, boot])
+  }, [resume, boot, summary])
 
   const { posX, tooltipData, onMouseMove, onMouseLeave } = useTooltipEvent<NonNullable<typeof data>[number]>({
     scaleX,
@@ -75,7 +81,7 @@ const ResumeBootChart: React.FC<ResumeBootChartProps> = ({ scaleX, startTime, en
         </div>
       )}
 
-      <RangeChart scaleX={scaleX} data={data} color="green" />
+      <RangeChart scaleX={scaleX} data={data} />
     </div>
   )
 }
