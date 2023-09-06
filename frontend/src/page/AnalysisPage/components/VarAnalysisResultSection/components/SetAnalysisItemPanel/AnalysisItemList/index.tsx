@@ -65,7 +65,7 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
     onSuccess: (data) => {
       if (Object.keys(unsavedAnalysisConfig).length) return
 
-      // 처음 페이지에 진입하여 unsavedAnalysisConfig가 빈 객체일 경우
+      // 처음 페이지에 진입했을 경우
       setSelectedAnalysisItems(
         Object.keys(data).filter((key) => !!data[key as keyof AnalysisConfig]) as (keyof AnalysisConfig)[],
       )
