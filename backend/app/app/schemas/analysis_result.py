@@ -223,7 +223,7 @@ class DataSummaryBase(BaseModel):
     # channel_change_time: Optional[ChannelChangeTimeSummary] = None
     freeze: Optional[FreezeSummary] = None
     intelligent_monkey_test: Optional[IntelligentMonkeyTestSummary] = None
-    last_timestamp: Optional[str] = None
+    last_updated_timestamp: Optional[str] = None
     log_level_finder: Optional[LogLevelFinderSummary] = None
     log_pattern_matching: Optional[LogPatternMatchingSummary] = None
     loudness: Optional[LoudnessSummary] = None
