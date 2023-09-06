@@ -56,13 +56,12 @@ class IntelligentMonkeyTestRoku:
             node_info = NodeInfo(image=image, cursor=self.get_cursor(image))
             node_info.cursor_image = self.get_cursor_image(node_info.image, node_info.cursor)
 
-            status = self.check_end(node_info)
-            if status == 'breadth_end':
-                self.head_to_next()
+            if self.check_breadth_end(node_info):
                 node_info.is_breadth_end = True
-                continue
-            elif status == 'visit_end':
-                return
+                if self.head_to_next():
+                    continue
+                else:
+                    return
 
             self.exec_keys([self.depth_key])
             if self.check_leaf_node(node_info):
@@ -73,22 +72,19 @@ class IntelligentMonkeyTestRoku:
 
             self.node_histories.append(node_info)
 
-    def check_end(self, node_info: NodeInfo) -> str:
+    def check_breadth_end(self, node_info: NodeInfo) -> bool:
         try:
-            logger.info('check status.')
-            if check_cursor_is_same(self.node_histories[-1].image, self.node_histories[-1].cursor, 
-                                    node_info.image, node_info.cursor):
-                try:
-                    logger.info(f'head to next done. {self.keyset}')
-                    return 'breadth_end'
-                except IndexError as err:
-                    logger.info(f'visit done. {self.keyset}. {err}')
-                    return 'visit_end'
-            else:
-                return ''
+            cursor_same = check_cursor_is_same(self.node_histories[-1].image, self.node_histories[-1].cursor, 
+                                                node_info.image, node_info.cursor)
+            last_breadth_start_cursor_image = self.get_last_breadth_start_cursor_image(self.node_histories)
+            cursor_rotation = check_cursor_is_same(last_breadth_start_cursor_image, self.get_cursor(last_breadth_start_cursor_image),
+                                                    node_info.image, node_info.cursor)
+            is_breadth_end = True if cursor_same or cursor_rotation else False
+            logger.info(f'check breadth end done. is_breadth_end: {is_breadth_end}, cursor_same: {cursor_same}, cursor_rotation: {cursor_rotation}')
+            return is_breadth_end
         except Exception as err:
             logger.warning(f'check end error. {err}')
-            return ''
+            return False
 
     def check_leaf_node(self, node_info: NodeInfo) -> bool:
         leaf_node = False if self.check_leftmenu_is_opened(node_info.image, node_info.cursor, get_current_image(), self.get_cursor()) else True
@@ -181,5 +177,11 @@ class IntelligentMonkeyTestRoku:
     def exec_keys(self, keys: List[str]):
         exec_keys(keys, self.key_interval, self.profile, self.remocon_type)
 
-    def head_to_next(self):
-        self.keyset = head_to_parent_sibling(self.keyset, self.depth_key, self.breadth_key)
+    def head_to_next(self) -> bool:
+        try:
+            self.keyset = head_to_parent_sibling(self.keyset, self.depth_key, self.breadth_key)
+            logger.info(f'head to next done. {self.keyset}')
+            return True
+        except IndexError as err:
+            logger.info(f'visit done. {self.keyset}. {err}')
+            return False
