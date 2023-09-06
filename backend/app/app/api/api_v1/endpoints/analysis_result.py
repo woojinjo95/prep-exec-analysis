@@ -555,8 +555,7 @@ def get_summary_data_of_measure_result(
                 continue
             else:
                 aggregation = aggregation[0]
-            if color != '':
-                aggregation['color'] = color
+            aggregation['color'] = color
             result[active_analysis] = aggregation
         timestamp_pipeline = [{'$match': {'id': scenario_id}},
                               {'$project': {'_id': 0, 'testruns': 1}},

@@ -158,4 +158,4 @@ def get_config_from_scenario_mongodb(scenario_id:str, testrun_id:str):
                 {"$match": {"testrun_id": testrun_id}},
                 {"$project": {"_id": 0, "config": 1}}]
     res = aggregate_from_mongodb('scenario', pipeline)
-    return res[0] if len(res) > 0 else None
+    return res[0] if len(res) > 0 else {}
