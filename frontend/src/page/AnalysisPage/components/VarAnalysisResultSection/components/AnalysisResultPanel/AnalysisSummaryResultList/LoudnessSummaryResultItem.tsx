@@ -1,6 +1,7 @@
 import React from 'react'
 import { Accordion, Text } from '@global/ui'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
+import { dropDecimalPoint } from '@global/usecase'
 import { AnalysisTypeLabel } from '../../../constant'
 
 interface LoudnessSummaryResultItemProps {
@@ -27,7 +28,7 @@ const LoudnessSummaryResultItem: React.FC<LoudnessSummaryResultItemProps> = ({ l
             </Text>
           </div>
 
-          <Text weight="medium">{loudness.lkfs} LKFS</Text>
+          <Text weight="medium">{dropDecimalPoint(loudness.lkfs)} LKFS</Text>
         </div>
       }
     />
