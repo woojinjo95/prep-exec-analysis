@@ -6,7 +6,7 @@ import { UnsavedAnalysisConfig } from '../../../types'
 
 interface LoudnessAnalysisItemProps {
   color: NonNullable<UnsavedAnalysisConfig['loudness']>['color']
-  onClickDeleteItem: () => void
+  onClickDeleteItem: React.MouseEventHandler<SVGSVGElement>
   setUnsavedAnalysisConfig: React.Dispatch<React.SetStateAction<UnsavedAnalysisConfig>>
 }
 
