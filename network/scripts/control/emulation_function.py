@@ -27,9 +27,9 @@ def get_requested_state() -> Dict:
         loss = hget_value(src, HARDWARE_CONFIG, LOSS, None)
         corrupt = None
         duplicate = None
-        packet_blocks = hget_value(src, HARDWARE_CONFIG, PACKET_BLOCK, {})
+        packet_blocks = hget_value(src, HARDWARE_CONFIG, PACKET_BLOCK, [])
 
-        return {'bandiwidth': bandwidth,
+        return {'bandwidth': bandwidth,
                 'delay': delay,
                 'loss': loss,
                 'duplicate': duplicate,
@@ -46,6 +46,7 @@ def apply_network_emulation():
     state.update({'packet_blocks': change_packet_block(nic, packet_blocks)})
 
     set_value('state', 'network_control', state)
+    set_value(HARDWARE_CONFIG, ENABLE, True, db=RedisDBEnum.hardware)
 
 
 def change_network_emulation():
@@ -56,17 +57,27 @@ def change_network_emulation():
 
     state = {}
     for element, value in requested_state.items():
-        if element != 'packet_blocks' and value != prev_settings.get(element):
-            state.update(change_traffic_control(nic, **{element: value}))
+        if element != 'packet_blocks':
+            if value is not None and value != prev_settings.get(element):
+                state.update(change_traffic_control(nic, **{element: value}))
+            else:
+                pass
+                # do nothing
         else:
             # 원래는 requested_state와 prev_settings 비교 후 변경/삭제/추가 된 항목 확인, 개별로 규칙 삭제 구문을 command_executor에 추가해야 함
             # 다만 너무 복잡한 작업이라 판단, 무조건 삭제 후 재적용
             # 전체 개수가 수백~수천 개가 아닌 이상 문제 없다고 판단
             # 순간적으로 인터넷 연결이 생길 수 있음
-            ebtables_clear()
-            ebtables_init(nic)
-            packet_blocks = value
-            state.update({'packet_blocks': change_packet_block(nic, packet_blocks)})
+            packet_blocks = value or []
+            packet_blocks = [{k: v for k, v in el.items() if k != 'id'} for el in packet_blocks]
+            prev_packet_blocks = prev_settings.get('packet_blocks')
+
+            if prev_packet_blocks == packet_blocks:
+                state.update({'packet_blocks': prev_packet_blocks})
+            else:
+                ebtables_clear()
+                ebtables_init(nic)
+                state.update({'packet_blocks': change_packet_block(nic, packet_blocks)})
 
     set_value('state', 'network_control', state)
 
@@ -76,6 +87,8 @@ def reset_network_emulation():
         nic = hget_value(src, 'network', 'stb_nic')
         reset_network(nic)
         hset_value(src, 'state', 'network_control', {})
+    
+    set_value(HARDWARE_CONFIG, ENABLE, False, db=RedisDBEnum.hardware)
 
 
 def add_packet_block(block_args: dict):
@@ -162,11 +175,9 @@ def apply_network_emulation_args(args: Dict):
         '''
         if action == 'start':
             apply_network_emulation()
-            hset_value(src, HARDWARE_CONFIG, ENABLE, True)
 
         elif action == 'stop':
             reset_network_emulation()
-            hset_value(src, HARDWARE_CONFIG, ENABLE, False)
 
         else:
             if action == 'reset':
