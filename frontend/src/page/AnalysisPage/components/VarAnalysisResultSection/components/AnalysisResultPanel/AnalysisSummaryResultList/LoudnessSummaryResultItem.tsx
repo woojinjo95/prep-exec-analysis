@@ -1,16 +1,17 @@
 import React from 'react'
 import { Accordion, Text } from '@global/ui'
+import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
+import { dropDecimalPoint } from '@global/usecase'
 import { AnalysisTypeLabel } from '../../../constant'
-import { AnalysisResultSummary } from '../../../api/entity'
 
 interface LoudnessSummaryResultItemProps {
-  result: NonNullable<AnalysisResultSummary['loudness']>[0]
+  loudness: NonNullable<AnalysisResultSummary['loudness']>
 }
 
 /**
  * loudness 분석결과 요약 아이템
  */
-const LoudnessSummaryResultItem: React.FC<LoudnessSummaryResultItemProps> = ({ result }) => {
+const LoudnessSummaryResultItem: React.FC<LoudnessSummaryResultItemProps> = ({ loudness }) => {
   return (
     <Accordion
       header={
@@ -19,8 +20,7 @@ const LoudnessSummaryResultItem: React.FC<LoudnessSummaryResultItemProps> = ({ r
             <div
               className="w-4 h-4"
               style={{
-                // TODO:
-                backgroundColor: 'white',
+                backgroundColor: loudness.color,
               }}
             />
             <Text size="sm" weight="medium">
@@ -28,7 +28,7 @@ const LoudnessSummaryResultItem: React.FC<LoudnessSummaryResultItemProps> = ({ r
             </Text>
           </div>
 
-          <Text weight="medium">{result.lkfs} LKFS</Text>
+          <Text weight="medium">{dropDecimalPoint(loudness.lkfs)} LKFS</Text>
         </div>
       }
     />

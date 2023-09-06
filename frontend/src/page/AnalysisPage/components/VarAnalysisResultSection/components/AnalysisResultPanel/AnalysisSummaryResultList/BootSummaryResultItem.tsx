@@ -4,17 +4,17 @@ import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
 // import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
 import { numberWithCommas } from '@global/usecase'
+import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { AnalysisTypeLabel, BootTypeLabel } from '../../../constant'
-import { AnalysisResultSummary } from '../../../api/entity'
 
 interface BootSummaryResultItemProps {
-  results: NonNullable<AnalysisResultSummary['boot']>
+  boot: NonNullable<AnalysisResultSummary['boot']>
 }
 
 /**
  * boot 분석결과 요약 아이템
  */
-const BootSummaryResultItem: React.FC<BootSummaryResultItemProps> = ({ results }) => {
+const BootSummaryResultItem: React.FC<BootSummaryResultItemProps> = ({ boot }) => {
   return (
     <Accordion
       header={
@@ -23,8 +23,7 @@ const BootSummaryResultItem: React.FC<BootSummaryResultItemProps> = ({ results }
             <div
               className="w-4 h-4"
               style={{
-                // TODO:
-                backgroundColor: 'white',
+                backgroundColor: boot.color,
               }}
             />
             <Text size="sm" weight="medium">
@@ -32,7 +31,7 @@ const BootSummaryResultItem: React.FC<BootSummaryResultItemProps> = ({ results }
             </Text>
           </div>
 
-          <Text weight="medium">{numberWithCommas(results.reduce((acc, curr) => acc + curr.total, 0))} times</Text>
+          <Text weight="medium">{numberWithCommas(boot.results.reduce((acc, curr) => acc + curr.total, 0))} times</Text>
         </div>
       }
     >
@@ -50,7 +49,7 @@ const BootSummaryResultItem: React.FC<BootSummaryResultItemProps> = ({ results }
           </Text>
           <div />
 
-          {results.map(({ total, target, avg_time }, index) => (
+          {boot.results.map(({ total, target, avg_time }, index) => (
             <React.Fragment key={`boot-summary-result-item-${index}`}>
               <Text size="sm">{BootTypeLabel[target]}</Text>
               <Text size="sm" className="text-right">
