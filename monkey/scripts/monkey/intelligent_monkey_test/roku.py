@@ -83,7 +83,7 @@ class IntelligentMonkeyTestRoku:
             logger.info(f'check breadth end done. is_breadth_end: {is_breadth_end}, cursor_same: {cursor_same}, cursor_rotation: {cursor_rotation}')
             return is_breadth_end
         except Exception as err:
-            logger.warning(f'check end error. {err}')
+            logger.warning(f'check breadth end error. {err}')
             return False
 
     def check_leaf_node(self, node_info: NodeInfo) -> bool:
@@ -140,8 +140,7 @@ class IntelligentMonkeyTestRoku:
             else:
                 return node_histories[0].cursor_image
         except Exception as err:
-            logger.warning(f'get last breadth start cursor image error. {err}')
-            return None
+            raise Exception(f'get last breadth start cursor image error. {err}')
 
     def start_monkey(self, node_info: NodeInfo, current_node_keyset: List[str]):
         start_time = time.time()
