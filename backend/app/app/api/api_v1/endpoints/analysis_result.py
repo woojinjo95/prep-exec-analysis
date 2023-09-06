@@ -45,7 +45,7 @@ def get_data_of_log_level_finder(
                                                  'testrun_id': testrun_id}},
                                      {'$project': {'_id': 0, 'lines.timestamp': 1, 'lines.log_level': 1}},
                                      {'$unwind': {'path': '$lines'}},
-                                     {'$replaceRoot':{'newRoot': '$lines'}},
+                                     {'$replaceRoot': {'newRoot': '$lines'}},
                                      {'$match': {'log_level': {'$in': log_level}}}]
 
         log_level_finder = paginate_from_mongodb_aggregation(col='stb_log',
@@ -164,7 +164,8 @@ def get_data_of_event_log(
                                           'testrun_id': testrun_id}},
                               {'$project': {'_id': 0, 'lines': 1}},
                               {'$unwind': {'path': '$lines'}},
-                              {'$match': {'lines.msg': {'$in': ['remocon_response', 'on_off_control_response', 'network_emulation_response', 'shell', 'config']}}},
+                              {'$match': {'lines.msg': {
+                                  '$in': ['remocon_response', 'on_off_control_response', 'network_emulation_response', 'shell', 'config']}}},
                               {'$replaceRoot': {'newRoot': '$lines'}}]
 
         event_log = paginate_from_mongodb_aggregation(col='event_log',
@@ -484,6 +485,14 @@ def get_summary_data_of_measure_result(
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
 
+        collection_dict = {
+            "log_level_finder": "stb_log",
+            "freeze": "an_freeze",
+            "resume": "an_warm_boot",
+            "boot": "an_cold_boot",
+            "log_pattern_matching": "an_log_pattern",
+            "loudness": "loudness",
+        }
         result = {}
         basic_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
                                                     '$lte': convert_iso_format(end_time)},
@@ -495,11 +504,9 @@ def get_summary_data_of_measure_result(
         for active_analysis, config in active_analysis_list.items():
             if config is None:
                 continue
-            color = config.get('color', '')
             pipeline = []
             additional_pipeline = []
             if active_analysis == 'log_level_finder':
-                collection = 'stb_log'
                 log_level_list = config.get('targets', [])
                 additional_pipeline = [{'$project': {'_id': 0, 'lines.log_level': 1}},
                                        {'$unwind': {'path': '$lines'}},
@@ -508,24 +515,23 @@ def get_summary_data_of_measure_result(
                                        {'$group': {'_id': None, 'results': {'$push': {'target': '$_id', 'total': '$total'}}}},
                                        {'$project': {'_id': 0, 'results': 1}}]
             elif active_analysis == 'freeze':
-                collection = 'an_freeze'
                 additional_pipeline = [{'$group': {'_id': '$freeze_type', 'total': {'$sum': 1}, 'color': {'$first': '$user_config.color'}}},
-                                       {'$group': {'_id': '$color', 'results': {'$push': {'total': '$total', 'error_type': '$_id'}}}},
+                                       {'$group': {'_id': '$color', 'results': {
+                                           '$push': {'total': '$total', 'error_type': '$_id'}}}},
                                        {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'resume':
-                collection = 'an_warm_boot'
                 additional_pipeline = [{'$group': {'_id': '$user_config.type', 'total': {'$sum': 1},
                                                    'avg_time': {'$avg': '$measure_time'}, 'color': {'$first': '$user_config.color'}}},
-                                       {'$group': {'_id': '$color', 'results': {'$push': {'target': '$_id', 'total': '$total', 'avg_time': '$avg_time'}}}},
+                                       {'$group': {'_id': '$color', 'results': {
+                                           '$push': {'target': '$_id', 'total': '$total', 'avg_time': '$avg_time'}}}},
                                        {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'boot':
-                collection = 'an_cold_boot'
                 additional_pipeline = [{'$group': {'_id': '$user_config.type', 'total': {'$sum': 1},
                                                    'avg_time': {'$avg': '$measure_time'}, 'color': {'$first': '$user_config.color'}}},
-                                       {'$group': {'_id': '$color', 'results': {'$push': {'target': '$_id', 'total': '$total', 'avg_time': '$avg_time'}}}},
+                                       {'$group': {'_id': '$color', 'results': {
+                                           '$push': {'target': '$_id', 'total': '$total', 'avg_time': '$avg_time'}}}},
                                        {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'log_pattern_matching':
-                collection = 'an_log_pattern'
                 additional_pipeline = [{'$project': {'_id': 0, 'list': ['$matched_target.name', '$matched_target.color'], 'color': '$user_config.color'}},
                                        {'$group': {'_id': '$list', 'total': {'$sum': 1}, 'color': {'$first': '$color'}}},
                                        {'$group': {'_id': '$color', 'results': {
@@ -543,19 +549,18 @@ def get_summary_data_of_measure_result(
                 continue
             elif active_analysis == 'intelligent_monkey_test':
                 continue
-            else:
-                collection = 'loudness'
+            elif active_analysis == 'loudness':
                 additional_pipeline = [{'$project': {'_id': 0, 'lines': 1}},
                                        {'$unwind': {'path': '$lines'}},
                                        {'$group': {'_id': None, 'lkfs': {'$avg': '$lines.I'}}},
                                        {'$project': {'_id': 0, 'lkfs': 1}}]
             pipeline = basic_pipeline + additional_pipeline
-            aggregation = aggregate_from_mongodb(col=collection, pipeline=pipeline)
+            aggregation = aggregate_from_mongodb(col=collection_dict[active_analysis], pipeline=pipeline)
             if len(aggregation) == 0:
                 continue
             else:
                 aggregation = aggregation[0]
-            aggregation['color'] = color
+            aggregation['color'] = config.get('color', '')
             result[active_analysis] = aggregation
         timestamp_pipeline = [{'$match': {'id': scenario_id}},
                               {'$project': {'_id': 0, 'testruns': 1}},
@@ -564,7 +569,8 @@ def get_summary_data_of_measure_result(
                               {'$project': {'last_updated_timestamp': '$testruns.last_updated_timestamp'}}]
         last_updated_timestamp = aggregate_from_mongodb(col='scenario', pipeline=timestamp_pipeline)
         last_updated_timestamp = last_updated_timestamp[0] if len(last_updated_timestamp) > 0 else None
-        result['last_updated_timestamp'] = last_updated_timestamp['last_updated_timestamp'].strftime('%Y-%m-%dT%H:%M:%S.%fZ') if (last_updated_timestamp is not None) else None
+        result['last_updated_timestamp'] = last_updated_timestamp['last_updated_timestamp'].strftime(
+            '%Y-%m-%dT%H:%M:%S.%fZ') if (last_updated_timestamp is not None) else None
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {"items": result}

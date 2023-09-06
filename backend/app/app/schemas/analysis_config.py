@@ -103,3 +103,9 @@ class AnalysisConfigBase(BaseModel):
 class FrameImage(BaseModel):
     id: str
     path: str
+
+
+class Analysis(BaseModel):
+    scenario_id: str
+    testrun_id: str
+    measurement: List[str]
