@@ -56,10 +56,8 @@ class IntelligentMonkeyTestRoku:
             self.exec_keys(self.keyset)
             image = get_current_image()
             node_info = NodeInfo(image=image, cursor=self.get_cursor(image))
-            node_info.cursor_image = self.get_cursor_image(node_info.image, node_info.cursor)
 
             if self.check_breadth_end(node_info):
-                node_info.is_breadth_end = True
                 if self.head_to_next():
                     continue
                 else:
@@ -151,7 +149,7 @@ class IntelligentMonkeyTestRoku:
     def get_last_breadth_start_image(self, node_histories: List[NodeInfo]):
         try:
             for i in range(len(node_histories) - 1, 0, -1):
-                if node_histories[i].is_breadth_end:
+                if not node_histories[i].is_leaf:
                     return node_histories[i+1].image
             else:
                 return node_histories[0].image
@@ -181,7 +179,7 @@ class IntelligentMonkeyTestRoku:
                        end_time=time.time(),
                        analysis_type=self.analysis_type,
                        section_id=self.section_id,
-                       image=node_info.cursor_image,
+                       image=get_cropped_image(node_info.image, node_info.cursor),
                        smart_sense_times=monkey.smart_sense_count)
 
         if monkey.banned_image_detected:
