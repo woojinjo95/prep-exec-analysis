@@ -24,10 +24,18 @@ interface EnterActionPageMessage {
 }
 
 /**
- * 분석 페이지 진입 publish 메시지
+ * 분석 페이지 메인페이지 진입 publish 메시지
  */
-interface EnterAnalysisPageMessage {
+interface EnterAnalysisPageFromMainMessage {
   msg: 'analysis_mode'
+}
+
+interface EnterAnalysisPageFromActionMessage {
+  msg: 'analysis_mode_init'
+  data: {
+    start_time: number
+    end_time: number
+  }
 }
 
 /**
@@ -159,7 +167,8 @@ export type PublishMessage = {
   | AnalysisMessage
   | NetworkEmulationMessage
   | EnterActionPageMessage
-  | EnterAnalysisPageMessage
+  | EnterAnalysisPageFromMainMessage
+  | EnterAnalysisPageFromActionMessage
 )
 
 type SubscribeCommandMessage<T> = {
