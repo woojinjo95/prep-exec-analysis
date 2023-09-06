@@ -1,13 +1,10 @@
-import json
 import logging
 import traceback
-from typing import Optional
 
 from app import schemas
-from app.api.utility import parse_bytes_to_value, set_redis_pub_msg
-from app.crud.base import aggregate_from_mongodb, update_to_mongodb
+from app.api.utility import set_redis_pub_msg
+from app.crud.base import delete_many_to_mongodb
 from app.db.redis_session import RedisClient
-from app.schemas.enum import AnalysisTypeEnum
 from fastapi import APIRouter, HTTPException
 from fastapi.encoders import jsonable_encoder
 
@@ -16,7 +13,7 @@ router = APIRouter()
 
 
 @router.post("", response_model=schemas.Msg)
-def start_analysis(
+async def start_analysis(
     *,
     analysis_in: schemas.Analysis,
 ) -> schemas.Msg:
@@ -27,16 +24,17 @@ def start_analysis(
             "boot": "an_cold_boot",
             "log_pattern_matching": "an_log_pattern"
         }
-
-        # 초기화
-        for measurement in analysis_in.measurement:
+        analysis_in = jsonable_encoder(analysis_in)
+        measurements = analysis_in['measurement']
+        for measurement in measurements:
             collection = collection_dict.get(measurement, None)
             if collection:
-                pass
+                delete_many_to_mongodb(collection, {'scenario_id': analysis_in['scenario_id'],
+                                                    'testrun_id': analysis_in['testrun_id']})
 
         RedisClient.publish('command', set_redis_pub_msg(msg="analysis",
-                                                         data={"measurement": analysis_in.measurement}))
+                                                         data={"measurement": measurements}))
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return {'msg': f'Start analysis: {analysis_in.measurement}'}
+    return {'msg': f'Start analysis: {measurements}'}
