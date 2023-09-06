@@ -11,8 +11,8 @@ class FrameInfo:
 
 @dataclass
 class NodeInfo:
-    image: field(default_factory=np.ndarray, repr=False)
-    cursor: Tuple[int, int, int, int]
+    image: field(default_factory=lambda: np.array([]), repr=False)
+    cursor: Tuple[int, int, int, int] = (0, 0, 0, 0)  # x,y,w,h
     is_leaf: bool = False
 
 

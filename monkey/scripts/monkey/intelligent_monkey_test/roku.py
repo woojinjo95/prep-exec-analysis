@@ -72,7 +72,6 @@ class IntelligentMonkeyTestRoku:
                 node_info.is_leaf = False
                 self.append_key(self.depth_key)
 
-            logger.info(f'node_info: {node_info}')
             self.node_histories.append(node_info)
 
     def check_breadth_end(self, node_info: NodeInfo) -> bool:
