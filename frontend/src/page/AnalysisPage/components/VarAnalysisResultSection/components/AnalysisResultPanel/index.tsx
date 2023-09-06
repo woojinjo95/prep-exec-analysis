@@ -13,6 +13,7 @@ const AnalysisResultPanel: React.FC = () => {
   const { analysisResultSummary, refetch } = useAnalysisResultSummary({
     start_time: new Date(videoSummary?.start_time! || 0).toISOString(),
     end_time: new Date(videoSummary?.end_time! || 0).toISOString(),
+    // FIXME: videoSummary가 없는데도 api를 침
     enabled: !!videoSummary,
   })
   useServiceState({
