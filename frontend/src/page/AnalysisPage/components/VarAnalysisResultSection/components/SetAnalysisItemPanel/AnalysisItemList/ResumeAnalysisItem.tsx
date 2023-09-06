@@ -10,7 +10,7 @@ interface ResumeAnalysisItemProps {
   frame: NonNullable<UnsavedAnalysisConfig['resume']>['frame']
   resumeType: NonNullable<UnsavedAnalysisConfig['resume']>['type']
   warningMessage?: string
-  onClickDeleteItem: () => void
+  onClickDeleteItem: React.MouseEventHandler<SVGSVGElement>
   setUnsavedAnalysisConfig: React.Dispatch<React.SetStateAction<UnsavedAnalysisConfig>>
 }
 

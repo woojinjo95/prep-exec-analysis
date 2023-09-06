@@ -11,7 +11,7 @@ interface LogPatternMatchingAnalysisItemProps {
   patterns: NonNullable<UnsavedAnalysisConfig['log_pattern_matching']>['items']
   warningMessage?: string
   setUnsavedAnalysisConfig: React.Dispatch<React.SetStateAction<UnsavedAnalysisConfig>>
-  onClickDeleteItem: () => void
+  onClickDeleteItem: React.MouseEventHandler<SVGSVGElement>
 }
 
 /**

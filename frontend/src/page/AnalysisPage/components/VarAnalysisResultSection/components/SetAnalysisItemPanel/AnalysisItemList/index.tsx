@@ -7,7 +7,7 @@ import { AnalysisType, AnalyzableType, AnalyzableTypes } from '@global/constant'
 import { useAnalysisConfig } from '@page/AnalysisPage/api/hook'
 import { AnalysisConfig } from '@page/AnalysisPage/api/entity'
 import { AnalysisTypeLabel } from '../../../constant'
-import { useUpdateAnalysisConfig } from '../../../api/hook'
+import { useRemoveAnalysisConfig, useUpdateAnalysisConfig } from '../../../api/hook'
 import { UnsavedAnalysisConfig } from '../../../types'
 import FreezeAnalysisItem from './FreezeAnalysisItem'
 import BootAnalysisItem from './BootAnalysisItem'
@@ -61,7 +61,7 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
   const { sendMessage } = useWebsocket()
   const [unsavedAnalysisConfig, setUnsavedAnalysisConfig] = useState<UnsavedAnalysisConfig>({})
   const [warningMessage, setWarningMessage] = useState<{ [key in keyof typeof AnalysisType]?: string }>({})
-  const { analysisConfig } = useAnalysisConfig({
+  const { analysisConfig, refetch } = useAnalysisConfig({
     onSuccess: (data) => {
       if (Object.keys(unsavedAnalysisConfig).length) return
 
@@ -101,6 +101,33 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
       })
     },
   })
+
+  const { removeAnalysisConfig } = useRemoveAnalysisConfig({
+    onSuccess: (_, { analysis_type }) => {
+      setSelectedAnalysisItems((prev) => prev.filter((type) => type !== analysis_type))
+      setUnsavedAnalysisConfig((prev) => ({
+        ...prev,
+        [analysis_type]: undefined,
+      }))
+      setWarningMessage((prev) => ({
+        ...prev,
+        [analysis_type]: undefined,
+      }))
+      refetch()
+    },
+  })
+
+  /**
+   * 분석 아이템 삭제
+   */
+  const onClickDeleteItem = useCallback(
+    (type: keyof typeof AnalysisTypeLabel): React.MouseEventHandler<SVGSVGElement> =>
+      (e) => {
+        e.stopPropagation()
+        removeAnalysisConfig(type)
+      },
+    [],
+  )
 
   useEffect(() => {
     if (!selectedAnalysisItems.length) return
@@ -189,20 +216,6 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
       })
     },
   })
-
-  /**
-   * 분석 아이템 삭제
-   */
-  const onClickDeleteItem = useCallback(
-    (type: keyof typeof AnalysisTypeLabel) => () => {
-      setSelectedAnalysisItems((prev) => prev.filter((_type) => _type !== type))
-      setUnsavedAnalysisConfig((prev) => ({
-        ...prev,
-        [type]: undefined,
-      }))
-    },
-    [],
-  )
 
   if (!selectedAnalysisItems.length) {
     return (

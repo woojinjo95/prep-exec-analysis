@@ -3,7 +3,8 @@ import { useMutation, useQuery } from 'react-query'
 import { useRecoilValue } from 'recoil'
 import { scenarioIdState, testRunIdState } from '@global/atom'
 import { AnalysisConfig } from '@page/AnalysisPage/api/entity'
-import { getAnalysisResultSummary, putAnalysisConfig } from './func'
+import { AnalysisType } from '@global/constant'
+import { deleteAnalysisConfig, getAnalysisResultSummary, putAnalysisConfig } from './func'
 import { AnalysisResultSummary } from './entity'
 
 /**
@@ -34,6 +35,38 @@ export const useUpdateAnalysisConfig = ({
 
   return {
     updateAnalysisConfig,
+  }
+}
+
+/**
+ * 분석 설정 삭제 hook
+ */
+export const useRemoveAnalysisConfig = ({
+  onSuccess,
+}: {
+  onSuccess?: (
+    data: void,
+    variables: {
+      scenario_id: string
+      testrun_id: string
+      analysis_type: keyof typeof AnalysisType
+    },
+    context: unknown,
+  ) => void
+}) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { mutate } = useMutation(deleteAnalysisConfig, {
+    onSuccess,
+  })
+
+  const removeAnalysisConfig = (analysis_type: keyof typeof AnalysisType) => {
+    if (!scenarioId || !testRunId) return
+    mutate({ scenario_id: scenarioId, testrun_id: testRunId, analysis_type })
+  }
+
+  return {
+    removeAnalysisConfig,
   }
 }
 

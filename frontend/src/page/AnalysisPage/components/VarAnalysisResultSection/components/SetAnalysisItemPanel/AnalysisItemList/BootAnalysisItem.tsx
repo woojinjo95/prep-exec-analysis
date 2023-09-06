@@ -10,7 +10,7 @@ interface BootAnalysisItemProps {
   frame: NonNullable<UnsavedAnalysisConfig['boot']>['frame']
   bootType: NonNullable<UnsavedAnalysisConfig['boot']>['type']
   warningMessage?: string
-  onClickDeleteItem: () => void
+  onClickDeleteItem: React.MouseEventHandler<SVGSVGElement>
   setUnsavedAnalysisConfig: React.Dispatch<React.SetStateAction<UnsavedAnalysisConfig>>
 }
 

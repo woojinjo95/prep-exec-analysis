@@ -9,7 +9,7 @@ interface LogLevelFinderAnalysisItemProps {
   color: NonNullable<UnsavedAnalysisConfig['log_level_finder']>['color']
   targets: NonNullable<UnsavedAnalysisConfig['log_level_finder']>['targets']
   warningMessage?: string
-  onClickDeleteItem: () => void
+  onClickDeleteItem: React.MouseEventHandler<SVGSVGElement>
   setUnsavedAnalysisConfig: React.Dispatch<React.SetStateAction<UnsavedAnalysisConfig>>
 }
 
