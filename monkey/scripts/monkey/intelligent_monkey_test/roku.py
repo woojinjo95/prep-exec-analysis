@@ -78,15 +78,15 @@ class IntelligentMonkeyTestRoku:
         try:
             logger.info('check breadth end.')
             similar_thld = 0.98
-            cursor_same = check_cursor_is_same(self.node_histories[-1].image, self.node_histories[-1].cursor, 
+            same_with_prev = check_cursor_is_same(self.node_histories[-1].image, self.node_histories[-1].cursor, 
                                                 node_info.image, node_info.cursor, 
                                                 sim_thld=similar_thld)
             last_breadth_start_image = self.get_last_breadth_start_image(self.node_histories)
-            cursor_rotation = check_cursor_is_same(last_breadth_start_image, self.get_cursor(last_breadth_start_image),
-                                                    node_info.image, node_info.cursor, 
-                                                    sim_thld=similar_thld)
-            is_breadth_end = True if cursor_same or cursor_rotation else False
-            logger.info(f'check breadth end done. is_breadth_end: {is_breadth_end}, cursor_same: {cursor_same}, cursor_rotation: {cursor_rotation}')
+            same_with_breadth_start = check_cursor_is_same(last_breadth_start_image, self.get_cursor(last_breadth_start_image),
+                                                        node_info.image, node_info.cursor, 
+                                                        sim_thld=similar_thld)
+            is_breadth_end = True if same_with_prev or same_with_breadth_start else False
+            logger.info(f'check breadth end done. is_breadth_end: {is_breadth_end}, same_with_prev: {same_with_prev}, same_with_breadth_start: {same_with_breadth_start}')
             # # test
             # time_str = get_time_str()
             # save_test_image(f'{time_str}_cursor_cur', get_cropped_image(node_info.image, node_info.cursor))
