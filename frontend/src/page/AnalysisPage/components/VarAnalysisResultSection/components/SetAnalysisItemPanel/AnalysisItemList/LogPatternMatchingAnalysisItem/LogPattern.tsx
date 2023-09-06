@@ -25,7 +25,6 @@ const LogPattern: React.FC<LogPatternProps> = ({ logPattern, patterns, setUnsave
         </Text>
       </div>
 
-      {/* TODO: 수정 모달, 삭제 기능 */}
       <DropdownWithMoreButton colorScheme="charcoal" type="icon">
         <OptionItem colorScheme="charcoal" onClick={() => setIsOpenModifyLogPatternModal(true)}>
           Modify
