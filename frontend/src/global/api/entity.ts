@@ -144,5 +144,5 @@ export interface VideoSummary {
 export interface TestRun {
   id: string
   updated_at: string
-  analysis_targets: string[]
+  measure_targets: string[]
 }
