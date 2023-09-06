@@ -94,7 +94,7 @@ def ebtables_init(nic: str):
 
 
 def ebtables_block(nic: str, ip: str = None, port: int = None, protocol: str = None, filter_type: str = 'dst', command: str = 'set') -> dict:
-    result = {}
+    result = {'protocol': protocol}
     wan = get_value('network', 'wan_nic')
 
     if command in ('add', 'set', 1):
