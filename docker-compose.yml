@@ -258,6 +258,14 @@ services:
     volumes:
       - ./state/app:/app
 
+  playblock:
+    container_name: playblock
+    restart: always
+    image: registry.dev-nextlab.com/qaas-playblock:dev-0
+    build:
+      context: ./playblock
+      dockerfile: Dockerfile
+
 volumes:
   mongodb_data: {}
   redis_data: {}
