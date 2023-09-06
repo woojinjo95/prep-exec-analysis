@@ -351,6 +351,104 @@ remocons = [
             }
         ]
     },
+        {
+        "name": "chrome_cast",
+        "image_path": "/api/v1/file/system_file/remocon_image_chromecast.png",
+        "custom_keys": [],
+        "remocon_codes": [
+            {
+                "name": "↑",
+                "code_name": "Up",
+                "pronto_code": "Up",
+                "coordinate": [76,20,119,62],
+                "hotkey": []
+            },
+            {
+                "name": "↓",
+                "code_name": "Down",
+                "pronto_code": "Down",
+                "coordinate": [76,136,119,178],
+                "hotkey": []
+            },
+            {
+                "name": "←",
+                "code_name": "Left",
+                "pronto_code": "Left",
+                "coordinate": [19,76,62,118],
+                "hotkey": []
+            },
+            {
+                "name": "→",
+                "code_name": "Right",
+                "pronto_code": "Right",
+                "coordinate": [136,76,179,118],
+                "hotkey": []
+            },
+            {
+                "name": "Ok",
+                "code_name": "Ok",
+                "pronto_code": "Ok",
+                "coordinate": [66,68,131,132],
+                "hotkey": []
+            },
+            {
+                "name": "뒤로가기",
+                "code_name": "Back",
+                "pronto_code": "Back",
+                "coordinate": [20,198,82,258],
+                "hotkey": []
+            },
+            {
+                "name": "구글어시스턴트",
+                "code_name": "GoogleAsistant",
+                "pronto_code": "GoogleAsistant",
+                "coordinate": [117,198,178,259],
+                "hotkey": []
+            },
+            {
+                "name": "홈",
+                "code_name": "Home",
+                "pronto_code": "Home",
+                "coordinate": [20,277,80,339],
+                "hotkey": []
+            },
+            {
+                "name": "음소거",
+                "code_name": "Mute",
+                "pronto_code": "Mute",
+                "coordinate": [115,279,176,340],
+                "hotkey": []
+            },
+            {
+                "name": "유튜브",
+                "code_name": "Youtube",
+                "pronto_code": "Youtube",
+                "coordinate": [18,359,79,420],
+                "hotkey": []
+            },
+            {
+                "name": "넷플릭스",
+                "code_name": "Netflix",
+                "pronto_code": "Netflix",
+                "coordinate": [116,358,177,419],
+                "hotkey": []
+            },
+            {
+                "name": "전원",
+                "code_name": "Power",
+                "pronto_code": "Power",
+                "coordinate": [31,448,64,484],
+                "hotkey": []
+            },
+            {
+                "name": "입력",
+                "code_name": "Input",
+                "pronto_code": "Input",
+                "coordinate": [130,448,163,484],
+                "hotkey": []
+            }
+        ]
+    },
     {
         "name": "kt",
         "image_path": "/api/v1/file/system_file/remocon_image_kt.png",

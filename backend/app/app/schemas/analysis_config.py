@@ -1,7 +1,8 @@
 from typing import List, Optional
 
-from app.schemas.enum import (BootTypeEnum, ChannelChangeTimeTargetEnum,
-                              LogLevelEnum, ResumeTypeEnum)
+from app.schemas.enum import (AnalysisTypeEnum, BootTypeEnum,
+                              ChannelChangeTimeTargetEnum, LogLevelEnum,
+                              ResumeTypeEnum)
 from pydantic import BaseModel
 
 
@@ -83,15 +84,15 @@ class IntelligentMonkeyTest(CommonBaseModel):
 
 class AnalysisConfig(BaseModel):
     freeze: Optional[Freeze]
-    # macroblock: Optional[Macroblock]
+    macroblock: Optional[Macroblock]
     loudness: Optional[Loudness]
     resume: Optional[Resume]
     boot: Optional[Boot]
     channel_change_time: Optional[ChannelChangeTime]
     log_level_finder: Optional[LogLevelFinder]
     log_pattern_matching: Optional[LogPatternMatching]
-    # process_lifecycle_analysis: Optional[ProcessLifecycleAnalysis]
-    # network_filter: Optional[NetworkFilter]
+    process_lifecycle_analysis: Optional[ProcessLifecycleAnalysis]
+    network_filter: Optional[NetworkFilter]
     monkey_test: Optional[MonkeyTest]
     intelligent_monkey_test: Optional[IntelligentMonkeyTest]
 
@@ -103,3 +104,9 @@ class AnalysisConfigBase(BaseModel):
 class FrameImage(BaseModel):
     id: str
     path: str
+
+
+class Analysis(BaseModel):
+    scenario_id: str
+    testrun_id: str
+    measurement: List[AnalysisTypeEnum]

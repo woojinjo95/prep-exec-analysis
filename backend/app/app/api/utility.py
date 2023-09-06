@@ -9,6 +9,19 @@ from app.core.config import settings
 from app.crud.base import (load_from_mongodb, load_paginate_from_mongodb,
                            aggregate_from_mongodb)
 
+analysis_collection = {
+    "log_level_finder": "stb_log",
+    "freeze": "an_freeze",
+    "resume": "an_warm_boot",
+    "boot": "an_cold_boot",
+    "log_pattern_matching": "an_log_pattern",
+    "loudness": "loudness",
+    "cpu": "stb_info",
+    "memory": "stb_info",
+    "event_log": "event_log",
+    "color_reference": "an_color_reference",
+}
+
 
 def convert_pageset(page_param, res):
     page = page_param['page']
@@ -148,3 +161,14 @@ def serialize_datetime(obj):
     if isinstance(obj, datetime):
         return obj.isoformat()
     raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
+
+
+def get_config_from_scenario_mongodb(scenario_id: str, testrun_id: str):
+    pipeline = [{"$match": {'id': scenario_id}},
+                {"$unwind": "$testruns"},
+                {"$project": {"testrun_id": "$testruns.id",
+                              "config": f"$testruns.analysis.config"}},
+                {"$match": {"testrun_id": testrun_id}},
+                {"$project": {"_id": 0, "config": 1}}]
+    res = aggregate_from_mongodb('scenario', pipeline)
+    return res[0] if len(res) > 0 else {}
