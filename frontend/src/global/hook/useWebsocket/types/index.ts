@@ -143,6 +143,17 @@ interface AnalysisMessage {
   }
 }
 
+/**
+ * 비디오 스냅샷 저장 요청 publish 메시지
+ */
+interface VideoSnapshotMessage {
+  msg: 'video_snapshot'
+  data: {
+    video_path: string
+    relative_time: number // second
+  }
+}
+
 type MessageLevel = 'debug' | 'info' | 'warning' | 'error' | 'critical' | 'fatal'
 
 export type PublishMessage = {
@@ -160,6 +171,7 @@ export type PublishMessage = {
   | NetworkEmulationMessage
   | EnterActionPageMessage
   | EnterAnalysisPageMessage
+  | VideoSnapshotMessage
 )
 
 type SubscribeCommandMessage<T> = {
