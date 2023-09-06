@@ -1,7 +1,8 @@
 from typing import List, Optional
 
-from app.schemas.enum import (BootTypeEnum, ChannelChangeTimeTargetEnum,
-                              LogLevelEnum, ResumeTypeEnum)
+from app.schemas.enum import (AnalysisTypeEnum, BootTypeEnum,
+                              ChannelChangeTimeTargetEnum, LogLevelEnum,
+                              ResumeTypeEnum)
 from pydantic import BaseModel
 
 
@@ -19,16 +20,21 @@ class Roi(BaseModel):
 class Frame(BaseModel):
     id: str
     path: str
+    relative_time: float
     roi: Roi
 
 
 class Freeze(CommonBaseModel):
-    duration: int
+    duration: int = 3
 
 
 class Macroblock(CommonBaseModel):
     frame_sampling_interval: int
     threshold_score: float
+
+
+class Loudness(CommonBaseModel):
+    pass
 
 
 class Resume(CommonBaseModel):
@@ -68,16 +74,27 @@ class NetworkFilter(CommonBaseModel):
     pass
 
 
+class MonkeyTest(CommonBaseModel):
+    pass
+
+
+class IntelligentMonkeyTest(CommonBaseModel):
+    pass
+
+
 class AnalysisConfig(BaseModel):
     freeze: Optional[Freeze]
-    # macroblock: Optional[Macroblock]
+    macroblock: Optional[Macroblock]
+    loudness: Optional[Loudness]
     resume: Optional[Resume]
     boot: Optional[Boot]
     channel_change_time: Optional[ChannelChangeTime]
     log_level_finder: Optional[LogLevelFinder]
     log_pattern_matching: Optional[LogPatternMatching]
-    # process_lifecycle_analysis: Optional[ProcessLifecycleAnalysis]
-    # network_filter: Optional[NetworkFilter]
+    process_lifecycle_analysis: Optional[ProcessLifecycleAnalysis]
+    network_filter: Optional[NetworkFilter]
+    monkey_test: Optional[MonkeyTest]
+    intelligent_monkey_test: Optional[IntelligentMonkeyTest]
 
 
 class AnalysisConfigBase(BaseModel):
@@ -87,3 +104,9 @@ class AnalysisConfigBase(BaseModel):
 class FrameImage(BaseModel):
     id: str
     path: str
+
+
+class Analysis(BaseModel):
+    scenario_id: str
+    testrun_id: str
+    measurement: List[AnalysisTypeEnum]

@@ -33,6 +33,8 @@ export interface ScenarioSummary {
   name: string
   tags: string[]
   updated_at: number
+  testrun_count: number
+  has_block: boolean
 }
 
 export type IPLimitProtocol = 'all' | 'tcp' | 'udp'
@@ -71,6 +73,20 @@ export interface HardwareConfiguration {
 }
 
 /**
+ * Block type
+ */
+type BlockType =
+  | 'remocon_transmit'
+  | 'on_off_control'
+  | 'shell'
+  | 'packet_control'
+  | 'packet_block'
+  | 'monkey_test'
+  | 'intelligent_monkey_test'
+  | 'device_info'
+  | 'remocon_properties'
+
+/**
  * 서비스 상태
  *
  * `idle` 대기 (녹화 및 로그수집 X, 스트리밍 X)
@@ -84,8 +100,8 @@ export interface HardwareConfiguration {
 export type ServiceState = 'idle' | 'streaming' | 'playblock' | 'analysis'
 
 export interface Block {
-  type: string
-  args: { key: string; value: string | number }[]
+  type: BlockType
+  args: { key: string; value: string | number | boolean | object | null | undefined }[]
   name: string
   delay_time: number
   id: string
@@ -100,7 +116,7 @@ export interface BlockGroup {
 export interface Scenario {
   id: string
   name: string
-  is_acive: boolean
+  is_active: boolean
   tags: string[]
   block_group: BlockGroup[]
 }
@@ -108,3 +124,40 @@ export interface Scenario {
  * 로그 연결여부
  */
 export type LogConnectionStatus = 'log_disconnected' | 'log_connected'
+
+/**
+ * 비디오 정보
+ *
+ * @param start_time 비디오 시작시간(테스트런 시작시간)
+ * @param end_time 비디오 종료시간(테스트런 종료시간)
+ * @param path 비디오 저장경로
+ */
+export interface VideoSummary {
+  start_time: string
+  end_time: string
+  path: string
+}
+
+/**
+ * 테스트런
+ */
+export interface TestRun {
+  id: string
+  updated_at: string
+  analysis_targets: string[]
+}
+
+/**
+ * 분석 설정 아이템 Frame
+ */
+export interface AnalysisFrame {
+  id: string
+  relative_time: number // second
+  path: string
+  roi: {
+    x: number
+    y: number
+    w: number
+    h: number
+  }
+}

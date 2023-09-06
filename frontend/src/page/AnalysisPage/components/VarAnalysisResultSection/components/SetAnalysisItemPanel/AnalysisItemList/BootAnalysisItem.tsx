@@ -1,18 +1,16 @@
 import React from 'react'
 import { Accordion, ColorPickerBox, SetROIButton, Text } from '@global/ui'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
-import { AnalysisTypeLabel } from '../../../constant'
-import { AnalysisConfig } from '../../../api/entity'
+import { ReactComponent as ISValidIcon } from '@assets/images/icon_Is_valid.svg'
+import { AnalysisTypeLabel, BootTypeLabel } from '../../../constant'
 import { UnsavedAnalysisConfig } from '../../../types'
-
-const BootTypeLabel: { [key in NonNullable<AnalysisConfig['boot']>['type']]: string } = {
-  image_matching: 'Image Matching',
-} as const
 
 interface BootAnalysisItemProps {
   color: NonNullable<UnsavedAnalysisConfig['boot']>['color']
+  frame: NonNullable<UnsavedAnalysisConfig['boot']>['frame']
   bootType: NonNullable<UnsavedAnalysisConfig['boot']>['type']
-  onClickDeleteItem: () => void
+  warningMessage?: string
+  onClickDeleteItem: React.MouseEventHandler<SVGSVGElement>
   setUnsavedAnalysisConfig: React.Dispatch<React.SetStateAction<UnsavedAnalysisConfig>>
 }
 
@@ -21,12 +19,15 @@ interface BootAnalysisItemProps {
  */
 const BootAnalysisItem: React.FC<BootAnalysisItemProps> = ({
   color,
+  frame,
   bootType,
+  warningMessage,
   onClickDeleteItem,
   setUnsavedAnalysisConfig,
 }) => {
   return (
     <Accordion
+      warningMessage={warningMessage}
       header={
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-x-3">
@@ -62,12 +63,33 @@ const BootAnalysisItem: React.FC<BootAnalysisItemProps> = ({
         </div>
 
         <div className="flex justify-between items-center">
-          <Text colorScheme="light" weight="medium">
-            Set ROI
-          </Text>
+          <div className="flex items-center gap-x-2">
+            <Text colorScheme="light" weight="medium">
+              Set ROI
+            </Text>
+            {!!frame && <ISValidIcon className="w-5 h-5" />}
+          </div>
 
-          <SetROIButton />
+          <SetROIButton
+            defaultCurrentTime={frame?.relative_time}
+            defaultROI={frame?.roi}
+            onSave={(frame) => {
+              setUnsavedAnalysisConfig((prev) => ({
+                ...prev,
+                boot: {
+                  ...prev.boot!,
+                  frame,
+                },
+              }))
+            }}
+          />
         </div>
+
+        {!!warningMessage && (
+          <div className="pt-2">
+            <Text colorScheme="orange">{warningMessage}</Text>
+          </div>
+        )}
       </div>
     </Accordion>
   )

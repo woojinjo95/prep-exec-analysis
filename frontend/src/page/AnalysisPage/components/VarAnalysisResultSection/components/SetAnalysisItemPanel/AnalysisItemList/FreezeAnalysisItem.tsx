@@ -9,7 +9,7 @@ const DurationUnits = ['Sec', 'Min'] as const
 interface FreezeAnalysisItemProps {
   color: NonNullable<UnsavedAnalysisConfig['freeze']>['color']
   duration: NonNullable<UnsavedAnalysisConfig['freeze']>['duration']
-  onClickDeleteItem: () => void
+  onClickDeleteItem: React.MouseEventHandler<SVGSVGElement>
   setUnsavedAnalysisConfig: React.Dispatch<React.SetStateAction<UnsavedAnalysisConfig>>
 }
 
@@ -28,10 +28,10 @@ const FreezeAnalysisItem: React.FC<FreezeAnalysisItemProps> = ({
   const displayDuration = useMemo(() => {
     if (!duration) return ''
 
-    if (Number(duration) > 60) return String(Math.floor(Number(duration) % 60))
+    if (durationUnit === 'Min') return String(Math.floor(Number(duration) / 60))
 
     return String(Number(duration))
-  }, [duration])
+  }, [duration, durationUnit])
 
   const setDuration = useCallback((_duration: string) => {
     setUnsavedAnalysisConfig((prev) => ({
@@ -51,38 +51,50 @@ const FreezeAnalysisItem: React.FC<FreezeAnalysisItemProps> = ({
 
     if (Number(duration) > 60) {
       setDurationUnit('Min')
-      return
     }
-
-    setDurationUnit('Sec')
   }, [duration])
 
-  const onChangeDuration: React.ChangeEventHandler<HTMLInputElement> = useCallback((e) => {
-    const { value } = e.target
+  const onChangeDuration: React.ChangeEventHandler<HTMLInputElement> = useCallback(
+    (e) => {
+      if (!e.target.value.length) {
+        setDuration('')
+        return
+      }
 
-    if (Number.isNaN(Number(value))) return
+      const value = Number(e.target.value)
 
-    if (!value.length) {
-      setDuration('')
-      return
-    }
+      if (Number.isNaN(value)) return
 
-    if (value.length > 1 && value.charAt(0) === '0') {
-      setDuration(value.slice(1))
-      return
-    }
+      if (durationUnit === 'Min') {
+        if (value > 60) {
+          setDuration(String(60 * 60))
+          return
+        }
 
-    if (Number(value) > 60) {
-      setDuration('60')
-      return
-    }
-    if (Number(value) < 1) {
-      setDuration('1')
-      return
-    }
+        if (value < 1) {
+          setDuration(String(60))
+          return
+        }
 
-    setDuration(value)
-  }, [])
+        setDuration(String(value * 60))
+        return
+      }
+
+      if (durationUnit === 'Sec') {
+        if (value > 60) {
+          setDuration('60')
+          return
+        }
+        if (value < 1) {
+          setDuration('1')
+          return
+        }
+
+        setDuration(String(value))
+      }
+    },
+    [durationUnit],
+  )
 
   return (
     <Accordion
@@ -127,7 +139,17 @@ const FreezeAnalysisItem: React.FC<FreezeAnalysisItemProps> = ({
               <OptionItem
                 colorScheme="charcoal"
                 key={`freeze-analysis-item-duration-unit-${unit}`}
-                onClick={() => setDurationUnit(unit)}
+                onClick={() => {
+                  setDurationUnit(unit)
+
+                  if (durationUnit === 'Sec' && unit === 'Min') {
+                    setDuration((Number(duration) * 60).toString())
+                  }
+
+                  if (durationUnit === 'Min' && unit === 'Sec') {
+                    setDuration(Math.floor(Number(duration) / 60).toString())
+                  }
+                }}
                 isActive={durationUnit === unit}
               >
                 {unit}

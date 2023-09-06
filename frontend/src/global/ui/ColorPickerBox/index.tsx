@@ -1,17 +1,22 @@
-import useOutsideClick from '@global/hook/useOutsideClick'
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { SketchPicker } from 'react-color'
+import cx from 'classnames'
+import { createPortal } from 'react-dom'
+import { useOutsideClick } from '@global/hook'
+import { createPortalStyle } from '@global/usecase'
 
 interface ColorPickerBoxProps {
   color: string
+  className?: string
   onChange?: (color: string) => void
 }
 
 /**
  * 색상 선택 박스
  */
-const ColorPickerBox: React.FC<ColorPickerBoxProps> = ({ color, onChange }) => {
+const ColorPickerBox: React.FC<ColorPickerBoxProps> = ({ color, className, onChange }) => {
   const [isOpenColorPicker, setIsOpenColorPicker] = useState<boolean>(false)
+  const wrapperRef = useRef<HTMLDivElement | null>(null)
   const { ref } = useOutsideClick<HTMLDivElement>({
     mode: 'position',
     onClickOutside: () => {
@@ -20,9 +25,9 @@ const ColorPickerBox: React.FC<ColorPickerBoxProps> = ({ color, onChange }) => {
   })
 
   return (
-    <div className="relative" onClick={(e) => e.stopPropagation()}>
+    <div ref={wrapperRef} className="relative" onClick={(e) => e.stopPropagation()}>
       <div
-        className="w-4 h-4"
+        className={cx('w-4 h-4 cursor-pointer', className)}
         style={{
           backgroundColor: color,
         }}
@@ -31,25 +36,31 @@ const ColorPickerBox: React.FC<ColorPickerBoxProps> = ({ color, onChange }) => {
           setIsOpenColorPicker((prev) => !prev)
         }}
       />
-      {isOpenColorPicker && (
-        <div ref={ref} className="absolute top-0 left-0 mt-6" onClick={(e) => e.stopPropagation()}>
-          {/* FIXME: preset 컬러 선택안됨 */}
-          <SketchPicker
-            disableAlpha
-            className="text-black"
-            color={color}
-            onChange={(color, e) => {
-              e.stopPropagation()
+      {isOpenColorPicker &&
+        createPortal(
+          <div
+            ref={ref}
+            style={createPortalStyle({ wrapperRef })}
+            className="fixed z-50"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <SketchPicker
+              disableAlpha
+              className="text-black"
+              color={color}
+              onChange={(color, e) => {
+                e.stopPropagation()
 
-              const red = color.rgb.r.toString(16).padStart(2, '0')
-              const green = color.rgb.g.toString(16).padStart(2, '0')
-              const blue = color.rgb.b.toString(16).padStart(2, '0')
+                const red = color.rgb.r.toString(16).padStart(2, '0')
+                const green = color.rgb.g.toString(16).padStart(2, '0')
+                const blue = color.rgb.b.toString(16).padStart(2, '0')
 
-              onChange?.(`#${red}${green}${blue}`)
-            }}
-          />
-        </div>
-      )}
+                onChange?.(`#${red}${green}${blue}`)
+              }}
+            />
+          </div>,
+          document.body,
+        )}
     </div>
   )
 }

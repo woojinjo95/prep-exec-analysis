@@ -39,6 +39,36 @@ class COMMAND:
         return json.dumps(self.__dict__, default=str)
 
 
+def cvt_block_to_message(block: dict):
+    print(f"block ==> {block}")
+    # 여기서 블럭 메시지 수행하면 됨.
+    # 메시지 송신 -> 일단은 리모콘 메시지 1종만 추후 메시지 추가
+
+    message = {
+        "msg": "debug_remocon_transmit",
+        "level": "info",
+        "data": {},
+        "service": "playblock",
+        "time": datetime.utcnow().timestamp()
+    }
+    message['msg'] = block['type']
+    # message['msg'] = "debug_remocon_transmit",
+    for arg in block['args']:
+        message['data'][arg['key']] = arg['value']
+
+    return json.dumps(message)
+
+
+def publish_message(message: str, data: dict = dict()):
+    return json.dumps({
+        "msg": message,
+        "level": "info",
+        "data": data,
+        "service": "playblock",
+        "time": datetime.utcnow().timestamp()
+    })
+
+
 def check_skip_message(raw: any):
     try:
         if raw is None:
@@ -50,16 +80,16 @@ def check_skip_message(raw: any):
 
         # 에코 메시지 체크
         service = message['service']
-        if service == 'shell':
+        if service == 'playblock':
             print(f"check_skip_message service == {service}")
             return False, None
 
-        level = message['level']
-        # info가 아닌 모든 메시지 스킵
-        if level != 'info':
-            print(f"check_skip_message level: {level}")
-            print(f"trace: {message}")
-            return False, None
+        # level = message['level']
+        # # info가 아닌 모든 메시지 스킵
+        # if level != 'info':
+        #     print(f"check_skip_message level: {level}")
+        #     print(f"trace: {message}")
+        #     return False, None
 
         # msg가 start or stop이 아닌 모든 메시지 스킵
         # msg = message['msg']

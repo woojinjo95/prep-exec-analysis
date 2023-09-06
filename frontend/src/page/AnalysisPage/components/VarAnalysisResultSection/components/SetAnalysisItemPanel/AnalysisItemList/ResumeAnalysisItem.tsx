@@ -1,21 +1,16 @@
 import React from 'react'
 import { Accordion, ColorPickerBox, OptionItem, Select, SetROIButton, Text } from '@global/ui'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
-import { AnalysisTypeLabel } from '../../../constant'
-import { AnalysisConfig } from '../../../api/entity'
+import { ReactComponent as ISValidIcon } from '@assets/images/icon_Is_valid.svg'
+import { AnalysisTypeLabel, ResumeTypeLabel } from '../../../constant'
 import { UnsavedAnalysisConfig } from '../../../types'
-
-type ResumeType = NonNullable<AnalysisConfig['resume']>['type']
-
-const ResumeTypeLabel: { [key in ResumeType]: string } = {
-  image_matching: 'Image Matching',
-  screen_change_rate: 'Screen Change Rate',
-} as const
 
 interface ResumeAnalysisItemProps {
   color: NonNullable<UnsavedAnalysisConfig['resume']>['color']
+  frame: NonNullable<UnsavedAnalysisConfig['resume']>['frame']
   resumeType: NonNullable<UnsavedAnalysisConfig['resume']>['type']
-  onClickDeleteItem: () => void
+  warningMessage?: string
+  onClickDeleteItem: React.MouseEventHandler<SVGSVGElement>
   setUnsavedAnalysisConfig: React.Dispatch<React.SetStateAction<UnsavedAnalysisConfig>>
 }
 
@@ -24,12 +19,15 @@ interface ResumeAnalysisItemProps {
  */
 const ResumeAnalysisItem: React.FC<ResumeAnalysisItemProps> = ({
   color,
+  frame,
   resumeType,
+  warningMessage,
   onClickDeleteItem,
   setUnsavedAnalysisConfig,
 }) => {
   return (
     <Accordion
+      warningMessage={warningMessage}
       header={
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-x-3">
@@ -75,7 +73,7 @@ const ResumeAnalysisItem: React.FC<ResumeAnalysisItemProps> = ({
                   onClick={() => {
                     setUnsavedAnalysisConfig((prev) => ({
                       ...prev,
-                      resume: { ...prev.resume!, type },
+                      resume: { ...prev.resume!, type, frame: undefined },
                     }))
                   }}
                   isActive={type === resumeType}
@@ -89,11 +87,32 @@ const ResumeAnalysisItem: React.FC<ResumeAnalysisItemProps> = ({
 
         {resumeType === 'image_matching' && (
           <div className="flex justify-between items-center">
-            <Text colorScheme="light" weight="medium">
-              Set ROI
-            </Text>
+            <div className="flex items-center gap-x-2">
+              <Text colorScheme="light" weight="medium">
+                Set ROI
+              </Text>
+              {!!frame && <ISValidIcon className="w-5 h-5" />}
+            </div>
 
-            <SetROIButton />
+            <SetROIButton
+              defaultCurrentTime={frame?.relative_time}
+              defaultROI={frame?.roi}
+              onSave={(frame) => {
+                setUnsavedAnalysisConfig((prev) => ({
+                  ...prev,
+                  resume: {
+                    ...prev.resume!,
+                    frame,
+                  },
+                }))
+              }}
+            />
+          </div>
+        )}
+
+        {!!warningMessage && (
+          <div className="pt-2">
+            <Text colorScheme="orange">{warningMessage}</Text>
           </div>
         )}
       </div>

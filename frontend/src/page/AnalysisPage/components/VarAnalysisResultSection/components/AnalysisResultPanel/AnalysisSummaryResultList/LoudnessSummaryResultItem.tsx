@@ -1,11 +1,16 @@
 import React from 'react'
 import { Accordion, Text } from '@global/ui'
 import { AnalysisTypeLabel } from '../../../constant'
+import { AnalysisResultSummary } from '../../../api/entity'
+
+interface LoudnessSummaryResultItemProps {
+  result: NonNullable<AnalysisResultSummary['loudness']>[0]
+}
 
 /**
  * loudness 분석결과 요약 아이템
  */
-const LoudnessSummaryResultItem: React.FC = () => {
+const LoudnessSummaryResultItem: React.FC<LoudnessSummaryResultItemProps> = ({ result }) => {
   return (
     <Accordion
       header={
@@ -23,7 +28,7 @@ const LoudnessSummaryResultItem: React.FC = () => {
             </Text>
           </div>
 
-          <Text weight="medium">- 24 LKFS</Text>
+          <Text weight="medium">{result.lkfs} LKFS</Text>
         </div>
       }
     />

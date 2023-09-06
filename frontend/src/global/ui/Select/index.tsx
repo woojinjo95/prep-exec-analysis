@@ -31,7 +31,16 @@ const Select: React.ForwardRefExoticComponent<SelectProps & React.RefAttributes<
   const { ref: selectListRef } = useOutsideClick<HTMLUListElement>({ onClickOutside: () => setIsFocused(false) })
 
   return (
-    <div ref={divRef} className={cx('relative', className)}>
+    <div
+      ref={divRef}
+      className={cx(
+        'relative',
+        {
+          'opacity-40': props.disabled,
+        },
+        className,
+      )}
+    >
       <button
         ref={ref}
         type="button"

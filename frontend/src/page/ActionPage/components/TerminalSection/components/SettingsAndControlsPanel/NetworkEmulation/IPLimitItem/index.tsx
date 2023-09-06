@@ -11,6 +11,11 @@ import { ReactComponent as CancelIcon } from '@assets/images/x.svg'
 import { ReactComponent as SaveIcon } from '@assets/images/checked.svg'
 
 import { useToast } from '@chakra-ui/react'
+import { useRecoilValue } from 'recoil'
+import { scenarioIdState } from '@global/atom'
+import { useScenarioById } from '@global/api/hook'
+import { useMutation } from 'react-query'
+import { postBlock } from '@page/ActionPage/components/ActionSection/api/func'
 import styles from './IPLimitItem.module.scss'
 
 const validateIP = (ip?: string | null): string => {
@@ -56,6 +61,21 @@ interface IPLimitItemProps {
   close?: () => void
 }
 
+type IpLimitActionType = 'create' | 'update' | 'delete'
+
+type IpLimitResponseMessageBody = {
+  action: IpLimitActionType
+  log: string
+  updated: {
+    [key in IpLimitActionType]: {
+      ip?: string
+      id?: string
+      port?: string
+      protocol?: string
+    }
+  }
+}
+
 /**
  * 네트워크 에뮬레이션 - 제한 IP 아이템
  *
@@ -77,10 +97,52 @@ const IPLimitItem: React.FC<IPLimitItemProps> = ({
   const [port, setPort] = useState<string>(defaultPort)
   const [protocol, setProtocol] = useState<IPLimit['protocol']>(defaultProtocol)
 
-  const { sendMessage } = useWebsocket({
+  const scenarioId = useRecoilValue(scenarioIdState)
+
+  const { refetch: scenarioRefetch } = useScenarioById({ scenarioId })
+
+  // const { mutate: postBlockMutate } =
+  useMutation(postBlock, {
+    onSuccess: () => {
+      scenarioRefetch()
+    },
+    onError: (err) => {
+      console.error(err)
+    },
+  })
+
+  const { sendMessage } = useWebsocket<IpLimitResponseMessageBody>({
     onMessage: (message) => {
       if (message.msg === 'network_emulation_response') {
         // TODO: 네트워크 에뮬레이션 - IP Limit 관련 변경항목만 체크 => 현재 updated.update.ip 이렇게 접근해야 함 ..
+
+        // if (!scenarioId) return
+
+        // postBlockMutate({
+        //   newBlock: {
+        //     type: 'packet_block',
+        //     name: `IP Limit: `, // 미정
+        //     delay_time: 3000,
+        //     args: [
+        //       {
+        //         key: 'action',
+        //         value: message.data.action,
+        //       },
+        //       {
+        //         key: 'packet_block',
+        //         value:
+        //           message.data.action === 'create'
+        //             ? {
+        //                 ip: message.data.updated.create.ip,
+        //                 port: message.data.updated.create.port,
+        //                 protocol: message.data.updated.create.protocol,
+        //               }
+        //             : {},
+        //       },
+        //     ],
+        //   },
+        //   scenario_id: scenarioId,
+        // })
 
         // created
         close?.()

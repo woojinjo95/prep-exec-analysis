@@ -20,8 +20,8 @@ const Tick: React.FC<TickProps> = ({ width, translateX, time }) => {
         transform: `translateX(${translateX}px)`,
       }}
     >
-      <div className="h-[calc(100%-11px)]">
-        <Text colorScheme="grey" size="xs" className="absolute -translate-x-1/2 top-[4px]">
+      <div className="h-[calc(100%-13px)]">
+        <Text colorScheme="grey" size="xs" className="absolute -translate-x-1/2 top-0.5">
           {formatDateTo('HH:MM:SS:MS', time)}
         </Text>
       </div>

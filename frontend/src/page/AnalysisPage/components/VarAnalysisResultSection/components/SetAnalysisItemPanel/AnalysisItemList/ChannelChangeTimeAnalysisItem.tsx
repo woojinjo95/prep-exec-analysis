@@ -14,7 +14,7 @@ const ChannelChangeTargetLabel: {
 interface ChannelChangeTimeAnalysisItemProps {
   color: NonNullable<UnsavedAnalysisConfig['channel_change_time']>['color']
   targets: NonNullable<UnsavedAnalysisConfig['channel_change_time']>['targets']
-  onClickDeleteItem: () => void
+  onClickDeleteItem: React.MouseEventHandler<SVGSVGElement>
   setUnsavedAnalysisConfig: React.Dispatch<React.SetStateAction<UnsavedAnalysisConfig>>
 }
 

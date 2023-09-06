@@ -12,6 +12,7 @@ from ..utils._subprocess import kill_pid_grep
 from ..utils.docker import convert_if_docker_localhost
 from .loudness import get_sound_values, set_device_volume
 from .rotation import RotationFileManager, get_file_creation_time
+from .utils import get_active_capture_process
 
 logger = logging.getLogger('main')
 file_logger = logging.getLogger('file')
@@ -62,7 +63,7 @@ def construct_ffmpeg_cmd() -> str:
     # using aac codec, bitrate 128 kbytes/s, and dump it segment_time interval.
     dump_audio_settings = f'-map 1:a -c:a aac -b:a 128k -f segment -segment_time {segment_time} -reset_timestamps 1 -strftime 1 {output_path}/live_%s.mp4'
     # using h264 codec, resize to half, ultrafast compression, minimize delay by nobuffer, crf level 30 no b-frame
-    streaming_video_settings = f'-map 0:v -c:v libx264 -s {streaming_dimension} -r {streaming_framerate} -preset ultrafast -fflags nobuffer -tune zerolatency -crf {streaming_crf} -bf 0'
+    streaming_video_settings = f'-map 0:v -vf "fps={streaming_framerate}" -c:v libx264 -s {streaming_dimension} -preset ultrafast -fflags nobuffer -tune zerolatency -crf {streaming_crf} -bf 0'
     #  using aac codec, bitrate 64 kbytes/s, stream to localhost:8544 by rtsp protocol
     streaming_audio_settings = f'-map 1:a -c:a aac -b:a 64k -f rtsp -rtsp_transport tcp {rtsp_url}'
 
@@ -128,6 +129,10 @@ def audio_value_consumer(audio_values: Queue, stop_event: Event):
 def streaming(stop_event: Event = Event()) -> Event:
     audio_values = Queue()
 
+    if get_active_capture_process():
+        logger.warning('Process is already created and it\'s to fast to update system. just return for this command')
+        return stop_event
+
     capture_process = Process(target=start_capture, args=(audio_values, stop_event), daemon=True)
     consumer_process = Process(target=audio_value_consumer, args=(audio_values, stop_event), daemon=True)
 
@@ -141,3 +146,8 @@ def refresh_capture_board():
     video_device = get_value('capture', 'video_device')
     logger.info(f'Refresh Capture board in {video_device}')
     run_command_in_docker_host(f'mwcap-control --hdcp true {video_device}')
+
+    with get_strict_redis_connection() as redis_connection:
+        publish(redis_connection, RedisChannel.command, {'msg': 'capture_board_response',
+                                                         'level': 'info',
+                                                         'data':  {}})

@@ -1,57 +1,38 @@
-import { LogLevel } from '@global/constant'
+import { FreezeType, LogLevel } from '@global/constant'
+import { BootType, ResumeType } from '@page/AnalysisPage/api/entity'
 
 /**
- * 분석 설정
+ * 분석 결과 요약 데이터
  */
-export interface AnalysisConfig {
-  freeze?: {
-    color: string
-    duration: number // second
-  }
-  loudness?: {
-    color: string
-  }
-  resume?: {
-    color: string
-    type: 'image_matching' | 'screen_change_rate'
-    frame: {
-      image_path: string
-      roi: {
-        x: number
-        y: number
-        w: number
-        h: number
-      }
-    }
-  }
+export interface AnalysisResultSummary {
   boot?: {
-    color: string
-    type: 'image_matching'
-    frame: {
-      image_path: string
-      roi: {
-        x: number
-        y: number
-        w: number
-        h: number
-      }
-    }
-  }
-  channel_change_time?: {
-    color: string
-    targets: ('adjoint_channel' | 'nonadjoint_channel')[]
-  }
+    total: number
+    target: BootType
+    avg_time: number // 단위: ms
+  }[]
+  freeze?: {
+    total: number
+    target: keyof typeof FreezeType
+  }[]
+  // intelligent_monkey_test?: null
   log_level_finder?: {
-    color: string
-    targets: (keyof typeof LogLevel)[]
-  }
+    total: number
+    target: keyof typeof LogLevel
+  }[]
   log_pattern_matching?: {
+    total: number
+    log_pattern_name: string
     color: string
-    items: {
-      color: string
-      name: string
-      level: keyof typeof LogLevel
-      regular_expression: string
-    }[]
-  }
+  }[]
+  loudness?: [
+    {
+      lkfs: number
+    },
+  ]
+  resume?: {
+    total: number
+    target: ResumeType
+    avg_time: number // 단위: ms
+  }[]
+  // monkey_test?: null
 }

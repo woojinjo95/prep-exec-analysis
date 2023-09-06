@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
 import cx from 'classnames'
-import { Portal } from '..'
+import { createPortal } from 'react-dom'
 
 /**
  * 리스트와 상위컴포넌트 사이의 간격
@@ -79,28 +79,27 @@ const OptionList: React.ForwardRefExoticComponent<OptionListProps & React.RefAtt
 
       if (!isVisible) return null
 
-      return (
-        <Portal>
-          <ul
-            ref={ref}
-            className={cx(
-              'fixed border rounded-lg p-[3px] grid grid-cols-1 gap-y-1',
-              {
-                'bg-white': colorScheme === 'light',
-                'border-light-grey': colorScheme === 'light',
-                'bg-charcoal': colorScheme === 'charcoal',
-                'border-light-charcoal': colorScheme === 'charcoal',
-                'bg-light-black': colorScheme === 'dark',
-                'border-charcoal': colorScheme === 'dark',
-              },
-              props.className,
-            )}
-            style={createDefaultStyle(wrapperRef)}
-            {...props}
-          >
-            {children}
-          </ul>
-        </Portal>
+      return createPortal(
+        <ul
+          ref={ref}
+          className={cx(
+            'fixed border rounded-lg p-[3px] grid grid-cols-1 gap-y-1 z-20',
+            {
+              'bg-white': colorScheme === 'light',
+              'border-light-grey': colorScheme === 'light',
+              'bg-charcoal': colorScheme === 'charcoal',
+              'border-light-charcoal': colorScheme === 'charcoal',
+              'bg-light-black': colorScheme === 'dark',
+              'border-charcoal': colorScheme === 'dark',
+            },
+            props.className,
+          )}
+          style={createDefaultStyle(wrapperRef)}
+          {...props}
+        >
+          {children}
+        </ul>,
+        document.body,
       )
     },
   )

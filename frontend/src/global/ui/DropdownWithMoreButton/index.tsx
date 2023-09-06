@@ -35,7 +35,8 @@ const DropdownWithMoreButton: React.FC<DropdownWithMoreButtonProps> = ({
         <IconButton
           colorScheme={colorScheme}
           className="w-[50px] h-8"
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation()
             setIsButtonClicked((prev) => !prev)
           }}
           icon={<MoreIcon className="w-[20px] h-[20px] cursor-pointer" />}
@@ -44,7 +45,8 @@ const DropdownWithMoreButton: React.FC<DropdownWithMoreButtonProps> = ({
       {type === 'icon' && (
         <MoreIcon
           className={cx('dropdown-with-more-button-icon', colorScheme, 'w-[20px] h-[20px] cursor-pointer')}
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation()
             setIsButtonClicked((prev) => !prev)
           }}
         />

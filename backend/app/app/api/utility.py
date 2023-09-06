@@ -9,6 +9,19 @@ from app.core.config import settings
 from app.crud.base import (load_from_mongodb, load_paginate_from_mongodb,
                            aggregate_from_mongodb)
 
+analysis_collection = {
+    "log_level_finder": "stb_log",
+    "freeze": "an_freeze",
+    "resume": "an_warm_boot",
+    "boot": "an_cold_boot",
+    "log_pattern_matching": "an_log_pattern",
+    "loudness": "loudness",
+    "cpu": "stb_info",
+    "memory": "stb_info",
+    "event_log": "event_log",
+    "color_reference": "an_color_reference",
+}
+
 
 def convert_pageset(page_param, res):
     page = page_param['page']
@@ -38,7 +51,7 @@ def paginate_from_mongodb(col, page, page_size=None, param={}, sorting_keyword=N
     return convert_pageset(page_param, list(res.get('items', [])))
 
 
-def get_multi_or_paginate_by_res(col, page, page_size, sorting_keyword=None, is_descending=None, proj=None, param={}):
+def get_multi_or_paginate_by_res(col, page, page_size=10, sorting_keyword=None, is_descending=None, proj=None, param={}):
     if page:
         res_dict = paginate_from_mongodb(col=col,
                                          page=page,
@@ -107,7 +120,7 @@ def set_ilike(param):
     return {'$regex': item, '$options': 'i'}
 
 
-def paginate_from_mongodb_aggregation(col: str, pipeline: list, page: int, page_size: int = 10):
+def paginate_from_mongodb_aggregation(col: str, pipeline: list, sort_by: str, page: int, page_size: int = 10, sort_desc: bool = False):
     if page:
         skip_num = (page - 1) * page_size
         paging_pipeline = [{'$facet': {'page_info': [{'$count': 'total'}],
@@ -119,8 +132,43 @@ def paginate_from_mongodb_aggregation(col: str, pipeline: list, page: int, page_
                            {'$addFields': {'prev': {'$cond': [{'$eq': [page, 1]}, None, {'$subtract': [page, 1]}]},
                                            'next': {'$cond': [{'$gt': ['$pages', page]}, {'$add': [page, 1]}, None]}}}]
         pipeline.extend(paging_pipeline)
+    if sort_by is not None:
+        sorting_pipeline = [{'$sort': {sort_by: -1 if sort_desc else 1}}]
+        pipeline.extend(sorting_pipeline)
     result = aggregate_from_mongodb(col=col, pipeline=pipeline)
     if page:
         return result[0]
     else:
         return {'total': len(result), 'pages': None, 'prev': None, 'next': None, 'items': result}
+
+
+def deserialize_datetime(json_obj):
+    if isinstance(json_obj, dict):
+        for key, value in json_obj.items():
+            json_obj[key] = deserialize_datetime(value)
+    elif isinstance(json_obj, list):
+        for i in range(len(json_obj)):
+            json_obj[i] = deserialize_datetime(json_obj[i])
+    elif isinstance(json_obj, str):
+        try:
+            return datetime.fromisoformat(json_obj)
+        except (TypeError, ValueError):
+            pass
+    return json_obj
+
+
+def serialize_datetime(obj):
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
+
+
+def get_config_from_scenario_mongodb(scenario_id: str, testrun_id: str):
+    pipeline = [{"$match": {'id': scenario_id}},
+                {"$unwind": "$testruns"},
+                {"$project": {"testrun_id": "$testruns.id",
+                              "config": f"$testruns.analysis.config"}},
+                {"$match": {"testrun_id": testrun_id}},
+                {"$project": {"_id": 0, "config": 1}}]
+    res = aggregate_from_mongodb('scenario', pipeline)
+    return res[0] if len(res) > 0 else {}

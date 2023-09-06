@@ -113,4 +113,6 @@ export interface LogPatternMatching {
   log_pattern_name: string
   log_level: string
   message: string
+  color: string
+  regex: string
 }

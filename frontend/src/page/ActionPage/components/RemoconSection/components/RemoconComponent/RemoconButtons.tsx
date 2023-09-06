@@ -4,6 +4,8 @@ import cx from 'classnames'
 import { remoconService } from '@global/service/RemoconService/RemoconService'
 import { useWebsocket } from '@global/hook'
 import { useHardwareConfiguration } from '@global/api/hook'
+import { RemoconTransmitMessage } from '@global/hook/useWebsocket/types'
+import { RemoconTransmit } from '@global/service/RemoconService/type'
 import { Remocon } from '../../api/entity'
 
 interface RemoconButtonsProps {
@@ -17,7 +19,6 @@ const RemoconButtons: React.FC<RemoconButtonsProps> = ({
   remoconRef,
   remocon,
 }: RemoconButtonsProps): JSX.Element => {
-  const { sendMessage } = useWebsocket()
   const { hardwareConfiguration } = useHardwareConfiguration()
   const [isSquareVisible, setIsSquareVisible] = useState<boolean>(false)
   const [windowSize, setWindowSize] = useState<{ width: number; height: number }>({
@@ -57,7 +58,20 @@ const RemoconButtons: React.FC<RemoconButtonsProps> = ({
     }
   }, [])
 
+  const [clickedButtonMessage, setClickedButtonMessage] = useState<RemoconTransmitMessage | null>(null)
+
+  const { sendMessage } = useWebsocket({
+    onMessage: (message) => {
+      if (!clickedButtonMessage) return
+      if (message.msg === 'remocon_response' && message.level === 'info') {
+        remoconService.buttonClick(clickedButtonMessage as RemoconTransmit)
+        setClickedButtonMessage(null)
+      }
+    },
+  })
+
   if (!dimension || !remocon || !hardwareConfiguration) return <div />
+
   return (
     <div>
       {remocon.remocon_codes.map((code) => {
@@ -81,7 +95,7 @@ const RemoconButtons: React.FC<RemoconButtonsProps> = ({
                 leftTop.left * (dimension.buttonWidth / dimension.remoconImageWidth),
             }}
             onClick={() => {
-              const message = {
+              const message: RemoconTransmitMessage = {
                 msg: 'remocon_transmit',
                 data: {
                   key: code.code_name,
@@ -91,7 +105,7 @@ const RemoconButtons: React.FC<RemoconButtonsProps> = ({
                 },
               } as const
               sendMessage(message)
-              remoconService.buttonClick(message)
+              setClickedButtonMessage(message)
             }}
           />
         )

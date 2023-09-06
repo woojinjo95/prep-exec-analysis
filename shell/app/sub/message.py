@@ -5,12 +5,12 @@ import traceback
 def check_skip_message(message: any, shell_id: int):
     try:
         # 에코 메시지 체크
-        service = message['service']
+        service = message.get('service')
         if service == 'shell':
             print(f"check_skip_message service == {service}")
             return False
 
-        level = message['level']
+        level = message.get('level')
         # info가 아닌 모든 메시지 스킵
         if level != 'info':
             print(f"check_skip_message level: {level}")
@@ -18,24 +18,24 @@ def check_skip_message(message: any, shell_id: int):
             return False
 
         # msg가 shell이 아닌 모든 메시지 스킵
-        msg = message['msg']
-        if msg != 'shell':
+        msg = message.get('msg')
+        if not (msg == 'shell' or msg == 'config' or msg == 'workspace'):
             print(f"check_skip_message shell: {msg}")
             return False
 
-        data = message['data']
+        data = message.get('data')
         if data is None:
             print(f"check_skip_message data: {data}")
             return False
 
-        # 쉘 아이디 비교
-        id = data['shell_id']
-        if id is None:
-            print(f"check_skip_message id: {id}")
-            return False
-        if id != shell_id:
-            print(f"check_skip_message shell_id != {id}")
-            return False
+        # # 쉘 아이디 비교
+        # id = data.get('shell_id')
+        # if id is None:
+        #     print(f"check_skip_message id: {id}")
+        #     return False
+        # if id != shell_id:
+        #     print(f"check_skip_message shell_id != {id}")
+        #     return False
 
         return True
     except Exception as e:
