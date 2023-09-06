@@ -9,6 +9,7 @@ import { postScenario } from '@global/api/func'
 import { useNavigate } from 'react-router-dom'
 import { useRecoilState } from 'recoil'
 import { scenarioIdState, testRunIdState } from '@global/atom'
+import { useWebsocket } from '@global/hook'
 import ScenarioItem from './ScenarioItem'
 
 const FilesSection: React.FC = () => {
@@ -25,6 +26,8 @@ const FilesSection: React.FC = () => {
     }
   })
 
+  const { sendMessage } = useWebsocket()
+
   const scenarios = useMemo(() => {
     // InfiniteData type의 data를 flatMap으로 1 depth 배열로 평탄화 작업
     return data ? data.pages.flatMap(({ items }) => items) : []
@@ -39,6 +42,10 @@ const FilesSection: React.FC = () => {
       setScenarioId(res.id)
       setTestRunId(res.testrun_id)
 
+      sendMessage({
+        level: 'info',
+        msg: 'action_mode',
+      })
       navigate('/action')
     },
   })

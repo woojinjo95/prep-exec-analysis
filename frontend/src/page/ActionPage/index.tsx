@@ -36,6 +36,8 @@ const ActionPage: React.FC = () => {
       }
     }
 
+    
+
     window.addEventListener('keydown', keyDownHandler)
     window.addEventListener('keyup', keyUpHandler)
     return () => {

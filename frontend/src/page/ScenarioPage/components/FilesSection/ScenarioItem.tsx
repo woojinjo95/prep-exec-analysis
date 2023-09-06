@@ -8,6 +8,7 @@ import React from 'react'
 import { useMutation } from 'react-query'
 import { useNavigate } from 'react-router-dom'
 import { useRecoilState } from 'recoil'
+import { useWebsocket } from '@global/hook'
 import TestRunItem from './TestRunItem'
 
 interface ScenarioItemProps {
@@ -21,10 +22,17 @@ const ScenarioItem: React.FC<ScenarioItemProps> = ({ scenario }) => {
 
   const [, setTestRunId] = useRecoilState(testRunIdState)
 
+  const { sendMessage } = useWebsocket()
+
   const { mutate: postTestrunMutate } = useMutation(postTestrun, {
     onSuccess: (res) => {
       setScenarioId(scenario.id)
       setTestRunId(res.id)
+
+      sendMessage({
+        level: 'info',
+        msg: 'action_mode',
+      })
       navigate('/action')
     },
     onError: (err: AxiosError) => {
