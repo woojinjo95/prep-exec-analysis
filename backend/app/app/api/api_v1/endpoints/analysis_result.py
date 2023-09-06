@@ -490,18 +490,17 @@ def get_summary_data_of_measure_result(
                                       'scenario_id': scenario_id,
                                       'testrun_id': testrun_id}}]
 
-        active_analysis_list = RedisClient.scan_iter(match="analysis_config:*")
-        config = get_config_from_scenario_mongodb(scenario_id=scenario_id, testrun_id=testrun_id)
-        for active_analysis in itertools.chain(active_analysis_list, ['loudness']):
-            active_analysis = active_analysis.split(':')[-1]
-            color = ''
+        testrun_config = get_config_from_scenario_mongodb(scenario_id=scenario_id, testrun_id=testrun_id)
+        active_analysis_list = testrun_config.get('config', {})
+        for active_analysis, config in active_analysis_list.items():
+            if config is None:
+                continue
+            color = config.get('color', '')
             pipeline = []
             additional_pipeline = []
             if active_analysis == 'log_level_finder':
                 collection = 'stb_log'
-                log_level_finder_config = config.get(active_analysis, {})
-                log_level_list = log_level_finder_config.get('targets', [])
-                color = log_level_finder_config.get('color', '')
+                log_level_list = config.get('targets', [])
                 additional_pipeline = [{'$project': {'_id': 0, 'lines.log_level': 1}},
                                        {'$unwind': {'path': '$lines'}},
                                        {'$match': {'lines.log_level': {'$in': log_level_list}}},
@@ -521,8 +520,6 @@ def get_summary_data_of_measure_result(
                                        {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'boot':
                 collection = 'an_cold_boot'
-                # additional_pipeline = [{'$group': {'_id': None, 'total': {'$sum': 1}, 'avg_time': {'$avg': '$measure_time'}, "target":{'$first': '$user_config.type'}}},
-                #                        {'$project': {'_id': 0, 'results': [{'total': '$total', 'avg_time': '$avg_time', 'target': '$target'}]}}]
                 additional_pipeline = [{'$group': {'_id': '$user_config.type', 'total': {'$sum': 1},
                                                    'avg_time': {'$avg': '$measure_time'}, 'color': {'$first': '$user_config.color'}}},
                                        {'$group': {'_id': '$color', 'results': {'$push': {'target': '$_id', 'total': '$total', 'avg_time': '$avg_time'}}}},
@@ -542,14 +539,16 @@ def get_summary_data_of_measure_result(
                 continue
             elif active_analysis == 'network_filter':
                 continue
+            elif active_analysis == 'monkey_test':
+                continue
+            elif active_analysis == 'intelligent_monkey_test':
+                continue
             else:
                 collection = 'loudness'
-                loudness_config = config.get(collection, {})
-                color = loudness_config.get('color', '')
                 additional_pipeline = [{'$project': {'_id': 0, 'lines': 1}},
                                        {'$unwind': {'path': '$lines'}},
                                        {'$group': {'_id': None, 'lkfs': {'$avg': '$lines.I'}}},
-                                       {'$project': {'_id': 0, 'lkfs': 1, 'color': '#FF9900'}}] # TODO: color 색상코드 관리 필요
+                                       {'$project': {'_id': 0, 'lkfs': 1}}]
             pipeline = basic_pipeline + additional_pipeline
             aggregation = aggregate_from_mongodb(col=collection, pipeline=pipeline)
             if len(aggregation) == 0:
@@ -563,10 +562,10 @@ def get_summary_data_of_measure_result(
                               {'$project': {'_id': 0, 'testruns': 1}},
                               {'$unwind': {'path': '$testruns'}},
                               {'$match': {'testruns.id': testrun_id}},
-                              {'$project': {'last_timestamp': '$testruns.analysis.last_timestamp'}}]
-        last_timestamp = aggregate_from_mongodb(col='scenario', pipeline=timestamp_pipeline)
-        last_timestamp = last_timestamp[0] if len(last_timestamp) > 0 else None
-        result['last_timestamp'] = last_timestamp['last_timestamp'].strftime('%Y-%m-%dT%H:%M:%S.%fZ') if last_timestamp is not None else None
+                              {'$project': {'last_updated_timestamp': '$testruns.last_updated_timestamp'}}]
+        last_updated_timestamp = aggregate_from_mongodb(col='scenario', pipeline=timestamp_pipeline)
+        last_updated_timestamp = last_updated_timestamp[0] if len(last_updated_timestamp) > 0 else None
+        result['last_updated_timestamp'] = last_updated_timestamp['last_updated_timestamp'].strftime('%Y-%m-%dT%H:%M:%S.%fZ') if (last_updated_timestamp is not None) else None
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {"items": result}
