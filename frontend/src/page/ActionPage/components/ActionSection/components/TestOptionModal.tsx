@@ -85,6 +85,7 @@ const TestOptionModal: React.FC<TestOptionModalProps> = ({ isOpen, close }) => {
               msg: 'start_playblock',
               data: { scenario_id: scenarioId },
             })
+            // TODO: repeat 횟수 반영 작업이 필요함
 
             setPlayStartTime(new Date().getTime() / 1000)
             close()
