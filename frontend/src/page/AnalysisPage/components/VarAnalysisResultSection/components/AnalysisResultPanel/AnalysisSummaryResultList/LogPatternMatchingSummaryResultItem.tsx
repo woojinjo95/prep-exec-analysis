@@ -4,17 +4,19 @@ import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
 // import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
 import { numberWithCommas } from '@global/usecase'
+import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { AnalysisTypeLabel } from '../../../constant'
-import { AnalysisResultSummary } from '../../../api/entity'
 
 interface LogPatternMatchingSummaryResultItemProps {
-  results: NonNullable<AnalysisResultSummary['log_pattern_matching']>
+  logPatternMatching: NonNullable<AnalysisResultSummary['log_pattern_matching']>
 }
 
 /**
  * log pattern matching 분석 결과 아이템
  */
-const LogPatternMatchingSummaryResultItem: React.FC<LogPatternMatchingSummaryResultItemProps> = ({ results }) => {
+const LogPatternMatchingSummaryResultItem: React.FC<LogPatternMatchingSummaryResultItemProps> = ({
+  logPatternMatching,
+}) => {
   return (
     <Accordion
       header={
@@ -23,8 +25,7 @@ const LogPatternMatchingSummaryResultItem: React.FC<LogPatternMatchingSummaryRes
             <div
               className="w-4 h-4"
               style={{
-                // TODO:
-                backgroundColor: 'white',
+                backgroundColor: logPatternMatching.color,
               }}
             />
             <Text size="sm" weight="medium">
@@ -32,7 +33,9 @@ const LogPatternMatchingSummaryResultItem: React.FC<LogPatternMatchingSummaryRes
             </Text>
           </div>
 
-          <Text weight="medium">{numberWithCommas(results.reduce((acc, curr) => acc + curr.total, 0))} times</Text>
+          <Text weight="medium">
+            {numberWithCommas(logPatternMatching.results.reduce((acc, curr) => acc + curr.total, 0))} times
+          </Text>
         </div>
       }
     >
@@ -47,7 +50,7 @@ const LogPatternMatchingSummaryResultItem: React.FC<LogPatternMatchingSummaryRes
           </Text>
           <div />
 
-          {results.map(({ total, log_pattern_name, color }, index) => (
+          {logPatternMatching.results.map(({ total, log_pattern_name, color }, index) => (
             <React.Fragment key={`log-pattern-matching-summary-result-${index}`}>
               <div className="flex items-center gap-x-3">
                 <div
