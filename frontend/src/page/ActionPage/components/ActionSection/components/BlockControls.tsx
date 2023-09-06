@@ -200,6 +200,7 @@ const BlockControls: React.FC = () => {
           close={() => {
             setIsSaveBlocksModalOpen(false)
           }}
+          isPlay
         />
       )}
       {isOpenBlocksModalOpen && (

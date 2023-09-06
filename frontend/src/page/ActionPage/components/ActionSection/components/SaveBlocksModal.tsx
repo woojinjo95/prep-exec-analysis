@@ -13,14 +13,18 @@ import { useMutation, useQuery } from 'react-query'
 import { getTag, postCopyScenario, postTag, postTestrun } from '@global/api/func'
 import { useToast } from '@chakra-ui/react'
 import { AxiosError } from 'axios'
+import { useWebsocket } from '@global/hook'
+import { useNavigate } from 'react-router-dom'
 import { putScenario } from '../api/func'
 
 interface SaveBlocksModalProps {
   isOpen: boolean
   close: () => void
+  // 재생 여부
+  isPlay: boolean
 }
 
-const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
+const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isPlay }) => {
   const toast = useToast({ duration: 3000, isClosable: true })
 
   const firstFocusableElementRef = useRef<HTMLInputElement>(null)
@@ -39,6 +43,8 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
   } = useFetchScenarios(PAGE_SIZE_TWENTY)
 
   const scenarioId = useRecoilValue(scenarioIdState)
+
+  const { sendMessage } = useWebsocket()
 
   const { scenario: currentScenario, refetch: currentScenarioRefetch } = useScenarioById({
     scenarioId,
@@ -97,6 +103,8 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
 
   const [, setTestRunIdState] = useRecoilState(testRunIdState)
 
+  const navigate = useNavigate()
+
   const searchedTags = useMemo(() => {
     if (!tags || !currentScenario) return null
     // if (tagInput === '') return null
@@ -121,8 +129,29 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
   const { mutate: postTestrunMutate } = useMutation(postTestrun, {
     onSuccess: (res) => {
       close()
-      setIsTesetOptionModalOpen(true)
+
       setTestRunIdState(res.id)
+
+      // 재생하지 않고 넘어온 모달일 때
+      if (!isPlay) {
+        const date = new Date()
+        const startDate = new Date(date)
+        startDate.setMinutes(date.getMinutes() - 30)
+
+        sendMessage({
+          level: 'info',
+          msg: 'analysis_mode_init',
+          data: {
+            start_time: startDate.getTime() / 1000,
+            end_time: date.getTime() / 1000,
+          },
+        })
+        navigate('/analysis')
+
+        return
+      }
+
+      setIsTesetOptionModalOpen(true)
     },
     onError: (err: AxiosError) => {
       console.error(err)
@@ -143,10 +172,32 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
   })
 
   const { mutate: postCopyScenarioMutate } = useMutation(postCopyScenario, {
-    onSuccess: () => {
+    onSuccess: (res) => {
       currentScenarioRefetch()
       scenariosRefetch()
       close()
+
+      setTestRunIdState(res.testrun_id)
+
+      // 재생하지 않고 넘어온 모달일 때
+      if (!isPlay) {
+        const date = new Date()
+        const startDate = new Date(date)
+        startDate.setMinutes(date.getMinutes() - 30)
+
+        sendMessage({
+          level: 'info',
+          msg: 'analysis_mode_init',
+          data: {
+            start_time: startDate.getTime() / 1000,
+            end_time: date.getTime() / 1000,
+          },
+        })
+        navigate('/analysis')
+
+        return
+      }
+
       setIsTesetOptionModalOpen(true)
     },
     onError: (err: AxiosError) => {
@@ -349,6 +400,27 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
             ref={lastFocusableElementRef}
             onClick={() => {
               close()
+
+              // 재생 없이 넘어온 모달일 때
+              if (!isPlay) {
+                const date = new Date()
+                const startDate = new Date(date)
+                startDate.setMinutes(date.getMinutes() - 30)
+
+                sendMessage({
+                  level: 'info',
+                  msg: 'analysis_mode_init',
+                  data: {
+                    start_time: startDate.getTime() / 1000,
+                    end_time: date.getTime() / 1000,
+                  },
+                })
+                navigate('/analysis')
+
+                return
+              }
+
+              setIsTesetOptionModalOpen(true)
             }}
           >
             Cancel
