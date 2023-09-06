@@ -58,6 +58,7 @@ class IntelligentMonkeyTestRoku:
 
             status = self.check_end(node_info)
             if status == 'breadth_end':
+                self.head_to_next()
                 continue
             elif status == 'visit_end':
                 return
@@ -77,7 +78,6 @@ class IntelligentMonkeyTestRoku:
             if check_cursor_is_same(self.node_histories[-1].image, self.node_histories[-1].cursor, 
                                     node_info.image, node_info.cursor):
                 try:
-                    self.head_to_next()
                     logger.info(f'head to next done. {self.keyset}')
                     return 'breadth_end'
                 except IndexError as err:
