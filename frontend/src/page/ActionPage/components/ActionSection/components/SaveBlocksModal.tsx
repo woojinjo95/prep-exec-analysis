@@ -7,7 +7,7 @@ import { formatDateTo } from '@global/usecase'
 import Scrollbars from 'react-custom-scrollbars-2'
 import { useScenarioById } from '@global/api/hook'
 import { useRecoilState, useRecoilValue } from 'recoil'
-import { isTestOptionModalOpenState, scenarioIdState } from '@global/atom'
+import { isTestOptionModalOpenState, scenarioIdState, testRunIdState } from '@global/atom'
 import Tag from '@global/ui/Tag'
 import { useMutation, useQuery } from 'react-query'
 import { getTag, postCopyScenario, postTag, postTestrun } from '@global/api/func'
@@ -95,6 +95,8 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
     }
   }, [])
 
+  const [, setTestRunIdState] = useRecoilState(testRunIdState)
+
   const searchedTags = useMemo(() => {
     if (!tags || !currentScenario) return null
     // if (tagInput === '') return null
@@ -117,9 +119,10 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
     },
   })
   const { mutate: postTestrunMutate } = useMutation(postTestrun, {
-    onSuccess: () => {
+    onSuccess: (res) => {
       close()
       setIsTesetOptionModalOpen(true)
+      setTestRunIdState(res.id)
     },
     onError: (err: AxiosError) => {
       console.error(err)
