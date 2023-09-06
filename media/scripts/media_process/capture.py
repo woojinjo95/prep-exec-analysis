@@ -63,7 +63,7 @@ def construct_ffmpeg_cmd() -> str:
     # using aac codec, bitrate 128 kbytes/s, and dump it segment_time interval.
     dump_audio_settings = f'-map 1:a -c:a aac -b:a 128k -f segment -segment_time {segment_time} -reset_timestamps 1 -strftime 1 {output_path}/live_%s.mp4'
     # using h264 codec, resize to half, ultrafast compression, minimize delay by nobuffer, crf level 30 no b-frame
-    streaming_video_settings = f'-map 0:v -c:v libx264 -s {streaming_dimension} -r {streaming_framerate} -preset ultrafast -fflags nobuffer -tune zerolatency -crf {streaming_crf} -bf 0'
+    streaming_video_settings = f'-map 0:v -vf "fps={streaming_framerate}" -c:v libx264 -s {streaming_dimension} -preset ultrafast -fflags nobuffer -tune zerolatency -crf {streaming_crf} -bf 0'
     #  using aac codec, bitrate 64 kbytes/s, stream to localhost:8544 by rtsp protocol
     streaming_audio_settings = f'-map 1:a -c:a aac -b:a 64k -f rtsp -rtsp_transport tcp {rtsp_url}'
 
