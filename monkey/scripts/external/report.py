@@ -33,7 +33,7 @@ def report_section(start_time: float, end_time: float, analysis_type: str, secti
     if image is not None:
         image_name = get_utc_datetime(time.time()).strftime('%y-%m-%d %H:%M:%S')
         image_path = save_image(image_name, image)
-        insert_to_mongodb('file', {'id': str(uuid4()), "name": f'{image_name}.png', "path": image_path})
+        insert_to_mongodb('file', {'id': str(uuid4()), "name": os.path.basename(image_path), "path": image_path})
     else:
         image_path = ''
 
