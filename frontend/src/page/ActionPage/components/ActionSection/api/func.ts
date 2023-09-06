@@ -14,20 +14,6 @@ export const putScenario = async ({ new_scenario }: { new_scenario: Scenario }) 
   }
 }
 
-// post scenario
-// TODO: 추후 구현 필요
-
-// export const postScenario = async ({ newBlock }: { newBlock: Omit<Block, 'id'> }) => {
-//   try {
-//     const result = await API.post<{ msg: string; id: string }>(apiUrls.block, newBlock)
-
-//     return result.data
-//   } catch (err) {
-//     const er = err as AxiosError
-//     throw er
-//   }
-// }
-
 export const postBlock = async ({ newBlock, scenario_id }: { newBlock: Omit<Block, 'id'>; scenario_id: string }) => {
   try {
     const result = await API.post<{ msg: string; id: string }>(`${apiUrls.block}/${scenario_id}`, newBlock)
