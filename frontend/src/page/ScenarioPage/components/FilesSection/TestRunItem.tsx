@@ -52,7 +52,7 @@ const TestRunItem: React.FC<TestRunItemProps> = ({ scenario }) => {
                 {formatDateTo('M DD YYYY, HH:MM AA', new Date(testrun.updated_at))}
               </Text>
               <Text className="text-sm" colorScheme="grey">
-                {testrun.analysis_targets.join(',')}
+                {testrun.measure_targets.join(',')}
               </Text>
               <div />
             </div>
