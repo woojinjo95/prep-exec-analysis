@@ -33,7 +33,7 @@ class IntelligentMonkeyTestRoku:
 
         # init variables
         self.node_histories = []
-        self.key_histories = []
+        self.keyset = []
         self.section_id = 0
         self.main_stop_event = threading.Event()
 
@@ -51,7 +51,7 @@ class IntelligentMonkeyTestRoku:
     ##### Visit #####
     def visit(self):
         while not self.main_stop_event.is_set():
-            self.exec_keys(self.key_histories)
+            self.exec_keys(self.keyset)
             image = get_current_image()
             node_info = NodeInfo(image=image, cursor=self.get_cursor(image))
             node_info.cursor_image = self.get_cursor_image(node_info.image, node_info.cursor)
@@ -62,8 +62,9 @@ class IntelligentMonkeyTestRoku:
             elif status == 'visit_end':
                 return
 
+            self.exec_keys([self.depth_key])
             if self.check_leaf_node(node_info):
-                self.start_monkey(node_info, [*self.key_histories, self.depth_key])
+                self.start_monkey(node_info, [*self.keyset, self.depth_key])
                 self.append_key(self.breadth_key)
             else:
                 self.append_key(self.depth_key)
@@ -77,10 +78,10 @@ class IntelligentMonkeyTestRoku:
                                     node_info.image, node_info.cursor):
                 try:
                     self.head_to_next()
-                    logger.info(f'head to next done. {self.key_histories}')
+                    logger.info(f'head to next done. {self.keyset}')
                     return 'breadth_end'
                 except IndexError as err:
-                    logger.info(f'visit done. {self.key_histories}. {err}')
+                    logger.info(f'visit done. {self.keyset}. {err}')
                     return 'visit_end'
             else:
                 return ''
@@ -89,10 +90,6 @@ class IntelligentMonkeyTestRoku:
             return ''
 
     def check_leaf_node(self, node_info: NodeInfo) -> bool:
-        logger.info('check leaf node.')
-        self.exec_keys([self.depth_key])
-
-        # inner node
         leaf_node = False if self.check_leftmenu_is_opened(node_info.image, node_info.cursor, get_current_image(), self.get_cursor()) else True
         logger.info(f'leaf node: {leaf_node}')
         return leaf_node
@@ -105,9 +102,9 @@ class IntelligentMonkeyTestRoku:
 
     def set_root_keyset(self, keys: List[str] = [], find_root_cursor_max_try: int=3):
         for try_count in range(find_root_cursor_max_try):
-            self.key_histories = keys
-            logger.info(f'root keyset: {self.key_histories}')
-            self.exec_keys(self.key_histories)
+            self.keyset = keys
+            logger.info(f'root keyset: {self.keyset}')
+            self.exec_keys(self.keyset)
             self.root_cursor = self.get_cursor()
             logger.info(f'root cursor: {self.root_cursor}. try_count: {try_count}')
             if self.root_cursor:
@@ -128,8 +125,8 @@ class IntelligentMonkeyTestRoku:
             return True if is_height_similar and not is_cursor_same else False
 
     def append_key(self, key: str):
-        self.key_histories.append(key)
-        self.key_histories = optimize_path(self.key_histories)
+        self.keyset.append(key)
+        self.keyset = optimize_path(self.keyset)
 
     def get_cursor_image(self, image: np.ndarray=None, cursor: Tuple=None) -> np.ndarray:
         if image is None:
@@ -173,4 +170,4 @@ class IntelligentMonkeyTestRoku:
         exec_keys(keys, self.key_interval, self.profile, self.remocon_type)
 
     def head_to_next(self):
-        self.key_histories = head_to_parent_sibling(self.key_histories, self.depth_key, self.breadth_key)
+        self.keyset = head_to_parent_sibling(self.keyset, self.depth_key, self.breadth_key)
