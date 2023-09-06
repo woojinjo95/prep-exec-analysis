@@ -141,7 +141,7 @@ class MakeVideo:
                     f.write(f"file '{os.path.abspath(video)}'\n")
                 temp_filename = f.name
 
-            ffmpeg_command = f"ffmpeg -f concat -safe 0 -i {temp_filename} -c copy {self.output_video_path} -loglevel panic -hide_banner"
+            ffmpeg_command = f"ffmpeg -y -f concat -safe 0 -i {temp_filename} -c copy {self.output_video_path} -loglevel panic -hide_banner"
             logger.info(f'Concat ffmpeg command: {ffmpeg_command}')
             subprocess.call(ffmpeg_command, shell=True)
 
