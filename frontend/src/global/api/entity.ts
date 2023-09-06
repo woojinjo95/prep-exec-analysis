@@ -144,5 +144,20 @@ export interface VideoSummary {
 export interface TestRun {
   id: string
   updated_at: string
-  analysis_targets: string[]
+  measure_targets: string[]
+}
+
+/**
+ * 분석 설정 아이템 Frame
+ */
+export interface AnalysisFrame {
+  id: string
+  relative_time: number // second
+  path: string
+  roi: {
+    x: number
+    y: number
+    w: number
+    h: number
+  }
 }

@@ -1,8 +1,12 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import cx from 'classnames'
 import { useNavigate } from 'react-router-dom'
 import { AppURL } from '@global/constant'
 import { Text } from '@global/ui'
+import { useRecoilValue } from 'recoil'
+import { isBlockRecordModeState } from '@global/atom'
+import { useServiceState } from '@global/api/hook'
+import { useWebsocket } from '@global/hook'
 import HLSPlayer from './components/HLSPlayer'
 
 /**
@@ -12,9 +16,30 @@ const MonitorSection: React.FC = () => {
   const [isHovered, setIsHovered] = useState<boolean>(false)
   const navigate = useNavigate()
 
+  const isBlockRecordMode = useRecoilValue(isBlockRecordModeState)
+
+  const [isBorderVisible, setIsBorderVisible] = useState<boolean>(true)
+
+  const { serviceState } = useServiceState()
+
+  const { sendMessage } = useWebsocket()
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setIsBorderVisible((prev) => !prev)
+    }, 2000)
+
+    return () => {
+      clearInterval(timer)
+    }
+  }, [])
+
   return (
     <section
-      className="w-full h-full relative aspect-video grid justify-center items-center bg-black"
+      className={cx('w-full h-full relative aspect-video grid justify-center items-center bg-black', {
+        'border-red border-l-4 border-t-4 border-r-4': isBlockRecordMode && isBorderVisible,
+        'border-primary border-l-4 border-t-4 border-r-4': serviceState === 'playblock' && isBorderVisible,
+      })}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onLostPointerCapture={() => setIsHovered(false)}
@@ -29,6 +54,19 @@ const MonitorSection: React.FC = () => {
         )}
         type="button"
         onClick={() => {
+          // analysis_mode message 전송 후 이동
+          const date = new Date()
+          const startDate = new Date(date)
+          startDate.setMinutes(date.getMinutes() - 30)
+
+          sendMessage({
+            level: 'info',
+            msg: 'analysis_mode_init',
+            data: {
+              start_time: startDate.getTime() / 1000,
+              end_time: date.getTime() / 1000,
+            },
+          })
           navigate('/analysis')
         }}
       >

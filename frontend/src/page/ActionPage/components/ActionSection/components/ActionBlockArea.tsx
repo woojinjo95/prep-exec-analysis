@@ -377,8 +377,8 @@ const ActionBlockArea = (): JSX.Element => {
             type: commandTransmit.type,
             args: [
               {
-                key: '',
-                value: '',
+                key: 'command',
+                value: commandTransmit.data.command,
               },
             ],
             delay_time: 3000,

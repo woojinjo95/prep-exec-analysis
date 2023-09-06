@@ -240,3 +240,31 @@ export const postCopyScenario = async ({ copy_scenario }: { copy_scenario: postC
     throw er
   }
 }
+
+/**
+ * post scenario
+ */
+export const postScenario = async ({
+  is_active,
+  name,
+  tags,
+}: {
+  is_active: boolean
+  name?: string
+  tags?: string[]
+}) => {
+  try {
+    const result = await API.post<{ msg: string; id: string; testrun_id: string }>(`${apiUrls.scenario}`, {
+      params: {
+        is_active,
+        name,
+        tags,
+      },
+    })
+
+    return result.data
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}

@@ -265,13 +265,18 @@ def copy_scenario(
         os.makedirs(f'{path}/analysis')
 
         # 시나리오 복제
+        testruns = scenario.get('testruns', [])
+        testruns.append({'id': testrun_id,
+                         'is_active': True,
+                         'raw': {'videos': []},
+                         'analysis': {}})
         insert_one_to_mongodb(col='scenario', data={'id': scenario_id,
                                                     'updated_at': get_utc_datetime(time.time()),
                                                     'is_active': True,
                                                     'name': scenario_in.name,
                                                     'tags': scenario_in.tags,
                                                     'block_group': block_group_data,
-                                                    'testruns': scenario.get('testruns', [])})
+                                                    'testruns': testruns})
 
         # 워크스페이스 변경
         RedisClient.hset('testrun', 'id', testrun_id)

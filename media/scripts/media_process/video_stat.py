@@ -51,7 +51,7 @@ def process_video_info(file_info: dict) -> dict:
 
 
 @handle_errors
-def summarize_merged_video_info(requested_start_time: float, output_json_path: str, json_name_list: List[str]) -> Dict:
+def summarize_merged_video_info(requested_start_time: float, requested_end_time: float, output_json_path: str, json_name_list: List[str]) -> Dict:
     video_infos = []
     for json_file in json_name_list:
         with open(json_file, 'r') as f:
@@ -102,9 +102,16 @@ def summarize_merged_video_info(requested_start_time: float, output_json_path: s
 
     # 비디오 평가
     first_video_time = info['timestamps'][0]
+    last_video_time = info['timestamps'][-1]
     if requested_start_time < first_video_time:
         diff = first_video_time - requested_start_time
         log = f'Video is not exist before {first_video_time}, first {diff:.3f} seconds is missed.'
+        logger.warning(log)
+        info['logs'].append(('warning', log))
+
+    if last_video_time < requested_end_time:
+        diff = requested_end_time - last_video_time
+        log = f'Video is not exist after {last_video_time}, last {diff:.3f} seconds is missed.'
         logger.warning(log)
         info['logs'].append(('warning', log))
 

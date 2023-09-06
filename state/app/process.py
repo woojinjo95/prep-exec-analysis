@@ -3,9 +3,10 @@ import json
 import logging
 import time
 import traceback
+from datetime import datetime
 from enum import Enum
 
-from db import CHANNEL_NAME, get_redis_pool
+from db import CHANNEL_NAME, get_collection, get_redis_pool
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +16,43 @@ class ServiceStateEnum(Enum):
     streaming = "streaming"
     playblock = "playblock"
     analysis = "analysis"
+    recording = "recording"
+
+
+async def update_log_level_finder_to_scenario(scenario_id: str, testrun_id: str, measure_target_dict: dict):
+    try:
+        mongo_client = get_collection('scenario')
+        doc = mongo_client.find_one({'id': scenario_id})
+        testruns = doc.get('testruns', [])
+        index = next((i for i, item in enumerate(testruns) if item.get('id') == testrun_id), None)
+
+        # Fetch the existing 'measure_targets' list from MongoDB
+        testrun = testruns[index]
+        existing_measure_targets = testrun.get('measure_targets', [])
+        # Check if an item with the same type exists
+        for i, target in enumerate(existing_measure_targets):
+            if target.get('type') == measure_target_dict['type']:
+                # Update the item if it exists
+                update_query = {f'testruns.{index}.measure_targets.{i}': measure_target_dict}
+                mongo_client.update_one({'id': scenario_id}, {'$set': update_query})
+                break
+        # If not found, append the new element
+        else:
+            update_query = {f'testruns.{index}.measure_targets': measure_target_dict}
+            mongo_client.update_one({'id': scenario_id}, {'$push': update_query})
+
+        update_query = {
+            f'testruns.{index}.last_updated_timestamp': measure_target_dict['timestamp']
+        }
+        res = mongo_client.update_one({'id': scenario_id}, {'$set': update_query})
+
+        acknowledged = res.acknowledged
+        upserted_id = res.upserted_id  # This will be None if no document was inserted
+
+        return acknowledged, upserted_id
+
+    except Exception as e:
+        return False, str(e)
 
 
 def set_message(msg: str, data: dict = {}, level: str = 'info'):
@@ -57,7 +95,30 @@ async def consumer_handler(conn: any, CHANNEL_NAME: str):
                     # 상태 변경 및 메세지 전송
                     await set_service_state_and_pub(conn, ServiceStateEnum.playblock)
 
-                # 분석 페이지에 진입했을때 -> 분석
+                # 레코딩이 끝났을 때
+                if msg == 'recording_response' and data.get('data', {}).get('video_info', {}).get('error', None) is None:
+                    print('----> recording_response')
+                    # 컬러레퍼런스 분석 메세지 전송
+                    await pub_msg(conn, msg="analysis", data={"measurement": ["color_reference"]})
+
+                # 액션 페이지에서 분석 페이지에 진입했을때 -> recording
+                if msg == 'analysis_mode_init':
+                    print('----> analysis_mode_init')
+                    # 로그수집 중단 메세지 전송
+                    await pub_msg(conn, msg="stb_log", data={"control": "stop"})
+
+                    # 스트리밍 중단 메세지 전송
+                    await pub_msg(conn, msg="streaming", data={"action": "stop"})
+
+                    # 레코딩 시작 메세지 전송
+                    msg_data = data.get('data', {})
+                    await pub_msg(conn, msg="recording", data={"start_time": msg_data.get('start_time', 0),
+                                                               "end_time":  msg_data.get('end_time', 0)})
+
+                    # 상태 변경 및 메세지 전송
+                    await set_service_state_and_pub(conn, ServiceStateEnum.recording)
+
+                # 메인 페이지에서 분석 페이지에 진입했을때 -> 대기
                 if msg == 'analysis_mode':
                     print('----> analysis_mode')
                     # 로그수집 중단 메세지 전송
@@ -65,9 +126,6 @@ async def consumer_handler(conn: any, CHANNEL_NAME: str):
 
                     # 스트리밍 중단 메세지 전송
                     await pub_msg(conn, msg="streaming", data={"action": "stop"})
-
-                    # 컬러레퍼런스 분석 메세지 전송
-                    await pub_msg(conn, msg="analysis", data={"measurement": ["color_reference"]})
 
                     # 상태 변경 및 메세지 전송
                     await set_service_state_and_pub(conn, ServiceStateEnum.idle)
@@ -112,6 +170,13 @@ async def consumer_handler(conn: any, CHANNEL_NAME: str):
                         target_measurement = msg_data.get('measurement', [''])
                         msg_data['measurement'] = target_measurement[0]
                         await pub_msg(conn, msg="analysis_response", data=msg_data)
+
+                        if 'log_level_finder' in measurement:
+                            testrun_id = await conn.hget("testrun", "id")
+                            scenario_id = await conn.hget("testrun", "scenario_id")
+                            await update_log_level_finder_to_scenario(scenario_id, testrun_id,
+                                                                      {'type': 'log_level_finder',
+                                                                       'timestamp': datetime.utcfromtimestamp(time.time())})
 
                         # 상태 변경 및 메세지 전송
                         await set_service_state_and_pub(conn, ServiceStateEnum.idle)

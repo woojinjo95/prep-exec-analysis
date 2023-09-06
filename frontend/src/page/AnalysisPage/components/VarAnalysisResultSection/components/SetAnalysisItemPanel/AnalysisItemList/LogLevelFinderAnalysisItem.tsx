@@ -8,7 +8,8 @@ import { UnsavedAnalysisConfig } from '../../../types'
 interface LogLevelFinderAnalysisItemProps {
   color: NonNullable<UnsavedAnalysisConfig['log_level_finder']>['color']
   targets: NonNullable<UnsavedAnalysisConfig['log_level_finder']>['targets']
-  onClickDeleteItem: () => void
+  warningMessage?: string
+  onClickDeleteItem: React.MouseEventHandler<SVGSVGElement>
   setUnsavedAnalysisConfig: React.Dispatch<React.SetStateAction<UnsavedAnalysisConfig>>
 }
 
@@ -18,11 +19,13 @@ interface LogLevelFinderAnalysisItemProps {
 const LogLevelFinderAnalysisItem: React.FC<LogLevelFinderAnalysisItemProps> = ({
   color,
   targets,
+  warningMessage,
   onClickDeleteItem,
   setUnsavedAnalysisConfig,
 }) => {
   return (
     <Accordion
+      warningMessage={warningMessage}
       header={
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-x-3">
@@ -76,6 +79,12 @@ const LogLevelFinderAnalysisItem: React.FC<LogLevelFinderAnalysisItemProps> = ({
           })}
         </div>
       </div>
+
+      {!!warningMessage && (
+        <div className="pt-2">
+          <Text colorScheme="orange">{warningMessage}</Text>
+        </div>
+      )}
     </Accordion>
   )
 }
