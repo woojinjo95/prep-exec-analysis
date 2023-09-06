@@ -44,6 +44,7 @@ const useObservableState: ObservableState = <T, K>({
 
   useEffect(() => {
     callback?.(state)
+    setState(undefined)
   }, [state])
 
   return state
