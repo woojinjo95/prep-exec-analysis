@@ -423,7 +423,9 @@ def get_data_of_monkey_test(
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
-    page: Optional[int] = None
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
 ):
     """
     몽키 테스트 데이터 조회
@@ -436,15 +438,20 @@ def get_data_of_monkey_test(
         monkey_section_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
                                                              '$lte': convert_iso_format(end_time)},
                                                'scenario_id': scenario_id,
-                                               'testrun_id': testrun_id}}, 
+                                               'testrun_id': testrun_id,
+                                               'analysis_type': 'monkey'}}, 
                                    {'$project': {'_id': 0, 'timestamp': 1,
-                                                 'start_timestamp': {"$dateToString": {"format": "%Y-%m-%dT%H:%M:%S.%LZ", "date": "$start_timestamp"}},
-                                                 'end_timestamp': {"$dateToString": {"format": "%Y-%m-%dT%H:%M:%S.%LZ", "date": "$end_timestamp"}},
+                                                 'start_timestamp': {"$dateToString": {
+                                                     "format": "%Y-%m-%dT%H:%M:%S.%LZ", "date": "$start_timestamp"}},
+                                                 'end_timestamp': {"$dateToString": {
+                                                     "format": "%Y-%m-%dT%H:%M:%S.%LZ", "date": "$end_timestamp"}},
                                                  'section_id': 1, 'smart_sense_times': 1}}]
         monkey_section = paginate_from_mongodb_aggregation(col='monkey_section',
                                                            pipeline=monkey_section_pipeline,
                                                            page=page,
-                                                           page_size=page_size)
+                                                           page_size=page_size,
+                                                           sort_by=sort_by,
+                                                           sort_desc=sort_desc)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return monkey_section
