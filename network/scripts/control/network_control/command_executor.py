@@ -66,15 +66,15 @@ def traffic_change(nic: str, bandwidth: float = None, delay: any = None,
         result['delay'] = delay
 
     if loss is not None and check_percent(loss):
-        class2_args.append(f'loss {loss}')
+        class2_args.append(f'loss {loss}%')
         result['loss'] = loss
 
     if corrupt is not None and check_percent(corrupt):
-        class2_args.append(f'corrupt {corrupt}')
+        class2_args.append(f'corrupt {corrupt}%')
         result['corrupt'] = corrupt
 
     if duplicate is not None and check_percent(duplicate):
-        class2_args.append(f'loss {duplicate}')
+        class2_args.append(f'loss {duplicate}%')
         result['duplicate'] = duplicate
 
     if len(class2_args) > 0:
