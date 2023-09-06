@@ -191,16 +191,22 @@ export const useVideoSummary = ({
 } = {}) => {
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
+  const { serviceState } = useServiceState()
   const { data, isLoading, refetch } = useQuery(
-    ['video_summary', { scenarioId, testRunId }],
-    () =>
-      getVideoSummary({
-        scenario_id: scenarioId!,
-        testrun_id: testRunId!,
-      }),
+    ['video_summary', { scenarioId, testRunId, serviceState }],
+    () => {
+      // TODO: 아래 코드 없애기
+      if (!serviceState || serviceState === 'recording' || serviceState === 'playblock' || !scenarioId || !testRunId)
+        return undefined
+      return getVideoSummary({
+        scenario_id: scenarioId,
+        testrun_id: testRunId,
+      })
+    },
     {
       onSuccess,
-      enabled: !!scenarioId && !!testRunId,
+      enabled:
+        !!scenarioId && !!testRunId && !!serviceState && serviceState !== 'recording' && serviceState !== 'playblock',
     },
   )
 

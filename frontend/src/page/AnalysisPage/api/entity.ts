@@ -1,5 +1,5 @@
 import { AnalysisFrame } from '@global/api/entity'
-import { LogLevel } from '@global/constant'
+import { FreezeType, LogLevel } from '@global/constant'
 
 export type ResumeType = 'image_matching' | 'screen_change_rate'
 export type BootType = 'image_matching'
@@ -42,4 +42,55 @@ export interface AnalysisConfig {
       regular_expression: string
     }[]
   }
+}
+
+/**
+ * 분석 결과 요약 데이터
+ */
+export interface AnalysisResultSummary {
+  boot?: {
+    color: string
+    results: {
+      total: number
+      target: BootType
+      avg_time: number // 단위: ms
+    }[]
+  }
+  freeze?: {
+    color: string
+    results: {
+      total: number
+      error_type: keyof typeof FreezeType
+    }[]
+  }
+  // intelligent_monkey_test?: null
+  last_updated_timestamp: string
+  log_level_finder?: {
+    color: string
+    results: {
+      total: number
+      target: keyof typeof LogLevel
+    }[]
+  }
+  log_pattern_matching?: {
+    color: string
+    results: {
+      total: number
+      log_pattern_name: string
+      color: string
+    }[]
+  }
+  loudness?: {
+    color: string
+    lkfs: number
+  }
+  resume?: {
+    color: string
+    results: {
+      total: number
+      target: ResumeType
+      avg_time: number // 단위: ms
+    }[]
+  }
+  // monkey_test?: null
 }

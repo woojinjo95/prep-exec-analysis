@@ -15,7 +15,7 @@ import ResumeAnalysisItem from './ResumeAnalysisItem'
 // import ChannelChangeTimeAnalysisItem from './ChannelChangeTimeAnalysisItem'
 import LogLevelFinderAnalysisItem from './LogLevelFinderAnalysisItem'
 import LogPatternMatchingAnalysisItem from './LogPatternMatchingAnalysisItem'
-// import LoudnessAnalysisItem from './LoudnessAnalysisItem'
+import LoudnessAnalysisItem from './LoudnessAnalysisItem'
 
 const DefaultAnalysisConfig: Required<UnsavedAnalysisConfig> = {
   freeze: {
@@ -239,13 +239,13 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
         />
       )}
 
-      {/* {selectedAnalysisItems.includes('loudness') && unsavedAnalysisConfig.loudness && (
+      {selectedAnalysisItems.includes('loudness') && unsavedAnalysisConfig.loudness && (
         <LoudnessAnalysisItem
           color={unsavedAnalysisConfig.loudness.color}
           onClickDeleteItem={onClickDeleteItem('loudness')}
           setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
         />
-      )} */}
+      )}
 
       {selectedAnalysisItems.includes('resume') && unsavedAnalysisConfig.resume && (
         <ResumeAnalysisItem

@@ -6,6 +6,7 @@ import { BootType, ResumeType } from '@page/AnalysisPage/api/entity'
  */
 export const ConfigurableAnalysisTypes: (keyof typeof AnalysisType)[] = [
   'freeze',
+  'loudness',
   'resume',
   'boot',
   'log_level_finder',

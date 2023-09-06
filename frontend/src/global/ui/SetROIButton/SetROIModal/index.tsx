@@ -50,10 +50,11 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose, onSave, defa
           path: message.data.path,
           relative_time: videoRef.current.currentTime,
           roi: {
-            x: cropTwoPosX[0],
-            y: cropTwoPosY[0],
-            w: Math.abs(cropTwoPosX[1] - cropTwoPosX[0]),
-            h: Math.abs(cropTwoPosY[1] - cropTwoPosY[0]),
+            // FIXME: 이미지 비율에 따라 변경
+            x: cropTwoPosX[0] * 3,
+            y: cropTwoPosY[0] * 3,
+            w: Math.abs(cropTwoPosX[1] - cropTwoPosX[0]) * 3,
+            h: Math.abs(cropTwoPosY[1] - cropTwoPosY[0]) * 3,
           },
         })
         onClose()
@@ -93,8 +94,9 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose, onSave, defa
             setVideoClientWidth(ref.clientWidth)
             setVideoClientHeight(ref.clientHeight)
             if (defaultROI) {
-              setCropTwoPosX([defaultROI.x, defaultROI.x + defaultROI.w])
-              setCropTwoPosY([defaultROI.y, defaultROI.y + defaultROI.h])
+              // FIXME: 이미지 비율에 따라 변경
+              setCropTwoPosX([defaultROI.x / 3, (defaultROI.x + defaultROI.w) / 3])
+              setCropTwoPosY([defaultROI.y / 3, (defaultROI.y + defaultROI.h) / 3])
             } else {
               setCropTwoPosX([0, ref.clientWidth / 2])
               setCropTwoPosY([0, ref.clientHeight / 2])

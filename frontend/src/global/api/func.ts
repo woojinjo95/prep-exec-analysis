@@ -209,7 +209,7 @@ export const postTestrun = async (scenaroId: string) => {
 /**
  * 테스트런 조회
  */
-export const getTestrun = async (params: { scenaroId: string }) => {
+export const getTestrun = async (params: { scenario_id: string }) => {
   try {
     const result = await API.get<Response<TestRun[]>>(`${apiUrls.testrun}`, {
       params,
@@ -234,7 +234,12 @@ interface postCopyScenarioParams {
  */
 export const postCopyScenario = async ({ copy_scenario }: { copy_scenario: postCopyScenarioParams }) => {
   try {
-    await API.post<{ msg: string; id: string }>(`${apiUrls.copy_scenario}`, copy_scenario)
+    const result = await API.post<{ msg: string; id: string; testrun_id: string }>(
+      `${apiUrls.copy_scenario}`,
+      copy_scenario,
+    )
+
+    return result.data
   } catch (err) {
     const er = err as AxiosError
     throw er
