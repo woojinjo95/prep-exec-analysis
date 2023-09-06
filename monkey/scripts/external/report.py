@@ -1,14 +1,15 @@
-from typing import Dict
-import time
 import logging
+import time
+from typing import Dict
+from uuid import uuid4
+import os
 
 import numpy as np
-
-from scripts.util._timezone import get_utc_datetime
 from scripts.connection.mongo_db.crud import insert_to_mongodb
-from scripts.external.scenario import get_scenario_info
 from scripts.external.image import save_image
 from scripts.external.redis import get_monkey_test_arguments
+from scripts.external.scenario import get_scenario_info
+from scripts.util._timezone import get_utc_datetime
 
 logger = logging.getLogger('main')
 
@@ -30,10 +31,12 @@ def report_data(col_name: str, data: Dict):
 
 def report_section(start_time: float, end_time: float, analysis_type: str, section_id: int, image: np.ndarray, smart_sense_times: int):
     if image is not None:
-        image_path = save_image(get_utc_datetime(time.time()).strftime('%y-%m-%d %H:%M:%S'), image)
+        image_name = get_utc_datetime(time.time()).strftime('%y-%m-%d %H:%M:%S')
+        image_path = save_image(image_name, image)
+        insert_to_mongodb('file', {'id': str(uuid4()), "name": os.path.basename(image_path), "path": image_path})
     else:
         image_path = ''
-        
+
     report_data('monkey_section', {
         'start_timestamp': get_utc_datetime(start_time),
         'end_timestamp': get_utc_datetime(end_time),
