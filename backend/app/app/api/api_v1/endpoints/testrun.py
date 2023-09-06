@@ -109,8 +109,8 @@ def read_testruns(
                     {"$unwind": "$testruns"},
                     {"$project": {"testrun_id": "$testruns.id",
                                   "is_active": "$testruns.is_active",
-                                  "last_timestamp": "$testruns.analysis.last_timestamp",
-                                  "targets": "$testruns.analysis.targets.type"}},
+                                  "last_timestamp": "$testruns.last_updated_timestamp",
+                                  "targets": "$testruns.measure_targets.type"}},
                     {'$match': {"is_active": True}},
                     {"$group": {"_id": {
                                 "testrun_id": "$testrun_id",
@@ -119,13 +119,13 @@ def read_testruns(
                     {"$project": {"_id": 0,
                                   "id": "$_id.testrun_id",
                                   "updated_at": "$_id.last_timestamp",
-                                  "analysis_targets": "$_id.targets"}},
+                                  "measure_targets": "$_id.targets"}},
                     {'$sort': {'updated_at': -1}}]
         res = aggregate_from_mongodb('scenario', pipeline)
 
         items = []
         for x in res:
-            x['analysis_targets'] = sorted(set(x.get('analysis_targets', [])))
+            x['measure_targets'] = sorted(set(x.get('measure_targets', [])))
             items.append(x)
     except Exception as e:
         logger.error(traceback.format_exc())
