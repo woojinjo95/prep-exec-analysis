@@ -7,16 +7,21 @@ from sub.state import is_run_state, set_stop_state, set_run_item, is_analysis_st
 
 
 def calc_scenario_to_run_blocks(total_loop: int, scenario: dict):
+    print(f"calc_scenario_to_run_blocks:")
     idx = 0
     blocks = []
     # 수행해야 하는 블럭을 반복조건에 맞춰서 배열로 만드는 단계
     for loop_cnt in range(total_loop):  # 시나리오 전체 루프
-        print(f"name: {scenario['name']} loop_cnt: {loop_cnt}")
+        print(f"name: {scenario['name']} loop_cnt: {loop_cnt}, block_group: {scenario['block_group']}")
         for block_group in scenario['block_group']:  # 개별 블록그룹 루프
-            for block_loop_cnt in range(block_group['repeat_cnt']):
+            print(f"block_group-id: {block_group['id']}, block_group-repeat_cnt: {block_group['repeat_cnt']}")
+            # print(f"block_group-repeat_cnt: {block_group['block']}")
+            block_group_cnt = block_group['repeat_cnt'] if block_group['repeat_cnt'] > 0 else 1
+
+            for block_loop_idx in range(block_group_cnt):
                 for block_item in block_group['block']:  # 그룹내 아이템 루프
+                    print(f"block: {idx} / {block_item['name']} block_loop_cnt: {block_loop_idx}")
                     _block_item = copy.deepcopy(block_item)
-                    print(f"block: {idx} / {_block_item['name']} block_loop_cnt: {block_loop_cnt}")
                     _block_item['run'] = False
                     _block_item['idx'] = idx
                     idx = idx + 1
@@ -59,18 +64,19 @@ async def run_blocks(conn, db_blocks, scenario_id, testrun_id, blocks: list, eve
             # 다음 수행될 블럭 정보 송신
             await conn.publish(CHANNEL_NAME, publish_message(message="next_playblock", data={"block_id": block['id']}))
             await set_run_item(conn, block_id=block['id'])
-
+            message = cvt_block_to_message(block)
+            print(f"run block: {message}")
             # 수행 메시지 송신
-            await conn.publish(CHANNEL_NAME, cvt_block_to_message(block))
+            await conn.publish(CHANNEL_NAME, message)
 
             print("wait... message response")
             # 블럭 타입이 분석이면 이벤트 대기
 
-            await asyncio.wait_for(event.wait(), 60)
+            # await asyncio.wait_for(event.wait(), 60)
             event.clear()
             # # 다른 파트는 시간대기
-            # delay_time = block['delay_time']
-            # await asyncio.sleep(delay_time / 1000)
+            delay_time = block['delay_time']
+            await asyncio.sleep(delay_time / 1000)
 
             # 완료 처리
             db_blocks.update_one(

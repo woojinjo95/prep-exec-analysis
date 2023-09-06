@@ -15,13 +15,20 @@ async def process_log_queue(queue: asyncio.Queue, conn: any, CHANNEL_NAME: str, 
         timestamp = datetime.fromtimestamp(data['timestamp'])
         # data['timestamp'] = timestamp
         _sec = timestamp.second
-        data['scenario_id'] = testinfo['scenario_id']
-        data['testrun_id'] = testinfo['testrun_id']
-        
+        # data['scenario_id'] = testinfo['scenario_id']
+        # data['testrun_id'] = testinfo['testrun_id']
+
         if sec != _sec and len(buffer) > 0:
             # 저장
             ret = collection.insert_one(
-                {'timestamp': timestamp, "shell_id": shell_id, 'mode': mode, 'lines': buffer})
+                {
+                    'timestamp': timestamp,
+                    # "shell_id": shell_id,
+                    'mode': mode,
+                    'lines': buffer,
+                    'scenario_id': testinfo['scenario_id'],
+                    'testrun_id': testinfo['testrun_id']
+                })
             print(f"insert_to_mongodb: {sec} != {_sec} / {len(buffer)}: {ret.inserted_id}")
             buffer = []
             sec = _sec
@@ -30,12 +37,14 @@ async def process_log_queue(queue: asyncio.Queue, conn: any, CHANNEL_NAME: str, 
             "msg": "shell",
             "level": "debug",
             "data": {
-                "shell_id": shell_id,
+                # "shell_id": shell_id,
                 "mode": mode,
                 "data": data
             },
             "service": "shell",
             "timestamp": data['timestamp']
         }))
+        # data.pop('scenario_id')
+        # data.pop('testrun_id')
         buffer.append(data)
         queue.task_done()
