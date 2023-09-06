@@ -58,8 +58,8 @@ def command_parser(command: dict, streaming_stop_event: Event):
             else:
                 streaming_stop_event.set()
                 log = 'Stop streaming service'
-                time.sleep(2)
-                kill_active_capture_process()
+                # kill_active_capture_process(signal=2)
+                # time.sleep(10)
 
         elif action == 'restart':
             log = 'Restart streaming service'
