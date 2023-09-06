@@ -203,7 +203,10 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
         setWarningMessage(({ ...prev }) => ({ ...prev, resume: undefined }))
       }
 
-      if (isValid) return
+      if (isValid) {
+        AnalysisService.startAnalysis({ msg: 'not_validate_analysis' })
+        return
+      }
 
       updateAnalysisConfig({
         ...(unsavedAnalysisConfig as AnalysisConfig),
