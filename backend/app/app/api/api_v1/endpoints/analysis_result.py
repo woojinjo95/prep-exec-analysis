@@ -1,11 +1,12 @@
-import itertools
 import logging
 import traceback
 from typing import Optional
 
 from app import schemas
-from app.api.utility import (convert_iso_format, parse_bytes_to_value,
-                             paginate_from_mongodb_aggregation, get_config_from_scenario_mongodb)
+from app.api.utility import (analysis_collection, convert_iso_format,
+                             get_config_from_scenario_mongodb,
+                             paginate_from_mongodb_aggregation,
+                             parse_bytes_to_value)
 from app.crud.base import aggregate_from_mongodb, load_from_mongodb
 from app.db.redis_session import RedisClient
 from fastapi import APIRouter, HTTPException, Query
@@ -48,7 +49,7 @@ def get_data_of_log_level_finder(
                                      {'$replaceRoot': {'newRoot': '$lines'}},
                                      {'$match': {'log_level': {'$in': log_level}}}]
 
-        log_level_finder = paginate_from_mongodb_aggregation(col='stb_log',
+        log_level_finder = paginate_from_mongodb_aggregation(col=analysis_collection['log_level_finder'],
                                                              pipeline=log_level_finder_pipeline,
                                                              page=page,
                                                              page_size=page_size,
@@ -87,7 +88,7 @@ def get_data_of_cpu(
                         {'$project': {'_id': 0, 'timestamp': 1, 'cpu_usage': 1, 'total': 1,
                                       'user': 1, 'kernel': 1, 'iowait': 1, 'irq': 1, 'softirq': 1}}]
 
-        cpu = paginate_from_mongodb_aggregation(col='stb_info',
+        cpu = paginate_from_mongodb_aggregation(col=analysis_collection['cpu'],
                                                 pipeline=cpu_pipeline,
                                                 page=page,
                                                 page_size=page_size,
@@ -126,7 +127,7 @@ def get_data_of_memory(
                            {'$project': {'_id': 0, 'timestamp': 1, 'memory_usage': 1,
                                          'total_ram': 1, 'free_ram': 1, 'used_ram': 1, 'lost_ram': 1}}]
 
-        memory = paginate_from_mongodb_aggregation(col='stb_info',
+        memory = paginate_from_mongodb_aggregation(col=analysis_collection['memory'],
                                                    pipeline=memory_pipeline,
                                                    page=page,
                                                    page_size=page_size,
@@ -168,7 +169,7 @@ def get_data_of_event_log(
                                   '$in': ['remocon_response', 'on_off_control_response', 'network_emulation_response', 'shell', 'config']}}},
                               {'$replaceRoot': {'newRoot': '$lines'}}]
 
-        event_log = paginate_from_mongodb_aggregation(col='event_log',
+        event_log = paginate_from_mongodb_aggregation(col=analysis_collection['event_log'],
                                                       pipeline=event_log_pipeline,
                                                       page=page,
                                                       page_size=page_size,
@@ -206,7 +207,7 @@ def get_data_of_color_reference(
                                                 'testrun_id': testrun_id}},
                                     {'$project': {'_id': 0, 'timestamp': 1, 'color_reference': 1}}]
 
-        color_reference = paginate_from_mongodb_aggregation(col='an_color_reference',
+        color_reference = paginate_from_mongodb_aggregation(col=analysis_collection['color_reference'],
                                                             pipeline=color_reference_pipeline,
                                                             page=page,
                                                             page_size=page_size,
@@ -245,7 +246,7 @@ def get_data_of_freeze(
                                        'testrun_id': testrun_id}},
                            {'$project': {'_id': 0, 'timestamp': 1, 'freeze_type': 1, 'duration': 1}}]
 
-        freeze = paginate_from_mongodb_aggregation(col='an_freeze',
+        freeze = paginate_from_mongodb_aggregation(col=analysis_collection['freeze'],
                                                    pipeline=freeze_pipeline,
                                                    page=page,
                                                    page_size=page_size,
@@ -286,7 +287,7 @@ def get_data_of_loudness(
                              {'$replaceRoot': {'newRoot': '$lines'}},
                              {'$project': {'timestamp': '$timestamp', 'm': '$M', 'i': '$I'}}]
 
-        loudness = paginate_from_mongodb_aggregation(col='loudness',
+        loudness = paginate_from_mongodb_aggregation(col=analysis_collection['loudness'],
                                                      pipeline=loudness_pipeline,
                                                      page=page,
                                                      page_size=page_size,
@@ -324,7 +325,7 @@ def get_data_of_resume(
                                             'testrun_id': testrun_id}},
                                 {'$project': {'_id': 0, 'timestamp': 1, 'measure_time': 1, 'target': '$user_config.type'}}]
 
-        measurement_resume = paginate_from_mongodb_aggregation(col='an_warm_boot',
+        measurement_resume = paginate_from_mongodb_aggregation(col=analysis_collection['resume'],
                                                                pipeline=measurement_pipeline,
                                                                page=page,
                                                                page_size=page_size,
@@ -362,7 +363,7 @@ def get_data_of_boot(
                                             'testrun_id': testrun_id}},
                                 {'$project': {'_id': 0, 'timestamp': 1, 'measure_time': 1, 'target': '$user_config.type'}}]
 
-        measurement_boot = paginate_from_mongodb_aggregation(col='an_cold_boot',
+        measurement_boot = paginate_from_mongodb_aggregation(col=analysis_collection['boot'],
                                                              pipeline=measurement_pipeline,
                                                              page=page,
                                                              page_size=page_size,
@@ -402,7 +403,7 @@ def get_data_of_log_pattern_matching(
                                                        'regex': '$matched_target.regular_expression',
                                                        'color': '$matched_target.color', 'log_pattern_name': '$matched_target.name'}}]
 
-        log_pattern_matching = paginate_from_mongodb_aggregation(col='an_log_pattern',
+        log_pattern_matching = paginate_from_mongodb_aggregation(col=analysis_collection['log_pattern_matching'],
                                                                  pipeline=log_pattern_matching_pipeline,
                                                                  page=page,
                                                                  page_size=page_size,
@@ -485,14 +486,6 @@ def get_summary_data_of_measure_result(
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
 
-        collection_dict = {
-            "log_level_finder": "stb_log",
-            "freeze": "an_freeze",
-            "resume": "an_warm_boot",
-            "boot": "an_cold_boot",
-            "log_pattern_matching": "an_log_pattern",
-            "loudness": "loudness",
-        }
         result = {}
         basic_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
                                                     '$lte': convert_iso_format(end_time)},
@@ -555,7 +548,7 @@ def get_summary_data_of_measure_result(
                                        {'$group': {'_id': None, 'lkfs': {'$avg': '$lines.I'}}},
                                        {'$project': {'_id': 0, 'lkfs': 1}}]
             pipeline = basic_pipeline + additional_pipeline
-            aggregation = aggregate_from_mongodb(col=collection_dict[active_analysis], pipeline=pipeline)
+            aggregation = aggregate_from_mongodb(col=analysis_collection[active_analysis], pipeline=pipeline)
             if len(aggregation) == 0:
                 continue
             else:
