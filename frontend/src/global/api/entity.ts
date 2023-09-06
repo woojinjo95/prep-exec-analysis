@@ -96,8 +96,10 @@ type BlockType =
  * `playblock` 재생 (녹화 및 로그수집 O, 스트리밍 O)
  *
  * `analysis` 분석 (녹화 및 로그수집 X, 스트리밍 X)
+ *
+ * `recording` 기록 (결과 비디오 파일 생성, 녹화 및 로그 수집 X, 스트리밍 X)
  */
-export type ServiceState = 'idle' | 'streaming' | 'playblock' | 'analysis'
+export type ServiceState = 'idle' | 'streaming' | 'playblock' | 'analysis' | 'recording'
 
 export interface Block {
   type: BlockType

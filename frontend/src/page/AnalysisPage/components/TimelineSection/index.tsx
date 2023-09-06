@@ -57,12 +57,16 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
     'memory',
   ])
   const { analysisResultSummary } = useAnalysisResultSummary({
-    start_time: startTime?.toISOString()!,
-    end_time: endTime?.toISOString()!,
-    enabled: !!startTime && !!endTime,
+    start_time: startTime?.toISOString() || null,
+    end_time: endTime?.toISOString() || null,
     onSuccess: (summary) => {
       if (summary.freeze && !chartList.includes('video_analysis_result')) {
         setChartList((prev) => [...prev, 'video_analysis_result'])
+      }
+
+      // TODO: 다른 차트들도 없을 경우에 대한 처리
+      if (!summary.freeze) {
+        setChartList((prev) => prev.filter((v) => v !== 'video_analysis_result'))
       }
 
       if (summary.loudness && !chartList.includes('loudness')) {

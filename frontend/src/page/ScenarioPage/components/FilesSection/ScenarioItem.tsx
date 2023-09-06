@@ -1,5 +1,5 @@
 import { ScenarioSummary } from '@global/api/entity'
-import { getTestrun, postTestrun } from '@global/api/func'
+import { postTestrun } from '@global/api/func'
 import { scenarioIdState, testRunIdState } from '@global/atom'
 import { Accordion, Text } from '@global/ui'
 import { formatDateTo } from '@global/usecase'

@@ -11,10 +11,8 @@ import AnalysisSummaryResultList from './AnalysisSummaryResultList'
 const AnalysisResultPanel: React.FC = () => {
   const { videoSummary } = useVideoSummary()
   const { analysisResultSummary, refetch } = useAnalysisResultSummary({
-    start_time: new Date(videoSummary?.start_time! || 0).toISOString(),
-    end_time: new Date(videoSummary?.end_time! || 0).toISOString(),
-    // FIXME: videoSummary가 없는데도 api를 침
-    enabled: !!videoSummary,
+    start_time: videoSummary ? new Date(videoSummary.start_time).toISOString() : null,
+    end_time: videoSummary ? new Date(videoSummary.end_time).toISOString() : null,
   })
   useServiceState({
     onSuccess: (state) => {

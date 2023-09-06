@@ -2,6 +2,7 @@ import { scenarioIdState, testRunIdState } from '@global/atom'
 import { useRecoilValue } from 'recoil'
 import { useQuery } from 'react-query'
 import { useEffect } from 'react'
+import { useVideoSummary } from '@global/api/hook'
 import { AnalysisConfig, AnalysisResultSummary } from './entity'
 import { getAnalysisConfig, getAnalysisResultSummary } from './func'
 
@@ -33,26 +34,32 @@ export const useAnalysisConfig = ({ onSuccess }: { onSuccess?: (data: AnalysisCo
  * 분석 결과(요약 데이터) 조회 api
  */
 export const useAnalysisResultSummary = ({
+  start_time,
+  end_time,
   onSuccess,
-  enabled,
-  ...params
-}: Parameters<typeof getAnalysisResultSummary>[0] & {
+}: {
+  start_time: string | null
+  end_time: string | null
   onSuccess?: (data: AnalysisResultSummary) => void
-  enabled?: boolean
 }) => {
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
+  const { videoSummary } = useVideoSummary()
   const { data, isLoading, refetch } = useQuery(
-    ['analysis_result_summary', { ...params, scenarioId, testRunId }],
-    () =>
-      getAnalysisResultSummary({
-        ...params,
-        scenario_id: scenarioId || undefined,
-        testrun_id: testRunId || undefined,
-      }),
+    ['analysis_result_summary', { start_time, end_time, scenarioId, testRunId }],
+    () => {
+      // TODO: 아래 코드 없애기. useEffect 때문인지?
+      if (!start_time || !end_time) return undefined
+      return getAnalysisResultSummary({
+        start_time,
+        end_time,
+        scenario_id: scenarioId!,
+        testrun_id: testRunId!,
+      })
+    },
     {
       onSuccess,
-      enabled,
+      enabled: !!start_time && !!end_time && !!scenarioId && !!testRunId && !!videoSummary,
     },
   )
 

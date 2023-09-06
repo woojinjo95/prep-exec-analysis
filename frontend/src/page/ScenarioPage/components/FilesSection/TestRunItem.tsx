@@ -13,7 +13,7 @@ interface TestRunItemProps {
 }
 
 const TestRunItem: React.FC<TestRunItemProps> = ({ scenario }) => {
-  const { data: testruns } = useQuery(['testrun', scenario.id], () => getTestrun({ scenaroId: scenario.id }))
+  const { data: testruns } = useQuery(['testrun', scenario.id], () => getTestrun({ scenario_id: scenario.id }))
 
   const [, setScenarioId] = useRecoilState(scenarioIdState)
 

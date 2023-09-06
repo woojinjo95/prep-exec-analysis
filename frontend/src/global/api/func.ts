@@ -209,7 +209,7 @@ export const postTestrun = async (scenaroId: string) => {
 /**
  * 테스트런 조회
  */
-export const getTestrun = async (params: { scenaroId: string }) => {
+export const getTestrun = async (params: { scenario_id: string }) => {
   try {
     const result = await API.get<Response<TestRun[]>>(`${apiUrls.testrun}`, {
       params,
