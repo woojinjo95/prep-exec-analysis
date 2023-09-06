@@ -67,11 +67,14 @@ class IntelligentMonkeyTestRoku:
 
             self.exec_keys([self.depth_key])
             if self.check_leaf_node(node_info):
+                node_info.is_leaf = True
                 self.start_monkey(node_info, [*self.keyset, self.depth_key])
                 self.append_key(self.breadth_key)
             else:
+                node_info.is_leaf = False
                 self.append_key(self.depth_key)
 
+            logger.info(f'node_info: {node_info}')
             self.node_histories.append(node_info)
 
     def check_breadth_end(self, node_info: NodeInfo) -> bool:
