@@ -57,7 +57,30 @@ async def consumer_handler(conn: any, CHANNEL_NAME: str):
                     # 상태 변경 및 메세지 전송
                     await set_service_state_and_pub(conn, ServiceStateEnum.playblock)
 
-                # 분석 페이지에 진입했을때 -> 분석
+                # 레코딩이 끝났을 때
+                if msg == 'recording_response' and data.get('data', {}).get('video_info', {}).get('error', None) is None:
+                    print('----> recording_response')
+                    # 컬러레퍼런스 분석 메세지 전송
+                    await pub_msg(conn, msg="analysis", data={"measurement": ["color_reference"]})
+
+                # 액션 페이지에서 분석 페이지에 진입했을때 -> 대기
+                if msg == 'analysis_mode_init':
+                    print('----> analysis_mode_init')
+                    # 로그수집 중단 메세지 전송
+                    await pub_msg(conn, msg="stb_log", data={"control": "stop"})
+
+                    # 스트리밍 중단 메세지 전송
+                    await pub_msg(conn, msg="streaming", data={"action": "stop"})
+
+                    # 레코딩 시작 메세지 전송
+                    msg_data = data.get('data', {})
+                    await pub_msg(conn, msg="recording", data={"start_time": msg_data.get('start_time', 0),
+                                                               "end_time":  msg_data.get('end_time', 0)})
+
+                    # 상태 변경 및 메세지 전송
+                    await set_service_state_and_pub(conn, ServiceStateEnum.idle)
+
+                # 메인 페이지에서 분석 페이지에 진입했을때 -> 대기
                 if msg == 'analysis_mode':
                     print('----> analysis_mode')
                     # 로그수집 중단 메세지 전송
@@ -65,9 +88,6 @@ async def consumer_handler(conn: any, CHANNEL_NAME: str):
 
                     # 스트리밍 중단 메세지 전송
                     await pub_msg(conn, msg="streaming", data={"action": "stop"})
-
-                    # 컬러레퍼런스 분석 메세지 전송
-                    await pub_msg(conn, msg="analysis", data={"measurement": ["color_reference"]})
 
                     # 상태 변경 및 메세지 전송
                     await set_service_state_and_pub(conn, ServiceStateEnum.idle)
@@ -112,6 +132,7 @@ async def consumer_handler(conn: any, CHANNEL_NAME: str):
                         target_measurement = msg_data.get('measurement', [''])
                         msg_data['measurement'] = target_measurement[0]
                         await pub_msg(conn, msg="analysis_response", data=msg_data)
+                        # TODO log_level_finder에 대한 업데이트 필요
 
                         # 상태 변경 및 메세지 전송
                         await set_service_state_and_pub(conn, ServiceStateEnum.idle)
