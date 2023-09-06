@@ -5,7 +5,6 @@ import React from 'react'
 interface RangeChartProps {
   data: RangeChartData
   scaleX: d3.ScaleTime<number, number, never> | null
-  color?: string
 }
 
 /**
@@ -14,7 +13,7 @@ interface RangeChartProps {
  * TODO: resizing event
  * TODO: data 개별 color
  */
-const RangeChart: React.FC<RangeChartProps> = ({ data, scaleX, color }) => {
+const RangeChart: React.FC<RangeChartProps> = ({ data, scaleX }) => {
   if (!scaleX) return <div />
   return (
     <div className="w-full relative">
@@ -26,7 +25,7 @@ const RangeChart: React.FC<RangeChartProps> = ({ data, scaleX, color }) => {
       </div>
 
       <div>
-        {data.map(({ datetime, duration }, index) => {
+        {data.map(({ datetime, duration, color }, index) => {
           return (
             <div
               key={`point-chart-${datetime}-${index}`}

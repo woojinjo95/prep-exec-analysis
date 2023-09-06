@@ -152,7 +152,7 @@ export const createPortalStyle = ({
 /**
  * 소수점이 .0일 땐 정수만 표시, 소수점이 있을 땐 소수점 1번째 자리까지 표시
  */
-const dropDecimalPoint = (number: number, point?: number) =>
+export const dropDecimalPoint = (number: number, point?: number) =>
   numberWithCommas(Number(Number.isInteger(number) ? number.toFixed() : number.toFixed(point || 1)))
 
 /**
