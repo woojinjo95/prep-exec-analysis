@@ -193,7 +193,7 @@ def create_scenario(
                                                     'tags': scenario_in.tags,
                                                     'block_group': block_group_data,
                                                     'testruns': [{'id': testrun_id,
-                                                                  'is_active': True,
+                                                                  'is_active': False,
                                                                   'raw': {'videos': []},
                                                                   'analysis': {}}]})
 
@@ -267,7 +267,7 @@ def copy_scenario(
         # 시나리오 복제
         testruns = scenario.get('testruns', [])
         testruns.append({'id': testrun_id,
-                         'is_active': True,
+                         'is_active': False,
                          'raw': {'videos': []},
                          'analysis': {}})
         insert_one_to_mongodb(col='scenario', data={'id': scenario_id,

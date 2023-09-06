@@ -65,13 +65,14 @@ def create_testrun(
     return {'msg': 'Create new testrun', 'id': testrun_id}
 
 
-@router.delete("/{scenario_id}/{testrun_id}", response_model=schemas.Msg)
-def delete_testrun(
+@router.put("/{scenario_id}/{testrun_id}", response_model=schemas.Msg)
+def update_testrun(
     scenario_id: str,
     testrun_id: str,
+    testrun_in: schemas.TestrunUpdate,
 ) -> schemas.Msg:
     """
-    Delete a testrun.
+    Update a testrun.
     """
     pipeline = [{'$match': {'id': scenario_id, 'testruns.id': testrun_id}},
                 {'$unwind': "$testruns"},
@@ -86,7 +87,7 @@ def delete_testrun(
         update_to_mongodb(col="scenario",
                           param={"id": scenario_id,
                                  "testruns.id": testrun_id},
-                          data={"testruns.$.is_active": False})
+                          data={"testruns.$.is_active": testrun_in.is_active})
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
