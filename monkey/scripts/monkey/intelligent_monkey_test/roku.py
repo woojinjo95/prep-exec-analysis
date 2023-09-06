@@ -59,6 +59,7 @@ class IntelligentMonkeyTestRoku:
             status = self.check_end(node_info)
             if status == 'breadth_end':
                 self.head_to_next()
+                node_info.is_breadth_end = True
                 continue
             elif status == 'visit_end':
                 return

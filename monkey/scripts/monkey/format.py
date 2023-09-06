@@ -16,7 +16,7 @@ class NodeInfo:
         self.image = image
         self.cursor = cursor  # x,y,w,h
         self.cursor_image = cursor_image
-
+        self.is_breadth_end = False
 
 
 @dataclass
