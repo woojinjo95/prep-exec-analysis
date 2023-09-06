@@ -7,7 +7,7 @@ import numpy as np
 from scripts.util._timezone import get_utc_datetime
 from scripts.connection.mongo_db.crud import insert_to_mongodb
 from scripts.external.scenario import get_scenario_info
-from scripts.external.image import save_image
+from scripts.external.image import save_section_cursor_image
 from scripts.external.redis import get_monkey_test_arguments
 from scripts.util._timezone import get_time_str
 
@@ -31,7 +31,7 @@ def report_data(col_name: str, data: Dict):
 
 def report_section(start_time: float, end_time: float, analysis_type: str, section_id: int, image: np.ndarray, smart_sense_times: int):
     if image is not None:
-        image_path = save_image(get_time_str(), image)
+        image_path = save_section_cursor_image(get_time_str(), image)
     else:
         image_path = ''
         
