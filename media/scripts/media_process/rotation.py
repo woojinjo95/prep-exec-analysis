@@ -12,6 +12,7 @@ from copy import deepcopy
 from glob import glob
 from operator import attrgetter
 from typing import List, Tuple, Dict
+from threading import Thread
 
 from ..configs.config import RedisDBEnum, get_value
 from ..configs.constant import RedisChannel
@@ -87,7 +88,7 @@ class MakeVideo:
         self.temp_path = 'temp_videos'
         self.now = time.time()
         self.start_time = self.now - interval if start_time is None else start_time
-        self.end_time = self.start_time + interval if end_time is None else end_time is None
+        self.end_time = self.start_time + interval if end_time is None else end_time
 
         self.workspace_info = get_value('testrun', db=RedisDBEnum.hardware)
         scenario_dirname = str(self.workspace_info['id'])
@@ -133,6 +134,7 @@ class MakeVideo:
 
         if len(video_name_list) == 0:
             logger.error(f'Failed to make {self.output_video_path}, no available live video for that time')
+            raw_video_info = {}
         else:
             with tempfile.NamedTemporaryFile(delete=False, mode='w+t') as f:
                 for video in video_name_list:
@@ -145,7 +147,7 @@ class MakeVideo:
 
             json_name_list = sorted(list(set(self.json_name_list)))
             self.output_json_path = substitute_path_extension(self.output_video_path, 'mp4_stat')
-            raw_video_info = summarize_merged_video_info(self.start_time, self.output_json_path, json_name_list)
+            raw_video_info = summarize_merged_video_info(self.start_time, self.end_time, self.output_json_path, json_name_list)
 
             for video in video_name_list:
                 try:
@@ -162,18 +164,24 @@ class MakeVideo:
         return raw_video_info
 
     def run(self):
-        if get_value('state', 'streaming') == 'idle':
-            log = 'Streaming service is not started'
-            log_level = 'error'
-        else:
-            while self.state == 'writing':
-                self.copy_files()
-                time.sleep(1)
-            raw_video_info = self.concat_file()
+        Thread(target=self.make_video_process).start()
 
-            scenario_id = self.workspace_info['scenario_id']
-            testrun_id = self.workspace_info['id']
+    def make_video_process(self):
+        while self.state == 'writing':
+            self.copy_files()
+            time.sleep(1)
 
+            if get_value('state', 'streaming') == 'idle':
+                logger.warning('Streaming closed, not need to continue to check path for making video')
+                self.state = 'merging'
+                break
+
+        raw_video_info = self.concat_file()
+
+        scenario_id = self.workspace_info['scenario_id']
+        testrun_id = self.workspace_info['id']
+
+        if raw_video_info:
             video_basename = os.path.basename(self.output_video_path)
             json_basename = os.path.basename(self.output_json_path)
 
@@ -185,18 +193,21 @@ class MakeVideo:
                           'end_time': raw_video_info['timestamps'][-1],
                           'frame_count': len(raw_video_info['timestamps']),
                           }
+        else:
+            video_info = {'error': 'no video created'}
 
-            with get_strict_redis_connection() as src:
-                subscribe_count = publish(src, RedisChannel.command, video_info)
+        with get_strict_redis_connection() as redis_connection:
+            subscribe_count = publish(redis_connection, RedisChannel.command, {'msg': 'recording_response',
+                                                                               'data': {'video_info': video_info}})
 
-            try:
-                # update_to_mongodb('scenario', scenario_id, {'testrun.raw.videos': video_info})
-                update_video_info_to_scenario('scenario', scenario_id, testrun_id, video_info)
-            except Exception as e:
-                logger.error(f'Error in update mongodb: {e}')
-                logger.debug(traceback.format_exc())
+        try:
+            # update_to_mongodb('scenario', scenario_id, {'testrun.raw.videos': video_info})
+            update_video_info_to_scenario('scenario', scenario_id, testrun_id, video_info)
+        except Exception as e:
+            logger.error(f'Error in update mongodb: {e}')
+            logger.debug(traceback.format_exc())
 
-            log = f'Video info created, {subscribe_count} listener get data, saved mongodb document {scenario_id}, with info: {video_info}'
-            log_level = 'info'
+        log = f'Video info created, {subscribe_count} listener get data, saved mongodb document {scenario_id}, with info: {video_info}'
+        log_level = 'info'
 
         attrgetter(log_level)(logger)(log)
