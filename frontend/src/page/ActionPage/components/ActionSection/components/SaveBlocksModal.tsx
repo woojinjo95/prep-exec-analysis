@@ -143,10 +143,11 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
   })
 
   const { mutate: postCopyScenarioMutate } = useMutation(postCopyScenario, {
-    onSuccess: () => {
+    onSuccess: (res) => {
       currentScenarioRefetch()
       scenariosRefetch()
       close()
+      setTestRunIdState(res.testrun_id)
       setIsTesetOptionModalOpen(true)
     },
     onError: (err: AxiosError) => {
