@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback } from 'react'
 
 import { ToggleButton, Text, Divider, Title } from '@global/ui'
 import { useWebsocket } from '@global/hook'

@@ -7,12 +7,16 @@ import { ReactComponent as StopIcon } from '@assets/images/icon_stop.svg'
 import { IconButton, OptionItem, Text, DropdownWithMoreButton } from '@global/ui'
 import { useWebsocket } from '@global/hook'
 import { useRecoilState, useRecoilValue } from 'recoil'
-import { isBlockRecordModeState, scenarioIdState, selectedBlockIdsState, testRunIdState } from '@global/atom'
+import {
+  isBlockRecordModeState,
+  isTestOptionModalOpenState,
+  playStartTimeState,
+  scenarioIdState,
+  selectedBlockIdsState,
+} from '@global/atom'
 import { useScenarioById, useServiceState } from '@global/api/hook'
 import { useMutation } from 'react-query'
 import cx from 'classnames'
-import { postTestrun } from '@global/api/func'
-import { AxiosError } from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { blockControlMenu } from '../constants'
 import SaveBlocksModal from './SaveBlocksModal'
@@ -20,6 +24,7 @@ import OpenBlocksModal from './OpenBlocksModal'
 import { deleteBlock } from '../api/func'
 import AddMonkeyTestBlockModal from './AddMonkeyTestBlockModal'
 import AddIntelligentMonkeyTestBlockModal from './AddIntelligentMonkeyTestBlockModal'
+import TestOptionModal from './TestOptionModal'
 
 const BlockControls: React.FC = () => {
   const scenarioId = useRecoilValue(scenarioIdState)
@@ -31,6 +36,7 @@ const BlockControls: React.FC = () => {
   const [isAddMonkeyTestBlockModalOpen, setIsAddMonkeyTestBlockModalOpen] = useState<boolean>(false)
   const [isAddIntelligentMonkeyTestBlockModalOpen, setIsAddIntelligentMonkeyTestBlockModalOpen] =
     useState<boolean>(false)
+  const [isTestOptionModalOpen, setIsTesetOptionModalOpen] = useRecoilState(isTestOptionModalOpenState)
 
   const [isBlockRecordMode, setIsBlockRecordMode] = useRecoilState(isBlockRecordModeState)
 
@@ -44,27 +50,24 @@ const BlockControls: React.FC = () => {
     },
   })
 
-  const [, setTestRunId] = useRecoilState(testRunIdState)
-
   const selectedBlockIds = useRecoilValue(selectedBlockIdsState)
 
-  const { mutate: postTestrunMutate } = useMutation(postTestrun, {
-    onSuccess: (res) => {
-      refetch()
-      setTestRunId(res.id)
-      navigate('/analysis')
-    },
-    onError: (err: AxiosError) => {
-      console.error(err)
-    },
-  })
+  const playStartTime = useRecoilValue(playStartTimeState)
 
   const { sendMessage } = useWebsocket({
     onMessage: (message) => {
       if (message.msg === 'end_playblock') {
-        if (!scenarioId) return
-        // testrun post && scenario get
-        postTestrunMutate(scenarioId)
+        // analysis_mode message 전송 후 이동
+        if (!playStartTime) return
+        sendMessage({
+          level: 'info',
+          msg: 'analysis_mode_init',
+          data: {
+            start_time: playStartTime,
+            end_time: new Date().getTime() / 1000,
+          },
+        })
+        navigate('/analysis')
       }
     },
   })
@@ -131,11 +134,14 @@ const BlockControls: React.FC = () => {
               icon={<PlayIcon />}
               onClick={() => {
                 if (!scenarioId) return
-                sendMessage({
-                  level: 'info',
-                  msg: 'start_playblock',
-                  data: { scenario_id: scenarioId },
-                })
+
+                if (window.confirm('Do you want to save the block?')) {
+                  // 블럭 저장 모달 실행
+                  setIsSaveBlocksModalOpen(true)
+                } else {
+                  // test option modal 실행
+                  setIsTesetOptionModalOpen(true)
+                }
               }}
             />
           ) : (
@@ -209,6 +215,14 @@ const BlockControls: React.FC = () => {
         <AddIntelligentMonkeyTestBlockModal
           isOpen={isAddIntelligentMonkeyTestBlockModalOpen}
           close={() => setIsAddIntelligentMonkeyTestBlockModalOpen(false)}
+        />
+      )}
+      {isTestOptionModalOpen && (
+        <TestOptionModal
+          isOpen={isTestOptionModalOpen}
+          close={() => {
+            setIsTesetOptionModalOpen(false)
+          }}
         />
       )}
     </>

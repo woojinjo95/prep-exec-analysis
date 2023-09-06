@@ -33,6 +33,8 @@ export interface ScenarioSummary {
   name: string
   tags: string[]
   updated_at: number
+  testrun_count: number
+  has_block: boolean
 }
 
 export type IPLimitProtocol = 'all' | 'tcp' | 'udp'
@@ -134,4 +136,28 @@ export interface VideoSummary {
   start_time: string
   end_time: string
   path: string
+}
+
+/**
+ * 테스트런
+ */
+export interface TestRun {
+  id: string
+  updated_at: string
+  measure_targets: string[]
+}
+
+/**
+ * 분석 설정 아이템 Frame
+ */
+export interface AnalysisFrame {
+  id: string
+  relative_time: number // second
+  path: string
+  roi: {
+    x: number
+    y: number
+    w: number
+    h: number
+  }
 }

@@ -16,7 +16,7 @@ interface TagItemProps extends React.LiHTMLAttributes<HTMLLIElement> {
   isActive?: boolean
   setBlocksTags: React.Dispatch<React.SetStateAction<string[]>>
   tagRefetch: () => void
-  scenariosRefetch: () => void
+  scenariosRefetch?: () => void
 }
 
 /**
@@ -38,7 +38,7 @@ const TagItem: React.FC<TagItemProps> = ({
   const { mutate: deleteTagMutate } = useMutation(deleteTag, {
     onSuccess: () => {
       tagRefetch()
-      scenariosRefetch()
+      scenariosRefetch?.()
     },
     onError: (err) => {
       console.error(err)
@@ -50,7 +50,7 @@ const TagItem: React.FC<TagItemProps> = ({
   const { mutate: putTagMutate } = useMutation(putTag, {
     onSuccess: () => {
       tagRefetch()
-      scenariosRefetch()
+      scenariosRefetch?.()
     },
     onError: (err: AxiosError) => {
       if (err.status === 406) {

@@ -1,5 +1,5 @@
 import React from 'react'
-import { useVideoSummary } from '@global/api/hook'
+import { useServiceState, useVideoSummary } from '@global/api/hook'
 import FreezeSummaryResultItem from './FreezeSummaryResultItem'
 import LoudnessSummaryResultItem from './LoudnessSummaryResultItem'
 import ResumeSummaryResultItem from './ResumeSummaryResultItem'
@@ -14,10 +14,18 @@ import { useAnalysisResultSummary } from '../../../api/hook'
  */
 const AnalysisSummaryResultList: React.FC = () => {
   const { videoSummary } = useVideoSummary()
-  const { analysisResultSummary } = useAnalysisResultSummary({
+  const { analysisResultSummary, refetch } = useAnalysisResultSummary({
     start_time: videoSummary?.start_time!,
     end_time: videoSummary?.end_time!,
+    // FIXME: start_time, end_time이 없는데도 api를 요청함
     enabled: !!videoSummary,
+  })
+  useServiceState({
+    onSuccess: (state) => {
+      if (state !== 'analysis') {
+        refetch()
+      }
+    },
   })
 
   if (!analysisResultSummary) return null

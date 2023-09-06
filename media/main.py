@@ -58,8 +58,8 @@ def command_parser(command: dict, streaming_stop_event: Event):
             else:
                 streaming_stop_event.set()
                 log = 'Stop streaming service'
-                time.sleep(2)
-                kill_active_capture_process()
+                # kill_active_capture_process(signal=2)
+                # time.sleep(10)
 
         elif action == 'restart':
             log = 'Restart streaming service'
@@ -116,6 +116,7 @@ if __name__ == '__main__':
         log_organizer.set_stream_logger('audio')
         log_organizer.set_stream_logger('snapshot')
         log_organizer.set_stream_logger('connection')
+        log_organizer.set_stream_logger('mongodb')
         log_organizer.set_stream_logger('file', 5)
         log_organizer.set_stream_logger('error', 10)
         logger.info('Start media container')

@@ -101,7 +101,8 @@ const IPLimitItem: React.FC<IPLimitItemProps> = ({
 
   const { refetch: scenarioRefetch } = useScenarioById({ scenarioId })
 
-  const { mutate: postBlockMutate } = useMutation(postBlock, {
+  // const { mutate: postBlockMutate } =
+  useMutation(postBlock, {
     onSuccess: () => {
       scenarioRefetch()
     },

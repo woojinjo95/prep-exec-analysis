@@ -24,10 +24,18 @@ interface EnterActionPageMessage {
 }
 
 /**
- * 분석 페이지 진입 publish 메시지
+ * 분석 페이지 메인페이지 진입 publish 메시지
  */
-interface EnterAnalysisPageMessage {
+interface EnterAnalysisPageFromMainMessage {
   msg: 'analysis_mode'
+}
+
+interface EnterAnalysisPageFromActionMessage {
+  msg: 'analysis_mode_init'
+  data: {
+    start_time: number
+    end_time: number
+  }
 }
 
 /**
@@ -143,6 +151,17 @@ interface AnalysisMessage {
   }
 }
 
+/**
+ * 비디오 스냅샷 저장 요청 publish 메시지
+ */
+interface VideoSnapshotMessage {
+  msg: 'video_snapshot'
+  data: {
+    video_path: string
+    relative_time: number // second
+  }
+}
+
 type MessageLevel = 'debug' | 'info' | 'warning' | 'error' | 'critical' | 'fatal'
 
 export type PublishMessage = {
@@ -159,7 +178,9 @@ export type PublishMessage = {
   | AnalysisMessage
   | NetworkEmulationMessage
   | EnterActionPageMessage
-  | EnterAnalysisPageMessage
+  | EnterAnalysisPageFromMainMessage
+  | EnterAnalysisPageFromActionMessage
+  | VideoSnapshotMessage
 )
 
 type SubscribeCommandMessage<T> = {
