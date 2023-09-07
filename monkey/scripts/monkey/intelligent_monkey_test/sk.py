@@ -144,7 +144,7 @@ class IntelligentMonkeyTestSK:
         self.keyset.append(key)
         self.keyset = optimize_path(self.keyset)
 
-    def start_monkey(self, current_node_keyset: List[str], cursor_image: np.ndarray):
+    def start_monkey(self, node_info: NodeInfo, current_node_keyset: List[str]):
         start_time = time.time()
 
         monkey = Monkey(
@@ -167,12 +167,11 @@ class IntelligentMonkeyTestSK:
                        end_time=time.time(),
                        analysis_type=self.analysis_type,
                        section_id=self.section_id,
-                       image=cursor_image,
+                       image=get_cropped_image(node_info.image, node_info.cursor),
                        smart_sense_times=monkey.smart_sense_count)
 
         if monkey.banned_image_detected:
             self.stop()
-        
         self.section_id += 1
 
     ##### Skipped Image #####
@@ -181,7 +180,6 @@ class IntelligentMonkeyTestSK:
 
     ##### Re-Defined Functions #####
     def exec_keys(self, keys: List[str]):
-        logger.info(f'exec_keys: {keys}')
         key_and_intervals = [(key, self.key_interval) if key != 'home' else (key, 3) for key in keys]
         exec_keys_with_each_interval(key_and_intervals, self.profile, self.remocon_type)
 

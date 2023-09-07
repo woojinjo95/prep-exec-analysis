@@ -36,6 +36,7 @@ def exec_keys(keys: List[str], *args, **kwargs):
 
 
 def exec_keys_with_each_interval(key_and_intervals: List[Tuple[str, float]], company: str, type: str):
+    logger.info(f'exec_keys: {key_and_intervals}')
     for key, interval in key_and_intervals:
         exec_key(key, interval, company, type)
 
