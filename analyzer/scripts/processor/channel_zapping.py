@@ -10,7 +10,7 @@ from scripts.external.event import get_data_of_event_log, get_channel_key_inputs
 from scripts.external.network import get_data_of_network_log, get_igmp_join_infos
 from scripts.external.report import report_output
 from scripts.external.analysis import set_analysis_info
-from scripts.format import Command, ReportName
+from scripts.format import Command, ReportName, IgmpJoinData, RemoconKeyData
 from scripts.util._timezone import get_utc_datetime
 from scripts.util.decorator import log_decorator
 from scripts.util.video import crop_video_with_opencv
@@ -69,5 +69,5 @@ def get_config() -> Dict:
     return read_analysis_config()['channel_change_time']
 
 
-def get_channel_zapping_event_times(igmp_join_infos: Dict, channel_key_inputs: Dict, targets: List[str]):
+def get_channel_zapping_event_times(igmp_join_infos: List[IgmpJoinData], channel_key_inputs: List[RemoconKeyData], targets: List[str]):
     pass
