@@ -9,17 +9,15 @@ import { useShellLogs } from '../api/hook'
 
 interface ShellLogProps {
   shell_mode: Shell['mode']
-  shell_id: Shell['shell_id']
 }
 
 /**
  * 쉘 로그 리스트 컴포넌트
  */
-const ShellLog: React.FC<ShellLogProps> = ({ shell_mode, shell_id }) => {
+const ShellLog: React.FC<ShellLogProps> = ({ shell_mode }) => {
   const cursorDateTime = useRecoilValue(cursorDateTimeState)
   const { shellLogs } = useShellLogs({
     shell_mode,
-    shell_id,
     // cursorDateTime 기준 전후 30초씩(총 1분)
     start_time: new Date((cursorDateTime?.getTime() || 0) - 1000 * 30).toISOString(),
     end_time: new Date((cursorDateTime?.getTime() || 0) + 1000 * 30).toISOString(),
@@ -48,7 +46,7 @@ const ShellLog: React.FC<ShellLogProps> = ({ shell_mode, shell_id }) => {
         </div>
         {shellLogs?.map(({ timestamp, module, message }, index) => (
           <div
-            key={`shell-logs-${shell_mode}-${shell_id}-${timestamp}-${module}-${index}`}
+            key={`shell-logs-${shell_mode}-${timestamp}-${module}-${index}`}
             className="grid grid-cols-[16%_9%_1fr] gap-2"
           >
             <Text size="sm" colorScheme="grey">
