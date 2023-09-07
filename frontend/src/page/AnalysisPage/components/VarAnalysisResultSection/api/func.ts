@@ -1,29 +1,19 @@
 import { AxiosError } from 'axios'
-import { Response } from '@global/api/entity'
 import API from '@global/api'
-import { AnalysisConfig, AnalysisResultSummary } from './entity'
+import { AnalysisConfig } from '@page/AnalysisPage/api/entity'
+import { AnalysisType } from '@global/constant'
 import apiUrls from './url'
-
-/**
- * 분석 설정 조회 api
- */
-export const getAnalysisConfig = async () => {
-  try {
-    const result = await API.get<Response<AnalysisConfig>>(apiUrls.analysis_config)
-
-    return result.data.items
-  } catch (err) {
-    const er = err as AxiosError
-    throw er
-  }
-}
 
 /**
  * 분석 설정 수정 api
  */
-export const putAnalysisConfig = async (data: AnalysisConfig) => {
+export const putAnalysisConfig = async ({
+  scenario_id,
+  testrun_id,
+  ...data
+}: { scenario_id: string; testrun_id: string } & AnalysisConfig) => {
   try {
-    await API.put(apiUrls.analysis_config, data)
+    await API.put(`${apiUrls.analysis_config}/${scenario_id}/${testrun_id}`, data)
   } catch (err) {
     const er = err as AxiosError
     throw er
@@ -31,18 +21,36 @@ export const putAnalysisConfig = async (data: AnalysisConfig) => {
 }
 
 /**
- * 분석 결과(요약 데이터) 조회 api
+ * 분석 설정 삭제 api
  */
-export const getAnalysisResultSummary = async (params: {
-  start_time: string
-  end_time: string
-  scenario_id?: string
-  testrun_id?: string
+export const deleteAnalysisConfig = async ({
+  scenario_id,
+  testrun_id,
+  analysis_type,
+}: {
+  scenario_id: string
+  testrun_id: string
+  analysis_type: keyof typeof AnalysisType
 }) => {
   try {
-    const result = await API.get<Response<AnalysisResultSummary>>(apiUrls.analysis_result_summary, { params })
+    await API.delete(`${apiUrls.analysis_config}/${scenario_id}/${testrun_id}/${analysis_type}`)
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
 
-    return result.data.items
+/**
+ * 로그 패턴 정규표현식 체크 api
+ */
+export const postValidateRegex = async ({ regex }: { regex: string }) => {
+  try {
+    const result = await API.post<{
+      is_valid: boolean
+      msg: string
+    }>(apiUrls.validate_regex, { regex })
+
+    return result.data
   } catch (err) {
     const er = err as AxiosError
     throw er

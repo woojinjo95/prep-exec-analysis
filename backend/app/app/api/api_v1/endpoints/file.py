@@ -10,16 +10,20 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.get('/download/{file_id}', response_class=FileResponse)
+@router.get('/download', response_class=FileResponse)
 async def file_download(
-    file_id: str
+    id: str = None,
+    path: str = None,
 ) -> FileResponse:
-    file = load_by_id_from_mongodb(col='file', id=file_id)
-    if not file:
-        raise HTTPException(status_code=404, detail=f"The file does not exist in the system.")
-    file_name = file.get('name', '')
-    file_path = file.get('path', '')
-    return FileResponse(path=file_path, filename=file_name)
+    if id:
+        file = load_by_id_from_mongodb(col='file', id=id)
+        if not file:
+            raise HTTPException(status_code=404, detail=f"The file does not exist in the system.")
+        name = file.get('name', '')
+        path = file.get('path', '')
+    elif path:
+        name = path.split("/")[-1] if "/" in path else ''
+    return FileResponse(path=path, filename=name)
 
 
 @router.get('/system_file/{file_name}', response_class=FileResponse)

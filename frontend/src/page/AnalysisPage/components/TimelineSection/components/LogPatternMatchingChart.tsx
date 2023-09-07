@@ -1,5 +1,6 @@
 import React, { useMemo, useRef } from 'react'
 import { PointChart, TimelineTooltip, Text, TimelineTooltipItem } from '@global/ui'
+import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { useLogPatternMatching } from '../api/hook'
 import { useTooltipEvent } from '../hook'
 
@@ -8,16 +9,24 @@ interface LogPatternMatchingChartProps {
   startTime: Date
   endTime: Date
   dimension: { left: number; width: number } | null
+  summary: AnalysisResultSummary
 }
 
 /**
  * 패턴에 매칭된 로그(log pattern matching) 차트
  */
-const LogPatternMatchingChart: React.FC<LogPatternMatchingChartProps> = ({ scaleX, startTime, endTime, dimension }) => {
+const LogPatternMatchingChart: React.FC<LogPatternMatchingChartProps> = ({
+  scaleX,
+  startTime,
+  endTime,
+  dimension,
+  summary,
+}) => {
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const { logPatternMatching } = useLogPatternMatching({
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
+    // TODO: 패턴별 보기 / 숨기기 기능
   })
 
   const logPatternMatchingData = useMemo(() => {
@@ -28,8 +37,11 @@ const LogPatternMatchingChart: React.FC<LogPatternMatchingChartProps> = ({ scale
       log_level,
       message,
       regex,
+      color:
+        summary.log_pattern_matching?.results.find(({ log_pattern_name: name }) => name === log_pattern_name)?.color ||
+        'white',
     }))
-  }, [logPatternMatching])
+  }, [logPatternMatching, summary])
 
   const { posX, tooltipData, onMouseMove, onMouseLeave } = useTooltipEvent<
     NonNullable<typeof logPatternMatchingData>[number]
@@ -45,7 +57,7 @@ const LogPatternMatchingChart: React.FC<LogPatternMatchingChartProps> = ({ scale
       {!!posX && (
         <div
           ref={wrapperRef}
-          className="absolute top-0 h-full w-1 bg-white opacity-30"
+          className="absolute top-0 h-full w-1 bg-white opacity-30 z-[5]"
           style={{
             transform: `translateX(${posX - 2}px)`,
           }}

@@ -70,6 +70,7 @@ export const putCustomKey = async ({
   remocon_name: string
   custom_key_id: string
   newCustomKey: {
+    id: string
     name: string
     custom_code: string[]
   }

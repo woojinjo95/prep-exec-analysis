@@ -152,7 +152,7 @@ export const createPortalStyle = ({
 /**
  * 소수점이 .0일 땐 정수만 표시, 소수점이 있을 땐 소수점 1번째 자리까지 표시
  */
-const dropDecimalPoint = (number: number, point?: number) =>
+export const dropDecimalPoint = (number: number, point?: number) =>
   numberWithCommas(Number(Number.isInteger(number) ? number.toFixed() : number.toFixed(point || 1)))
 
 /**
@@ -169,4 +169,13 @@ export const bytesToSize = (bytes: number) => {
   const i = Math.floor(Math.log(bytes) / Math.log(1024))
   if (i === 0) return `${dropDecimalPoint(bytes)} ${sizes[i]}`
   return `${dropDecimalPoint(bytes / 1024 ** i)} ${sizes[i]}`
+}
+
+/**
+ * Promise를 반환하는 시간 대기 함수
+ */
+export const delay = (sec: number): Promise<void> => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, sec * 1000)
+  })
 }

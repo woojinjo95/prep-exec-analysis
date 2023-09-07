@@ -2,6 +2,7 @@ import React, { useMemo, useRef } from 'react'
 import * as d3 from 'd3'
 import { AreaChart, TimelineTooltip, TimelineTooltipItem, Text } from '@global/ui'
 import { CHART_HEIGHT } from '@global/constant'
+import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { useLoudness } from '../api/hook'
 import { useTooltipEvent } from '../hook'
 
@@ -10,12 +11,13 @@ interface LoudnessChartProps {
   startTime: Date
   endTime: Date
   dimension: { left: number; width: number } | null
+  summary: AnalysisResultSummary
 }
 
 /**
  * Loudness(소리) 변화 차트
  */
-const LoudnessChart: React.FC<LoudnessChartProps> = ({ scaleX, startTime, endTime, dimension }) => {
+const LoudnessChart: React.FC<LoudnessChartProps> = ({ scaleX, startTime, endTime, dimension, summary }) => {
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const { loudness } = useLoudness({
     start_time: startTime.toISOString(),
@@ -78,8 +80,8 @@ const LoudnessChart: React.FC<LoudnessChartProps> = ({ scaleX, startTime, endTim
         scaleY={scaleY}
         data={loudnessData}
         minValue={-70}
-        strokeColor="#0106FF"
-        fillColor="#686ade"
+        strokeColor={summary.loudness?.color || 'white'}
+        fillColor={summary.loudness?.color || 'white'}
       />
     </div>
   )

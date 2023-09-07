@@ -50,7 +50,7 @@ const AreaChart: React.FC<AreaChartProps> = ({
       fillColor,
     )
     chart.createChart()
-  }, [chartWidth, scaleX, scaleY])
+  }, [data, chartWidth, scaleX, scaleY, strokeColor, fillColor])
 
   return (
     <div style={{ height: CHART_HEIGHT }}>

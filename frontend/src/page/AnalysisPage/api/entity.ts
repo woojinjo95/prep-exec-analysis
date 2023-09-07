@@ -1,3 +1,4 @@
+import { AnalysisFrame } from '@global/api/entity'
 import { FreezeType, LogLevel } from '@global/constant'
 
 export type ResumeType = 'image_matching' | 'screen_change_rate'
@@ -17,28 +18,12 @@ export interface AnalysisConfig {
   resume?: {
     color: string
     type: ResumeType
-    frame: {
-      image_path: string
-      roi: {
-        x: number
-        y: number
-        w: number
-        h: number
-      }
-    }
+    frame: AnalysisFrame
   }
   boot?: {
     color: string
     type: BootType
-    frame: {
-      image_path: string
-      roi: {
-        x: number
-        y: number
-        w: number
-        h: number
-      }
-    }
+    frame: AnalysisFrame
   }
   channel_change_time?: {
     color: string
@@ -64,33 +49,48 @@ export interface AnalysisConfig {
  */
 export interface AnalysisResultSummary {
   boot?: {
-    total: number
-    target: BootType
-    avg_time: number // 단위: ms
-  }[]
-  freeze?: {
-    total: number
-    target: keyof typeof FreezeType
-  }[]
-  // intelligent_monkey_test?: null
-  log_level_finder?: {
-    total: number
-    target: keyof typeof LogLevel
-  }[]
-  log_pattern_matching?: {
-    total: number
-    log_pattern_name: string
     color: string
-  }[]
-  loudness?: [
-    {
-      lkfs: number
-    },
-  ]
+    results: {
+      total: number
+      target: BootType
+      avg_time: number // 단위: ms
+    }[]
+  }
+  freeze?: {
+    color: string
+    results: {
+      total: number
+      error_type: keyof typeof FreezeType
+    }[]
+  }
+  // intelligent_monkey_test?: null
+  last_updated_timestamp: string
+  log_level_finder?: {
+    color: string
+    results: {
+      total: number
+      target: keyof typeof LogLevel
+    }[]
+  }
+  log_pattern_matching?: {
+    color: string
+    results: {
+      total: number
+      log_pattern_name: string
+      color: string
+    }[]
+  }
+  loudness?: {
+    color: string
+    lkfs: number
+  }
   resume?: {
-    total: number
-    target: ResumeType
-    avg_time: number // 단위: ms
-  }[]
+    color: string
+    results: {
+      total: number
+      target: ResumeType
+      avg_time: number // 단위: ms
+    }[]
+  }
   // monkey_test?: null
 }

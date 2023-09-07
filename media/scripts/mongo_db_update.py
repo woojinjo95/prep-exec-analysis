@@ -77,7 +77,7 @@ class InsertLoudnessToDB:
             except queues.Empty:
                 if document is not None:
                     # 1초가 지나고 document가 비지 않으면 업데이트
-                    logger.debug(f'Timeout for 1 second and update to mongodb')
+                    # logger.debug(f'Timeout for 1 second and update to mongodb')
                     insert_to_mongodb('loudness', document)
                     document = None
 
