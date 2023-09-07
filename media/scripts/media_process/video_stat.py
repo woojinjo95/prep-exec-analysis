@@ -17,9 +17,10 @@ logger = logging.getLogger('main')
 
 @handle_none_return(float)
 @handle_errors
-def get_ffprobe_video_interval(video_path: str) -> float:
-    logger.info(f'Get data from {video_path}')
+def get_ffprobe_video_duration(video_path: str) -> float:
     duration = get_output(f'ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 {video_path}')
+    logger.info(f'Get data from {video_path}: duration={duration}')
+
     return float(duration)
 
 
@@ -102,8 +103,13 @@ def summarize_merged_video_info(requested_start_time: float, requested_end_time:
     # video #last
     last_video_info = current_info
     start_time = last_video_info['created_time']
-    #
-    calculated_interval = get_ffprobe_video_interval(json_name_list[-1]) or (last_video_info['last_modified'] - last_video_info['created_time'])
+
+    last_video_path = substitute_path_extension(json_name_list[-1], 'mp4')
+    video_duration = get_ffprobe_video_duration(last_video_path)
+    modified_duration = last_video_info['last_modified'] - last_video_info['created_time']
+    calculated_interval = video_duration or modified_duration
+    info['logs'].append(('info', f'video duration is {video_duration} and modified duration is {modified_duration}, ignore last calculated fps'))
+    
     calculated_fps = last_video_info['frame_count'] / calculated_interval
 
     error_logging(primary_data, info, start_time, calculated_interval, calculated_fps)
