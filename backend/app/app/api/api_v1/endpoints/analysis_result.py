@@ -533,7 +533,7 @@ def get_data_of_intelligent_monkey_section(
 
 
 # Intelligent Monkey Smart Sense
-@router.get("/intelligent_monkey_smart_sense", response_model=schemas.MonkeySmartSense)
+@router.get("/intelligent_monkey_smart_sense", response_model=schemas.IntelligentMonkeySmartSense)
 def get_data_of_intelligent_monkey_smart_sense(
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),

@@ -133,12 +133,20 @@ class MonkeyTest(PaginationBaseModel):
 
 
 class MonkeySmartSenseBase(TimestampBaseModel):
-    section_id: int
     smart_sense_key: List[str]
 
 
 class MonkeySmartSense(PaginationBaseModel):
     items: List[MonkeySmartSenseBase]
+
+
+class IntelligentMonkeySmartSenseBase(TimestampBaseModel):
+    section_id: int
+    smart_sense_key: List[str]
+
+
+class IntelligentMonkeySmartSense(PaginationBaseModel):
+    items: List[IntelligentMonkeySmartSenseBase]
 
 
 class ProcessLifecycleBase(BaseModel):
