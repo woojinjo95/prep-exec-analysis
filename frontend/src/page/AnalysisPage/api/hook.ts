@@ -288,7 +288,50 @@ export const useBoot = (params: Parameters<typeof getBoot>[0]) => {
     },
   })
 
-  return { boot: data, isLoading, refetch }
+  return { boot: data?.items, isLoading, refetch }
+}
+
+/**
+ * Boot 무한스크롤 조회 hook
+ */
+export const useInfiniteBoot = (params: Parameters<typeof getBoot>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, hasNextPage, isFetching, fetchNextPage } = useInfiniteQuery(
+    ['infinite_boot', params],
+    ({ pageParam = 1 }) => {
+      return getBoot({
+        ...params,
+        page: pageParam as number,
+        scenario_id: scenarioId || undefined,
+        testrun_id: testRunId || undefined,
+      })
+    },
+    {
+      getNextPageParam: (lastPage) => {
+        const nextPage = lastPage.next
+        if (nextPage <= lastPage.pages) {
+          return nextPage
+        }
+
+        return undefined
+      },
+    },
+  )
+
+  const ref = useIntersect((entry, observer) => {
+    observer.unobserve(entry.target)
+    if (hasNextPage && !isFetching) {
+      fetchNextPage()
+    }
+  })
+
+  return {
+    boot: data?.pages.flatMap(({ items }) => items) || [],
+    total: data?.pages.length ? data.pages[0].total : 0,
+    loadingRef: ref,
+    hasNextPage,
+  }
 }
 
 /**

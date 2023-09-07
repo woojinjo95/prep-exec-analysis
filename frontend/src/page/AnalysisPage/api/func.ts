@@ -233,13 +233,15 @@ export const getBoot = async (params: {
   end_time: string
   scenario_id?: string
   testrun_id?: string
+  page?: number
+  page_size?: number
 }) => {
   try {
     const result = await API.get<PaginationResponse<Boot[]>>(apiUrls.boot, {
       params,
     })
 
-    return result.data.items
+    return result.data
   } catch (err) {
     const er = err as AxiosError
     throw er
