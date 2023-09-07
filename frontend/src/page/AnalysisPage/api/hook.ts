@@ -1,10 +1,10 @@
 import { scenarioIdState, testRunIdState } from '@global/atom'
 import { useRecoilValue } from 'recoil'
-import { useQuery } from 'react-query'
+import { useInfiniteQuery, useQuery } from 'react-query'
 import { useEffect } from 'react'
 import { useVideoSummary } from '@global/api/hook'
 import { AnalysisType } from '@global/constant'
-import { useWebsocket } from '@global/hook'
+import { useIntersect, useWebsocket } from '@global/hook'
 import { AnalysisConfig, AnalysisResultSummary } from './entity'
 import {
   getAnalysisConfig,
@@ -224,7 +224,50 @@ export const useResume = (params: Parameters<typeof getResume>[0]) => {
     },
   })
 
-  return { resume: data, isLoading, refetch }
+  return { resume: data?.items, isLoading, refetch }
+}
+
+/**
+ * Resume 무한스크롤 조회 hook
+ */
+export const useInfiniteResume = (params: Parameters<typeof getResume>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, hasNextPage, isFetching, fetchNextPage } = useInfiniteQuery(
+    ['infinite_resume', params],
+    ({ pageParam = 1 }) => {
+      return getResume({
+        ...params,
+        page: pageParam as number,
+        scenario_id: scenarioId || undefined,
+        testrun_id: testRunId || undefined,
+      })
+    },
+    {
+      getNextPageParam: (lastPage) => {
+        const nextPage = lastPage.next
+        if (nextPage <= lastPage.pages) {
+          return nextPage
+        }
+
+        return undefined
+      },
+    },
+  )
+
+  const ref = useIntersect((entry, observer) => {
+    observer.unobserve(entry.target)
+    if (hasNextPage && !isFetching) {
+      fetchNextPage()
+    }
+  })
+
+  return {
+    resume: data?.pages.flatMap(({ items }) => items) || [],
+    total: data?.pages.length ? data.pages[0].total : 0,
+    loadingRef: ref,
+    hasNextPage,
+  }
 }
 
 /**
@@ -266,5 +309,49 @@ export const useLogPatternMatching = (params: Parameters<typeof getLogPatternMat
     },
   })
 
-  return { logPatternMatching: data, isLoading, refetch }
+  return { logPatternMatching: data?.items, isLoading, refetch }
+}
+
+/**
+ * Log Pattern Matching 무한스크롤 조회 hook
+ */
+export const useInfiniteLogPatternMatching = (params: Parameters<typeof getLogPatternMatching>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, hasNextPage, isFetching, fetchNextPage } = useInfiniteQuery(
+    ['infinite_log_pattern_matching', params],
+    ({ pageParam = 1 }) => {
+      return getLogPatternMatching({
+        ...params,
+        page: pageParam as number,
+        scenario_id: scenarioId || undefined,
+        testrun_id: testRunId || undefined,
+      })
+    },
+    {
+      getNextPageParam: (lastPage) => {
+        const nextPage = lastPage.next
+        if (nextPage <= lastPage.pages) {
+          return nextPage
+        }
+
+        return undefined
+      },
+    },
+  )
+
+  const ref = useIntersect((entry, observer) => {
+    observer.unobserve(entry.target)
+
+    if (hasNextPage && !isFetching) {
+      fetchNextPage()
+    }
+  })
+
+  return {
+    logPatternMatching: data?.pages.flatMap(({ items }) => items) || [],
+    total: data?.pages.length ? data.pages[0].total : 0,
+    loadingRef: ref,
+    hasNextPage,
+  }
 }

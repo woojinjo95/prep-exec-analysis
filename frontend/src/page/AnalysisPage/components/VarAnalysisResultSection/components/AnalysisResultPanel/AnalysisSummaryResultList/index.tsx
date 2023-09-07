@@ -8,6 +8,7 @@ import BootSummaryResultItem from './BootSummaryResultItem'
 import LogLevelFinderSummaryResultItem from './LogLevelFinderSummaryResultItem'
 import LogPatternMatchingSummaryResultItem from './LogPatternMatchingSummaryResultItem'
 import ResumeRawDataModal from './ResumeRawDataModal'
+import LogPatternMatchingRawDataModal from './LogPatternMatchingRawDataModal'
 
 interface AnalysisSummaryResultListProps {
   summary?: AnalysisResultSummary
@@ -40,6 +41,14 @@ const AnalysisSummaryResultList: React.FC<AnalysisSummaryResultListProps> = ({ s
       {rawDataModalType === 'resume' && (
         <ResumeRawDataModal
           isOpen={rawDataModalType === 'resume'}
+          onClose={() => setRawDataModalType(null)}
+          startTime={startTime}
+          endTime={endTime}
+        />
+      )}
+      {rawDataModalType === 'log_pattern_matching' && (
+        <LogPatternMatchingRawDataModal
+          isOpen={rawDataModalType === 'log_pattern_matching'}
           onClose={() => setRawDataModalType(null)}
           startTime={startTime}
           endTime={endTime}

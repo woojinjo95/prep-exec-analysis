@@ -1,12 +1,12 @@
 import React from 'react'
 import cx from 'classnames'
-import { CardModal, IconButton, Text } from '@global/ui'
-import { convertDuration, formatDateTo, numberWithCommas } from '@global/usecase'
-import { ReactComponent as PlayIcon } from '@assets/images/icon_play.svg'
-import { useInfiniteResume } from '@page/AnalysisPage/api/hook'
-import { AnalysisTypeLabel, ResumeTypeLabel } from '../../../constant'
+import { CardModal, SimpleButton, Text } from '@global/ui'
+import { ReactComponent as ShowIcon } from '@assets/images/icon_raw_data.svg'
+import { useInfiniteLogPatternMatching } from '@page/AnalysisPage/api/hook'
+import { formatDateTo, numberWithCommas } from '@global/usecase'
+import { AnalysisTypeLabel } from '../../../constant'
 
-interface ResumeRawDataModalProps {
+interface LogPatternMatchingRawDataModalProps {
   isOpen: boolean
   onClose: () => void
   startTime: string
@@ -14,20 +14,25 @@ interface ResumeRawDataModalProps {
 }
 
 /**
- * Resume 원본데이터 모달
+ * Log Pattern Matching 원본데이터 모달
  */
-const ResumeRawDataModal: React.FC<ResumeRawDataModalProps> = ({ isOpen, onClose, startTime, endTime }) => {
-  const { resume, total, loadingRef, hasNextPage } = useInfiniteResume({
+const LogPatternMatchingRawDataModal: React.FC<LogPatternMatchingRawDataModalProps> = ({
+  isOpen,
+  onClose,
+  startTime,
+  endTime,
+}) => {
+  const { logPatternMatching, total, loadingRef, hasNextPage } = useInfiniteLogPatternMatching({
     start_time: startTime,
     end_time: endTime,
   })
 
-  if (!resume) return null
+  if (!logPatternMatching) return null
   return (
     <CardModal
       isOpen={isOpen}
       onClose={onClose}
-      title={AnalysisTypeLabel.resume}
+      title={AnalysisTypeLabel.log_pattern_matching}
       subtitle={`${numberWithCommas(total)} times`}
     >
       <div className="h-full w-full overflow-y-auto">
@@ -39,40 +44,50 @@ const ResumeRawDataModal: React.FC<ResumeRawDataModalProps> = ({ isOpen, onClose
                   Timestamp
                 </Text>
               </th>
-              <th className="px-6 py-1 bg-charcoal border-t border-b border-light-charcoal">
+              <th className="px-6 py-1 bg-charcoal border-t border-b border-light-charcoal whitespace-nowrap">
                 <Text size="sm" weight="medium">
-                  Error Type
+                  Log Pattern Name
+                </Text>
+              </th>
+              <th className="px-6 py-1 bg-charcoal border-t border-b border-light-charcoal whitespace-nowrap">
+                <Text size="sm" weight="medium">
+                  Log Level
                 </Text>
               </th>
               <th className="px-6 py-1 bg-charcoal border-t border-b border-light-charcoal">
                 <Text size="sm" weight="medium">
-                  Duration Time
+                  Message
                 </Text>
               </th>
               <th className="px-6 py-1 bg-charcoal border border-l-0 border-light-charcoal text-center">
                 <Text size="sm" weight="medium">
-                  Result Video
+                  Result
                 </Text>
               </th>
             </tr>
           </thead>
           <tbody>
-            {resume.map(({ timestamp, measure_time, target }, index) => (
+            {logPatternMatching.map(({ timestamp, log_pattern_name, log_level, message }, index) => (
               <tr
                 key={`resume-raw-data-${timestamp}-${index}`}
                 className="border-t border-light-charcoal hover:bg-charcoal/50"
               >
-                <td className={cx('px-6 py-1', { 'border-t border-light-charcoal': index !== 0 })}>
+                <td className={cx('px-6 py-1 whitespace-nowrap', { 'border-t border-light-charcoal': index !== 0 })}>
                   <Text size="sm">{formatDateTo('YYYY-MM-DD HH:MM:SS:MS', new Date(timestamp))}</Text>
                 </td>
                 <td className={cx('px-6 py-1', { 'border-t border-light-charcoal': index !== 0 })}>
-                  <Text size="sm">{ResumeTypeLabel[target]}</Text>
+                  <Text size="sm">{log_pattern_name}</Text>
                 </td>
                 <td className={cx('px-6 py-1', { 'border-t border-light-charcoal': index !== 0 })}>
-                  <Text size="sm">{convertDuration(measure_time)}</Text>
+                  <Text size="sm">{log_level}</Text>
+                </td>
+                <td className={cx('px-6 py-1 break-all', { 'border-t border-light-charcoal': index !== 0 })}>
+                  <Text size="sm">{message}</Text>
                 </td>
                 <td className={cx('px-6 py-1 flex justify-center', { 'border-t border-light-charcoal': index !== 0 })}>
-                  <IconButton icon={<PlayIcon className="!h-3" />} colorScheme="charcoal" size="sm" />
+                  <SimpleButton colorScheme="charcoal" isIcon>
+                    <ShowIcon className="w-3 h-3" />
+                  </SimpleButton>
                 </td>
               </tr>
             ))}
@@ -92,4 +107,4 @@ const ResumeRawDataModal: React.FC<ResumeRawDataModalProps> = ({ isOpen, onClose
   )
 }
 
-export default ResumeRawDataModal
+export default LogPatternMatchingRawDataModal

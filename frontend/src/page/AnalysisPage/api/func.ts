@@ -210,6 +210,8 @@ export const getResume = async (params: {
   end_time: string
   scenario_id?: string
   testrun_id?: string
+  page?: number
+  page_size?: number
 }) => {
   try {
     const result = await API.get<PaginationResponse<Resume[]>>(apiUrls.resume, {
@@ -252,13 +254,15 @@ export const getLogPatternMatching = async (params: {
   end_time: string
   scenario_id?: string
   testrun_id?: string
+  page?: number
+  page_size?: number
 }) => {
   try {
     const result = await API.get<PaginationResponse<LogPatternMatching[]>>(apiUrls.log_pattern_matching, {
       params,
     })
 
-    return result.data.items
+    return result.data
   } catch (err) {
     const er = err as AxiosError
     throw er

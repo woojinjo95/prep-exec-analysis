@@ -30,7 +30,7 @@ const CardModal: React.FC<CardModalProps> = ({ isOpen, onClose, title, subtitle,
         </Title>
         <Text weight="medium">{subtitle}</Text>
 
-        <SimpleButton isIcon colorScheme="charcoal" onClick={onClose}>
+        <SimpleButton isIcon colorScheme="charcoal" onClick={onClose} className="ml-auto">
           <CloseIcon className="fill-white w-3 h-3" />
         </SimpleButton>
       </div>

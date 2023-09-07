@@ -24,7 +24,7 @@ const SimpleButton: React.FC<SimpleButtonProps> = ({
     <button
       type="button"
       className={cx(
-        'ml-auto rounded-md transition-colors flex items-center gap-x-3',
+        'rounded-md transition-colors flex items-center gap-x-3',
         {
           'py-1 px-3': !isIcon,
           'p-2': isIcon,
