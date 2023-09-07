@@ -6,8 +6,6 @@ import { useTooltipEvent } from '../hook'
 
 interface LogLevelFinderChartProps {
   scaleX: Parameters<typeof PointChart>[0]['scaleX']
-  startTime: Date
-  endTime: Date
   dimension: { left: number; width: number } | null
   summary: AnalysisResultSummary
 }
@@ -15,17 +13,9 @@ interface LogLevelFinderChartProps {
 /**
  * Log Level Finder 차트
  */
-const LogLevelFinderChart: React.FC<LogLevelFinderChartProps> = ({
-  scaleX,
-  startTime,
-  endTime,
-  dimension,
-  summary,
-}) => {
+const LogLevelFinderChart: React.FC<LogLevelFinderChartProps> = ({ scaleX, dimension, summary }) => {
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const { logLevelFinders } = useLogLevelFinders({
-    start_time: startTime.toISOString(),
-    end_time: endTime.toISOString(),
     // TODO: 레벨별 보기 / 숨기기 기능
     log_level: summary.log_level_finder?.results.map(({ target }) => target),
   })

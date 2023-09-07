@@ -8,20 +8,15 @@ import { useTooltipEvent } from '../hook'
 
 interface MemoryChartProps {
   scaleX: Parameters<typeof AreaChart>[0]['scaleX']
-  startTime: Date
-  endTime: Date
   dimension: { left: number; width: number } | null
 }
 
 /**
  * Memory 사용률 차트
  */
-const MemoryChart: React.FC<MemoryChartProps> = ({ scaleX, startTime, endTime, dimension }) => {
+const MemoryChart: React.FC<MemoryChartProps> = ({ scaleX, dimension }) => {
   const wrapperRef = useRef<HTMLDivElement | null>(null)
-  const { memory } = useMemory({
-    start_time: startTime.toISOString(),
-    end_time: endTime.toISOString(),
-  })
+  const { memory } = useMemory()
 
   const memoryData = useMemo(() => {
     if (!memory) return null

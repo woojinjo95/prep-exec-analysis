@@ -7,20 +7,15 @@ import { useTooltipEvent } from '../hook'
 
 interface CPUChartProps {
   scaleX: Parameters<typeof AreaChart>[0]['scaleX']
-  startTime: Date
-  endTime: Date
   dimension: { left: number; width: number } | null
 }
 
 /**
  * CPU 사용률 차트
  */
-const CPUChart: React.FC<CPUChartProps> = ({ scaleX, startTime, endTime, dimension }) => {
+const CPUChart: React.FC<CPUChartProps> = ({ scaleX, dimension }) => {
   const wrapperRef = useRef<HTMLDivElement | null>(null)
-  const { cpu } = useCPU({
-    start_time: startTime.toISOString(),
-    end_time: endTime.toISOString(),
-  })
+  const { cpu } = useCPU()
 
   const cpuData = useMemo(() => {
     if (!cpu) return null

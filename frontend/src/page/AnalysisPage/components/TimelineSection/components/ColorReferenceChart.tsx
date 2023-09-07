@@ -7,20 +7,15 @@ import { useTooltipEvent } from '../hook'
 
 interface ColorReferenceChartProps {
   scaleX: Parameters<typeof AreaChart>[0]['scaleX']
-  startTime: Date
-  endTime: Date
   dimension: { left: number; width: number } | null
 }
 
 /**
  * Color Reference 차트
  */
-const ColorReferenceChart: React.FC<ColorReferenceChartProps> = ({ scaleX, startTime, endTime, dimension }) => {
+const ColorReferenceChart: React.FC<ColorReferenceChartProps> = ({ scaleX, dimension }) => {
   const wrapperRef = useRef<HTMLDivElement | null>(null)
-  const { colorReferences } = useColorReferences({
-    start_time: startTime.toISOString(),
-    end_time: endTime.toISOString(),
-  })
+  const { colorReferences } = useColorReferences()
 
   const colorReferenceData = useMemo(() => {
     if (!colorReferences) return null

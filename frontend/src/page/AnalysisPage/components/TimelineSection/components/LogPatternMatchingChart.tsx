@@ -6,8 +6,7 @@ import { useTooltipEvent } from '../hook'
 
 interface LogPatternMatchingChartProps {
   scaleX: Parameters<typeof PointChart>[0]['scaleX']
-  startTime: Date
-  endTime: Date
+
   dimension: { left: number; width: number } | null
   summary: AnalysisResultSummary
 }
@@ -15,19 +14,10 @@ interface LogPatternMatchingChartProps {
 /**
  * 패턴에 매칭된 로그(log pattern matching) 차트
  */
-const LogPatternMatchingChart: React.FC<LogPatternMatchingChartProps> = ({
-  scaleX,
-  startTime,
-  endTime,
-  dimension,
-  summary,
-}) => {
+const LogPatternMatchingChart: React.FC<LogPatternMatchingChartProps> = ({ scaleX, dimension, summary }) => {
   const wrapperRef = useRef<HTMLDivElement | null>(null)
-  const { logPatternMatching } = useLogPatternMatching({
-    start_time: startTime.toISOString(),
-    end_time: endTime.toISOString(),
-    // TODO: 패턴별 보기 / 숨기기 기능
-  })
+  // TODO: 패턴별 보기 / 숨기기 기능
+  const { logPatternMatching } = useLogPatternMatching()
 
   const logPatternMatchingData = useMemo(() => {
     if (!logPatternMatching) return null
