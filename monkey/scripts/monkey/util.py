@@ -81,10 +81,10 @@ def head_to_parent_sibling(key_histories: List[str], depth_key: str, breadth_key
                 logger.info(f'head to parent sibling. key_histories: {key_histories}')
                 return key_histories
             else:
-                logger.info(f'key_histories: {key_histories}')
+                logger.info(f'key_histories is invalid. key_histories: {key_histories}')
                 raise ValueError('key_histories is invalid.')
     except IndexError:
-        logger.info(f'key_histories: {key_histories}')
+        logger.info(f'key_histories is empty. key_histories: {key_histories}')
         raise IndexError('key_histories is empty.')
 
 
