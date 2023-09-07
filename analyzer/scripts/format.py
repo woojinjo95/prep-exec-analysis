@@ -41,6 +41,7 @@ class ReportName(Enum):
     WARM_BOOT = 'warm_boot'
     COLD_BOOT = 'cold_boot'
     LOG_PATTERN = 'log_pattern'
+    CHANNEL_ZAPPING = 'channel_change_time'
 
 
 class CollectionName(Enum):
@@ -49,6 +50,7 @@ class CollectionName(Enum):
     WARM_BOOT = 'an_warm_boot'
     COLD_BOOT = 'an_cold_boot'
     LOG_PATTERN = 'an_log_pattern'
+    CHANNEL_ZAPPING = 'an_channel_change_time'
 
     
 # command for subscriber
@@ -58,4 +60,5 @@ class Command(Enum):
     RESUME = 'resume'
     BOOT = 'boot'
     LOG_PATTERN_MATCHING = 'log_pattern_matching'
+    CHANNEL_ZAPPING = 'channel_change_time'
 

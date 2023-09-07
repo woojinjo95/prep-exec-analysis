@@ -31,6 +31,10 @@ report_info = {
         'col_name': CollectionName.LOG_PATTERN.value,
         'user_config_name': 'log_pattern_matching'
     },
+    ReportName.CHANNEL_ZAPPING.value: {
+        'col_name': CollectionName.CHANNEL_ZAPPING.value,
+        'user_config_name': 'channel_change_time'
+    },
 }
 
 
