@@ -12,7 +12,7 @@ from scripts.monkey.monkey import Monkey
 from scripts.monkey.util import (check_cursor_is_same, exec_keys_with_each_interval,
                                  get_current_image, head_to_parent_sibling,
                                  optimize_path, get_last_breadth_start_image,
-                                 get_cursor, check_image_similar_with_ssim)
+                                 get_cursor)
 from scripts.external.report import report_section
 from scripts.external.image import get_skipped_images
 
@@ -89,7 +89,7 @@ class IntelligentMonkeyTestSK:
             same_with_breadth_start = check_cursor_is_same(last_breadth_start_image, self.get_cursor(last_breadth_start_image),
                                                         node_info.image, node_info.cursor, 
                                                         sim_thld=0.98)
-            same_with_skipped_image = self.compare_skipped_image(node_info.image)
+            same_with_skipped_image = self.compare_skipped_with_cursor(node_info.image)
 
             breadth_end_cond = same_with_prev or same_with_breadth_start or same_with_skipped_image
             is_breadth_end = True if breadth_end_cond else False
@@ -175,8 +175,14 @@ class IntelligentMonkeyTestSK:
         self.section_id += 1
 
     ##### Skipped Image #####
-    def compare_skipped_image(self, image: np.ndarray) -> bool:
-        return any([check_image_similar_with_ssim(image, skipped_image) for skipped_image in self.skipped_images])
+    def compare_skipped_with_cursor(self, image: np.ndarray) -> bool:
+        cursor = self.get_cursor(image)
+        for skipped_image in self.skipped_images:
+            skipped_cursor = self.get_cursor(skipped_image)
+            if check_cursor_is_same(image, cursor, skipped_image, skipped_cursor):
+                return True
+        else:
+            return False
 
     ##### Re-Defined Functions #####
     def exec_keys(self, keys: List[str]):
