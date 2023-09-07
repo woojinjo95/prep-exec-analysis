@@ -28,8 +28,8 @@ def get_data_of_network_log(start_time: float, end_time: float):
     return {"items": event_log}
 
 
-def get_igmp_join_times(event_result: Dict) -> List[Dict]:
-    igmp_join_times = []
+def get_igmp_join_infos(event_result: Dict) -> List[Dict]:
+    igmp_join_infos = []
     for item in event_result.get('items', []):
         src = item.get('src', '')
         dst = item.get('dst', '')
@@ -37,7 +37,7 @@ def get_igmp_join_times(event_result: Dict) -> List[Dict]:
         type = meta_data.get('type', '')
         if type == 'igmp_join':
             try:
-                igmp_join_times.append({
+                igmp_join_infos.append({
                     'timestamp': meta_data['timestamp'],  # required
                     'src': src,
                     'dst': dst,
@@ -45,5 +45,5 @@ def get_igmp_join_times(event_result: Dict) -> List[Dict]:
                 })
             except KeyError:
                 pass
-    logger.info(f'igmp_join_times: {igmp_join_times}')
-    return igmp_join_times
+    logger.info(f'igmp_join_infos: {igmp_join_infos}')
+    return igmp_join_infos

@@ -7,7 +7,7 @@ from scripts.config.config import get_setting_with_env
 from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.data import load_input, read_analysis_config
 from scripts.external.event import get_data_of_event_log
-from scripts.external.network import get_data_of_network_log
+from scripts.external.network import get_data_of_network_log, get_igmp_join_infos
 from scripts.external.report import report_output
 from scripts.external.analysis import set_analysis_info
 from scripts.format import Command, ReportName
@@ -39,7 +39,7 @@ def measure_channel_zapping():
     targets = config['targets']  # ['adjoint_channel', 'non_adjoint_channel']
 
     network_log = get_data_of_network_log(args.timestamps[0], args.timestamps[-1])
-    igmp_join_times = get_igmp_join_times(network_log)  # igmp join occured time
+    igmp_join_infos = get_igmp_join_infos(network_log)  # igmp join occured time
 
     event_log = get_data_of_event_log(args.timestamps[0], args.timestamps[-1])
     channel_key_input_times = get_channel_key_input_times(event_log)  # channel key: all number key, ok key, channelup key, channeldown key
@@ -50,7 +50,7 @@ def measure_channel_zapping():
     #   -> accumulate key along to adj or non adj
     # else
     #   -> invalid key input time. skip.
-    event_times = get_event_times(igmp_join_times, channel_key_input_times, targets)
+    event_times = get_event_times(igmp_join_infos, channel_key_input_times, targets)
 
     with tempfile.TemporaryDirectory(dir='/tmp') as output_dir:
 
