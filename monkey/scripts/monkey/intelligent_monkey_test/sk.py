@@ -14,7 +14,8 @@ from scripts.monkey.util import (check_cursor_is_same, exec_keys_with_each_inter
                                  optimize_path, get_last_breadth_start_image,
                                  get_cursor)
 from scripts.external.report import report_section
-from scripts.external.image import get_skipped_images
+from scripts.external.image import get_skipped_images, save_test_image
+from scripts.util._timezone import get_time_str
 
 logger = logging.getLogger('monkey_test')
 
@@ -100,6 +101,7 @@ class IntelligentMonkeyTestSK:
             # save_test_image(f'{time_str}_cursor_cur', get_cropped_image(node_info.image, node_info.cursor))
             # save_test_image(f'{time_str}_cursor_prev', get_cropped_image(self.node_histories[-1].image, self.node_histories[-1].cursor))
             # save_test_image(f'{time_str}_cursor_last_breadth_start', get_cropped_image(last_breadth_start_image, self.get_cursor(last_breadth_start_image)))
+            # save_test_image(f'{time_str}_cursor_skipped', get_cropped_image(self.skipped_images[0], self.get_cursor(self.skipped_images[0])))
             # #####
             return is_breadth_end
         except Exception as err:
@@ -192,7 +194,8 @@ class IntelligentMonkeyTestSK:
 
     def head_to_next(self) -> bool:
         try:
-            self.keyset = head_to_parent_sibling(self.keyset, self.depth_key, self.breadth_key)
+            keyset = head_to_parent_sibling(self.keyset, self.depth_key, self.breadth_key)
+            self.keyset = optimize_path(keyset)
             return True
         except Exception:
             return False

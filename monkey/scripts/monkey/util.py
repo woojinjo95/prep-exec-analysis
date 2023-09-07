@@ -78,6 +78,7 @@ def head_to_parent_sibling(key_histories: List[str], depth_key: str, breadth_key
             elif key_histories[-1] == depth_key:
                 key_histories.pop()
                 key_histories.append(breadth_key)
+                logger.info(f'head to parent sibling. key_histories: {key_histories}')
                 return key_histories
             else:
                 logger.info(f'key_histories: {key_histories}')
