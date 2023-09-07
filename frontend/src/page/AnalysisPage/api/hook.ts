@@ -1,7 +1,7 @@
 import { scenarioIdState, testRunIdState } from '@global/atom'
 import { useRecoilValue } from 'recoil'
 import { useQuery } from 'react-query'
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 import { useVideoSummary } from '@global/api/hook'
 import { AnalysisType } from '@global/constant'
 import { useWebsocket } from '@global/hook'
@@ -89,30 +89,21 @@ type AnalysisResponseMessageBody = {
 /**
  * Log Level Finder 리스트 조회 hook
  */
-export const useLogLevelFinders = (params: Pick<Parameters<typeof getLogLevelFinders>[0], 'log_level'>) => {
+export const useLogLevelFinders = (params: Parameters<typeof getLogLevelFinders>[0]) => {
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
   const { videoSummary } = useVideoSummary()
-  const enabled = useMemo(() => !!videoSummary && !!scenarioId && !!testRunId, [videoSummary, scenarioId, testRunId])
-
   const { data, isLoading, refetch } = useQuery(
     ['log_level_finder', params],
-    () =>
-      getLogLevelFinders({
-        ...params,
-        start_time: new Date(videoSummary?.start_time!).toISOString(),
-        end_time: new Date(videoSummary?.end_time!).toISOString(),
-        scenario_id: scenarioId!,
-        testrun_id: testRunId!,
-      }),
+    () => getLogLevelFinders({ ...params, scenario_id: scenarioId!, testrun_id: testRunId! }),
     {
-      enabled,
+      enabled: !!videoSummary && !!scenarioId && !!testRunId,
     },
   )
 
   useWebsocket<AnalysisResponseMessageBody>({
     onMessage: (message) => {
-      if (enabled && message.msg === 'analysis_response' && message.data.measurement === 'log_level_finder') {
+      if (message.msg === 'analysis_response' && message.data.measurement === 'log_level_finder') {
         refetch()
       }
     },
@@ -124,24 +115,11 @@ export const useLogLevelFinders = (params: Pick<Parameters<typeof getLogLevelFin
 /**
  * CPU 사용률 리스트 조회 hook
  */
-export const useCPU = () => {
+export const useCPU = (params: Parameters<typeof getCPU>[0]) => {
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
-  const { videoSummary } = useVideoSummary()
-  const enabled = useMemo(() => !!videoSummary && !!scenarioId && !!testRunId, [videoSummary, scenarioId, testRunId])
-
-  const { data, isLoading, refetch } = useQuery(
-    ['cpu'],
-    () =>
-      getCPU({
-        start_time: new Date(videoSummary?.start_time!).toISOString(),
-        end_time: new Date(videoSummary?.end_time!).toISOString(),
-        scenario_id: scenarioId!,
-        testrun_id: testRunId!,
-      }),
-    {
-      enabled,
-    },
+  const { data, isLoading, refetch } = useQuery(['cpu', params], () =>
+    getCPU({ ...params, scenario_id: scenarioId!, testrun_id: testRunId || undefined }),
   )
 
   return { cpu: data, isLoading, refetch }
@@ -150,24 +128,11 @@ export const useCPU = () => {
 /**
  * Memory 사용률 리스트 조회 hook
  */
-export const useMemory = () => {
+export const useMemory = (params: Parameters<typeof getMemory>[0]) => {
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
-  const { videoSummary } = useVideoSummary()
-  const enabled = useMemo(() => !!videoSummary && !!scenarioId && !!testRunId, [videoSummary, scenarioId, testRunId])
-
-  const { data, isLoading, refetch } = useQuery(
-    ['memory'],
-    () =>
-      getMemory({
-        start_time: new Date(videoSummary?.start_time!).toISOString(),
-        end_time: new Date(videoSummary?.end_time!).toISOString(),
-        scenario_id: scenarioId!,
-        testrun_id: testRunId!,
-      }),
-    {
-      enabled,
-    },
+  const { data, isLoading, refetch } = useQuery(['memory', params], () =>
+    getMemory({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
   )
 
   return { memory: data, isLoading, refetch }
@@ -176,24 +141,11 @@ export const useMemory = () => {
 /**
  * 이벤트 로그 리스트 조회 hook
  */
-export const useEventLogs = () => {
+export const useEventLogs = (params: Parameters<typeof getEventLogs>[0]) => {
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
-  const { videoSummary } = useVideoSummary()
-  const enabled = useMemo(() => !!videoSummary && !!scenarioId && !!testRunId, [videoSummary, scenarioId, testRunId])
-
-  const { data, isLoading, refetch } = useQuery(
-    ['event_log'],
-    () =>
-      getEventLogs({
-        start_time: new Date(videoSummary?.start_time!).toISOString(),
-        end_time: new Date(videoSummary?.end_time!).toISOString(),
-        scenario_id: scenarioId!,
-        testrun_id: testRunId!,
-      }),
-    {
-      enabled,
-    },
+  const { data, isLoading, refetch } = useQuery(['event_log', params], () =>
+    getEventLogs({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
   )
 
   return { eventLogs: data, isLoading, refetch }
@@ -202,29 +154,16 @@ export const useEventLogs = () => {
 /**
  * Color Reference 리스트 조회 hook
  */
-export const useColorReferences = () => {
+export const useColorReferences = (params: Parameters<typeof getColorReferences>[0]) => {
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
-  const { videoSummary } = useVideoSummary()
-  const enabled = useMemo(() => !!videoSummary && !!scenarioId && !!testRunId, [videoSummary, scenarioId, testRunId])
-
-  const { data, isLoading, refetch } = useQuery(
-    ['color_reference'],
-    () =>
-      getColorReferences({
-        start_time: new Date(videoSummary?.start_time!).toISOString(),
-        end_time: new Date(videoSummary?.end_time!).toISOString(),
-        scenario_id: scenarioId!,
-        testrun_id: testRunId!,
-      }),
-    {
-      enabled,
-    },
+  const { data, isLoading, refetch } = useQuery(['color_reference', params], () =>
+    getColorReferences({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
   )
 
   useWebsocket<AnalysisResponseMessageBody>({
     onMessage: (message) => {
-      if (enabled && message.msg === 'analysis_response' && message.data.measurement === 'color_reference') {
+      if (message.msg === 'analysis_response' && message.data.measurement === 'color_reference') {
         refetch()
       }
     },
@@ -236,30 +175,16 @@ export const useColorReferences = () => {
 /**
  * Freeze 리스트 조회 hook
  */
-export const useFreeze = (params: Pick<Parameters<typeof getFreeze>[0], 'freeze_type'>) => {
+export const useFreeze = (params: Parameters<typeof getFreeze>[0]) => {
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
-  const { videoSummary } = useVideoSummary()
-  const enabled = useMemo(() => !!videoSummary && !!scenarioId && !!testRunId, [videoSummary, scenarioId, testRunId])
-
-  const { data, isLoading, refetch } = useQuery(
-    ['freeze', params],
-    () =>
-      getFreeze({
-        ...params,
-        start_time: new Date(videoSummary?.start_time!).toISOString(),
-        end_time: new Date(videoSummary?.end_time!).toISOString(),
-        scenario_id: scenarioId!,
-        testrun_id: testRunId!,
-      }),
-    {
-      enabled,
-    },
+  const { data, isLoading, refetch } = useQuery(['freeze', params], () =>
+    getFreeze({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
   )
 
   useWebsocket<AnalysisResponseMessageBody>({
     onMessage: (message) => {
-      if (enabled && message.msg === 'analysis_response' && message.data.measurement === 'freeze') {
+      if (message.msg === 'analysis_response' && message.data.measurement === 'freeze') {
         refetch()
       }
     },
@@ -271,24 +196,11 @@ export const useFreeze = (params: Pick<Parameters<typeof getFreeze>[0], 'freeze_
 /**
  * Loudness 리스트 조회 hook
  */
-export const useLoudness = () => {
+export const useLoudness = (params: Parameters<typeof getLoudness>[0]) => {
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
-  const { videoSummary } = useVideoSummary()
-  const enabled = useMemo(() => !!videoSummary && !!scenarioId && !!testRunId, [videoSummary, scenarioId, testRunId])
-
-  const { data, isLoading, refetch } = useQuery(
-    ['loudness'],
-    () =>
-      getLoudness({
-        start_time: new Date(videoSummary?.start_time!).toISOString(),
-        end_time: new Date(videoSummary?.end_time!).toISOString(),
-        scenario_id: scenarioId!,
-        testrun_id: testRunId!,
-      }),
-    {
-      enabled,
-    },
+  const { data, isLoading, refetch } = useQuery(['loudness', params], () =>
+    getLoudness({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
   )
 
   return { loudness: data, isLoading, refetch }
@@ -297,29 +209,16 @@ export const useLoudness = () => {
 /**
  * Resume 리스트 조회 hook
  */
-export const useResume = () => {
+export const useResume = (params: Parameters<typeof getResume>[0]) => {
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
-  const { videoSummary } = useVideoSummary()
-  const enabled = useMemo(() => !!videoSummary && !!scenarioId && !!testRunId, [videoSummary, scenarioId, testRunId])
-
-  const { data, isLoading, refetch } = useQuery(
-    ['resume'],
-    () =>
-      getResume({
-        start_time: new Date(videoSummary?.start_time!).toISOString(),
-        end_time: new Date(videoSummary?.end_time!).toISOString(),
-        scenario_id: scenarioId!,
-        testrun_id: testRunId!,
-      }),
-    {
-      enabled,
-    },
+  const { data, isLoading, refetch } = useQuery(['resume', params], () =>
+    getResume({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
   )
 
   useWebsocket<AnalysisResponseMessageBody>({
     onMessage: (message) => {
-      if (enabled && message.msg === 'analysis_response' && message.data.measurement === 'resume') {
+      if (message.msg === 'analysis_response' && message.data.measurement === 'resume') {
         refetch()
       }
     },
@@ -331,29 +230,16 @@ export const useResume = () => {
 /**
  * Boot 리스트 조회 hook
  */
-export const useBoot = () => {
+export const useBoot = (params: Parameters<typeof getBoot>[0]) => {
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
-  const { videoSummary } = useVideoSummary()
-  const enabled = useMemo(() => !!videoSummary && !!scenarioId && !!testRunId, [videoSummary, scenarioId, testRunId])
-
-  const { data, isLoading, refetch } = useQuery(
-    ['boot'],
-    () =>
-      getBoot({
-        start_time: new Date(videoSummary?.start_time!).toISOString(),
-        end_time: new Date(videoSummary?.end_time!).toISOString(),
-        scenario_id: scenarioId!,
-        testrun_id: testRunId!,
-      }),
-    {
-      enabled,
-    },
+  const { data, isLoading, refetch } = useQuery(['boot', params], () =>
+    getBoot({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
   )
 
   useWebsocket<AnalysisResponseMessageBody>({
     onMessage: (message) => {
-      if (enabled && message.msg === 'analysis_response' && message.data.measurement === 'boot') {
+      if (message.msg === 'analysis_response' && message.data.measurement === 'boot') {
         refetch()
       }
     },
@@ -365,29 +251,16 @@ export const useBoot = () => {
 /**
  * Log Pattern Matching 리스트 조회 hook
  */
-export const useLogPatternMatching = () => {
+export const useLogPatternMatching = (params: Parameters<typeof getLogPatternMatching>[0]) => {
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
-  const { videoSummary } = useVideoSummary()
-  const enabled = useMemo(() => !!videoSummary && !!scenarioId && !!testRunId, [videoSummary, scenarioId, testRunId])
-
-  const { data, isLoading, refetch } = useQuery(
-    ['log_pattern_matching'],
-    () =>
-      getLogPatternMatching({
-        start_time: new Date(videoSummary?.start_time!).toISOString(),
-        end_time: new Date(videoSummary?.end_time!).toISOString(),
-        scenario_id: scenarioId!,
-        testrun_id: testRunId!,
-      }),
-    {
-      enabled,
-    },
+  const { data, isLoading, refetch } = useQuery(['log_pattern_matching', params], () =>
+    getLogPatternMatching({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
   )
 
   useWebsocket<AnalysisResponseMessageBody>({
     onMessage: (message) => {
-      if (enabled && message.msg === 'analysis_response' && message.data.measurement === 'log_pattern_matching') {
+      if (message.msg === 'analysis_response' && message.data.measurement === 'log_pattern_matching') {
         refetch()
       }
     },

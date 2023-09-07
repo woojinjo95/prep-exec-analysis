@@ -195,11 +195,27 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
             }
 
             if (chartKey === 'color_reference') {
-              return <ColorReferenceChart key={`chart-${chartKey}`} scaleX={scrollbarScaleX} dimension={dimension} />
+              return (
+                <ColorReferenceChart
+                  key={`chart-${chartKey}`}
+                  scaleX={scrollbarScaleX}
+                  startTime={startTime}
+                  endTime={endTime}
+                  dimension={dimension}
+                />
+              )
             }
 
             if (chartKey === 'event_log') {
-              return <EventLogChart key={`chart-${chartKey}`} scaleX={scrollbarScaleX} dimension={dimension} />
+              return (
+                <EventLogChart
+                  key={`chart-${chartKey}`}
+                  scaleX={scrollbarScaleX}
+                  startTime={startTime}
+                  endTime={endTime}
+                  dimension={dimension}
+                />
+              )
             }
 
             if (chartKey === 'video_analysis_result') {
@@ -207,6 +223,8 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
                 <FreezeChart
                   key={`chart-${chartKey}`}
                   scaleX={scrollbarScaleX}
+                  startTime={startTime}
+                  endTime={endTime}
                   dimension={dimension}
                   summary={analysisResultSummary}
                 />
@@ -218,6 +236,8 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
                 <LoudnessChart
                   key={`chart-${chartKey}`}
                   scaleX={scrollbarScaleX}
+                  startTime={startTime}
+                  endTime={endTime}
                   dimension={dimension}
                   summary={analysisResultSummary}
                 />
@@ -229,6 +249,8 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
                 <ResumeBootChart
                   key={`chart-${chartKey}`}
                   scaleX={scrollbarScaleX}
+                  startTime={startTime}
+                  endTime={endTime}
                   dimension={dimension}
                   summary={analysisResultSummary}
                 />
@@ -241,6 +263,8 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
                 <LogLevelFinderChart
                   key={`chart-${chartKey}`}
                   scaleX={scrollbarScaleX}
+                  startTime={startTime}
+                  endTime={endTime}
                   dimension={dimension}
                   summary={analysisResultSummary}
                 />
@@ -252,6 +276,8 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
                 <LogPatternMatchingChart
                   key={`chart-${chartKey}`}
                   scaleX={scrollbarScaleX}
+                  startTime={startTime}
+                  endTime={endTime}
                   dimension={dimension}
                   summary={analysisResultSummary}
                 />
@@ -259,11 +285,27 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
             }
 
             if (chartKey === 'cpu') {
-              return <CPUChart key={`chart-${chartKey}`} scaleX={scrollbarScaleX} dimension={dimension} />
+              return (
+                <CPUChart
+                  key={`chart-${chartKey}`}
+                  scaleX={scrollbarScaleX}
+                  startTime={startTime}
+                  endTime={endTime}
+                  dimension={dimension}
+                />
+              )
             }
 
             if (chartKey === 'memory') {
-              return <MemoryChart key={`chart-${chartKey}`} scaleX={scrollbarScaleX} dimension={dimension} />
+              return (
+                <MemoryChart
+                  key={`chart-${chartKey}`}
+                  scaleX={scrollbarScaleX}
+                  startTime={startTime}
+                  endTime={endTime}
+                  dimension={dimension}
+                />
+              )
             }
 
             return null

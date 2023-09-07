@@ -7,6 +7,8 @@ import { useTooltipEvent } from '../hook'
 
 interface ResumeBootChartProps {
   scaleX: Parameters<typeof PointChart>[0]['scaleX']
+  startTime: Date
+  endTime: Date
   dimension: { left: number; width: number } | null
   summary: AnalysisResultSummary
 }
@@ -14,12 +16,18 @@ interface ResumeBootChartProps {
 /**
  * Resume(warm booting), Boot(cold booting) 시간 차트
  */
-const ResumeBootChart: React.FC<ResumeBootChartProps> = ({ scaleX, dimension, summary }) => {
+const ResumeBootChart: React.FC<ResumeBootChartProps> = ({ scaleX, startTime, endTime, dimension, summary }) => {
   const wrapperRef = useRef<HTMLDivElement | null>(null)
-  // TODO: 타겟별 보기 / 숨기기 기능
-  const { resume } = useResume()
-  // TODO: 타겟별 보기 / 숨기기 기능
-  const { boot } = useBoot()
+  const { resume } = useResume({
+    start_time: startTime.toISOString(),
+    end_time: endTime.toISOString(),
+    // TODO: 타겟별 보기 / 숨기기 기능
+  })
+  const { boot } = useBoot({
+    start_time: startTime.toISOString(),
+    end_time: endTime.toISOString(),
+    // TODO: 타겟별 보기 / 숨기기 기능
+  })
 
   const data: { datetime: number; duration: number; color: string; type: 'Resume' | 'Boot' }[] | null = useMemo(() => {
     if (!resume || !boot) return null

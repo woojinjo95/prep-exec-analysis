@@ -5,15 +5,20 @@ import { useTooltipEvent } from '../hook'
 
 interface EventLogChartProps {
   scaleX: Parameters<typeof PointChart>[0]['scaleX']
+  startTime: Date
+  endTime: Date
   dimension: { left: number; width: number } | null
 }
 
 /**
  * 이벤트 로그 차트
  */
-const EventLogChart: React.FC<EventLogChartProps> = ({ scaleX, dimension }) => {
+const EventLogChart: React.FC<EventLogChartProps> = ({ scaleX, startTime, endTime, dimension }) => {
   const wrapperRef = useRef<HTMLDivElement | null>(null)
-  const { eventLogs } = useEventLogs()
+  const { eventLogs } = useEventLogs({
+    start_time: startTime.toISOString(),
+    end_time: endTime.toISOString(),
+  })
 
   const eventLogsData = useMemo(() => {
     if (!eventLogs) return null

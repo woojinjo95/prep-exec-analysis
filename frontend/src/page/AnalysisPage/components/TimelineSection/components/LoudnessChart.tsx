@@ -8,6 +8,8 @@ import { useTooltipEvent } from '../hook'
 
 interface LoudnessChartProps {
   scaleX: Parameters<typeof AreaChart>[0]['scaleX']
+  startTime: Date
+  endTime: Date
   dimension: { left: number; width: number } | null
   summary: AnalysisResultSummary
 }
@@ -15,9 +17,12 @@ interface LoudnessChartProps {
 /**
  * Loudness(소리) 변화 차트
  */
-const LoudnessChart: React.FC<LoudnessChartProps> = ({ scaleX, dimension, summary }) => {
+const LoudnessChart: React.FC<LoudnessChartProps> = ({ scaleX, startTime, endTime, dimension, summary }) => {
   const wrapperRef = useRef<HTMLDivElement | null>(null)
-  const { loudness } = useLoudness()
+  const { loudness } = useLoudness({
+    start_time: startTime.toISOString(),
+    end_time: endTime.toISOString(),
+  })
 
   const loudnessData = useMemo(() => {
     if (!loudness) return null
