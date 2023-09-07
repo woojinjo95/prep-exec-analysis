@@ -9,6 +9,7 @@ interface ModalProps {
   children: React.ReactNode
   className?: string
   title?: string
+  mode?: 'position' | 'node'
 }
 
 /**
@@ -22,9 +23,9 @@ interface ModalProps {
  * @returns
  */
 
-const Modal: React.FC<ModalProps> = ({ isOpen, close, children, className, title }) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, close, children, className, title, mode = 'position' }) => {
   const { ref } = useOutsideClick<HTMLDivElement>({
-    mode: 'position',
+    mode,
     onClickOutside: () => {
       close()
     },
