@@ -12,7 +12,6 @@ class Log(TimestampBaseModel):
 
 class Shell(TimestampBaseModel):
     mode: ShellModeEnum
-    shell_id: int
     lines: List[Log]
 
 
