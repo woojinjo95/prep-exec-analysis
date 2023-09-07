@@ -14,7 +14,7 @@ from scripts.media_process.capture import refresh_capture_board, streaming
 from scripts.media_process.loudness import update_loudness_to_mongodb
 from scripts.media_process.rotation import MakeVideo
 from scripts.media_process.utils import kill_active_capture_process
-from scripts.media_process.video_snapshot import save_video_snapshot
+from scripts.media_process.video_snapshot import save_video_frame_snapshot
 from scripts.utils._exceptions import handle_errors
 
 logger = logging.getLogger('main')
@@ -94,7 +94,7 @@ def command_parser(command: dict, streaming_stop_event: Event):
 
     if command.get('msg') == 'video_frame_snapshot':
         video_snapshot_args = command.get('data')
-        save_video_snapshot(**video_snapshot_args)
+        save_video_frame_snapshot(**video_snapshot_args)
 
 
 @handle_errors

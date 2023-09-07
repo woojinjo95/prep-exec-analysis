@@ -112,7 +112,7 @@ def read_testruns(
                                   "is_active": "$testruns.is_active",
                                   "last_timestamp": "$testruns.last_updated_timestamp",
                                   "targets": "$testruns.measure_targets.type"}},
-                    {'$match': {"is_active": True}},
+                    {'$match': {"is_active": True, 'last_timestamp': {"$exists": True}}},
                     {"$group": {"_id": {
                                 "testrun_id": "$testrun_id",
                                 "last_timestamp": "$last_timestamp",
