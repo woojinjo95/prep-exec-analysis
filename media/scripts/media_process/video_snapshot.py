@@ -137,6 +137,8 @@ def save_full_frame_video_snapshots(scenario_id: str, testrun_id: str, video_pat
             snapshot_count = total_frame_num // fps
 
         unit_step = total_frame_num / snapshot_count  # this value is floating
+        logger.info(f'Video total frame count is {total_frame_num}, unit_step_index is {unit_step:.3f}, count: {snapshot_count}')
+
         snapshot_indices = [int(idx * unit_step) for idx in range(snapshot_count)]
 
         image_names = []
@@ -153,7 +155,9 @@ def save_full_frame_video_snapshots(scenario_id: str, testrun_id: str, video_pat
             save_image = cv2.resize(image, FRAME_SNAPSHOTS_IMAGE_SIZE, interpolation=cv2.INTER_AREA)
             cv2.imwrite(image_path, save_image, WEBP_PARAMS)
         else:
-            log += 'Succesfully images made'
+            log += f'Succesfully {len(image_names)}images made'
+
+        logger.info(log)
 
         document = {'timestamp': get_utc_datetime(time.time()),
                     'scenario_id': scenario_id,
