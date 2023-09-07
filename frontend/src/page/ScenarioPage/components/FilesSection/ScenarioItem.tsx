@@ -1,36 +1,38 @@
 import { ScenarioSummary } from '@global/api/entity'
-import { getTestrun, postTestrun } from '@global/api/func'
+import { postTestrun } from '@global/api/func'
 import { scenarioIdState, testRunIdState } from '@global/atom'
 import { Accordion, Text } from '@global/ui'
 import { formatDateTo } from '@global/usecase'
 import { AxiosError } from 'axios'
 import React from 'react'
-import { useMutation, useQuery } from 'react-query'
+import { useMutation } from 'react-query'
 import { useNavigate } from 'react-router-dom'
 import { useRecoilState } from 'recoil'
+import { useWebsocket } from '@global/hook'
+import TestRunItem from './TestRunItem'
 
 interface ScenarioItemProps {
   scenario: ScenarioSummary
 }
 
 const ScenarioItem: React.FC<ScenarioItemProps> = ({ scenario }) => {
-  const { refetch } = useQuery(['testrun', scenario.id], () => getTestrun({ scenaroId: scenario.id }), {
-    onSuccess: () => {
-      console.log('tset')
-    },
-    enabled: false,
-  })
-
   const [, setScenarioId] = useRecoilState(scenarioIdState)
 
   const navigate = useNavigate()
 
   const [, setTestRunId] = useRecoilState(testRunIdState)
 
+  const { sendMessage } = useWebsocket()
+
   const { mutate: postTestrunMutate } = useMutation(postTestrun, {
     onSuccess: (res) => {
       setScenarioId(scenario.id)
       setTestRunId(res.id)
+
+      sendMessage({
+        level: 'info',
+        msg: 'action_mode',
+      })
       navigate('/action')
     },
     onError: (err: AxiosError) => {
@@ -41,11 +43,8 @@ const ScenarioItem: React.FC<ScenarioItemProps> = ({ scenario }) => {
   return (
     <div className="mt-1">
       <Accordion
-        onClick={() => {
-          refetch()
-        }}
         header={
-          <div className="w-[calc(100%-24px)] grid grid-cols-[17.5%_35%_5%_12.5%_17.5%_5%_5%] min-h-8 gap-x-1 items-center">
+          <div className="w-[calc(100%-96px)] grid grid-cols-[17.5%_35%_5%_12.5%_17.5%_5%_5%] min-h-8 gap-x-4 items-center">
             <Text colorScheme="light" size="md">
               {scenario.name}
             </Text>
@@ -82,7 +81,7 @@ const ScenarioItem: React.FC<ScenarioItemProps> = ({ scenario }) => {
           </div>
         }
       >
-        <div className="w-[calc(100%-8px)] grid grid-cols-[15%_63%_2%] min-h-8 gap-x-1 items-center" />
+        <TestRunItem scenario={scenario} />
       </Accordion>
     </div>
   )

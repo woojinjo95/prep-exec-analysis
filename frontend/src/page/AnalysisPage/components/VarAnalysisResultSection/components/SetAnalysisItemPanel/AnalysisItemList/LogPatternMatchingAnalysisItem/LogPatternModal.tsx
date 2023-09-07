@@ -15,8 +15,6 @@ interface LogPatternModalProps {
 
 /**
  * 로그 패턴 추가 및 수정 모달
- *
- * TODO:
  */
 const LogPatternModal: React.FC<LogPatternModalProps> = ({
   isOpen,

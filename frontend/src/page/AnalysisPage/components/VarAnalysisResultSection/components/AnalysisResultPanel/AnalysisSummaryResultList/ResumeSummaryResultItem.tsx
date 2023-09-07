@@ -4,17 +4,17 @@ import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
 // import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
 import { numberWithCommas } from '@global/usecase'
+import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { AnalysisTypeLabel, ResumeTypeLabel } from '../../../constant'
-import { AnalysisResultSummary } from '../../../api/entity'
 
 interface ResumeSummaryResultItemProps {
-  results: NonNullable<AnalysisResultSummary['resume']>
+  resume: NonNullable<AnalysisResultSummary['resume']>
 }
 
 /**
  * resume 분석결과 요약 아이템
  */
-const ResumeSummaryResultItem: React.FC<ResumeSummaryResultItemProps> = ({ results }) => {
+const ResumeSummaryResultItem: React.FC<ResumeSummaryResultItemProps> = ({ resume }) => {
   return (
     <Accordion
       header={
@@ -23,8 +23,7 @@ const ResumeSummaryResultItem: React.FC<ResumeSummaryResultItemProps> = ({ resul
             <div
               className="w-4 h-4"
               style={{
-                // TODO:
-                backgroundColor: 'white',
+                backgroundColor: resume.color,
               }}
             />
             <Text size="sm" weight="medium">
@@ -32,7 +31,9 @@ const ResumeSummaryResultItem: React.FC<ResumeSummaryResultItemProps> = ({ resul
             </Text>
           </div>
 
-          <Text weight="medium">{numberWithCommas(results.reduce((acc, curr) => acc + curr.total, 0))} times</Text>
+          <Text weight="medium">
+            {numberWithCommas(resume.results.reduce((acc, curr) => acc + curr.total, 0))} times
+          </Text>
         </div>
       }
     >
@@ -50,7 +51,7 @@ const ResumeSummaryResultItem: React.FC<ResumeSummaryResultItemProps> = ({ resul
           </Text>
           <div />
 
-          {results.map(({ total, target, avg_time }, index) => (
+          {resume.results.map(({ total, target, avg_time }, index) => (
             <React.Fragment key={`resume-summary-result-${index}`}>
               <Text size="sm">{ResumeTypeLabel[target]}</Text>
               <Text size="sm" className="text-right">

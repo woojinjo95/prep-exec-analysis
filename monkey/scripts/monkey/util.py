@@ -39,7 +39,7 @@ def exec_keys_with_each_interval(key_and_intervals: List[Tuple[str, float]], com
 
 
 def check_cursor_is_same(prev_image: np.ndarray, prev_cursor: Tuple, image: np.ndarray, cursor: Tuple, 
-                        iou_thld: float=0.9, min_color_depth_diff: int=10, diff_thld: float=0.05) -> bool:
+                        iou_thld: float=0.9, min_color_depth_diff: int=10, sim_thld: float=0.95) -> bool:
     # logger.info(f'cursor same check. prev_cursor: {prev_cursor}, cursor: {cursor}')
     if prev_image is None or image is None or prev_cursor is None or cursor is None:
         return False
@@ -48,7 +48,7 @@ def check_cursor_is_same(prev_image: np.ndarray, prev_cursor: Tuple, image: np.n
         temporal_similar = check_image_similar(get_cropped_image(prev_image, prev_cursor), 
                                         get_cropped_image(image, cursor), 
                                         min_color_depth_diff, 
-                                        diff_thld)
+                                        sim_thld)
         # 1. 위치적 동일성이 일정 수준 이하 => 커서가 움직임
         # 2. 위치적 동일성이 높지만, 시간적 동일성이 낮음 => 커서는 움직이지 않았지만, 내용물이 변함
         same = False if not positional_similar or (positional_similar and not temporal_similar) else True
@@ -90,10 +90,12 @@ def check_positional_similar(prev_cursor: Tuple, cursor: Tuple, iou_thld: float=
     return iou_rate > iou_thld
 
 
-def check_image_similar(image1: np.ndarray, image2: np.ndarray, min_color_depth_diff: int=10, diff_thld: float=0.05) -> bool:
+def check_image_similar(image1: np.ndarray, image2: np.ndarray, min_color_depth_diff: int=10, sim_thld: float=0.95) -> bool:
     def preprocess_image(image: np.ndarray) -> np.ndarray:
         return cv2.cvtColor(cv2.resize(image, (960, 540)), cv2.COLOR_BGR2GRAY)
     
     diff_rate = calc_diff_rate(preprocess_image(image1), preprocess_image(image2), min_color_depth_diff)
+    sim_rate = 1 - diff_rate
     # logger.info(f'check temporal similar. diff_rate: {diff_rate:.6f}, diff_thld: {diff_thld:.6f}')
-    return diff_rate < diff_thld
+    return sim_rate > sim_thld
+

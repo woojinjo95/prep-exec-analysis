@@ -20,9 +20,7 @@ const LogTraceSection: React.FC = () => {
       >
         <LogcatTrace />
         <NetworkTrace />
-        {shells?.map(({ mode, shell_id }, index) => (
-          <ShellLog key={`shell-logs-${mode}-${shell_id}-${index}`} shell_mode={mode} shell_id={shell_id} />
-        ))}
+        {shells?.map(({ mode }, index) => <ShellLog key={`shell-logs-${mode}-${index}`} shell_mode={mode} />)}
       </Tabs>
     </section>
   )

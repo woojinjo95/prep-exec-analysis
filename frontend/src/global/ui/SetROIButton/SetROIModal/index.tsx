@@ -1,11 +1,11 @@
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import * as d3 from 'd3'
 import { useRecoilValue } from 'recoil'
 import { scenarioIdState, testRunIdState, videoBlobURLState } from '@global/atom'
 import { Button, Modal, Text, VideoSnapshots } from '@global/ui'
 import { AppURL } from '@global/constant'
 import { useVideoSummary } from '@global/api/hook'
-import { formatDateTo } from '@global/usecase'
+import { delay, formatDateTo } from '@global/usecase'
 import { AnalysisFrame } from '@global/api/entity'
 import { useWebsocket } from '@global/hook'
 
@@ -50,10 +50,11 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose, onSave, defa
           path: message.data.path,
           relative_time: videoRef.current.currentTime,
           roi: {
-            x: cropTwoPosX[0],
-            y: cropTwoPosY[0],
-            w: Math.abs(cropTwoPosX[1] - cropTwoPosX[0]),
-            h: Math.abs(cropTwoPosY[1] - cropTwoPosY[0]),
+            // FIXME: 이미지 비율에 따라 변경
+            x: cropTwoPosX[0] * 3,
+            y: cropTwoPosY[0] * 3,
+            w: Math.abs(cropTwoPosX[1] - cropTwoPosX[0]) * 3,
+            h: Math.abs(cropTwoPosY[1] - cropTwoPosY[0]) * 3,
           },
         })
         onClose()
@@ -78,6 +79,13 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose, onSave, defa
     })
   }
 
+  const onLoadVideoError = useCallback(async () => {
+    if (!videoRef.current) return
+
+    await delay(2)
+    videoRef.current.load()
+  }, [])
+
   if (!isOpen || !videoSummary) return null
   return (
     <Modal isOpen={isOpen} close={onClose} title="Set ROI" className="w-[60vw]">
@@ -93,8 +101,9 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose, onSave, defa
             setVideoClientWidth(ref.clientWidth)
             setVideoClientHeight(ref.clientHeight)
             if (defaultROI) {
-              setCropTwoPosX([defaultROI.x, defaultROI.x + defaultROI.w])
-              setCropTwoPosY([defaultROI.y, defaultROI.y + defaultROI.h])
+              // FIXME: 이미지 비율에 따라 변경
+              setCropTwoPosX([defaultROI.x / 3, (defaultROI.x + defaultROI.w) / 3])
+              setCropTwoPosY([defaultROI.y / 3, (defaultROI.y + defaultROI.h) / 3])
             } else {
               setCropTwoPosX([0, ref.clientWidth / 2])
               setCropTwoPosY([0, ref.clientHeight / 2])
@@ -113,6 +122,9 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose, onSave, defa
                 if (defaultCurrentTime) {
                   videoRef.current!.currentTime = defaultCurrentTime
                 }
+              }}
+              onError={() => {
+                onLoadVideoError()
               }}
             />
           )}

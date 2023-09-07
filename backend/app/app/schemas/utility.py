@@ -3,6 +3,7 @@ from typing import List, Optional
 from app.schemas.enum import ExportItemEnum
 from pydantic import BaseModel, root_validator
 from pydantic.datetime_parse import parse_datetime
+from app.schemas.analysis_result import TimestampBaseModel
 
 
 class ServiceStateBase(BaseModel):
@@ -37,6 +38,14 @@ class VideoTimestampBase(BaseModel):
 
 class VideoTimestamp(BaseModel):
     items: VideoTimestampBase
+
+
+class VideoSnapshotBase(TimestampBaseModel):
+    path: str
+
+
+class VideoSnapshot(BaseModel):
+    items: List[VideoSnapshotBase]
 
 
 class ExportResult(BaseModel):

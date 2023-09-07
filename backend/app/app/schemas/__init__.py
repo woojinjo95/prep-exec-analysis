@@ -16,8 +16,9 @@ from .remocon import (Remocon, RemoconCustomKeyCreate,
                       RemoconCustomKeyUpdateMulti, RemoconRead, RemoconUpdate)
 from .scenario import (CopyScenarioCreate, Scenario, ScenarioCreate,
                        ScenarioCreateResult, ScenarioPage, ScenarioTag,
-                       ScenarioTagUpdate, ScenarioUpdate, Testrun)
+                       ScenarioTagUpdate, ScenarioUpdate, Testrun,
+                       TestrunUpdate)
 from .shell import Shell, ShellList, ShellLogList
 from .trace import ReadLogcat, ReadNetwork
 from .utility import (ExportResult, LogConnectionStatus, Regex, RegexResult,
-                      ServiceState, VideoTimestamp)
+                      ServiceState, VideoSnapshot, VideoTimestamp)

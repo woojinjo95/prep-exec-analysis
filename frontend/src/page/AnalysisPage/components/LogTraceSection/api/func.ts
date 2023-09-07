@@ -67,7 +67,6 @@ export const getShells = async (params: { scenario_id?: string; testrun_id?: str
  */
 export const getShellLogs = async (params: {
   shell_mode: 'adb' | 'ssh'
-  shell_id: number
   start_time: string
   end_time: string
   scenario_id?: string

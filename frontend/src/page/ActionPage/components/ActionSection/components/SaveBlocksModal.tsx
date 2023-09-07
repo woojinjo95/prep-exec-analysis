@@ -6,8 +6,8 @@ import useIntersect from '@global/hook/useIntersect'
 import { formatDateTo } from '@global/usecase'
 import Scrollbars from 'react-custom-scrollbars-2'
 import { useScenarioById } from '@global/api/hook'
-import { useRecoilValue } from 'recoil'
-import { scenarioIdState } from '@global/atom'
+import { useRecoilState, useRecoilValue } from 'recoil'
+import { isTestOptionModalOpenState, scenarioIdState, testRunIdState } from '@global/atom'
 import Tag from '@global/ui/Tag'
 import { useMutation, useQuery } from 'react-query'
 import { getTag, postCopyScenario, postTag, postTestrun } from '@global/api/func'
@@ -95,12 +95,16 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
     }
   }, [])
 
+  const [, setTestRunIdState] = useRecoilState(testRunIdState)
+
   const searchedTags = useMemo(() => {
     if (!tags || !currentScenario) return null
     // if (tagInput === '') return null
 
     return tags.filter((tag) => tag.includes(tagInput) && blocksTags.find((_tag) => _tag === tag) === undefined)
   }, [tagInput, tags, blocksTags])
+
+  const [, setIsTesetOptionModalOpen] = useRecoilState(isTestOptionModalOpenState)
 
   const { mutate: postTagMutate } = useMutation(postTag, {
     onSuccess: () => {
@@ -115,8 +119,10 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
     },
   })
   const { mutate: postTestrunMutate } = useMutation(postTestrun, {
-    onSuccess: () => {
+    onSuccess: (res) => {
       close()
+      setIsTesetOptionModalOpen(true)
+      setTestRunIdState(res.id)
     },
     onError: (err: AxiosError) => {
       console.error(err)
@@ -137,10 +143,12 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
   })
 
   const { mutate: postCopyScenarioMutate } = useMutation(postCopyScenario, {
-    onSuccess: () => {
+    onSuccess: (res) => {
       currentScenarioRefetch()
       scenariosRefetch()
       close()
+      setTestRunIdState(res.testrun_id)
+      setIsTesetOptionModalOpen(true)
     },
     onError: (err: AxiosError) => {
       console.error(err)
