@@ -36,7 +36,7 @@ class IntelligentMonkeyTestSK:
 
         # init variables
         self.last_fi = None
-        self.key_histories = []
+        self.keyset = []
         self.section_id = 0
         self.main_stop_event = threading.Event()
 
@@ -56,7 +56,7 @@ class IntelligentMonkeyTestSK:
     ##### Visit #####
     def visit(self):
         while not self.main_stop_event.is_set():
-            self.exec_keys(self.key_histories)
+            self.exec_keys(self.keyset)
             status = self.check_status()
             if status == 'depth_end':
                 continue
@@ -64,7 +64,7 @@ class IntelligentMonkeyTestSK:
                 return
 
             if self.check_leaf_node():
-                current_node_keyset = [*self.key_histories, self.depth_key]
+                current_node_keyset = [*self.keyset, self.depth_key]
                 logger.info(f'current_node_keyset: {current_node_keyset}')
                 self.start_monkey(current_node_keyset, self.cursor_image)
                 self.append_key(self.breadth_key)
@@ -77,11 +77,11 @@ class IntelligentMonkeyTestSK:
         if self.last_fi and check_cursor_is_same(self.last_fi.image, self.last_fi.cursor, image, cursor):
             try:
                 self.head_to_next()
-                logger.info(f'head to next done. {self.key_histories}')
+                logger.info(f'head to next done. {self.keyset}')
                 self.last_fi = None
                 return 'depth_end'
             except IndexError as err:
-                logger.info(f'visit done. {self.key_histories}. {err}')
+                logger.info(f'visit done. {self.keyset}. {err}')
                 return 'visit_end'
         else:
             return 'none'
@@ -112,10 +112,10 @@ class IntelligentMonkeyTestSK:
         return get_cursor_xywh(image)
 
     def set_root_keyset(self, keys: List[str] = []):
-        self.key_histories = keys
-        logger.info(f'root keyset: {self.key_histories}')
+        self.keyset = keys
+        logger.info(f'root keyset: {self.keyset}')
 
-        self.exec_keys(self.key_histories)
+        self.exec_keys(self.keyset)
         self.root_cursor = self.get_cursor()
         logger.info(f'root cursor: {self.root_cursor}')
 
@@ -134,8 +134,8 @@ class IntelligentMonkeyTestSK:
             return True if is_width_similar and is_height_similar and not is_cursor_same else False
 
     def append_key(self, key: str):
-        self.key_histories.append(key)
-        self.key_histories = optimize_path(self.key_histories)
+        self.keyset.append(key)
+        self.keyset = optimize_path(self.keyset)
 
     def get_cursor_image(self, image: np.ndarray=None, cursor: Tuple=None) -> np.ndarray:
         if image is None:
@@ -182,4 +182,4 @@ class IntelligentMonkeyTestSK:
         exec_keys_with_each_interval(key_and_intervals, self.profile, self.remocon_type)
 
     def head_to_next(self):
-        self.key_histories = head_to_parent_sibling(self.key_histories, self.depth_key, self.breadth_key)
+        self.keyset = head_to_parent_sibling(self.keyset, self.depth_key, self.breadth_key)
