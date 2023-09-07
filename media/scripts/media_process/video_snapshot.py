@@ -168,7 +168,7 @@ def save_full_frame_video_snapshots(scenario_id: str, testrun_id: str, video_pat
                     'names': image_names,
                     }
 
-        insert_to_mongodb('video_snapshots', document)
+        insert_to_mongodb('video_snapshot', document)
 
     except Exception as e:
         log += f'\n Error: {e}'
