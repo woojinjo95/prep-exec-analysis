@@ -18,7 +18,6 @@ class Roi(BaseModel):
 
 
 class Frame(BaseModel):
-    id: str
     path: str
     relative_time: float
     roi: Roi

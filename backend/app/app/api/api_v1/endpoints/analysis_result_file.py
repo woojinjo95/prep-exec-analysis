@@ -4,7 +4,7 @@ import traceback
 from typing import Optional
 
 from app import schemas
-from app.crud.base import aggregate_from_mongodb
+from app.crud.base import aggregate_from_mongodb, load_from_mongodb
 from app.db.redis_session import RedisClient
 from fastapi import APIRouter, Header, HTTPException
 from fastapi.responses import FileResponse, Response
@@ -39,6 +39,28 @@ def get_analysis_result_video_summary(
     return {'items': {'path': video['path'],
                       'start_time': video['start_time'],
                       'end_time': video['end_time']}}
+
+
+@router.get('/video_snapshot', response_model=schemas.VideoSnapshot)
+def get_analysis_result_video_snapshot(
+    scenario_id: Optional[str] = None,
+    testrun_id: Optional[str] = None,
+) -> schemas.VideoSnapshot:
+    if scenario_id is None:
+        scenario_id = RedisClient.hget('testrun', 'scenario_id')
+    if testrun_id is None:
+        testrun_id = RedisClient.hget('testrun', 'id')
+
+    snapshots = load_from_mongodb('video_snapshot',
+                                  {'scenario_id': scenario_id, 'testrun_id': testrun_id},
+                                  {'_id': 0, 'path': 1, 'extension': 1, 'names': 1})
+    if not snapshots:
+        raise HTTPException(status_code=404, detail='video snapshot data Not Found')
+
+    snapshot = snapshots[0]
+    return {'items': [{'path': f'{snapshot.get("path", "")}/{snapshot_name}.{snapshot.get("extension", "")}',
+                       'timestamp': snapshot_name}
+                      for snapshot_name in snapshot.get('names', [])]}
 
 
 @router.get('/video', response_class=FileResponse)
