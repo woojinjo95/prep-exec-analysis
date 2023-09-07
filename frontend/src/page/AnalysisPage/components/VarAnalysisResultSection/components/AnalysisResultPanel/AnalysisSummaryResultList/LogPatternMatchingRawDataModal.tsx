@@ -1,9 +1,11 @@
 import React from 'react'
 import cx from 'classnames'
+import { useSetRecoilState } from 'recoil'
 import { CardModal, SimpleButton, Text } from '@global/ui'
 import { ReactComponent as ShowIcon } from '@assets/images/icon_raw_data.svg'
 import { useInfiniteLogPatternMatching } from '@page/AnalysisPage/api/hook'
 import { formatDateTo, numberWithCommas } from '@global/usecase'
+import { cursorDateTimeState } from '@global/atom'
 import { AnalysisTypeLabel } from '../../../constant'
 
 interface LogPatternMatchingRawDataModalProps {
@@ -26,6 +28,7 @@ const LogPatternMatchingRawDataModal: React.FC<LogPatternMatchingRawDataModalPro
     start_time: startTime,
     end_time: endTime,
   })
+  const setCursorDateTime = useSetRecoilState(cursorDateTimeState)
 
   if (!logPatternMatching) return null
   return (
@@ -85,7 +88,7 @@ const LogPatternMatchingRawDataModal: React.FC<LogPatternMatchingRawDataModalPro
                   <Text size="sm">{message}</Text>
                 </td>
                 <td className={cx('px-6 py-1 flex justify-center', { 'border-t border-light-charcoal': index !== 0 })}>
-                  <SimpleButton colorScheme="charcoal" isIcon>
+                  <SimpleButton colorScheme="charcoal" isIcon onClick={() => setCursorDateTime(new Date(timestamp))}>
                     <ShowIcon className="w-3 h-3" />
                   </SimpleButton>
                 </td>

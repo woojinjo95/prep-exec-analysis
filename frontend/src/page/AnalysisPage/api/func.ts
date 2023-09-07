@@ -165,6 +165,8 @@ export const getFreeze = async (params: {
   scenario_id?: string
   testrun_id?: string
   freeze_type?: (keyof typeof FreezeType)[]
+  page?: number
+  page_size?: number
 }) => {
   try {
     const result = await API.get<PaginationResponse<Freeze[]>>(apiUrls.freeze, {
@@ -174,7 +176,7 @@ export const getFreeze = async (params: {
       },
     })
 
-    return result.data.items
+    return result.data
   } catch (err) {
     const er = err as AxiosError
     throw er

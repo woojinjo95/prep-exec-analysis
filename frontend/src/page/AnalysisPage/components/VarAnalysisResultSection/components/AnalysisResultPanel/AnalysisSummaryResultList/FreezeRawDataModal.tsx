@@ -1,9 +1,11 @@
 import React from 'react'
 import cx from 'classnames'
+import { useSetRecoilState } from 'recoil'
 import { CardModal, IconButton, Text } from '@global/ui'
 import { convertDuration, formatDateTo, numberWithCommas } from '@global/usecase'
 import { ReactComponent as PlayIcon } from '@assets/images/icon_play.svg'
 import { useInfiniteFreeze } from '@page/AnalysisPage/api/hook'
+import { cursorDateTimeState } from '@global/atom'
 import { AnalysisTypeLabel, FreezeTypeLabel } from '../../../constant'
 
 interface FreezeRawDataModalProps {
@@ -21,6 +23,7 @@ const FreezeRawDataModal: React.FC<FreezeRawDataModalProps> = ({ isOpen, onClose
     start_time: startTime,
     end_time: endTime,
   })
+  const setCursorDateTime = useSetRecoilState(cursorDateTimeState)
 
   if (!freeze) return null
   return (
@@ -72,7 +75,9 @@ const FreezeRawDataModal: React.FC<FreezeRawDataModalProps> = ({ isOpen, onClose
                   <Text size="sm">{convertDuration(duration * 1000)}</Text>
                 </td>
                 <td className={cx('px-6 py-1 flex justify-center', { 'border-t border-light-charcoal': index !== 0 })}>
-                  <IconButton icon={<PlayIcon className="!h-3" />} colorScheme="charcoal" size="sm" />
+                  <button type="button" onClick={() => setCursorDateTime(new Date(timestamp))}>
+                    <IconButton icon={<PlayIcon className="!h-3" />} colorScheme="charcoal" size="sm" />
+                  </button>
                 </td>
               </tr>
             ))}
