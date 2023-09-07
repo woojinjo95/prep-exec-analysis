@@ -22,3 +22,4 @@ from .shell import Shell, ShellList, ShellLogList
 from .trace import ReadLogcat, ReadNetwork
 from .utility import (ExportResult, LogConnectionStatus, Regex, RegexResult,
                       ServiceState, VideoSnapshot, VideoTimestamp)
+from .import_result import ImportScenario
