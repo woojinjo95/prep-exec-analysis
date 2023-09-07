@@ -1,7 +1,7 @@
 import logging
 import tempfile
 import traceback
-from typing import Dict
+from typing import Dict, List
 
 from scripts.config.config import get_setting_with_env
 from scripts.connection.redis_pubsub import publish_msg
@@ -67,3 +67,7 @@ def measure_channel_zapping():
 
 def get_config() -> Dict:
     return read_analysis_config()['channel_change_time']
+
+
+def get_channel_zapping_event_times(igmp_join_infos: Dict, channel_key_inputs: Dict, targets: List[str]):
+    pass

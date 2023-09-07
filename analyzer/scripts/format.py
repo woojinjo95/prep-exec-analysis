@@ -21,6 +21,20 @@ class CroppedInfo:
     timestamps: List[float]
 
 
+@dataclass
+class IgmpJoinData:
+    timestamp: float
+    src: str = ''
+    dst: str = ''
+    channel_info: str = ''
+
+
+@dataclass
+class RemoconKeyData:
+    timestamp: float
+    key: str = ''
+
+
 class ReportName(Enum):
     COLOR_REFERENCE = 'color_reference'
     FREEZE = 'freeze'
