@@ -7,18 +7,21 @@ import BootSummaryResultItem from './BootSummaryResultItem'
 // import ChannelChangeTimeSummaryResultItem from './ChannelChangeTimeSummaryResultItem'
 import LogLevelFinderSummaryResultItem from './LogLevelFinderSummaryResultItem'
 import LogPatternMatchingSummaryResultItem from './LogPatternMatchingSummaryResultItem'
+import ResumeRawDataModal from './ResumeRawDataModal'
 
 interface AnalysisSummaryResultListProps {
   summary?: AnalysisResultSummary
+  startTime: string | null
+  endTime: string | null
 }
 
 /**
  * 분석 결과(요약 데이터) 리스트
  */
-const AnalysisSummaryResultList: React.FC<AnalysisSummaryResultListProps> = ({ summary }) => {
+const AnalysisSummaryResultList: React.FC<AnalysisSummaryResultListProps> = ({ summary, startTime, endTime }) => {
   const [rawDataModalType, setRawDataModalType] = useState<keyof AnalysisResultSummary | null>(null)
 
-  if (!summary) return null
+  if (!summary || !startTime || !endTime) return null
   return (
     <div className="overflow-y-auto flex flex-col gap-y-1">
       {summary.freeze && <FreezeSummaryResultItem freeze={summary.freeze} setRawDataModalType={setRawDataModalType} />}
@@ -31,6 +34,15 @@ const AnalysisSummaryResultList: React.FC<AnalysisSummaryResultListProps> = ({ s
         <LogPatternMatchingSummaryResultItem
           logPatternMatching={summary.log_pattern_matching}
           setRawDataModalType={setRawDataModalType}
+        />
+      )}
+
+      {rawDataModalType === 'resume' && (
+        <ResumeRawDataModal
+          isOpen={rawDataModalType === 'resume'}
+          onClose={() => setRawDataModalType(null)}
+          startTime={startTime}
+          endTime={endTime}
         />
       )}
     </div>

@@ -1,6 +1,6 @@
 import { AxiosError } from 'axios'
 import API from '@global/api'
-import { Response } from '@global/api/entity'
+import { PaginationResponse, Response } from '@global/api/entity'
 import { FreezeType, LogLevel } from '@global/constant'
 import {
   AnalysisConfig,
@@ -66,7 +66,7 @@ export const getLogLevelFinders = async (params: {
   log_level?: (keyof typeof LogLevel)[]
 }) => {
   try {
-    const result = await API.get<Response<LogLevelFinder[]>>(apiUrls.log_level_finder, {
+    const result = await API.get<PaginationResponse<LogLevelFinder[]>>(apiUrls.log_level_finder, {
       params: {
         ...params,
         log_level: params.log_level ? params.log_level.join(',') : undefined,
@@ -90,7 +90,7 @@ export const getCPU = async (params: {
   testrun_id?: string
 }) => {
   try {
-    const result = await API.get<Response<CPU[]>>(apiUrls.cpu, { params })
+    const result = await API.get<PaginationResponse<CPU[]>>(apiUrls.cpu, { params })
 
     return result.data.items
   } catch (err) {
@@ -109,7 +109,7 @@ export const getMemory = async (params: {
   testrun_id?: string
 }) => {
   try {
-    const result = await API.get<Response<Memory[]>>(apiUrls.memory, { params })
+    const result = await API.get<PaginationResponse<Memory[]>>(apiUrls.memory, { params })
 
     return result.data.items
   } catch (err) {
@@ -128,7 +128,7 @@ export const getEventLogs = async (params: {
   testrun_id?: string
 }) => {
   try {
-    const result = await API.get<Response<EventLog[]>>(apiUrls.event_log, { params })
+    const result = await API.get<PaginationResponse<EventLog[]>>(apiUrls.event_log, { params })
 
     return result.data.items
   } catch (err) {
@@ -147,7 +147,7 @@ export const getColorReferences = async (params: {
   testrun_id?: string
 }) => {
   try {
-    const result = await API.get<Response<ColorReference[]>>(apiUrls.color_reference, { params })
+    const result = await API.get<PaginationResponse<ColorReference[]>>(apiUrls.color_reference, { params })
 
     return result.data.items
   } catch (err) {
@@ -167,7 +167,7 @@ export const getFreeze = async (params: {
   freeze_type?: (keyof typeof FreezeType)[]
 }) => {
   try {
-    const result = await API.get<Response<Freeze[]>>(apiUrls.freeze, {
+    const result = await API.get<PaginationResponse<Freeze[]>>(apiUrls.freeze, {
       params: {
         ...params,
         freeze_type: params.freeze_type ? params.freeze_type.join(',') : undefined,
@@ -191,7 +191,7 @@ export const getLoudness = async (params: {
   testrun_id?: string
 }) => {
   try {
-    const result = await API.get<Response<Loudness[]>>(apiUrls.loudness, {
+    const result = await API.get<PaginationResponse<Loudness[]>>(apiUrls.loudness, {
       params,
     })
 
@@ -212,11 +212,11 @@ export const getResume = async (params: {
   testrun_id?: string
 }) => {
   try {
-    const result = await API.get<Response<Resume[]>>(apiUrls.resume, {
+    const result = await API.get<PaginationResponse<Resume[]>>(apiUrls.resume, {
       params,
     })
 
-    return result.data.items
+    return result.data
   } catch (err) {
     const er = err as AxiosError
     throw er
@@ -233,7 +233,7 @@ export const getBoot = async (params: {
   testrun_id?: string
 }) => {
   try {
-    const result = await API.get<Response<Boot[]>>(apiUrls.boot, {
+    const result = await API.get<PaginationResponse<Boot[]>>(apiUrls.boot, {
       params,
     })
 
@@ -254,7 +254,7 @@ export const getLogPatternMatching = async (params: {
   testrun_id?: string
 }) => {
   try {
-    const result = await API.get<Response<LogPatternMatching[]>>(apiUrls.log_pattern_matching, {
+    const result = await API.get<PaginationResponse<LogPatternMatching[]>>(apiUrls.log_pattern_matching, {
       params,
     })
 

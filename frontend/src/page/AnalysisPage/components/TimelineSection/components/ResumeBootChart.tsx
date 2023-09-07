@@ -33,7 +33,7 @@ const ResumeBootChart: React.FC<ResumeBootChartProps> = ({ scaleX, startTime, en
     if (!resume || !boot) return null
 
     return [
-      resume.map(({ timestamp, measure_time }) => ({
+      resume.items.map(({ timestamp, measure_time }) => ({
         datetime: new Date(timestamp).getTime(),
         duration: measure_time,
         color: summary.resume?.color || 'white',

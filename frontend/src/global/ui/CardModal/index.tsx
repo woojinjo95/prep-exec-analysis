@@ -35,7 +35,7 @@ const CardModal: React.FC<CardModalProps> = ({ isOpen, onClose, title, subtitle,
         </SimpleButton>
       </div>
 
-      <div>{children}</div>
+      <div className="h-[calc(100%-44px)]">{children}</div>
     </div>
   )
 }

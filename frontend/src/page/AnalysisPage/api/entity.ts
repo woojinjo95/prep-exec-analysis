@@ -183,6 +183,7 @@ export interface Resume {
    * @format timestamp
    */
   timestamp: string
+  target: ResumeType
   /**
    * 단위: ms(밀리초)
    */
@@ -194,6 +195,7 @@ export interface Boot {
    * @format timestamp
    */
   timestamp: string
+  target: BootType
   /**
    * 단위: ms(밀리초)
    */
