@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import { AppURL } from '@global/constant'
 import { Text } from '@global/ui'
 import { useRecoilState, useRecoilValue } from 'recoil'
-import { isBlockRecordModeState, isTestOptionModalOpenState } from '@global/atom'
-import { useServiceState } from '@global/api/hook'
+import { isBlockRecordModeState, isTestOptionModalOpenState, scenarioIdState } from '@global/atom'
+import { useScenarioById, useServiceState } from '@global/api/hook'
 import { useWebsocket } from '@global/hook'
 import HLSPlayer from './components/HLSPlayer'
 import SaveBlocksModal from '../ActionSection/components/SaveBlocksModal'
@@ -24,6 +24,10 @@ const MonitorSection: React.FC = () => {
   const { serviceState } = useServiceState()
 
   const { sendMessage } = useWebsocket()
+
+  const scenarioId = useRecoilValue(scenarioIdState)
+
+  const { scenario } = useScenarioById({ scenarioId })
 
   const [isSaveBlocksModalOpen, setIsSaveBlocksModalOpen] = useState<boolean>(false)
 
@@ -59,24 +63,28 @@ const MonitorSection: React.FC = () => {
         )}
         type="button"
         onClick={() => {
+          if (!scenario) return
           const date = new Date()
           const startDate = new Date(date)
           startDate.setMinutes(date.getMinutes() - 30)
-          // analysis_mode message 전송 후 이동
-          if (window.confirm('Do you want to save the block?')) {
-            // 블럭 저장 모달 실행
-            setIsSaveBlocksModalOpen(true)
-          } else {
-            sendMessage({
-              level: 'info',
-              msg: 'analysis_mode_init',
-              data: {
-                start_time: startDate.getTime() / 1000,
-                end_time: date.getTime() / 1000,
-              },
-            })
-            navigate('/analysis')
+
+          if (scenario.is_active === false) {
+            if (window.confirm('Do you want to save the block?')) {
+              // 블럭 저장 모달 실행
+              setIsSaveBlocksModalOpen(true)
+              return
+            }
           }
+
+          sendMessage({
+            level: 'info',
+            msg: 'analysis_mode_init',
+            data: {
+              start_time: startDate.getTime() / 1000,
+              end_time: date.getTime() / 1000,
+            },
+          })
+          navigate('/analysis')
         }}
       >
         <Text weight="medium" colorScheme="dark">

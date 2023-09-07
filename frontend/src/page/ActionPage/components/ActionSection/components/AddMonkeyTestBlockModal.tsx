@@ -233,6 +233,10 @@ const AddMonkeyTestBlockModal: React.FC<AddMonkeyTestBlockModalProps> = ({ isOpe
                       key: 'remote_control_type',
                       value: hardwareConfiguration.remote_control_type,
                     },
+                    {
+                      key: 'waiting_time',
+                      value: waitingTime,
+                    },
                   ],
                   delay_time: 3000,
                 },

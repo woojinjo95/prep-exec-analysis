@@ -132,26 +132,9 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isPlay
 
       setTestRunIdState(res.id)
 
-      // 재생하지 않고 넘어온 모달일 때
-      if (!isPlay) {
-        const date = new Date()
-        const startDate = new Date(date)
-        startDate.setMinutes(date.getMinutes() - 30)
-
-        sendMessage({
-          level: 'info',
-          msg: 'analysis_mode_init',
-          data: {
-            start_time: startDate.getTime() / 1000,
-            end_time: date.getTime() / 1000,
-          },
-        })
-        navigate('/analysis')
-
-        return
+      if (isPlay) {
+        setIsTesetOptionModalOpen(true)
       }
-
-      setIsTesetOptionModalOpen(true)
     },
     onError: (err: AxiosError) => {
       console.error(err)
@@ -179,26 +162,9 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isPlay
 
       setTestRunIdState(res.testrun_id)
 
-      // 재생하지 않고 넘어온 모달일 때
-      if (!isPlay) {
-        const date = new Date()
-        const startDate = new Date(date)
-        startDate.setMinutes(date.getMinutes() - 30)
-
-        sendMessage({
-          level: 'info',
-          msg: 'analysis_mode_init',
-          data: {
-            start_time: startDate.getTime() / 1000,
-            end_time: date.getTime() / 1000,
-          },
-        })
-        navigate('/analysis')
-
-        return
+      if (isPlay) {
+        setIsTesetOptionModalOpen(true)
       }
-
-      setIsTesetOptionModalOpen(true)
     },
     onError: (err: AxiosError) => {
       console.error(err)
@@ -401,26 +367,9 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isPlay
             onClick={() => {
               close()
 
-              // 재생 없이 넘어온 모달일 때
-              if (!isPlay) {
-                const date = new Date()
-                const startDate = new Date(date)
-                startDate.setMinutes(date.getMinutes() - 30)
-
-                sendMessage({
-                  level: 'info',
-                  msg: 'analysis_mode_init',
-                  data: {
-                    start_time: startDate.getTime() / 1000,
-                    end_time: date.getTime() / 1000,
-                  },
-                })
-                navigate('/analysis')
-
-                return
+              if (isPlay) {
+                setIsTesetOptionModalOpen(true)
               }
-
-              setIsTesetOptionModalOpen(true)
             }}
           >
             Cancel

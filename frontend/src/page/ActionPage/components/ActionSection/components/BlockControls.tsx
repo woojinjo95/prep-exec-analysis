@@ -52,7 +52,9 @@ const BlockControls: React.FC = () => {
 
   const selectedBlockIds = useRecoilValue(selectedBlockIdsState)
 
-  const playStartTime = useRecoilValue(playStartTimeState)
+  const [playStartTime, setPlayStartTime] = useRecoilState(playStartTimeState)
+
+  const [isPlay, setIsPlay] = useState<boolean>(false)
 
   const { sendMessage } = useWebsocket({
     onMessage: (message) => {
@@ -135,13 +137,28 @@ const BlockControls: React.FC = () => {
               onClick={() => {
                 if (!scenarioId) return
 
-                if (window.confirm('Do you want to save the block?')) {
-                  // 블럭 저장 모달 실행
-                  setIsSaveBlocksModalOpen(true)
-                } else {
-                  // test option modal 실행
-                  setIsTesetOptionModalOpen(true)
+                if (scenario.is_active === false) {
+                  if (window.confirm('Do you want to save the block?')) {
+                    // 블럭 저장 모달 실행
+                    setIsSaveBlocksModalOpen(true)
+                  } else {
+                    // test option modal 실행
+                    setIsTesetOptionModalOpen(true)
+                  }
+
+                  return
                 }
+
+                sendMessage({
+                  level: 'info',
+                  msg: 'start_playblock',
+                  data: { scenario_id: scenarioId },
+                })
+                // TODO: repeat 횟수 반영 작업이 필요함
+
+                setPlayStartTime(new Date().getTime() / 1000)
+
+                setIsPlay(true)
               }}
             />
           ) : (
@@ -200,7 +217,7 @@ const BlockControls: React.FC = () => {
           close={() => {
             setIsSaveBlocksModalOpen(false)
           }}
-          isPlay
+          isPlay={isPlay}
         />
       )}
       {isOpenBlocksModalOpen && (
