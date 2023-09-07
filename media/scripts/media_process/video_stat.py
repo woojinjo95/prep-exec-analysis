@@ -9,9 +9,18 @@ from ..configs.config import RedisDBEnum, get_value
 from ..configs.constant import RedisChannel
 from ..utils.file_manage import JsonManager, substitute_path_extension
 from ..connection.redis_pubsub import get_strict_redis_connection, publish
-from ..utils._exceptions import handle_errors
+from ..utils._exceptions import handle_errors, handle_none_return
+from ..utils._subprocess import get_output
 
 logger = logging.getLogger('main')
+
+
+@handle_none_return(float)
+@handle_errors
+def get_ffprobe_video_interval(video_path: str) -> float:
+    logger.info(f'Get data from {video_path}')
+    duration = get_output(f'ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 {video_path}')
+    return float(duration)
 
 
 @handle_errors
@@ -91,10 +100,10 @@ def summarize_merged_video_info(requested_start_time: float, requested_end_time:
         current_info = video_infos[0]
 
     # video #last
-    # 마지막 영상은 다음 영상이 없으므로, 자신의 가장 마지막 수정 시각 이용
     last_video_info = current_info
     start_time = last_video_info['created_time']
-    calculated_interval = last_video_info['last_modified'] - last_video_info['created_time']
+    #
+    calculated_interval = get_ffprobe_video_interval(json_name_list[-1]) or (last_video_info['last_modified'] - last_video_info['created_time'])
     calculated_fps = last_video_info['frame_count'] / calculated_interval
 
     error_logging(primary_data, info, start_time, calculated_interval, calculated_fps)
