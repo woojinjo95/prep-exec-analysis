@@ -87,6 +87,6 @@ def save_video_snapshot(video_path: str = None, relative_time: float = None):
         log_level = 'error'
     finally:
         with get_strict_redis_connection() as redis_connection:
-            publish(redis_connection, RedisChannel.command, {'msg': 'video_snapshot_response',
+            publish(redis_connection, RedisChannel.command, {'msg': 'video_frame_snapshot_response',
                                                              'level': log_level,
                                                              'data':  {'path': image_path, 'log': log}})
