@@ -3,7 +3,7 @@ from typing import List, Tuple
 
 import cv2
 import numpy as np
-from scripts.analysis.image import (calc_diff_rate, calc_iou, get_cropped_image, 
+from scripts.analysis.image import (calc_diff_rate, calc_iou, get_cropped_image, is_similar_by_compare_ssim,
                                     get_cursor_xywh, find_roku_cursor)
 from scripts.control.image import get_snapshot
 from scripts.control.remocon import publish_remocon_msg
@@ -99,6 +99,14 @@ def check_image_similar(image1: np.ndarray, image2: np.ndarray, min_color_depth_
     diff_rate = calc_diff_rate(preprocess_image(image1), preprocess_image(image2), min_color_depth_diff)
     sim_rate = 1 - diff_rate
     # logger.info(f'check temporal similar. diff_rate: {diff_rate:.6f}, diff_thld: {diff_thld:.6f}')
+    return sim_rate > sim_thld
+
+
+def check_image_similar_with_ssim(image1: np.ndarray, image2: np.ndarray, sim_thld: float=0.95) -> bool:
+    def preprocess_image(image: np.ndarray) -> np.ndarray:
+        return cv2.cvtColor(cv2.resize(image, (960, 540)), cv2.COLOR_BGR2GRAY)
+    
+    sim_rate = is_similar_by_compare_ssim(preprocess_image(image1), preprocess_image(image2), match_thres=sim_thld)
     return sim_rate > sim_thld
 
 

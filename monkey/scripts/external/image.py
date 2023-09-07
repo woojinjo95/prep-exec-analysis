@@ -3,7 +3,8 @@ from typing import List
 
 import cv2
 import numpy as np
-from scripts.config.constant import BASE_TESTRUN_RAW_DIR, BASE_DEV_TEST_RAW_DIR, BANNED_IMAGE_DIR
+from scripts.config.constant import (BASE_TESTRUN_RAW_DIR, BASE_DEV_TEST_RAW_DIR, 
+                                     BANNED_IMAGE_DIR, SKIPPED_IMAGE_DIR)
 from scripts.external.scenario import get_scenario_info
 
 
@@ -33,3 +34,12 @@ def get_banned_images() -> List[np.ndarray]:
         banned_image = cv2.imread(banned_image_path)
         banned_images.append(banned_image)
     return banned_images
+
+
+def get_skipped_images() -> List[np.ndarray]:
+    skipped_images = []
+    for skipped_image_name in os.listdir(SKIPPED_IMAGE_DIR):
+        skipped_image_path = os.path.join(SKIPPED_IMAGE_DIR, skipped_image_name)
+        skipped_image = cv2.imread(skipped_image_path)
+        skipped_images.append(skipped_image)
+    return skipped_images

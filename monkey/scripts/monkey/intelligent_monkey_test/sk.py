@@ -12,8 +12,9 @@ from scripts.monkey.monkey import Monkey
 from scripts.monkey.util import (check_cursor_is_same, exec_keys_with_each_interval,
                                  get_current_image, head_to_parent_sibling,
                                  optimize_path, get_last_breadth_start_image,
-                                 get_cursor)
+                                 get_cursor, check_image_similar_with_ssim)
 from scripts.external.report import report_section
+from scripts.external.image import get_skipped_images
 
 logger = logging.getLogger('monkey_test')
 
@@ -34,6 +35,7 @@ class IntelligentMonkeyTestSK:
         # 1. 배터리 방전 팝업 없애기 위해 home 두번 입력
         # 2. 검증 대상 셋탑의 경우, up 4회
         self.root_keyset = ['home', 'home', 'left'] + ['up'] * 4
+        self.skipped_images = get_skipped_images()
 
         # init variables
         self.main_stop_event = threading.Event()
@@ -79,16 +81,20 @@ class IntelligentMonkeyTestSK:
     def check_breadth_end(self, node_info: NodeInfo) -> bool:
         try:
             logger.info('check breadth end.')
-            similar_thld = 0.98
+
             same_with_prev = check_cursor_is_same(self.node_histories[-1].image, self.node_histories[-1].cursor, 
                                                 node_info.image, node_info.cursor, 
-                                                sim_thld=similar_thld)
+                                                sim_thld=0.98)
             last_breadth_start_image = get_last_breadth_start_image(self.node_histories)
             same_with_breadth_start = check_cursor_is_same(last_breadth_start_image, self.get_cursor(last_breadth_start_image),
                                                         node_info.image, node_info.cursor, 
-                                                        sim_thld=similar_thld)
-            is_breadth_end = True if same_with_prev or same_with_breadth_start else False
+                                                        sim_thld=0.98)
+            same_with_skipped_image = self.compare_skipped_image(node_info.image)
+
+            breadth_end_cond = same_with_prev or same_with_breadth_start or same_with_skipped_image
+            is_breadth_end = True if breadth_end_cond else False
             logger.info(f'check breadth end done. is_breadth_end: {is_breadth_end}, same_with_prev: {same_with_prev}, same_with_breadth_start: {same_with_breadth_start}')
+            
             # # test
             # time_str = get_time_str()
             # save_test_image(f'{time_str}_cursor_cur', get_cropped_image(node_info.image, node_info.cursor))
@@ -168,6 +174,10 @@ class IntelligentMonkeyTestSK:
             self.stop()
         
         self.section_id += 1
+
+    ##### Skipped Image #####
+    def compare_skipped_image(self, image: np.ndarray) -> bool:
+        return any([check_image_similar_with_ssim(image, skipped_image) for skipped_image in self.skipped_images])
 
     ##### Re-Defined Functions #####
     def exec_keys(self, keys: List[str]):
