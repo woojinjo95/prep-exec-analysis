@@ -113,7 +113,9 @@ def read_scenarios(
     Retrieve scenarios.
     """
     try:
-        param = {'is_active': True}
+        param = {'is_active': True,
+                 "testruns.is_active": True,
+                 "testruns.last_updated_timestamp": {'$exists': True}}
         if name:
             param['name'] = set_ilike(name)
         if tag:
@@ -126,10 +128,9 @@ def read_scenarios(
                                   'updated_at': '$updated_at',
                                   "testrun_count": {"$size": {"$filter": {"input": "$testruns",
                                                                           "as": "testrun",
-                                                                          "cond": {"$eq": ["$$testrun.is_active", True]}}}},
-                                  'has_block': {'$cond': {'if': {'$eq': [{'$size': '$block_group'}, 0]},
-                                                          'then': False,
-                                                          'else': True}}}}]
+                                                                          "cond": {'$and': [{'$eq': ["$$testrun.is_active", True]},
+                                                                                            {'$ifNull': ["$$testrun.last_updated_timestamp", False]}]}}}},
+                                  'has_block': {'$cond': {'if': {'$eq': [{'$size': '$block_group'}, 0]}, 'then': False, 'else': True}}}}]
         res = paginate_from_mongodb_aggregation(col='scenario',
                                                 pipeline=pipeline,
                                                 page=page,
