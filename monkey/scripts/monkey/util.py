@@ -3,10 +3,11 @@ from typing import List, Tuple
 
 import cv2
 import numpy as np
-from scripts.analysis.image import calc_diff_rate, calc_iou, get_cropped_image
+from scripts.analysis.image import (calc_diff_rate, calc_iou, get_cropped_image, 
+                                    get_cursor_xywh, find_roku_cursor)
 from scripts.control.image import get_snapshot
 from scripts.control.remocon import publish_remocon_msg
-from scripts.monkey.format import NodeInfo
+from scripts.monkey.format import NodeInfo, Cursor
 
 logger = logging.getLogger('monkey_test')
 
@@ -110,3 +111,21 @@ def get_last_breadth_start_image(node_histories: List[NodeInfo]):
             return node_histories[0].image
     except Exception as err:
         raise Exception(f'get last breadth start cursor image error. {err}')
+
+
+def get_cursor(company: str, image: np.ndarray=None) -> Cursor:
+    try:
+        if image is None:
+            image = get_current_image()
+
+        if company == 'roku':
+            cursor = find_roku_cursor(image)
+            return Cursor(x=cursor[0], y=cursor[1], w=cursor[2], h=cursor[3])
+        elif company == 'skb':
+            cursor = get_cursor_xywh(image)
+            return Cursor(x=cursor[0], y=cursor[1], w=cursor[2], h=cursor[3])
+        else:
+            raise Exception(f'invalid company. => {company}')
+    except Exception as err:
+        raise Exception(f'get cursor error. {err}')
+    

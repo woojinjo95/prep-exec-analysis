@@ -6,12 +6,13 @@ import threading
 
 import numpy as np
 
-from scripts.analysis.image import get_cursor_xywh, get_cropped_image
+from scripts.analysis.image import get_cropped_image
 from scripts.monkey.format import NodeInfo, MonkeyArgs
 from scripts.monkey.monkey import Monkey
 from scripts.monkey.util import (check_cursor_is_same, exec_keys_with_each_interval,
                                  get_current_image, head_to_parent_sibling,
-                                 optimize_path, get_last_breadth_start_image)
+                                 optimize_path, get_last_breadth_start_image,
+                                 get_cursor)
 from scripts.external.report import report_section
 
 logger = logging.getLogger('monkey_test')
@@ -101,16 +102,11 @@ class IntelligentMonkeyTestSK:
 
     def check_leaf_node(self, node_info: NodeInfo) -> bool:
         logger.info('check leaf node.')
-        leaf_node = False if self.check_leftmenu_is_opened(node_info.image, node_info.cursor, get_current_image(), self.get_cursor()) else True
+        leaf_node = False if self.check_leftmenu_opened(node_info.image, node_info.cursor, get_current_image(), self.get_cursor()) else True
         logger.info(f'check leaf node done. leaf node: {leaf_node}')
         return leaf_node
 
     ##### Functions #####
-    def get_cursor(self, image: np.ndarray=None) -> Tuple:
-        if image is None:
-            image = get_current_image()
-        return get_cursor_xywh(image)
-
     def set_root_keyset(self, keys: List[str] = [], find_root_cursor_max_try: int=3):
         for try_count in range(find_root_cursor_max_try):
             self.keyset = keys
@@ -124,7 +120,7 @@ class IntelligentMonkeyTestSK:
             logger.info(f'cannot find root cursor. try_count: {try_count}')
             raise Exception('cannot find root cursor')
 
-    def check_leftmenu_is_opened(self, prev_image: np.ndarray, prev_cursor: Tuple, image: np.ndarray, cursor: Tuple, 
+    def check_leftmenu_opened(self, prev_image: np.ndarray, prev_cursor: Tuple, image: np.ndarray, cursor: Tuple, 
                                  max_width_diff: int=10, max_height_diff: int=10) -> bool:
         if cursor is None:
             return False
@@ -141,13 +137,6 @@ class IntelligentMonkeyTestSK:
     def append_key(self, key: str):
         self.keyset.append(key)
         self.keyset = optimize_path(self.keyset)
-
-    def get_cursor_image(self, image: np.ndarray=None, cursor: Tuple=None) -> np.ndarray:
-        if image is None:
-            image = get_current_image()
-        if cursor is None:
-            cursor = self.get_cursor(image)
-        return get_cropped_image(image, cursor)
 
     def start_monkey(self, current_node_keyset: List[str], cursor_image: np.ndarray):
         start_time = time.time()
@@ -188,3 +177,11 @@ class IntelligentMonkeyTestSK:
 
     def head_to_next(self):
         self.keyset = head_to_parent_sibling(self.keyset, self.depth_key, self.breadth_key)
+
+    def get_cursor(self, image: np.ndarray) -> Tuple[int, int, int, int]:
+        try:
+            cursor = get_cursor(self.profile, image)
+            return (cursor.x, cursor.y, cursor.w, cursor.h)
+        except Exception as err:
+            logger.warning(f'get cursor error. {err}')
+            return None
