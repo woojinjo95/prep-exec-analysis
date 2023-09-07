@@ -10,6 +10,7 @@ import LogPatternMatchingSummaryResultItem from './LogPatternMatchingSummaryResu
 import ResumeRawDataModal from './ResumeRawDataModal'
 import LogPatternMatchingRawDataModal from './LogPatternMatchingRawDataModal'
 import BootRawDataModal from './BootRawDataModal'
+import FreezeRawDataModal from './FreezeRawDataModal'
 
 interface AnalysisSummaryResultListProps {
   summary?: AnalysisResultSummary
@@ -39,6 +40,14 @@ const AnalysisSummaryResultList: React.FC<AnalysisSummaryResultListProps> = ({ s
         />
       )}
 
+      {rawDataModalType === 'freeze' && (
+        <FreezeRawDataModal
+          isOpen={rawDataModalType === 'freeze'}
+          onClose={() => setRawDataModalType(null)}
+          startTime={startTime}
+          endTime={endTime}
+        />
+      )}
       {rawDataModalType === 'resume' && (
         <ResumeRawDataModal
           isOpen={rawDataModalType === 'resume'}

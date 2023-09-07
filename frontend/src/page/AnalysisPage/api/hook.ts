@@ -3,7 +3,7 @@ import { useRecoilValue } from 'recoil'
 import { useInfiniteQuery, useQuery } from 'react-query'
 import { useEffect } from 'react'
 import { useVideoSummary } from '@global/api/hook'
-import { AnalysisType } from '@global/constant'
+import { AnalysisType, PAGE_SIZE_TEN } from '@global/constant'
 import { useIntersect, useWebsocket } from '@global/hook'
 import { AnalysisConfig, AnalysisResultSummary } from './entity'
 import {
@@ -190,7 +190,51 @@ export const useFreeze = (params: Parameters<typeof getFreeze>[0]) => {
     },
   })
 
-  return { freeze: data, isLoading, refetch }
+  return { freeze: data?.items, isLoading, refetch }
+}
+
+/**
+ * Freeze 무한스크롤 조회 hook
+ */
+export const useInfiniteFreeze = (params: Parameters<typeof getFreeze>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, hasNextPage, isFetching, fetchNextPage } = useInfiniteQuery(
+    ['infinite_freeze', params],
+    ({ pageParam = 1 }) => {
+      return getFreeze({
+        ...params,
+        page: pageParam as number,
+        page_size: PAGE_SIZE_TEN,
+        scenario_id: scenarioId || undefined,
+        testrun_id: testRunId || undefined,
+      })
+    },
+    {
+      getNextPageParam: (lastPage) => {
+        const nextPage = lastPage.next
+        if (nextPage <= lastPage.pages) {
+          return nextPage
+        }
+
+        return undefined
+      },
+    },
+  )
+
+  const ref = useIntersect((entry, observer) => {
+    observer.unobserve(entry.target)
+    if (hasNextPage && !isFetching) {
+      fetchNextPage()
+    }
+  })
+
+  return {
+    freeze: data?.pages.flatMap(({ items }) => items) || [],
+    total: data?.pages.length ? data.pages[0].total : 0,
+    loadingRef: ref,
+    hasNextPage,
+  }
 }
 
 /**
@@ -239,6 +283,7 @@ export const useInfiniteResume = (params: Parameters<typeof getResume>[0]) => {
       return getResume({
         ...params,
         page: pageParam as number,
+        page_size: PAGE_SIZE_TEN,
         scenario_id: scenarioId || undefined,
         testrun_id: testRunId || undefined,
       })
@@ -303,6 +348,7 @@ export const useInfiniteBoot = (params: Parameters<typeof getBoot>[0]) => {
       return getBoot({
         ...params,
         page: pageParam as number,
+        page_size: PAGE_SIZE_TEN,
         scenario_id: scenarioId || undefined,
         testrun_id: testRunId || undefined,
       })
@@ -367,6 +413,7 @@ export const useInfiniteLogPatternMatching = (params: Parameters<typeof getLogPa
       return getLogPatternMatching({
         ...params,
         page: pageParam as number,
+        page_size: PAGE_SIZE_TEN,
         scenario_id: scenarioId || undefined,
         testrun_id: testRunId || undefined,
       })
