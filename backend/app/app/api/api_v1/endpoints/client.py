@@ -73,10 +73,14 @@ async def redis_connector(websocket: WebSocket):
         await pubsub.subscribe(ch_name)  # control 채널을 수신함 
         try:
             while True:
-                message = await pubsub.get_message(ignore_subscribe_messages=True)
-                await asyncio.sleep(0.001)
-                if message:
-                    await ws.send_text(message.get('data'))
+                if pubsub.subscribed:
+                    async for message in pubsub.listen():
+                        if message['type'] == "subscribe":
+                            continue
+                        # message = await pubsub.get_message(ignore_subscribe_messages=True, timeout=None)
+                        await asyncio.sleep(0.001)
+                        if message:
+                            await ws.send_text(message.get('data'))
         except Exception as exc:
             logger.error(exc)
 

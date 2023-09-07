@@ -382,6 +382,7 @@ def get_data_of_log_pattern_matching(
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
+    pattern_name: Optional[str] = None,
     page_size: Optional[int] = 10,
     page: Optional[int] = None,
     sort_by: Optional[str] = None,
@@ -402,6 +403,9 @@ def get_data_of_log_pattern_matching(
                                          {'$project': {'_id': 0, 'log_level': 1, 'timestamp': 1, 'message': 1,
                                                        'regex': '$matched_target.regular_expression',
                                                        'color': '$matched_target.color', 'log_pattern_name': '$matched_target.name'}}]
+        if pattern_name is not None:
+            pattern_name = pattern_name.split(',')
+            log_pattern_matching_pipeline[0]['$match']['matched_target.name'] = {'$in': pattern_name}
 
         log_pattern_matching = paginate_from_mongodb_aggregation(col=analysis_collection['log_pattern_matching'],
                                                                  pipeline=log_pattern_matching_pipeline,
@@ -413,6 +417,163 @@ def get_data_of_log_pattern_matching(
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return log_pattern_matching
+
+
+# Monkey Section
+@router.get("/monkey_section", response_model=schemas.MonkeyTest)
+def get_data_of_monkey_section(
+    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    scenario_id: Optional[str] = None,
+    testrun_id: Optional[str] = None,
+    page_size: Optional[int] = 10,
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
+):
+    """
+    일반 몽키 테스트 섹션 데이터 조회(범위)
+    """
+    try:
+        if testrun_id is None:
+            testrun_id = RedisClient.hget('testrun', 'id')
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        monkey_section_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
+                                                             '$lte': convert_iso_format(end_time)},
+                                               'scenario_id': scenario_id,
+                                               'testrun_id': testrun_id,
+                                               'analysis_type': 'monkey'}},
+                                   {'$project': {'_id': 0,
+                                                 'start_timestamp': {'$dateToString': {'date': '$start_timestamp'}},
+                                                 'end_timestamp': {'$dateToString': {'date': '$end_timestamp'}}}}]
+        monkey_section = paginate_from_mongodb_aggregation(col='monkey_section',
+                                                           pipeline=monkey_section_pipeline,
+                                                           page=page,
+                                                           page_size=page_size,
+                                                           sort_by=sort_by,
+                                                           sort_desc=sort_desc)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return monkey_section
+
+
+# Monkey Smart Sense
+@router.get("/monkey_smart_sense", response_model=schemas.MonkeySmartSense)
+def get_data_of_monkey_smart_sense(
+    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    scenario_id: Optional[str] = None,
+    testrun_id: Optional[str] = None,
+    page_size: Optional[int] = 10,
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
+):
+    """
+    일반 몽키 테스트 스마트 센스 키 조회
+    """
+    try:
+        if testrun_id is None:
+            testrun_id = RedisClient.hget('testrun', 'id')
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        monkey_smart_sense_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
+                                                               '$lte': convert_iso_format(end_time)},
+                                                   'scenario_id': scenario_id,
+                                                   'testrun_id': testrun_id,
+                                                   'analysis_type': 'monkey'}},
+                                       {'$project': {'_id': 0,
+                                                     'timestamp': 1,
+                                                     'smart_sense_key': 1}}]
+        monkey_section = paginate_from_mongodb_aggregation(col='monkey_smart_sense',
+                                                           pipeline=monkey_smart_sense_pipeline,
+                                                           page=page,
+                                                           page_size=page_size,
+                                                           sort_by=sort_by,
+                                                           sort_desc=sort_desc)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return monkey_section
+
+
+# Intelligent Monkey Section
+@router.get("/intelligent_monkey_section", response_model=schemas.MonkeyTest)
+def get_data_of_intelligent_monkey_section(
+    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    scenario_id: Optional[str] = None,
+    testrun_id: Optional[str] = None,
+    page_size: Optional[int] = 10,
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
+):
+    """
+    인텔리전트 몽키 테스트 섹션 데이터 조회(범위)
+    """
+    try:
+        if testrun_id is None:
+            testrun_id = RedisClient.hget('testrun', 'id')
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        monkey_section_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
+                                                             '$lte': convert_iso_format(end_time)},
+                                               'scenario_id': scenario_id,
+                                               'testrun_id': testrun_id,
+                                               'analysis_type': 'intelligent_monkey'}},
+                                   {'$project': {'_id': 0,
+                                                 'start_timestamp': {'$dateToString': {'date': '$start_timestamp'}},
+                                                 'end_timestamp': {'$dateToString': {'date': '$end_timestamp'}}}}]
+        monkey_section = paginate_from_mongodb_aggregation(col='monkey_section',
+                                                           pipeline=monkey_section_pipeline,
+                                                           page=page,
+                                                           page_size=page_size,
+                                                           sort_by=sort_by,
+                                                           sort_desc=sort_desc)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return monkey_section
+
+
+# Intelligent Monkey Smart Sense
+@router.get("/intelligent_monkey_smart_sense", response_model=schemas.IntelligentMonkeySmartSense)
+def get_data_of_intelligent_monkey_smart_sense(
+    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    scenario_id: Optional[str] = None,
+    testrun_id: Optional[str] = None,
+    page_size: Optional[int] = 10,
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
+):
+    """
+    인텔리전트 몽키 테스트 스마트 센스 키 조회
+    """
+    try:
+        if testrun_id is None:
+            testrun_id = RedisClient.hget('testrun', 'id')
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        monkey_smart_sense_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
+                                                               '$lte': convert_iso_format(end_time)},
+                                                   'scenario_id': scenario_id,
+                                                   'testrun_id': testrun_id,
+                                                   'analysis_type': 'intelligent_monkey'}},
+                                       {'$project': {'_id': 0,
+                                                     'timestamp': 1,
+                                                     'smart_sense_key': 1,
+                                                     'section_id': 1}}]
+        monkey_section = paginate_from_mongodb_aggregation(col='monkey_smart_sense',
+                                                           pipeline=monkey_smart_sense_pipeline,
+                                                           page=page,
+                                                           page_size=page_size,
+                                                           sort_by=sort_by,
+                                                           sort_desc=sort_desc)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return monkey_section
 
 
 # Process Lifecycle
@@ -501,35 +662,60 @@ def get_summary_data_of_measure_result(
             additional_pipeline = []
             if active_analysis == 'log_level_finder':
                 log_level_list = config.get('targets', [])
-                additional_pipeline = [{'$project': {'_id': 0, 'lines.log_level': 1}},
-                                       {'$unwind': {'path': '$lines'}},
-                                       {'$match': {'lines.log_level': {'$in': log_level_list}}},
-                                       {'$group': {'_id': '$lines.log_level', 'total': {'$sum': 1}}},
-                                       {'$group': {'_id': None, 'results': {'$push': {'target': '$_id', 'total': '$total'}}}},
-                                       {'$project': {'_id': 0, 'results': 1}}]
+                additional_pipeline = [
+                    {'$project': {'_id': 0, 'lines.log_level': 1}},
+                    {'$unwind': {'path': '$lines'}},
+                    {'$match': {'lines.log_level': {'$in': log_level_list}}},
+                    {'$group': {'_id': '$lines.log_level', 'total': {'$sum': 1}}},
+                    {'$group': {'_id': None, 'results': {'$push': {'target': '$_id', 'total': '$total'}}}},
+                    {'$project': {'_id': 0, 'results': 1}}]
             elif active_analysis == 'freeze':
-                additional_pipeline = [{'$group': {'_id': '$freeze_type', 'total': {'$sum': 1}, 'color': {'$first': '$user_config.color'}}},
-                                       {'$group': {'_id': '$color', 'results': {
-                                           '$push': {'total': '$total', 'error_type': '$_id'}}}},
-                                       {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
+                additional_pipeline = [
+                    {'$group': {'_id': '$freeze_type', 'total': {'$sum': 1}, 'color': {'$first': '$user_config.color'}}},
+                    {'$group': {'_id': '$color', 'results': {
+                        '$push': {'total': '$total', 'error_type': '$_id'}}}},
+                    {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'resume':
-                additional_pipeline = [{'$group': {'_id': '$user_config.type', 'total': {'$sum': 1},
-                                                   'avg_time': {'$avg': '$measure_time'}, 'color': {'$first': '$user_config.color'}}},
-                                       {'$group': {'_id': '$color', 'results': {
-                                           '$push': {'target': '$_id', 'total': '$total', 'avg_time': '$avg_time'}}}},
-                                       {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
+                additional_pipeline = [
+                    {'$group': {'_id': '$user_config.type', 'total': {'$sum': 1},
+                                'avg_time': {'$avg': '$measure_time'}, 'color': {'$first': '$user_config.color'}}},
+                    {'$group': {'_id': '$color', 'results': {
+                        '$push': {'target': '$_id', 'total': '$total', 'avg_time': '$avg_time'}}}},
+                    {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'boot':
-                additional_pipeline = [{'$group': {'_id': '$user_config.type', 'total': {'$sum': 1},
-                                                   'avg_time': {'$avg': '$measure_time'}, 'color': {'$first': '$user_config.color'}}},
-                                       {'$group': {'_id': '$color', 'results': {
-                                           '$push': {'target': '$_id', 'total': '$total', 'avg_time': '$avg_time'}}}},
-                                       {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
+                additional_pipeline = [
+                    {'$group': {'_id': '$user_config.type', 'total': {'$sum': 1},
+                                'avg_time': {'$avg': '$measure_time'}, 'color': {'$first': '$user_config.color'}}},
+                    {'$group': {'_id': '$color', 'results': {
+                        '$push': {'target': '$_id', 'total': '$total', 'avg_time': '$avg_time'}}}},
+                    {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'log_pattern_matching':
-                additional_pipeline = [{'$project': {'_id': 0, 'list': ['$matched_target.name', '$matched_target.color'], 'color': '$user_config.color'}},
-                                       {'$group': {'_id': '$list', 'total': {'$sum': 1}, 'color': {'$first': '$color'}}},
-                                       {'$group': {'_id': '$color', 'results': {
-                                           '$push': {'total': '$total', 'log_pattern_name': {'$arrayElemAt': ['$_id', 0]}, 'color': {'$arrayElemAt': ['$_id', 1]}}}}},
-                                       {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
+                additional_pipeline = [
+                    {'$project': {'_id': 0, 'list': ['$matched_target.name', '$matched_target.color'], 'color': '$user_config.color'}},
+                    {'$group': {'_id': '$list', 'total': {'$sum': 1}, 'color': {'$first': '$color'}}},
+                    {'$group': {'_id': '$color', 'results': {'$push': {'total': '$total',
+                                                                       'log_pattern_name': {'$arrayElemAt': ['$_id', 0]},
+                                                                       'color': {'$arrayElemAt': ['$_id', 1]}}}}},
+                    {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
+            elif active_analysis == 'monkey_test':
+                additional_pipeline = [
+                    {'$match': {'analysis_type': 'monkey'}},
+                    {'$group': {'_id': '$section_id', 
+                                'duration_time': {'$avg': '$user_config.duration'},
+                                'smart_sense': {'$sum': '$smart_sense_times'}}},
+                    {'$project': {'_id': 0, 'results': [{'duration_time': "$duration_time",'smart_sense': "$smart_sense"}]}}]
+            elif active_analysis == 'intelligent_monkey_test':
+                additional_pipeline = [
+                    {'$match': {'analysis_type': 'intelligent_monkey'}},
+                    {'$group': {'_id': ['$section_id', '$image_path'], 'smart_sense': {'$sum': '$smart_sense_times'}}},
+                    {'$project': {'_id': 0,
+                                  'smart_sense': '$smart_sense',
+                                  'section_id': {'$arrayElemAt': ['$_id', 0]},
+                                  'image_path': {'$arrayElemAt': ['$_id', 1]}}},
+                    {'$sort': {'section_id': 1}},
+                    {'$group': {'_id': None, 'results': {'$push': {'section_id': '$section_id',
+                                                                   'smart_sense': '$smart_sense',
+                                                                   'image_path': '$image_path'}}}}]
             elif active_analysis == 'macroblock':
                 continue
             elif active_analysis == 'channel_change_time':
@@ -537,10 +723,6 @@ def get_summary_data_of_measure_result(
             elif active_analysis == 'process_lifecycle_analysis':
                 continue
             elif active_analysis == 'network_filter':
-                continue
-            elif active_analysis == 'monkey_test':
-                continue
-            elif active_analysis == 'intelligent_monkey_test':
                 continue
             elif active_analysis == 'loudness':
                 additional_pipeline = [{'$project': {'_id': 0, 'lines': 1}},

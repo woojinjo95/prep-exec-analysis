@@ -7,8 +7,8 @@ from typing import Optional
 
 from app import schemas
 from app.api.utility import get_utc_datetime, set_redis_pub_msg
-from app.crud.base import (aggregate_from_mongodb, load_by_id_from_mongodb,
-                           update_by_id_to_mongodb, update_to_mongodb)
+from app.crud.base import (aggregate_from_mongodb, delete_part_to_mongodb,
+                           load_by_id_from_mongodb, update_by_id_to_mongodb)
 from app.db.redis_session import RedisClient
 from fastapi import APIRouter, HTTPException
 
@@ -40,7 +40,7 @@ def create_testrun(
         # 시나리오 변경
         testruns = scenario.get('testruns', [])
         testruns.append({'id': testrun_id,
-                         'is_active': True,
+                         'last_updated_timestamp': None,
                          'raw': {'videos': []},
                          'analysis': {}})
         update_by_id_to_mongodb(col='scenario',
@@ -65,14 +65,13 @@ def create_testrun(
     return {'msg': 'Create new testrun', 'id': testrun_id}
 
 
-@router.put("/{scenario_id}/{testrun_id}", response_model=schemas.Msg)
-def update_testrun(
+@router.delete("/{scenario_id}/{testrun_id}", response_model=schemas.Msg)
+def delete_testrun(
     scenario_id: str,
     testrun_id: str,
-    testrun_in: schemas.TestrunUpdate,
 ) -> schemas.Msg:
     """
-    Update a testrun.
+    Delete a testrun.
     """
     pipeline = [{'$match': {'id': scenario_id, 'testruns.id': testrun_id}},
                 {'$unwind': "$testruns"},
@@ -84,10 +83,9 @@ def update_testrun(
                             detail="The testrun with this id does not exist in the system.")
 
     try:
-        update_to_mongodb(col="scenario",
-                          param={"id": scenario_id,
-                                 "testruns.id": testrun_id},
-                          data={"testruns.$.is_active": testrun_in.is_active})
+        delete_part_to_mongodb(col='scenario',
+                               param={'id': scenario_id},
+                               data={"testruns": {"id": testrun_id}})
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
@@ -109,10 +107,9 @@ def read_testruns(
         pipeline = [{"$match": param},
                     {"$unwind": "$testruns"},
                     {"$project": {"testrun_id": "$testruns.id",
-                                  "is_active": "$testruns.is_active",
                                   "last_timestamp": "$testruns.last_updated_timestamp",
                                   "targets": "$testruns.measure_targets.type"}},
-                    {'$match': {"is_active": True}},
+                    {'$match': {'last_timestamp': {'$ne' : None}}},
                     {"$group": {"_id": {
                                 "testrun_id": "$testrun_id",
                                 "last_timestamp": "$last_timestamp",

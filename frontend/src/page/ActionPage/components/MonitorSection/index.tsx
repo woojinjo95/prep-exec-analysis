@@ -8,6 +8,8 @@ import { isBlockRecordModeState } from '@global/atom'
 import { useServiceState } from '@global/api/hook'
 import { useWebsocket } from '@global/hook'
 import HLSPlayer from './components/HLSPlayer'
+import { LKFSPlayload } from './type'
+import SoundBar from './components/SoundBar'
 
 /**
  * 모니터 영역
@@ -22,7 +24,16 @@ const MonitorSection: React.FC = () => {
 
   const { serviceState } = useServiceState()
 
-  const { sendMessage } = useWebsocket()
+  const [lkfsPayload, setLkfsPayload] = useState<LKFSPlayload | null>(null)
+
+  const { sendMessage } = useWebsocket({
+    onMessage: (msg) => {
+      // lkfs 관련 msg
+      if (msg.service === 'media' && msg.I && msg.M) {
+        setLkfsPayload({ I: msg.I, M: msg.M })
+      }
+    },
+  })
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -76,6 +87,11 @@ const MonitorSection: React.FC = () => {
       </button>
 
       <HLSPlayer autoPlay controls className="h-full aspect-video" src={AppURL.streamingURL} />
+      {lkfsPayload && (
+        <div className="absolute bottom-14 right-4 h-[200px] z-10 w-[26px]">
+          <SoundBar value={lkfsPayload.M} />
+        </div>
+      )}
     </section>
   )
 }

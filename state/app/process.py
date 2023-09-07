@@ -98,9 +98,6 @@ async def consumer_handler(conn: any, CHANNEL_NAME: str):
                 # 레코딩이 끝났을 때
                 if msg == 'recording_response':
                     print('----> recording_response')
-                    # 로그수집 중단 메세지 전송
-                    await pub_msg(conn, msg="stb_log", data={"control": "stop"})
-
                     # 스트리밍 중단 메세지 전송
                     await pub_msg(conn, msg="streaming", data={"action": "stop"})
 
@@ -111,6 +108,12 @@ async def consumer_handler(conn: any, CHANNEL_NAME: str):
                 # 액션 페이지에서 분석 페이지에 진입했을때 -> recording
                 if msg == 'analysis_mode_init':
                     print('----> analysis_mode_init')
+                    # 로그수집 중단 메세지 전송
+                    await pub_msg(conn, msg="stb_log", data={"control": "stop"})
+
+                    # 패킷 캡쳐 중단 메세지 전송
+                    await pub_msg(conn, msg="packet_capture", data={"action": "stop"})
+
                     # 레코딩 시작 메세지 전송
                     msg_data = data.get('data', {})
                     await pub_msg(conn, msg="recording", data={"start_time": msg_data.get('start_time', 0),
@@ -128,6 +131,9 @@ async def consumer_handler(conn: any, CHANNEL_NAME: str):
                     # 스트리밍 중단 메세지 전송
                     await pub_msg(conn, msg="streaming", data={"action": "stop"})
 
+                    # 패킷 캡쳐 중단 메세지 전송
+                    await pub_msg(conn, msg="packet_capture", data={"action": "stop"})
+
                     # 상태 변경 및 메세지 전송
                     await set_service_state_and_pub(conn, ServiceStateEnum.idle)
 
@@ -142,6 +148,9 @@ async def consumer_handler(conn: any, CHANNEL_NAME: str):
 
                     # 스트리밍 시작 메세지 전송
                     await pub_msg(conn, msg="streaming", data={"action": "start"})
+
+                    # 패킷 캡쳐 시작 메세지 전송
+                    await pub_msg(conn, msg="packet_capture", data={"action": "start"})
 
                     # 상태 변경 및 메세지 전송
                     await set_service_state_and_pub(conn, ServiceStateEnum.streaming)

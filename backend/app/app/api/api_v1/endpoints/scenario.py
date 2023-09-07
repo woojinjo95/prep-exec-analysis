@@ -126,17 +126,17 @@ def read_scenarios(
                                   'updated_at': '$updated_at',
                                   "testrun_count": {"$size": {"$filter": {"input": "$testruns",
                                                                           "as": "testrun",
-                                                                          "cond": {"$eq": ["$$testrun.is_active", True]}}}},
+                                                                          "cond": {"$ifNull": ["$$testrun.last_updated_timestamp", False]}}}},
                                   'has_block': {'$cond': {'if': {'$eq': [{'$size': '$block_group'}, 0]},
                                                           'then': False,
-                                                          'else': True}}}}]
+                                                          'else': True}}
+                                  }}]
         res = paginate_from_mongodb_aggregation(col='scenario',
                                                 pipeline=pipeline,
                                                 page=page,
                                                 page_size=page_size,
                                                 sort_by=sort_by if sort_by else 'updated_at',
                                                 sort_desc=sort_desc if sort_desc is not None else True)
-
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
@@ -193,7 +193,7 @@ def create_scenario(
                                                     'tags': scenario_in.tags,
                                                     'block_group': block_group_data,
                                                     'testruns': [{'id': testrun_id,
-                                                                  'is_active': True,
+                                                                  'last_updated_timestamp': None,
                                                                   'raw': {'videos': []},
                                                                   'analysis': {}}]})
 
@@ -265,18 +265,20 @@ def copy_scenario(
         os.makedirs(f'{path}/analysis')
 
         # 시나리오 복제
-        testruns = scenario.get('testruns', [])
-        testruns.append({'id': testrun_id,
-                         'is_active': True,
-                         'raw': {'videos': []},
-                         'analysis': {}})
+        # testruns = next((item.update({'id': testrun_id}) or item for item in scenario.get('testruns', [])
+        #                  if item['id'] == RedisClient.hget('testrun', 'id')), None)
+        testruns = next((item for item in scenario.get('testruns', [])
+                        if item['id'] == RedisClient.hget('testrun', 'id')), None)
         insert_one_to_mongodb(col='scenario', data={'id': scenario_id,
                                                     'updated_at': get_utc_datetime(time.time()),
                                                     'is_active': True,
                                                     'name': scenario_in.name,
                                                     'tags': scenario_in.tags,
                                                     'block_group': block_group_data,
-                                                    'testruns': testruns})
+                                                    'testruns': [testruns] if testruns else [{'id': testrun_id,
+                                                                                              'last_updated_timestamp': None,
+                                                                                              'raw': {'videos': []},
+                                                                                              'analysis': {}}]})
 
         # 워크스페이스 변경
         RedisClient.hset('testrun', 'id', testrun_id)
