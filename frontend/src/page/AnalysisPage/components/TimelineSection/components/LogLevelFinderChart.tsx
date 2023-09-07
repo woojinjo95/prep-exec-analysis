@@ -1,7 +1,7 @@
 import React, { useMemo, useRef } from 'react'
 import { PointChart, TimelineTooltip, Text, TimelineTooltipItem } from '@global/ui'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
-import { useLogLevelFinders } from '../api/hook'
+import { useLogLevelFinders } from '@page/AnalysisPage/api/hook'
 import { useTooltipEvent } from '../hook'
 
 interface LogLevelFinderChartProps {

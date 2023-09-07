@@ -2,7 +2,7 @@ import React, { useMemo, useRef } from 'react'
 import { PointChart, RangeChart, TimelineTooltip, TimelineTooltipItem, Text } from '@global/ui'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { convertDuration } from '@global/usecase'
-import { useBoot, useResume } from '../api/hook'
+import { useBoot, useResume } from '@page/AnalysisPage/api/hook'
 import { useTooltipEvent } from '../hook'
 
 interface ResumeBootChartProps {

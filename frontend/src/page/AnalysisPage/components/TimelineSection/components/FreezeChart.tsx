@@ -2,7 +2,7 @@ import React, { useMemo, useRef } from 'react'
 import { RangeChart, TimelineTooltip, TimelineTooltipItem, Text } from '@global/ui'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { convertDuration } from '@global/usecase'
-import { useFreeze } from '../api/hook'
+import { useFreeze } from '@page/AnalysisPage/api/hook'
 import { useTooltipEvent } from '../hook'
 
 interface FreezeChartProps {

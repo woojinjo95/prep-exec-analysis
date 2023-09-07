@@ -1,6 +1,6 @@
 import React, { useMemo, useRef } from 'react'
 import { PointChart, Text, TimelineTooltip, TimelineTooltipItem } from '@global/ui'
-import { useEventLogs } from '../api/hook'
+import { useEventLogs } from '@page/AnalysisPage/api/hook'
 import { useTooltipEvent } from '../hook'
 
 interface EventLogChartProps {
