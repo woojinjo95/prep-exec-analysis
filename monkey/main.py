@@ -43,15 +43,16 @@ class CommandExecutor:
             PUBLISH command '{"msg": "monkey_terminate"}'
         
         '''
-        if command.get('msg', '') == 'monkey':
+        msg = command.get('msg', '')
+
+        if msg in ['monkey_test', 'intelligent_monkey_test']:
             data = command.get('data', {})
             self.set_arguments(data)
             self.start_mt_module()
             publish_msg({}, 'monkey_started')
-            
-        elif command.get('msg', '') == 'monkey_terminate':
-            self.stop_mt_module()
 
+        elif msg == 'monkey_terminate':
+            self.stop_mt_module()
 
 
 def main():
