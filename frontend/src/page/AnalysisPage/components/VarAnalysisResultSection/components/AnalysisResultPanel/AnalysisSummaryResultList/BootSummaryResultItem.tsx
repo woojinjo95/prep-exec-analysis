@@ -1,5 +1,5 @@
 import React from 'react'
-import { Accordion, Text } from '@global/ui'
+import { Accordion, Text, SimpleButton } from '@global/ui'
 import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.svg'
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
 // import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
@@ -9,12 +9,13 @@ import { AnalysisTypeLabel, BootTypeLabel } from '../../../constant'
 
 interface BootSummaryResultItemProps {
   boot: NonNullable<AnalysisResultSummary['boot']>
+  setRawDataModalType: React.Dispatch<React.SetStateAction<keyof AnalysisResultSummary | null>>
 }
 
 /**
  * boot 분석결과 요약 아이템
  */
-const BootSummaryResultItem: React.FC<BootSummaryResultItemProps> = ({ boot }) => {
+const BootSummaryResultItem: React.FC<BootSummaryResultItemProps> = ({ boot, setRawDataModalType }) => {
   return (
     <Accordion
       header={
@@ -65,11 +66,12 @@ const BootSummaryResultItem: React.FC<BootSummaryResultItemProps> = ({ boot }) =
           ))}
         </div>
 
-        <button type="button" className="flex justify-end items-center gap-x-3">
-          {/* TODO: open raw data modal */}
+        <SimpleButton colorScheme="charcoal" className="ml-auto" onClick={() => setRawDataModalType('boot')}>
           <ShowRawDataIcon className="w-4 h-4" />
-          <Text>Show Raw Data</Text>
-        </button>
+          <Text colorScheme="light" weight="medium">
+            Show Raw Data
+          </Text>
+        </SimpleButton>
       </div>
     </Accordion>
   )
