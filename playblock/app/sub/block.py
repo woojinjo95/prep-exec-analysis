@@ -70,13 +70,19 @@ async def run_blocks(conn, db_blocks, scenario_id, testrun_id, blocks: list, eve
             await conn.publish(CHANNEL_NAME, message)
 
             print("wait... message response")
-            # 블럭 타입이 분석이면 이벤트 대기
 
-            # await asyncio.wait_for(event.wait(), 60)
-            event.clear()
             # # 다른 파트는 시간대기
             delay_time = block['delay_time']
             await asyncio.sleep(delay_time / 1000)
+
+            event.clear()
+            try:
+                # 몽키테스트는 완료 대기
+                print("monkey test wait...")
+                if block['type'] == 'monkey':
+                    await event.wait()
+            except Exception as e:
+                print(e)
 
             # 완료 처리
             db_blocks.update_one(
