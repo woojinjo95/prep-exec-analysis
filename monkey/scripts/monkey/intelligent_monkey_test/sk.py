@@ -159,7 +159,8 @@ class IntelligentMonkeyTestSK:
             report_data={
                 'analysis_type': self.analysis_type,
                 'section_id': self.section_id,
-            }
+            },
+            root_when_start=False,
         )
         monkey.run()
 
