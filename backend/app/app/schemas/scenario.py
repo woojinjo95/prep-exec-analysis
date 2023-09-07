@@ -89,3 +89,7 @@ class TestrunBase(TimestampBaseModel):
 
 class Testrun(BaseModel):
     items: List[TestrunBase]
+
+
+class TestrunUpdate(BaseModel):
+    is_active: bool

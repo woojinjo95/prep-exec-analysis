@@ -89,6 +89,7 @@ export const useTooltipEvent = <T extends DefaultChartDataType>({
         const posX = Math.min(width, Math.max(0, e.clientX - offsetLeft))
         setPosX(posX)
         const nearIndex = findNearIndex(data, scaleX.invert(posX).getTime())
+        if (nearIndex === -1) return
         const findedData = data[nearIndex]
 
         // 가장 가까운 데이터가 마우스 기준 4px 이상 떨어져 있다면 -> 데이터를 표시하지 않음

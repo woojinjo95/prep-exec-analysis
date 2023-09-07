@@ -123,6 +123,32 @@ class LogPatternMatching(PaginationBaseModel):
     items: List[LogPatternMatchingBase]
 
 
+class MonkeyTestBase(BaseModel):
+    start_timestamp: str
+    end_timestamp: str
+
+
+class MonkeyTest(PaginationBaseModel):
+    items: List[MonkeyTestBase]
+
+
+class MonkeySmartSenseBase(TimestampBaseModel):
+    smart_sense_key: List[str]
+
+
+class MonkeySmartSense(PaginationBaseModel):
+    items: List[MonkeySmartSenseBase]
+
+
+class IntelligentMonkeySmartSenseBase(TimestampBaseModel):
+    section_id: int
+    smart_sense_key: List[str]
+
+
+class IntelligentMonkeySmartSense(PaginationBaseModel):
+    items: List[IntelligentMonkeySmartSenseBase]
+
+
 class ProcessLifecycleBase(BaseModel):
     pass
 

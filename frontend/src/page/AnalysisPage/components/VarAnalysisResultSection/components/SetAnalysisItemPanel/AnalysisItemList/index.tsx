@@ -15,7 +15,7 @@ import ResumeAnalysisItem from './ResumeAnalysisItem'
 // import ChannelChangeTimeAnalysisItem from './ChannelChangeTimeAnalysisItem'
 import LogLevelFinderAnalysisItem from './LogLevelFinderAnalysisItem'
 import LogPatternMatchingAnalysisItem from './LogPatternMatchingAnalysisItem'
-// import LoudnessAnalysisItem from './LoudnessAnalysisItem'
+import LoudnessAnalysisItem from './LoudnessAnalysisItem'
 
 const DefaultAnalysisConfig: Required<UnsavedAnalysisConfig> = {
   freeze: {
@@ -47,6 +47,35 @@ const DefaultAnalysisConfig: Required<UnsavedAnalysisConfig> = {
     color: '#E93535',
     items: [],
   },
+}
+
+/**
+ * @returns warning message object
+ */
+const validateAnalysisConfig = (config: UnsavedAnalysisConfig) => {
+  const newWarningMessage: { -readonly [key in keyof typeof AnalysisType]?: string } = {}
+
+  // 로그 패턴을 하나도 추가하지 않은 경우
+  if (config.log_pattern_matching && !config.log_pattern_matching.items.length) {
+    newWarningMessage.log_pattern_matching = 'Please set log pattern.'
+  }
+
+  // 로그레벨을 하나도 선택하지 않은 경우
+  if (config.log_level_finder && !config.log_level_finder.targets.length) {
+    newWarningMessage.log_level_finder = 'Please select log level.'
+  }
+
+  // boot frame을 설정하지 않은 경우
+  if (config.boot && config.boot.type === 'image_matching' && !config.boot.frame) {
+    newWarningMessage.boot = 'Please set ROI.'
+  }
+
+  // resume frame을 설정하지 않은 경우
+  if (config.resume && config.resume.type === 'image_matching' && !config.resume.frame) {
+    newWarningMessage.resume = 'Please set ROI.'
+  }
+
+  return newWarningMessage
 }
 
 interface AnalysisItemListProps {
@@ -160,50 +189,14 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
   useObservableState({
     obs$: AnalysisService.onAnalysis$(),
     callback: (state) => {
-      let isValid = false
       if (state?.msg !== 'analysis') return
+      const newWarningMessage = validateAnalysisConfig(unsavedAnalysisConfig)
 
-      // 로그 패턴을 하나도 추가하지 않은 경우
-      if (unsavedAnalysisConfig.log_pattern_matching && !unsavedAnalysisConfig.log_pattern_matching.items.length) {
-        setWarningMessage((prev) => ({ ...prev, log_pattern_matching: 'Please set log pattern.' }))
-        isValid = true
-      } else {
-        setWarningMessage((prev) => ({ ...prev, log_pattern_matching: undefined }))
+      if (Object.keys(newWarningMessage).length) {
+        AnalysisService.startAnalysis({ msg: 'not_validate_analysis' })
+        setWarningMessage(newWarningMessage)
+        return
       }
-
-      // 로그레벨을 하나도 선택하지 않은 경우
-      if (unsavedAnalysisConfig.log_level_finder && !unsavedAnalysisConfig.log_level_finder.targets.length) {
-        setWarningMessage((prev) => ({ ...prev, log_level_finder: 'Please select log level.' }))
-        isValid = true
-      } else {
-        setWarningMessage((prev) => ({ ...prev, log_level_finder: undefined }))
-      }
-
-      // boot frame을 설정하지 않은 경우
-      if (
-        unsavedAnalysisConfig.boot &&
-        unsavedAnalysisConfig.boot.type === 'image_matching' &&
-        !unsavedAnalysisConfig.boot.frame
-      ) {
-        setWarningMessage((prev) => ({ ...prev, boot: 'Please set ROI.' }))
-        isValid = true
-      } else {
-        setWarningMessage(({ ...prev }) => ({ ...prev, boot: undefined }))
-      }
-
-      // resume frame을 설정하지 않은 경우
-      if (
-        unsavedAnalysisConfig.resume &&
-        unsavedAnalysisConfig.resume.type === 'image_matching' &&
-        !unsavedAnalysisConfig.resume.frame
-      ) {
-        setWarningMessage((prev) => ({ ...prev, resume: 'Please set ROI.' }))
-        isValid = true
-      } else {
-        setWarningMessage(({ ...prev }) => ({ ...prev, resume: undefined }))
-      }
-
-      if (isValid) return
 
       updateAnalysisConfig({
         ...(unsavedAnalysisConfig as AnalysisConfig),
@@ -239,13 +232,13 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
         />
       )}
 
-      {/* {selectedAnalysisItems.includes('loudness') && unsavedAnalysisConfig.loudness && (
+      {selectedAnalysisItems.includes('loudness') && unsavedAnalysisConfig.loudness && (
         <LoudnessAnalysisItem
           color={unsavedAnalysisConfig.loudness.color}
           onClickDeleteItem={onClickDeleteItem('loudness')}
           setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
         />
-      )} */}
+      )}
 
       {selectedAnalysisItems.includes('resume') && unsavedAnalysisConfig.resume && (
         <ResumeAnalysisItem

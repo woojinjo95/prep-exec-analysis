@@ -15,10 +15,13 @@ logger = logging.getLogger('snapshot')
 file_logger = logging.getLogger('file')
 
 
-def save_video_snapshot(video_path: str = None, relative_time: float = None):
+def save_video_snapshot(testrun_id: str = None, video_path: str = None, relative_time: float = None):
     workspace_info = get_value('testrun', db=RedisDBEnum.hardware)
-    output_path = os.path.join(workspace_info['workspace_path'], workspace_info['id'], 'raw', 'frames')
-    # output_path = os.path.join('/home/nextlab/projects/prep-exec-analysis/data/workspace/testruns', workspace_info['id'], 'raw', 'frames')
+    if testrun_id is None:
+        testrun_id = workspace_info['id']
+        logger.info(f'No testrun id defined: just use current id, {testrun_id}')
+
+    output_path = os.path.join(workspace_info['workspace_path'], testrun_id, 'raw', 'frames')
 
     os.makedirs(output_path, exist_ok=True)
 
@@ -26,7 +29,7 @@ def save_video_snapshot(video_path: str = None, relative_time: float = None):
     log_level = 'info'
     image_name = ''
     image_path = ''
-    image_id = ''
+    metadata = {}
     try:
         logger.info(f'Image capture from {video_path}, relative_time: {relative_time}')
         if video_path is None or relative_time is None:
@@ -68,6 +71,7 @@ def save_video_snapshot(video_path: str = None, relative_time: float = None):
 
         cap.set(cv2.CAP_PROP_POS_FRAMES, target_idx)
 
+        metadata = {'idx': target_idx, 'total_idx': total_frame_num, 'timestamp': timestamp_to_datetime_with_timezone_str(timestamps[target_idx])}
         logger.info(f'index {target_idx} / {total_frame_num}, abs time: {timestamps[target_idx]} / {timestamp_to_datetime_with_timezone_str(timestamps[target_idx])}')
 
         time_info = timestamp_to_datetime_with_timezone_str(format="%Y-%m-%dT%H%M%SF%f%z")
@@ -75,10 +79,8 @@ def save_video_snapshot(video_path: str = None, relative_time: float = None):
 
         ret, image = cap.read()
         if ret:
-            image_id = str(uuid4())
             image_path = os.path.join(output_path, image_name)
             cv2.imwrite(image_path, image)
-            insert_to_mongodb(col='file', data={'id': image_id, "name": image_name, "path": image_path})
             file_logger.info(f'image saved in {image_path}')
             log += 'Succesfully image made'
         else:
@@ -90,6 +92,6 @@ def save_video_snapshot(video_path: str = None, relative_time: float = None):
         log_level = 'error'
     finally:
         with get_strict_redis_connection() as redis_connection:
-            publish(redis_connection, RedisChannel.command, {'msg': 'video_snapshot_response',
+            publish(redis_connection, RedisChannel.command, {'msg': 'video_frame_snapshot_response',
                                                              'level': log_level,
-                                                             'data':  {'id': image_id, 'path': image_path, 'log': log}})
+                                                             'data':  {'path': image_path, 'log': log, 'metadata': metadata}})

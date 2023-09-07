@@ -10,7 +10,9 @@ from ...analysis.packet_analyzer.model.local import check_valid_multicast_ip
 logger = logging.getLogger('network_control')
 
 
-def change_traffic_control(nic: str, bandwidth: float, delay: float, loss: float, duplicate: float, corrupt: float) -> dict:
+def change_traffic_control(nic: str, bandwidth: float = None, delay: any = None,
+                           loss: float = None, duplicate: float = None, corrupt: float = None) -> dict:
+    # no need to parse just pipe args
     return traffic_change(nic, bandwidth, delay, loss, duplicate, corrupt)
 
 

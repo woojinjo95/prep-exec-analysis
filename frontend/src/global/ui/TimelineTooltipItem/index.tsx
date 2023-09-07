@@ -19,7 +19,7 @@ const TimelineTooltipItem: React.FC<TimelineTooltipItemProps> = ({ label, childr
           {label}
         </Text>
       </th>
-      <td className="border-r border-b border-charcoal py-2 px-4 text-left">{children}</td>
+      <td className="border-r border-b border-charcoal py-2 px-4 text-left break-all">{children}</td>
     </tr>
   )
 }

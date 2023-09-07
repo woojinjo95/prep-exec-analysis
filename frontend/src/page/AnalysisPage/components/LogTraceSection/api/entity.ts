@@ -25,7 +25,6 @@ export interface Network {
  */
 export interface Shell {
   mode: 'adb' | 'ssh'
-  shell_id: number
 }
 
 /**

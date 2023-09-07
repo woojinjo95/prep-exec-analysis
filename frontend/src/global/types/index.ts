@@ -6,7 +6,7 @@ export type DefaultChartDataType = {
 /**
  * 포인트 차트 데이터
  */
-export type PointChartData = Pick<DefaultChartDataType, 'datetime'>[]
+export type PointChartData = (Pick<DefaultChartDataType, 'datetime'> & { color: string })[]
 
 /**
  * 영역 차트 데이터
@@ -20,7 +20,7 @@ export type AreaChartData = (Pick<DefaultChartDataType, 'datetime'> & {
  *
  * @property {number} duration 지속시간. 단위: ms
  */
-export type RangeChartData = Required<DefaultChartDataType>[]
+export type RangeChartData = (Required<DefaultChartDataType> & { color: string })[]
 
 export interface Terminal {
   id: string
