@@ -13,7 +13,7 @@ interface ModifyCustomKeyModalProps {
 
 const ModifyCustomKeyModal: React.FC<ModifyCustomKeyModalProps> = ({ isOpen, close, customKey, remocon }) => {
   /**
-   * 최종적으로 추가할 new CustomKeyName
+   * 최종적으로 수정할 new CustomKeyName
    */
   const [newCustomKeyName, setNewCustomKeyName] = useState<string>(customKey.name)
 
