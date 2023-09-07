@@ -40,6 +40,7 @@ def create_testrun(
         # 시나리오 변경
         testruns = scenario.get('testruns', [])
         testruns.append({'id': testrun_id,
+                         'last_updated_timestamp': None,
                          'raw': {'videos': []},
                          'analysis': {}})
         update_by_id_to_mongodb(col='scenario',

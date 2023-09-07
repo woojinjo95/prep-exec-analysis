@@ -129,14 +129,14 @@ def read_scenarios(
                                                                           "cond": {"$ifNull": ["$$testrun.last_updated_timestamp", False]}}}},
                                   'has_block': {'$cond': {'if': {'$eq': [{'$size': '$block_group'}, 0]},
                                                           'then': False,
-                                                          'else': True}}}}]
+                                                          'else': True}}
+                                  }}]
         res = paginate_from_mongodb_aggregation(col='scenario',
                                                 pipeline=pipeline,
                                                 page=page,
                                                 page_size=page_size,
                                                 sort_by=sort_by if sort_by else 'updated_at',
                                                 sort_desc=sort_desc if sort_desc is not None else True)
-
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
@@ -193,6 +193,7 @@ def create_scenario(
                                                     'tags': scenario_in.tags,
                                                     'block_group': block_group_data,
                                                     'testruns': [{'id': testrun_id,
+                                                                  'last_updated_timestamp': None,
                                                                   'raw': {'videos': []},
                                                                   'analysis': {}}]})
 
@@ -275,6 +276,7 @@ def copy_scenario(
                                                     'tags': scenario_in.tags,
                                                     'block_group': block_group_data,
                                                     'testruns': testruns if testruns else {'id': testrun_id,
+                                                                                           'last_updated_timestamp': None,
                                                                                            'raw': {'videos': []},
                                                                                            'analysis': {}}})
 
