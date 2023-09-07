@@ -7,11 +7,11 @@ import threading
 import numpy as np
 
 from scripts.analysis.image import get_cursor_xywh, get_cropped_image
-from scripts.monkey.format import FrameInfo, MonkeyArgs
+from scripts.monkey.format import NodeInfo, MonkeyArgs
 from scripts.monkey.monkey import Monkey
 from scripts.monkey.util import (check_cursor_is_same, exec_keys_with_each_interval,
                                  get_current_image, head_to_parent_sibling,
-                                 optimize_path)
+                                 optimize_path, get_last_breadth_start_image)
 from scripts.external.report import report_section
 
 logger = logging.getLogger('monkey_test')
@@ -35,17 +35,15 @@ class IntelligentMonkeyTestSK:
         self.root_keyset = ['home', 'home', 'left'] + ['up'] * 4
 
         # init variables
-        self.last_fi = None
+        self.main_stop_event = threading.Event()
+        self.node_histories = []
         self.keyset = []
         self.section_id = 0
-        self.main_stop_event = threading.Event()
 
     ##### Entry Point #####
     def run(self):
         logger.info('start intelligent monkey test. mode: SK.')
         self.set_root_keyset(self.root_keyset)
-        if not self.root_cursor:
-            self.set_root_keyset(self.root_keyset)  # try one more
 
         self.visit()
         logger.info('stop intelligent monkey test. mode: SK.')
@@ -57,52 +55,54 @@ class IntelligentMonkeyTestSK:
     def visit(self):
         while not self.main_stop_event.is_set():
             self.exec_keys(self.keyset)
-            status = self.check_status()
-            if status == 'depth_end':
-                continue
-            elif status == 'visit_end':
-                return
+            image = get_current_image()
+            node_info = NodeInfo(image=image, cursor=self.get_cursor(image))
 
-            if self.check_leaf_node():
-                current_node_keyset = [*self.keyset, self.depth_key]
-                logger.info(f'current_node_keyset: {current_node_keyset}')
-                self.start_monkey(current_node_keyset, self.cursor_image)
+            if self.check_breadth_end(node_info):
+                if self.head_to_next():
+                    continue
+                else:
+                    return
+
+            self.exec_keys([self.depth_key])
+            if self.check_leaf_node(node_info):
+                node_info.is_leaf = True
+                self.start_monkey(node_info, [*self.keyset, self.depth_key])
                 self.append_key(self.breadth_key)
             else:
+                node_info.is_leaf = False
                 self.append_key(self.depth_key)
 
-    def check_status(self) -> str:
-        logger.info('check status.')
-        image, cursor = get_current_image(), self.get_cursor()
-        if self.last_fi and check_cursor_is_same(self.last_fi.image, self.last_fi.cursor, image, cursor):
-            try:
-                self.head_to_next()
-                logger.info(f'head to next done. {self.keyset}')
-                self.last_fi = None
-                return 'depth_end'
-            except IndexError as err:
-                logger.info(f'visit done. {self.keyset}. {err}')
-                return 'visit_end'
-        else:
-            return 'none'
+            self.node_histories.append(node_info)
 
-    def check_leaf_node(self) -> bool:
+    def check_breadth_end(self, node_info: NodeInfo) -> bool:
+        try:
+            logger.info('check breadth end.')
+            similar_thld = 0.98
+            same_with_prev = check_cursor_is_same(self.node_histories[-1].image, self.node_histories[-1].cursor, 
+                                                node_info.image, node_info.cursor, 
+                                                sim_thld=similar_thld)
+            last_breadth_start_image = get_last_breadth_start_image(self.node_histories)
+            same_with_breadth_start = check_cursor_is_same(last_breadth_start_image, self.get_cursor(last_breadth_start_image),
+                                                        node_info.image, node_info.cursor, 
+                                                        sim_thld=similar_thld)
+            is_breadth_end = True if same_with_prev or same_with_breadth_start else False
+            logger.info(f'check breadth end done. is_breadth_end: {is_breadth_end}, same_with_prev: {same_with_prev}, same_with_breadth_start: {same_with_breadth_start}')
+            # # test
+            # time_str = get_time_str()
+            # save_test_image(f'{time_str}_cursor_cur', get_cropped_image(node_info.image, node_info.cursor))
+            # save_test_image(f'{time_str}_cursor_prev', get_cropped_image(self.node_histories[-1].image, self.node_histories[-1].cursor))
+            # save_test_image(f'{time_str}_cursor_last_breadth_start', get_cropped_image(last_breadth_start_image, self.get_cursor(last_breadth_start_image)))
+            # #####
+            return is_breadth_end
+        except Exception as err:
+            logger.warning(f'check breadth end error. {err}')
+            return False
+
+    def check_leaf_node(self, node_info: NodeInfo) -> bool:
         logger.info('check leaf node.')
-        image = get_current_image()
-        cursor = self.get_cursor()
-        fi = FrameInfo(image, cursor)
-        self.cursor_image = self.get_cursor_image(image, cursor)
-
-        self.exec_keys([self.depth_key])
-
-        leaf_node = False
-        if self.check_leftmenu_is_opened(image, cursor, get_current_image(), self.get_cursor()):
-            leaf_node = False
-        else:
-            leaf_node = True
-        logger.info(f'leaf node: {leaf_node}')
-
-        self.last_fi = fi
+        leaf_node = False if self.check_leftmenu_is_opened(node_info.image, node_info.cursor, get_current_image(), self.get_cursor()) else True
+        logger.info(f'check leaf node done. leaf node: {leaf_node}')
         return leaf_node
 
     ##### Functions #####
@@ -111,13 +111,18 @@ class IntelligentMonkeyTestSK:
             image = get_current_image()
         return get_cursor_xywh(image)
 
-    def set_root_keyset(self, keys: List[str] = []):
-        self.keyset = keys
-        logger.info(f'root keyset: {self.keyset}')
-
-        self.exec_keys(self.keyset)
-        self.root_cursor = self.get_cursor()
-        logger.info(f'root cursor: {self.root_cursor}')
+    def set_root_keyset(self, keys: List[str] = [], find_root_cursor_max_try: int=3):
+        for try_count in range(find_root_cursor_max_try):
+            self.keyset = keys
+            logger.info(f'root keyset: {self.keyset}')
+            self.exec_keys(self.keyset)
+            self.root_cursor = self.get_cursor()
+            logger.info(f'root cursor: {self.root_cursor}. try_count: {try_count}')
+            if self.root_cursor:
+                break
+        else:
+            logger.info(f'cannot find root cursor. try_count: {try_count}')
+            raise Exception('cannot find root cursor')
 
     def check_leftmenu_is_opened(self, prev_image: np.ndarray, prev_cursor: Tuple, image: np.ndarray, cursor: Tuple, 
                                  max_width_diff: int=10, max_height_diff: int=10) -> bool:

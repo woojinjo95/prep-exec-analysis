@@ -6,6 +6,7 @@ import numpy as np
 from scripts.analysis.image import calc_diff_rate, calc_iou, get_cropped_image
 from scripts.control.image import get_snapshot
 from scripts.control.remocon import publish_remocon_msg
+from scripts.monkey.format import NodeInfo
 
 logger = logging.getLogger('monkey_test')
 
@@ -99,3 +100,13 @@ def check_image_similar(image1: np.ndarray, image2: np.ndarray, min_color_depth_
     # logger.info(f'check temporal similar. diff_rate: {diff_rate:.6f}, diff_thld: {diff_thld:.6f}')
     return sim_rate > sim_thld
 
+
+def get_last_breadth_start_image(node_histories: List[NodeInfo]):
+    try:
+        for i in range(len(node_histories) - 1, 0, -1):
+            if not node_histories[i].is_leaf:
+                return node_histories[i+1].image
+        else:
+            return node_histories[0].image
+    except Exception as err:
+        raise Exception(f'get last breadth start cursor image error. {err}')
