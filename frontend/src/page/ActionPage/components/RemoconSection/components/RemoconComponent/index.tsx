@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import classNames from 'classnames/bind'
 
 // import { ReactComponent as AddIcon } from '@assets/images/add.svg'
