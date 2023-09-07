@@ -42,15 +42,10 @@ def measure_channel_zapping():
     igmp_join_infos = get_igmp_join_infos(network_log)  # igmp join occured time
 
     event_log = get_data_of_event_log(args.timestamps[0], args.timestamps[-1])
-    channel_key_inputs = get_channel_key_inputs(event_log)  # channel key: all number key, ok key, channelup key, channeldown key
+    channel_key_inputs = get_channel_key_inputs(event_log, targets)  # channel key: all number key, ok key, channelup key, channeldown key
 
-    # iterate all igmp join times.
-    # if any channel_key_input_time is between ('igmp join time - 5', 'igmp join time') 
-    #   -> valid key input time. and accumulate 'channel key event time' and 'event key' and meta info(src ch num, dst ch num)
-    #   -> accumulate key along to adj or non adj
-    # else
-    #   -> invalid key input time. skip.
-    event_times = get_channel_zapping_event_times(igmp_join_infos, channel_key_inputs, targets)
+    event_times = get_channel_zapping_event_times(igmp_join_infos, channel_key_inputs,
+                                                  igmp_join_time_margin=get_setting_with_env('IGMP_JOIN_TIME_MARGIN', 5))
 
     with tempfile.TemporaryDirectory(dir='/tmp') as output_dir:
 
@@ -69,5 +64,21 @@ def get_config() -> Dict:
     return read_analysis_config()['channel_change_time']
 
 
-def get_channel_zapping_event_times(igmp_join_infos: List[IgmpJoinData], channel_key_inputs: List[RemoconKeyData], targets: List[str]):
-    pass
+# iterate all igmp join times.
+# if any channel_key_input_time is between ('igmp join time - 5', 'igmp join time') 
+#   -> valid key input time. and accumulate 'channel key event time' and 'event key' and meta info(src ch num, dst ch num)
+#   -> accumulate key along to adj or non adj
+# else
+#   -> invalid key input time. skip.
+def get_channel_zapping_event_times(igmp_join_infos: List[IgmpJoinData], channel_key_inputs: List[RemoconKeyData], 
+                                    igmp_join_time_margin: int) -> Dict:
+    last_igmp_join_info = igmp_join_infos.pop()
+    for channel_key_input in reversed(channel_key_inputs):
+        pass
+
+    # for igmp_join in igmp_join_infos:
+    #     for channel_key_input in channel_key_inputs:
+    #         if igmp_join.timestamp - igmp_join_time_margin <= channel_key_input.timestamp <= igmp_join.timestamp:
+    #             igmp_join.channel_info = channel_key_input.key
+    #             igmp_join.src = channel_key_input.src
+    #             igmp_join.dst = channel_key_input.dst
