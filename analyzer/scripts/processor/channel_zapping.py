@@ -50,7 +50,7 @@ def measure_channel_zapping():
     #   -> accumulate key along to adj or non adj
     # else
     #   -> invalid key input time. skip.
-    event_times = get_event_times(igmp_join_infos, channel_key_input_times, targets)
+    event_times = get_channel_zapping_event_times(igmp_join_infos, channel_key_input_times, targets)
 
     with tempfile.TemporaryDirectory(dir='/tmp') as output_dir:
 
