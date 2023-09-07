@@ -185,8 +185,12 @@ class IntelligentMonkeyTestSK:
         key_and_intervals = [(key, self.key_interval) if key != 'home' else (key, 3) for key in keys]
         exec_keys_with_each_interval(key_and_intervals, self.profile, self.remocon_type)
 
-    def head_to_next(self):
-        self.keyset = head_to_parent_sibling(self.keyset, self.depth_key, self.breadth_key)
+    def head_to_next(self) -> bool:
+        try:
+            self.keyset = head_to_parent_sibling(self.keyset, self.depth_key, self.breadth_key)
+            return True
+        except Exception:
+            return False
 
     def get_cursor(self, image: np.ndarray) -> Tuple[int, int, int, int]:
         try:

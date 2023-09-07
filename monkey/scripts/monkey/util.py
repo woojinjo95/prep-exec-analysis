@@ -79,10 +79,10 @@ def head_to_parent_sibling(key_histories: List[str], depth_key: str, breadth_key
                 key_histories.append(breadth_key)
                 return key_histories
             else:
-                logger.warning(f'key_histories: {key_histories}')
+                logger.info(f'key_histories: {key_histories}')
                 raise ValueError('key_histories is invalid.')
     except IndexError:
-        logger.warning(f'key_histories: {key_histories}')
+        logger.info(f'key_histories: {key_histories}')
         raise IndexError('key_histories is empty.')
 
 
