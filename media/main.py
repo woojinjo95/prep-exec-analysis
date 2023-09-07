@@ -92,7 +92,7 @@ def command_parser(command: dict, streaming_stop_event: Event):
         if capture_board_args.get('action') == 'refresh':
             refresh_capture_board()
 
-    if command.get('msg') == 'video_snapshot':
+    if command.get('msg') == 'video_frame_snapshot':
         video_snapshot_args = command.get('data')
         save_video_snapshot(**video_snapshot_args)
 
