@@ -88,7 +88,7 @@ const MonitorSection: React.FC = () => {
 
       <HLSPlayer autoPlay controls className="h-full aspect-video" src={AppURL.streamingURL} />
       {lkfsPayload && (
-        <div className="absolute bottom-12 right-4 h-[200px] z-10 w-[26px]">
+        <div className="absolute bottom-14 right-4 h-[200px] z-10 w-[26px]">
           <SoundBar value={lkfsPayload.M} />
         </div>
       )}
