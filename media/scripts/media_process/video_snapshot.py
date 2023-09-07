@@ -150,7 +150,7 @@ def save_full_frame_video_snapshots(scenario_id: str, testrun_id: str, video_pat
                 break
             time_info = timestamp_to_datetime_with_timezone_str(timestamps[snapshot_index]).replace('+00:00', 'Z')  # UTC+0 에서만 Z로 변경
             image_name = f'{time_info}.{IMAGE_EXTENSION}'
-            image_names.append(image_name)
+            image_names.append(os.path.splitext(image_name)[0])
             image_path = os.path.join(output_path, image_name)
             save_image = cv2.resize(image, FRAME_SNAPSHOTS_IMAGE_SIZE, interpolation=cv2.INTER_AREA)
             # save_image = image[::12, ::12]
