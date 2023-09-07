@@ -708,10 +708,10 @@ def get_summary_data_of_measure_result(
                                   'smart_sense': '$smart_sense',
                                   'section_id': {'$arrayElemAt': ['$_id', 0]},
                                   'image_path': {'$arrayElemAt': ['$_id', 1]}}},
-                    {'$group': {'_id': None, 'results': {
-                        '$push': {'section_id': '$section_id',
-                                  'smart_sense': '$smart_sense', 
-                                  'image_path': '$image_path'}}}}]
+                    {'$sort': {'section_id': 1}},
+                    {'$group': {'_id': None, 'results': {'$push': {'section_id': '$section_id',
+                                                                   'smart_sense': '$smart_sense',
+                                                                   'image_path': '$image_path'}}}}]
             elif active_analysis == 'macroblock':
                 continue
             elif active_analysis == 'channel_change_time':
