@@ -5,15 +5,19 @@ from typing import Dict, List
 
 from scripts.config.config import get_setting_with_env
 from scripts.connection.redis_pubsub import publish_msg
-from scripts.external.data import load_input, read_analysis_config
-from scripts.external.event import get_data_of_event_log, get_channel_key_inputs
-from scripts.external.network import get_data_of_network_log, get_igmp_join_infos
-from scripts.external.report import report_output
 from scripts.external.analysis import set_analysis_info
-from scripts.format import Command, ReportName, IgmpJoinData, RemoconKeyData, ChannelZappingEventData
+from scripts.external.data import load_input, read_analysis_config
+from scripts.external.event import (get_channel_key_inputs,
+                                    get_data_of_event_log)
+from scripts.external.network import (get_data_of_network_log,
+                                      get_igmp_join_infos)
+from scripts.external.report import report_output
+from scripts.format import (ChannelZappingEventData, Command, IgmpJoinData,
+                            RemoconKeyData, ReportName)
 from scripts.util._timezone import get_utc_datetime
 from scripts.util.decorator import log_decorator
 from scripts.util.video import crop_video_with_opencv
+from scripts.analysis.channel_zapping import calculate_channel_zapping
 
 logger = logging.getLogger('main')
 
@@ -52,7 +56,7 @@ def measure_channel_zapping():
         crop_videos = crop_video_with_opencv(args.video_path, args.timestamps, [ei.event_time for ei in event_time_infos], 
                                              output_dir, get_setting_with_env('CHANNEL_ZAPPING_VIDEO_LENGTH', 8))
         for crop_video, event_time_info in zip(crop_videos, event_time_infos):
-            result = task_channel_zapping(crop_video.video_path, crop_video.timestamps, crop_video.timestamps[0])
+            result = calculate_channel_zapping(crop_video.video_path, crop_video.timestamps, crop_video.timestamps[0])
 
             if result['status'] == 'success':
                 report_output(ReportName.CHANNEL_ZAPPING.value, {
