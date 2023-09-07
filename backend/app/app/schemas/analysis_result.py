@@ -123,7 +123,7 @@ class LogPatternMatching(PaginationBaseModel):
     items: List[LogPatternMatchingBase]
 
 
-class MonkeyTestBase(TimestampBaseModel):
+class MonkeyTestBase(BaseModel):
     start_timestamp: str
     end_timestamp: str
 

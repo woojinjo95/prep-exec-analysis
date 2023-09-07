@@ -418,7 +418,6 @@ def get_data_of_log_pattern_matching(
 # Monkey Section
 @router.get("/monkey_section", response_model=schemas.MonkeyTest)
 def get_data_of_monkey_section(
-    is_intelligent_mode: Optional[bool] = False,
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
@@ -429,19 +428,18 @@ def get_data_of_monkey_section(
     sort_desc: Optional[bool] = False
 ):
     """
-    몽키 테스트 섹션 데이터 조회(범위)
+    일반 몽키 테스트 섹션 데이터 조회(범위)
     """
     try:
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        analysis_mode = 'intelligent_monkey' if is_intelligent_mode else 'monkey'
         monkey_section_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
                                                              '$lte': convert_iso_format(end_time)},
                                                'scenario_id': scenario_id,
                                                'testrun_id': testrun_id,
-                                               'analysis_type': analysis_mode}},
+                                               'analysis_type': 'monkey'}},
                                    {'$project': {'_id': 0,
                                                  'start_timestamp': {'$dateToString': {'date': '$start_timestamp'}},
                                                  'end_timestamp': {'$dateToString': {'date': '$end_timestamp'}}}}]
@@ -461,7 +459,6 @@ def get_data_of_monkey_section(
 def get_data_of_monkey_smart_key(
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    is_intelligent_mode: Optional[bool] = False,
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
@@ -470,19 +467,96 @@ def get_data_of_monkey_smart_key(
     sort_desc: Optional[bool] = False
 ):
     """
-    몽키 테스트 스마트 센스 키 조회
+    일반 몽키 테스트 스마트 센스 키 조회
     """
     try:
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        analysis_mode = 'intelligent_monkey' if is_intelligent_mode else 'monkey'
         monkey_smart_key_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
                                                                '$lte': convert_iso_format(end_time)},
                                                  'scenario_id': scenario_id,
                                                  'testrun_id': testrun_id,
-                                                 'analysis_type': analysis_mode}},
+                                                 'analysis_type': 'monkey'}},
+                                     {'$project': {'_id': 0,
+                                                   'timestamp': 1,
+                                                   'smart_sense_key': 1}}]
+        monkey_section = paginate_from_mongodb_aggregation(col='monkey_smart_sense',
+                                                           pipeline=monkey_smart_key_pipeline,
+                                                           page=page,
+                                                           page_size=page_size,
+                                                           sort_by=sort_by,
+                                                           sort_desc=sort_desc)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return monkey_section
+
+
+# Intelligent Monkey Section
+@router.get("/intelligent_monkey_section", response_model=schemas.MonkeyTest)
+def get_data_of_intelligent_monkey_section(
+    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    scenario_id: Optional[str] = None,
+    testrun_id: Optional[str] = None,
+    page_size: Optional[int] = 10,
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
+):
+    """
+    인텔리전트 몽키 테스트 섹션 데이터 조회(범위)
+    """
+    try:
+        if testrun_id is None:
+            testrun_id = RedisClient.hget('testrun', 'id')
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        monkey_section_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
+                                                             '$lte': convert_iso_format(end_time)},
+                                               'scenario_id': scenario_id,
+                                               'testrun_id': testrun_id,
+                                               'analysis_type': 'intelligent_monkey'}},
+                                   {'$project': {'_id': 0,
+                                                 'start_timestamp': {'$dateToString': {'date': '$start_timestamp'}},
+                                                 'end_timestamp': {'$dateToString': {'date': '$end_timestamp'}}}}]
+        monkey_section = paginate_from_mongodb_aggregation(col='monkey_section',
+                                                           pipeline=monkey_section_pipeline,
+                                                           page=page,
+                                                           page_size=page_size,
+                                                           sort_by=sort_by,
+                                                           sort_desc=sort_desc)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return monkey_section
+
+
+# Intelligent Monkey Smart Sense
+@router.get("/intelligent_monkey_smart_key")  # , response_model=schemas.MonkeySmartKey)
+def get_data_of_intelligent_monkey_smart_key(
+    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    scenario_id: Optional[str] = None,
+    testrun_id: Optional[str] = None,
+    page_size: Optional[int] = 10,
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
+):
+    """
+    인텔리전트 몽키 테스트 스마트 센스 키 조회
+    """
+    try:
+        if testrun_id is None:
+            testrun_id = RedisClient.hget('testrun', 'id')
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        monkey_smart_key_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
+                                                               '$lte': convert_iso_format(end_time)},
+                                                 'scenario_id': scenario_id,
+                                                 'testrun_id': testrun_id,
+                                                 'analysis_type': 'intelligent_monkey'}},
                                      {'$project': {'_id': 0,
                                                    'timestamp': 1,
                                                    'smart_sense_key': 1}}]
