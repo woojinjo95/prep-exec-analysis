@@ -129,17 +129,21 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  replay:
-    container_name: replay
-    image: registry.dev-nextlab.com/prep-exec-replay:dev-0
+  playblock:
+    container_name: playblock
+    image: registry.dev-nextlab.com/prep-exec-playblock:dev-0
+    command: python -u process.py
     restart: always
     build:
-      context: ./replay
+      context: ./playblock
+    volumes:
+      - ./playblock/app:/app
     environment:
-      REDIS_HOST: redis
+      REDIS_HOST: 192.168.1.45
       REDIS_PORT: 6379
-      REDIS_PASSWORD:
+      REDIS_PASSWORD: 66b44dcb7f981904f8536b19e4464725
       USER: ${USER}
+      MONGODB_SERVER: 192.168.1.45
     privileged: true
 
   adminer:
