@@ -29,6 +29,7 @@ def save_test_image(name: str, image: np.ndarray) -> str:
 
 def get_banned_images() -> List[np.ndarray]:
     banned_images = []
+    os.makedirs(BANNED_IMAGE_DIR, exist_ok=True)
     for banned_image_name in os.listdir(BANNED_IMAGE_DIR):
         banned_image_path = os.path.join(BANNED_IMAGE_DIR, banned_image_name)
         banned_image = cv2.imread(banned_image_path)
@@ -38,6 +39,7 @@ def get_banned_images() -> List[np.ndarray]:
 
 def get_skipped_images() -> List[np.ndarray]:
     skipped_images = []
+    os.makedirs(SKIPPED_IMAGE_DIR, exist_ok=True)
     for skipped_image_name in os.listdir(SKIPPED_IMAGE_DIR):
         skipped_image_path = os.path.join(SKIPPED_IMAGE_DIR, skipped_image_name)
         skipped_image = cv2.imread(skipped_image_path)
