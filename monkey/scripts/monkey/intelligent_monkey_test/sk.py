@@ -192,8 +192,10 @@ class IntelligentMonkeyTestSK:
         except Exception:
             return False
 
-    def get_cursor(self, image: np.ndarray) -> Tuple[int, int, int, int]:
+    def get_cursor(self, image: np.ndarray=None) -> Tuple[int, int, int, int]:
         try:
+            if image is None:
+                image = get_current_image()
             cursor = get_cursor(self.profile, image)
             return (cursor.x, cursor.y, cursor.w, cursor.h)
         except Exception as err:

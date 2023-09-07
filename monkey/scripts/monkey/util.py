@@ -121,11 +121,8 @@ def get_last_breadth_start_image(node_histories: List[NodeInfo]):
         raise Exception(f'get last breadth start cursor image error. {err}')
 
 
-def get_cursor(company: str, image: np.ndarray=None) -> Cursor:
+def get_cursor(company: str, image: np.ndarray) -> Cursor:
     try:
-        if image is None:
-            image = get_current_image()
-
         if company == 'roku':
             cursor = find_roku_cursor(image)
             return Cursor(x=cursor[0], y=cursor[1], w=cursor[2], h=cursor[3])
@@ -136,4 +133,3 @@ def get_cursor(company: str, image: np.ndarray=None) -> Cursor:
             raise Exception(f'invalid company. => {company}')
     except Exception as err:
         raise Exception(f'get cursor error. {err}')
-    
