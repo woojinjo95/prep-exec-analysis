@@ -560,7 +560,7 @@ def get_data_of_intelligent_monkey_smart_sense(
                                        {'$project': {'_id': 0,
                                                      'timestamp': 1,
                                                      'smart_sense_key': 1,
-                                                     'menu': '$section_id'}}]
+                                                     'section_id': 1}}]
         monkey_section = paginate_from_mongodb_aggregation(col='monkey_smart_sense',
                                                            pipeline=monkey_smart_sense_pipeline,
                                                            page=page,
