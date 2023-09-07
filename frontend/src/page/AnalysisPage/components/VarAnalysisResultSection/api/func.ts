@@ -41,6 +41,30 @@ export const deleteAnalysisConfig = async ({
 }
 
 /**
+ * 분석 시작 api
+ */
+export const postAnalysis = async ({
+  scenario_id,
+  testrun_id,
+  measurement,
+}: {
+  scenario_id: string
+  testrun_id: string
+  measurement: (keyof typeof AnalysisType)[]
+}) => {
+  try {
+    await API.post(apiUrls.analysis, {
+      scenario_id,
+      testrun_id,
+      measurement,
+    })
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
+/**
  * 로그 패턴 정규표현식 체크 api
  */
 export const postValidateRegex = async ({ regex }: { regex: string }) => {
