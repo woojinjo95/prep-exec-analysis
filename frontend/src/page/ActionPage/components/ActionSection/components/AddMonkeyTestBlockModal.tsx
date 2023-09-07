@@ -214,6 +214,10 @@ const AddMonkeyTestBlockModal: React.FC<AddMonkeyTestBlockModalProps> = ({ isOpe
                   name: 'Monkey Test',
                   args: [
                     {
+                      key: 'type',
+                      value: 'monkey_test',
+                    },
+                    {
                       key: 'duration',
                       value: durationTimeUnit === 'Sec' ? duration : duration * 60,
                     },

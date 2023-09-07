@@ -5,7 +5,7 @@ from datetime import datetime
 from .mongodb import get_collection
 
 
-async def process_log_queue(queue: asyncio.Queue, conn: any, CHANNEL_NAME: str, mode: str, shell_id: int, testinfo: dict):
+async def process_log_queue(queue: asyncio.Queue, conn: any, CHANNEL_NAME: str, mode: str, shell_id: int):
     buffer = []
     collection = get_collection()
     print("process_log_queue")
@@ -27,15 +27,16 @@ async def process_log_queue(queue: asyncio.Queue, conn: any, CHANNEL_NAME: str, 
             await asyncio.sleep(0.01)
         except asyncio.QueueEmpty:
             if len(buffer) > 0:
+                scenario_id = await conn.hget('testrun', 'scenario_id')
+                testrun_id = await conn.hget('testrun', 'testrun_id')
                 ret = collection.insert_one({
                     'timestamp': datetime.fromtimestamp(buffer[0]['timestamp']),
                     'mode': mode,
                     'lines': buffer,
-                    'scenario_id': testinfo['scenario_id'],
-                    'testrun_id': testinfo['testrun_id']
+                    'scenario_id': scenario_id,
+                    'testrun_id': testrun_id
                 })
                 print(f"insert_to_mongodb: {len(buffer)}: {ret.inserted_id}")
                 buffer = []
-            else:
-                await asyncio.sleep(0.1)
+            await asyncio.sleep(0.1)
         
