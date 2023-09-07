@@ -3,7 +3,7 @@ import { Accordion, Text, SimpleButton } from '@global/ui'
 import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.svg'
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
 // import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
-import { numberWithCommas } from '@global/usecase'
+import { convertDuration, numberWithCommas } from '@global/usecase'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { AnalysisTypeLabel, BootTypeLabel } from '../../../constant'
 
@@ -57,7 +57,7 @@ const BootSummaryResultItem: React.FC<BootSummaryResultItemProps> = ({ boot, set
                 {numberWithCommas(total)}
               </Text>
               <Text size="sm" className="text-right">
-                {numberWithCommas(avg_time)} ms
+                {convertDuration(avg_time)}
               </Text>
               <button type="button">
                 <ShowEyeIcon className="w-5" />

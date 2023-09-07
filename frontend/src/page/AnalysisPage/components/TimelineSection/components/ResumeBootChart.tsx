@@ -1,6 +1,7 @@
 import React, { useMemo, useRef } from 'react'
 import { PointChart, RangeChart, TimelineTooltip, TimelineTooltipItem, Text } from '@global/ui'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
+import { convertDuration } from '@global/usecase'
 import { useBoot, useResume } from '../api/hook'
 import { useTooltipEvent } from '../hook'
 
@@ -73,8 +74,7 @@ const ResumeBootChart: React.FC<ResumeBootChartProps> = ({ scaleX, startTime, en
               </TimelineTooltipItem>
 
               <TimelineTooltipItem label="Result">
-                {/* FIXME: 1000ms 이하일 경우 -> ms로 표시, 나머지 -> h/m/s 표시 */}
-                <Text colorScheme="light">{(tooltipData.duration / 1000).toFixed(1)}s</Text>
+                <Text colorScheme="light">{convertDuration(tooltipData.duration)}</Text>
               </TimelineTooltipItem>
             </TimelineTooltip>
           )}
