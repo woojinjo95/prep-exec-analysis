@@ -155,7 +155,7 @@ def save_full_frame_video_snapshots(scenario_id: str, testrun_id: str, video_pat
         else:
             log += 'Succesfully images made'
 
-        document = {'timestamp': get_utc_datetime(log.get('time', time.time())),
+        document = {'timestamp': get_utc_datetime(time.time()),
                     'scenario_id': scenario_id,
                     'testrun_id': testrun_id,
                     'video_path': video_path,
