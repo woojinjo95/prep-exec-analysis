@@ -1,4 +1,5 @@
 import logging
+from typing import Dict, List
 
 from scripts.connection.mongo_db.crud import aggregate_from_mongodb
 from scripts.external.scenario import get_scenario_info
@@ -25,3 +26,24 @@ def get_data_of_network_log(start_time: float, end_time: float):
     ]
     event_log = aggregate_from_mongodb(col='network_trace', pipeline=pipeline)
     return {"items": event_log}
+
+
+def get_igmp_join_times(event_result: Dict) -> List[Dict]:
+    igmp_join_times = []
+    for item in event_result.get('items', []):
+        src = item.get('src', '')
+        dst = item.get('dst', '')
+        meta_data = item.get('metadata', {})
+        type = meta_data.get('type', '')
+        if type == 'igmp_join':
+            try:
+                igmp_join_times.append({
+                    'timestamp': meta_data['timestamp'],  # required
+                    'src': src,
+                    'dst': dst,
+                    'channel_info': meta_data.get('channel_info', '')
+                })
+            except KeyError:
+                pass
+    logger.info(f'igmp_join_times: {igmp_join_times}')
+    return igmp_join_times
