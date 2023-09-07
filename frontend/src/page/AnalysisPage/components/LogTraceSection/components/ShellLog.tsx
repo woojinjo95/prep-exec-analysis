@@ -21,10 +21,6 @@ const ShellLog: React.FC<ShellLogProps> = ({ shell_mode }) => {
     // cursorDateTime 기준 전후 30초씩(총 1분)
     start_time: new Date((cursorDateTime?.getTime() || 0) - 1000 * 30).toISOString(),
     end_time: new Date((cursorDateTime?.getTime() || 0) + 1000 * 30).toISOString(),
-
-    // FIXME: 테스트용. 제거
-    // start_time: new Date('2000-01-01').toISOString(),
-    // end_time: new Date('2222-01-01').toISOString(),
     enabled: !!cursorDateTime,
   })
 
