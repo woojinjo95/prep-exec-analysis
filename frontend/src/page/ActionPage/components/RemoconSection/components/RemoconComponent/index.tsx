@@ -13,6 +13,7 @@ import { remoconService } from '@global/service/RemoconService/RemoconService'
 import { CustomKeyTransmit, RemoconTransmit } from '@global/service/RemoconService/type'
 import { ReactComponent as PlusIcon } from '@assets/images/add.svg'
 import { useMutation, useQuery } from 'react-query'
+import { customKeyDropdownMenu } from '@page/ActionPage/costants'
 import { CustomKey, Remocon } from '../../api/entity'
 import RemoconButtons from './RemoconButtons'
 import styles from './RemoconComponent.module.scss'
@@ -58,10 +59,6 @@ const RemoconComponent: React.FC<RemoconProps> = ({ remocon, keyEvent }) => {
       }
     },
   })
-
-  const dropdownMenu: ('Modify' | 'Delete')[] = useMemo(() => {
-    return ['Modify', 'Delete']
-  }, [])
 
   useEffect(() => {
     setIsRendered(true)
@@ -159,7 +156,7 @@ const RemoconComponent: React.FC<RemoconProps> = ({ remocon, keyEvent }) => {
                         {custom_key.name}
                       </Text>
                       <DropdownWithMoreButton colorScheme="light" type="icon" iconColorScheme="charcoal">
-                        {dropdownMenu?.map((menu) => (
+                        {customKeyDropdownMenu?.map((menu) => (
                           <OptionItem
                             colorScheme="light"
                             key={`${custom_key.id}_dropdown_menu_${menu}`}
