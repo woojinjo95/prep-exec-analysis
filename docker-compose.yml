@@ -129,6 +129,8 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
+
+
   adminer:
     container_name: adminer
     image: dockette/adminer:full
@@ -265,7 +267,9 @@ services:
     build:
       context: ./playblock
       dockerfile: Dockerfile
-
+    command: python -u process.py
+    volumes:
+      - ./playblock/app:/app
 volumes:
   mongodb_data: {}
   redis_data: {}
