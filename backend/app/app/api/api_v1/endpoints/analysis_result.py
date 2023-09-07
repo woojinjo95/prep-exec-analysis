@@ -396,16 +396,16 @@ def get_data_of_log_pattern_matching(
             testrun_id = RedisClient.hget('testrun', 'id')
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        if pattern_name is not None:
-            pattern_name = pattern_name.split(',')
         log_pattern_matching_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
                                                                    '$lte': convert_iso_format(end_time)},
                                                      'scenario_id': scenario_id,
-                                                     'testrun_id': testrun_id,
-                                                     'matched_target.name': {'$in': pattern_name}}},
+                                                     'testrun_id': testrun_id}},
                                          {'$project': {'_id': 0, 'log_level': 1, 'timestamp': 1, 'message': 1,
                                                        'regex': '$matched_target.regular_expression',
                                                        'color': '$matched_target.color', 'log_pattern_name': '$matched_target.name'}}]
+        if pattern_name is not None:
+            pattern_name = pattern_name.split(',')
+            log_pattern_matching_pipeline[0]['$match']['matched_target.name'] = {'$in': pattern_name}
 
         log_pattern_matching = paginate_from_mongodb_aggregation(col=analysis_collection['log_pattern_matching'],
                                                                  pipeline=log_pattern_matching_pipeline,
