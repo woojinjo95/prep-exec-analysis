@@ -10,7 +10,7 @@ from scripts.external.event import get_data_of_event_log, get_channel_key_inputs
 from scripts.external.network import get_data_of_network_log, get_igmp_join_infos
 from scripts.external.report import report_output
 from scripts.external.analysis import set_analysis_info
-from scripts.format import Command, ReportName, IgmpJoinData, RemoconKeyData
+from scripts.format import Command, ReportName, IgmpJoinData, RemoconKeyData, ChannelZappingEventData
 from scripts.util._timezone import get_utc_datetime
 from scripts.util.decorator import log_decorator
 from scripts.util.video import crop_video_with_opencv
@@ -44,19 +44,24 @@ def measure_channel_zapping():
     event_log = get_data_of_event_log(args.timestamps[0], args.timestamps[-1])
     channel_key_inputs = get_channel_key_inputs(event_log, targets)  # channel key: all number key, ok key, channelup key, channeldown key
 
-    event_times = get_channel_zapping_event_times(igmp_join_infos, channel_key_inputs,
-                                                  igmp_join_time_margin=get_setting_with_env('IGMP_JOIN_TIME_MARGIN', 5))
+    event_time_infos = get_channel_zapping_event_infos(igmp_join_infos, channel_key_inputs,
+                                                        igmp_join_time_margin=get_setting_with_env('IGMP_JOIN_TIME_MARGIN', 5))
 
     with tempfile.TemporaryDirectory(dir='/tmp') as output_dir:
 
-        crop_videos = crop_video_with_opencv(args.video_path, args.timestamps, event_times, output_dir, get_setting_with_env('CHANNEL_ZAPPING_VIDEO_LENGTH', 8))
-        for crop_video in crop_videos:
+        crop_videos = crop_video_with_opencv(args.video_path, args.timestamps, [ei.event_time for ei in event_time_infos], 
+                                             output_dir, get_setting_with_env('CHANNEL_ZAPPING_VIDEO_LENGTH', 8))
+        for crop_video, event_time_info in zip(crop_videos, event_time_infos):
             result = task_channel_zapping(crop_video.video_path, crop_video.timestamps, crop_video.timestamps[0])
 
             if result['status'] == 'success':
                 report_output(ReportName.CHANNEL_ZAPPING.value, {
-                    'timestamp': get_utc_datetime(result['measure_timestamp']),
+                    'timestamp': get_utc_datetime(event_time_info.event_time),
                     'measure_time': result['measure_time'],
+                    'remocon_key': event_time_info.key,
+                    'src_channel': event_time_info.src,
+                    'dst_channel': event_time_info.dst,
+                    'channel_name': event_time_info.channel_name,
                 })
 
 
@@ -66,19 +71,40 @@ def get_config() -> Dict:
 
 # iterate all igmp join times.
 # if any channel_key_input_time is between ('igmp join time - 5', 'igmp join time') 
-#   -> valid key input time. and accumulate 'channel key event time' and 'event key' and meta info(src ch num, dst ch num)
-#   -> accumulate key along to adj or non adj
+#   -> valid key input time. accumulate last event info from igmp join time.
 # else
 #   -> invalid key input time. skip.
-def get_channel_zapping_event_times(igmp_join_infos: List[IgmpJoinData], channel_key_inputs: List[RemoconKeyData], 
-                                    igmp_join_time_margin: int) -> Dict:
-    last_igmp_join_info = igmp_join_infos.pop()
-    for channel_key_input in reversed(channel_key_inputs):
-        pass
+def get_channel_zapping_event_infos(igmp_join_infos: List[IgmpJoinData], channel_key_inputs: List[RemoconKeyData], 
+                                    igmp_join_time_margin: int) -> List[ChannelZappingEventData]:
+    # sorting is skipped because the data is already sorted by timestamp
 
-    # for igmp_join in igmp_join_infos:
-    #     for channel_key_input in channel_key_inputs:
-    #         if igmp_join.timestamp - igmp_join_time_margin <= channel_key_input.timestamp <= igmp_join.timestamp:
-    #             igmp_join.channel_info = channel_key_input.key
-    #             igmp_join.src = channel_key_input.src
-    #             igmp_join.dst = channel_key_input.dst
+    i, j = 0, 0
+    n, m = len(igmp_join_infos), len(channel_key_inputs)
+
+    event_times = []
+
+    while i < n and j < m:
+        igmp_join = igmp_join_infos[i]
+        channel_key_input = channel_key_inputs[j]
+        
+        last_fitting_input = None  # To keep track of the last fitting channel_key_input
+        
+        while j < m and channel_key_input.timestamp <= igmp_join.timestamp:
+            if channel_key_input.timestamp >= igmp_join.timestamp - igmp_join_time_margin:
+                last_fitting_input = channel_key_input  # Update last fitting input
+                
+            j += 1  # Move to next channel_key_input
+            if j < m:
+                channel_key_input = channel_key_inputs[j]
+                
+        if last_fitting_input is not None:  # If a fitting input was found, store it
+            event_times.append(ChannelZappingEventData(
+                event_time=last_fitting_input.timestamp,
+                key=last_fitting_input.key,
+                src=igmp_join.src,
+                dst=igmp_join.dst,
+                channel_name=igmp_join.channel_info,
+            ))
+                            
+        i += 1  # Move to next igmp_join
+

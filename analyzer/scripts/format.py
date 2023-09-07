@@ -35,6 +35,15 @@ class RemoconKeyData:
     key: str = ''
 
 
+@dataclass
+class ChannelZappingEventData:
+    event_time: float
+    key: str = ''
+    src: str = ''
+    dst: str = ''
+    channel_name: str = ''
+
+
 class ReportName(Enum):
     COLOR_REFERENCE = 'color_reference'
     FREEZE = 'freeze'
