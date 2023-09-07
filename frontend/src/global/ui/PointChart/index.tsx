@@ -11,7 +11,6 @@ interface PointChartProps {
  * 포인트 차트
  *
  * TODO: resizing event
- * TODO: data 개별 color
  */
 const PointChart: React.FC<PointChartProps> = ({ data, scaleX }) => {
   if (!scaleX) return <div />

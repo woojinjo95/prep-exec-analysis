@@ -170,3 +170,12 @@ export const bytesToSize = (bytes: number) => {
   if (i === 0) return `${dropDecimalPoint(bytes)} ${sizes[i]}`
   return `${dropDecimalPoint(bytes / 1024 ** i)} ${sizes[i]}`
 }
+
+/**
+ * Promise를 반환하는 시간 대기 함수
+ */
+export const delay = (sec: number): Promise<void> => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, sec * 1000)
+  })
+}

@@ -64,7 +64,6 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
         setChartList((prev) => [...prev, 'video_analysis_result'])
       }
 
-      // TODO: 다른 차트들도 없을 경우에 대한 처리
       if (!summary.freeze) {
         setChartList((prev) => prev.filter((v) => v !== 'video_analysis_result'))
       }
@@ -73,13 +72,25 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
         setChartList((prev) => [...prev, 'loudness'])
       }
 
+      if (!summary.loudness) {
+        setChartList((prev) => prev.filter((v) => v !== 'loudness'))
+      }
+
       if ((summary.boot || summary.resume) && !chartList.includes('resume_boot')) {
         setChartList((prev) => [...prev, 'resume_boot'])
+      }
+
+      if (!summary.boot && !summary.resume) {
+        setChartList((prev) => prev.filter((v) => v !== 'resume_boot'))
       }
 
       ;(['log_level_finder', 'log_pattern_matching'] as const).forEach((type) => {
         if (summary[type] && !chartList.includes(type)) {
           setChartList((prev) => [...prev, type])
+        }
+
+        if (!summary[type]) {
+          setChartList((prev) => prev.filter((v) => v !== type))
         }
       })
 

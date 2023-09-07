@@ -14,8 +14,6 @@ interface AccordionProps {
 
 /**
  * 아코디언 컴포넌트
- *
- * TODO: 테두리 색 주입
  */
 const Accordion: React.FC<AccordionProps> = ({ header, children, colorScheme = 'dark', warningMessage }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)

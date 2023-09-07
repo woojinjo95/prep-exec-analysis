@@ -34,8 +34,6 @@ export const useAnalysisConfig = ({ onSuccess }: { onSuccess?: (data: AnalysisCo
  * 분석 결과(요약 데이터) 조회 api
  */
 export const useAnalysisResultSummary = ({
-  start_time,
-  end_time,
   onSuccess,
 }: {
   start_time: string | null
@@ -46,20 +44,17 @@ export const useAnalysisResultSummary = ({
   const testRunId = useRecoilValue(testRunIdState)
   const { videoSummary } = useVideoSummary()
   const { data, isLoading, refetch } = useQuery(
-    ['analysis_result_summary', { start_time, end_time, scenarioId, testRunId }],
-    () => {
-      // TODO: 아래 코드 없애기. useEffect 때문인지?
-      if (!start_time || !end_time) return undefined
-      return getAnalysisResultSummary({
-        start_time,
-        end_time,
+    ['analysis_result_summary', { scenarioId, testRunId, ...videoSummary }],
+    () =>
+      getAnalysisResultSummary({
+        start_time: videoSummary?.start_time!,
+        end_time: videoSummary?.end_time!,
         scenario_id: scenarioId!,
         testrun_id: testRunId!,
-      })
-    },
+      }),
     {
       onSuccess,
-      enabled: !!start_time && !!end_time && !!scenarioId && !!testRunId && !!videoSummary,
+      enabled: !!scenarioId && !!testRunId && !!videoSummary,
     },
   )
 

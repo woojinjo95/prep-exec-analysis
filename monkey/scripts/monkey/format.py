@@ -28,3 +28,10 @@ class RemoconInfo:
     remocon_name: str
     remote_control_type: str
 
+
+@dataclass
+class Cursor:
+    x: int
+    y: int
+    w: int
+    h: int
