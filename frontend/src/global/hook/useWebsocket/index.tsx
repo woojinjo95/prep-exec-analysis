@@ -16,7 +16,9 @@ const ReadyState = {
  * @param onMessage 메시지 수신 callback
  * @return sendMessage 메시지 송신 function
  */
-const useWebsocket = <T extends object>({ onMessage }: { onMessage?: (message: SubscribeMessage<T>) => void } = {}) => {
+const useWebsocket = <T extends object>({
+  onMessage,
+}: { onMessage?: (message: SubscribeMessage<T>) => void | Promise<void> } = {}) => {
   const ws = useRef<WebSocket | null>(null)
 
   const connect = useCallback(async (): Promise<WebSocket | null> => {
