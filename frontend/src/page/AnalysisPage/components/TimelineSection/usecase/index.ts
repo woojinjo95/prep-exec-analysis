@@ -6,8 +6,10 @@ import { DefaultChartDataType } from '@global/types'
  * @param array duration - ms단위
  */
 export const findNearIndex = (array: DefaultChartDataType[], target: number) => {
+  if (!array.length) return -1
+
   let abs = array[array.length - 1].datetime
-  let index = 0
+  let index = -1
 
   array.forEach(({ datetime: startDatetime, duration }, idx) => {
     const startDatetimeAbs = Math.abs(startDatetime - target)
