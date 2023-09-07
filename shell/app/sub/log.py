@@ -12,6 +12,19 @@ async def process_log_queue(queue: asyncio.Queue, conn: any, CHANNEL_NAME: str, 
     while True:
         try:
             data = queue.get_nowait()
+            await conn.publish(CHANNEL_NAME, json.dumps({
+                "msg": "shell",
+                "level": "debug",
+                "data": {
+                    "mode": mode,
+                    "data": data
+                },
+                "service": "shell",
+                "timestamp": data['timestamp']
+            }))
+            buffer.append(data)
+            queue.task_done()
+            await asyncio.sleep(0.01)
         except asyncio.QueueEmpty:
             if len(buffer) > 0:
                 ret = collection.insert_one({
@@ -25,16 +38,4 @@ async def process_log_queue(queue: asyncio.Queue, conn: any, CHANNEL_NAME: str, 
                 buffer = []
             else:
                 await asyncio.sleep(0.1)
-        await conn.publish(CHANNEL_NAME, json.dumps({
-            "msg": "shell",
-            "level": "debug",
-            "data": {
-                "mode": mode,
-                "data": data
-            },
-            "service": "shell",
-            "timestamp": data['timestamp']
-        }))
-        buffer.append(data)
-        queue.task_done()
-        await asyncio.sleep(0.01)
+        
