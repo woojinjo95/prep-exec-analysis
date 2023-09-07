@@ -16,7 +16,7 @@ const AnalysisResultPanel: React.FC = () => {
   })
   useServiceState({
     onSuccess: (state) => {
-      if (state !== 'analysis') {
+      if (state !== 'analysis' && !!analysisResultSummary) {
         refetch()
       }
     },
