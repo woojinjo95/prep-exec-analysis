@@ -126,12 +126,18 @@ class LogPatternMatching(PaginationBaseModel):
 class MonkeyTestBase(TimestampBaseModel):
     start_timestamp: str
     end_timestamp: str
-    section_id: int
-    smart_sense_times: int
 
 
 class MonkeyTest(PaginationBaseModel):
     items: List[MonkeyTestBase]
+
+
+class MonkeySmartKeyBase(TimestampBaseModel):
+    smart_sense_key: List[str]
+
+
+class MonkeySmartKey(PaginationBaseModel):
+    items: List[MonkeySmartKeyBase]
 
 
 class ProcessLifecycleBase(BaseModel):
