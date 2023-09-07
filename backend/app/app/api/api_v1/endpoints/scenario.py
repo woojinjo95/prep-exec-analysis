@@ -113,9 +113,7 @@ def read_scenarios(
     Retrieve scenarios.
     """
     try:
-        param = {'is_active': True,
-                 "testruns.is_active": True,
-                 "testruns.last_updated_timestamp": {'$exists': True}}
+        param = {'is_active': True}
         if name:
             param['name'] = set_ilike(name)
         if tag:
@@ -128,9 +126,10 @@ def read_scenarios(
                                   'updated_at': '$updated_at',
                                   "testrun_count": {"$size": {"$filter": {"input": "$testruns",
                                                                           "as": "testrun",
-                                                                          "cond": {'$and': [{'$eq': ["$$testrun.is_active", True]},
-                                                                                            {'$ifNull': ["$$testrun.last_updated_timestamp", False]}]}}}},
-                                  'has_block': {'$cond': {'if': {'$eq': [{'$size': '$block_group'}, 0]}, 'then': False, 'else': True}}}}]
+                                                                          "cond": {"$ifNull": ["$$testrun.last_updated_timestamp", False]}}}},
+                                  'has_block': {'$cond': {'if': {'$eq': [{'$size': '$block_group'}, 0]},
+                                                          'then': False,
+                                                          'else': True}}}}]
         res = paginate_from_mongodb_aggregation(col='scenario',
                                                 pipeline=pipeline,
                                                 page=page,
@@ -194,7 +193,6 @@ def create_scenario(
                                                     'tags': scenario_in.tags,
                                                     'block_group': block_group_data,
                                                     'testruns': [{'id': testrun_id,
-                                                                  'is_active': True,
                                                                   'raw': {'videos': []},
                                                                   'analysis': {}}]})
 
@@ -277,7 +275,6 @@ def copy_scenario(
                                                     'tags': scenario_in.tags,
                                                     'block_group': block_group_data,
                                                     'testruns': testruns if testruns else {'id': testrun_id,
-                                                                                           'is_active': True,
                                                                                            'raw': {'videos': []},
                                                                                            'analysis': {}}})
 
