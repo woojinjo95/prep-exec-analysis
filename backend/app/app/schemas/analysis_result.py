@@ -123,6 +123,32 @@ class LogPatternMatching(PaginationBaseModel):
     items: List[LogPatternMatchingBase]
 
 
+class MonkeyTestBase(BaseModel):
+    start_timestamp: str
+    end_timestamp: str
+
+
+class MonkeyTest(PaginationBaseModel):
+    items: List[MonkeyTestBase]
+
+
+class MonkeySmartSenseBase(TimestampBaseModel):
+    smart_sense_key: List[str]
+
+
+class MonkeySmartSense(PaginationBaseModel):
+    items: List[MonkeySmartSenseBase]
+
+
+class IntelligentMonkeySmartSenseBase(TimestampBaseModel):
+    section_id: int
+    smart_sense_key: List[str]
+
+
+class IntelligentMonkeySmartSense(PaginationBaseModel):
+    items: List[IntelligentMonkeySmartSenseBase]
+
+
 class ProcessLifecycleBase(BaseModel):
     pass
 
@@ -205,13 +231,23 @@ class LoudnessSummary(SummaryBase):
     lkfs: float
 
 
-class MonkeyTestSummary(BaseModel): # 미적용
+class MonkeyTestSummaryBase(BaseModel):
     duration_time: int
     smart_sense: int
 
 
-class IntelligentMonkeyTestSummary(BaseModel):  # 미적용
+class MonkeyTestSummary(SummaryBase):
+    results: List[MonkeyTestSummaryBase]
+
+
+class IntelligentMonkeyTestSummaryBase(BaseModel):
+    section_id: int
     smart_sense: int
+    image_path: str
+
+
+class IntelligentMonkeyTestSummary(SummaryBase):
+    results: List[IntelligentMonkeyTestSummaryBase]
 
 
 class MacroblockSummary(BaseModel): # 미적용
