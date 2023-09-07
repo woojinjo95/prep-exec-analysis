@@ -9,7 +9,7 @@ def main():
     unit_publish(payload={
     "msg": "video_frame_snapshot",
     "data": {
-				"testrun_id": "",
+				"testrun_id": "2023-09-07T020634F755059",
         "video_path": "/app/workspace/testruns/2023-09-01T065554F133036/raw/videos/video_2023-09-01T155359F255942+0900_240.mp4",
         "relative_time": 3
     }
