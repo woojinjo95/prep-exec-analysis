@@ -559,7 +559,8 @@ def get_data_of_intelligent_monkey_smart_sense(
                                                    'analysis_type': 'intelligent_monkey'}},
                                        {'$project': {'_id': 0,
                                                      'timestamp': 1,
-                                                     'smart_sense_key': 1}}]
+                                                     'smart_sense_key': 1,
+                                                     'menu': '$section_id'}}]
         monkey_section = paginate_from_mongodb_aggregation(col='monkey_smart_sense',
                                                            pipeline=monkey_smart_sense_pipeline,
                                                            page=page,
@@ -687,6 +688,10 @@ def get_summary_data_of_measure_result(
                                        {'$group': {'_id': '$color', 'results': {
                                            '$push': {'total': '$total', 'log_pattern_name': {'$arrayElemAt': ['$_id', 0]}, 'color': {'$arrayElemAt': ['$_id', 1]}}}}},
                                        {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
+            elif active_analysis == 'monkey_test':
+                continue
+            elif active_analysis == 'intelligent_monkey_test':
+                continue
             elif active_analysis == 'macroblock':
                 continue
             elif active_analysis == 'channel_change_time':
@@ -694,10 +699,6 @@ def get_summary_data_of_measure_result(
             elif active_analysis == 'process_lifecycle_analysis':
                 continue
             elif active_analysis == 'network_filter':
-                continue
-            elif active_analysis == 'monkey_test':
-                continue
-            elif active_analysis == 'intelligent_monkey_test':
                 continue
             elif active_analysis == 'loudness':
                 additional_pipeline = [{'$project': {'_id': 0, 'lines': 1}},

@@ -133,6 +133,7 @@ class MonkeyTest(PaginationBaseModel):
 
 
 class MonkeySmartSenseBase(TimestampBaseModel):
+    menu: int
     smart_sense_key: List[str]
 
 
