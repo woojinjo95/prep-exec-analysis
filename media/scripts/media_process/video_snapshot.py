@@ -153,9 +153,10 @@ def save_full_frame_video_snapshots(scenario_id: str, testrun_id: str, video_pat
             image_names.append(image_name)
             image_path = os.path.join(output_path, image_name)
             save_image = cv2.resize(image, FRAME_SNAPSHOTS_IMAGE_SIZE, interpolation=cv2.INTER_AREA)
+            # save_image = image[::12, ::12]
             cv2.imwrite(image_path, save_image, WEBP_PARAMS)
         else:
-            log += f'Succesfully {len(image_names)}images made'
+            log += f'Succesfully {len(image_names)} images made'
 
         logger.info(log)
 
