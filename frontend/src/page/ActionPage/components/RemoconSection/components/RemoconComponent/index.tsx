@@ -6,15 +6,20 @@ import classNames from 'classnames/bind'
 import { KeyEvent } from '@page/ActionPage/types'
 
 import { AppURL } from '@global/constant'
-import { Button, OptionItem, DropdownWithMoreButton } from '@global/ui'
+import { Button, OptionItem, DropdownWithMoreButton, Text, IconButton } from '@global/ui'
 import { useHardwareConfiguration } from '@global/api/hook'
 import { useWebsocket } from '@global/hook'
 import { remoconService } from '@global/service/RemoconService/RemoconService'
 import { CustomKeyTransmit, RemoconTransmit } from '@global/service/RemoconService/type'
-import { Remocon } from '../../api/entity'
+import { ReactComponent as PlusIcon } from '@assets/images/add.svg'
+import { useMutation, useQuery } from 'react-query'
+import { customKeyDropdownMenu } from '@page/ActionPage/costants'
+import { CustomKey, Remocon } from '../../api/entity'
 import RemoconButtons from './RemoconButtons'
 import styles from './RemoconComponent.module.scss'
 import AddCustomKeyModal from '../AddCustomKeyModal'
+import ModifyCustomKeyModal from '../ModifyCustomKeyModal'
+import { deleteCustomKey, getRemocon } from '../../api/func'
 
 const cx = classNames.bind(styles)
 
@@ -35,9 +40,12 @@ const RemoconComponent: React.FC<RemoconProps> = ({ remocon, keyEvent }) => {
   const [isLoadedRemoconImage, setIsLoadedRemoconImage] = useState<boolean>(false)
   const [isAddCustomModalOpen, setIsAddCustomModalOpen] = useState<boolean>(false)
   const [isRendered, setIsRendered] = useState<boolean>(false)
+  const [selectedCustomKey, setSelectedCustomKey] = useState<CustomKey | null>(null)
 
   const { hardwareConfiguration } = useHardwareConfiguration()
   const [clickedCustomKeyMessage, setClickedCustomKeyMessage] = useState<CustomKeyTransmit | null>(null)
+
+  const [isModifyCustomKeyModalOpen, setIsModifyCustomKeyModalOpen] = useState<boolean>(false)
 
   const { sendMessage } = useWebsocket<RemoconResponseMessageDataBody>({
     onMessage: (message) => {
@@ -52,10 +60,6 @@ const RemoconComponent: React.FC<RemoconProps> = ({ remocon, keyEvent }) => {
     },
   })
 
-  const dropdownMenu = useMemo(() => {
-    return ['Add', 'Modify', 'Delete']
-  }, [])
-
   useEffect(() => {
     setIsRendered(true)
   }, [])
@@ -66,6 +70,21 @@ const RemoconComponent: React.FC<RemoconProps> = ({ remocon, keyEvent }) => {
       setIsLoadedRemoconImage(false)
     }
   }, [remocon.name, setIsRendered])
+
+  const { refetch } = useQuery<Remocon[]>(['remocon'], () => getRemocon(), {
+    onError: (err) => {
+      console.error(err)
+    },
+  })
+
+  const { mutate: deleteCustomKeyMutate } = useMutation(deleteCustomKey, {
+    onSuccess: () => {
+      refetch()
+    },
+    onError: (err) => {
+      console.error(err)
+    },
+  })
 
   if (!hardwareConfiguration) return <div />
 
@@ -88,28 +107,20 @@ const RemoconComponent: React.FC<RemoconProps> = ({ remocon, keyEvent }) => {
           <div className="grid grid-rows-[1fr_8fr] overflow-y-auto">
             <div className="flex flex-row justify-between mt-[20px] items-center">
               <p className="font-medium text-[18px]">Custom Key</p>
-              <DropdownWithMoreButton>
-                {dropdownMenu?.map((menu) => (
-                  <OptionItem
-                    colorScheme="light"
-                    key={`menu_${menu}`}
-                    onClick={() => {
-                      if (menu === 'Add') {
-                        setIsAddCustomModalOpen(true)
-                      }
-                    }}
-                  >
-                    {menu}
-                  </OptionItem>
-                ))}
-              </DropdownWithMoreButton>
+              <IconButton
+                className="w-11 h-8"
+                onClick={() => {
+                  setIsAddCustomModalOpen(true)
+                }}
+                icon={<PlusIcon />}
+              />
             </div>
             <div className={cx('mt-[20px] overflow-y-auto w-full', 'hot-key-container')}>
               {remocon.custom_keys &&
                 remocon.custom_keys.map((custom_key) => (
                   <Button
                     colorScheme="dark"
-                    className="h-[40px] w-full border-[1px] border-[#707070] mb-[5px] flex justify-center"
+                    className="h-[40px] w-full border-[1px] border-[#707070] mb-[5px] flex justify-center !px-3"
                     key={`custom_keys_${custom_key.id}`}
                     onClick={() => {
                       const message: CustomKeyTransmit = {
@@ -140,7 +151,34 @@ const RemoconComponent: React.FC<RemoconProps> = ({ remocon, keyEvent }) => {
                       })
                     }}
                   >
-                    {custom_key.name}
+                    <div className="w-full flex justify-between">
+                      <Text className="text-left w-[calc(100%-25px)] whitespace-nowrap overflow-hidden text-ellipsis">
+                        {custom_key.name}
+                      </Text>
+                      <DropdownWithMoreButton colorScheme="light" type="icon" iconColorScheme="charcoal">
+                        {customKeyDropdownMenu?.map((menu) => (
+                          <OptionItem
+                            colorScheme="light"
+                            key={`${custom_key.id}_dropdown_menu_${menu}`}
+                            onClick={() => {
+                              if (menu === 'Modify') {
+                                setSelectedCustomKey(custom_key)
+                                setIsModifyCustomKeyModalOpen(true)
+                              }
+
+                              if (menu === 'Delete') {
+                                deleteCustomKeyMutate({
+                                  remocon_name: remocon.name,
+                                  custom_key_ids: [custom_key.id],
+                                })
+                              }
+                            }}
+                          >
+                            {menu}
+                          </OptionItem>
+                        ))}
+                      </DropdownWithMoreButton>
+                    </div>
                   </Button>
                 ))}
             </div>
@@ -155,6 +193,16 @@ const RemoconComponent: React.FC<RemoconProps> = ({ remocon, keyEvent }) => {
           }}
           remocon={remocon}
           keyEvent={keyEvent}
+        />
+      )}
+      {isModifyCustomKeyModalOpen && selectedCustomKey && (
+        <ModifyCustomKeyModal
+          isOpen={isModifyCustomKeyModalOpen}
+          close={() => {
+            setIsModifyCustomKeyModalOpen(false)
+          }}
+          customKey={selectedCustomKey}
+          remocon={remocon}
         />
       )}
     </>
