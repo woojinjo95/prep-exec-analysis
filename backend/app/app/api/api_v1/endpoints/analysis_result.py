@@ -666,32 +666,52 @@ def get_summary_data_of_measure_result(
                     {'$group': {'_id': None, 'results': {'$push': {'target': '$_id', 'total': '$total'}}}},
                     {'$project': {'_id': 0, 'results': 1}}]
             elif active_analysis == 'freeze':
-                additional_pipeline = [{'$group': {'_id': '$freeze_type', 'total': {'$sum': 1}, 'color': {'$first': '$user_config.color'}}},
-                                       {'$group': {'_id': '$color', 'results': {
-                                           '$push': {'total': '$total', 'error_type': '$_id'}}}},
-                                       {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
+                additional_pipeline = [
+                    {'$group': {'_id': '$freeze_type', 'total': {'$sum': 1}, 'color': {'$first': '$user_config.color'}}},
+                    {'$group': {'_id': '$color', 'results': {
+                        '$push': {'total': '$total', 'error_type': '$_id'}}}},
+                    {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'resume':
-                additional_pipeline = [{'$group': {'_id': '$user_config.type', 'total': {'$sum': 1},
-                                                   'avg_time': {'$avg': '$measure_time'}, 'color': {'$first': '$user_config.color'}}},
-                                       {'$group': {'_id': '$color', 'results': {
-                                           '$push': {'target': '$_id', 'total': '$total', 'avg_time': '$avg_time'}}}},
-                                       {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
+                additional_pipeline = [
+                    {'$group': {'_id': '$user_config.type', 'total': {'$sum': 1},
+                                'avg_time': {'$avg': '$measure_time'}, 'color': {'$first': '$user_config.color'}}},
+                    {'$group': {'_id': '$color', 'results': {
+                        '$push': {'target': '$_id', 'total': '$total', 'avg_time': '$avg_time'}}}},
+                    {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'boot':
-                additional_pipeline = [{'$group': {'_id': '$user_config.type', 'total': {'$sum': 1},
-                                                   'avg_time': {'$avg': '$measure_time'}, 'color': {'$first': '$user_config.color'}}},
-                                       {'$group': {'_id': '$color', 'results': {
-                                           '$push': {'target': '$_id', 'total': '$total', 'avg_time': '$avg_time'}}}},
-                                       {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
+                additional_pipeline = [
+                    {'$group': {'_id': '$user_config.type', 'total': {'$sum': 1},
+                                'avg_time': {'$avg': '$measure_time'}, 'color': {'$first': '$user_config.color'}}},
+                    {'$group': {'_id': '$color', 'results': {
+                        '$push': {'target': '$_id', 'total': '$total', 'avg_time': '$avg_time'}}}},
+                    {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'log_pattern_matching':
-                additional_pipeline = [{'$project': {'_id': 0, 'list': ['$matched_target.name', '$matched_target.color'], 'color': '$user_config.color'}},
-                                       {'$group': {'_id': '$list', 'total': {'$sum': 1}, 'color': {'$first': '$color'}}},
-                                       {'$group': {'_id': '$color', 'results': {
-                                           '$push': {'total': '$total', 'log_pattern_name': {'$arrayElemAt': ['$_id', 0]}, 'color': {'$arrayElemAt': ['$_id', 1]}}}}},
-                                       {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
+                additional_pipeline = [
+                    {'$project': {'_id': 0, 'list': ['$matched_target.name', '$matched_target.color'], 'color': '$user_config.color'}},
+                    {'$group': {'_id': '$list', 'total': {'$sum': 1}, 'color': {'$first': '$color'}}},
+                    {'$group': {'_id': '$color', 'results': {'$push': {'total': '$total',
+                                                                       'log_pattern_name': {'$arrayElemAt': ['$_id', 0]},
+                                                                       'color': {'$arrayElemAt': ['$_id', 1]}}}}},
+                    {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'monkey_test':
-                continue
+                additional_pipeline = [
+                    {'$match': {'analysis_type': 'monkey'}},
+                    {'$group': {'_id': '$section_id', 
+                                'duration_time': {'$avg': '$user_config.duration'},
+                                'smart_sense': {'$sum': '$smart_sense_times'}}},
+                    {'$project': {'_id': 0, 'results': [{'duration_time': "$duration_time",'smart_sense': "$smart_sense"}]}}]
             elif active_analysis == 'intelligent_monkey_test':
-                continue
+                additional_pipeline = [
+                    {'$match': {'analysis_type': 'intelligent_monkey'}},
+                    {'$group': {'_id': ['$section_id', '$image_path'], 'smart_sense': {'$sum': '$smart_sense_times'}}},
+                    {'$project': {'_id': 0,
+                                  'smart_sense': '$smart_sense',
+                                  'section_id': {'$arrayElemAt': ['$_id', 0]},
+                                  'image_path': {'$arrayElemAt': ['$_id', 1]}}},
+                    {'$group': {'_id': None, 'results': {
+                        '$push': {'section_id': '$section_id',
+                                  'smart_sense': '$smart_sense', 
+                                  'image_path': '$image_path'}}}}]
             elif active_analysis == 'macroblock':
                 continue
             elif active_analysis == 'channel_change_time':

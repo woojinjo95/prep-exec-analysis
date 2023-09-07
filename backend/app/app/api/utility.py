@@ -20,6 +20,8 @@ analysis_collection = {
     "memory": "stb_info",
     "event_log": "event_log",
     "color_reference": "an_color_reference",
+    "monkey_test": "monkey_section",
+    "intelligent_monkey_test": "monkey_section"
 }
 
 
