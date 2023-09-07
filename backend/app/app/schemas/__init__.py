@@ -2,7 +2,7 @@ from .analysis_config import (Analysis, AnalysisConfig, AnalysisConfigBase,
                               FrameImage)
 from .analysis_result import (Boot, ColorReference, Cpu, DataSummary, EventLog,
                               Freeze, LogLevelFinder, LogPatternMatching,
-                              Loudness, Memory, MonkeySmartKey, MonkeyTest, NetworkFilter,
+                              Loudness, Memory, MonkeySmartSense, MonkeyTest, NetworkFilter,
                               ProcessLifecycle, Resume)
 from .block import (Block, BlockBulkCreate, BlockCreate, BlockDelete,
                     BlockGroup, BlockGroupUpdate, BlockUpdate, RunBlock)

@@ -455,8 +455,8 @@ def get_data_of_monkey_section(
 
 
 # Monkey Smart Sense
-@router.get("/monkey_smart_key", response_model=schemas.MonkeySmartKey)
-def get_data_of_monkey_smart_key(
+@router.get("/monkey_smart_sense", response_model=schemas.MonkeySmartSense)
+def get_data_of_monkey_smart_sense(
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
@@ -474,16 +474,16 @@ def get_data_of_monkey_smart_key(
             testrun_id = RedisClient.hget('testrun', 'id')
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        monkey_smart_key_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
+        monkey_smart_sense_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
                                                                '$lte': convert_iso_format(end_time)},
-                                                 'scenario_id': scenario_id,
-                                                 'testrun_id': testrun_id,
-                                                 'analysis_type': 'monkey'}},
-                                     {'$project': {'_id': 0,
-                                                   'timestamp': 1,
-                                                   'smart_sense_key': 1}}]
+                                                   'scenario_id': scenario_id,
+                                                   'testrun_id': testrun_id,
+                                                   'analysis_type': 'monkey'}},
+                                       {'$project': {'_id': 0,
+                                                     'timestamp': 1,
+                                                     'smart_sense_key': 1}}]
         monkey_section = paginate_from_mongodb_aggregation(col='monkey_smart_sense',
-                                                           pipeline=monkey_smart_key_pipeline,
+                                                           pipeline=monkey_smart_sense_pipeline,
                                                            page=page,
                                                            page_size=page_size,
                                                            sort_by=sort_by,
@@ -533,8 +533,8 @@ def get_data_of_intelligent_monkey_section(
 
 
 # Intelligent Monkey Smart Sense
-@router.get("/intelligent_monkey_smart_key")  # , response_model=schemas.MonkeySmartKey)
-def get_data_of_intelligent_monkey_smart_key(
+@router.get("/intelligent_monkey_smart_sense", response_model=schemas.MonkeySmartSense)
+def get_data_of_intelligent_monkey_smart_sense(
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
@@ -552,16 +552,16 @@ def get_data_of_intelligent_monkey_smart_key(
             testrun_id = RedisClient.hget('testrun', 'id')
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        monkey_smart_key_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
+        monkey_smart_sense_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
                                                                '$lte': convert_iso_format(end_time)},
-                                                 'scenario_id': scenario_id,
-                                                 'testrun_id': testrun_id,
-                                                 'analysis_type': 'intelligent_monkey'}},
-                                     {'$project': {'_id': 0,
-                                                   'timestamp': 1,
-                                                   'smart_sense_key': 1}}]
+                                                   'scenario_id': scenario_id,
+                                                   'testrun_id': testrun_id,
+                                                   'analysis_type': 'intelligent_monkey'}},
+                                       {'$project': {'_id': 0,
+                                                     'timestamp': 1,
+                                                     'smart_sense_key': 1}}]
         monkey_section = paginate_from_mongodb_aggregation(col='monkey_smart_sense',
-                                                           pipeline=monkey_smart_key_pipeline,
+                                                           pipeline=monkey_smart_sense_pipeline,
                                                            page=page,
                                                            page_size=page_size,
                                                            sort_by=sort_by,

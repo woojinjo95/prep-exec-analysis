@@ -132,12 +132,12 @@ class MonkeyTest(PaginationBaseModel):
     items: List[MonkeyTestBase]
 
 
-class MonkeySmartKeyBase(TimestampBaseModel):
+class MonkeySmartSenseBase(TimestampBaseModel):
     smart_sense_key: List[str]
 
 
-class MonkeySmartKey(PaginationBaseModel):
-    items: List[MonkeySmartKeyBase]
+class MonkeySmartSense(PaginationBaseModel):
+    items: List[MonkeySmartSenseBase]
 
 
 class ProcessLifecycleBase(BaseModel):
