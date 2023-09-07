@@ -16,8 +16,8 @@ file_logger = logging.getLogger('file')
 
 
 def save_video_snapshot(testrun_id: str = None, video_path: str = None, relative_time: float = None):
+    workspace_info = get_value('testrun', db=RedisDBEnum.hardware)
     if testrun_id is None:
-        workspace_info = get_value('testrun', db=RedisDBEnum.hardware)
         testrun_id = workspace_info['id']
         logger.info(f'No testrun id defined: just use current id, {testrun_id}')
 
@@ -71,7 +71,7 @@ def save_video_snapshot(testrun_id: str = None, video_path: str = None, relative
 
         cap.set(cv2.CAP_PROP_POS_FRAMES, target_idx)
 
-        metadata = {'idx': target_idx, 'total_idx': total_frame_num, 'timestamp': timestamps[target_idx]}
+        metadata = {'idx': target_idx, 'total_idx': total_frame_num, 'timestamp': timestamp_to_datetime_with_timezone_str(timestamps[target_idx])}
         logger.info(f'index {target_idx} / {total_frame_num}, abs time: {timestamps[target_idx]} / {timestamp_to_datetime_with_timezone_str(timestamps[target_idx])}')
 
         time_info = timestamp_to_datetime_with_timezone_str(format="%Y-%m-%dT%H%M%SF%f%z")
