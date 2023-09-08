@@ -10,8 +10,9 @@ class LCDStrings:
         # 에러 코드 표시
         return (f'lc021:0,[ERROR_{error_code}]', )
 
-    def uptime(self, uptime_seconds: float = None) -> Tuple[str]:
+    def uptime(self, uptime_seconds: str) -> Tuple[str]:
         # uptime
+        uptime_seconds = round(float(uptime_seconds))
 
         if uptime_seconds // 3600 > 100:
             hour, minute, second = 99, 59, 59
@@ -73,7 +74,7 @@ class LCDStrings:
             return ('lc011:6,0xFF0000', )
 
     def cpu_temp(self, value: str) -> Tuple[str]:
-        value = int(value)
+        value = round(float(value))
         # temp 설정
         if 0 < value <= 50:
             # Safe range : 0 ~ 50
@@ -88,7 +89,7 @@ class LCDStrings:
             return (f'lc021:12,{value}', f'lc031:9,{value}', 'lc011:9,0xE91E63')
 
     def memory_usage(self, value: str) -> Tuple[str]:
-        value = int(value)
+        value = round(float(value))
         # ram 설정
         if 0 < value <= 50:
             # Safe range : 0 ~ 50
@@ -100,8 +101,8 @@ class LCDStrings:
             # Danger range : 71 ~ 100
             return (f'lc021:13,{value}', f'lc031:10,{value}', 'lc011:10,0xE91E63')
 
-    def ssd_uage(self, value: str) -> Tuple[str]:
-        value = int(value)
+    def ssd_usage(self, value: str) -> Tuple[str]:
+        value = round(float(value))
         # ssd 설정
         if 0 < value <= 50:
             # Safe range : 0 ~ 50

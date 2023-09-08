@@ -93,10 +93,10 @@ class BTAndroidKeyboard(AbstractRemocon):
     def lcd_command(self, key: str):
         with serial.Serial(self.serial_device.serial_port.value, self.serial_device.baud_rate, timeout=1) as ser:
             func_str, arg = (key.split(':') + [None, None])[:2]
-            for string in attrgetter(self.lcd_functions)(func_str)(arg):
-                # attrgetter(self.lcd_functions)(func_str)(arg) is same to self.lcd_functions.{func_str}(arg)
+            for string in attrgetter(func_str)(self.lcd_functions)(arg):
+                # attrgetter(func_str)(self.lcd_functions)(arg) is same to self.lcd_functions.{func_str}(arg)
                 start_time = time.time()  # count last command
-                ser.write(string)
+                ser.write(bytes(string, 'utf-8'))
             event_time = start_time + self.time_offset
 
         publish(self.redis_connection, RedisChannel.command, {'msg': 'lcd_control_response',
