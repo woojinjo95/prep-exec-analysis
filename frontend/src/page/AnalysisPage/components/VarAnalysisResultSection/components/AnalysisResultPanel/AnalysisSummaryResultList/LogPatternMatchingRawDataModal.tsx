@@ -87,8 +87,13 @@ const LogPatternMatchingRawDataModal: React.FC<LogPatternMatchingRawDataModalPro
                 <td className={cx('px-6 py-1 break-all', { 'border-t border-light-charcoal': index !== 0 })}>
                   <Text size="sm">{message}</Text>
                 </td>
-                <td className={cx('px-6 py-1 flex justify-center', { 'border-t border-light-charcoal': index !== 0 })}>
-                  <SimpleButton colorScheme="charcoal" isIcon onClick={() => setCursorDateTime(new Date(timestamp))}>
+                <td className={cx('px-6 py-1', { 'border-t border-light-charcoal': index !== 0 })}>
+                  <SimpleButton
+                    isIcon
+                    colorScheme="charcoal"
+                    onClick={() => setCursorDateTime(new Date(timestamp))}
+                    className="mx-auto"
+                  >
                     <ShowIcon className="w-3 h-3" />
                   </SimpleButton>
                 </td>
