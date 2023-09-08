@@ -7,12 +7,12 @@ from scripts.config.config import get_setting_with_env
 from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.data import load_input, read_analysis_config
 from scripts.external.report import report_output
-from scripts.external.scenario import update_analysis_to_scenario
+from scripts.external.progress import ProgressManager
 from scripts.format import Command, ReportName, VideoInfo
 from scripts.util._timezone import get_utc_datetime
 from scripts.util.common import seconds_to_time
 from scripts.util.decorator import log_decorator
-from scripts.util.video import FrameGenerator, get_video_info
+from scripts.util.video import FrameGenerator
 
 logger = logging.getLogger('main')
 
@@ -26,7 +26,6 @@ def test_freeze_detection():
         task_freeze_detection(args, config)
 
         publish_msg({'measurement': Command.FREEZE.value}, 'analysis_response')
-        update_analysis_to_scenario(Command.FREEZE.value)
 
     except Exception as err:
         error_detail = traceback.format_exc()
@@ -36,22 +35,20 @@ def test_freeze_detection():
 
 
 def task_freeze_detection(args: VideoInfo, config: Dict):
-    video_info = get_video_info(args.video_path)
-    freeze_detector = set_freeze_detector(video_info['fps'], config['min_duration'])
+    progress_manager = ProgressManager(Command.FREEZE.value)
+    freeze_detector = set_freeze_detector(args.fps, config['min_duration'])
     logger.info(f'start time: {get_utc_datetime(args.timestamps[0])}')
 
-    for frame, cur_time in FrameGenerator(args.video_path, args.timestamps):
+    for idx, (frame, cur_time) in enumerate(FrameGenerator(args.video_path, args.timestamps)):
         result = freeze_detector.update(frame, cur_time)
-
         if result['detect'] and result['duration'] > config['min_duration']:
-            relative_time = result['start_time'] - args.timestamps[0]
-            logger.info(f'relative time: {seconds_to_time(relative_time)}')
-            
+            logger.info(f'relative time: {seconds_to_time(result["start_time"] - args.timestamps[0])}')
             report_output(ReportName.FREEZE.value, {
                 'timestamp': get_utc_datetime(result['start_time']),
                 'freeze_type': result['freeze_type'],
                 'duration': result['duration'],
             })
+        progress_manager.update_progress(idx / args.frame_count)
 
 
 def set_freeze_detector(fps: float, min_duration: float) -> FreezeDetector:
