@@ -135,15 +135,36 @@ export interface Memory {
   lost_ram: string
 }
 
-export interface EventLog {
+interface RemoconResponseEventLog {
+  msg: 'remocon_response'
+  data: {
+    key: string
+    type: 'ir' | 'bt' // IR / BT
+    press_time: number
+    sensor_time: number
+  }
+}
+
+interface OnOffControlResponseEventLog {
+  msg: 'on_off_control_response'
+  data: {
+    enable_dut_power_transition?: string // DUT Power
+    enable_hdmi_transition?: string // HDMI
+    enable_dut_wan_transition?: string // DUT Wan
+    vac: 'on' | 'off'
+    sensor_time: number
+  }
+}
+
+export type EventLogTooltip = RemoconResponseEventLog | OnOffControlResponseEventLog
+
+export type EventLog = {
   /**
    * @format timestamp
    */
   timestamp: string
   service: string
-  msg: string
-  data: object
-}
+} & EventLogTooltip
 
 export interface ColorReference {
   /**
