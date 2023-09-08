@@ -1,4 +1,5 @@
 from sub.db import CHANNEL_NAME
+import asyncio
 from sub.message import publish_message
 
 
@@ -26,8 +27,9 @@ async def is_analysis_state(redis_connection):
     return state
 
 
-async def set_stop_state(redis_connection):
+async def set_stop_state(redis_connection, event: asyncio.Event):
     print("stop_scenario")
+    event.set()
     await redis_connection.hset("testrun", "state", "stop")
     await redis_connection.publish(CHANNEL_NAME, publish_message("stop_playblock_response"))
     await redis_connection.publish(CHANNEL_NAME, publish_message("stop_analysis_response"))

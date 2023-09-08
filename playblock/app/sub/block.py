@@ -60,7 +60,7 @@ async def run_blocks(conn, db_blocks, scenario_id, testrun_id, blocks: list, eve
             if await is_run_state(conn) is False:
                 print("stop running block")
                 return
-            
+            event.clear()
             # 다음 수행될 블럭 정보 송신
             await conn.publish(CHANNEL_NAME, publish_message(message="next_playblock", data={"block_id": block['id']}))
             await set_run_item(conn, block_id=block['id'])
@@ -70,13 +70,21 @@ async def run_blocks(conn, db_blocks, scenario_id, testrun_id, blocks: list, eve
             await conn.publish(CHANNEL_NAME, message)
 
             print("wait... message response")
-            # 블럭 타입이 분석이면 이벤트 대기
+            try:
+                # 몽키테스트는 완료 대기
+                # TODO: 3200 삭제 후 테스트 필요
+                print(f"monkey test wait...{block['type']}")
+                if block['type'] == 'monkey_test':
+                    await asyncio.wait_for(event.wait(), 3200)
+                    print("monkey test end...")
+            except Exception as e:
+                print(e)
 
-            # await asyncio.wait_for(event.wait(), 60)
-            event.clear()
             # # 다른 파트는 시간대기
             delay_time = block['delay_time']
             await asyncio.sleep(delay_time / 1000)
+
+
 
             # 완료 처리
             db_blocks.update_one(
@@ -87,7 +95,7 @@ async def run_blocks(conn, db_blocks, scenario_id, testrun_id, blocks: list, eve
         print(e)
         print(traceback.format_exc())
     finally:
-        await set_stop_state(conn)
+        await set_stop_state(conn, event)
         await conn.publish(CHANNEL_NAME, publish_message("end_playblock"))
         print("run_blocks end")
 
@@ -100,7 +108,7 @@ async def run_analysis(conn, db_blocks, scenario_id, testrun_id, blocks: list, e
             if await is_analysis_state(conn) is False:
                 print("stop analysis")
                 return
-            
+            event.clear()
             # 다음 수행될 블럭 정보 송신
             await conn.publish(CHANNEL_NAME, publish_message(message="next_analysis", data={"analysis": block['name']}))
             await set_run_item(conn, block_id=block['name'])
@@ -110,12 +118,19 @@ async def run_analysis(conn, db_blocks, scenario_id, testrun_id, blocks: list, e
 
             print("wait... message response")
             # 블럭 타입이 분석이면 이벤트 대기
+
             try:
+                # 몽키테스트는 완료 대기
+                # TODO: 3200 삭제 후 테스트 필요
                 await asyncio.wait_for(event.wait(), 60)
             except Exception as e:
                 print(e)
-            finally:
-                event.clear()
+            # try:
+            #     await asyncio.wait_for(event.wait(), 60)
+            # except Exception as e:
+            #     print(e)
+            # finally:
+                # event.clear()
             # # 다른 파트는 시간대기
             # delay_time = block['delay_time']
             # await asyncio.sleep(delay_time / 1000)
@@ -129,6 +144,6 @@ async def run_analysis(conn, db_blocks, scenario_id, testrun_id, blocks: list, e
         print(e)
         print(traceback.format_exc())
     finally:
-        await set_stop_state(conn)
+        await set_stop_state(conn, event)
         await conn.publish(CHANNEL_NAME, publish_message("end_analysis"))
         print("run_analysis end")
