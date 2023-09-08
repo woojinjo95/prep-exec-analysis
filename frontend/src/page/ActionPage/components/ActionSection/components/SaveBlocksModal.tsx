@@ -44,11 +44,11 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
     refetch: scenariosRefetch,
   } = useFetchScenarios(PAGE_SIZE_TWENTY)
 
-  const scenarioId = useRecoilValue(scenarioIdState)
+  const [scenarioId, setScenarioId] = useRecoilState(scenarioIdState)
 
   const { sendMessage } = useWebsocket()
 
-  const { scenario: currentScenario, refetch: currentScenarioRefetch } = useScenarioById({
+  const { scenario: currentScenario } = useScenarioById({
     scenarioId,
     onSuccess: (res) => {
       if (res.is_active) {
@@ -175,11 +175,10 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
 
   const { mutate: postCopyScenarioMutate } = useMutation(postCopyScenario, {
     onSuccess: (res) => {
-      currentScenarioRefetch()
+      setScenarioId(res.id)
+      setTestRunIdState(res.testrun_id)
       scenariosRefetch()
       close()
-
-      setTestRunIdState(res.testrun_id)
 
       if (isPlay) {
         setIsTesetOptionModalOpen(true)
