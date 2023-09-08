@@ -5,10 +5,10 @@ import traceback
 
 import numpy as np
 
-from scripts.models.tf_model import MacroblockModel
+from scripts.analysis.macroblock.model.tf_model import MacroblockModel
+from scripts.analysis.macroblock.discriminator.crack_discriminator import CrackDiscriminator
 from scripts.config.config import get_setting_with_env
-from scripts.image_util import split_image_with_shape
-from scripts.discriminator.crack_discriminator import CrackDiscriminator
+from scripts.analysis.image import split_image_with_shape
 from scripts.format import ClassificationResult, ImageSplitResult
 
 

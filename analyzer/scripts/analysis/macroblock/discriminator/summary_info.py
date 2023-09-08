@@ -1,6 +1,3 @@
-import time
-
-
 class SummaryInfo:
 
     def __init__(self):

@@ -1,4 +1,0 @@
-opencv-python==4.6.0.66
-gdown==4.6.0
-patchify==0.2.2
-tensorflow==2.5.0
