@@ -12,15 +12,15 @@ logger = logging.getLogger('main_logger')
 class CrackDiscriminator:
 
     def __init__(self, crack_score_thld: float,
-                continuity_set_interval: int, continuity_hold_interval: int,
+                continuity_set_thld: int, continuity_hold_thld: int,
                 crack_patch_ratio: float, row_crack_patch_ratio: float):
         # set params
         self.crack_score_thld = crack_score_thld
-        self.continuity_set_interval = continuity_set_interval
-        self.continuity_hold_interval = continuity_hold_interval
+        self.continuity_set_thld = continuity_set_thld
+        self.continuity_hold_thld = continuity_hold_thld
         self.crack_patch_ratio = crack_patch_ratio
         self.row_crack_patch_ratio = row_crack_patch_ratio
-        logger.info(f'CrackDiscriminator. crack_score_thld={crack_score_thld}, continuity_set_interval={continuity_set_interval}, continuity_hold_interval={continuity_hold_interval}, crack_patch_ratio={crack_patch_ratio}, row_crack_patch_ratio={row_crack_patch_ratio}')
+        logger.info(f'CrackDiscriminator. crack_score_thld={crack_score_thld}, continuity_set_thld={continuity_set_thld}, continuity_hold_thld={continuity_hold_thld}, crack_patch_ratio={crack_patch_ratio}, row_crack_patch_ratio={row_crack_patch_ratio}')
 
         self.crack_summary_info = SummaryInfo()
 
@@ -31,13 +31,9 @@ class CrackDiscriminator:
         self.crack_cont_mat = None
         self.crack_matrix = None
 
-    def set_params(self, row_num: int, col_num: int, source_video_fps: float):
+    def set_params(self, row_num: int, col_num: int):
         self.row_num = row_num  # fix param (not dynamic)
         self.col_num = col_num  # fix param (not dynamic)
-
-        self.source_video_fps = source_video_fps  # dynamic param
-        self.continuity_set_thld = max(int(self.continuity_set_interval / 1000 * source_video_fps), 1)  # dynamic param
-        self.continuity_hold_thld = max(int(self.continuity_hold_interval / 1000 * source_video_fps), 1)  # dynamic param
 
     def init_matrices(self, row_num: int, col_num: int):
         self.crack_cont_mat = np.zeros((row_num, col_num), np.int32)
@@ -99,12 +95,12 @@ class CrackDiscriminator:
         self.is_crack_cont = False
         return
 
-    def update(self, scores: List[float], row_num: int, col_num: int, send_fps: float, send_time: float) -> bool:
-        self.set_params(row_num, col_num, send_fps)
+    def update(self, scores: List[float], row_num: int, col_num: int) -> bool:
+        self.set_params(row_num, col_num)
 
         self.frame_index += 1
         self.update_crack_status(scores)
-        self.crack_summary_info.update(self.is_crack_cont, self.frame_index, send_time)
+        self.crack_summary_info.update(self.is_crack_cont, self.frame_index)
         
     def get_summary(self) -> dict:
         summary = {
