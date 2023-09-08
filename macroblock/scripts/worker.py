@@ -47,10 +47,7 @@ class Worker:
     def postprocess_result(self, cls_results: ClassificationResult, split_result: ImageSplitResult) -> bool:
         self.discriminator.update(cls_results.scores, split_result.row_num, split_result.col_num)
         summary = self.discriminator.get_summary()
-
-
-        return summary
-
+        return summary['error_state']
 
     def predict_with_patch_images(self, images: List[np.ndarray]) -> ClassificationResult:
         start_time = time.time()
