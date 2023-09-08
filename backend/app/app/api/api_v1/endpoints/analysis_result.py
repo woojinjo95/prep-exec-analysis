@@ -743,9 +743,10 @@ def get_summary_data_of_measure_result(
                               {'$match': {'testruns.id': testrun_id}},
                               {'$project': {'last_updated_timestamp': '$testruns.last_updated_timestamp'}}]
         last_updated_timestamp = aggregate_from_mongodb(col='scenario', pipeline=timestamp_pipeline)
-        last_updated_timestamp = last_updated_timestamp[0] if len(last_updated_timestamp) > 0 else None
-        result['last_updated_timestamp'] = last_updated_timestamp['last_updated_timestamp'].strftime(
-            '%Y-%m-%dT%H:%M:%S.%fZ') if (last_updated_timestamp is not None) else None
+        last_updated_timestamp = last_updated_timestamp[0].get('last_updated_timestamp', None)\
+            if len(last_updated_timestamp) > 0 else None
+        result['last_updated_timestamp'] = last_updated_timestamp.strftime('%Y-%m-%dT%H:%M:%S.%fZ')\
+            if (last_updated_timestamp is not None) else None
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {"items": result}
