@@ -70,19 +70,21 @@ async def run_blocks(conn, db_blocks, scenario_id, testrun_id, blocks: list, eve
             await conn.publish(CHANNEL_NAME, message)
 
             print("wait... message response")
+            try:
+                # 몽키테스트는 완료 대기
+                print(f"monkey test wait...{block['type']}")
+                if block['type'] == 'monkey_test':
+                    event.clear()
+                    await event.wait()
+                    print("monkey test end...")
+            except Exception as e:
+                print(e)
 
             # # 다른 파트는 시간대기
             delay_time = block['delay_time']
             await asyncio.sleep(delay_time / 1000)
 
-            event.clear()
-            try:
-                # 몽키테스트는 완료 대기
-                print("monkey test wait...")
-                if block['type'] == 'monkey':
-                    await event.wait()
-            except Exception as e:
-                print(e)
+
 
             # 완료 처리
             db_blocks.update_one(
@@ -120,8 +122,8 @@ async def run_analysis(conn, db_blocks, scenario_id, testrun_id, blocks: list, e
                 await asyncio.wait_for(event.wait(), 60)
             except Exception as e:
                 print(e)
-            finally:
-                event.clear()
+            # finally:
+                # event.clear()
             # # 다른 파트는 시간대기
             # delay_time = block['delay_time']
             # await asyncio.sleep(delay_time / 1000)
