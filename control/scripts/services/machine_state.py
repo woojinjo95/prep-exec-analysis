@@ -4,6 +4,7 @@ from collections import defaultdict
 from multiprocessing import Event
 from typing import Dict
 
+from ..configs.config import get_value
 from ..configs.constant import RedisChannel
 from ..connection.redis_pubsub import get_strict_redis_connection, publish
 from ..state.machine_state import (get_cpu_usage_average_in_percent,
@@ -21,12 +22,12 @@ def get_machine_state() -> Dict:
     # key itself is function name of LCDString class
     # value is string or string() object
     values = {'uptime': str(round(time.monotonic())),
-              'ir_state': 'on',
-              'br_state': 'bt',
+              'ir_state': 'on' if get_value('hardware_configuration', 'remote_control_type') == 'ir' else 'off',
+              'br_state': 'on',
               'set_status': 'Ready',
               'wan_ip': get_machine_private_ip(),
               'stb_ip': get_machine_dut_lan_ip(),
-              'video_input_state': 'on',
+              'video_input_state': 'on' if get_value('hardware_configuration', 'enable_hdmi') else 'off',  # temp
               'cpu_temp': get_representive_temperature(),
               #   'cpu_usage': get_cpu_usage_average_in_percent(),
               'memory_usage': get_memory_usage_in_percent(),
