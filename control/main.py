@@ -5,6 +5,7 @@ from scripts.configs.default import init_configs
 from scripts.connection.redis_pubsub import (Subscribe,
                                              get_strict_redis_connection)
 from scripts.device.remocon.remocon_process import RemoconProcess
+from scripts.device.remocon.types.bt_android_keyboard import LCD
 from scripts.device.serial.serial_device import (SerialDevice,
                                                  initial_serial_devices)
 from scripts.device.serial_control import change_dut_state, init_dut_state
@@ -49,6 +50,12 @@ def command_parser(command: dict, serial_device: SerialDevice, remocon_process: 
     if command.get('msg') == 'on_off_control':
         on_off_control_args = command.get('data')
         change_dut_state(serial_device, on_off_control_args)
+
+    if command.get('msg') == 'lcd_control':
+        lcd_args = command.get('data')
+        lcd_string = lcd_args.get('string')
+        remocon_process.put_command(key=lcd_string, _type=LCD)
+
 
 
 @handle_errors

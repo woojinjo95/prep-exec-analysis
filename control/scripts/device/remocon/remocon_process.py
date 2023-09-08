@@ -40,6 +40,9 @@ class RemoconProcess(ProcessUtil):
             'bt': BTAndroidKeyboard(self.event_time_dict, self.bt_serial_device),
             # 'adb': ADBAndroidKeyboard(self.event_time_dict, slot_index),
         }
+        # ir 리모콘과 같은 형식을 일단 찾지 못해 임시(영구) 지정
+        # bt와 같은 객체를 씀, bt와 같은 장비를 제어하기 때문
+        self.remocon_types['lcd'] = self.remocon_types['bt']
 
         # start when remocon is constructed
         for device_thread in self.remocon_types.values():
