@@ -193,7 +193,6 @@ def create_scenario(
                                                     'tags': scenario_in.tags,
                                                     'block_group': block_group_data,
                                                     'testruns': [{'id': testrun_id,
-                                                                  'last_updated_timestamp': None,
                                                                   'raw': {'videos': []},
                                                                   'analysis': {}}]})
 
@@ -276,7 +275,6 @@ def copy_scenario(
                                                     'tags': scenario_in.tags,
                                                     'block_group': block_group_data,
                                                     'testruns': [testruns] if testruns else [{'id': testrun_id,
-                                                                                              'last_updated_timestamp': None,
                                                                                               'raw': {'videos': []},
                                                                                               'analysis': {}}]})
 
