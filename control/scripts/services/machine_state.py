@@ -17,17 +17,20 @@ from ..utils._multi_process import ProcessMaintainer
 
 logger = logging.getLogger('service')
 
+HARDWARE_CONFIG = 'hardware_configuration'
+DUT_HDMI = 'enable_hdmi'
+
 
 def get_machine_state() -> Dict:
     # key itself is function name of LCDString class
     # value is string or string() object
     values = {'uptime': str(round(time.monotonic())),
-              'ir_state': 'on' if get_value('hardware_configuration', 'remote_control_type') == 'ir' else 'off',
-              'br_state': 'on',
+              'ir_state': 'on' if get_value(HARDWARE_CONFIG, 'remote_control_type') == 'ir' else 'off',
+              'bt_state': 'on',
               'set_status': 'Ready',
               'wan_ip': get_machine_private_ip(),
               'stb_ip': get_machine_dut_lan_ip(),
-              'video_input_state': 'on' if get_value('hardware_configuration', 'enable_hdmi') else 'off',  # temp
+              'video_input_state': 'on' if get_value(HARDWARE_CONFIG, DUT_HDMI) else 'off',  # temp
               'cpu_temp': get_representive_temperature(),
               #   'cpu_usage': get_cpu_usage_average_in_percent(),
               'memory_usage': get_memory_usage_in_percent(),
