@@ -1,5 +1,5 @@
 import React from 'react'
-import { Accordion, Text } from '@global/ui'
+import { Accordion, SimpleButton, Text } from '@global/ui'
 import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.svg'
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
 // import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
@@ -9,6 +9,7 @@ import { AnalysisTypeLabel } from '../../../constant'
 
 interface LogPatternMatchingSummaryResultItemProps {
   logPatternMatching: NonNullable<AnalysisResultSummary['log_pattern_matching']>
+  setRawDataModalType: React.Dispatch<React.SetStateAction<keyof AnalysisResultSummary | null>>
 }
 
 /**
@@ -16,6 +17,7 @@ interface LogPatternMatchingSummaryResultItemProps {
  */
 const LogPatternMatchingSummaryResultItem: React.FC<LogPatternMatchingSummaryResultItemProps> = ({
   logPatternMatching,
+  setRawDataModalType,
 }) => {
   return (
     <Accordion
@@ -71,11 +73,16 @@ const LogPatternMatchingSummaryResultItem: React.FC<LogPatternMatchingSummaryRes
           ))}
         </div>
 
-        <button type="button" className="flex justify-end items-center gap-x-3">
-          {/* TODO: open raw data modal */}
+        <SimpleButton
+          colorScheme="charcoal"
+          className="ml-auto"
+          onClick={() => setRawDataModalType('log_pattern_matching')}
+        >
           <ShowRawDataIcon className="w-4 h-4" />
-          <Text>Show Raw Data</Text>
-        </button>
+          <Text colorScheme="light" weight="medium">
+            Show Raw Data
+          </Text>
+        </SimpleButton>
       </div>
     </Accordion>
   )

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Text } from '@global/ui'
 import { useServiceState, useVideoSummary } from '@global/api/hook'
 import { formatDateTo } from '@global/usecase'
@@ -10,9 +10,14 @@ import AnalysisSummaryResultList from './AnalysisSummaryResultList'
  */
 const AnalysisResultPanel: React.FC = () => {
   const { videoSummary } = useVideoSummary()
+  const startTime = useMemo(
+    () => (videoSummary ? new Date(videoSummary.start_time).toISOString() : null),
+    [videoSummary],
+  )
+  const endTime = useMemo(() => (videoSummary ? new Date(videoSummary.end_time).toISOString() : null), [videoSummary])
   const { analysisResultSummary, refetch } = useAnalysisResultSummary({
-    start_time: videoSummary ? new Date(videoSummary.start_time).toISOString() : null,
-    end_time: videoSummary ? new Date(videoSummary.end_time).toISOString() : null,
+    start_time: startTime,
+    end_time: endTime,
   })
   useServiceState({
     onSuccess: (state) => {
@@ -30,7 +35,7 @@ const AnalysisResultPanel: React.FC = () => {
           formatDateTo('M DD YYYY, HH:MM AA', new Date(analysisResultSummary.last_updated_timestamp))}
       </Text>
 
-      <AnalysisSummaryResultList summary={analysisResultSummary} />
+      <AnalysisSummaryResultList summary={analysisResultSummary} startTime={startTime} endTime={endTime} />
     </div>
   )
 }

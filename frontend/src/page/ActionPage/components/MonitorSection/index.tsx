@@ -4,10 +4,11 @@ import { useNavigate } from 'react-router-dom'
 import { AppURL } from '@global/constant'
 import { Text } from '@global/ui'
 import { useRecoilValue } from 'recoil'
-import { isBlockRecordModeState } from '@global/atom'
-import { useServiceState } from '@global/api/hook'
+import { isBlockRecordModeState, scenarioIdState } from '@global/atom'
+import { useScenarioById, useServiceState } from '@global/api/hook'
 import { useWebsocket } from '@global/hook'
 import HLSPlayer from './components/HLSPlayer'
+import SaveBlocksModal from '../ActionSection/components/SaveBlocksModal'
 import { LKFSPlayload } from './type'
 import SoundBar from './components/SoundBar'
 
@@ -34,6 +35,12 @@ const MonitorSection: React.FC = () => {
       }
     },
   })
+
+  const scenarioId = useRecoilValue(scenarioIdState)
+
+  const { scenario } = useScenarioById({ scenarioId })
+
+  const [isSaveBlocksModalOpen, setIsSaveBlocksModalOpen] = useState<boolean>(false)
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -65,10 +72,18 @@ const MonitorSection: React.FC = () => {
         )}
         type="button"
         onClick={() => {
-          // analysis_mode message 전송 후 이동
+          if (!scenario) return
           const date = new Date()
           const startDate = new Date(date)
           startDate.setMinutes(date.getMinutes() - 30)
+
+          if (scenario.is_active === false) {
+            if (window.confirm('Do you want to save the block?')) {
+              // 블럭 저장 모달 실행
+              setIsSaveBlocksModalOpen(true)
+              return
+            }
+          }
 
           sendMessage({
             level: 'info',
@@ -87,6 +102,16 @@ const MonitorSection: React.FC = () => {
       </button>
 
       <HLSPlayer autoPlay controls className="h-full aspect-video" src={AppURL.streamingURL} />
+      {isSaveBlocksModalOpen && (
+        <SaveBlocksModal
+          isOpen={isSaveBlocksModalOpen}
+          close={() => {
+            setIsSaveBlocksModalOpen(false)
+          }}
+          isMoveAnalysisPage
+          isPlay={false}
+        />
+      )}
       {lkfsPayload && (
         <div className="absolute bottom-14 right-4 h-[200px] z-10 w-[26px]">
           <SoundBar value={lkfsPayload.M} />
