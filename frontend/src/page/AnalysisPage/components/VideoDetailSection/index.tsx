@@ -65,7 +65,9 @@ const VideoDetailSection: React.FC = () => {
           }}
         >
           <RealTimeScreenIcon className="w-[18px] h-[15px] mr-2" />
-          <Text colorScheme="dark">Real-time Screen</Text>
+          <Text colorScheme="dark" weight="medium">
+            Real-time Screen
+          </Text>
         </button>
 
         <Text colorScheme="light" weight="medium">

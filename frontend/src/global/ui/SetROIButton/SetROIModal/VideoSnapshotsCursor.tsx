@@ -39,6 +39,14 @@ const VideoSnapshotsCursor: React.FC<VideoSnapshotsCursorProps> = ({
     setPosX(scaleX(defaultCurrentTime))
   }, [scaleX, posX, defaultCurrentTime])
 
+  const updateVideoTime: React.PointerEventHandler<HTMLDivElement> = (e) => {
+    if (!dimension || !scaleX) return
+
+    const newPosX = Math.min(dimension.width, Math.max(0, e.clientX - dimension.left))
+    changeVideoTimeCallback(scaleX.invert(newPosX))
+    setPosX(newPosX)
+  }
+
   return (
     <div
       className="absolute top-0 left-0 w-full cursor-pointer"
@@ -52,28 +60,26 @@ const VideoSnapshotsCursor: React.FC<VideoSnapshotsCursorProps> = ({
       }}
       onPointerDown={(e) => {
         e.stopPropagation()
-        if (!dimension || !scaleX) return
         e.currentTarget.setPointerCapture(e.pointerId)
+        updateVideoTime(e)
         setIsDragging(true)
-
-        const newPosX = Math.min(dimension.width, Math.max(0, e.clientX - dimension.left))
-        changeVideoTimeCallback(scaleX.invert(newPosX))
-        setPosX(newPosX)
       }}
       onPointerMove={(e) => {
         e.stopPropagation()
         e.preventDefault()
-        if (!isDragging || !dimension || !scaleX) return
-        const newPosX = Math.min(dimension.width, Math.max(0, e.clientX - dimension.left))
-        changeVideoTimeCallback(scaleX.invert(newPosX))
-        setPosX(newPosX)
+        if (!isDragging) return
+        updateVideoTime(e)
       }}
       onPointerUp={(e) => {
         e.currentTarget.releasePointerCapture(e.pointerId)
+        if (!isDragging) return
+        updateVideoTime(e)
         setIsDragging(false)
       }}
       onPointerLeave={(e) => {
         e.currentTarget.releasePointerCapture(e.pointerId)
+        if (!isDragging) return
+        updateVideoTime(e)
         setIsDragging(false)
       }}
     >
