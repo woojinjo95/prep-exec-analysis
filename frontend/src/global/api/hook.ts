@@ -203,6 +203,7 @@ export const useVideoSummary = ({
       onSuccess,
       enabled:
         !!scenarioId && !!testRunId && !!serviceState && serviceState !== 'recording' && serviceState !== 'playblock',
+      retry: 10,
     },
   )
 

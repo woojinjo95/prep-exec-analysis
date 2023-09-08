@@ -222,6 +222,18 @@ export const getTestrun = async (params: { scenario_id: string }) => {
   }
 }
 
+/**
+ * 테스트런 삭제
+ */
+export const deleteTestrun = async ({ scenario_id, testrun_id }: { scenario_id: string; testrun_id: string }) => {
+  try {
+    await API.delete<{ msg: string }>(`${apiUrls.testrun}/${scenario_id}/${testrun_id}`)
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
 interface postCopyScenarioParams {
   src_scenario_id: string
   name: string
@@ -268,6 +280,32 @@ export const postScenario = async ({
     })
 
     return result.data
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
+/**
+ * put Scenario
+ */
+export const putScenario = async ({ new_scenario }: { new_scenario: Scenario }) => {
+  try {
+    const result = await API.put<{ msg: string }>(`${apiUrls.scenario}/${new_scenario.id}`, new_scenario)
+
+    return result.data
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
+/**
+ * delete Scenario
+ */
+export const deleteScenario = async ({ scenario_id }: { scenario_id: string }) => {
+  try {
+    await API.delete<{ msg: string }>(`${apiUrls.scenario}/${scenario_id}`)
   } catch (err) {
     const er = err as AxiosError
     throw er

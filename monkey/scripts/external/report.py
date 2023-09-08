@@ -29,7 +29,7 @@ def report_data(col_name: str, data: Dict):
 
 def report_section(start_time: float, end_time: float, analysis_type: str, section_id: int, image: np.ndarray, smart_sense_times: int):
     if image is not None:
-        image_path = save_section_cursor_image(get_utc_datetime(time.time()).strftime('%y-%m-%d %H:%M:%S.%f'), image)
+        image_path = save_section_cursor_image(get_utc_datetime(time.time()).strftime('%y-%m-%d_%H:%M:%S.%f'), image)
     else:
         image_path = ''
 

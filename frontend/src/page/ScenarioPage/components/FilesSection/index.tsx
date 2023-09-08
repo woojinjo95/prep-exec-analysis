@@ -14,7 +14,7 @@ import ScenarioItem from './ScenarioItem'
 
 const FilesSection: React.FC = () => {
   const navigate = useNavigate()
-  const { data, hasNextPage, isFetching, fetchNextPage } = useFetchScenarios(PAGE_SIZE_TWENTY)
+  const { data, hasNextPage, isFetching, fetchNextPage, refetch } = useFetchScenarios(PAGE_SIZE_TWENTY)
 
   const ref = useIntersect((entry, observer) => {
     // 발견시 실행될 callback
@@ -82,7 +82,7 @@ const FilesSection: React.FC = () => {
         <div className="flex flex-col w-full">
           <div className="px-5 py-3 w-full">
             <div className="pl-[28px]">
-              <div className="w-[calc(100%-96px)] grid grid-cols-[17.5%_35%_5%_12.5%_17.5%_5%_5%] min-h-8 items-center gap-x-4">
+              <div className="w-[calc(100%-96px)] grid grid-cols-[20.5%_37%_5%_12.5%_17.5%_5%_3%] min-h-8 items-center gap-x-4">
                 <Text className="text-sm" colorScheme="grey">
                   Name
                 </Text>
@@ -108,7 +108,12 @@ const FilesSection: React.FC = () => {
           >
             {scenarios?.map((scenario) => (
               <div className="flex flex-col w-full" key={`file_${scenario.name}`}>
-                <ScenarioItem scenario={scenario} />
+                <ScenarioItem
+                  scenarioSummary={scenario}
+                  scenariosRefetch={() => {
+                    refetch()
+                  }}
+                />
               </div>
             ))}
             {/* Intersect Target */}

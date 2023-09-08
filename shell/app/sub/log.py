@@ -28,7 +28,7 @@ async def process_log_queue(queue: asyncio.Queue, conn: any, CHANNEL_NAME: str, 
         except asyncio.QueueEmpty:
             if len(buffer) > 0:
                 scenario_id = await conn.hget('testrun', 'scenario_id')
-                testrun_id = await conn.hget('testrun', 'testrun_id')
+                testrun_id = await conn.hget('testrun', 'id')
                 ret = collection.insert_one({
                     'timestamp': datetime.fromtimestamp(buffer[0]['timestamp']),
                     'mode': mode,

@@ -159,6 +159,9 @@ def get_data_of_event_log(
             testrun_id = RedisClient.hget('testrun', 'id')
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        event_log_type_list = ['remocon_response', 'on_off_control_response',
+                               'network_emulation_response', 'shell_response',
+                               'capture_board_response', 'config']
         event_log_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
                                                         '$lte': convert_iso_format(end_time)},
                                           'scenario_id': scenario_id,
@@ -166,7 +169,7 @@ def get_data_of_event_log(
                               {'$project': {'_id': 0, 'lines': 1}},
                               {'$unwind': {'path': '$lines'}},
                               {'$match': {'lines.msg': {
-                                  '$in': ['remocon_response', 'on_off_control_response', 'network_emulation_response', 'shell', 'config']}}},
+                                  '$in': event_log_type_list}}},
                               {'$replaceRoot': {'newRoot': '$lines'}}]
 
         event_log = paginate_from_mongodb_aggregation(col=analysis_collection['event_log'],
@@ -743,9 +746,10 @@ def get_summary_data_of_measure_result(
                               {'$match': {'testruns.id': testrun_id}},
                               {'$project': {'last_updated_timestamp': '$testruns.last_updated_timestamp'}}]
         last_updated_timestamp = aggregate_from_mongodb(col='scenario', pipeline=timestamp_pipeline)
-        last_updated_timestamp = last_updated_timestamp[0] if len(last_updated_timestamp) > 0 else None
-        result['last_updated_timestamp'] = last_updated_timestamp['last_updated_timestamp'].strftime(
-            '%Y-%m-%dT%H:%M:%S.%fZ') if (last_updated_timestamp is not None) else None
+        last_updated_timestamp = last_updated_timestamp[0].get('last_updated_timestamp', None)\
+            if len(last_updated_timestamp) > 0 else None
+        result['last_updated_timestamp'] = last_updated_timestamp.strftime('%Y-%m-%dT%H:%M:%S.%fZ')\
+            if (last_updated_timestamp is not None) else None
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {"items": result}

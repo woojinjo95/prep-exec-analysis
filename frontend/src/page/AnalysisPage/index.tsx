@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react'
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
+import { useNavigate } from 'react-router-dom'
 import { PageContainer, Text } from '@global/ui'
 import { useVideoSummary } from '@global/api/hook'
 import { AppURL } from '@global/constant'
 import { cursorDateTimeState, scenarioIdState, testRunIdState, videoBlobURLState } from '@global/atom'
 
-import { useNavigate } from 'react-router-dom'
 import LogTraceSection from './components/LogTraceSection'
 import VideoDetailSection from './components/VideoDetailSection'
 import TimelineSection from './components/TimelineSection'

@@ -1,10 +1,11 @@
-from datetime import datetime
 import logging
 from typing import List, Dict
 
+from scripts.config.constant import CHANNEL_KEY_ADJOINT_CANDIDATES, CHANNEL_KEY_NON_ADJOINT_CANDIDATES
 from scripts.connection.mongo_db.crud import aggregate_from_mongodb
 from scripts.external.scenario import get_scenario_info
 from scripts.util._timezone import get_utc_datetime
+from scripts.format import RemoconKeyData
 
 logger = logging.getLogger('main')
 
@@ -61,3 +62,24 @@ def get_dut_power_times(event_result: Dict) -> List[float]:
                 pass
     logger.info(f'control_times: {control_times}')
     return control_times
+
+
+def get_channel_key_inputs(event_result: Dict, targets: List[str]) -> List[RemoconKeyData]:
+    remocon_infos = []
+    for item in event_result.get('items', []):
+        service = item.get('service', '')
+        msg = item.get('msg', '')
+        data = item.get('data', {})
+        key = str(data.get('key', '')).lower()
+        if service == 'control' and msg == 'remocon_response':
+            if 'adjoint_channel' in targets and key in CHANNEL_KEY_ADJOINT_CANDIDATES or \
+                'non_adjoint_channel' in targets and key in CHANNEL_KEY_NON_ADJOINT_CANDIDATES:
+                try:
+                    remocon_infos.append(RemoconKeyData(
+                        timestamp=data['sensor_time'],
+                        key=key
+                    ))
+                except KeyError:
+                    pass
+    logger.info(f'remocon_infos: {remocon_infos}')
+    return remocon_infos

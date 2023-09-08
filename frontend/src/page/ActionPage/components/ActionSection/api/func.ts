@@ -1,18 +1,7 @@
 import API from '@global/api'
 import { AxiosError } from 'axios'
-import { Block, Scenario } from '@global/api/entity'
+import { Block } from '@global/api/entity'
 import apiUrls from './url'
-
-export const putScenario = async ({ new_scenario }: { new_scenario: Scenario }) => {
-  try {
-    const result = await API.put<{ msg: string }>(`${apiUrls.scenario}/${new_scenario.id}`, new_scenario)
-
-    return result.data
-  } catch (err) {
-    const er = err as AxiosError
-    throw er
-  }
-}
 
 export const postBlock = async ({ newBlock, scenario_id }: { newBlock: Omit<Block, 'id'>; scenario_id: string }) => {
   try {

@@ -59,9 +59,10 @@ export const formatDateTo = (type: DateToken, dateObject = new Date()): string =
     case 'M DD YYYY, HH:MM AA': {
       const monthName = MONTH_NAMES[dateObject.getMonth()]
       const currentDate = new Date()
+
       const isToday = !!(
-        currentDate.getFullYear() === year ||
-        currentDate.getMonth() === dateObject.getMonth() ||
+        currentDate.getFullYear() === year &&
+        currentDate.getMonth() === dateObject.getMonth() &&
         currentDate.getDate() === dateObject.getDate()
       )
       const AMPM = dateObject.getHours() < 12 ? 'AM' : 'PM'
@@ -214,4 +215,11 @@ export const convertDuration = (duration: number) => {
   }
 
   return `${date.getMilliseconds()}ms`
+}
+
+/**
+ * 첫글자만 대문자로 변환하는 함수
+ */
+export const capitalize = (word: string) => {
+  return word.charAt(0).toUpperCase() + word.slice(1)
 }

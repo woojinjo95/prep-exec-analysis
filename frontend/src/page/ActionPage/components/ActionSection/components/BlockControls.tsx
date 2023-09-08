@@ -52,7 +52,10 @@ const BlockControls: React.FC = () => {
 
   const selectedBlockIds = useRecoilValue(selectedBlockIdsState)
 
+  // 재생 시작했던 시간
   const playStartTime = useRecoilValue(playStartTimeState)
+
+  const [isPlay, setIsPlay] = useState<boolean>(false)
 
   const { sendMessage } = useWebsocket({
     onMessage: (message) => {
@@ -135,13 +138,23 @@ const BlockControls: React.FC = () => {
               onClick={() => {
                 if (!scenarioId) return
 
-                if (window.confirm('Do you want to save the block?')) {
-                  // 블럭 저장 모달 실행
-                  setIsSaveBlocksModalOpen(true)
-                } else {
-                  // test option modal 실행
-                  setIsTesetOptionModalOpen(true)
+                // new workspace로 진입했을 때
+                if (scenario.is_active === false) {
+                  if (window.confirm('Do you want to save the block?')) {
+                    // 블럭 저장 모달 실행
+                    setIsPlay(true)
+                    setIsSaveBlocksModalOpen(true)
+                  } else {
+                    // test option modal 실행
+                    setIsTesetOptionModalOpen(true)
+                  }
+
+                  return
                 }
+
+                setIsTesetOptionModalOpen(true)
+
+                setIsPlay(true)
               }}
             />
           ) : (
@@ -200,6 +213,8 @@ const BlockControls: React.FC = () => {
           close={() => {
             setIsSaveBlocksModalOpen(false)
           }}
+          isMoveAnalysisPage={false}
+          isPlay={isPlay}
         />
       )}
       {isOpenBlocksModalOpen && (

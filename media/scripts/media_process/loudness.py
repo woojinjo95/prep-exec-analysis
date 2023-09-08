@@ -85,7 +85,7 @@ def update_loudness_to_mongodb(stop_event: Event):
 
     def job():
         with get_strict_redis_connection() as src:
-            for loudness in Subscribe(src, RedisChannel.loudness, stop_event):
+            for loudness in Subscribe(src, RedisChannel.loudness, stop_event, log=False):
                 mongo_session.put(loudness)
 
     Process(target=job).start()
