@@ -59,9 +59,10 @@ export const formatDateTo = (type: DateToken, dateObject = new Date()): string =
     case 'M DD YYYY, HH:MM AA': {
       const monthName = MONTH_NAMES[dateObject.getMonth()]
       const currentDate = new Date()
+
       const isToday = !!(
-        currentDate.getFullYear() === year ||
-        currentDate.getMonth() === dateObject.getMonth() ||
+        currentDate.getFullYear() === year &&
+        currentDate.getMonth() === dateObject.getMonth() &&
         currentDate.getDate() === dateObject.getDate()
       )
       const AMPM = dateObject.getHours() < 12 ? 'AM' : 'PM'
