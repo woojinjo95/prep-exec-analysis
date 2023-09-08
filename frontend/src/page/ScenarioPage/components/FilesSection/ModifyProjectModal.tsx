@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import { ScenarioSummary } from '@global/api/entity'
-import { deleteScenario, getTag, postTag, putScenario } from '@global/api/func'
+import { getTag, postTag, putScenario } from '@global/api/func'
 import { useScenarioById } from '@global/api/hook'
 import { Modal, Text, Input, Button, Select, Tag, TagItem } from '@global/ui'
 import { AxiosError } from 'axios'
