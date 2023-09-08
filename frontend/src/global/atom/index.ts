@@ -1,5 +1,5 @@
 import { atom } from 'recoil'
-import { FreezeType } from '@global/constant'
+import { FreezeType, LogLevel } from '@global/constant'
 import { BootType, ResumeType } from '@global/api/entity'
 
 /**
@@ -98,5 +98,13 @@ export const resumeTypeFilterListState = atom<ResumeType[]>({
  */
 export const bootTypeFilterListState = atom<BootType[]>({
   key: 'bootTypeFilterListState',
+  default: [],
+})
+
+/**
+ * 분석 페이지 log level filter 결과 filter 리스트
+ */
+export const logLevelFinderTypeFilterListState = atom<(keyof typeof LogLevel)[]>({
+  key: 'logLevelFinderTypeFilterListState',
   default: [],
 })

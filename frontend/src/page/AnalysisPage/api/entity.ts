@@ -97,7 +97,7 @@ export interface LogLevelFinder {
    * @format timestamp
    */
   timestamp: string
-  log_level: string
+  log_level: keyof typeof LogLevel
 }
 
 /**

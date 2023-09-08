@@ -1,8 +1,10 @@
 import React from 'react'
-import { Accordion, Text } from '@global/ui'
+import { useRecoilState } from 'recoil'
+import { Accordion, SimpleButton, Text } from '@global/ui'
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
-// import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
+import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
 import { numberWithCommas } from '@global/usecase'
+import { logLevelFinderTypeFilterListState } from '@global/atom'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { AnalysisTypeLabel } from '../../../constant'
 
@@ -14,6 +16,10 @@ interface LogLevelFinderSummaryResultItemProps {
  * log level finder 분석결과 요약 아이템
  */
 const LogLevelFinderSummaryResultItem: React.FC<LogLevelFinderSummaryResultItemProps> = ({ logLevelFinder }) => {
+  const [logLevelFinderTypeFilterList, setLogLevelFinderTypeFilterList] = useRecoilState(
+    logLevelFinderTypeFilterListState,
+  )
+
   return (
     <Accordion
       header={
@@ -36,7 +42,7 @@ const LogLevelFinderSummaryResultItem: React.FC<LogLevelFinderSummaryResultItemP
         </div>
       }
     >
-      <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 gap-y-2 pt-1">
+      <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 gap-y-1 pt-1 items-center">
         {/* header */}
         <Text weight="medium" size="sm">
           Target
@@ -52,9 +58,23 @@ const LogLevelFinderSummaryResultItem: React.FC<LogLevelFinderSummaryResultItemP
             <Text size="sm" className="text-right">
               {numberWithCommas(total)}
             </Text>
-            <button type="button">
-              <ShowEyeIcon className="w-5" />
-            </button>
+            {logLevelFinderTypeFilterList.includes(target) ? (
+              <SimpleButton
+                isIcon
+                colorScheme="charcoal"
+                onClick={() => setLogLevelFinderTypeFilterList((prev) => prev.filter((type) => type !== target))}
+              >
+                <HiddenEyeIcon className="h-4 w-5" />
+              </SimpleButton>
+            ) : (
+              <SimpleButton
+                isIcon
+                colorScheme="charcoal"
+                onClick={() => setLogLevelFinderTypeFilterList((prev) => [...prev, target])}
+              >
+                <ShowEyeIcon className="h-4 w-5" />
+              </SimpleButton>
+            )}
           </React.Fragment>
         ))}
       </div>
