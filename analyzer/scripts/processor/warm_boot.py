@@ -47,24 +47,22 @@ def test_warm_boot():
 
 
 def task_warm_boot_with_diff(args: VideoInfo):
+    progress_manager = ProgressManager(Command.RESUME.value)
     event_log = get_data_of_event_log(args.timestamps[0], args.timestamps[-1])
     remocon_times = get_power_key_times(event_log)
 
     with tempfile.TemporaryDirectory(dir='/tmp') as output_dir:
-        warm_boot_results = []
         crop_videos = crop_video_with_opencv(args.video_path, args.timestamps, remocon_times, output_dir, get_setting_with_env('WARM_BOOT_DURATION', 10))
-        for crop_video in crop_videos:
+        for idx, crop_video in enumerate(crop_videos):
             if not check_poweroff_video(crop_video.video_path):
                 continue
             result = task_boot_test_with_diff(crop_video.video_path, crop_video.timestamps, crop_video.timestamps[0])
-            warm_boot_results.append(result)
-
-    for result in warm_boot_results:
-        if result['status'] == 'success':
-            report_output(ReportName.WARM_BOOT.value, {
-                'timestamp': get_utc_datetime(result['diff_timestamp']),
-                'measure_time': result['diff_time'],
-            })
+            if result['status'] == 'success':
+                report_output(ReportName.WARM_BOOT.value, {
+                    'timestamp': get_utc_datetime(result['diff_timestamp']),
+                    'measure_time': result['diff_time'],
+                })
+            progress_manager.update_progress(idx / len(crop_videos))
 
 
 def task_warm_boot_with_match(args: VideoInfo, config: Dict):
