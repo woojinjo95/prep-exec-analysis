@@ -3,8 +3,8 @@ import cx from 'classnames'
 import { useNavigate } from 'react-router-dom'
 import { AppURL } from '@global/constant'
 import { Text } from '@global/ui'
-import { useRecoilState, useRecoilValue } from 'recoil'
-import { isBlockRecordModeState, isTestOptionModalOpenState, scenarioIdState } from '@global/atom'
+import { useRecoilValue } from 'recoil'
+import { isBlockRecordModeState, scenarioIdState } from '@global/atom'
 import { useScenarioById, useServiceState } from '@global/api/hook'
 import { useWebsocket } from '@global/hook'
 import HLSPlayer from './components/HLSPlayer'
@@ -41,8 +41,6 @@ const MonitorSection: React.FC = () => {
   const { scenario } = useScenarioById({ scenarioId })
 
   const [isSaveBlocksModalOpen, setIsSaveBlocksModalOpen] = useState<boolean>(false)
-
-  const [isTestOptionModalOpen, setIsTesetOptionModalOpen] = useRecoilState(isTestOptionModalOpenState)
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -110,6 +108,7 @@ const MonitorSection: React.FC = () => {
           close={() => {
             setIsSaveBlocksModalOpen(false)
           }}
+          isMoveAnalysisPage
           isPlay={false}
         />
       )}

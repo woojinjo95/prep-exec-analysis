@@ -52,7 +52,8 @@ const BlockControls: React.FC = () => {
 
   const selectedBlockIds = useRecoilValue(selectedBlockIdsState)
 
-  const [playStartTime, setPlayStartTime] = useRecoilState(playStartTimeState)
+  // 재생 시작했던 시간
+  const playStartTime = useRecoilValue(playStartTimeState)
 
   const [isPlay, setIsPlay] = useState<boolean>(false)
 
@@ -137,9 +138,11 @@ const BlockControls: React.FC = () => {
               onClick={() => {
                 if (!scenarioId) return
 
+                // new workspace로 진입했을 때
                 if (scenario.is_active === false) {
                   if (window.confirm('Do you want to save the block?')) {
                     // 블럭 저장 모달 실행
+                    setIsPlay(true)
                     setIsSaveBlocksModalOpen(true)
                   } else {
                     // test option modal 실행
@@ -149,14 +152,7 @@ const BlockControls: React.FC = () => {
                   return
                 }
 
-                sendMessage({
-                  level: 'info',
-                  msg: 'start_playblock',
-                  data: { scenario_id: scenarioId },
-                })
-                // TODO: repeat 횟수 반영 작업이 필요함
-
-                setPlayStartTime(new Date().getTime() / 1000)
+                setIsTesetOptionModalOpen(true)
 
                 setIsPlay(true)
               }}
@@ -217,6 +213,7 @@ const BlockControls: React.FC = () => {
           close={() => {
             setIsSaveBlocksModalOpen(false)
           }}
+          isMoveAnalysisPage={false}
           isPlay={isPlay}
         />
       )}

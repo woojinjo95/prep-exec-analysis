@@ -20,11 +20,13 @@ import { putScenario } from '../api/func'
 interface SaveBlocksModalProps {
   isOpen: boolean
   close: () => void
-  // 재생 여부
+  // 저장 후 분석 페이지 이동 여부
+  isMoveAnalysisPage: boolean
+  // 재생으로 연결되는지 여부
   isPlay: boolean
 }
 
-const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isPlay }) => {
+const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMoveAnalysisPage, isPlay }) => {
   const toast = useToast({ duration: 3000, isClosable: true })
 
   const firstFocusableElementRef = useRef<HTMLInputElement>(null)
@@ -135,6 +137,23 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isPlay
       if (isPlay) {
         setIsTesetOptionModalOpen(true)
       }
+
+      // 분석페이지로 이동한다면
+      if (isMoveAnalysisPage) {
+        const date = new Date()
+        const startDate = new Date(date)
+        startDate.setMinutes(date.getMinutes() - 30)
+
+        sendMessage({
+          level: 'info',
+          msg: 'analysis_mode_init',
+          data: {
+            start_time: startDate.getTime() / 1000,
+            end_time: date.getTime() / 1000,
+          },
+        })
+        navigate('/analysis')
+      }
     },
     onError: (err: AxiosError) => {
       console.error(err)
@@ -164,6 +183,22 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isPlay
 
       if (isPlay) {
         setIsTesetOptionModalOpen(true)
+      }
+
+      if (isMoveAnalysisPage) {
+        const date = new Date()
+        const startDate = new Date(date)
+        startDate.setMinutes(date.getMinutes() - 30)
+
+        sendMessage({
+          level: 'info',
+          msg: 'analysis_mode_init',
+          data: {
+            start_time: startDate.getTime() / 1000,
+            end_time: date.getTime() / 1000,
+          },
+        })
+        navigate('/analysis')
       }
     },
     onError: (err: AxiosError) => {
