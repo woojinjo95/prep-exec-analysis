@@ -23,6 +23,10 @@ const parseEventLog = (eventLog: EventLogTooltip) => {
     return `Control : DUT Wan ${capitalize(eventLog.data.vac)}`
   }
 
+  if (eventLog.msg === 'shell_response') {
+    return `${eventLog.data.mode} : ${eventLog.data.command}`
+  }
+
   return ''
 }
 

@@ -156,7 +156,15 @@ interface OnOffControlResponseEventLog {
   }
 }
 
-export type EventLogTooltip = RemoconResponseEventLog | OnOffControlResponseEventLog
+interface ShellResponseEventLog {
+  msg: 'shell_response'
+  data: {
+    mode: 'adb' | 'ssh'
+    command: string
+  }
+}
+
+export type EventLogTooltip = RemoconResponseEventLog | OnOffControlResponseEventLog | ShellResponseEventLog
 
 export type EventLog = {
   /**
