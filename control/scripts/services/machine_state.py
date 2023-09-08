@@ -1,5 +1,6 @@
 import logging
 import time
+import traceback
 from collections import defaultdict
 from multiprocessing import Event
 from typing import Dict
@@ -41,21 +42,27 @@ def get_machine_state() -> Dict:
 
 
 def start_state_service(interval: float = 10) -> ProcessMaintainer:
+    logger.info('Start state service')
 
     prev_state = defaultdict(str)
 
     def state_service(interval: float, stop_event: Event, run_state_event: Event):
-        with get_strict_redis_connection() as src:
-            while stop_event.is_set():
-                current_state = get_machine_state
-                logger.debug(current_state)
-                for element, value in current_state.items():
-                    if prev_state[element] != value:
-                        publish(src, RedisChannel.command, {'msg': 'lcd_control', 'func_arg': f'{element}:{value}'})
+        try:
+            with get_strict_redis_connection() as src:
+                while not stop_event.is_set():
+                    current_state = get_machine_state()
+                    logger.debug(current_state)
+                    for element, value in current_state.items():
+                        if prev_state[element] != value:
+                            publish(src, RedisChannel.command, {'msg': 'lcd_control',
+                                                                'data': {'func_arg': f'{element}:{value}'}})
 
-                prev_state.update(current_state)
+                    prev_state.update(current_state)
 
-                time.sleep(interval)
+                    time.sleep(interval)
+        except Exception as e:
+            logger.error(e)
+            logger.info(traceback.format_exc())
 
     proc = ProcessMaintainer(func=state_service, args=(interval, ), revive_interval=10, daemon=True)
     proc.start()

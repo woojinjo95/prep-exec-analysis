@@ -35,7 +35,12 @@ class BTAndroidKeyboard(AbstractRemocon):
     # pronto_code 로 직접 리모콘 명령
 
     def press_key_by_command(self, command_queue: dict) -> float:
-        logger.info(f'bt remocon transmit: {command_queue}')
+        if command_queue.get('type') == 'bt':
+            logger.info(f'bt remocon transmit: {command_queue}')
+        else:
+            # lcd
+            pass
+
         if self.serial_device is None:
             logger.error('Failed to detect bt serial device.')
             raise Exception('Failed to detect bt serial device.')
@@ -87,7 +92,7 @@ class BTAndroidKeyboard(AbstractRemocon):
 
     def lcd_command(self, key: str):
         with serial.Serial(self.serial_device.serial_port.value, self.serial_device.baud_rate, timeout=1) as ser:
-            func_str, arg = [key.split(':') + [None]][:2]
+            func_str, arg = (key.split(':') + [None, None])[:2]
             for string in attrgetter(self.lcd_functions)(func_str)(arg):
                 # attrgetter(self.lcd_functions)(func_str)(arg) is same to self.lcd_functions.{func_str}(arg)
                 start_time = time.time()  # count last command

@@ -85,7 +85,9 @@ class RemoconProcess(ProcessUtil):
         publish(self.redis_connection, RedisChannel.command, result)
 
     def put_command(self, key: str, _type: str, code: str = '', sleep: float = 0, press_time: float = 0) -> str:
-        if key.lower() not in self.remocon_commands:
+        if _type == 'lcd':
+            pass
+        elif key.lower() not in self.remocon_commands:
             publish(self.redis_connection, RedisChannel.command, {'msg': 'remocon_response',
                                                                   'level': 'error',
                                                                   'data': {"key": key,
