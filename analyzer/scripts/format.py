@@ -44,6 +44,16 @@ class ChannelZappingEventData:
     channel_name: str = ''
 
 
+@dataclass
+class ChannelZappingResult:
+    status: str
+    total: int = 0
+    a: int = 0
+    b: int = 0
+    c: int = 0
+
+
+
 class ReportName(Enum):
     COLOR_REFERENCE = 'color_reference'
     FREEZE = 'freeze'

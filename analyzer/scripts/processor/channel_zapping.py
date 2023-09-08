@@ -56,12 +56,13 @@ def measure_channel_zapping():
         crop_videos = crop_video_with_opencv(args.video_path, args.timestamps, [ei.event_time for ei in event_infos], 
                                              output_dir, get_setting_with_env('CHANNEL_ZAPPING_VIDEO_LENGTH', 8))
         for crop_video, event_info in zip(crop_videos, event_infos):
-            result = calculate_channel_zapping(crop_video.video_path, crop_video.timestamps, crop_video.timestamps[0])
+            result = calculate_channel_zapping(crop_video.video_path, crop_video.timestamps, crop_video.timestamps[0],
+                                               min_diff_rate=get_setting_with_env('CHANNEL_ZAPPING_MIN_DIFF_RATE', 0.00002))
 
-            if result['status'] == 'success':
+            if result.status == 'success':
                 report_output(ReportName.CHANNEL_ZAPPING.value, {
                     'timestamp': get_utc_datetime(event_info.event_time),
-                    'measure_time': result['measure_time'],
+                    'measure_time': result.total,
                     'remocon_key': event_info.key,
                     'src_channel': event_info.src,
                     'dst_channel': event_info.dst,
