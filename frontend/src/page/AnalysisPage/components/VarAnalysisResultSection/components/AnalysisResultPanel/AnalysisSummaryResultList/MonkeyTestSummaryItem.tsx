@@ -57,6 +57,7 @@ const MonkeyTestSummaryItem: React.FC<MonkeyTestSummaryItemProps> = ({ monkeyTes
               <Text size="sm" className="text-right">
                 {numberWithCommas(smart_sense)} times
               </Text>
+              <div />
               {/* FIXME: 필터 어떻게 하는지? */}
               {/* {monkeyTestTypeFilterList.includes(target) ? (
                 <SimpleButton
