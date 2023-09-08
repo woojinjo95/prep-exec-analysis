@@ -7,6 +7,7 @@ import numpy as np
 
 from scripts.models.tf_model import MacroblockModel
 from scripts.config.config import get_setting_with_env
+from scripts.image_util import split_image_with_shape
 
 
 logger = logging.getLogger('main')
@@ -14,9 +15,22 @@ logger = logging.getLogger('main')
 
 class Worker:
     def __init__(self):
+        self.input_shape = get_setting_with_env('MODEL_INPUT_SHAPE', (224, 224, 3))
+
         model_dir_url = get_setting_with_env('TF_MODEL_URL')
         model_output_dir = get_setting_with_env('MODEL_SAVE_DIR', '/app/data/models')
         self.macroblock_model = MacroblockModel(model_dir_url=model_dir_url, model_output_dir=model_output_dir)
+
+    def process_image(self, image: np.ndarray) -> bool:
+        patches = self.preprocess_image(image)
+        results = self.predict_with_patch_images(patches)
+        result = self.postprocess_result(results)
+        return result
+
+    def preprocess_image(self, image: np.ndarray) -> List[np.ndarray]:
+        split_result = split_image_with_shape(image, self.input_shape)
+        logger.info(f'image_shape: {image.shape}, row_num: {split_result.row_num}, col_num: {split_result.col_num}')
+        return split_result.patches
 
     def predict_with_patch_images(self, images: List[np.ndarray]) -> dict:
         try:
