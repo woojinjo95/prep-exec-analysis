@@ -13,6 +13,7 @@ interface DropdownWithMoreButtonProps {
   colorScheme?: 'light' | 'charcoal'
   type?: 'icon-button' | 'icon'
   positionX?: 'left' | 'right'
+  iconColorScheme?: 'light' | 'charcoal'
 }
 
 /**
@@ -24,6 +25,7 @@ const DropdownWithMoreButton: React.FC<DropdownWithMoreButtonProps> = ({
   colorScheme = 'light',
   type = 'icon-button',
   positionX = 'right',
+  iconColorScheme,
 }) => {
   const divRef = useRef<HTMLDivElement | null>(null)
   const [isButtonClicked, setIsButtonClicked] = useState<boolean>(false)
@@ -44,7 +46,11 @@ const DropdownWithMoreButton: React.FC<DropdownWithMoreButtonProps> = ({
       )}
       {type === 'icon' && (
         <MoreIcon
-          className={cx('dropdown-with-more-button-icon', colorScheme, 'w-[20px] h-[20px] cursor-pointer')}
+          className={cx(
+            'dropdown-with-more-button-icon',
+            iconColorScheme || colorScheme,
+            'w-[20px] h-[20px] cursor-pointer',
+          )}
           onClick={(e) => {
             e.stopPropagation()
             setIsButtonClicked((prev) => !prev)

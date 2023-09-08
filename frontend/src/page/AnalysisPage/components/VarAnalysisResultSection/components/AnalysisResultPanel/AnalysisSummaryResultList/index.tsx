@@ -1,5 +1,5 @@
-import React from 'react'
-import { useServiceState, useVideoSummary } from '@global/api/hook'
+import React, { useState } from 'react'
+import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import FreezeSummaryResultItem from './FreezeSummaryResultItem'
 import LoudnessSummaryResultItem from './LoudnessSummaryResultItem'
 import ResumeSummaryResultItem from './ResumeSummaryResultItem'
@@ -7,42 +7,70 @@ import BootSummaryResultItem from './BootSummaryResultItem'
 // import ChannelChangeTimeSummaryResultItem from './ChannelChangeTimeSummaryResultItem'
 import LogLevelFinderSummaryResultItem from './LogLevelFinderSummaryResultItem'
 import LogPatternMatchingSummaryResultItem from './LogPatternMatchingSummaryResultItem'
-import { useAnalysisResultSummary } from '../../../api/hook'
+import ResumeRawDataModal from './ResumeRawDataModal'
+import LogPatternMatchingRawDataModal from './LogPatternMatchingRawDataModal'
+import BootRawDataModal from './BootRawDataModal'
+import FreezeRawDataModal from './FreezeRawDataModal'
+
+interface AnalysisSummaryResultListProps {
+  summary?: AnalysisResultSummary
+  startTime: string | null
+  endTime: string | null
+}
 
 /**
  * 분석 결과(요약 데이터) 리스트
  */
-const AnalysisSummaryResultList: React.FC = () => {
-  const { videoSummary } = useVideoSummary()
-  const { analysisResultSummary, refetch } = useAnalysisResultSummary({
-    start_time: videoSummary?.start_time!,
-    end_time: videoSummary?.end_time!,
-    // FIXME: start_time, end_time이 없는데도 api를 요청함
-    enabled: !!videoSummary,
-  })
-  useServiceState({
-    onSuccess: (state) => {
-      if (state !== 'analysis') {
-        refetch()
-      }
-    },
-  })
+const AnalysisSummaryResultList: React.FC<AnalysisSummaryResultListProps> = ({ summary, startTime, endTime }) => {
+  const [rawDataModalType, setRawDataModalType] = useState<keyof AnalysisResultSummary | null>(null)
 
-  if (!analysisResultSummary) return null
+  if (!summary || !startTime || !endTime) return null
   return (
     <div className="overflow-y-auto flex flex-col gap-y-1">
-      {analysisResultSummary.freeze?.length && <FreezeSummaryResultItem results={analysisResultSummary.freeze} />}
-      {analysisResultSummary.loudness?.length && (
-        <LoudnessSummaryResultItem result={analysisResultSummary.loudness[0]} />
-      )}
-      {analysisResultSummary.resume?.length && <ResumeSummaryResultItem results={analysisResultSummary.resume} />}
-      {analysisResultSummary.boot?.length && <BootSummaryResultItem results={analysisResultSummary.boot} />}
+      {summary.freeze && <FreezeSummaryResultItem freeze={summary.freeze} setRawDataModalType={setRawDataModalType} />}
+      {summary.loudness && <LoudnessSummaryResultItem loudness={summary.loudness} />}
+      {summary.resume && <ResumeSummaryResultItem resume={summary.resume} setRawDataModalType={setRawDataModalType} />}
+      {summary.boot && <BootSummaryResultItem boot={summary.boot} setRawDataModalType={setRawDataModalType} />}
       {/* <ChannelChangeTimeSummaryResultItem /> */}
-      {analysisResultSummary.log_level_finder?.length && (
-        <LogLevelFinderSummaryResultItem results={analysisResultSummary.log_level_finder} />
+      {summary.log_level_finder && <LogLevelFinderSummaryResultItem logLevelFinder={summary.log_level_finder} />}
+      {summary.log_pattern_matching && (
+        <LogPatternMatchingSummaryResultItem
+          logPatternMatching={summary.log_pattern_matching}
+          setRawDataModalType={setRawDataModalType}
+        />
       )}
-      {analysisResultSummary.log_pattern_matching?.length && (
-        <LogPatternMatchingSummaryResultItem results={analysisResultSummary.log_pattern_matching} />
+
+      {rawDataModalType === 'freeze' && (
+        <FreezeRawDataModal
+          isOpen={rawDataModalType === 'freeze'}
+          onClose={() => setRawDataModalType(null)}
+          startTime={startTime}
+          endTime={endTime}
+        />
+      )}
+      {rawDataModalType === 'resume' && (
+        <ResumeRawDataModal
+          isOpen={rawDataModalType === 'resume'}
+          onClose={() => setRawDataModalType(null)}
+          startTime={startTime}
+          endTime={endTime}
+        />
+      )}
+      {rawDataModalType === 'boot' && (
+        <BootRawDataModal
+          isOpen={rawDataModalType === 'boot'}
+          onClose={() => setRawDataModalType(null)}
+          startTime={startTime}
+          endTime={endTime}
+        />
+      )}
+      {rawDataModalType === 'log_pattern_matching' && (
+        <LogPatternMatchingRawDataModal
+          isOpen={rawDataModalType === 'log_pattern_matching'}
+          onClose={() => setRawDataModalType(null)}
+          startTime={startTime}
+          endTime={endTime}
+        />
       )}
     </div>
   )

@@ -1,11 +1,9 @@
-import { useEffect } from 'react'
-import { useMutation, useQuery } from 'react-query'
+import { useMutation } from 'react-query'
 import { useRecoilValue } from 'recoil'
 import { scenarioIdState, testRunIdState } from '@global/atom'
 import { AnalysisConfig } from '@page/AnalysisPage/api/entity'
 import { AnalysisType } from '@global/constant'
-import { deleteAnalysisConfig, getAnalysisResultSummary, putAnalysisConfig } from './func'
-import { AnalysisResultSummary } from './entity'
+import { deleteAnalysisConfig, postAnalysis, putAnalysisConfig } from './func'
 
 /**
  * 분석 설정 변경 hook
@@ -71,37 +69,19 @@ export const useRemoveAnalysisConfig = ({
 }
 
 /**
- * 분석 결과(요약 데이터) 조회 api
+ * 분석 시작 hook
  */
-export const useAnalysisResultSummary = ({
-  onSuccess,
-  enabled,
-  ...params
-}: Parameters<typeof getAnalysisResultSummary>[0] & {
-  onSuccess?: (data: AnalysisResultSummary) => void
-  enabled?: boolean
-}) => {
+export const useStartAnalysis = () => {
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
-  const { data, isLoading, refetch } = useQuery(
-    ['analysis_result_summary', { ...params, scenarioId, testRunId }],
-    () =>
-      getAnalysisResultSummary({
-        ...params,
-        scenario_id: scenarioId || undefined,
-        testrun_id: testRunId || undefined,
-      }),
-    {
-      onSuccess,
-      enabled,
-    },
-  )
+  const { mutate } = useMutation(postAnalysis)
 
-  useEffect(() => {
-    if (data) {
-      onSuccess?.(data)
-    }
-  }, [data])
+  const startAnalysis = (measurement: (keyof typeof AnalysisType)[]) => {
+    if (!scenarioId || !testRunId) return
+    mutate({ scenario_id: scenarioId, testrun_id: testRunId, measurement })
+  }
 
-  return { analysisResultSummary: data, isLoading, refetch }
+  return {
+    startAnalysis,
+  }
 }

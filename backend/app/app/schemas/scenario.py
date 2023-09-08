@@ -10,7 +10,7 @@ class TimestampBaseModel(BaseModel):
 
     @root_validator(pre=True)
     def convert_timestamp_with_timezone(cls, values):
-        if "updated_at" in values:
+        if "updated_at" in values and values["updated_at"] is not None:
             values["updated_at"] = parse_datetime(values["updated_at"]).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
         return values
 
@@ -89,3 +89,7 @@ class TestrunBase(TimestampBaseModel):
 
 class Testrun(BaseModel):
     items: List[TestrunBase]
+
+
+class TestrunUpdate(BaseModel):
+    is_active: bool

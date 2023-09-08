@@ -3,7 +3,7 @@ import * as d3 from 'd3'
 import { AreaChart, TimelineTooltip, TimelineTooltipItem, Text } from '@global/ui'
 import { CHART_HEIGHT } from '@global/constant'
 import { bytesToSize } from '@global/usecase'
-import { useMemory } from '../api/hook'
+import { useMemory } from '@page/AnalysisPage/api/hook'
 import { useTooltipEvent } from '../hook'
 
 interface MemoryChartProps {

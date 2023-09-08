@@ -1,30 +1,44 @@
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import * as d3 from 'd3'
 import { useRecoilValue } from 'recoil'
 import { scenarioIdState, testRunIdState, videoBlobURLState } from '@global/atom'
 import { Button, Modal, Text, VideoSnapshots } from '@global/ui'
 import { AppURL } from '@global/constant'
 import { useVideoSummary } from '@global/api/hook'
-import { formatDateTo } from '@global/usecase'
+import { delay, formatDateTo } from '@global/usecase'
 import { AnalysisFrame } from '@global/api/entity'
 import { useWebsocket } from '@global/hook'
 
 import apiUrls from '@page/AnalysisPage/api/url'
+import { useToast } from '@chakra-ui/react'
 import CropBox from './CropBox'
 import VideoSnapshotsCursor from './VideoSnapshotsCursor'
+
+const loadImage = (src: string): Promise<HTMLImageElement> =>
+  new Promise((res, rej) => {
+    const newImage = new Image()
+    newImage.src = src
+    newImage.onload = () => {
+      res(newImage)
+      newImage.remove()
+    }
+    newImage.onerror = () => {
+      rej()
+    }
+  })
 
 interface SetROIModalProps {
   isOpen: boolean
   onClose: () => void
   onSave: (frame: AnalysisFrame) => void
-  defaultCurrentTime?: number
-  defaultROI?: AnalysisFrame['roi']
+  defaultFrame?: AnalysisFrame
 }
 
 /**
  * ROI 설정 모달
  */
-const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose, onSave, defaultCurrentTime, defaultROI }) => {
+const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose, onSave, defaultFrame }) => {
+  const toast = useToast({ duration: 3000, isClosable: true })
   const { videoSummary } = useVideoSummary()
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
@@ -40,23 +54,34 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose, onSave, defa
   const [cropTwoPosX, setCropTwoPosX] = useState<[number, number] | null>(null)
   const [cropTwoPosY, setCropTwoPosY] = useState<[number, number] | null>(null)
 
-  const { sendMessage } = useWebsocket<{ id: string; path: string; log: string }>({
-    onMessage: (message) => {
-      if (!videoSummary || !videoRef.current || !cropTwoPosX || !cropTwoPosY) return
+  const { sendMessage } = useWebsocket<{ path: string; log: string }>({
+    onMessage: async (message) => {
+      if (message.msg !== 'video_frame_snapshot_response' || (message.level !== 'info' && message.level !== 'warning'))
+        return
+      if (!videoRef.current || !cropTwoPosX || !cropTwoPosY || !videoClientWidth || !videoClientHeight) return
 
-      if (message.msg === 'video_snapshot_response' && message.level === 'info') {
+      try {
+        const imageElement = await loadImage(
+          // FIXME: encodeURIComponent 제거
+          `${AppURL.backendURL}/api/v1/file/download?path=${encodeURIComponent(message.data.path)}`,
+        )
+
+        const frameXScale = imageElement.naturalWidth / videoClientWidth
+        const frameYScale = imageElement.naturalHeight / videoClientHeight
+
         onSave({
-          id: message.data.id,
           path: message.data.path,
           relative_time: videoRef.current.currentTime,
           roi: {
-            x: cropTwoPosX[0],
-            y: cropTwoPosY[0],
-            w: Math.abs(cropTwoPosX[1] - cropTwoPosX[0]),
-            h: Math.abs(cropTwoPosY[1] - cropTwoPosY[0]),
+            x: cropTwoPosX[0] * frameXScale,
+            y: cropTwoPosY[0] * frameYScale,
+            w: Math.abs(cropTwoPosX[1] - cropTwoPosX[0]) * frameXScale,
+            h: Math.abs(cropTwoPosY[1] - cropTwoPosY[0]) * frameYScale,
           },
         })
         onClose()
+      } catch {
+        toast({ status: 'error', title: 'An error has occurred. Please try again.' })
       }
     },
   })
@@ -67,16 +92,50 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose, onSave, defa
   }, [])
 
   const onClickSave = () => {
-    if (!videoSummary || !videoRef.current) return
+    if (!videoSummary || !videoRef.current || !testRunId) return
 
     sendMessage({
-      msg: 'video_snapshot',
+      msg: 'video_frame_snapshot',
       data: {
+        testrun_id: testRunId,
         video_path: videoSummary.path,
         relative_time: videoRef.current.currentTime,
       },
     })
   }
+
+  const onLoadVideoError = useCallback(async () => {
+    if (!videoRef.current) return
+
+    await delay(2)
+    videoRef.current.load()
+  }, [])
+
+  const initializeCropTwoPosXY = useCallback(
+    async (ref: HTMLDivElement) => {
+      if (!defaultFrame) {
+        setCropTwoPosX([0, ref.clientWidth / 2])
+        setCropTwoPosY([0, ref.clientHeight / 2])
+        return
+      }
+
+      try {
+        const imageElement = await loadImage(
+          // FIXME: encodeURIComponent 제거
+          `${AppURL.backendURL}/api/v1/file/download?path=${encodeURIComponent(defaultFrame.path)}`,
+        )
+
+        const frameXScale = imageElement.naturalWidth / ref.clientWidth
+        const frameYScale = imageElement.naturalHeight / ref.clientHeight
+
+        setCropTwoPosX([defaultFrame.roi.x / frameXScale, (defaultFrame.roi.x + defaultFrame.roi.w) / frameXScale])
+        setCropTwoPosY([defaultFrame.roi.y / frameYScale, (defaultFrame.roi.y + defaultFrame.roi.h) / frameYScale])
+      } catch {
+        toast({ status: 'error', title: 'An error has occurred. Please try again.' })
+      }
+    },
+    [defaultFrame, toast],
+  )
 
   if (!isOpen || !videoSummary) return null
   return (
@@ -92,13 +151,7 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose, onSave, defa
 
             setVideoClientWidth(ref.clientWidth)
             setVideoClientHeight(ref.clientHeight)
-            if (defaultROI) {
-              setCropTwoPosX([defaultROI.x, defaultROI.x + defaultROI.w])
-              setCropTwoPosY([defaultROI.y, defaultROI.y + defaultROI.h])
-            } else {
-              setCropTwoPosX([0, ref.clientWidth / 2])
-              setCropTwoPosY([0, ref.clientHeight / 2])
-            }
+            initializeCropTwoPosXY(ref)
           }}
         >
           {scenarioId && testRunId && (
@@ -110,9 +163,12 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose, onSave, defa
                 setVideoWidth(e.currentTarget.videoWidth)
                 setVideoHeight(e.currentTarget.videoHeight)
                 setDuration(e.currentTarget.duration)
-                if (defaultCurrentTime) {
-                  videoRef.current!.currentTime = defaultCurrentTime
+                if (defaultFrame) {
+                  videoRef.current!.currentTime = defaultFrame.relative_time
                 }
+              }}
+              onError={() => {
+                onLoadVideoError()
               }}
             />
           )}
@@ -151,7 +207,7 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose, onSave, defa
               <VideoSnapshotsCursor
                 startDuration={0}
                 endDuration={duration}
-                defaultCurrentTime={defaultCurrentTime}
+                defaultCurrentTime={defaultFrame?.relative_time}
                 changeVideoTimeCallback={(sec) => {
                   if (!videoRef.current) return
                   videoRef.current.currentTime = sec

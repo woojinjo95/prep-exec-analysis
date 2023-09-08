@@ -2,7 +2,7 @@ import React, { useMemo, useRef } from 'react'
 import * as d3 from 'd3'
 import { AreaChart, TimelineTooltip, TimelineTooltipItem, Text } from '@global/ui'
 import { CHART_HEIGHT } from '@global/constant'
-import { useCPU } from '../api/hook'
+import { useCPU } from '@page/AnalysisPage/api/hook'
 import { useTooltipEvent } from '../hook'
 
 interface CPUChartProps {

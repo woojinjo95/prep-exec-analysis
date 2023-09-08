@@ -6,12 +6,14 @@ const cx = classnames.bind(styles)
 
 interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: React.ReactNode
+  size?: 'md' | 'sm'
   colorScheme?: 'charcoal' | 'light' | 'none'
   className?: string
 }
 
 const IconButton: React.FC<IconButtonProps> = ({
   icon,
+  size = 'md',
   colorScheme = 'light',
   type = 'button',
   className,
@@ -22,7 +24,7 @@ const IconButton: React.FC<IconButtonProps> = ({
       // eslint-disable-next-line react/button-has-type
       type={type}
       className={cx(
-        'w-[52px] h-10 rounded-full flex justify-center items-center border transition-all',
+        'rounded-full flex justify-center items-center border transition-all',
         {
           'bg-charcoal': colorScheme === 'charcoal',
           'border-light-charcoal': colorScheme === 'charcoal',
@@ -30,6 +32,9 @@ const IconButton: React.FC<IconButtonProps> = ({
           'active:brightness-95': colorScheme === 'charcoal',
           'bg-white': colorScheme === 'light',
           'border-light-grey': colorScheme === 'light',
+
+          'w-[52px] h-10': size === 'md',
+          'w-8 h-6': size === 'sm',
         },
         className,
       )}

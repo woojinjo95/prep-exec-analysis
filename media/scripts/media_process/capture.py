@@ -81,6 +81,7 @@ def construct_ffmpeg_cmd() -> str:
 
 def start_capture(audio_values: Queue, stop_event: Event):
     capture_configs = get_value('capture')
+    recording_configs = get_value('recording')
     set_device_volume(capture_configs['audio_device'], capture_configs['audio_gain'])
     cmd = construct_ffmpeg_cmd()
     rotation_file_manager = RotationFileManager()
@@ -105,6 +106,12 @@ def start_capture(audio_values: Queue, stop_event: Event):
 
             process.stdin.write(b'q')
             process.stdin.close()
+
+        # time for last video completed
+        for _ in range(int(recording_configs['segment_interval'])):
+            time.sleep(1)
+            if not get_active_capture_process():
+                break
 
         rotation_file_manager.update_completed_file_info()
     finally:

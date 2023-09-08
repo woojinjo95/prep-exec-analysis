@@ -1,21 +1,25 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRecoilValue } from 'recoil'
+import { useNavigate } from 'react-router-dom'
 import { ReactComponent as GoToFirstIcon } from '@assets/images/icon_go_to_first_w.svg'
 import { ReactComponent as StepBackIcon } from '@assets/images/icon_step_back_1sec_w.svg'
 import { ReactComponent as PlayIcon } from '@assets/images/icon_play.svg'
 import { ReactComponent as StepForwardIcon } from '@assets/images/icon_step_forward_1sec_w.svg'
 import { ReactComponent as GoToLastIcon } from '@assets/images/icon_go_to_last_w.svg'
 import { ReactComponent as StopIcon } from '@assets/images/icon_stop.svg'
+import { ReactComponent as RealTimeScreenIcon } from '@assets/images/icon_realtime_screen.svg'
 import { IconButton, Text } from '@global/ui'
 import { cursorDateTimeState, scenarioIdState, testRunIdState } from '@global/atom'
 import { AppURL } from '@global/constant'
 import apiUrls from '@page/AnalysisPage/api/url'
 import { useVideoSummary } from '@global/api/hook'
+import { delay } from '@global/usecase'
 
 /**
  * 결과영상 및 정보 영역
  */
 const VideoDetailSection: React.FC = () => {
+  const navigate = useNavigate()
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
@@ -43,9 +47,29 @@ const VideoDetailSection: React.FC = () => {
     videoRef.current.currentTime = newCurrentTime
   }, [cursorDateTime])
 
+  const onLoadVideoError = useCallback(async () => {
+    if (!videoRef.current) return
+
+    await delay(2)
+    videoRef.current.load()
+  }, [])
+
   return (
     <section className="bg-black text-white grid grid-rows-1 grid-cols-[1fr_1.5fr_1fr]">
       <div className="flex flex-col justify-end py-5 px-6 gap-y-4">
+        <button
+          type="button"
+          className="bg-[#FFFFFFCC] py-3 px-6 flex items-center justify-center absolute top-5 left-6 rounded-full border-2 border-primary cursor-pointer z-10 transition-opacity opacity-50 hover:opacity-100"
+          onClick={() => {
+            navigate('/action')
+          }}
+        >
+          <RealTimeScreenIcon className="w-[18px] h-[15px] mr-2" />
+          <Text colorScheme="dark" weight="medium">
+            Real-time Screen
+          </Text>
+        </button>
+
         <Text colorScheme="light" weight="medium">
           {currentTimeLabel}
         </Text>
@@ -112,7 +136,6 @@ const VideoDetailSection: React.FC = () => {
             className="h-full aspect-video"
             src={`${AppURL.backendURL}${apiUrls.partial_video}?scenario_id=${scenarioId}&testrun_id=${testRunId}`}
             muted
-            controls
             loop={false}
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
@@ -123,6 +146,9 @@ const VideoDetailSection: React.FC = () => {
             onTimeUpdate={() => {
               if (!videoRef.current) return
               setCurrentTime(videoRef.current.currentTime)
+            }}
+            onError={() => {
+              onLoadVideoError()
             }}
           />
         )}

@@ -1,9 +1,7 @@
 import { AxiosError } from 'axios'
-import { Response } from '@global/api/entity'
 import API from '@global/api'
 import { AnalysisConfig } from '@page/AnalysisPage/api/entity'
 import { AnalysisType } from '@global/constant'
-import { AnalysisResultSummary } from './entity'
 import apiUrls from './url'
 
 /**
@@ -43,18 +41,23 @@ export const deleteAnalysisConfig = async ({
 }
 
 /**
- * 분석 결과(요약 데이터) 조회 api
+ * 분석 시작 api
  */
-export const getAnalysisResultSummary = async (params: {
-  start_time: string
-  end_time: string
-  scenario_id?: string
-  testrun_id?: string
+export const postAnalysis = async ({
+  scenario_id,
+  testrun_id,
+  measurement,
+}: {
+  scenario_id: string
+  testrun_id: string
+  measurement: (keyof typeof AnalysisType)[]
 }) => {
   try {
-    const result = await API.get<Response<AnalysisResultSummary>>(apiUrls.analysis_result_summary, { params })
-
-    return result.data.items
+    await API.post(apiUrls.analysis, {
+      scenario_id,
+      testrun_id,
+      measurement,
+    })
   } catch (err) {
     const er = err as AxiosError
     throw er

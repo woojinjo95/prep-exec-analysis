@@ -1,6 +1,6 @@
 import numpy as np
 from typing import Tuple
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 class FrameInfo:
@@ -9,14 +9,11 @@ class FrameInfo:
         self.cursor = cursor  # x,y,w,h
 
 
+@dataclass
 class NodeInfo:
-    def __init__(self, image: np.ndarray, cursor: Tuple[int, int, int, int], 
-                 name: str='', cursor_image: np.ndarray=None):
-        self.name = name
-        self.image = image
-        self.cursor = cursor  # x,y,w,h
-        self.cursor_image = cursor_image
-
+    image: field(default_factory=lambda: np.array([]), repr=False)
+    cursor: Tuple[int, int, int, int] = (0, 0, 0, 0)  # x,y,w,h
+    is_leaf: bool = False
 
 
 @dataclass
@@ -31,3 +28,10 @@ class RemoconInfo:
     remocon_name: str
     remote_control_type: str
 
+
+@dataclass
+class Cursor:
+    x: int
+    y: int
+    w: int
+    h: int

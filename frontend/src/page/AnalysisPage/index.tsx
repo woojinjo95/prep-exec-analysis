@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react'
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
+import { useNavigate } from 'react-router-dom'
 import { PageContainer, Text } from '@global/ui'
 import { useVideoSummary } from '@global/api/hook'
 import { AppURL } from '@global/constant'
 import { cursorDateTimeState, scenarioIdState, testRunIdState, videoBlobURLState } from '@global/atom'
 
-import { useNavigate } from 'react-router-dom'
 import LogTraceSection from './components/LogTraceSection'
 import VideoDetailSection from './components/VideoDetailSection'
 import TimelineSection from './components/TimelineSection'
@@ -24,15 +24,14 @@ const AnalysisPage: React.FC = () => {
   const setVideoBlobURL = useSetRecoilState(videoBlobURLState)
   const [cursorDateTime, setCursorDateTime] = useRecoilState(cursorDateTimeState)
 
-  // 서비스 진입 시 선택된 시나리오 id가 없을 경우 -> 시나리오 선택 페이지로 이동
-  // FIXME: testRunId가 없을때는 ..?
+  // 분석페이지 진입 시 선택된 시나리오 id 또는 테스트한 테스트런 id가 없을 경우 -> 시나리오 선택 페이지로 이동
   useEffect(() => {
     if (!scenarioId || !testRunId) {
       navigate('/', { replace: true })
     }
   }, [])
 
-  // testrun 시작시간으로 cursorDateTime 초기값 설정
+  // testrun 시작시간(= videoSummary)으로 cursorDateTime 초기값 설정
   useEffect(() => {
     if (!!cursorDateTime || !videoSummary) return
     setCursorDateTime(new Date(videoSummary.start_time))

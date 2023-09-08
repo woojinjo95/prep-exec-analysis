@@ -237,9 +237,13 @@ const AddIntelligentMonkeyTestBlockModal: React.FC<AddIntelligentMonkeyTestBlock
 
               postBlockMutate({
                 newBlock: {
-                  type: 'intelligent_monkey_test',
+                  type: 'monkey_test',
                   name: 'Intelligent Monkey Test',
                   args: [
+                    {
+                      key: 'type',
+                      value: 'intelligent_monkey_test',
+                    },
                     {
                       key: 'profile',
                       value: profile.toLowerCase(),
@@ -263,6 +267,10 @@ const AddIntelligentMonkeyTestBlockModal: React.FC<AddIntelligentMonkeyTestBlock
                     {
                       key: 'remote_control_type',
                       value: hardwareConfiguration.remote_control_type,
+                    },
+                    {
+                      key: 'waiting_time',
+                      value: waitingTime,
                     },
                   ],
                   delay_time: 3000,

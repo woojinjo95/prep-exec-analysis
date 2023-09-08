@@ -1,20 +1,21 @@
 import React from 'react'
-import { Accordion, Text } from '@global/ui'
+import { Accordion, Text, SimpleButton } from '@global/ui'
 import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.svg'
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
 // import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
-import { numberWithCommas } from '@global/usecase'
+import { convertDuration, numberWithCommas } from '@global/usecase'
+import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { AnalysisTypeLabel, BootTypeLabel } from '../../../constant'
-import { AnalysisResultSummary } from '../../../api/entity'
 
 interface BootSummaryResultItemProps {
-  results: NonNullable<AnalysisResultSummary['boot']>
+  boot: NonNullable<AnalysisResultSummary['boot']>
+  setRawDataModalType: React.Dispatch<React.SetStateAction<keyof AnalysisResultSummary | null>>
 }
 
 /**
  * boot 분석결과 요약 아이템
  */
-const BootSummaryResultItem: React.FC<BootSummaryResultItemProps> = ({ results }) => {
+const BootSummaryResultItem: React.FC<BootSummaryResultItemProps> = ({ boot, setRawDataModalType }) => {
   return (
     <Accordion
       header={
@@ -23,8 +24,7 @@ const BootSummaryResultItem: React.FC<BootSummaryResultItemProps> = ({ results }
             <div
               className="w-4 h-4"
               style={{
-                // TODO:
-                backgroundColor: 'white',
+                backgroundColor: boot.color,
               }}
             />
             <Text size="sm" weight="medium">
@@ -32,7 +32,7 @@ const BootSummaryResultItem: React.FC<BootSummaryResultItemProps> = ({ results }
             </Text>
           </div>
 
-          <Text weight="medium">{numberWithCommas(results.reduce((acc, curr) => acc + curr.total, 0))} times</Text>
+          <Text weight="medium">{numberWithCommas(boot.results.reduce((acc, curr) => acc + curr.total, 0))} times</Text>
         </div>
       }
     >
@@ -50,14 +50,14 @@ const BootSummaryResultItem: React.FC<BootSummaryResultItemProps> = ({ results }
           </Text>
           <div />
 
-          {results.map(({ total, target, avg_time }, index) => (
+          {boot.results.map(({ total, target, avg_time }, index) => (
             <React.Fragment key={`boot-summary-result-item-${index}`}>
               <Text size="sm">{BootTypeLabel[target]}</Text>
               <Text size="sm" className="text-right">
                 {numberWithCommas(total)}
               </Text>
               <Text size="sm" className="text-right">
-                {numberWithCommas(avg_time)} ms
+                {convertDuration(avg_time)}
               </Text>
               <button type="button">
                 <ShowEyeIcon className="w-5" />
@@ -66,11 +66,12 @@ const BootSummaryResultItem: React.FC<BootSummaryResultItemProps> = ({ results }
           ))}
         </div>
 
-        <button type="button" className="flex justify-end items-center gap-x-3">
-          {/* TODO: open raw data modal */}
+        <SimpleButton colorScheme="charcoal" className="ml-auto" onClick={() => setRawDataModalType('boot')}>
           <ShowRawDataIcon className="w-4 h-4" />
-          <Text>Show Raw Data</Text>
-        </button>
+          <Text colorScheme="light" weight="medium">
+            Show Raw Data
+          </Text>
+        </SimpleButton>
       </div>
     </Accordion>
   )
