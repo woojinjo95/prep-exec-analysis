@@ -49,7 +49,7 @@ def measure_channel_zapping():
     channel_key_inputs = get_channel_key_inputs(event_log, targets)  # channel key: all number key, ok key, channelup key, channeldown key
 
     event_infos = get_channel_zapping_event_infos(igmp_join_infos, channel_key_inputs,
-                                                        igmp_join_time_margin=get_setting_with_env('IGMP_JOIN_TIME_MARGIN', 5))
+                                                    igmp_join_time_margin=get_setting_with_env('IGMP_JOIN_TIME_MARGIN', 5))
 
     with tempfile.TemporaryDirectory(dir='/tmp') as output_dir:
 
