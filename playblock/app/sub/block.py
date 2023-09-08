@@ -95,7 +95,7 @@ async def run_blocks(conn, db_blocks, scenario_id, testrun_id, blocks: list, eve
         print(e)
         print(traceback.format_exc())
     finally:
-        await set_stop_state(conn)
+        await set_stop_state(conn, event)
         await conn.publish(CHANNEL_NAME, publish_message("end_playblock"))
         print("run_blocks end")
 
@@ -137,6 +137,6 @@ async def run_analysis(conn, db_blocks, scenario_id, testrun_id, blocks: list, e
         print(e)
         print(traceback.format_exc())
     finally:
-        await set_stop_state(conn)
+        await set_stop_state(conn, event)
         await conn.publish(CHANNEL_NAME, publish_message("end_analysis"))
         print("run_analysis end")
