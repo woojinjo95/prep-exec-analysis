@@ -193,7 +193,6 @@ def create_scenario(
                                                     'tags': scenario_in.tags,
                                                     'block_group': block_group_data,
                                                     'testruns': [{'id': testrun_id,
-                                                                  'last_updated_timestamp': None,
                                                                   'raw': {'videos': []},
                                                                   'analysis': {}}]})
 
@@ -275,10 +274,9 @@ def copy_scenario(
                                                     'name': scenario_in.name,
                                                     'tags': scenario_in.tags,
                                                     'block_group': block_group_data,
-                                                    'testruns': testruns if testruns else {'id': testrun_id,
-                                                                                           'last_updated_timestamp': None,
-                                                                                           'raw': {'videos': []},
-                                                                                           'analysis': {}}})
+                                                    'testruns': [testruns] if testruns else [{'id': testrun_id,
+                                                                                              'raw': {'videos': []},
+                                                                                              'analysis': {}}]})
 
         # 워크스페이스 변경
         RedisClient.hset('testrun', 'id', testrun_id)
