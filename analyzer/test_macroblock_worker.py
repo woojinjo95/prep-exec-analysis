@@ -3,7 +3,7 @@ import cv2
 
 worker = Worker()
 
-video_path = '/app/data/videos/2020-11-11_16-00-00.mp4'
+video_path = '/app/workspace/testruns/2023-08-14T054428F718593/raw/videos/video_2023-08-22T172921F075886+0900_1800.mp4'
 cap = cv2.VideoCapture(video_path)
 
 index = 0
