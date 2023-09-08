@@ -72,6 +72,7 @@ async def run_blocks(conn, db_blocks, scenario_id, testrun_id, blocks: list, eve
             print("wait... message response")
             try:
                 # 몽키테스트는 완료 대기
+                # TODO: 3200 삭제 후 테스트 필요
                 print(f"monkey test wait...{block['type']}")
                 if block['type'] == 'monkey_test':
                     await asyncio.wait_for(event.wait(), 3200)
@@ -120,7 +121,8 @@ async def run_analysis(conn, db_blocks, scenario_id, testrun_id, blocks: list, e
 
             try:
                 # 몽키테스트는 완료 대기
-                await asyncio.wait_for(event.wait(), 3200)
+                # TODO: 3200 삭제 후 테스트 필요
+                await asyncio.wait_for(event.wait(), 60)
             except Exception as e:
                 print(e)
             # try:
