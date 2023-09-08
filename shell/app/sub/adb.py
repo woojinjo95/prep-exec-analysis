@@ -68,6 +68,10 @@ async def consumer_adb_handler(conn: any, shell_id: int, proc: any, CHANNEL_NAME
                     await conn.publish(CHANNEL_NAME, json.dumps({
                         "msg": "shell_response",
                         "level": "info",
+                        "data": {
+                            "mode": "adb",
+                            "command": command
+                        },
                         "service": "shell",
                         "timestamp": datetime.utcnow().timestamp()
                     }))
