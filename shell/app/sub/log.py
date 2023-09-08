@@ -16,7 +16,8 @@ async def process_log_queue(queue: asyncio.Queue, conn: any, CHANNEL_NAME: str, 
             # 입력명령의 경우 응답처리 해줌
             if data['module'] == 'stdin':
                 msg = "shell_response"
-            await conn.publish(CHANNEL_NAME, json.dumps({
+            
+            message = {
                 "msg": msg,
                 "level": "debug",
                 "data": {
@@ -25,7 +26,10 @@ async def process_log_queue(queue: asyncio.Queue, conn: any, CHANNEL_NAME: str, 
                 },
                 "service": "shell",
                 "timestamp": data['timestamp']
-            }))
+            }
+            message_dump = json.dumps(message)
+            print(f"process_log_queue => {message_dump}")
+            await conn.publish(CHANNEL_NAME, message_dump)
             buffer.append(data)
             queue.task_done()
             await asyncio.sleep(0.01)
