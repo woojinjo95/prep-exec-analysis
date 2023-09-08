@@ -227,7 +227,7 @@ export const getTestrun = async (params: { scenario_id: string }) => {
  */
 export const deleteTestrun = async ({ scenario_id, testrun_id }: { scenario_id: string; testrun_id: string }) => {
   try {
-    await API.post<{ msg: string }>(`${apiUrls.testrun}/${scenario_id}/${testrun_id}`)
+    await API.delete<{ msg: string }>(`${apiUrls.testrun}/${scenario_id}/${testrun_id}`)
   } catch (err) {
     const er = err as AxiosError
     throw er
