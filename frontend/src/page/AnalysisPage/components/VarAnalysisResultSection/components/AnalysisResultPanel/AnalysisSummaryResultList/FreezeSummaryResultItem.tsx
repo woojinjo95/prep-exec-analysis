@@ -1,5 +1,5 @@
 import React from 'react'
-import { Accordion, Text } from '@global/ui'
+import { Accordion, SimpleButton, Text } from '@global/ui'
 import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.svg'
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
 // import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
@@ -9,12 +9,13 @@ import { AnalysisTypeLabel, FreezeTypeLabel } from '../../../constant'
 
 interface FreezeSummaryResultItemProps {
   freeze: NonNullable<AnalysisResultSummary['freeze']>
+  setRawDataModalType: React.Dispatch<React.SetStateAction<keyof AnalysisResultSummary | null>>
 }
 
 /**
  * freeze 분석결과 요약 아이템
  */
-const FreezeSummaryResultItem: React.FC<FreezeSummaryResultItemProps> = ({ freeze }) => {
+const FreezeSummaryResultItem: React.FC<FreezeSummaryResultItemProps> = ({ freeze, setRawDataModalType }) => {
   return (
     <Accordion
       header={
@@ -61,11 +62,12 @@ const FreezeSummaryResultItem: React.FC<FreezeSummaryResultItemProps> = ({ freez
           ))}
         </div>
 
-        <button type="button" className="flex justify-end items-center gap-x-3">
-          {/* TODO: open raw data modal */}
+        <SimpleButton colorScheme="charcoal" className="ml-auto" onClick={() => setRawDataModalType('freeze')}>
           <ShowRawDataIcon className="w-4 h-4" />
-          <Text>Show Raw Data</Text>
-        </button>
+          <Text colorScheme="light" weight="medium">
+            Show Raw Data
+          </Text>
+        </SimpleButton>
       </div>
     </Accordion>
   )

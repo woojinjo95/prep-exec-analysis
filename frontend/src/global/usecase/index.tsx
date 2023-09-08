@@ -179,3 +179,39 @@ export const delay = (sec: number): Promise<void> => {
     setTimeout(resolve, sec * 1000)
   })
 }
+
+/**
+ * 시간의 차이를 ms부터 일 단위까지 계산하여 표시해주는 함수
+ *
+ * @param duration 지속시간(ms)
+ */
+export const convertDuration = (duration: number) => {
+  const date = new Date(duration)
+
+  // 1일 이상
+  if (duration > 24 * 60 * 60 * 1000) {
+    return `${duration / (24 * 60 * 60 * 1000)}d ${date.getHours()}h ${date.getMinutes()}m ${date.getSeconds()}s`
+  }
+
+  // 1시간 이상
+  if (duration > 60 * 60 * 1000) {
+    return `${date.getHours()}h ${date.getMinutes()}m ${date.getSeconds()}s`
+  }
+
+  // 1분 이상
+  if (duration > 60 * 1000) {
+    return `${date.getMinutes()}m ${date.getSeconds()}s`
+  }
+
+  // 3초 이상
+  if (duration > 3 * 1000) {
+    return `${date.getSeconds()}s`
+  }
+
+  // 1초 이상
+  if (duration > 1000) {
+    return `${numberWithCommas(date.getSeconds() * 1000 + date.getMilliseconds())}ms`
+  }
+
+  return `${date.getMilliseconds()}ms`
+}

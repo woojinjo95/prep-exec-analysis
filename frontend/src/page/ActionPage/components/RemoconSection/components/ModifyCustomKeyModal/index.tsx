@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Button, Input, Modal } from '@global/ui'
 import { useMutation, useQuery } from 'react-query'
-import { getRemocon, postCustomKey, putCustomKey } from '../../api/func'
+import { getRemocon, putCustomKey } from '../../api/func'
 import { CustomKey, Remocon } from '../../api/entity'
 
 interface ModifyCustomKeyModalProps {

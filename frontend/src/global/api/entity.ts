@@ -153,7 +153,6 @@ export interface TestRun {
  * 분석 설정 아이템 Frame
  */
 export interface AnalysisFrame {
-  id: string
   relative_time: number // second
   path: string
   roi: {

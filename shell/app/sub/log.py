@@ -5,7 +5,7 @@ from datetime import datetime
 from .mongodb import get_collection
 
 
-async def process_log_queue(queue: asyncio.Queue, conn: any, CHANNEL_NAME: str, mode: str, shell_id: int):
+async def process_log_queue(queue: asyncio.Queue, conn: any, CHANNEL_NAME: str, mode: str):
     buffer = []
     collection = get_collection()
     print("process_log_queue")

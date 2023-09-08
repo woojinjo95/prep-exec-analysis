@@ -71,8 +71,7 @@ const BootAnalysisItem: React.FC<BootAnalysisItemProps> = ({
           </div>
 
           <SetROIButton
-            defaultCurrentTime={frame?.relative_time}
-            defaultROI={frame?.roi}
+            defaultFrame={frame}
             onSave={(frame) => {
               setUnsavedAnalysisConfig((prev) => ({
                 ...prev,

@@ -120,7 +120,6 @@ const VideoDetailSection: React.FC = () => {
             className="h-full aspect-video"
             src={`${AppURL.backendURL}${apiUrls.partial_video}?scenario_id=${scenarioId}&testrun_id=${testRunId}`}
             muted
-            controls
             loop={false}
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
