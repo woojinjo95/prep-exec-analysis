@@ -20,7 +20,7 @@ class Worker:
         self.input_shape = get_setting_with_env('MODEL_INPUT_SHAPE', (224, 224, 3))
 
         model_dir_url = get_setting_with_env('TF_MODEL_URL')
-        model_output_dir = get_setting_with_env('MODEL_SAVE_DIR', '/app/data/models')
+        model_output_dir = get_setting_with_env('MODEL_SAVE_DIR', '/app/workspace/macroblock_models')
         self.macroblock_model = MacroblockModel(model_dir_url=model_dir_url, model_output_dir=model_output_dir)
 
         self.discriminator = CrackDiscriminator(crack_score_thld=get_setting_with_env('CRACK_SCORE_THLD', 0.995),

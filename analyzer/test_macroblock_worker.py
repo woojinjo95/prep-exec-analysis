@@ -1,5 +1,6 @@
 from scripts.analysis.macroblock.worker import Worker
 import cv2
+import time
 
 worker = Worker()
 
@@ -8,9 +9,11 @@ cap = cv2.VideoCapture(video_path)
 
 index = 0
 while True:
+    start_time = time.time()
     ret, frame = cap.read()
     if not ret:
         break
     result = worker.process_image(frame)
-    print(f'{index}: {result}')
+    delay = time.time() - start_time
+    print(f'{index}: {result}, delay: {delay}')
     index += 1
