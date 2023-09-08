@@ -8,6 +8,8 @@ import numpy as np
 from scripts.models.tf_model import MacroblockModel
 from scripts.config.config import get_setting_with_env
 from scripts.image_util import split_image_with_shape
+from scripts.discriminator.crack_discriminator import CrackDiscriminator
+from scripts.format import ClassificationResult, ImageSplitResult
 
 
 logger = logging.getLogger('main')
@@ -21,57 +23,70 @@ class Worker:
         model_output_dir = get_setting_with_env('MODEL_SAVE_DIR', '/app/data/models')
         self.macroblock_model = MacroblockModel(model_dir_url=model_dir_url, model_output_dir=model_output_dir)
 
-    def process_image(self, image: np.ndarray) -> bool:
-        patches = self.preprocess_image(image)
-        results = self.predict_with_patch_images(patches)
-        result = self.postprocess_result(results)
-        return result
+        self.discriminator = CrackDiscriminator(crack_score_thld=get_setting_with_env('CRACK_SCORE_THLD', 0.995),
+                                                continuity_set_interval=get_setting_with_env('CONTINUITY_SET_INTERVAL', 300), 
+                                                continuity_hold_interval=get_setting_with_env('CONTINUITY_HOLD_INTERVAL', 50),
+                                                crack_patch_ratio=get_setting_with_env('CRACK_PATCH_RATIO', 0.2),
+                                                row_crack_patch_ratio=get_setting_with_env('ROW_CRACK_PATCH_RATIO', 0.5))
 
-    def preprocess_image(self, image: np.ndarray) -> List[np.ndarray]:
+    def process_image(self, image: np.ndarray) -> bool:
+        try:
+            split_result = self.preprocess_image(image)
+            cls_result = self.predict_with_patch_images(split_result.patches)
+            result = self.postprocess_result(cls_result, split_result)
+            return result
+        except Exception as err:
+            logger.error(f'error in process_image. {err}')
+            logger.warning(traceback.format_exc())
+
+    def preprocess_image(self, image: np.ndarray) -> ImageSplitResult:
         split_result = split_image_with_shape(image, self.input_shape)
         logger.info(f'image_shape: {image.shape}, row_num: {split_result.row_num}, col_num: {split_result.col_num}')
-        return split_result.patches
+        return split_result
 
-    def predict_with_patch_images(self, images: List[np.ndarray]) -> dict:
-        try:
-            start_time = time.time()
+    def postprocess_result(self, cls_results: ClassificationResult, split_result: ImageSplitResult) -> bool:
+        self.discriminator.update(cls_results.scores, split_result.row_num, split_result.col_num, 60, time.time())
+        summary = self.discriminator.get_summary()
 
-            image_count = len(images)
-            logger.debug(f'image count: {image_count}')
-            batch = np.array(images)
-            logger.info(f'batch shape: {batch.shape}')
 
-            # model predict with batch input datas
-            start_pred_time = time.time()
-            logger.debug('Start Prediction.')
-            pred_result = self.macroblock_model.predict_with_preprocess(batch)
-            logger.debug('End Prediction.')
-            pred_delay = time.time() - start_pred_time
+        return summary
 
-            # check validation
-            logger.info(f'result shape: {pred_result.shape}')
-            if int(pred_result.shape[0]) != image_count:
-                logger.error(
-                    f'image count and result length are diffrent. image count: {image_count} / result length: {pred_result.shape[0]}')
-                raise Exception('invalid image count')
 
-            scores = pred_result.tolist()
-            # extract only true
-            scores = [float(pred[1]) for pred in pred_result]
+    def predict_with_patch_images(self, images: List[np.ndarray]) -> ClassificationResult:
+        start_time = time.time()
 
-            total_delay = time.time() - start_time
-            logger.info(f'Total Delay: {round(total_delay, 4)} / Prediction Delay: {round(pred_delay, 4)}')
+        image_count = len(images)
+        logger.debug(f'image count: {image_count}')
+        batch = np.array(images)
+        logger.info(f'batch shape: {batch.shape}')
 
-            # return result
-            result = {
-                'scores': scores,  # [[0.99, 0.01], [0.88, 0.12], ... ]
-                'model_input_shape': self.macroblock_model.input_shape,  # (224, 224, 3)
-                'total_delay': total_delay,  # 0.05 sec
-                'pred_delay': pred_delay  # 0.02 sec
-            }
-            logger.debug(f'result: {result}')
-            return result
+        # model predict with batch input datas
+        start_pred_time = time.time()
+        logger.debug('Start Prediction.')
+        pred_result = self.macroblock_model.predict_with_preprocess(batch)
+        logger.debug('End Prediction.')
+        pred_delay = time.time() - start_pred_time
 
-        except Exception as err:
-            logger.error(f'error in predict => {traceback.format_exc()}')
-            raise Exception('error in predict')
+        # check validation
+        logger.info(f'result shape: {pred_result.shape}')
+        if int(pred_result.shape[0]) != image_count:
+            logger.error(
+                f'image count and result length are diffrent. image count: {image_count} / result length: {pred_result.shape[0]}')
+            raise Exception('invalid image count')
+
+        scores = pred_result.tolist()
+        # extract only true
+        scores = [float(pred[1]) for pred in pred_result]
+
+        total_delay = time.time() - start_time
+        logger.info(f'Total Delay: {round(total_delay, 4)} / Prediction Delay: {round(pred_delay, 4)}')
+
+        # return result
+        result = ClassificationResult(
+            scores=scores,
+            model_input_shape=self.macroblock_model.input_shape,
+            total_delay=total_delay,
+            pred_delay=pred_delay
+        )
+        logger.debug(f'result: {result}')
+        return result
