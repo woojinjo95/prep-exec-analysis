@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { PageContainer, Text } from '@global/ui'
 import { useVideoSummary } from '@global/api/hook'
