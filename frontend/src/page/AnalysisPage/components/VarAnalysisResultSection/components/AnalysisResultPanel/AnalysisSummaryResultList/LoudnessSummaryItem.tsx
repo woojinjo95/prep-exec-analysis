@@ -4,14 +4,14 @@ import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { dropDecimalPoint } from '@global/usecase'
 import { AnalysisTypeLabel } from '../../../constant'
 
-interface LoudnessSummaryResultItemProps {
+interface LoudnessSummaryItemProps {
   loudness: NonNullable<AnalysisResultSummary['loudness']>
 }
 
 /**
  * loudness 분석결과 요약 아이템
  */
-const LoudnessSummaryResultItem: React.FC<LoudnessSummaryResultItemProps> = ({ loudness }) => {
+const LoudnessSummaryItem: React.FC<LoudnessSummaryItemProps> = ({ loudness }) => {
   return (
     <Accordion
       header={
@@ -35,4 +35,4 @@ const LoudnessSummaryResultItem: React.FC<LoudnessSummaryResultItemProps> = ({ l
   )
 }
 
-export default LoudnessSummaryResultItem
+export default LoudnessSummaryItem

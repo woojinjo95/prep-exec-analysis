@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
-import FreezeSummaryResultItem from './FreezeSummaryResultItem'
-import LoudnessSummaryResultItem from './LoudnessSummaryResultItem'
-import ResumeSummaryResultItem from './ResumeSummaryResultItem'
-import BootSummaryResultItem from './BootSummaryResultItem'
-// import ChannelChangeTimeSummaryResultItem from './ChannelChangeTimeSummaryResultItem'
-import LogLevelFinderSummaryResultItem from './LogLevelFinderSummaryResultItem'
-import LogPatternMatchingSummaryResultItem from './LogPatternMatchingSummaryResultItem'
+import FreezeSummaryItem from './FreezeSummaryItem'
+import LoudnessSummaryItem from './LoudnessSummaryItem'
+import ResumeSummaryItem from './ResumeSummaryItem'
+import BootSummaryItem from './BootSummaryItem'
+// import ChannelChangeTimeSummaryItem from './ChannelChangeTimeSummaryItem'
+import LogLevelFinderSummaryItem from './LogLevelFinderSummaryItem'
+import LogPatternMatchingSummaryItem from './LogPatternMatchingSummaryItem'
 import ResumeRawDataModal from './ResumeRawDataModal'
 import LogPatternMatchingRawDataModal from './LogPatternMatchingRawDataModal'
 import BootRawDataModal from './BootRawDataModal'
@@ -27,14 +27,14 @@ const AnalysisSummaryResultList: React.FC<AnalysisSummaryResultListProps> = ({ s
   if (!summary || !startTime || !endTime) return null
   return (
     <div className="overflow-y-auto flex flex-col gap-y-1">
-      {summary.freeze && <FreezeSummaryResultItem freeze={summary.freeze} setRawDataModalType={setRawDataModalType} />}
-      {summary.loudness && <LoudnessSummaryResultItem loudness={summary.loudness} />}
-      {summary.resume && <ResumeSummaryResultItem resume={summary.resume} setRawDataModalType={setRawDataModalType} />}
-      {summary.boot && <BootSummaryResultItem boot={summary.boot} setRawDataModalType={setRawDataModalType} />}
-      {/* <ChannelChangeTimeSummaryResultItem /> */}
-      {summary.log_level_finder && <LogLevelFinderSummaryResultItem logLevelFinder={summary.log_level_finder} />}
+      {summary.freeze && <FreezeSummaryItem freeze={summary.freeze} setRawDataModalType={setRawDataModalType} />}
+      {summary.loudness && <LoudnessSummaryItem loudness={summary.loudness} />}
+      {summary.resume && <ResumeSummaryItem resume={summary.resume} setRawDataModalType={setRawDataModalType} />}
+      {summary.boot && <BootSummaryItem boot={summary.boot} setRawDataModalType={setRawDataModalType} />}
+      {/* <ChannelChangeTimeSummaryItem /> */}
+      {summary.log_level_finder && <LogLevelFinderSummaryItem logLevelFinder={summary.log_level_finder} />}
       {summary.log_pattern_matching && (
-        <LogPatternMatchingSummaryResultItem
+        <LogPatternMatchingSummaryItem
           logPatternMatching={summary.log_pattern_matching}
           setRawDataModalType={setRawDataModalType}
         />

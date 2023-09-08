@@ -9,7 +9,7 @@ import { bootTypeFilterListState } from '@global/atom'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { AnalysisTypeLabel, BootTypeLabel } from '../../../constant'
 
-interface BootSummaryResultItemProps {
+interface BootSummaryItemProps {
   boot: NonNullable<AnalysisResultSummary['boot']>
   setRawDataModalType: React.Dispatch<React.SetStateAction<keyof AnalysisResultSummary | null>>
 }
@@ -17,7 +17,7 @@ interface BootSummaryResultItemProps {
 /**
  * boot 분석결과 요약 아이템
  */
-const BootSummaryResultItem: React.FC<BootSummaryResultItemProps> = ({ boot, setRawDataModalType }) => {
+const BootSummaryItem: React.FC<BootSummaryItemProps> = ({ boot, setRawDataModalType }) => {
   const [bootTypeFilterList, setBootTypeFilterList] = useRecoilState(bootTypeFilterListState)
 
   return (
@@ -95,4 +95,4 @@ const BootSummaryResultItem: React.FC<BootSummaryResultItemProps> = ({ boot, set
   )
 }
 
-export default BootSummaryResultItem
+export default BootSummaryItem

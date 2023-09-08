@@ -9,7 +9,7 @@ import { logPatternMatchingNameFilterListState } from '@global/atom'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { AnalysisTypeLabel } from '../../../constant'
 
-interface LogPatternMatchingSummaryResultItemProps {
+interface LogPatternMatchingSummaryItemProps {
   logPatternMatching: NonNullable<AnalysisResultSummary['log_pattern_matching']>
   setRawDataModalType: React.Dispatch<React.SetStateAction<keyof AnalysisResultSummary | null>>
 }
@@ -17,7 +17,7 @@ interface LogPatternMatchingSummaryResultItemProps {
 /**
  * log pattern matching 분석 결과 아이템
  */
-const LogPatternMatchingSummaryResultItem: React.FC<LogPatternMatchingSummaryResultItemProps> = ({
+const LogPatternMatchingSummaryItem: React.FC<LogPatternMatchingSummaryItemProps> = ({
   logPatternMatching,
   setRawDataModalType,
 }) => {
@@ -110,4 +110,4 @@ const LogPatternMatchingSummaryResultItem: React.FC<LogPatternMatchingSummaryRes
   )
 }
 
-export default LogPatternMatchingSummaryResultItem
+export default LogPatternMatchingSummaryItem
