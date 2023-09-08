@@ -32,12 +32,14 @@ def test_log_pattern_matching():
 
 
 def task_log_pattern_matching(args: VideoInfo, config: Dict):
+    progress_manager = ProgressManager(Command.LOG_PATTERN_MATCHING.value)
     log_data = get_data_of_log(args.timestamps[0], args.timestamps[-1])
     # log_data = get_data_of_log(time.time() - 600, time.time() - 300)
     target_items = config['items']
+    log_datas = log_data['items']
 
     count = 0
-    for log in log_data['items']:
+    for idx, log in enumerate(log_datas):
         matched_target = check_log_pattern_match(log, target_items)
         if matched_target:
             # logger.info(f'log: {log}')
@@ -46,6 +48,7 @@ def task_log_pattern_matching(args: VideoInfo, config: Dict):
                 'matched_target': matched_target
             })
             count += 1
+        progress_manager.update_progress(idx / log_datas)
     logger.info(f'matched log count: {count}')
 
 
