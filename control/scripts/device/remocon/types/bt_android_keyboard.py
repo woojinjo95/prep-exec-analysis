@@ -30,6 +30,7 @@ class BTAndroidKeyboard(AbstractRemocon):
         self.redis_connection = get_strict_redis_connection()
         self.error_count = 0
         self.time_offset = 0.0005
+        self.lcd_functions = LCDStrings()
 
     # pronto_code 로 직접 리모콘 명령
 
@@ -87,7 +88,8 @@ class BTAndroidKeyboard(AbstractRemocon):
     def lcd_command(self, key: str):
         with serial.Serial(self.serial_device.serial_port.value, self.serial_device.baud_rate, timeout=1) as ser:
             func_str, arg = [key.split(':') + [None]][:2]
-            for string in attrgetter(func_str)(arg):
+            for string in attrgetter(self.lcd_functions)(func_str)(arg):
+                # attrgetter(self.lcd_functions)(func_str)(arg) is same to self.lcd_functions.{func_str}(arg)
                 start_time = time.time()  # count last command
                 ser.write(string)
             event_time = start_time + self.time_offset
