@@ -1,22 +1,29 @@
 import { useToast } from '@chakra-ui/react'
 import { ScenarioSummary } from '@global/api/entity'
-import { getTag, postTag } from '@global/api/func'
+import { deleteScenario, getTag, postTag, putScenario } from '@global/api/func'
+import { useScenarioById } from '@global/api/hook'
 import { Modal, Text, Input, Button, Select, Tag, TagItem } from '@global/ui'
 import { AxiosError } from 'axios'
 import React, { useMemo, useRef, useState } from 'react'
 import { useMutation, useQuery } from 'react-query'
 
 interface ModifyProjectModalProps {
-  scenario: ScenarioSummary
+  scenarioSummary: ScenarioSummary
   isOpen: boolean
   close: () => void
+  scenariosRefetch: () => void
 }
 
-const ModifyProjectModal: React.FC<ModifyProjectModalProps> = ({ isOpen, close, scenario }) => {
+const ModifyProjectModal: React.FC<ModifyProjectModalProps> = ({
+  isOpen,
+  close,
+  scenarioSummary,
+  scenariosRefetch,
+}) => {
   const toast = useToast({ duration: 3000, isClosable: true })
 
-  const [scenarioName, setScenarioName] = useState<string>(scenario.name)
-  const [scenarioTags, setScenarioTags] = useState<string[]>(scenario.tags)
+  const [scenarioName, setScenarioName] = useState<string>(scenarioSummary.name)
+  const [scenarioTags, setScenarioTags] = useState<string[]>(scenarioSummary.tags)
   const [tagInput, setTagInput] = useState<string>('')
 
   const firstFocusableElementRef = useRef<HTMLInputElement>(null)
@@ -31,6 +38,8 @@ const ModifyProjectModal: React.FC<ModifyProjectModalProps> = ({ isOpen, close, 
     return tags.filter((tag) => tag.includes(tagInput) && scenarioTags.find((_tag) => _tag === tag) === undefined)
   }, [tagInput, tags, scenarioTags])
 
+  const { scenario } = useScenarioById({ scenarioId: scenarioSummary.id })
+
   const { mutate: postTagMutate } = useMutation(postTag, {
     onSuccess: () => {
       tagRefetch()
@@ -40,6 +49,18 @@ const ModifyProjectModal: React.FC<ModifyProjectModalProps> = ({ isOpen, close, 
         toast({ status: 'error', title: 'Tag name duplicated' })
       }
       console.error(err)
+    },
+  })
+
+  const { mutate: putScenarioMutate } = useMutation(putScenario, {
+    onSuccess: () => {
+      scenariosRefetch()
+      close()
+    },
+    onError: () => {
+      alert('시나리오 수정에 실패하였습니다')
+      scenariosRefetch()
+      close()
     },
   })
 
@@ -73,7 +94,7 @@ const ModifyProjectModal: React.FC<ModifyProjectModalProps> = ({ isOpen, close, 
             header={
               <div className="flex w-full">
                 {scenarioTags.map((tag) => (
-                  <React.Fragment key={`blocks_${scenario.id}_${tag}`}>
+                  <React.Fragment key={`blocks_${scenarioSummary.id}_${tag}`}>
                     <Tag
                       tag={tag}
                       mode="delete"
@@ -101,7 +122,7 @@ const ModifyProjectModal: React.FC<ModifyProjectModalProps> = ({ isOpen, close, 
                     tagRefetch={() => {
                       tagRefetch()
                     }}
-                    key={`scenario_${scenario.id}_tag_item_${tag}`}
+                    key={`scenario_${scenarioSummary.id}_tag_item_${tag}`}
                     setBlocksTags={setScenarioTags}
                   />
                 )
@@ -128,7 +149,20 @@ const ModifyProjectModal: React.FC<ModifyProjectModalProps> = ({ isOpen, close, 
           </Select>
         </div>
         <div className="flex justify-end mt-7">
-          <Button colorScheme="primary" className="w-[132px] h-[48px] mr-3 text-white rounded-3xl">
+          <Button
+            colorScheme="primary"
+            className="w-[132px] h-[48px] mr-3 text-white rounded-3xl"
+            onClick={() => {
+              if (!scenario) return
+              putScenarioMutate({
+                new_scenario: {
+                  ...scenario,
+                  name: scenarioName,
+                  tags: scenarioTags,
+                },
+              })
+            }}
+          >
             Save
           </Button>
           <Button
