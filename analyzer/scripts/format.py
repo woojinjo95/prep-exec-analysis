@@ -10,13 +10,7 @@ class VideoData:
 
 
 @dataclass
-class InputData:
-    video_path: str
-    timestamps: List[float]
-
-
-@dataclass
-class CroppedInfo:
+class Videoinfo:
     video_path: str
     timestamps: List[float]
 
