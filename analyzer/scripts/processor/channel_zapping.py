@@ -5,13 +5,14 @@ from typing import Dict, List
 
 from scripts.config.config import get_setting_with_env
 from scripts.connection.redis_pubsub import publish_msg
+from scripts.format import VideoInfo
 from scripts.external.data import load_input, read_analysis_config
 from scripts.external.event import (get_channel_key_inputs,
                                     get_data_of_event_log)
 from scripts.external.network import (get_data_of_network_log,
                                       get_igmp_join_infos)
 from scripts.external.report import report_output
-from scripts.external.scenario import update_analysis_to_scenario
+from scripts.external.progress import ProgressManager
 from scripts.format import (ChannelZappingEventData, Command, IgmpJoinData,
                             RemoconKeyData, ReportName)
 from scripts.util._timezone import get_utc_datetime
@@ -25,10 +26,11 @@ logger = logging.getLogger('main')
 @log_decorator(logger)
 def test_channel_zapping():
     try:
-        measure_channel_zapping()
+        args = load_input()
+        config = get_config()
+        task_channel_zapping(args, config)
 
         publish_msg({'measurement': Command.CHANNEL_ZAPPING.value}, 'analysis_response')
-        update_analysis_to_scenario(Command.CHANNEL_ZAPPING.value)
 
     except Exception as err:
         error_detail = traceback.format_exc()
@@ -37,16 +39,14 @@ def test_channel_zapping():
         logger.warning(error_detail)
 
 
-def measure_channel_zapping():
-    args = load_input()
-    config = get_config()
-    targets = config['targets']  # ['adjoint_channel', 'non_adjoint_channel']
+def task_channel_zapping(args: VideoInfo, config: Dict):
+    progress_manager = ProgressManager(Command.CHANNEL_ZAPPING.value)
 
     network_log = get_data_of_network_log(args.timestamps[0], args.timestamps[-1])
     igmp_join_infos = get_igmp_join_infos(network_log)  # igmp join occured time
 
     event_log = get_data_of_event_log(args.timestamps[0], args.timestamps[-1])
-    channel_key_inputs = get_channel_key_inputs(event_log, targets)  # channel key: all number key, ok key, channelup key, channeldown key
+    channel_key_inputs = get_channel_key_inputs(event_log, config['targets'])  # channel key: all number key, ok key, channelup key, channeldown key
 
     event_infos = get_channel_zapping_event_infos(igmp_join_infos, channel_key_inputs,
                                                     igmp_join_time_margin=get_setting_with_env('IGMP_JOIN_TIME_MARGIN', 5))
@@ -55,10 +55,9 @@ def measure_channel_zapping():
 
         crop_videos = crop_video_with_opencv(args.video_path, args.timestamps, [ei.event_time for ei in event_infos], 
                                              output_dir, get_setting_with_env('CHANNEL_ZAPPING_VIDEO_LENGTH', 8))
-        for crop_video, event_info in zip(crop_videos, event_infos):
+        for idx, (crop_video, event_info) in enumerate(zip(crop_videos, event_infos)):
             result = calculate_channel_zapping(crop_video.video_path, crop_video.timestamps, crop_video.timestamps[0],
                                                min_diff_rate=get_setting_with_env('CHANNEL_ZAPPING_MIN_DIFF_RATE', 0.00002))
-
             if result.status == 'success':
                 report_output(ReportName.CHANNEL_ZAPPING.value, {
                     'timestamp': get_utc_datetime(event_info.event_time),
@@ -68,6 +67,7 @@ def measure_channel_zapping():
                     'dst_channel': event_info.dst,
                     'channel_name': event_info.channel_name,
                 })
+            progress_manager.update_progress(idx / len(crop_videos))
 
 
 def get_config() -> Dict:
