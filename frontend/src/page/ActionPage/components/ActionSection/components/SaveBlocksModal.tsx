@@ -405,6 +405,22 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
               if (isPlay) {
                 setIsTesetOptionModalOpen(true)
               }
+
+              if (isMoveAnalysisPage) {
+                const date = new Date()
+                const startDate = new Date(date)
+                startDate.setMinutes(date.getMinutes() - 30)
+
+                sendMessage({
+                  level: 'info',
+                  msg: 'analysis_mode_init',
+                  data: {
+                    start_time: startDate.getTime() / 1000,
+                    end_time: date.getTime() / 1000,
+                  },
+                })
+                navigate('/analysis')
+              }
             }}
           >
             Cancel
