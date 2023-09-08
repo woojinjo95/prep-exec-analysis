@@ -10,6 +10,7 @@ from scripts.device.serial.serial_device import (SerialDevice,
                                                  initial_serial_devices)
 from scripts.device.serial_control import change_dut_state, init_dut_state
 from scripts.log_organizer import LogOrganizer
+from scripts.services.machine_state import start_state_service
 from scripts.utils._exceptions import handle_errors
 
 logger = logging.getLogger('main')
@@ -53,9 +54,8 @@ def command_parser(command: dict, serial_device: SerialDevice, remocon_process: 
 
     if command.get('msg') == 'lcd_control':
         lcd_args = command.get('data')
-        lcd_string = lcd_args.get('string')
+        lcd_string = lcd_args.get('func_arg')
         remocon_process.put_command(key=lcd_string, _type=LCD)
-
 
 
 @handle_errors
@@ -65,6 +65,7 @@ def main():
     remocon_process = RemoconProcess(serial_devices)
 
     init(control_board_serial_device, remocon_process)
+    start_state_service(interval=10)
 
     with get_strict_redis_connection() as src:
         for command in Subscribe(src, RedisChannel.command):
