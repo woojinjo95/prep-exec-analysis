@@ -24,7 +24,7 @@ class Worker:
         self.macroblock_model = MacroblockModel(model_dir_url=model_dir_url, model_output_dir=model_output_dir)
 
         self.discriminator = CrackDiscriminator(crack_score_thld=get_setting_with_env('CRACK_SCORE_THLD', 0.995),
-                                                continuity_set_thld=get_setting_with_env('CONTINUITY_SET_THLD', 1), 
+                                                continuity_set_thld=get_setting_with_env('CONTINUITY_SET_THLD', 3), 
                                                 continuity_hold_thld=get_setting_with_env('CONTINUITY_HOLD_THLD', 1),
                                                 crack_patch_ratio=get_setting_with_env('CRACK_PATCH_RATIO', 0.2),
                                                 row_crack_patch_ratio=get_setting_with_env('ROW_CRACK_PATCH_RATIO', 0.5))
