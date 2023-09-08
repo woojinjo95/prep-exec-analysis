@@ -1,6 +1,7 @@
 import logging
 import time
 from scripts.format import Command
+from scripts.external.scenario import update_progress_to_scenario
 
 
 logger = logging.getLogger('main')
@@ -29,3 +30,11 @@ class ProgressManager:
     def update_progress(self, progress: float):
         self.progress = progress
         self.calculate_progress()
+        self.report_progress()
+
+    def report_progress(self):
+        update_progress_to_scenario(self.command.value, {
+            'progress': self.progress,
+            'remaining_time': self.remaining_time
+        })
+    

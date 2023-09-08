@@ -13,7 +13,7 @@ from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.data import load_input, read_analysis_config
 from scripts.external.event import get_data_of_event_log, get_power_key_times
 from scripts.external.report import report_output
-from scripts.external.analysis import set_analysis_info
+from scripts.external.scenario import update_analysis_to_scenario
 from scripts.format import Command, ReportName
 from scripts.util._timezone import get_utc_datetime
 from scripts.util.decorator import log_decorator
@@ -35,7 +35,7 @@ def test_warm_boot():
             test_warm_boot_with_diff()
 
         publish_msg({'measurement': Command.RESUME.value}, 'analysis_response')
-        set_analysis_info(Command.RESUME.value)
+        update_analysis_to_scenario(Command.RESUME.value)
 
     except Exception as err:
         error_detail = traceback.format_exc()

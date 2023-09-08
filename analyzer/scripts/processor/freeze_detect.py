@@ -7,7 +7,7 @@ from scripts.config.config import get_setting_with_env
 from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.data import load_input, read_analysis_config
 from scripts.external.report import report_output
-from scripts.external.analysis import set_analysis_info
+from scripts.external.scenario import update_analysis_to_scenario
 from scripts.format import Command, ReportName, VideoInfo
 from scripts.util._timezone import get_utc_datetime
 from scripts.util.common import seconds_to_time
@@ -26,7 +26,7 @@ def test_freeze_detection():
         task_freeze_detection(args, config)
 
         publish_msg({'measurement': Command.FREEZE.value}, 'analysis_response')
-        set_analysis_info(Command.FREEZE.value)
+        update_analysis_to_scenario(Command.FREEZE.value)
 
     except Exception as err:
         error_detail = traceback.format_exc()
