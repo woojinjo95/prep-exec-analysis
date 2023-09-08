@@ -1,5 +1,6 @@
 import { atom } from 'recoil'
 import { FreezeType } from '@global/constant'
+import { ResumeType } from '@page/AnalysisPage/api/entity'
 
 /**
  * 분석페이지 특정 시나리오의 비디오 Blob URL
@@ -81,5 +82,13 @@ export const playStartTimeState = atom<number | null>({
  */
 export const freezeTypeFilterListState = atom<(keyof typeof FreezeType)[]>({
   key: 'freezeTypeFilterListState',
+  default: [],
+})
+
+/**
+ * 분석 페이지 resume 결과 filter 리스트
+ */
+export const resumeTypeFilterListState = atom<ResumeType[]>({
+  key: 'resumeTypeFilterListState',
   default: [],
 })
