@@ -13,7 +13,6 @@ from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.data import load_input, read_analysis_config
 from scripts.external.event import get_data_of_event_log, get_power_key_times
 from scripts.external.report import report_output
-from scripts.external.scenario import update_analysis_to_scenario
 from scripts.external.progress import ProgressManager
 from scripts.format import Command, ReportName, VideoInfo
 from scripts.util._timezone import get_utc_datetime
@@ -37,7 +36,6 @@ def test_warm_boot():
             task_warm_boot_with_diff(args)
 
         publish_msg({'measurement': Command.RESUME.value}, 'analysis_response')
-        update_analysis_to_scenario(Command.RESUME.value)
 
     except Exception as err:
         error_detail = traceback.format_exc()

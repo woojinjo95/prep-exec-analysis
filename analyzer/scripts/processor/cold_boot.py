@@ -13,7 +13,7 @@ from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.data import load_input, read_analysis_config
 from scripts.external.event import get_data_of_event_log, get_dut_power_times
 from scripts.external.report import report_output
-from scripts.external.scenario import update_analysis_to_scenario
+from scripts.external.progress import ProgressManager
 from scripts.format import Command, ReportName, VideoInfo
 from scripts.util._timezone import get_utc_datetime
 from scripts.util.decorator import log_decorator
@@ -36,7 +36,6 @@ def test_cold_boot():
             raise NotImplementedError
 
         publish_msg({'measurement': Command.BOOT.value}, 'analysis_response')
-        update_analysis_to_scenario(Command.BOOT.value)
 
     except Exception as err:
         error_detail = traceback.format_exc()
@@ -46,27 +45,25 @@ def test_cold_boot():
 
 
 def test_cold_boot_with_match(args: VideoInfo, config: Dict):
+    progress_manager = ProgressManager(Command.BOOT.value)
     template, roi = get_template_info(config)
 
     event_log = get_data_of_event_log(args.timestamps[0], args.timestamps[-1])
     power_times = get_dut_power_times(event_log)
 
     with tempfile.TemporaryDirectory(dir='/tmp') as output_dir:
-        results = []
         crop_videos = crop_video_with_opencv(args.video_path, args.timestamps, power_times, output_dir, get_setting_with_env('COLD_BOOT_DURATION', 90))
-        for crop_video in crop_videos:
+        for idx, crop_video in enumerate(crop_videos):
             if not check_poweroff_video(crop_video.video_path):
                 continue
             result = task_boot_test_with_match(crop_video.video_path, crop_video.timestamps, crop_video.timestamps[0],
                                                roi, template, roi)
-            results.append(result)
-
-    for result in results:
-        if result['status'] == 'success':
-            report_output(ReportName.COLD_BOOT.value, {
-                'timestamp': get_utc_datetime(result['match_timestamp']),
-                'measure_time': result['match_time'],
-            })
+            if result['status'] == 'success':
+                report_output(ReportName.COLD_BOOT.value, {
+                    'timestamp': get_utc_datetime(result['match_timestamp']),
+                    'measure_time': result['match_time'],
+                })
+            progress_manager.update_progress(idx / len(crop_videos))
 
  
 def get_config() -> Dict:
