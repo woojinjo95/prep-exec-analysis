@@ -4,7 +4,7 @@ from typing import List
 
 
 @dataclass
-class Videoinfo:
+class VideoInfo:
     video_path: str
     timestamps: List[float]
     frame_count: int = 0
