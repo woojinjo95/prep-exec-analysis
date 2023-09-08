@@ -1,7 +1,7 @@
 import logging
 import tempfile
 import traceback
-from typing import Tuple
+from typing import Tuple, Dict
 
 import cv2
 import numpy as np
@@ -13,8 +13,8 @@ from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.data import load_input, read_analysis_config
 from scripts.external.event import get_data_of_event_log, get_power_key_times
 from scripts.external.report import report_output
-from scripts.external.analysis import set_analysis_info
-from scripts.format import Command, ReportName
+from scripts.external.progress import ProgressManager
+from scripts.format import Command, ReportName, VideoInfo
 from scripts.util._timezone import get_utc_datetime
 from scripts.util.decorator import log_decorator
 from scripts.util.video import crop_video_with_opencv
@@ -25,17 +25,17 @@ logger = logging.getLogger('main')
 @log_decorator(logger)
 def test_warm_boot():
     try:
-        analysis_config = read_analysis_config()
-        # logger.info(f'analysis_config: {analysis_config}')
-        processing_mode = analysis_config['resume']['type']
+        args = load_input()
+        config = get_config()
+
+        processing_mode = config['type']
         logger.info(f'processing_mode: {processing_mode}')
         if processing_mode == 'image_matching':
-            test_warm_boot_with_match()
+            task_warm_boot_with_match(args, config)
         elif processing_mode == 'screen_change_rate':
-            test_warm_boot_with_diff()
+            task_warm_boot_with_diff(args)
 
         publish_msg({'measurement': Command.RESUME.value}, 'analysis_response')
-        set_analysis_info(Command.RESUME.value)
 
     except Exception as err:
         error_detail = traceback.format_exc()
@@ -44,68 +44,57 @@ def test_warm_boot():
         logger.warning(error_detail)
 
 
-def test_warm_boot_with_diff():
-    args = load_input()
-
+def task_warm_boot_with_diff(args: VideoInfo):
+    progress_manager = ProgressManager(Command.RESUME.value)
     event_log = get_data_of_event_log(args.timestamps[0], args.timestamps[-1])
     remocon_times = get_power_key_times(event_log)
-    # remocon_times = [1692673582.4239447, 1692673592.3466334, 1692673696.58994, 1692673703.0160654]
 
     with tempfile.TemporaryDirectory(dir='/tmp') as output_dir:
-        warm_boot_results = []
         crop_videos = crop_video_with_opencv(args.video_path, args.timestamps, remocon_times, output_dir, get_setting_with_env('WARM_BOOT_DURATION', 10))
-        for crop_video in crop_videos:
+        for idx, crop_video in enumerate(crop_videos):
             if not check_poweroff_video(crop_video.video_path):
                 continue
             result = task_boot_test_with_diff(crop_video.video_path, crop_video.timestamps, crop_video.timestamps[0])
-            warm_boot_results.append(result)
-
-    for result in warm_boot_results:
-        if result['status'] == 'success':
-            report_output(ReportName.WARM_BOOT.value, {
-                'timestamp': get_utc_datetime(result['diff_timestamp']),
-                'measure_time': result['diff_time'],
-            })
+            if result['status'] == 'success':
+                report_output(ReportName.WARM_BOOT.value, {
+                    'timestamp': get_utc_datetime(result['diff_timestamp']),
+                    'measure_time': result['diff_time'],
+                })
+            progress_manager.update_progress(idx / len(crop_videos))
 
 
-def test_warm_boot_with_match():
-    args = load_input()
-    template = get_template_from_config()
-    roi = get_roi_from_config()
-
+def task_warm_boot_with_match(args: VideoInfo, config: Dict):
+    progress_manager = ProgressManager(Command.RESUME.value)
+    template, roi = get_template_info(config)
     event_log = get_data_of_event_log(args.timestamps[0], args.timestamps[-1])
     remocon_times = get_power_key_times(event_log)
-    # remocon_times = [1692673582.4239447, 1692673592.3466334, 1692673696.58994, 1692673703.0160654]
 
     with tempfile.TemporaryDirectory(dir='/tmp') as output_dir:
-        warm_boot_results = []
         crop_videos = crop_video_with_opencv(args.video_path, args.timestamps, remocon_times, output_dir, get_setting_with_env('WARM_BOOT_DURATION', 10))
-        for crop_video in crop_videos:
+        for idx, crop_video in enumerate(crop_videos):
             if not check_poweroff_video(crop_video.video_path):
                 continue
             result = task_boot_test_with_match(crop_video.video_path, crop_video.timestamps, crop_video.timestamps[0],
                                                roi, template, roi)
-            warm_boot_results.append(result)
-
-    for result in warm_boot_results:
-        if result['status'] == 'success':
-            report_output(ReportName.WARM_BOOT.value, {
-                'timestamp': get_utc_datetime(result['match_timestamp']),
-                'measure_time': result['match_time'],
-            })
+            if result['status'] == 'success':
+                report_output(ReportName.WARM_BOOT.value, {
+                    'timestamp': get_utc_datetime(result['match_timestamp']),
+                    'measure_time': result['match_time'],
+                })
+            progress_manager.update_progress(idx / len(crop_videos))
 
 
-def get_template_from_config() -> np.ndarray:
+def get_template_info(config) -> Tuple[np.ndarray, Tuple[int, int, int, int]]:
+    template = cv2.imread(config['frame']['path'])
+    roi_data = config['frame']['roi']
+    roi = (roi_data['x'], roi_data['y'], roi_data['w'], roi_data['h'])
+    logger.info(f'template shape: {template.shape}, roi: {roi}')
+    return template, roi
+
+
+def get_config() -> Dict:
     analysis_config = read_analysis_config()
-    image_path = analysis_config['resume']['frame']['path']
-    image = cv2.imread(image_path)
-    logger.info(f'image shape: {image.shape}')
-    return image
+    config = analysis_config['resume']
+    logger.info(f'config: {config}')
+    return config
 
-
-def get_roi_from_config() -> Tuple[int, int, int, int]:
-    analysis_config = read_analysis_config()
-    roi_data = analysis_config['resume']['frame']['roi']
-    roi = roi_data['x'], roi_data['y'], roi_data['w'], roi_data['h']
-    logger.info(f'roi: {roi}')
-    return roi
