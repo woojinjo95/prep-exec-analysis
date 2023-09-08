@@ -24,6 +24,8 @@ export const AnalysisTypeLabel: { [key in keyof typeof AnalysisType]: string } =
   channel_change_time: 'Channel Change Time Measurement',
   log_level_finder: 'Log Level Finder',
   log_pattern_matching: 'Log Pattern Matching',
+  monkey_test: 'Monkey Test',
+  intelligent_monkey_test: 'Intelligent Monkey Test (All-Menu Navigation)',
 } as const
 
 /**

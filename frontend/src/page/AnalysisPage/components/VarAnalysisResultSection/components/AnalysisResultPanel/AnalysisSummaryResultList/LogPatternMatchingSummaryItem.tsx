@@ -15,7 +15,7 @@ interface LogPatternMatchingSummaryItemProps {
 }
 
 /**
- * log pattern matching 분석 결과 아이템
+ * log pattern matching 분석 결과 요약 아이템
  */
 const LogPatternMatchingSummaryItem: React.FC<LogPatternMatchingSummaryItemProps> = ({
   logPatternMatching,

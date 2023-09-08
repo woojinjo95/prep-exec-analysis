@@ -1,6 +1,5 @@
 import { LogConnectionStatus } from '@global/api/entity'
 import PagePath from './pagePath'
-import AnalysisType from './analysisType'
 
 export { default as AnalysisType } from './analysisType'
 export { default as AppURL } from './appURL'
@@ -46,13 +45,9 @@ export const LogConnectionStatusLabel: { [key in LogConnectionStatus]: string } 
 
 /**
  * 분석 모듈에 전달 가능한 분석유형
+ *
+ * AnalysisType 참고
  */
-export const AnalyzableTypes: (keyof typeof AnalysisType)[] = [
-  'freeze',
-  'resume',
-  'boot',
-  'log_level_finder',
-  'log_pattern_matching',
-] as const
+export const AnalyzableTypes = ['freeze', 'resume', 'boot', 'log_level_finder', 'log_pattern_matching'] as const
 
 export type AnalyzableType = (typeof AnalyzableTypes)[number]

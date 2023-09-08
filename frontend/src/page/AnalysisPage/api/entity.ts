@@ -60,7 +60,14 @@ export interface AnalysisResultSummary {
       error_type: keyof typeof FreezeType
     }[]
   }
-  // intelligent_monkey_test?: null
+  intelligent_monkey_test?: {
+    color: string
+    results: {
+      section_id: number
+      smart_sense: number
+      image_path: string
+    }[]
+  }
   last_updated_timestamp: string
   log_level_finder?: {
     color: string
@@ -89,7 +96,13 @@ export interface AnalysisResultSummary {
       avg_time: number // 단위: ms
     }[]
   }
-  // monkey_test?: null
+  monkey_test?: {
+    color: string
+    results: {
+      duration_time: number // 단위: s
+      smart_sense: number
+    }[]
+  }
 }
 
 export interface LogLevelFinder {
@@ -238,4 +251,23 @@ export interface LogPatternMatching {
   message: string
   color: string
   regex: string
+}
+
+export interface MonkeySection {
+  /**
+   * @format timestamp
+   */
+  start_timestamp: string
+  /**
+   * @format timestamp
+   */
+  end_timestamp: string
+}
+
+export interface MonkeySmartSense {
+  /**
+   * @format timestamp
+   */
+  timestamp: string
+  smart_sense_key: string[]
 }
