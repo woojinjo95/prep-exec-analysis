@@ -6,16 +6,15 @@ import useIntersect from '@global/hook/useIntersect'
 import { formatDateTo } from '@global/usecase'
 import Scrollbars from 'react-custom-scrollbars-2'
 import { useScenarioById } from '@global/api/hook'
-import { useRecoilState, useRecoilValue } from 'recoil'
+import { useRecoilState } from 'recoil'
 import { isTestOptionModalOpenState, scenarioIdState, testRunIdState } from '@global/atom'
 import Tag from '@global/ui/Tag'
 import { useMutation, useQuery } from 'react-query'
-import { getTag, postCopyScenario, postTag, postTestrun } from '@global/api/func'
+import { getTag, postCopyScenario, postTag, postTestrun, putScenario } from '@global/api/func'
 import { useToast } from '@chakra-ui/react'
 import { AxiosError } from 'axios'
 import { useWebsocket } from '@global/hook'
 import { useNavigate } from 'react-router-dom'
-import { putScenario } from '../api/func'
 
 interface SaveBlocksModalProps {
   isOpen: boolean
@@ -44,11 +43,11 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
     refetch: scenariosRefetch,
   } = useFetchScenarios(PAGE_SIZE_TWENTY)
 
-  const scenarioId = useRecoilValue(scenarioIdState)
+  const [scenarioId, setScenarioId] = useRecoilState(scenarioIdState)
 
   const { sendMessage } = useWebsocket()
 
-  const { scenario: currentScenario, refetch: currentScenarioRefetch } = useScenarioById({
+  const { scenario: currentScenario } = useScenarioById({
     scenarioId,
     onSuccess: (res) => {
       if (res.is_active) {
@@ -175,11 +174,10 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
 
   const { mutate: postCopyScenarioMutate } = useMutation(postCopyScenario, {
     onSuccess: (res) => {
-      currentScenarioRefetch()
+      setScenarioId(res.id)
+      setTestRunIdState(res.testrun_id)
       scenariosRefetch()
       close()
-
-      setTestRunIdState(res.testrun_id)
 
       if (isPlay) {
         setIsTesetOptionModalOpen(true)
