@@ -56,8 +56,6 @@ async def consumer_handler(conn: any, db_scenario: any, db_blocks: any, CHANNEL_
             except Exception as e:
                 print(e)
                 print(traceback.format_exc())
-                set_stop_state(conn)
-                # 예외발생시 강제 중단 처리
     except Exception as e:
         print(e)
         print(traceback.format_exc())
@@ -91,6 +89,8 @@ async def process_handler(conn: any, db_blocks: any, CHANNEL_NAME: str, event: a
             except Exception as e:
                 print(e)
                 print(traceback.format_exc())
+                set_stop_state(conn)
+                # 예외발생시 강제 중단 처리
             # finally:
             #     await set_stop_state(conn)
     except Exception as e:
