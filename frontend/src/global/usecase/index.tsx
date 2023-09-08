@@ -216,3 +216,10 @@ export const convertDuration = (duration: number) => {
 
   return `${date.getMilliseconds()}ms`
 }
+
+/**
+ * 첫글자만 대문자로 변환하는 함수
+ */
+export const capitalize = (word: string) => {
+  return word.charAt(0).toUpperCase() + word.slice(1)
+}

@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 class ServiceStateEnum(Enum):
     idle = "idle"
     streaming = "streaming"
-    playblock = "playblock"
-    analysis = "analysis"
+    playblock = "playblock" # 플레이블럭의 블럭 수행 여부에 의해 결정됨
+    analysis = "analysis"  # 플레이블럭의 분석 수행 여부에 의해 결정됨
     recording = "recording"
 
 
