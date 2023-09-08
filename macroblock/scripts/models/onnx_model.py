@@ -9,7 +9,7 @@ import onnxruntime as rt
 from scripts.config import get_setting_with_env
 
 
-logger = logging.getLogger('main_logger')
+logger = logging.getLogger('main')
 
 
 class OnnxModel:

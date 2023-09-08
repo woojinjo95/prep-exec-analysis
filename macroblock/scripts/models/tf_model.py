@@ -10,7 +10,7 @@ import gdown
 import tensorflow as tf
 
 
-logger = logging.getLogger('main_logger')
+logger = logging.getLogger('main')
 
 
 class TensorflowModel:
