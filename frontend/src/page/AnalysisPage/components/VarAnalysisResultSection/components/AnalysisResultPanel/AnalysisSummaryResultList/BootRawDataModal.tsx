@@ -75,9 +75,12 @@ const BootRawDataModal: React.FC<BootRawDataModalProps> = ({ isOpen, onClose, st
                   <Text size="sm">{convertDuration(measure_time)}</Text>
                 </td>
                 <td className={cx('px-6 py-1 flex justify-center', { 'border-t border-light-charcoal': index !== 0 })}>
-                  <button type="button" onClick={() => setCursorDateTime(new Date(timestamp))}>
-                    <IconButton icon={<PlayIcon className="!h-3" />} colorScheme="charcoal" size="sm" />
-                  </button>
+                  <IconButton
+                    icon={<PlayIcon className="!h-3" />}
+                    colorScheme="charcoal"
+                    size="sm"
+                    onClick={() => setCursorDateTime(new Date(timestamp))}
+                  />
                 </td>
               </tr>
             ))}
