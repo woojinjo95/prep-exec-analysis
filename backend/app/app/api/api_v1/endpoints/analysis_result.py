@@ -47,7 +47,9 @@ def get_data_of_log_level_finder(
                                      {'$project': {'_id': 0, 'lines.timestamp': 1, 'lines.log_level': 1}},
                                      {'$unwind': {'path': '$lines'}},
                                      {'$replaceRoot': {'newRoot': '$lines'}},
-                                     {'$match': {'log_level': {'$in': log_level}}}]
+                                     {'$match': {'log_level': {'$in': log_level}}},
+                                     {'$project': {'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                                                   'log_level': 1}}]
 
         log_level_finder = paginate_from_mongodb_aggregation(col=analysis_collection['log_level_finder'],
                                                              pipeline=log_level_finder_pipeline,
@@ -85,7 +87,7 @@ def get_data_of_cpu(
                                                   '$lte': convert_iso_format(end_time)},
                                     'scenario_id': scenario_id,
                                     'testrun_id': testrun_id}},
-                        {'$project': {'_id': 0, 'timestamp': 1, 'cpu_usage': 1, 'total': 1,
+                        {'$project': {'_id': 0, 'timestamp': {'$dateToString': {'date': '$timestamp'}}, 'cpu_usage': 1, 'total': 1,
                                       'user': 1, 'kernel': 1, 'iowait': 1, 'irq': 1, 'softirq': 1}}]
 
         cpu = paginate_from_mongodb_aggregation(col=analysis_collection['cpu'],
@@ -124,7 +126,7 @@ def get_data_of_memory(
                                                      '$lte': convert_iso_format(end_time)},
                                        'scenario_id': scenario_id,
                                        'testrun_id': testrun_id}},
-                           {'$project': {'_id': 0, 'timestamp': 1, 'memory_usage': 1,
+                           {'$project': {'_id': 0, 'timestamp': {'$dateToString': {'date': '$timestamp'}}, 'memory_usage': 1,
                                          'total_ram': 1, 'free_ram': 1, 'used_ram': 1, 'lost_ram': 1}}]
 
         memory = paginate_from_mongodb_aggregation(col=analysis_collection['memory'],
@@ -170,7 +172,11 @@ def get_data_of_event_log(
                               {'$unwind': {'path': '$lines'}},
                               {'$match': {'lines.msg': {
                                   '$in': event_log_type_list}}},
-                              {'$replaceRoot': {'newRoot': '$lines'}}]
+                              {'$replaceRoot': {'newRoot': '$lines'}},
+                              {'$project': {'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                                            'service': 1,
+                                            'msg': 1,
+                                            'data': 1}}]
 
         event_log = paginate_from_mongodb_aggregation(col=analysis_collection['event_log'],
                                                       pipeline=event_log_pipeline,
@@ -208,7 +214,7 @@ def get_data_of_color_reference(
                                                               '$lte': convert_iso_format(end_time)},
                                                 'scenario_id': scenario_id,
                                                 'testrun_id': testrun_id}},
-                                    {'$project': {'_id': 0, 'timestamp': 1, 'color_reference': 1}}]
+                                    {'$project': {'_id': 0, 'timestamp': {'$dateToString': {'date': '$timestamp'}}, 'color_reference': 1}}]
 
         color_reference = paginate_from_mongodb_aggregation(col=analysis_collection['color_reference'],
                                                             pipeline=color_reference_pipeline,
@@ -247,7 +253,7 @@ def get_data_of_freeze(
                                                      '$lte': convert_iso_format(end_time)},
                                        'scenario_id': scenario_id,
                                        'testrun_id': testrun_id}},
-                           {'$project': {'_id': 0, 'timestamp': 1, 'freeze_type': 1, 'duration': 1}}]
+                           {'$project': {'_id': 0, 'timestamp': {'$dateToString': {'date': '$timestamp'}}, 'freeze_type': 1, 'duration': 1}}]
 
         freeze = paginate_from_mongodb_aggregation(col=analysis_collection['freeze'],
                                                    pipeline=freeze_pipeline,
@@ -288,7 +294,7 @@ def get_data_of_loudness(
                              {'$project': {'_id': 0, 'lines': 1}},
                              {'$unwind': {'path': '$lines'}},
                              {'$replaceRoot': {'newRoot': '$lines'}},
-                             {'$project': {'timestamp': '$timestamp', 'm': '$M', 'i': '$I'}}]
+                             {'$project': {'timestamp': {'$dateToString': {'date': '$timestamp'}}, 'm': '$M', 'i': '$I'}}]
 
         loudness = paginate_from_mongodb_aggregation(col=analysis_collection['loudness'],
                                                      pipeline=loudness_pipeline,
@@ -326,7 +332,7 @@ def get_data_of_resume(
                                                           '$lte': convert_iso_format(end_time)},
                                             'scenario_id': scenario_id,
                                             'testrun_id': testrun_id}},
-                                {'$project': {'_id': 0, 'timestamp': 1, 'measure_time': 1, 'target': '$user_config.type'}}]
+                                {'$project': {'_id': 0, 'timestamp': {'$dateToString': {'date': '$timestamp'}}, 'measure_time': 1, 'target': '$user_config.type'}}]
 
         measurement_resume = paginate_from_mongodb_aggregation(col=analysis_collection['resume'],
                                                                pipeline=measurement_pipeline,
@@ -364,7 +370,7 @@ def get_data_of_boot(
                                                           '$lte': convert_iso_format(end_time)},
                                             'scenario_id': scenario_id,
                                             'testrun_id': testrun_id}},
-                                {'$project': {'_id': 0, 'timestamp': 1, 'measure_time': 1, 'target': '$user_config.type'}}]
+                                {'$project': {'_id': 0, 'timestamp': {'$dateToString': {'date': '$timestamp'}}, 'measure_time': 1, 'target': '$user_config.type'}}]
 
         measurement_boot = paginate_from_mongodb_aggregation(col=analysis_collection['boot'],
                                                              pipeline=measurement_pipeline,
@@ -403,7 +409,10 @@ def get_data_of_log_pattern_matching(
                                                                    '$lte': convert_iso_format(end_time)},
                                                      'scenario_id': scenario_id,
                                                      'testrun_id': testrun_id}},
-                                         {'$project': {'_id': 0, 'log_level': 1, 'timestamp': 1, 'message': 1,
+                                         {'$project': {'_id': 0,
+                                                       'log_level': 1,
+                                                       'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                                                       'message': 1,
                                                        'regex': '$matched_target.regular_expression',
                                                        'color': '$matched_target.color', 'log_pattern_name': '$matched_target.name'}}]
         if pattern_name is not None:
@@ -487,7 +496,7 @@ def get_data_of_monkey_smart_sense(
                                                    'testrun_id': testrun_id,
                                                    'analysis_type': 'monkey'}},
                                        {'$project': {'_id': 0,
-                                                     'timestamp': 1,
+                                                     'timestamp': {'$dateToString': {'date': '$timestamp'}},
                                                      'smart_sense_key': 1}}]
         monkey_section = paginate_from_mongodb_aggregation(col='monkey_smart_sense',
                                                            pipeline=monkey_smart_sense_pipeline,
@@ -565,7 +574,7 @@ def get_data_of_intelligent_monkey_smart_sense(
                                                    'testrun_id': testrun_id,
                                                    'analysis_type': 'intelligent_monkey'}},
                                        {'$project': {'_id': 0,
-                                                     'timestamp': 1,
+                                                     'timestamp': {'$dateToString': {'date': '$timestamp'}},
                                                      'smart_sense_key': 1,
                                                      'section_id': 1}}]
         monkey_section = paginate_from_mongodb_aggregation(col='monkey_smart_sense',
