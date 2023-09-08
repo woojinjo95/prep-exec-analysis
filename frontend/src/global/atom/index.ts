@@ -1,6 +1,6 @@
 import { atom } from 'recoil'
 import { FreezeType } from '@global/constant'
-import { ResumeType } from '@page/AnalysisPage/api/entity'
+import { BootType, ResumeType } from '@global/api/entity'
 
 /**
  * 분석페이지 특정 시나리오의 비디오 Blob URL
@@ -90,5 +90,13 @@ export const freezeTypeFilterListState = atom<(keyof typeof FreezeType)[]>({
  */
 export const resumeTypeFilterListState = atom<ResumeType[]>({
   key: 'resumeTypeFilterListState',
+  default: [],
+})
+
+/**
+ * 분석 페이지 boot 결과 filter 리스트
+ */
+export const bootTypeFilterListState = atom<BootType[]>({
+  key: 'bootTypeFilterListState',
   default: [],
 })

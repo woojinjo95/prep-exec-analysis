@@ -75,8 +75,8 @@ const ResumeSummaryResultItem: React.FC<ResumeSummaryResultItemProps> = ({ resum
                 </SimpleButton>
               ) : (
                 <SimpleButton
-                  colorScheme="charcoal"
                   isIcon
+                  colorScheme="charcoal"
                   onClick={() => setResumeTypeFilterList((prev) => [...prev, target])}
                 >
                   <ShowEyeIcon className="h-4 w-5" />

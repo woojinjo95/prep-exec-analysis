@@ -2,7 +2,7 @@ import React, { useMemo, useRef } from 'react'
 import { useRecoilValue } from 'recoil'
 import { PointChart, RangeChart, TimelineTooltip, TimelineTooltipItem, Text } from '@global/ui'
 import { convertDuration } from '@global/usecase'
-import { resumeTypeFilterListState } from '@global/atom'
+import { bootTypeFilterListState, resumeTypeFilterListState } from '@global/atom'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { useBoot, useResume } from '@page/AnalysisPage/api/hook'
 import { useTooltipEvent } from '../hook'
@@ -20,6 +20,7 @@ interface ResumeBootChartProps {
  */
 const ResumeBootChart: React.FC<ResumeBootChartProps> = ({ scaleX, startTime, endTime, dimension, summary }) => {
   const resumeTypeFilterList = useRecoilValue(resumeTypeFilterListState)
+  const bootTypeFilterList = useRecoilValue(bootTypeFilterListState)
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const { resume } = useResume({
     start_time: startTime.toISOString(),
@@ -28,7 +29,6 @@ const ResumeBootChart: React.FC<ResumeBootChartProps> = ({ scaleX, startTime, en
   const { boot } = useBoot({
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
-    // TODO: 타겟별 보기 / 숨기기 기능
   })
 
   const data: { datetime: number; duration: number; color: string; type: 'Resume' | 'Boot' }[] | null = useMemo(() => {
@@ -43,16 +43,18 @@ const ResumeBootChart: React.FC<ResumeBootChartProps> = ({ scaleX, startTime, en
           color: summary.resume?.color || 'white',
           type: 'Resume' as const,
         })),
-      boot.map(({ timestamp, measure_time }) => ({
-        datetime: new Date(timestamp).getTime(),
-        duration: measure_time,
-        color: summary.boot?.color || 'white',
-        type: 'Boot' as const,
-      })),
+      boot
+        .filter(({ target }) => !bootTypeFilterList.includes(target))
+        .map(({ timestamp, measure_time }) => ({
+          datetime: new Date(timestamp).getTime(),
+          duration: measure_time,
+          color: summary.boot?.color || 'white',
+          type: 'Boot' as const,
+        })),
     ]
       .flat()
       .sort(({ datetime: aDatetime }, { datetime: bDatetime }) => (aDatetime > bDatetime ? 1 : 0))
-  }, [resume, boot, summary, resumeTypeFilterList])
+  }, [resume, boot, summary, resumeTypeFilterList, bootTypeFilterList])
 
   const { posX, tooltipData, onMouseMove, onMouseLeave } = useTooltipEvent<NonNullable<typeof data>[number]>({
     scaleX,

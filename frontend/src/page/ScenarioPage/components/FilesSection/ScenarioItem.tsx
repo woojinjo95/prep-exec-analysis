@@ -98,7 +98,7 @@ const ScenarioItem: React.FC<ScenarioItemProps> = ({ scenarioSummary, scenariosR
             <DropdownWithMoreButton colorScheme="charcoal" type="icon">
               <OptionItem
                 colorScheme="charcoal"
-                onClick={(e) => {
+                onClick={() => {
                   setIsModifyScenarioModalOpen(true)
                 }}
               >

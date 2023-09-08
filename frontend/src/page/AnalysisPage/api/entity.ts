@@ -1,8 +1,5 @@
-import { AnalysisFrame } from '@global/api/entity'
+import { AnalysisFrame, BootType, ResumeType } from '@global/api/entity'
 import { FreezeType, LogLevel } from '@global/constant'
-
-export type ResumeType = 'image_matching' | 'screen_change_rate'
-export type BootType = 'image_matching'
 
 /**
  * 분석 설정
