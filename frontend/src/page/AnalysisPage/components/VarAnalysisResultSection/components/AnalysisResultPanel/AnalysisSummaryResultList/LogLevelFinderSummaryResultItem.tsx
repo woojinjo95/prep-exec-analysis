@@ -4,7 +4,7 @@ import { Accordion, SimpleButton, Text } from '@global/ui'
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
 import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
 import { numberWithCommas } from '@global/usecase'
-import { logLevelFinderTypeFilterListState } from '@global/atom'
+import { logLevelFinderLogLevelFilterListState } from '@global/atom'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { AnalysisTypeLabel } from '../../../constant'
 
@@ -16,8 +16,8 @@ interface LogLevelFinderSummaryResultItemProps {
  * log level finder 분석결과 요약 아이템
  */
 const LogLevelFinderSummaryResultItem: React.FC<LogLevelFinderSummaryResultItemProps> = ({ logLevelFinder }) => {
-  const [logLevelFinderTypeFilterList, setLogLevelFinderTypeFilterList] = useRecoilState(
-    logLevelFinderTypeFilterListState,
+  const [logLevelFinderLogLevelFilterList, setLogLevelFinderLogLevelFilterList] = useRecoilState(
+    logLevelFinderLogLevelFilterListState,
   )
 
   return (
@@ -58,11 +58,11 @@ const LogLevelFinderSummaryResultItem: React.FC<LogLevelFinderSummaryResultItemP
             <Text size="sm" className="text-right">
               {numberWithCommas(total)}
             </Text>
-            {logLevelFinderTypeFilterList.includes(target) ? (
+            {logLevelFinderLogLevelFilterList.includes(target) ? (
               <SimpleButton
                 isIcon
                 colorScheme="charcoal"
-                onClick={() => setLogLevelFinderTypeFilterList((prev) => prev.filter((type) => type !== target))}
+                onClick={() => setLogLevelFinderLogLevelFilterList((prev) => prev.filter((type) => type !== target))}
               >
                 <HiddenEyeIcon className="h-4 w-5" />
               </SimpleButton>
@@ -70,7 +70,7 @@ const LogLevelFinderSummaryResultItem: React.FC<LogLevelFinderSummaryResultItemP
               <SimpleButton
                 isIcon
                 colorScheme="charcoal"
-                onClick={() => setLogLevelFinderTypeFilterList((prev) => [...prev, target])}
+                onClick={() => setLogLevelFinderLogLevelFilterList((prev) => [...prev, target])}
               >
                 <ShowEyeIcon className="h-4 w-5" />
               </SimpleButton>

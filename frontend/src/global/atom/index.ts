@@ -104,7 +104,15 @@ export const bootTypeFilterListState = atom<BootType[]>({
 /**
  * 분석 페이지 log level filter 결과 filter 리스트
  */
-export const logLevelFinderTypeFilterListState = atom<(keyof typeof LogLevel)[]>({
-  key: 'logLevelFinderTypeFilterListState',
+export const logLevelFinderLogLevelFilterListState = atom<(keyof typeof LogLevel)[]>({
+  key: 'logLevelFinderLogLevelFilterListState',
+  default: [],
+})
+
+/**
+ * 분석 페이지 log pattern matching 결과 filter 리스트
+ */
+export const logPatternMatchingNameFilterListState = atom<string[]>({
+  key: 'logPatternMatchingNameFilterListState',
   default: [],
 })
