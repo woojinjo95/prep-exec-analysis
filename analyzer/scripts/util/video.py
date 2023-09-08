@@ -4,7 +4,7 @@ import os
 from typing import Dict, List, Tuple
 
 from scripts.util.common import seconds_to_time
-from scripts.format import CroppedInfo
+from scripts.format import Videoinfo
 
 logger = logging.getLogger('main')
 
@@ -98,7 +98,7 @@ def crop_video(video_path: str, output_path: str, start_index: int, end_index: i
 
 
 def crop_video_with_opencv(video_path: str, timestamps: List[float], target_times: List[float], 
-                            output_dir: str, duration: float) -> List[CroppedInfo]:
+                            output_dir: str, duration: float) -> List[Videoinfo]:
     crop_infos = []
     for target_time in target_times:
         start_index = find_nearest_index(timestamps, target_time)
@@ -119,5 +119,5 @@ def crop_video_with_opencv(video_path: str, timestamps: List[float], target_time
         if frame_count != timestamp_length:
             logger.error(f'cropped frame count and timestamps mismatch. skip this video.')
         else:
-            cropped_videos.append(CroppedInfo(video_path=cropped_video_path, timestamps=cropped_timestamps))
+            cropped_videos.append(Videoinfo(video_path=cropped_video_path, timestamps=cropped_timestamps))
     return cropped_videos
