@@ -5,7 +5,6 @@ import time
 
 import cv2
 import numpy as np
-from patchify import patchify
 import gdown
 import tensorflow as tf
 
@@ -103,12 +102,3 @@ class MacroblockModel(TensorflowModel):
     def predict_with_preprocess(self, batch):
         batch = np.array([self.preprocess(patch) for patch in batch])
         return self.predict(batch)
-
-    def predict_with_video_frame(self, image, step=200):
-        patches = patchify(image, self.input_shape, step)
-        patch_row, patch_col, _, h, w, c = patches.shape
-        batch = np.reshape(patches, (patch_row * patch_col, h, w, c))
-
-        pred = self.predict_with_preprocess(batch)
-        scores = np.array([float(score[1]) for score in pred])
-        return scores
