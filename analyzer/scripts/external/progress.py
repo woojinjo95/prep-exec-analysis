@@ -1,15 +1,15 @@
 import logging
 import time
-from scripts.format import Command
+from scripts.external.scenario import update_analysis_to_scenario
 
 
 logger = logging.getLogger('main')
 
 
 class ProgressManager:
-    def __init__(self, command: Command):
+    def __init__(self, analysis_type: str):
         self.start_time = time.time()
-        self.command = command
+        self.analysis_type = analysis_type
         self.progress = 0
         self.remaining_time = 0
         self.update_progress(0)
@@ -32,9 +32,7 @@ class ProgressManager:
         self.report_progress()
 
     def report_progress(self):
-        pass
-        # update_progress_to_scenario(self.command.value, {
-        #     'progress': self.progress,
-        #     'remaining_time': self.remaining_time
-        # })
-    
+        update_analysis_to_scenario(self.analysis_type, {
+            'progress': self.progress,
+            'remaining_time': self.remaining_time,
+        })
