@@ -1,5 +1,5 @@
 from connection.redis_pubsub import unit_publish
-from connection.apis import new_scenario
+from connection.apis import new_scenario, new_testrun
 from simple_logger import simple_logger
 
 
@@ -16,7 +16,7 @@ def main():
         }
     }
 
-    new_scenario()
+    new_testrun()
 
     # unit_publish(payload=log_config_95)
     unit_publish(payload={'msg': 'streaming', 'data': {'action': 'start'}})

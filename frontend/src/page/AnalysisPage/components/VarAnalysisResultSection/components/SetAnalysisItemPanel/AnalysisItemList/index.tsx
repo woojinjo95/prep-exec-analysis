@@ -1,18 +1,18 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { useMutation } from 'react-query'
 import { Title } from '@global/ui'
 import { AnalysisService } from '@global/service'
-import { useObservableState, useWebsocket } from '@global/hook'
-import { AnalyzableTypes } from '@global/constant'
+import { useObservableState } from '@global/hook'
+import { AnalysisType, AnalyzableType, AnalyzableTypes } from '@global/constant'
 
+import { useAnalysisConfig } from '@page/AnalysisPage/api/hook'
+import { AnalysisConfig } from '@page/AnalysisPage/api/entity'
 import { AnalysisTypeLabel } from '../../../constant'
-import { useAnalysisConfig } from '../../../api/hook'
+import { useRemoveAnalysisConfig, useStartAnalysis, useUpdateAnalysisConfig } from '../../../api/hook'
 import { UnsavedAnalysisConfig } from '../../../types'
-import { putAnalysisConfig } from '../../../api/func'
 import FreezeAnalysisItem from './FreezeAnalysisItem'
 import BootAnalysisItem from './BootAnalysisItem'
 import ResumeAnalysisItem from './ResumeAnalysisItem'
-import ChannelChangeTimeAnalysisItem from './ChannelChangeTimeAnalysisItem'
+// import ChannelChangeTimeAnalysisItem from './ChannelChangeTimeAnalysisItem'
 import LogLevelFinderAnalysisItem from './LogLevelFinderAnalysisItem'
 import LogPatternMatchingAnalysisItem from './LogPatternMatchingAnalysisItem'
 import LoudnessAnalysisItem from './LoudnessAnalysisItem'
@@ -49,6 +49,35 @@ const DefaultAnalysisConfig: Required<UnsavedAnalysisConfig> = {
   },
 }
 
+/**
+ * @returns warning message object
+ */
+const validateAnalysisConfig = (config: UnsavedAnalysisConfig) => {
+  const newWarningMessage: { -readonly [key in keyof typeof AnalysisType]?: string } = {}
+
+  // 로그 패턴을 하나도 추가하지 않은 경우
+  if (config.log_pattern_matching && !config.log_pattern_matching.items.length) {
+    newWarningMessage.log_pattern_matching = 'Please set log pattern.'
+  }
+
+  // 로그레벨을 하나도 선택하지 않은 경우
+  if (config.log_level_finder && !config.log_level_finder.targets.length) {
+    newWarningMessage.log_level_finder = 'Please select log level.'
+  }
+
+  // boot frame을 설정하지 않은 경우
+  if (config.boot && config.boot.type === 'image_matching' && !config.boot.frame) {
+    newWarningMessage.boot = 'Please set ROI.'
+  }
+
+  // resume frame을 설정하지 않은 경우
+  if (config.resume && config.resume.type === 'image_matching' && !config.resume.frame) {
+    newWarningMessage.resume = 'Please set ROI.'
+  }
+
+  return newWarningMessage
+}
+
 interface AnalysisItemListProps {
   selectedAnalysisItems: (keyof typeof AnalysisTypeLabel)[]
   setSelectedAnalysisItems: React.Dispatch<React.SetStateAction<(keyof typeof AnalysisTypeLabel)[]>>
@@ -58,10 +87,16 @@ interface AnalysisItemListProps {
  * 분석 아이템 리스트
  */
 const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisItems, setSelectedAnalysisItems }) => {
-  const { sendMessage } = useWebsocket()
   const [unsavedAnalysisConfig, setUnsavedAnalysisConfig] = useState<UnsavedAnalysisConfig>({})
-  const { analysisConfig } = useAnalysisConfig({
+  const [warningMessage, setWarningMessage] = useState<{ [key in keyof typeof AnalysisType]?: string }>({})
+  const { analysisConfig, refetch } = useAnalysisConfig({
     onSuccess: (data) => {
+      if (Object.keys(unsavedAnalysisConfig).length) return
+
+      // 처음 페이지에 진입했을 경우
+      setSelectedAnalysisItems(
+        Object.keys(data).filter((key) => !!data[key as keyof AnalysisConfig]) as (keyof AnalysisConfig)[],
+      )
       setUnsavedAnalysisConfig(() => ({
         ...data,
         freeze: data.freeze
@@ -73,21 +108,51 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
       }))
     },
   })
-  const { mutate: updateAnalysisConfig } = useMutation(putAnalysisConfig, {
+
+  const { startAnalysis } = useStartAnalysis()
+
+  const { updateAnalysisConfig } = useUpdateAnalysisConfig({
     onSuccess: (_, config) => {
       if (!Object.keys(config).length) return
 
-      // 분석 설정 수정에 성공하면 -> 분석 시작 메시지 전송
-      sendMessage({
-        msg: 'analysis',
-        data: {
-          measurement: Object.keys(config).filter((type) =>
-            AnalyzableTypes.includes(type as (typeof AnalyzableTypes)[number]),
-          ) as (typeof AnalyzableTypes)[number][],
-        },
-      })
+      const measurement = Object.keys(config).filter(
+        (type) => AnalyzableTypes.includes(type as AnalyzableType) && !!config[type as AnalyzableType],
+      ) as AnalyzableType[]
+
+      // 설정한 분석아이템이 없을 경우
+      if (!measurement.length) return
+
+      // 분석 설정 수정에 성공하면 -> 분석 시작
+      startAnalysis(measurement)
     },
   })
+
+  const { removeAnalysisConfig } = useRemoveAnalysisConfig({
+    onSuccess: (_, { analysis_type }) => {
+      setSelectedAnalysisItems((prev) => prev.filter((type) => type !== analysis_type))
+      setUnsavedAnalysisConfig((prev) => ({
+        ...prev,
+        [analysis_type]: undefined,
+      }))
+      setWarningMessage((prev) => ({
+        ...prev,
+        [analysis_type]: undefined,
+      }))
+      refetch()
+    },
+  })
+
+  /**
+   * 분석 아이템 삭제
+   */
+  const onClickDeleteItem = useCallback(
+    (type: keyof typeof AnalysisTypeLabel): React.MouseEventHandler<SVGSVGElement> =>
+      (e) => {
+        e.stopPropagation()
+        removeAnalysisConfig(type)
+      },
+    [],
+  )
 
   useEffect(() => {
     if (!selectedAnalysisItems.length) return
@@ -121,12 +186,16 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
     obs$: AnalysisService.onAnalysis$(),
     callback: (state) => {
       if (state?.msg !== 'analysis') return
+      const newWarningMessage = validateAnalysisConfig(unsavedAnalysisConfig)
 
-      // TODO: validation check, 경고 표시
+      if (Object.keys(newWarningMessage).length) {
+        AnalysisService.startAnalysis({ msg: 'not_validate_analysis' })
+        setWarningMessage(newWarningMessage)
+        return
+      }
 
-      // TODO: validate할 시 -> put analysis_config
       updateAnalysisConfig({
-        // TODO: ...unsavedAnalysisConfig,
+        ...(unsavedAnalysisConfig as AnalysisConfig),
         freeze: unsavedAnalysisConfig.freeze
           ? {
               ...unsavedAnalysisConfig.freeze,
@@ -136,20 +205,6 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
       })
     },
   })
-
-  /**
-   * 분석 아이템 삭제
-   */
-  const onClickDeleteItem = useCallback(
-    (type: keyof typeof AnalysisTypeLabel) => () => {
-      setSelectedAnalysisItems((prev) => prev.filter((_type) => _type !== type))
-      setUnsavedAnalysisConfig((prev) => ({
-        ...prev,
-        [type]: undefined,
-      }))
-    },
-    [],
-  )
 
   if (!selectedAnalysisItems.length) {
     return (
@@ -184,7 +239,9 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
       {selectedAnalysisItems.includes('resume') && unsavedAnalysisConfig.resume && (
         <ResumeAnalysisItem
           color={unsavedAnalysisConfig.resume.color}
+          frame={unsavedAnalysisConfig.resume.frame}
           resumeType={unsavedAnalysisConfig.resume.type}
+          warningMessage={warningMessage.resume}
           setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
           onClickDeleteItem={onClickDeleteItem('resume')}
         />
@@ -193,25 +250,28 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
       {selectedAnalysisItems.includes('boot') && unsavedAnalysisConfig.boot && (
         <BootAnalysisItem
           color={unsavedAnalysisConfig.boot.color}
+          frame={unsavedAnalysisConfig.boot.frame}
           bootType={unsavedAnalysisConfig.boot.type}
+          warningMessage={warningMessage.boot}
           setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
           onClickDeleteItem={onClickDeleteItem('boot')}
         />
       )}
 
-      {selectedAnalysisItems.includes('channel_change_time') && unsavedAnalysisConfig.channel_change_time && (
+      {/* {selectedAnalysisItems.includes('channel_change_time') && unsavedAnalysisConfig.channel_change_time && (
         <ChannelChangeTimeAnalysisItem
           color={unsavedAnalysisConfig.channel_change_time.color}
           targets={unsavedAnalysisConfig.channel_change_time.targets}
           onClickDeleteItem={onClickDeleteItem('channel_change_time')}
           setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
         />
-      )}
+      )} */}
 
       {selectedAnalysisItems.includes('log_level_finder') && unsavedAnalysisConfig.log_level_finder && (
         <LogLevelFinderAnalysisItem
           color={unsavedAnalysisConfig.log_level_finder.color}
           targets={unsavedAnalysisConfig.log_level_finder.targets}
+          warningMessage={warningMessage.log_level_finder}
           setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
           onClickDeleteItem={onClickDeleteItem('log_level_finder')}
         />
@@ -221,6 +281,7 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
         <LogPatternMatchingAnalysisItem
           color={unsavedAnalysisConfig.log_pattern_matching.color}
           patterns={unsavedAnalysisConfig.log_pattern_matching.items}
+          warningMessage={warningMessage.log_pattern_matching}
           setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
           onClickDeleteItem={onClickDeleteItem('log_pattern_matching')}
         />

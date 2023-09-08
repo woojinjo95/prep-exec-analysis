@@ -1,20 +1,24 @@
 import React from 'react'
-import { Accordion, Text } from '@global/ui'
+import { Accordion, SimpleButton, Text } from '@global/ui'
 import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.svg'
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
 // import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
 import { numberWithCommas } from '@global/usecase'
+import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { AnalysisTypeLabel } from '../../../constant'
-import { AnalysisResultSummary } from '../../../api/entity'
 
 interface LogPatternMatchingSummaryResultItemProps {
-  results: NonNullable<AnalysisResultSummary['log_pattern_matching']>
+  logPatternMatching: NonNullable<AnalysisResultSummary['log_pattern_matching']>
+  setRawDataModalType: React.Dispatch<React.SetStateAction<keyof AnalysisResultSummary | null>>
 }
 
 /**
  * log pattern matching 분석 결과 아이템
  */
-const LogPatternMatchingSummaryResultItem: React.FC<LogPatternMatchingSummaryResultItemProps> = ({ results }) => {
+const LogPatternMatchingSummaryResultItem: React.FC<LogPatternMatchingSummaryResultItemProps> = ({
+  logPatternMatching,
+  setRawDataModalType,
+}) => {
   return (
     <Accordion
       header={
@@ -23,8 +27,7 @@ const LogPatternMatchingSummaryResultItem: React.FC<LogPatternMatchingSummaryRes
             <div
               className="w-4 h-4"
               style={{
-                // TODO:
-                backgroundColor: 'white',
+                backgroundColor: logPatternMatching.color,
               }}
             />
             <Text size="sm" weight="medium">
@@ -32,7 +35,9 @@ const LogPatternMatchingSummaryResultItem: React.FC<LogPatternMatchingSummaryRes
             </Text>
           </div>
 
-          <Text weight="medium">{numberWithCommas(results.reduce((acc, curr) => acc + curr.total, 0))} times</Text>
+          <Text weight="medium">
+            {numberWithCommas(logPatternMatching.results.reduce((acc, curr) => acc + curr.total, 0))} times
+          </Text>
         </div>
       }
     >
@@ -47,7 +52,7 @@ const LogPatternMatchingSummaryResultItem: React.FC<LogPatternMatchingSummaryRes
           </Text>
           <div />
 
-          {results.map(({ total, log_pattern_name, color }, index) => (
+          {logPatternMatching.results.map(({ total, log_pattern_name, color }, index) => (
             <React.Fragment key={`log-pattern-matching-summary-result-${index}`}>
               <div className="flex items-center gap-x-3">
                 <div
@@ -68,11 +73,16 @@ const LogPatternMatchingSummaryResultItem: React.FC<LogPatternMatchingSummaryRes
           ))}
         </div>
 
-        <button type="button" className="flex justify-end items-center gap-x-3">
-          {/* TODO: open raw data modal */}
+        <SimpleButton
+          colorScheme="charcoal"
+          className="ml-auto"
+          onClick={() => setRawDataModalType('log_pattern_matching')}
+        >
           <ShowRawDataIcon className="w-4 h-4" />
-          <Text>Show Raw Data</Text>
-        </button>
+          <Text colorScheme="light" weight="medium">
+            Show Raw Data
+          </Text>
+        </SimpleButton>
       </div>
     </Accordion>
   )

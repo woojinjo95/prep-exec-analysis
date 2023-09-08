@@ -1,6 +1,6 @@
 from typing import List
 
-from app.schemas.enum import LogLevelEnum, FreezeTypeEnum, ResumeTypeEnum
+from app.schemas.enum import LogLevelEnum, FreezeTypeEnum, ResumeTypeEnum, BootTypeEnum
 from pydantic import BaseModel, root_validator
 from pydantic.datetime_parse import parse_datetime
 from typing import Optional
@@ -93,13 +93,22 @@ class Loudness(PaginationBaseModel):
     items: List[LoudnessBase]
 
 
-class MeasurementBootBase(TimestampBaseModel):
+class ResumeBase(TimestampBaseModel):
     target: ResumeTypeEnum
     measure_time: int
 
 
-class MeasurementBoot(PaginationBaseModel):
-    items: List[MeasurementBootBase]
+class Resume(PaginationBaseModel):
+    items: List[ResumeBase]
+
+
+class BootBase(TimestampBaseModel):
+    target: BootTypeEnum
+    measure_time: int
+
+
+class Boot(PaginationBaseModel):
+    items: List[BootBase]
 
 
 class LogPatternMatchingBase(TimestampBaseModel):
@@ -112,6 +121,32 @@ class LogPatternMatchingBase(TimestampBaseModel):
 
 class LogPatternMatching(PaginationBaseModel):
     items: List[LogPatternMatchingBase]
+
+
+class MonkeyTestBase(BaseModel):
+    start_timestamp: str
+    end_timestamp: str
+
+
+class MonkeyTest(PaginationBaseModel):
+    items: List[MonkeyTestBase]
+
+
+class MonkeySmartSenseBase(TimestampBaseModel):
+    smart_sense_key: List[str]
+
+
+class MonkeySmartSense(PaginationBaseModel):
+    items: List[MonkeySmartSenseBase]
+
+
+class IntelligentMonkeySmartSenseBase(TimestampBaseModel):
+    section_id: int
+    smart_sense_key: List[str]
+
+
+class IntelligentMonkeySmartSense(PaginationBaseModel):
+    items: List[IntelligentMonkeySmartSenseBase]
 
 
 class ProcessLifecycleBase(BaseModel):
@@ -131,66 +166,106 @@ class NetworkFilter(BaseModel):
 
 
 # ----- Summary Schemas -----
-class SummaryBase(BaseModel):
+class SummaryInnerBase(BaseModel):
     total: int
 
 
-class FreezeSummary(SummaryBase):
-    target: FreezeTypeEnum
-
-
-class ResumeSummary(SummaryBase):
-    target: ResumeTypeEnum
-    avg_time: float
-
-
-class BootSummary(SummaryBase):
-    target: ResumeTypeEnum
-    avg_time: float
-
-
-class ChannelChangeTimeSummary(SummaryBase):
-    target: str # Enum type TBD
-    avg_time: int
-
-
-class LogLevelFinderSummary(SummaryBase):
-    target: LogLevelEnum
-
-
-class LogPatternMatchingSummary(SummaryBase):
-    log_pattern_name: str
+class SummaryBase(BaseModel):
     color: str
 
 
-class LoudnessSummary(BaseModel):
-    lkfs: int
+class FreezeSummaryBase(SummaryInnerBase):
+    error_type: FreezeTypeEnum
 
 
-class MonkeyTestSummary(BaseModel):
-    duration_time: int # TBD
+class FreezeSummary(SummaryBase):
+    results: List[FreezeSummaryBase]
+
+
+class ResumeSummaryBase(SummaryInnerBase):
+    avg_time: float
+    target: ResumeTypeEnum
+
+
+class ResumeSummary(SummaryBase):
+    results: List[ResumeSummaryBase]
+
+
+class BootSummaryBase(SummaryInnerBase):
+    avg_time: float
+    target: BootTypeEnum
+
+
+class BootSummary(SummaryBase):
+    results: List[BootSummaryBase]
+
+
+class ChannelChangeTimeSummaryBase(SummaryInnerBase):   # 미적용
+    target: str
+    avg_time: int
+
+
+class ChannelChangeTimeSummary(SummaryBase):    # 미적용
+    results: List[ChannelChangeTimeSummaryBase]
+
+
+class LogLevelFinderSummaryBase(SummaryInnerBase):
+    target: LogLevelEnum
+    total: int
+
+
+class LogLevelFinderSummary(SummaryBase):
+    results: List[LogLevelFinderSummaryBase]
+
+
+class LogPatternMatchingSummaryBase(SummaryInnerBase):
+    color: str
+    log_pattern_name: str
+
+
+class LogPatternMatchingSummary(SummaryBase):
+    results: List[LogPatternMatchingSummaryBase]
+
+
+class LoudnessSummary(SummaryBase):
+    lkfs: float
+
+
+class MonkeyTestSummaryBase(BaseModel):
+    duration_time: int
     smart_sense: int
 
 
-class IntelligentMonkeyTestSummary(BaseModel):
-    smart_sense: int # TBD
+class MonkeyTestSummary(SummaryBase):
+    results: List[MonkeyTestSummaryBase]
 
 
-class MacroblockSummary(BaseModel):
-    pass # TBD
+class IntelligentMonkeyTestSummaryBase(BaseModel):
+    section_id: int
+    smart_sense: int
+    image_path: str
+
+
+class IntelligentMonkeyTestSummary(SummaryBase):
+    results: List[IntelligentMonkeyTestSummaryBase]
+
+
+class MacroblockSummary(BaseModel): # 미적용
+    pass
 
 
 class DataSummaryBase(BaseModel):
-    boot: Optional[List[BootSummary]] = None
-    # channel_change_time: Optional[List[ChannelChangeTimeSummary]] = None
-    freeze: Optional[List[FreezeSummary]] = None
-    intelligent_monkey_test: Optional[List[IntelligentMonkeyTestSummary]] = None
-    log_level_finder: Optional[List[LogLevelFinderSummary]] = None
-    log_pattern_matching: Optional[List[LogPatternMatchingSummary]] = None
-    loudness: Optional[List[LoudnessSummary]] = None
-    resume: Optional[List[ResumeSummary]] = None
-    # macro_block: Optional[List[MacroblockSummary]] = None
-    monkey_test: Optional[List[MonkeyTestSummary]] = None
+    boot: Optional[BootSummary] = None
+    # channel_change_time: Optional[ChannelChangeTimeSummary] = None
+    freeze: Optional[FreezeSummary] = None
+    intelligent_monkey_test: Optional[IntelligentMonkeyTestSummary] = None
+    last_updated_timestamp: Optional[str] = None
+    log_level_finder: Optional[LogLevelFinderSummary] = None
+    log_pattern_matching: Optional[LogPatternMatchingSummary] = None
+    loudness: Optional[LoudnessSummary] = None
+    resume: Optional[ResumeSummary] = None
+    # macro_block: Optional[MacroblockSummary] = None
+    monkey_test: Optional[MonkeyTestSummary] = None
 
 
 class DataSummary(BaseModel):

@@ -1,6 +1,6 @@
 import React, { useMemo, useRef } from 'react'
 import { PointChart, Text, TimelineTooltip, TimelineTooltipItem } from '@global/ui'
-import { useEventLogs } from '../api/hook'
+import { useEventLogs } from '@page/AnalysisPage/api/hook'
 import { useTooltipEvent } from '../hook'
 
 interface EventLogChartProps {
@@ -22,7 +22,11 @@ const EventLogChart: React.FC<EventLogChartProps> = ({ scaleX, startTime, endTim
 
   const eventLogsData = useMemo(() => {
     if (!eventLogs) return null
-    return eventLogs.map(({ timestamp, msg }) => ({ datetime: new Date(timestamp).getTime(), message: msg }))
+    return eventLogs.map(({ timestamp, msg }) => ({
+      datetime: new Date(timestamp).getTime(),
+      message: msg,
+      color: '#269',
+    }))
   }, [eventLogs])
 
   const { posX, tooltipData, onMouseMove, onMouseLeave } = useTooltipEvent<NonNullable<typeof eventLogsData>[number]>({

@@ -8,6 +8,8 @@ interface CropBoxProps {
   cropTwoPosY: [number, number]
   clientWidth: number
   clientHeight: number
+  setCropTwoPosX: React.Dispatch<React.SetStateAction<[number, number]>>
+  setCropTwoPosY: React.Dispatch<React.SetStateAction<[number, number]>>
 }
 
 /**
@@ -18,12 +20,12 @@ interface CropBoxProps {
 const CropBox: React.FC<CropBoxProps> = ({
   clientWidth,
   clientHeight,
-  cropTwoPosX: defaultCropTwoPosX,
-  cropTwoPosY: defaultCropTwoPosY,
+  cropTwoPosX,
+  cropTwoPosY,
+  setCropTwoPosX,
+  setCropTwoPosY,
 }) => {
   const [isDragging, setIsDragging] = useState<boolean>(false)
-  const [cropTwoPosX, setCropTwoPosX] = useState<[number, number]>(defaultCropTwoPosX)
-  const [cropTwoPosY, setCropTwoPosY] = useState<[number, number]>(defaultCropTwoPosY)
   const cropWidth = useMemo(() => Math.abs(cropTwoPosX[0] - cropTwoPosX[1]), [cropTwoPosX])
   const cropHeight = useMemo(() => Math.abs(cropTwoPosY[0] - cropTwoPosY[1]), [cropTwoPosY])
   const translateX = useMemo(() => {

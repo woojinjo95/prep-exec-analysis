@@ -28,9 +28,6 @@ def read_analysis_config(
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
-
-        scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        testrun_id = RedisClient.hget('testrun', 'id')
         pipeline = [{"$match": {'id': scenario_id}},
                     {"$unwind": "$testruns"},
                     {"$project": {"testrun_id": "$testruns.id",

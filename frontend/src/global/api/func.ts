@@ -10,6 +10,7 @@ import {
   Scenario,
   BlockGroup,
   VideoSummary,
+  TestRun,
 } from './entity'
 import apiUrls from './url'
 
@@ -205,6 +206,22 @@ export const postTestrun = async (scenaroId: string) => {
   }
 }
 
+/**
+ * 테스트런 조회
+ */
+export const getTestrun = async (params: { scenario_id: string }) => {
+  try {
+    const result = await API.get<Response<TestRun[]>>(`${apiUrls.testrun}`, {
+      params,
+    })
+
+    return result.data.items
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
 interface postCopyScenarioParams {
   src_scenario_id: string
   name: string
@@ -217,7 +234,40 @@ interface postCopyScenarioParams {
  */
 export const postCopyScenario = async ({ copy_scenario }: { copy_scenario: postCopyScenarioParams }) => {
   try {
-    await API.post<{ msg: string; id: string }>(`${apiUrls.copy_scenario}`, copy_scenario)
+    const result = await API.post<{ msg: string; id: string; testrun_id: string }>(
+      `${apiUrls.copy_scenario}`,
+      copy_scenario,
+    )
+
+    return result.data
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
+/**
+ * post scenario
+ */
+export const postScenario = async ({
+  is_active,
+  name,
+  tags,
+}: {
+  is_active: boolean
+  name?: string
+  tags?: string[]
+}) => {
+  try {
+    const result = await API.post<{ msg: string; id: string; testrun_id: string }>(`${apiUrls.scenario}`, {
+      params: {
+        is_active,
+        name,
+        tags,
+      },
+    })
+
+    return result.data
   } catch (err) {
     const er = err as AxiosError
     throw er

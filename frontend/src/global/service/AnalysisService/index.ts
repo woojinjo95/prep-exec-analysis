@@ -1,6 +1,6 @@
 import { Subject } from 'rxjs'
 
-type AnalysisEvent = { msg: 'analysis' }
+type AnalysisEvent = { msg: 'analysis' | 'not_validate_analysis' }
 
 const startAnalysis$ = new Subject<AnalysisEvent>()
 

@@ -9,9 +9,19 @@ from ..configs.config import RedisDBEnum, get_value
 from ..configs.constant import RedisChannel
 from ..utils.file_manage import JsonManager, substitute_path_extension
 from ..connection.redis_pubsub import get_strict_redis_connection, publish
-from ..utils._exceptions import handle_errors
+from ..utils._exceptions import handle_errors, handle_none_return
+from ..utils._subprocess import get_output
 
 logger = logging.getLogger('main')
+
+
+@handle_none_return(float)
+@handle_errors
+def get_ffprobe_video_duration(video_path: str) -> float:
+    duration = get_output(f'ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 {video_path}')
+    logger.info(f'Get data from {video_path}: duration={duration}')
+
+    return float(duration)
 
 
 @handle_errors
@@ -51,7 +61,7 @@ def process_video_info(file_info: dict) -> dict:
 
 
 @handle_errors
-def summarize_merged_video_info(requested_start_time: float, output_json_path: str, json_name_list: List[str]) -> Dict:
+def summarize_merged_video_info(requested_start_time: float, requested_end_time: float, output_json_path: str, json_name_list: List[str]) -> Dict:
     video_infos = []
     for json_file in json_name_list:
         with open(json_file, 'r') as f:
@@ -91,10 +101,15 @@ def summarize_merged_video_info(requested_start_time: float, output_json_path: s
         current_info = video_infos[0]
 
     # video #last
-    # 마지막 영상은 다음 영상이 없으므로, 자신의 가장 마지막 수정 시각 이용
     last_video_info = current_info
     start_time = last_video_info['created_time']
-    calculated_interval = last_video_info['last_modified'] - last_video_info['created_time']
+
+    last_video_path = substitute_path_extension(json_name_list[-1], 'mp4')
+    video_duration = get_ffprobe_video_duration(last_video_path)
+    modified_duration = last_video_info['last_modified'] - last_video_info['created_time']
+    calculated_interval = video_duration or modified_duration
+    info['logs'].append(('info', f'video duration is {video_duration} and modified duration is {modified_duration}, ignore last calculated fps'))
+    
     calculated_fps = last_video_info['frame_count'] / calculated_interval
 
     error_logging(primary_data, info, start_time, calculated_interval, calculated_fps)
@@ -102,9 +117,16 @@ def summarize_merged_video_info(requested_start_time: float, output_json_path: s
 
     # 비디오 평가
     first_video_time = info['timestamps'][0]
+    last_video_time = info['timestamps'][-1]
     if requested_start_time < first_video_time:
         diff = first_video_time - requested_start_time
         log = f'Video is not exist before {first_video_time}, first {diff:.3f} seconds is missed.'
+        logger.warning(log)
+        info['logs'].append(('warning', log))
+
+    if last_video_time < requested_end_time:
+        diff = requested_end_time - last_video_time
+        log = f'Video is not exist after {last_video_time}, last {diff:.3f} seconds is missed.'
         logger.warning(log)
         info['logs'].append(('warning', log))
 

@@ -1,11 +1,12 @@
 import { AnalysisType, FreezeType } from '@global/constant'
-import { BootType, ResumeType } from '../api/entity'
+import { BootType, ResumeType } from '@page/AnalysisPage/api/entity'
 
 /**
  * 설정 가능한 분석유형 리스트
  */
 export const ConfigurableAnalysisTypes: (keyof typeof AnalysisType)[] = [
   'freeze',
+  'loudness',
   'resume',
   'boot',
   'log_level_finder',

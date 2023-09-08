@@ -39,7 +39,7 @@ async def consumer_adb_handler(conn: any, shell_id: int, proc: any, CHANNEL_NAME
         while True:
             try:  # 루프 깨지지 않도록 예외처리
                 raw = await pubsub.get_message(ignore_subscribe_messages=True)
-                await asyncio.sleep(0.001)
+                await asyncio.sleep(0.01)
                 # 필요없는 메시지는 여기서 걸러줌
                 if raw is None:
                     continue
@@ -65,6 +65,12 @@ async def consumer_adb_handler(conn: any, shell_id: int, proc: any, CHANNEL_NAME
                     queue.put_nowait({'timestamp': datetime.utcnow().timestamp(), 'module':  "stdin", 'message': command})
                     await proc.stdin.drain()
                     await asyncio.sleep(0.5)
+                    await conn.publish(CHANNEL_NAME, json.dumps({
+                        "msg": "shell_response",
+                        "level": "info",
+                        "service": "shell",
+                        "timestamp": datetime.utcnow().timestamp()
+                    }))
             except Exception as e:
                 print(e)
     except Exception as exc:
@@ -93,7 +99,7 @@ async def adb_connect(conn: any, shell_id: int, ADB_HOST: str, ADB_PORT: int, CH
     print("create task")
     read_stderr_task = asyncio.create_task(read_stderr(proc.stderr, queue))
     read_stdout_task = asyncio.create_task(read_stdout(proc.stdout, queue))
-    process_log_task = asyncio.create_task(process_log_queue(queue, conn, CHANNEL_NAME, "adb", shell_id, testinfo))
+    process_log_task = asyncio.create_task(process_log_queue(queue, conn, CHANNEL_NAME, "adb"))
     consumer_task = asyncio.create_task(consumer_adb_handler(conn=conn, shell_id=shell_id,
                                                              proc=proc, CHANNEL_NAME=CHANNEL_NAME, queue=queue))
     print("start task")

@@ -1,20 +1,21 @@
 import React from 'react'
-import { Accordion, Text } from '@global/ui'
+import { Accordion, SimpleButton, Text } from '@global/ui'
 import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.svg'
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
 // import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
 import { numberWithCommas } from '@global/usecase'
+import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { AnalysisTypeLabel, FreezeTypeLabel } from '../../../constant'
-import { AnalysisResultSummary } from '../../../api/entity'
 
 interface FreezeSummaryResultItemProps {
-  results: NonNullable<AnalysisResultSummary['freeze']>
+  freeze: NonNullable<AnalysisResultSummary['freeze']>
+  setRawDataModalType: React.Dispatch<React.SetStateAction<keyof AnalysisResultSummary | null>>
 }
 
 /**
  * freeze 분석결과 요약 아이템
  */
-const FreezeSummaryResultItem: React.FC<FreezeSummaryResultItemProps> = ({ results }) => {
+const FreezeSummaryResultItem: React.FC<FreezeSummaryResultItemProps> = ({ freeze, setRawDataModalType }) => {
   return (
     <Accordion
       header={
@@ -23,8 +24,7 @@ const FreezeSummaryResultItem: React.FC<FreezeSummaryResultItemProps> = ({ resul
             <div
               className="w-4 h-4"
               style={{
-                // TODO:
-                backgroundColor: 'white',
+                backgroundColor: freeze.color,
               }}
             />
             <Text size="sm" weight="medium">
@@ -32,7 +32,9 @@ const FreezeSummaryResultItem: React.FC<FreezeSummaryResultItemProps> = ({ resul
             </Text>
           </div>
 
-          <Text weight="medium">{numberWithCommas(results.reduce((acc, curr) => acc + curr.total, 0))} times</Text>
+          <Text weight="medium">
+            {numberWithCommas(freeze.results.reduce((acc, curr) => acc + curr.total, 0))} times
+          </Text>
         </div>
       }
     >
@@ -47,9 +49,9 @@ const FreezeSummaryResultItem: React.FC<FreezeSummaryResultItemProps> = ({ resul
           </Text>
           <div />
 
-          {results.map(({ total, target }, index) => (
+          {freeze.results.map(({ total, error_type }, index) => (
             <React.Fragment key={`freeze-summary-result-${index}`}>
-              <Text size="sm">{FreezeTypeLabel[target]}</Text>
+              <Text size="sm">{FreezeTypeLabel[error_type]}</Text>
               <Text size="sm" className="text-right">
                 {numberWithCommas(total)}
               </Text>
@@ -60,11 +62,12 @@ const FreezeSummaryResultItem: React.FC<FreezeSummaryResultItemProps> = ({ resul
           ))}
         </div>
 
-        <button type="button" className="flex justify-end items-center gap-x-3">
-          {/* TODO: open raw data modal */}
+        <SimpleButton colorScheme="charcoal" className="ml-auto" onClick={() => setRawDataModalType('freeze')}>
           <ShowRawDataIcon className="w-4 h-4" />
-          <Text>Show Raw Data</Text>
-        </button>
+          <Text colorScheme="light" weight="medium">
+            Show Raw Data
+          </Text>
+        </SimpleButton>
       </div>
     </Accordion>
   )

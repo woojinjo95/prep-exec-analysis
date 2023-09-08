@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Button, OptionItem, Select, Text } from '@global/ui'
 import { AnalysisService } from '@global/service'
 import { useServiceState } from '@global/api/hook'
+import { useObservableState } from '@global/hook'
 import { AnalysisTypeLabel, ConfigurableAnalysisTypes } from '../../../constant'
 
 interface HeaderProps {
@@ -13,7 +14,22 @@ interface HeaderProps {
  * 분석 아이템 설정 패널 헤더
  */
 const Header: React.FC<HeaderProps> = ({ selectedAnalysisItems, setSelectedAnalysisItems }) => {
-  const { serviceState } = useServiceState()
+  const [isStartAnalysis, setIsStartAnalysis] = useState<boolean>(false)
+  const { serviceState } = useServiceState({
+    onSuccess: (state) => {
+      if (isStartAnalysis && state !== 'analysis') {
+        setIsStartAnalysis(false)
+      }
+    },
+  })
+
+  useObservableState({
+    obs$: AnalysisService.onAnalysis$(),
+    callback: (state) => {
+      if (state?.msg !== 'not_validate_analysis') return
+      setIsStartAnalysis(false)
+    },
+  })
 
   return (
     <div className="flex gap-x-4 w-full">
@@ -46,9 +62,10 @@ const Header: React.FC<HeaderProps> = ({ selectedAnalysisItems, setSelectedAnaly
       {/* TODO: 분석 시작 명령 전송 후 응답(analysis_response) 오기 전까지 로딩 표시 */}
       <Button
         colorScheme="primary"
-        disabled={serviceState === 'analysis'}
+        disabled={isStartAnalysis || serviceState === 'analysis'}
         onClick={() => {
           AnalysisService.startAnalysis({ msg: 'analysis' })
+          setIsStartAnalysis(true)
         }}
       >
         Analysis

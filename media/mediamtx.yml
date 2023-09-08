@@ -95,8 +95,8 @@ hlsPartDuration: 200ms
 ###############################################
 # WebRTC parameters
 
-# Disable support for the WebRTC protocol.
-webrtcDisable: no
+# Disable  for the WebRTC protocol.
+webrtcDisable: yes
 
 ###############################################
 # Path parameters

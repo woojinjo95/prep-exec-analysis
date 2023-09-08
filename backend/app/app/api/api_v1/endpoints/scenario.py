@@ -11,8 +11,9 @@ from app.api.utility import (get_utc_datetime,
                              paginate_from_mongodb_aggregation,
                              parse_bytes_to_value, set_ilike,
                              set_redis_pub_msg)
-from app.crud.base import (count_from_mongodb, insert_one_to_mongodb,
-                           load_by_id_from_mongodb, update_by_id_to_mongodb)
+from app.crud.base import (count_from_mongodb, delete_part_to_mongodb,
+                           insert_one_to_mongodb, load_by_id_from_mongodb,
+                           update_by_id_to_mongodb)
 from app.db.redis_session import RedisClient
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.encoders import jsonable_encoder
@@ -126,17 +127,17 @@ def read_scenarios(
                                   'updated_at': '$updated_at',
                                   "testrun_count": {"$size": {"$filter": {"input": "$testruns",
                                                                           "as": "testrun",
-                                                                          "cond": {"$eq": ["$$testrun.is_active", True]}}}},
+                                                                          "cond": {"$ifNull": ["$$testrun.last_updated_timestamp", False]}}}},
                                   'has_block': {'$cond': {'if': {'$eq': [{'$size': '$block_group'}, 0]},
                                                           'then': False,
-                                                          'else': True}}}}]
+                                                          'else': True}}
+                                  }}]
         res = paginate_from_mongodb_aggregation(col='scenario',
                                                 pipeline=pipeline,
                                                 page=page,
                                                 page_size=page_size,
                                                 sort_by=sort_by if sort_by else 'updated_at',
                                                 sort_desc=sort_desc if sort_desc is not None else True)
-
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
@@ -193,7 +194,6 @@ def create_scenario(
                                                     'tags': scenario_in.tags,
                                                     'block_group': block_group_data,
                                                     'testruns': [{'id': testrun_id,
-                                                                  'is_active': True,
                                                                   'raw': {'videos': []},
                                                                   'analysis': {}}]})
 
@@ -245,7 +245,6 @@ def copy_scenario(
 
         workspace_path = RedisClient.hget('testrun', 'workspace_path')
         scenario_id = str(uuid.uuid4())
-        testrun_id = datetime.now().strftime("%Y-%m-%dT%H%M%SF%f")
         block_groups = jsonable_encoder(scenario_in.block_group) if scenario_in.block_group else []
         block_group_data = [
             {
@@ -259,10 +258,27 @@ def copy_scenario(
             for block_group in block_groups
         ]
 
-        # 폴더 생성
-        path = f'{workspace_path}/{testrun_id}'
-        os.makedirs(f'{path}/raw')
-        os.makedirs(f'{path}/analysis')
+        src_testrun_id = RedisClient.hget('testrun', 'id')
+        src_testrun = next((item for item in scenario.get('testruns', [])
+                            if item['id'] == src_testrun_id), None)
+
+        # 기존 시나리오에 testrun이 있을 경우
+        if src_testrun:
+            testrun_id = src_testrun_id
+            testruns = [src_testrun]
+            delete_part_to_mongodb(col='scenario',
+                                   param={'id': scenario_in.src_scenario_id},
+                                   data={"testruns": {"id": src_testrun_id}})
+        else:
+            testrun_id = datetime.now().strftime("%Y-%m-%dT%H%M%SF%f")
+            testruns = [{'id': testrun_id,
+                        'raw': {'videos': []},
+                         'analysis': {}}]
+
+            # 폴더 생성
+            path = f'{workspace_path}/{testrun_id}'
+            os.makedirs(f'{path}/raw')
+            os.makedirs(f'{path}/analysis')
 
         # 시나리오 복제
         insert_one_to_mongodb(col='scenario', data={'id': scenario_id,
@@ -271,7 +287,7 @@ def copy_scenario(
                                                     'name': scenario_in.name,
                                                     'tags': scenario_in.tags,
                                                     'block_group': block_group_data,
-                                                    'testruns': scenario.get('testruns', [])})
+                                                    'testruns': testruns})
 
         # 워크스페이스 변경
         RedisClient.hset('testrun', 'id', testrun_id)

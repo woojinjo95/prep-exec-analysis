@@ -8,6 +8,7 @@ from scripts.monkey.monkey_test.default import MonkeyTest
 from scripts.monkey.format import MonkeyArgs, RemoconInfo
 from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.redis import get_monkey_test_arguments
+from scripts.external.scenario import update_history
 
 
 logger = logging.getLogger('main')
@@ -69,10 +70,11 @@ def test_monkey():
         else:
             raise NotImplementedError(f"invalid analysis_type: {analysis_type}")
 
-        publish_msg({}, 'monkey_response')
+        publish_msg({'measurement': analysis_type}, 'monkey_response')
+        update_history(analysis_type)
 
     except Exception as err:
         error_detail = traceback.format_exc()
-        publish_msg({'log': error_detail}, 'monkey_response', level='error')
+        publish_msg({'measurement': analysis_type, 'log': error_detail}, 'monkey_response', level='error')
         logger.error(f"error in test_monkey: {err}")
         logger.warning(error_detail)

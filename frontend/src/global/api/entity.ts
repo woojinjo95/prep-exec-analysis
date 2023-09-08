@@ -33,6 +33,8 @@ export interface ScenarioSummary {
   name: string
   tags: string[]
   updated_at: number
+  testrun_count: number
+  has_block: boolean
 }
 
 export type IPLimitProtocol = 'all' | 'tcp' | 'udp'
@@ -94,8 +96,10 @@ type BlockType =
  * `playblock` 재생 (녹화 및 로그수집 O, 스트리밍 O)
  *
  * `analysis` 분석 (녹화 및 로그수집 X, 스트리밍 X)
+ *
+ * `recording` 기록 (결과 비디오 파일 생성, 녹화 및 로그 수집 X, 스트리밍 X)
  */
-export type ServiceState = 'idle' | 'streaming' | 'playblock' | 'analysis'
+export type ServiceState = 'idle' | 'streaming' | 'playblock' | 'analysis' | 'recording'
 
 export interface Block {
   type: BlockType
@@ -134,4 +138,27 @@ export interface VideoSummary {
   start_time: string
   end_time: string
   path: string
+}
+
+/**
+ * 테스트런
+ */
+export interface TestRun {
+  id: string
+  updated_at: string
+  measure_targets: string[]
+}
+
+/**
+ * 분석 설정 아이템 Frame
+ */
+export interface AnalysisFrame {
+  relative_time: number // second
+  path: string
+  roi: {
+    x: number
+    y: number
+    w: number
+    h: number
+  }
 }

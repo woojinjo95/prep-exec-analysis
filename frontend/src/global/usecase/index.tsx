@@ -152,7 +152,7 @@ export const createPortalStyle = ({
 /**
  * 소수점이 .0일 땐 정수만 표시, 소수점이 있을 땐 소수점 1번째 자리까지 표시
  */
-const dropDecimalPoint = (number: number, point?: number) =>
+export const dropDecimalPoint = (number: number, point?: number) =>
   numberWithCommas(Number(Number.isInteger(number) ? number.toFixed() : number.toFixed(point || 1)))
 
 /**
@@ -169,4 +169,49 @@ export const bytesToSize = (bytes: number) => {
   const i = Math.floor(Math.log(bytes) / Math.log(1024))
   if (i === 0) return `${dropDecimalPoint(bytes)} ${sizes[i]}`
   return `${dropDecimalPoint(bytes / 1024 ** i)} ${sizes[i]}`
+}
+
+/**
+ * Promise를 반환하는 시간 대기 함수
+ */
+export const delay = (sec: number): Promise<void> => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, sec * 1000)
+  })
+}
+
+/**
+ * 시간의 차이를 ms부터 일 단위까지 계산하여 표시해주는 함수
+ *
+ * @param duration 지속시간(ms)
+ */
+export const convertDuration = (duration: number) => {
+  const date = new Date(duration)
+
+  // 1일 이상
+  if (duration > 24 * 60 * 60 * 1000) {
+    return `${duration / (24 * 60 * 60 * 1000)}d ${date.getHours()}h ${date.getMinutes()}m ${date.getSeconds()}s`
+  }
+
+  // 1시간 이상
+  if (duration > 60 * 60 * 1000) {
+    return `${date.getHours()}h ${date.getMinutes()}m ${date.getSeconds()}s`
+  }
+
+  // 1분 이상
+  if (duration > 60 * 1000) {
+    return `${date.getMinutes()}m ${date.getSeconds()}s`
+  }
+
+  // 3초 이상
+  if (duration > 3 * 1000) {
+    return `${date.getSeconds()}s`
+  }
+
+  // 1초 이상
+  if (duration > 1000) {
+    return `${numberWithCommas(date.getSeconds() * 1000 + date.getMilliseconds())}ms`
+  }
+
+  return `${date.getMilliseconds()}ms`
 }

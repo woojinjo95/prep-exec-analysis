@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { ReactComponent as GoToFirstIcon } from '@assets/images/icon_go_to_first_w.svg'
 import { ReactComponent as StepBackIcon } from '@assets/images/icon_step_back_1sec_w.svg'
@@ -11,6 +11,7 @@ import { cursorDateTimeState, scenarioIdState, testRunIdState } from '@global/at
 import { AppURL } from '@global/constant'
 import apiUrls from '@page/AnalysisPage/api/url'
 import { useVideoSummary } from '@global/api/hook'
+import { delay } from '@global/usecase'
 
 /**
  * 결과영상 및 정보 영역
@@ -42,6 +43,13 @@ const VideoDetailSection: React.FC = () => {
     setCurrentTime(newCurrentTime)
     videoRef.current.currentTime = newCurrentTime
   }, [cursorDateTime])
+
+  const onLoadVideoError = useCallback(async () => {
+    if (!videoRef.current) return
+
+    await delay(2)
+    videoRef.current.load()
+  }, [])
 
   return (
     <section className="bg-black text-white grid grid-rows-1 grid-cols-[1fr_1.5fr_1fr]">
@@ -112,7 +120,6 @@ const VideoDetailSection: React.FC = () => {
             className="h-full aspect-video"
             src={`${AppURL.backendURL}${apiUrls.partial_video}?scenario_id=${scenarioId}&testrun_id=${testRunId}`}
             muted
-            controls
             loop={false}
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
@@ -123,6 +130,9 @@ const VideoDetailSection: React.FC = () => {
             onTimeUpdate={() => {
               if (!videoRef.current) return
               setCurrentTime(videoRef.current.currentTime)
+            }}
+            onError={() => {
+              onLoadVideoError()
             }}
           />
         )}

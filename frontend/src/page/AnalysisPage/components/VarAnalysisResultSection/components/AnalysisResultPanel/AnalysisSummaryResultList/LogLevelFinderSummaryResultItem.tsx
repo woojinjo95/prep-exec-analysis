@@ -3,17 +3,17 @@ import { Accordion, Text } from '@global/ui'
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
 // import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
 import { numberWithCommas } from '@global/usecase'
+import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { AnalysisTypeLabel } from '../../../constant'
-import { AnalysisResultSummary } from '../../../api/entity'
 
 interface LogLevelFinderSummaryResultItemProps {
-  results: NonNullable<AnalysisResultSummary['log_level_finder']>
+  logLevelFinder: NonNullable<AnalysisResultSummary['log_level_finder']>
 }
 
 /**
  * log level finder 분석결과 요약 아이템
  */
-const LogLevelFinderSummaryResultItem: React.FC<LogLevelFinderSummaryResultItemProps> = ({ results }) => {
+const LogLevelFinderSummaryResultItem: React.FC<LogLevelFinderSummaryResultItemProps> = ({ logLevelFinder }) => {
   return (
     <Accordion
       header={
@@ -22,8 +22,7 @@ const LogLevelFinderSummaryResultItem: React.FC<LogLevelFinderSummaryResultItemP
             <div
               className="w-4 h-4"
               style={{
-                // TODO:
-                backgroundColor: 'white',
+                backgroundColor: logLevelFinder.color,
               }}
             />
             <Text size="sm" weight="medium">
@@ -31,7 +30,9 @@ const LogLevelFinderSummaryResultItem: React.FC<LogLevelFinderSummaryResultItemP
             </Text>
           </div>
 
-          <Text weight="medium">{numberWithCommas(results.reduce((acc, curr) => acc + curr.total, 0))} times</Text>
+          <Text weight="medium">
+            {numberWithCommas(logLevelFinder.results.reduce((acc, curr) => acc + curr.total, 0))} times
+          </Text>
         </div>
       }
     >
@@ -45,7 +46,7 @@ const LogLevelFinderSummaryResultItem: React.FC<LogLevelFinderSummaryResultItemP
         </Text>
         <div />
 
-        {results.map(({ total, target }, index) => (
+        {logLevelFinder.results.map(({ total, target }, index) => (
           <React.Fragment key={`log-level-finder-summary-result-${index}`}>
             <Text size="sm">Logcat {target}</Text>
             <Text size="sm" className="text-right">

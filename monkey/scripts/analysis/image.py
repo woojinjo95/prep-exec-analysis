@@ -23,10 +23,8 @@ def get_cropped_image(image: np.ndarray, roi: List[int]) -> np.ndarray:
         np.ndarray: cropped image
     """
     x, y, w, h = roi
-    y_min = y
-    y_max = y + h
-    x_min = x
-    x_max = x + w
+    y_min, y_max = y, y + h
+    x_min, x_max = x, x + w
 
     height, width = image.shape[:2]
 
@@ -37,7 +35,8 @@ def get_cropped_image(image: np.ndarray, roi: List[int]) -> np.ndarray:
     elif w * h > width * height or y_min < 0 or x_min < 0:
         logger.warn(f'ROI is exceed image size, w:{width}, h:{height}, roi: {roi}')
 
-    return image[y_min:y_max, x_min:x_max]
+    cropped_image = image[y_min:y_max, x_min:x_max].copy()
+    return cropped_image
 
 
 def is_similar_by_match_template(image: np.ndarray, template: np.ndarray, match_thres: float = 0.8) -> bool:

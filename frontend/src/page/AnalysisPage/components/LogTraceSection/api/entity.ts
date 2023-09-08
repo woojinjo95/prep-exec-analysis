@@ -13,8 +13,8 @@ export interface Logcat {
 
 export interface Network {
   timestamp: string
-  source: string
-  destination: string
+  src: string
+  dst: string
   protocol: 'all' | 'tcp' | 'udp' | 'ip' | 'icmp' | 'igmp'
   length: number
   info: string
@@ -25,7 +25,6 @@ export interface Network {
  */
 export interface Shell {
   mode: 'adb' | 'ssh'
-  shell_id: number
 }
 
 /**
