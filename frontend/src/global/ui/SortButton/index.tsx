@@ -4,10 +4,10 @@ import { ReactComponent as AscSortIcon } from '@assets/images/icon_sort_ascendin
 import { ReactComponent as DescSortIcon } from '@assets/images/icon_sort_descending.svg'
 import { SimpleButton } from '..'
 
-interface SortButtonProps<T extends string, D extends T> {
-  value: D
-  sortBy?: T
-  setSortBy: (value: React.SetStateAction<T | undefined>) => void
+interface SortButtonProps<SortBy extends string, SortByValue extends SortBy> {
+  value: SortByValue
+  sortBy?: SortBy
+  setSortBy: (value: React.SetStateAction<SortBy | undefined>) => void
   sortDesc: boolean
   setSortDesc: (value: React.SetStateAction<boolean>) => void
 }
@@ -15,13 +15,13 @@ interface SortButtonProps<T extends string, D extends T> {
 /**
  * 정렬 버튼 컴포넌트
  */
-const SortButton = <T extends string, D extends T>({
+const SortButton = <SortBy extends string, SortByValue extends SortBy>({
   value,
   sortBy,
   setSortBy,
   sortDesc,
   setSortDesc,
-}: SortButtonProps<T, D>): React.ReactElement => {
+}: SortButtonProps<SortBy, SortByValue>): React.ReactElement => {
   return (
     <>
       {sortBy !== value && (
