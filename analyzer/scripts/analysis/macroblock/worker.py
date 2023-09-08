@@ -29,7 +29,7 @@ class Worker:
                                                 crack_patch_ratio=get_setting_with_env('CRACK_PATCH_RATIO', 0.2),
                                                 row_crack_patch_ratio=get_setting_with_env('ROW_CRACK_PATCH_RATIO', 0.5))
 
-    def process_image(self, image: np.ndarray) -> bool:
+    def check_macroblock_occured(self, image: np.ndarray) -> bool:
         try:
             split_result = self.preprocess_image(image)
             cls_result = self.predict_with_patch_images(split_result.patches)
