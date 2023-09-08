@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { PageContainer, Text } from '@global/ui'
 import { useVideoSummary } from '@global/api/hook'
@@ -6,6 +6,8 @@ import { AppURL } from '@global/constant'
 import { cursorDateTimeState, scenarioIdState, testRunIdState, videoBlobURLState } from '@global/atom'
 
 import { useNavigate } from 'react-router-dom'
+import { ReactComponent as RealTimeScreenIcon } from '@assets/images/icon_realtime_screen.svg'
+import cx from 'classnames'
 import LogTraceSection from './components/LogTraceSection'
 import VideoDetailSection from './components/VideoDetailSection'
 import TimelineSection from './components/TimelineSection'
@@ -53,7 +55,7 @@ const AnalysisPage: React.FC = () => {
   }, [scenarioId, testRunId])
 
   return (
-    <PageContainer className="grid grid-cols-[65%_35%] grid-rows-[40%_25%_calc(35%-28px)_28px]">
+    <PageContainer className="grid grid-cols-[65%_35%] grid-rows-[40%_25%_calc(35%-28px)_28px] relative">
       <VideoDetailSection />
       <VarAnalysisResultSection />
       <LogTraceSection />
@@ -66,6 +68,18 @@ const AnalysisPage: React.FC = () => {
           © 2023 NEXTLab ALL RIGHTS RESERVED.
         </Text>
       </div>
+      <button
+        type="button"
+        className={cx(
+          'bg-[#FFFFFFCC] flex items-center justify-center absolute w-[190px] h-12 aboslute top-5 left-10 rounded-full border-2 border-primary py-3 px-1 cursor-pointer z-10 transition-opacity opacity-50 hover:opacity-100',
+        )}
+        onClick={() => {
+          navigate('/action')
+        }}
+      >
+        <RealTimeScreenIcon className="w-[18px] h-[15px] mr-2" />
+        <Text colorScheme="dark">Real-time Screen</Text>
+      </button>
     </PageContainer>
   )
 }
