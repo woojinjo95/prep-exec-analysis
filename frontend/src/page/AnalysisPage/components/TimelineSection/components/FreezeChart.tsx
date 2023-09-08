@@ -1,7 +1,9 @@
 import React, { useMemo, useRef } from 'react'
+import { useRecoilValue } from 'recoil'
 import { RangeChart, TimelineTooltip, TimelineTooltipItem, Text } from '@global/ui'
-import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
+import { freezeTypeFilterListState } from '@global/atom'
 import { convertDuration } from '@global/usecase'
+import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { useFreeze } from '@page/AnalysisPage/api/hook'
 import { useTooltipEvent } from '../hook'
 
@@ -17,22 +19,24 @@ interface FreezeChartProps {
  * Video Analysis Result(freeze) 차트
  */
 const FreezeChart: React.FC<FreezeChartProps> = ({ scaleX, startTime, endTime, dimension, summary }) => {
+  const freezeTypeFilterList = useRecoilValue(freezeTypeFilterListState)
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const { freeze } = useFreeze({
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
-    // TODO: 타입별 보기 / 숨기기 기능
     freeze_type: summary.freeze?.results.map(({ error_type }) => error_type),
   })
 
   const freezeData = useMemo(() => {
     if (!freeze) return null
-    return freeze.map(({ timestamp, duration }) => ({
-      datetime: new Date(timestamp).getTime(),
-      duration: duration * 1000,
-      color: summary.freeze?.color || 'white',
-    }))
-  }, [freeze, summary])
+    return freeze
+      .filter(({ freeze_type }) => !freezeTypeFilterList.includes(freeze_type))
+      .map(({ timestamp, duration }) => ({
+        datetime: new Date(timestamp).getTime(),
+        duration: duration * 1000,
+        color: summary.freeze?.color || 'white',
+      }))
+  }, [freeze, summary, freezeTypeFilterList])
 
   const { posX, tooltipData, onMouseMove, onMouseLeave } = useTooltipEvent<NonNullable<typeof freezeData>[number]>({
     scaleX,
