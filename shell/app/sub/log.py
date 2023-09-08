@@ -11,9 +11,13 @@ async def process_log_queue(queue: asyncio.Queue, conn: any, CHANNEL_NAME: str, 
     print("process_log_queue")
     while True:
         try:
+            msg = "shell"
             data = queue.get_nowait()
+            # 입력명령의 경우 응답처리 해줌
+            if data['module'] == 'stdin':
+                msg = "shell_response"
             await conn.publish(CHANNEL_NAME, json.dumps({
-                "msg": "shell",
+                "msg": msg,
                 "level": "debug",
                 "data": {
                     "mode": mode,
