@@ -43,7 +43,7 @@ async def consumer_handler(conn: any, db_scenario: any, db_blocks: any, CHANNEL_
                     print(f"state: {state}")
                     await setup_analysis(state, db_scenario, db_blocks, conn)
 
-                if command == "monkey_response ":
+                if command == "monkey_response":
                     # 일단 순차적으로 수행할 것이므로 내용물 체크 안함
                     # 여기가 애매하고 문제가 되는 부분.
                     print("response set event ==> monkey_response")
