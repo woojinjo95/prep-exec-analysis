@@ -75,7 +75,7 @@ async def run_blocks(conn, db_blocks, scenario_id, testrun_id, blocks: list, eve
                 print(f"monkey test wait...{block['type']}")
                 if block['type'] == 'monkey_test':
                     event.clear()
-                    await event.wait()
+                    await asyncio.wait_for(event.wait(), 3200)
                     print("monkey test end...")
             except Exception as e:
                 print(e)
