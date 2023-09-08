@@ -53,7 +53,9 @@ def task_color_reference(args: VideoInfo, config: Dict):
 def get_config() -> Dict:
     resolution = get_setting_with_env('COLOR_REFERENCE_RESOLUTION', (960, 540))
     skip_frame = get_setting_with_env('COLOR_REFERENCE_SKIP_FRAME', 60)
-    return {
+    config = {
         'resolution': resolution,
         'skip_frame': skip_frame,
     }
+    logger.info(f'config: {config}')
+    return config
