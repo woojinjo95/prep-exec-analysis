@@ -7,6 +7,8 @@ from typing import List
 class Videoinfo:
     video_path: str
     timestamps: List[float]
+    frame_count: int = 0
+    fps: float = 0.0
 
 
 @dataclass

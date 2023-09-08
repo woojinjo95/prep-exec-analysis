@@ -46,6 +46,8 @@ def load_input() -> Videoinfo:
     return Videoinfo(
         video_path=video_path,
         timestamps=timestamps,
+        frame_count=frame_count,
+        fps=fps,
     )
 
 
