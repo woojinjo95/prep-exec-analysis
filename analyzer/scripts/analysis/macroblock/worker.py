@@ -9,7 +9,7 @@ from scripts.analysis.macroblock.model.tf_model import MacroblockModel
 from scripts.analysis.macroblock.discriminator.crack_discriminator import CrackDiscriminator
 from scripts.config.config import get_setting_with_env
 from scripts.analysis.image import split_image_with_shape
-from scripts.format import ClassificationResult, ImageSplitResult
+from scripts.format import ClassificationResult, ImageSplitResult, MacroblockResult
 
 
 logger = logging.getLogger('main')
@@ -29,15 +29,16 @@ class Worker:
                                                 crack_patch_ratio=get_setting_with_env('CRACK_PATCH_RATIO', 0.2),
                                                 row_crack_patch_ratio=get_setting_with_env('ROW_CRACK_PATCH_RATIO', 0.5))
 
-    def check_macroblock_occured(self, image: np.ndarray) -> bool:
+    def check_macroblock_occured(self, image: np.ndarray) -> MacroblockResult:
         try:
             split_result = self.preprocess_image(image)
             cls_result = self.predict_with_patch_images(split_result.patches)
             result = self.postprocess_result(cls_result, split_result)
-            return result
+            return MacroblockResult(status='success', result=result, split_result=split_result, cls_result=cls_result)
         except Exception as err:
             logger.error(f'error in process_image. {err}')
             logger.warning(traceback.format_exc())
+            return MacroblockResult(status='error')
 
     def preprocess_image(self, image: np.ndarray) -> ImageSplitResult:
         split_result = split_image_with_shape(image, self.input_shape)

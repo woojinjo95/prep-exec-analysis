@@ -61,6 +61,14 @@ class ClassificationResult:
     pred_delay: float
 
 
+@dataclass
+class MacroblockResult:
+    status: str
+    occurred: bool = False
+    split_result: ImageSplitResult = None
+    cls_result: ClassificationResult = None
+
+
 
 
 class ReportName(Enum):
