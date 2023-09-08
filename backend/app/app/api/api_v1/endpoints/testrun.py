@@ -108,7 +108,7 @@ def read_testruns(
                     {"$project": {"testrun_id": "$testruns.id",
                                   "last_timestamp": "$testruns.last_updated_timestamp",
                                   "targets": "$testruns.measure_targets.type"}},
-                    {'$match': {'last_timestamp': {'$ne' : None}}},
+                    {'$match': {'last_timestamp': {'$ne': None}}},
                     {"$group": {"_id": {
                                 "testrun_id": "$testrun_id",
                                 "last_timestamp": "$last_timestamp",
