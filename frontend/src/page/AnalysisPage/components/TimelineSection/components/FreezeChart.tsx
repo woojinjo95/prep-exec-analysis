@@ -1,7 +1,8 @@
 import React, { useMemo, useRef } from 'react'
 import { RangeChart, TimelineTooltip, TimelineTooltipItem, Text } from '@global/ui'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
-import { useFreeze } from '../api/hook'
+import { convertDuration } from '@global/usecase'
+import { useFreeze } from '@page/AnalysisPage/api/hook'
 import { useTooltipEvent } from '../hook'
 
 interface FreezeChartProps {
@@ -57,7 +58,7 @@ const FreezeChart: React.FC<FreezeChartProps> = ({ scaleX, startTime, endTime, d
               </TimelineTooltipItem>
 
               <TimelineTooltipItem label="Duration">
-                <Text colorScheme="light">{(tooltipData.duration / 1000).toFixed(1)}s</Text>
+                <Text colorScheme="light">{convertDuration(tooltipData.duration)}</Text>
               </TimelineTooltipItem>
             </TimelineTooltip>
           )}

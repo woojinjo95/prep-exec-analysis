@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { Title } from '@global/ui'
 import { AnalysisService } from '@global/service'
-import { useObservableState, useWebsocket } from '@global/hook'
+import { useObservableState } from '@global/hook'
 import { AnalysisType, AnalyzableType, AnalyzableTypes } from '@global/constant'
 
 import { useAnalysisConfig } from '@page/AnalysisPage/api/hook'
 import { AnalysisConfig } from '@page/AnalysisPage/api/entity'
 import { AnalysisTypeLabel } from '../../../constant'
-import { useRemoveAnalysisConfig, useUpdateAnalysisConfig } from '../../../api/hook'
+import { useRemoveAnalysisConfig, useStartAnalysis, useUpdateAnalysisConfig } from '../../../api/hook'
 import { UnsavedAnalysisConfig } from '../../../types'
 import FreezeAnalysisItem from './FreezeAnalysisItem'
 import BootAnalysisItem from './BootAnalysisItem'
@@ -87,7 +87,6 @@ interface AnalysisItemListProps {
  * 분석 아이템 리스트
  */
 const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisItems, setSelectedAnalysisItems }) => {
-  const { sendMessage } = useWebsocket()
   const [unsavedAnalysisConfig, setUnsavedAnalysisConfig] = useState<UnsavedAnalysisConfig>({})
   const [warningMessage, setWarningMessage] = useState<{ [key in keyof typeof AnalysisType]?: string }>({})
   const { analysisConfig, refetch } = useAnalysisConfig({
@@ -110,6 +109,8 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
     },
   })
 
+  const { startAnalysis } = useStartAnalysis()
+
   const { updateAnalysisConfig } = useUpdateAnalysisConfig({
     onSuccess: (_, config) => {
       if (!Object.keys(config).length) return
@@ -121,13 +122,8 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
       // 설정한 분석아이템이 없을 경우
       if (!measurement.length) return
 
-      // 분석 설정 수정에 성공하면 -> 분석 시작 메시지 전송
-      sendMessage({
-        msg: 'analysis',
-        data: {
-          measurement,
-        },
-      })
+      // 분석 설정 수정에 성공하면 -> 분석 시작
+      startAnalysis(measurement)
     },
   })
 

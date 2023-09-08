@@ -2,7 +2,7 @@ import React, { useMemo, useRef } from 'react'
 import * as d3 from 'd3'
 import { AreaChart } from '@global/ui'
 import { CHART_HEIGHT } from '@global/constant'
-import { useColorReferences } from '../api/hook'
+import { useColorReferences } from '@page/AnalysisPage/api/hook'
 import { useTooltipEvent } from '../hook'
 
 interface ColorReferenceChartProps {
