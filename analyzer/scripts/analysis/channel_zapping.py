@@ -42,6 +42,6 @@ def calculate_channel_zapping(video_path: str, timestamps: List[float], event_ti
     c = int((c_date - b_date).total_seconds() * 1000)
 
     logger.info(
-        f'[channel-zapping result] A: {a} ms / B: {b} ms / C: {c} ms / D: {d} ms / total: {a + b + c} ms.')
+        f'[channel-zapping result] A: {a} ms / B: {b} ms / C: {c} ms / total: {a + b + c} ms.')
 
     return a, b, c
