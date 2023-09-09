@@ -14,6 +14,7 @@ import FreezeRawDataModal from './FreezeRawDataModal'
 import MonkeyTestSummaryItem from './MonkeyTestSummaryItem'
 import IntelligentMonkeyTestSummaryItem from './IntelligentMonkeyTestSummaryItem'
 import MonkeyTestRawDataModal from './MonkeyTestRawDataModal'
+import IntelligentMonkeyTestRawDataModal from './IntelligentMonkeyTestRawDataModal'
 
 interface AnalysisSummaryResultListProps {
   summary?: AnalysisResultSummary
@@ -87,6 +88,14 @@ const AnalysisSummaryResultList: React.FC<AnalysisSummaryResultListProps> = ({ s
       {rawDataModalType === 'monkey_test' && (
         <MonkeyTestRawDataModal
           isOpen={rawDataModalType === 'monkey_test'}
+          onClose={() => setRawDataModalType(null)}
+          startTime={startTime}
+          endTime={endTime}
+        />
+      )}
+      {rawDataModalType === 'intelligent_monkey_test' && (
+        <IntelligentMonkeyTestRawDataModal
+          isOpen={rawDataModalType === 'intelligent_monkey_test'}
           onClose={() => setRawDataModalType(null)}
           startTime={startTime}
           endTime={endTime}
