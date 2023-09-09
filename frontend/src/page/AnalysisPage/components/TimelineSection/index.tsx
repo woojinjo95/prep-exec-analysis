@@ -21,11 +21,14 @@ import {
   LogPatternMatchingChart,
   TimelineChartContainer,
 } from './components'
+import MonkeyTestChart from './components/MonkeyTestChart'
 
 const ChartLabel = {
   video: 'Video',
   color_reference: 'Color Reference',
   event_log: 'Event Log',
+  monkey_test: 'Monkey Test',
+  intelligent_monkey_test: 'Intelligent Monkey Test',
   video_analysis_result: 'Video Analysis Result',
   loudness: 'Loudness',
   resume_boot: 'Resume, Boot Measurement',
@@ -61,6 +64,14 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
     end_time: endTime?.toISOString() || null,
     onSuccess: (summary) => {
       setChartList((prev) => prev.filter((v) => v === 'video' || v === 'color_reference' || v === 'event_log'))
+
+      if (summary.monkey_test) {
+        setChartList((prev) => [...prev, 'monkey_test'])
+      }
+
+      if (summary.intelligent_monkey_test) {
+        setChartList((prev) => [...prev, 'intelligent_monkey_test'])
+      }
 
       if (summary.freeze) {
         setChartList((prev) => [...prev, 'video_analysis_result'])
@@ -100,11 +111,12 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
   }, [dimension, timelineScaleX, scrollBarTwoPosX])
 
   // 커서 드래그 관련 state
-  const { onCursorPointerDown, onCursorPointerMove, onCursorPointerUp, cursorTranslateX } = useCursorEvent({
-    scaleX: scrollbarScaleX,
-    offsetLeft: dimension?.left,
-    width: dimension?.width,
-  })
+  const { onCursorPointerDown, onCursorPointerMove, onCursorPointerUp, cursorTranslateX, isCursorDragging } =
+    useCursorEvent({
+      scaleX: scrollbarScaleX,
+      offsetLeft: dimension?.left,
+      width: dimension?.width,
+    })
 
   useEffect(() => {
     if (!chartWrapperRef.current || dimension?.width || dimension?.left || scrollBarTwoPosX) return
@@ -131,16 +143,17 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
   }, [startTime, timelineScaleX, scrollBarTwoPosX])
 
   if (!startTime || !endTime || !analysisResultSummary) {
-    return (
-      <section className="h-full bg-black grid grid-cols-1 grid-rows-[auto_1fr_auto]">
-        <TimelineHeader scaleX={scrollbarScaleX} chartWidth={dimension?.width} />
-      </section>
-    )
+    return <section className="h-full bg-black grid grid-cols-1 grid-rows-[auto_1fr_auto]" />
   }
   return (
     <section className="h-full bg-black grid grid-cols-1 grid-rows-[auto_1fr_auto]">
       {/* time ticks */}
-      <TimelineHeader scaleX={scrollbarScaleX} chartWidth={dimension?.width} cursorTranslateX={cursorTranslateX} />
+      <TimelineHeader
+        scaleX={scrollbarScaleX}
+        chartWidth={dimension?.width}
+        cursorTranslateX={cursorTranslateX}
+        isCursorDragging={isCursorDragging}
+      />
 
       <div className="grid grid-cols-[auto_1fr] grid-rows-1 overflow-y-auto overflow-x-hidden">
         <div className="w-48 z-10">
@@ -200,6 +213,19 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
                   startTime={startTime}
                   endTime={endTime}
                   dimension={dimension}
+                />
+              )
+            }
+
+            if (chartKey === 'monkey_test') {
+              return (
+                <MonkeyTestChart
+                  key={`chart-${chartKey}`}
+                  scaleX={scrollbarScaleX}
+                  startTime={startTime}
+                  endTime={endTime}
+                  dimension={dimension}
+                  summary={analysisResultSummary}
                 />
               )
             }

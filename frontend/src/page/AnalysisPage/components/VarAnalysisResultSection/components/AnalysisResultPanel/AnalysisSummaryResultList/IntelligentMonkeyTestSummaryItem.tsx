@@ -42,7 +42,7 @@ const IntelligentMonkeyTestSummaryItem: React.FC<IntelligentMonkeyTestSummaryIte
             </Text>
           </div>
 
-          <Text weight="medium">{numberWithCommas(intelligentMonkeyTest.results.length)} times</Text>
+          <Text weight="medium">{numberWithCommas(intelligentMonkeyTest.results.length)}</Text>
         </div>
       }
     >
@@ -63,7 +63,7 @@ const IntelligentMonkeyTestSummaryItem: React.FC<IntelligentMonkeyTestSummaryIte
           {intelligentMonkeyTest.results.map(({ section_id, smart_sense, image_path }, index) => (
             <React.Fragment key={`monkey-test-summary-result-item-${index}`}>
               <Text size="sm" className="text-right">
-                #{numberWithCommas(section_id)}
+                #{numberWithCommas(section_id + 1)}
               </Text>
               <div>
                 <img

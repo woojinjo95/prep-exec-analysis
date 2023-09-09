@@ -18,6 +18,8 @@ import {
   getLogPatternMatching,
   getLoudness,
   getMemory,
+  getMonkeySection,
+  getMonkeySmartSense,
   getResume,
 } from './func'
 
@@ -444,4 +446,30 @@ export const useInfiniteLogPatternMatching = (params: Parameters<typeof getLogPa
     loadingRef: ref,
     hasNextPage,
   }
+}
+
+/**
+ * Monkey Section 리스트 조회 hook
+ */
+export const useMonkeySection = (params: Parameters<typeof getMonkeySection>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['monkey_section', params], () =>
+    getMonkeySection({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
+  )
+
+  return { monkeySection: data?.items, isLoading, refetch }
+}
+
+/**
+ * Monkey Smart Sense 리스트 조회 hook
+ */
+export const useMonkeySmartSense = (params: Parameters<typeof getMonkeySmartSense>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['monkey_smart_sense', params], () =>
+    getMonkeySmartSense({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
+  )
+
+  return { monkeySmartSense: data?.items, isLoading, refetch }
 }

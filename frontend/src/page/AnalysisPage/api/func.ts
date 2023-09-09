@@ -14,6 +14,8 @@ import {
   LogPatternMatching,
   Loudness,
   Memory,
+  MonkeySection,
+  MonkeySmartSense,
   Resume,
 } from './entity'
 import apiUrls from './url'
@@ -271,6 +273,54 @@ export const getLogPatternMatching = async (params: {
 }) => {
   try {
     const result = await API.get<PaginationResponse<LogPatternMatching[]>>(apiUrls.log_pattern_matching, {
+      params,
+    })
+
+    return result.data
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
+/**
+ * monkey test section 리스트 조회 api
+ */
+export const getMonkeySection = async (params: {
+  start_time: string
+  end_time: string
+  scenario_id?: string
+  testrun_id?: string
+  page?: number
+  page_size?: number
+}) => {
+  try {
+    const result = await API.get<PaginationResponse<MonkeySection[]>>(apiUrls.monkey_section, {
+      params,
+    })
+
+    return result.data
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
+/**
+ * monkey test smart sense 리스트 조회 api
+ */
+export const getMonkeySmartSense = async (params: {
+  start_time: string
+  end_time: string
+  scenario_id?: string
+  testrun_id?: string
+  page?: number
+  page_size?: number
+  sort_by?: keyof Pick<MonkeySmartSense, 'timestamp' | 'smart_sense_key'>
+  sort_desc?: boolean
+}) => {
+  try {
+    const result = await API.get<PaginationResponse<MonkeySmartSense[]>>(apiUrls.monkey_smart_sense, {
       params,
     })
 
