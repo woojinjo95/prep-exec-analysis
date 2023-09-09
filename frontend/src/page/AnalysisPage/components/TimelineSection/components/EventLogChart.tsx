@@ -3,6 +3,7 @@ import { PointChart, Text, TimelineTooltip, TimelineTooltipItem } from '@global/
 import { useEventLogs } from '@page/AnalysisPage/api/hook'
 import { EventLogTooltip } from '@page/AnalysisPage/api/entity'
 import { capitalize } from '@global/usecase'
+import { CHART_HEIGHT } from '@global/constant'
 import { useTooltipEvent } from '../hook'
 
 // TODO: 이벤트로그 남은 항목 정리
@@ -86,7 +87,15 @@ const EventLogChart: React.FC<EventLogChartProps> = ({ scaleX, startTime, endTim
         </div>
       )}
 
-      <PointChart scaleX={scaleX} data={eventLogsData} />
+      <div className="w-full relative">
+        <div
+          className="flex justify-center items-center border-b border-t border-[#37383E]"
+          style={{ height: CHART_HEIGHT }}
+        >
+          <div className="h-[0.5px] w-full bg-[#37383E]" />
+        </div>
+        <PointChart scaleX={scaleX} data={eventLogsData} />
+      </div>
     </div>
   )
 }

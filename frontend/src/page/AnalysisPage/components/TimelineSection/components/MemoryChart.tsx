@@ -86,15 +86,17 @@ const MemoryChart: React.FC<MemoryChartProps> = ({ scaleX, startTime, endTime, d
         />
       )}
 
-      <AreaChart
-        chartWidth={dimension?.width}
-        scaleX={scaleX}
-        scaleY={scaleY}
-        data={memoryData}
-        minValue={0}
-        strokeColor="#fa70d8"
-        fillColor="#fa70d8"
-      />
+      <div style={{ height: CHART_HEIGHT }}>
+        <AreaChart
+          chartWidth={dimension?.width}
+          scaleX={scaleX}
+          scaleY={scaleY}
+          data={memoryData}
+          minValue={0}
+          strokeColor="#fa70d8"
+          fillColor="#fa70d8"
+        />
+      </div>
     </div>
   )
 }

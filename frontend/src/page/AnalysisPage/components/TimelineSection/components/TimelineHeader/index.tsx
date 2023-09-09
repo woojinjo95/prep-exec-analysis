@@ -55,6 +55,7 @@ const TimelineHeader: React.FC<TimelineHeaderProps> = ({ scaleX, chartWidth, cur
                   transform: `translateX(${cursorTranslateX}px)`,
                 }}
               />
+              {/* 인디케이터가 위치하는 시간 */}
               {isCursorDragging && !!scaleX && (
                 <div
                   className="fixed bg-primary z-[5] px-2 rounded-sm"
