@@ -13,6 +13,7 @@ import BootRawDataModal from './BootRawDataModal'
 import FreezeRawDataModal from './FreezeRawDataModal'
 import MonkeyTestSummaryItem from './MonkeyTestSummaryItem'
 import IntelligentMonkeyTestSummaryItem from './IntelligentMonkeyTestSummaryItem'
+import MonkeyTestRawDataModal from './MonkeyTestRawDataModal'
 
 interface AnalysisSummaryResultListProps {
   summary?: AnalysisResultSummary
@@ -78,6 +79,14 @@ const AnalysisSummaryResultList: React.FC<AnalysisSummaryResultListProps> = ({ s
       {rawDataModalType === 'log_pattern_matching' && (
         <LogPatternMatchingRawDataModal
           isOpen={rawDataModalType === 'log_pattern_matching'}
+          onClose={() => setRawDataModalType(null)}
+          startTime={startTime}
+          endTime={endTime}
+        />
+      )}
+      {rawDataModalType === 'monkey_test' && (
+        <MonkeyTestRawDataModal
+          isOpen={rawDataModalType === 'monkey_test'}
           onClose={() => setRawDataModalType(null)}
           startTime={startTime}
           endTime={endTime}

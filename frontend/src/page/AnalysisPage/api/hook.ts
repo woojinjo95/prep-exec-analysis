@@ -477,6 +477,50 @@ export const useMonkeySmartSense = (params: Parameters<typeof getMonkeySmartSens
 }
 
 /**
+ * Monkey Smart Sense 무한스크롤 조회 hook
+ */
+export const useInfiniteMonkeySmartSense = (params: Parameters<typeof getMonkeySmartSense>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, hasNextPage, isFetching, fetchNextPage } = useInfiniteQuery(
+    ['infinite_monkey_smart_sense', params],
+    ({ pageParam = 1 }) => {
+      return getMonkeySmartSense({
+        ...params,
+        page: pageParam as number,
+        page_size: PAGE_SIZE_TEN,
+        scenario_id: scenarioId || undefined,
+        testrun_id: testRunId || undefined,
+      })
+    },
+    {
+      getNextPageParam: (lastPage) => {
+        const nextPage = lastPage.next
+        if (nextPage <= lastPage.pages) {
+          return nextPage
+        }
+
+        return undefined
+      },
+    },
+  )
+
+  const ref = useIntersect((entry, observer) => {
+    observer.unobserve(entry.target)
+    if (hasNextPage && !isFetching) {
+      fetchNextPage()
+    }
+  })
+
+  return {
+    monkeySmartSense: data?.pages.flatMap(({ items }) => items) || [],
+    total: data?.pages.length ? data.pages[0].total : 0,
+    loadingRef: ref,
+    hasNextPage,
+  }
+}
+
+/**
  * Intelligent Monkey Section 리스트 조회 hook
  */
 export const useIntelligentMonkeySection = (params: Parameters<typeof getIntelligentMonkeySection>[0]) => {
