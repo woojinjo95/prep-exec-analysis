@@ -271,3 +271,23 @@ export interface MonkeySmartSense {
   timestamp: string
   smart_sense_key: string[]
 }
+
+export interface IntelligentMonkeySection {
+  /**
+   * @format timestamp
+   */
+  start_timestamp: string
+  /**
+   * @format timestamp
+   */
+  end_timestamp: string
+}
+
+export interface IntelligentMonkeySmartSense {
+  /**
+   * @format timestamp
+   */
+  timestamp: string
+  section_id: number
+  smart_sense_key: string[]
+}

@@ -1,11 +1,26 @@
 import React, { useMemo, useRef } from 'react'
-import { useMonkeySection, useMonkeySmartSense } from '@page/AnalysisPage/api/hook'
+import { useIntelligentMonkeySection, useIntelligentMonkeySmartSense } from '@page/AnalysisPage/api/hook'
 import { PointChart, RangeChart, Text, TimelineTooltip, TimelineTooltipItem } from '@global/ui'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { CHART_HEIGHT } from '@global/constant'
+import { numberWithCommas } from '@global/usecase'
 import { useTooltipEvent } from '../hook'
 
-interface MonkeyTestChartProps {
+const IntelligentMonkeyTestSectionColors = [
+  '#97B9A8',
+  '#7B899F',
+  '#C1A3B3',
+  '#8C7A95',
+  '#E1DAAF',
+  '#E5C1B3',
+  '#5F666E',
+  '#978673',
+  '#645F41',
+  '#648763',
+  '#C59F74',
+] as const
+
+interface IntelligentMonkeyTestChartProps {
   scaleX: Parameters<typeof RangeChart>[0]['scaleX']
   startTime: Date
   endTime: Date
@@ -14,48 +29,55 @@ interface MonkeyTestChartProps {
 }
 
 /**
- * Monkey Test 차트
+ * Intelligent Monkey Test 차트
  */
-const MonkeyTestChart: React.FC<MonkeyTestChartProps> = ({ scaleX, startTime, endTime, dimension, summary }) => {
+const IntelligentMonkeyTestChart: React.FC<IntelligentMonkeyTestChartProps> = ({
+  scaleX,
+  startTime,
+  endTime,
+  dimension,
+  summary,
+}) => {
   const wrapperRef = useRef<HTMLDivElement | null>(null)
-  const { monkeySection } = useMonkeySection({
+  const { intelligentMonkeySection } = useIntelligentMonkeySection({
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
   })
-  const { monkeySmartSense } = useMonkeySmartSense({
+  const { intelligentMonkeySmartSense } = useIntelligentMonkeySmartSense({
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
   })
 
-  const monkeyTestData = useMemo(() => {
-    if (!monkeySection) return null
-    return monkeySection.map(({ start_timestamp, end_timestamp }) => ({
+  const intelligentMonkeyTestData = useMemo(() => {
+    if (!intelligentMonkeySection) return null
+    return intelligentMonkeySection.map(({ start_timestamp, end_timestamp }, index) => ({
       datetime: new Date(start_timestamp).getTime(),
       duration: new Date(end_timestamp).getTime() - new Date(start_timestamp).getTime(),
-      color: summary.monkey_test?.color || 'white',
+      color: IntelligentMonkeyTestSectionColors[index % IntelligentMonkeyTestSectionColors.length],
     }))
-  }, [monkeySection, summary])
+  }, [intelligentMonkeySection, summary])
 
-  const monkeySmartSenseData = useMemo(() => {
-    if (!monkeySmartSense) return null
-    return monkeySmartSense.map(({ timestamp, smart_sense_key }) => ({
+  const intelligentMonkeySmartSenseData = useMemo(() => {
+    if (!intelligentMonkeySmartSense) return null
+    return intelligentMonkeySmartSense.map(({ timestamp, smart_sense_key, section_id }) => ({
       datetime: new Date(timestamp).getTime(),
+      section_id,
       smart_sense_key,
       color: 'white',
     }))
-  }, [monkeySmartSense, summary])
+  }, [intelligentMonkeySmartSense, summary])
 
   const { posX, tooltipData, onMouseMove, onMouseLeave } = useTooltipEvent<
-    NonNullable<typeof monkeySmartSenseData>[number]
+    NonNullable<typeof intelligentMonkeySmartSenseData>[number]
   >({
     scaleX,
     offsetLeft: dimension?.left,
     width: dimension?.width,
   })
 
-  if (!monkeyTestData || !monkeySmartSenseData) return <div />
+  if (!intelligentMonkeyTestData || !intelligentMonkeySmartSenseData) return <div />
   return (
-    <div onMouseMove={onMouseMove(monkeySmartSenseData)} onMouseLeave={onMouseLeave} className="relative">
+    <div onMouseMove={onMouseMove(intelligentMonkeySmartSenseData)} onMouseLeave={onMouseLeave} className="relative">
       {!!posX && (
         <div
           ref={wrapperRef}
@@ -66,6 +88,10 @@ const MonkeyTestChart: React.FC<MonkeyTestChartProps> = ({ scaleX, startTime, en
         >
           {!!tooltipData && (
             <TimelineTooltip posX={posX} data={tooltipData} wrapperRef={wrapperRef}>
+              <TimelineTooltipItem label="Menu">
+                <Text colorScheme="light">#{numberWithCommas(tooltipData.section_id + 1)}</Text>
+              </TimelineTooltipItem>
+
               <TimelineTooltipItem label="Smart Sense Key">
                 <Text colorScheme="light">{tooltipData.smart_sense_key.join(', ')}</Text>
               </TimelineTooltipItem>
@@ -78,11 +104,11 @@ const MonkeyTestChart: React.FC<MonkeyTestChartProps> = ({ scaleX, startTime, en
         <div className="flex justify-center items-center" style={{ height: CHART_HEIGHT - 1 }}>
           <div className="h-[0.5px] w-full bg-[#37383E]" />
         </div>
-        <RangeChart scaleX={scaleX} data={monkeyTestData} />
-        <PointChart scaleX={scaleX} data={monkeySmartSenseData} />
+        <RangeChart scaleX={scaleX} data={intelligentMonkeyTestData} />
+        <PointChart scaleX={scaleX} data={intelligentMonkeySmartSenseData} />
       </div>
     </div>
   )
 }
 
-export default MonkeyTestChart
+export default IntelligentMonkeyTestChart

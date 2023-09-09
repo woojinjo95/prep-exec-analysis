@@ -22,6 +22,7 @@ import {
   TimelineChartContainer,
 } from './components'
 import MonkeyTestChart from './components/MonkeyTestChart'
+import IntelligentMonkeyTestChart from './components/IntelligentMonkeyTestChart'
 
 const ChartLabel = {
   video: 'Video',
@@ -220,6 +221,19 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
             if (chartKey === 'monkey_test') {
               return (
                 <MonkeyTestChart
+                  key={`chart-${chartKey}`}
+                  scaleX={scrollbarScaleX}
+                  startTime={startTime}
+                  endTime={endTime}
+                  dimension={dimension}
+                  summary={analysisResultSummary}
+                />
+              )
+            }
+
+            if (chartKey === 'intelligent_monkey_test') {
+              return (
+                <IntelligentMonkeyTestChart
                   key={`chart-${chartKey}`}
                   scaleX={scrollbarScaleX}
                   startTime={startTime}

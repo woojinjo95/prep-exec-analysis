@@ -1,12 +1,10 @@
 import React from 'react'
-import { useRecoilState } from 'recoil'
 import { AppURL } from '@global/constant'
 import { numberWithCommas } from '@global/usecase'
 import { Accordion, SimpleButton, Text } from '@global/ui'
-import { intelligentMonkeyTestSessionFilterListState } from '@global/atom'
 import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.svg'
-import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
-import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
+// import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
+// import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { AnalysisTypeLabel } from '../../../constant'
 
@@ -22,10 +20,6 @@ const IntelligentMonkeyTestSummaryItem: React.FC<IntelligentMonkeyTestSummaryIte
   intelligentMonkeyTest,
   setRawDataModalType,
 }) => {
-  const [intelligentMonkeyTestSessionFilterList, setIntelligentMonkeyTestSessionFilterList] = useRecoilState(
-    intelligentMonkeyTestSessionFilterListState,
-  )
-
   return (
     <Accordion
       header={
@@ -75,7 +69,8 @@ const IntelligentMonkeyTestSummaryItem: React.FC<IntelligentMonkeyTestSummaryIte
               <Text size="sm" className="text-right">
                 {numberWithCommas(smart_sense)} times
               </Text>
-              {intelligentMonkeyTestSessionFilterList.includes(section_id) ? (
+              <div />
+              {/* {intelligentMonkeyTestSessionFilterList.includes(section_id) ? (
                 <SimpleButton
                   isIcon
                   colorScheme="charcoal"
@@ -93,7 +88,7 @@ const IntelligentMonkeyTestSummaryItem: React.FC<IntelligentMonkeyTestSummaryIte
                 >
                   <ShowEyeIcon className="h-4 w-5" />
                 </SimpleButton>
-              )}
+              )} */}
             </React.Fragment>
           ))}
         </div>

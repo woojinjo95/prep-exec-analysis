@@ -10,6 +10,8 @@ import {
   ColorReference,
   EventLog,
   Freeze,
+  IntelligentMonkeySection,
+  IntelligentMonkeySmartSense,
   LogLevelFinder,
   LogPatternMatching,
   Loudness,
@@ -323,6 +325,57 @@ export const getMonkeySmartSense = async (params: {
     const result = await API.get<PaginationResponse<MonkeySmartSense[]>>(apiUrls.monkey_smart_sense, {
       params,
     })
+
+    return result.data
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
+/**
+ * intelligent monkey test section 리스트 조회 api
+ */
+export const getIntelligentMonkeySection = async (params: {
+  start_time: string
+  end_time: string
+  scenario_id?: string
+  testrun_id?: string
+  page?: number
+  page_size?: number
+}) => {
+  try {
+    const result = await API.get<PaginationResponse<IntelligentMonkeySection[]>>(apiUrls.intelligent_monkey_section, {
+      params,
+    })
+
+    return result.data
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
+/**
+ * intelligent monkey test smart sense 리스트 조회 api
+ */
+export const getIntelligentMonkeySmartSense = async (params: {
+  start_time: string
+  end_time: string
+  scenario_id?: string
+  testrun_id?: string
+  page?: number
+  page_size?: number
+  sort_by?: keyof Pick<IntelligentMonkeySmartSense, 'timestamp' | 'section_id' | 'smart_sense_key'>
+  sort_desc?: boolean
+}) => {
+  try {
+    const result = await API.get<PaginationResponse<IntelligentMonkeySmartSense[]>>(
+      apiUrls.intelligent_monkey_smart_sense,
+      {
+        params,
+      },
+    )
 
     return result.data
   } catch (err) {

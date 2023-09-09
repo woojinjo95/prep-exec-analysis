@@ -87,11 +87,8 @@ const EventLogChart: React.FC<EventLogChartProps> = ({ scaleX, startTime, endTim
         </div>
       )}
 
-      <div className="w-full relative">
-        <div
-          className="flex justify-center items-center border-b border-t border-[#37383E]"
-          style={{ height: CHART_HEIGHT }}
-        >
+      <div className="w-full relative border-b border-[#37383E]">
+        <div className="flex justify-center items-center" style={{ height: CHART_HEIGHT - 1 }}>
           <div className="h-[0.5px] w-full bg-[#37383E]" />
         </div>
         <PointChart scaleX={scaleX} data={eventLogsData} />

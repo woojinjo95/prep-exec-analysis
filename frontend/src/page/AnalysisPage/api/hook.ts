@@ -14,6 +14,8 @@ import {
   getColorReferences,
   getEventLogs,
   getFreeze,
+  getIntelligentMonkeySection,
+  getIntelligentMonkeySmartSense,
   getLogLevelFinders,
   getLogPatternMatching,
   getLoudness,
@@ -472,4 +474,38 @@ export const useMonkeySmartSense = (params: Parameters<typeof getMonkeySmartSens
   )
 
   return { monkeySmartSense: data?.items, isLoading, refetch }
+}
+
+/**
+ * Intelligent Monkey Section 리스트 조회 hook
+ */
+export const useIntelligentMonkeySection = (params: Parameters<typeof getIntelligentMonkeySection>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['intelligent_monkey_section', params], () =>
+    getIntelligentMonkeySection({
+      ...params,
+      scenario_id: scenarioId || undefined,
+      testrun_id: testRunId || undefined,
+    }),
+  )
+
+  return { intelligentMonkeySection: data?.items, isLoading, refetch }
+}
+
+/**
+ * Intelligent Monkey Smart Sense 리스트 조회 hook
+ */
+export const useIntelligentMonkeySmartSense = (params: Parameters<typeof getIntelligentMonkeySmartSense>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['intelligent_monkey_smart_sense', params], () =>
+    getIntelligentMonkeySmartSense({
+      ...params,
+      scenario_id: scenarioId || undefined,
+      testrun_id: testRunId || undefined,
+    }),
+  )
+
+  return { intelligentMonkeySmartSense: data?.items, isLoading, refetch }
 }
