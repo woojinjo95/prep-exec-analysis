@@ -31,4 +31,4 @@ ENV REDIS_PASSWORD ""
 
 ENV TF_MODEL_URL https://drive.google.com/drive/folders/13tVYiXNTXeVjUdNtShxKGcUi2hgzZ9-Y?usp=share_link
 
-# docker-compose up -d --build --force-recreate freeze resume boot log-pattern color-reference macroblock && docker-compose logs -f freeze resume boot log-pattern color-reference macroblock
+# docker-compose up -d --build --force-recreate freeze resume boot log-pattern color-reference macroblock channel-zapping && docker-compose logs -f freeze resume boot log-pattern color-reference macroblock channel-zapping
