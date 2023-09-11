@@ -60,10 +60,9 @@ const Header: React.FC<HeaderProps> = ({ selectedAnalysisItems, setSelectedAnaly
         ))}
       </Select>
 
-      {/* TODO: 분석 시작 명령 전송 후 응답(analysis_response) 오기 전까지 로딩 표시 */}
       <Button
         colorScheme="primary"
-        disabled={isStartAnalysis || serviceState === 'analysis'}
+        disabled={isStartAnalysis || serviceState === 'analysis' || serviceState === 'recording'}
         onClick={() => {
           AnalysisService.startAnalysis({ msg: 'analysis' })
           setIsStartAnalysis(true)
