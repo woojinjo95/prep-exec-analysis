@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Accordion, Button, Checkbox, Text } from '@global/ui'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
 import { UnsavedAnalysisConfig } from '@page/AnalysisPage/components/VarAnalysisResultSection/types'
+import { AnalysisType } from '@global/constant'
 import { AnalysisTypeLabel } from '../../../../constant'
 import LogPattern from './LogPattern'
 import LogPatternModal from './LogPatternModal'
@@ -11,6 +12,8 @@ interface LogPatternMatchingAnalysisItemProps {
   warningMessage?: string
   setUnsavedAnalysisConfig: React.Dispatch<React.SetStateAction<UnsavedAnalysisConfig>>
   onClickDeleteItem: React.MouseEventHandler<SVGSVGElement>
+  isRememberChecked: boolean
+  setIsRememberedConfig: React.Dispatch<React.SetStateAction<{ [key in keyof typeof AnalysisType]?: boolean }>>
 }
 
 /**
@@ -21,9 +24,10 @@ const LogPatternMatchingAnalysisItem: React.FC<LogPatternMatchingAnalysisItemPro
   warningMessage,
   setUnsavedAnalysisConfig,
   onClickDeleteItem,
+  isRememberChecked,
+  setIsRememberedConfig,
 }) => {
   const [isOpenAddLogPatternModal, setIsOpenAddLogPatternModal] = useState<boolean>(false)
-  const [isRememberChecked, setIsRememberChecked] = useState<boolean>(false)
 
   return (
     <Accordion
@@ -54,12 +58,11 @@ const LogPatternMatchingAnalysisItem: React.FC<LogPatternMatchingAnalysisItemPro
           Add Log Pattern
         </Button>
 
-        {/* TODO: local storage에 저장 */}
         <Checkbox
           colorScheme="light"
           isChecked={isRememberChecked}
           label="Remember current settings"
-          onClick={(isChecked) => setIsRememberChecked(isChecked)}
+          onClick={(isChecked) => setIsRememberedConfig((prev) => ({ ...prev, log_pattern_matching: isChecked }))}
         />
 
         {!!warningMessage && (
