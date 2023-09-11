@@ -15,7 +15,7 @@ from scripts.format import ClassificationResult, ImageSplitResult, MacroblockRes
 logger = logging.getLogger('main')
 
 
-class Worker:
+class MacroblockDetector:
     def __init__(self):
         self.input_shape = get_setting_with_env('MODEL_INPUT_SHAPE', (224, 224, 3))
 
