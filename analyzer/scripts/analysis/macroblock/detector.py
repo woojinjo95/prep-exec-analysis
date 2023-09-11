@@ -10,6 +10,7 @@ from scripts.analysis.macroblock.discriminator.crack_discriminator import CrackD
 from scripts.config.config import get_setting_with_env
 from scripts.analysis.image import split_image_with_shape
 from scripts.format import ClassificationResult, ImageSplitResult, MacroblockResult
+from scripts.util._timezone import get_utc_datetime
 
 
 logger = logging.getLogger('main')
@@ -38,17 +39,18 @@ class MacroblockDetector:
             split_result = self.preprocess_image(image)
             cls_result = self.predict_with_patch_images(split_result.patches)
             occurred = self.postprocess_result(cls_result, split_result)
+            logger.info(f'occurred: {occurred}')
 
             # check macroblock is finally detected
             end_occurred_time, duration = None, None
             if occurred and not self.last_occurred:  # rising edge
                 self.start_occurred_time = timestamp
-                logger.info(f'Macroblock occurred! start_time: {self.start_occurred_time}')
+                logger.info(f'Macroblock occurred! start_time: {get_utc_datetime(self.start_occurred_time)}')
                 detect = False
             elif not occurred and self.last_occurred:  # falling edge
                 end_occurred_time = timestamp
                 duration = end_occurred_time - self.start_occurred_time
-                logger.info(f'Macroblock disappeared! end_time: {end_occurred_time}, duration: {duration}')
+                logger.info(f'Macroblock disappeared! end_time: {get_utc_datetime(end_occurred_time)}, duration: {duration}')
                 detect = True
             else:
                 detect = False

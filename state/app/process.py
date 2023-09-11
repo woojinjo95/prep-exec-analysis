@@ -163,17 +163,18 @@ async def consumer_handler(conn: any, CHANNEL_NAME: str):
                     # 분석 중단 메세지 전송
                     await pub_msg(conn, msg="analysis_terminate", data={})
 
-                    # 로그수집 시작 메세지 전송
-                    await pub_msg(conn, msg="stb_log", data={"control": "start"})
+                    if await conn.hget("common", "service_state") != ServiceStateEnum.playblock:
+                        # 로그수집 시작 메세지 전송
+                        await pub_msg(conn, msg="stb_log", data={"control": "start"})
 
-                    # 패킷 캡쳐 시작 메세지 전송
-                    await pub_msg(conn, msg="packet_capture", data={"action": "start"})
+                        # 패킷 캡쳐 시작 메세지 전송
+                        await pub_msg(conn, msg="packet_capture", data={"action": "start"})
 
-                    # 스트리밍 시작 메세지 전송
-                    await pub_msg(conn, msg="streaming", data={"action": "start"})
+                        # 스트리밍 시작 메세지 전송
+                        await pub_msg(conn, msg="streaming", data={"action": "start"})
 
-                    # 상태 변경 및 메세지 전송
-                    await set_service_state_and_pub(conn, ServiceStateEnum.streaming)
+                        # 상태 변경 및 메세지 전송
+                        await set_service_state_and_pub(conn, ServiceStateEnum.streaming)
 
                 # 분석 시작
                 if msg == 'analysis':
