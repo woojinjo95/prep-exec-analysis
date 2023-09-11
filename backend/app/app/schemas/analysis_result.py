@@ -117,6 +117,7 @@ class LogPatternMatching(PaginationBaseModel):
 
 
 class MonkeyTestBase(BaseModel):
+    id: str
     start_timestamp: str
     end_timestamp: str
 
@@ -126,6 +127,7 @@ class MonkeyTest(PaginationBaseModel):
 
 
 class MonkeySmartSenseBase(TimestampBaseModel):
+    id: str
     smart_sense_key: List[str]
 
 

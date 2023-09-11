@@ -456,7 +456,7 @@ def get_data_of_monkey_section(
                                                'scenario_id': scenario_id,
                                                'testrun_id': testrun_id,
                                                'analysis_type': 'monkey'}},
-                                   {'$project': {'_id': 0,
+                                   {'$project': {'id': {'$toString': '$_id'},
                                                  'start_timestamp': {'$dateToString': {'date': '$start_timestamp'}},
                                                  'end_timestamp': {'$dateToString': {'date': '$end_timestamp'}}}}]
         monkey_section = paginate_from_mongodb_aggregation(col='monkey_section',
@@ -495,7 +495,7 @@ def get_data_of_monkey_smart_sense(
                                                    'scenario_id': scenario_id,
                                                    'testrun_id': testrun_id,
                                                    'analysis_type': 'monkey'}},
-                                       {'$project': {'_id': 0,
+                                       {'$project': {'id': {'$toString': '$_id'},
                                                      'timestamp': {'$dateToString': {'date': '$timestamp'}},
                                                      'smart_sense_key': 1}}]
         monkey_section = paginate_from_mongodb_aggregation(col='monkey_smart_sense',
@@ -535,6 +535,7 @@ def get_data_of_intelligent_monkey_section(
                                                'testrun_id': testrun_id,
                                                'analysis_type': 'intelligent_monkey'}},
                                    {'$project': {'_id': 0,
+                                                 'id': '$section_id',
                                                  'start_timestamp': {'$dateToString': {'date': '$start_timestamp'}},
                                                  'end_timestamp': {'$dateToString': {'date': '$end_timestamp'}}}}]
         monkey_section = paginate_from_mongodb_aggregation(col='monkey_section',
