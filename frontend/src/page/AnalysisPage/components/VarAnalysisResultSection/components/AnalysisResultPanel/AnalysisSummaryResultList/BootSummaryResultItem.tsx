@@ -1,9 +1,11 @@
 import React from 'react'
+import { useRecoilState } from 'recoil'
 import { Accordion, Text, SimpleButton } from '@global/ui'
 import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.svg'
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
-// import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
+import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
 import { convertDuration, numberWithCommas } from '@global/usecase'
+import { bootTypeFilterListState } from '@global/atom'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { AnalysisTypeLabel, BootTypeLabel } from '../../../constant'
 
@@ -16,6 +18,8 @@ interface BootSummaryResultItemProps {
  * boot 분석결과 요약 아이템
  */
 const BootSummaryResultItem: React.FC<BootSummaryResultItemProps> = ({ boot, setRawDataModalType }) => {
+  const [bootTypeFilterList, setBootTypeFilterList] = useRecoilState(bootTypeFilterListState)
+
   return (
     <Accordion
       header={
@@ -37,7 +41,7 @@ const BootSummaryResultItem: React.FC<BootSummaryResultItemProps> = ({ boot, set
       }
     >
       <div className="grid grid-cols-1 gap-y-4 pt-1">
-        <div className="grid grid-cols-[1fr_auto_auto_auto] gap-x-4 gap-y-2">
+        <div className="grid grid-cols-[1fr_auto_auto_auto] gap-x-4 gap-y-1 items-center">
           {/* header */}
           <Text weight="medium" size="sm">
             Target
@@ -59,9 +63,23 @@ const BootSummaryResultItem: React.FC<BootSummaryResultItemProps> = ({ boot, set
               <Text size="sm" className="text-right">
                 {convertDuration(avg_time)}
               </Text>
-              <button type="button">
-                <ShowEyeIcon className="w-5" />
-              </button>
+              {bootTypeFilterList.includes(target) ? (
+                <SimpleButton
+                  isIcon
+                  colorScheme="charcoal"
+                  onClick={() => setBootTypeFilterList((prev) => prev.filter((type) => type !== target))}
+                >
+                  <HiddenEyeIcon className="h-4 w-5" />
+                </SimpleButton>
+              ) : (
+                <SimpleButton
+                  isIcon
+                  colorScheme="charcoal"
+                  onClick={() => setBootTypeFilterList((prev) => [...prev, target])}
+                >
+                  <ShowEyeIcon className="h-4 w-5" />
+                </SimpleButton>
+              )}
             </React.Fragment>
           ))}
         </div>

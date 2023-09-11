@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { useNavigate } from 'react-router-dom'
 import { ReactComponent as GoToFirstIcon } from '@assets/images/icon_go_to_first_w.svg'
@@ -16,6 +16,20 @@ import { useVideoSummary } from '@global/api/hook'
 import { delay } from '@global/usecase'
 
 /**
+ * 간격 시간을 표현하는 함수
+ *
+ * @param time 단위: s
+ * @example 07:20.5
+ */
+const convertTime = (time: number) => {
+  const minute = Math.floor(time / 60)
+  const second = Math.floor(time % 60)
+  const millisecond = Math.floor((time % 1) * 10)
+
+  return `${minute < 10 ? `0${minute}` : minute}:${second < 10 ? `0${second}` : second}.${millisecond}`
+}
+
+/**
  * 결과영상 및 정보 영역
  */
 const VideoDetailSection: React.FC = () => {
@@ -25,16 +39,7 @@ const VideoDetailSection: React.FC = () => {
   const testRunId = useRecoilValue(testRunIdState)
   const [isPlaying, setIsPlaying] = useState<boolean>(false)
   const [currentTime, setCurrentTime] = useState<number>(0)
-  /**
-   * @example 07:20.5
-   */
-  const currentTimeLabel = useMemo(() => {
-    const minute = Math.floor(currentTime / 60)
-    const second = Math.floor(currentTime % 60)
-    const millisecond = Math.floor((currentTime % 1) * 10)
-
-    return `${minute < 10 ? `0${minute}` : minute}:${second < 10 ? `0${second}` : second}.${millisecond}`
-  }, [currentTime])
+  const [duration, setDuration] = useState<number>(0)
   const cursorDateTime = useRecoilValue(cursorDateTimeState)
   const { videoSummary } = useVideoSummary()
 
@@ -71,7 +76,7 @@ const VideoDetailSection: React.FC = () => {
         </button>
 
         <Text colorScheme="light" weight="medium">
-          {currentTimeLabel}
+          {convertTime(currentTime)} / {convertTime(duration)}
         </Text>
         <div className="flex flex-wrap items-center gap-2">
           <IconButton
@@ -142,6 +147,7 @@ const VideoDetailSection: React.FC = () => {
             onLoadedData={() => {
               if (!videoRef.current) return
               setCurrentTime(videoRef.current.currentTime)
+              setDuration(videoRef.current.duration)
             }}
             onTimeUpdate={() => {
               if (!videoRef.current) return

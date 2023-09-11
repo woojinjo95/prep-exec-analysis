@@ -50,7 +50,7 @@ const FilesSection: React.FC = () => {
     },
   })
   return (
-    <div className="flex flex-col w-full h-full p-7 min-h-full border-r-[1px] border-b-grey">
+    <div className="flex flex-col w-full h-full p-7 min-h-full">
       <div className="min-h-[100px]">
         <div className="flex justify-between mt-5 items-center">
           <Title as="h1" className="text-white flex">

@@ -1,5 +1,7 @@
 import React, { useMemo, useRef } from 'react'
+import { useRecoilValue } from 'recoil'
 import { PointChart, TimelineTooltip, Text, TimelineTooltipItem } from '@global/ui'
+import { logLevelFinderLogLevelFilterListState } from '@global/atom'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { useLogLevelFinders } from '@page/AnalysisPage/api/hook'
 import { useTooltipEvent } from '../hook'
@@ -22,22 +24,24 @@ const LogLevelFinderChart: React.FC<LogLevelFinderChartProps> = ({
   dimension,
   summary,
 }) => {
+  const logLevelFinderLogLevelFilterList = useRecoilValue(logLevelFinderLogLevelFilterListState)
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const { logLevelFinders } = useLogLevelFinders({
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
-    // TODO: 레벨별 보기 / 숨기기 기능
     log_level: summary.log_level_finder?.results.map(({ target }) => target),
   })
 
   const logLevelFinderData = useMemo(() => {
     if (!logLevelFinders) return null
-    return logLevelFinders.map(({ timestamp, log_level }) => ({
-      datetime: new Date(timestamp).getTime(),
-      log_level,
-      color: summary.log_level_finder?.color || 'white',
-    }))
-  }, [logLevelFinders, summary])
+    return logLevelFinders
+      .filter(({ log_level }) => !logLevelFinderLogLevelFilterList.includes(log_level))
+      .map(({ timestamp, log_level }) => ({
+        datetime: new Date(timestamp).getTime(),
+        log_level,
+        color: summary.log_level_finder?.color || 'white',
+      }))
+  }, [logLevelFinders, summary, logLevelFinderLogLevelFilterList])
 
   const { posX, tooltipData, onMouseMove, onMouseLeave } = useTooltipEvent<
     NonNullable<typeof logLevelFinderData>[number]
