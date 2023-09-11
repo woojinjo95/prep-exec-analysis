@@ -16,6 +16,8 @@ import ResumeAnalysisItem from './ResumeAnalysisItem'
 import LogLevelFinderAnalysisItem from './LogLevelFinderAnalysisItem'
 import LogPatternMatchingAnalysisItem from './LogPatternMatchingAnalysisItem'
 import LoudnessAnalysisItem from './LoudnessAnalysisItem'
+import MonkeyTestAnalysisItem from './MonkeyTestAnalysisItem'
+import IntelligentMonkeyTestAnalysisItem from './IntelligentMonkeyTestAnalysisItem'
 
 const DefaultAnalysisConfig: Required<UnsavedAnalysisConfig> = {
   freeze: {
@@ -46,6 +48,12 @@ const DefaultAnalysisConfig: Required<UnsavedAnalysisConfig> = {
   log_pattern_matching: {
     color: '#E93535',
     items: [],
+  },
+  monkey_test: {
+    color: '#7B899F',
+  },
+  intelligent_monkey_test: {
+    color: '#97B9A8',
   },
 }
 
@@ -79,8 +87,8 @@ const validateAnalysisConfig = (config: UnsavedAnalysisConfig) => {
 }
 
 interface AnalysisItemListProps {
-  selectedAnalysisItems: (keyof typeof AnalysisTypeLabel)[]
-  setSelectedAnalysisItems: React.Dispatch<React.SetStateAction<(keyof typeof AnalysisTypeLabel)[]>>
+  selectedAnalysisItems: (typeof AnalyzableTypes)[number][]
+  setSelectedAnalysisItems: React.Dispatch<React.SetStateAction<(typeof AnalyzableTypes)[number][]>>
 }
 
 /**
@@ -95,7 +103,9 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
 
       // 처음 페이지에 진입했을 경우
       setSelectedAnalysisItems(
-        Object.keys(data).filter((key) => !!data[key as keyof AnalysisConfig]) as (keyof AnalysisConfig)[],
+        Object.keys(data).filter(
+          (key) => !!data[key as (typeof AnalyzableTypes)[number]],
+        ) as (typeof AnalyzableTypes)[number][],
       )
       setUnsavedAnalysisConfig(() => ({
         ...data,
@@ -279,12 +289,23 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
 
       {selectedAnalysisItems.includes('log_pattern_matching') && unsavedAnalysisConfig.log_pattern_matching && (
         <LogPatternMatchingAnalysisItem
-          color={unsavedAnalysisConfig.log_pattern_matching.color}
           patterns={unsavedAnalysisConfig.log_pattern_matching.items}
           warningMessage={warningMessage.log_pattern_matching}
           setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
           onClickDeleteItem={onClickDeleteItem('log_pattern_matching')}
         />
+      )}
+
+      {selectedAnalysisItems.includes('monkey_test') && unsavedAnalysisConfig.monkey_test && (
+        <MonkeyTestAnalysisItem
+          color={unsavedAnalysisConfig.monkey_test.color}
+          onClickDeleteItem={onClickDeleteItem('monkey_test')}
+          setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
+        />
+      )}
+
+      {selectedAnalysisItems.includes('intelligent_monkey_test') && unsavedAnalysisConfig.intelligent_monkey_test && (
+        <IntelligentMonkeyTestAnalysisItem onClickDeleteItem={onClickDeleteItem('intelligent_monkey_test')} />
       )}
     </div>
   )

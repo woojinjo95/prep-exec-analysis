@@ -24,17 +24,9 @@ const IntelligentMonkeyTestSummaryItem: React.FC<IntelligentMonkeyTestSummaryIte
     <Accordion
       header={
         <div className="flex justify-between items-center">
-          <div className="flex items-center gap-x-3">
-            <div
-              className="w-4 h-4"
-              style={{
-                backgroundColor: intelligentMonkeyTest.color,
-              }}
-            />
-            <Text size="sm" weight="medium">
-              {AnalysisTypeLabel.intelligent_monkey_test}
-            </Text>
-          </div>
+          <Text size="sm" weight="medium">
+            {AnalysisTypeLabel.intelligent_monkey_test}
+          </Text>
 
           <Text weight="medium">{numberWithCommas(intelligentMonkeyTest.results.length)}</Text>
         </div>
