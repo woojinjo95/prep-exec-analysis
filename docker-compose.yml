@@ -237,16 +237,16 @@ services:
     volumes:
       - ./data/workspace:/app/workspace
 
-  # macroblock:
-  #   container_name: macroblock
-  #   restart: always
-  #   image: registry.dev-nextlab.com/qaas-analyzer:dev-0
-  #   command: python -u main_macroblock.py
-  #   build:
-  #     context: ./analyzer
-  #     dockerfile: dockerfile
-  #   volumes:
-  #     - ./data/workspace:/app/workspace
+  macroblock:
+    container_name: macroblock
+    restart: always
+    image: registry.dev-nextlab.com/qaas-analyzer:dev-0
+    command: python -u main_macroblock.py
+    build:
+      context: ./analyzer
+      dockerfile: dockerfile
+    volumes:
+      - ./data/workspace:/app/workspace
 
   monkey:
     container_name: monkey
