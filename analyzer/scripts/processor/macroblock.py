@@ -36,7 +36,7 @@ def test_macroblock():
 
 def task_macroblock(args: VideoInfo, config: Dict):
     progress_manager = ProgressManager(Command.MACROBLOCK.value)
-    continuity_set_thld = max(int(config['min_duration'] * args.fps), 1)
+    continuity_set_thld = max(int(config['duration'] * args.fps), 1)
     detector = MacroblockDetector(score_thld=config['score_threshold'], 
                                   continuity_set_thld=continuity_set_thld)
     logger.info(f'start time: {get_utc_datetime(args.timestamps[0])}')
@@ -44,7 +44,7 @@ def task_macroblock(args: VideoInfo, config: Dict):
     for idx, (frame, cur_time) in enumerate(FrameGenerator(args.video_path, args.timestamps)):
         if idx % config['sampling_interval'] == 0:
             result = detector.update(frame, cur_time)
-            if result.status == 'success' and result.detect and result.duration > config['min_duration']:
+            if result.status == 'success' and result.detect and result.duration > config['duration']:
                 logger.info(f'relative time: {seconds_to_time(result.start_time - args.timestamps[0])}')
                 report_output(ReportName.MACROBLOCK.value, {
                     'timestamp': get_utc_datetime(result.start_time),
