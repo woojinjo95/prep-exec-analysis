@@ -63,8 +63,12 @@ class ClassificationResult:
 
 @dataclass
 class MacroblockResult:
-    status: str
-    occurred: bool = False
+    status: str  # success | error
+    detect: bool = False  # 검출 조건(연속성 등)까지 고려한 검출 여부
+    occurred: bool = False  # 현재 프레임에 대한 검출 여부
+    start_time: float = 0.0
+    end_time: float = 0.0
+    duration: float = 0.0
     split_result: ImageSplitResult = None
     cls_result: ClassificationResult = None
 
@@ -78,6 +82,7 @@ class ReportName(Enum):
     COLD_BOOT = 'cold_boot'
     LOG_PATTERN = 'log_pattern'
     CHANNEL_ZAPPING = 'channel_change_time'
+    MACROBLOCK = 'macroblock'
 
 
 class CollectionName(Enum):
@@ -87,6 +92,7 @@ class CollectionName(Enum):
     COLD_BOOT = 'an_cold_boot'
     LOG_PATTERN = 'an_log_pattern'
     CHANNEL_ZAPPING = 'an_channel_change_time'
+    MACROBLOCK = 'an_macroblock'
 
     
 # command for subscriber
@@ -97,4 +103,6 @@ class Command(Enum):
     BOOT = 'boot'
     LOG_PATTERN_MATCHING = 'log_pattern_matching'
     CHANNEL_ZAPPING = 'channel_change_time'
+    MACROBLOCK = 'macroblock'
+    
 
