@@ -237,6 +237,7 @@ const BlockControls: React.FC = () => {
           isOpen={isTestOptionModalOpen}
           close={() => {
             setIsTesetOptionModalOpen(false)
+            setIsPlay(false)
           }}
         />
       )}

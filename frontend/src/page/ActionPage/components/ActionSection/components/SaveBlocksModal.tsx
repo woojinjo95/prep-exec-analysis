@@ -10,7 +10,7 @@ import { useRecoilState } from 'recoil'
 import { isTestOptionModalOpenState, scenarioIdState, testRunIdState } from '@global/atom'
 import Tag from '@global/ui/Tag'
 import { useMutation, useQuery } from 'react-query'
-import { getTag, postCopyScenario, postTag, postTestrun, putScenario } from '@global/api/func'
+import { getTag, postCopyScenario, postTag, putScenario } from '@global/api/func'
 import { useToast } from '@chakra-ui/react'
 import { AxiosError } from 'axios'
 import { useWebsocket } from '@global/hook'
@@ -47,7 +47,7 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
 
   const { sendMessage } = useWebsocket()
 
-  const { scenario: currentScenario } = useScenarioById({
+  const { scenario: currentScenario, refetch: currentScenarioRefetch } = useScenarioById({
     scenarioId,
     onSuccess: (res) => {
       if (res.is_active) {
@@ -119,6 +119,7 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
     onSuccess: () => {
       tagRefetch()
       scenariosRefetch()
+      currentScenarioRefetch()
     },
     onError: (err: AxiosError) => {
       if (err.status === 406) {
@@ -127,11 +128,14 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
       console.error(err)
     },
   })
-  const { mutate: postTestrunMutate } = useMutation(postTestrun, {
-    onSuccess: (res) => {
-      close()
 
-      setTestRunIdState(res.id)
+  const { mutate: putScenarioMutate } = useMutation(putScenario, {
+    onSuccess: () => {
+      tagRefetch()
+      scenariosRefetch()
+      currentScenarioRefetch()
+
+      close()
 
       if (isPlay) {
         setIsTesetOptionModalOpen(true)
@@ -159,24 +163,13 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
     },
   })
 
-  const { mutate: putScenarioMutate } = useMutation(putScenario, {
-    onSuccess: () => {
-      tagRefetch()
-
-      if (scenarioId) {
-        postTestrunMutate(scenarioId)
-      }
-    },
-    onError: (err: AxiosError) => {
-      console.error(err)
-    },
-  })
-
   const { mutate: postCopyScenarioMutate } = useMutation(postCopyScenario, {
     onSuccess: (res) => {
       setScenarioId(res.id)
       setTestRunIdState(res.testrun_id)
+      tagRefetch()
       scenariosRefetch()
+      currentScenarioRefetch()
       close()
 
       if (isPlay) {
@@ -400,6 +393,7 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
             onClick={() => {
               close()
 
+              console.log('isPlay', isPlay)
               if (isPlay) {
                 setIsTesetOptionModalOpen(true)
               }
