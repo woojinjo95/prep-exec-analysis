@@ -1,24 +1,24 @@
 import React from 'react'
 import { useRecoilState } from 'recoil'
-import { Accordion, Text, SimpleButton } from '@global/ui'
+import { Accordion, SimpleButton, Text } from '@global/ui'
 import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.svg'
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
 import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
 import { convertDuration, numberWithCommas } from '@global/usecase'
-import { bootTypeFilterListState } from '@global/atom'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
-import { AnalysisTypeLabel, BootTypeLabel } from '../../../constant'
+import { resumeTypeFilterListState } from '@global/atom'
+import { AnalysisTypeLabel, ResumeTypeLabel } from '../../../constant'
 
-interface BootSummaryResultItemProps {
-  boot: NonNullable<AnalysisResultSummary['boot']>
+interface ResumeSummaryItemProps {
+  resume: NonNullable<AnalysisResultSummary['resume']>
   setRawDataModalType: React.Dispatch<React.SetStateAction<keyof AnalysisResultSummary | null>>
 }
 
 /**
- * boot 분석결과 요약 아이템
+ * resume 분석결과 요약 아이템
  */
-const BootSummaryResultItem: React.FC<BootSummaryResultItemProps> = ({ boot, setRawDataModalType }) => {
-  const [bootTypeFilterList, setBootTypeFilterList] = useRecoilState(bootTypeFilterListState)
+const ResumeSummaryItem: React.FC<ResumeSummaryItemProps> = ({ resume, setRawDataModalType }) => {
+  const [resumeTypeFilterList, setResumeTypeFilterList] = useRecoilState(resumeTypeFilterListState)
 
   return (
     <Accordion
@@ -28,15 +28,17 @@ const BootSummaryResultItem: React.FC<BootSummaryResultItemProps> = ({ boot, set
             <div
               className="w-4 h-4"
               style={{
-                backgroundColor: boot.color,
+                backgroundColor: resume.color,
               }}
             />
             <Text size="sm" weight="medium">
-              {AnalysisTypeLabel.boot}
+              {AnalysisTypeLabel.resume}
             </Text>
           </div>
 
-          <Text weight="medium">{numberWithCommas(boot.results.reduce((acc, curr) => acc + curr.total, 0))} times</Text>
+          <Text weight="medium">
+            {numberWithCommas(resume.results.reduce((acc, curr) => acc + curr.total, 0))} times
+          </Text>
         </div>
       }
     >
@@ -54,20 +56,20 @@ const BootSummaryResultItem: React.FC<BootSummaryResultItemProps> = ({ boot, set
           </Text>
           <div />
 
-          {boot.results.map(({ total, target, avg_time }, index) => (
-            <React.Fragment key={`boot-summary-result-item-${index}`}>
-              <Text size="sm">{BootTypeLabel[target]}</Text>
+          {resume.results.map(({ total, target, avg_time }, index) => (
+            <React.Fragment key={`resume-summary-result-${index}`}>
+              <Text size="sm">{ResumeTypeLabel[target]}</Text>
               <Text size="sm" className="text-right">
                 {numberWithCommas(total)}
               </Text>
               <Text size="sm" className="text-right">
                 {convertDuration(avg_time)}
               </Text>
-              {bootTypeFilterList.includes(target) ? (
+              {resumeTypeFilterList.includes(target) ? (
                 <SimpleButton
                   isIcon
                   colorScheme="charcoal"
-                  onClick={() => setBootTypeFilterList((prev) => prev.filter((type) => type !== target))}
+                  onClick={() => setResumeTypeFilterList((prev) => prev.filter((type) => type !== target))}
                 >
                   <HiddenEyeIcon className="h-4 w-5" />
                 </SimpleButton>
@@ -75,7 +77,7 @@ const BootSummaryResultItem: React.FC<BootSummaryResultItemProps> = ({ boot, set
                 <SimpleButton
                   isIcon
                   colorScheme="charcoal"
-                  onClick={() => setBootTypeFilterList((prev) => [...prev, target])}
+                  onClick={() => setResumeTypeFilterList((prev) => [...prev, target])}
                 >
                   <ShowEyeIcon className="h-4 w-5" />
                 </SimpleButton>
@@ -84,7 +86,7 @@ const BootSummaryResultItem: React.FC<BootSummaryResultItemProps> = ({ boot, set
           ))}
         </div>
 
-        <SimpleButton colorScheme="charcoal" className="ml-auto" onClick={() => setRawDataModalType('boot')}>
+        <SimpleButton colorScheme="charcoal" className="ml-auto" onClick={() => setRawDataModalType('resume')}>
           <ShowRawDataIcon className="w-4 h-4" />
           <Text colorScheme="light" weight="medium">
             Show Raw Data
@@ -95,4 +97,4 @@ const BootSummaryResultItem: React.FC<BootSummaryResultItemProps> = ({ boot, set
   )
 }
 
-export default BootSummaryResultItem
+export default ResumeSummaryItem

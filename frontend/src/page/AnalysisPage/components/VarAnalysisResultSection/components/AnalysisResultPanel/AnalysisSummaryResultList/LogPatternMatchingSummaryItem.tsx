@@ -5,20 +5,25 @@ import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
 import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
 import { numberWithCommas } from '@global/usecase'
-import { freezeTypeFilterListState } from '@global/atom'
+import { logPatternMatchingNameFilterListState } from '@global/atom'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
-import { AnalysisTypeLabel, FreezeTypeLabel } from '../../../constant'
+import { AnalysisTypeLabel } from '../../../constant'
 
-interface FreezeSummaryResultItemProps {
-  freeze: NonNullable<AnalysisResultSummary['freeze']>
+interface LogPatternMatchingSummaryItemProps {
+  logPatternMatching: NonNullable<AnalysisResultSummary['log_pattern_matching']>
   setRawDataModalType: React.Dispatch<React.SetStateAction<keyof AnalysisResultSummary | null>>
 }
 
 /**
- * freeze 분석결과 요약 아이템
+ * log pattern matching 분석 결과 요약 아이템
  */
-const FreezeSummaryResultItem: React.FC<FreezeSummaryResultItemProps> = ({ freeze, setRawDataModalType }) => {
-  const [freezeTypeFilterList, setFreezeTypeFilterList] = useRecoilState(freezeTypeFilterListState)
+const LogPatternMatchingSummaryItem: React.FC<LogPatternMatchingSummaryItemProps> = ({
+  logPatternMatching,
+  setRawDataModalType,
+}) => {
+  const [logPatternMatchingNameFilterList, setLogPatternMatchingNameFilterList] = useRecoilState(
+    logPatternMatchingNameFilterListState,
+  )
 
   return (
     <Accordion
@@ -28,16 +33,16 @@ const FreezeSummaryResultItem: React.FC<FreezeSummaryResultItemProps> = ({ freez
             <div
               className="w-4 h-4"
               style={{
-                backgroundColor: freeze.color,
+                backgroundColor: logPatternMatching.color,
               }}
             />
             <Text size="sm" weight="medium">
-              {AnalysisTypeLabel.freeze}
+              {AnalysisTypeLabel.log_pattern_matching}
             </Text>
           </div>
 
           <Text weight="medium">
-            {numberWithCommas(freeze.results.reduce((acc, curr) => acc + curr.total, 0))} times
+            {numberWithCommas(logPatternMatching.results.reduce((acc, curr) => acc + curr.total, 0))} times
           </Text>
         </div>
       }
@@ -46,32 +51,42 @@ const FreezeSummaryResultItem: React.FC<FreezeSummaryResultItemProps> = ({ freez
         <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 gap-y-1 items-center">
           {/* header */}
           <Text weight="medium" size="sm">
-            Error Type
+            Log Pattern Name
           </Text>
           <Text weight="medium" size="sm">
             Total
           </Text>
           <div />
 
-          {freeze.results.map(({ total, error_type }, index) => (
-            <React.Fragment key={`freeze-summary-result-${index}`}>
-              <Text size="sm">{FreezeTypeLabel[error_type]}</Text>
+          {logPatternMatching.results.map(({ total, log_pattern_name, color }, index) => (
+            <React.Fragment key={`log-pattern-matching-summary-result-${index}`}>
+              <div className="flex items-center gap-x-3">
+                <div
+                  className="w-4 h-4"
+                  style={{
+                    backgroundColor: color,
+                  }}
+                />
+                <Text size="sm">{log_pattern_name}</Text>
+              </div>
               <Text size="sm" className="text-right">
                 {numberWithCommas(total)}
               </Text>
-              {freezeTypeFilterList.includes(error_type) ? (
+              {logPatternMatchingNameFilterList.includes(log_pattern_name) ? (
                 <SimpleButton
                   isIcon
                   colorScheme="charcoal"
-                  onClick={() => setFreezeTypeFilterList((prev) => prev.filter((type) => type !== error_type))}
+                  onClick={() =>
+                    setLogPatternMatchingNameFilterList((prev) => prev.filter((type) => type !== log_pattern_name))
+                  }
                 >
                   <HiddenEyeIcon className="h-4 w-5" />
                 </SimpleButton>
               ) : (
                 <SimpleButton
-                  colorScheme="charcoal"
                   isIcon
-                  onClick={() => setFreezeTypeFilterList((prev) => [...prev, error_type])}
+                  colorScheme="charcoal"
+                  onClick={() => setLogPatternMatchingNameFilterList((prev) => [...prev, log_pattern_name])}
                 >
                   <ShowEyeIcon className="h-4 w-5" />
                 </SimpleButton>
@@ -80,7 +95,11 @@ const FreezeSummaryResultItem: React.FC<FreezeSummaryResultItemProps> = ({ freez
           ))}
         </div>
 
-        <SimpleButton colorScheme="charcoal" className="ml-auto" onClick={() => setRawDataModalType('freeze')}>
+        <SimpleButton
+          colorScheme="charcoal"
+          className="ml-auto"
+          onClick={() => setRawDataModalType('log_pattern_matching')}
+        >
           <ShowRawDataIcon className="w-4 h-4" />
           <Text colorScheme="light" weight="medium">
             Show Raw Data
@@ -91,4 +110,4 @@ const FreezeSummaryResultItem: React.FC<FreezeSummaryResultItemProps> = ({ freez
   )
 }
 
-export default FreezeSummaryResultItem
+export default LogPatternMatchingSummaryItem

@@ -159,7 +159,7 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
 
     // 분석아이템을 추가할 경우 -> 아이템별 default값 설정
     Object.keys(AnalysisTypeLabel).forEach((_type) => {
-      const type = _type as keyof typeof AnalysisTypeLabel
+      const type = _type as (typeof AnalyzableTypes)[number]
       // 분석 아이템 리스트에 없거나 이미 값이 있을 경우 -> escape
       if (!selectedAnalysisItems.includes(type) || unsavedAnalysisConfig[type]) return
 

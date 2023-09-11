@@ -78,7 +78,7 @@ export const playStartTimeState = atom<number | null>({
 })
 
 /**
- * 분석 페이지 freeze 결과 filter 리스트
+ * 분석 페이지 freeze 결과 filter 리스트(freeze type으로 필터링)
  */
 export const freezeTypeFilterListState = atom<(keyof typeof FreezeType)[]>({
   key: 'freezeTypeFilterListState',
@@ -86,7 +86,7 @@ export const freezeTypeFilterListState = atom<(keyof typeof FreezeType)[]>({
 })
 
 /**
- * 분석 페이지 resume 결과 filter 리스트
+ * 분석 페이지 resume 결과 filter 리스트(resume type으로 필터링)
  */
 export const resumeTypeFilterListState = atom<ResumeType[]>({
   key: 'resumeTypeFilterListState',
@@ -94,7 +94,7 @@ export const resumeTypeFilterListState = atom<ResumeType[]>({
 })
 
 /**
- * 분석 페이지 boot 결과 filter 리스트
+ * 분석 페이지 boot 결과 filter 리스트(boot type으로 필터링)
  */
 export const bootTypeFilterListState = atom<BootType[]>({
   key: 'bootTypeFilterListState',
@@ -102,7 +102,7 @@ export const bootTypeFilterListState = atom<BootType[]>({
 })
 
 /**
- * 분석 페이지 log level filter 결과 filter 리스트
+ * 분석 페이지 log level filter 결과 filter 리스트(log level로 필터링)
  */
 export const logLevelFinderLogLevelFilterListState = atom<(keyof typeof LogLevel)[]>({
   key: 'logLevelFinderLogLevelFilterListState',
@@ -110,7 +110,7 @@ export const logLevelFinderLogLevelFilterListState = atom<(keyof typeof LogLevel
 })
 
 /**
- * 분석 페이지 log pattern matching 결과 filter 리스트
+ * 분석 페이지 log pattern matching 결과 filter 리스트(log pattern name으로 필터링)
  */
 export const logPatternMatchingNameFilterListState = atom<string[]>({
   key: 'logPatternMatchingNameFilterListState',

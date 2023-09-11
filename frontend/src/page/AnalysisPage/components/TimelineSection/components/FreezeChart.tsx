@@ -5,6 +5,7 @@ import { freezeTypeFilterListState } from '@global/atom'
 import { convertDuration } from '@global/usecase'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { useFreeze } from '@page/AnalysisPage/api/hook'
+import { CHART_HEIGHT } from '@global/constant'
 import { useTooltipEvent } from '../hook'
 
 interface FreezeChartProps {
@@ -69,7 +70,12 @@ const FreezeChart: React.FC<FreezeChartProps> = ({ scaleX, startTime, endTime, d
         </div>
       )}
 
-      <RangeChart scaleX={scaleX} data={freezeData} />
+      <div className="w-full relative border-b border-[#37383E]">
+        <div className="flex justify-center items-center" style={{ height: CHART_HEIGHT - 1 }}>
+          <div className="h-[0.5px] w-full bg-[#37383E]" />
+        </div>
+        <RangeChart scaleX={scaleX} data={freezeData} />
+      </div>
     </div>
   )
 }

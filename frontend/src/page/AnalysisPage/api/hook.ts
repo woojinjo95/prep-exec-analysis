@@ -14,10 +14,14 @@ import {
   getColorReferences,
   getEventLogs,
   getFreeze,
+  getIntelligentMonkeySection,
+  getIntelligentMonkeySmartSense,
   getLogLevelFinders,
   getLogPatternMatching,
   getLoudness,
   getMemory,
+  getMonkeySection,
+  getMonkeySmartSense,
   getResume,
 } from './func'
 
@@ -440,6 +444,156 @@ export const useInfiniteLogPatternMatching = (params: Parameters<typeof getLogPa
 
   return {
     logPatternMatching: data?.pages.flatMap(({ items }) => items) || [],
+    total: data?.pages.length ? data.pages[0].total : 0,
+    loadingRef: ref,
+    hasNextPage,
+  }
+}
+
+/**
+ * Monkey Section 리스트 조회 hook
+ */
+export const useMonkeySection = (params: Parameters<typeof getMonkeySection>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['monkey_section', params], () =>
+    getMonkeySection({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
+  )
+
+  return { monkeySection: data?.items, isLoading, refetch }
+}
+
+/**
+ * Monkey Smart Sense 리스트 조회 hook
+ */
+export const useMonkeySmartSense = (params: Parameters<typeof getMonkeySmartSense>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['monkey_smart_sense', params], () =>
+    getMonkeySmartSense({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
+  )
+
+  return { monkeySmartSense: data?.items, isLoading, refetch }
+}
+
+/**
+ * Monkey Smart Sense 무한스크롤 조회 hook
+ */
+export const useInfiniteMonkeySmartSense = (params: Parameters<typeof getMonkeySmartSense>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, hasNextPage, isFetching, fetchNextPage } = useInfiniteQuery(
+    ['infinite_monkey_smart_sense', params],
+    ({ pageParam = 1 }) => {
+      return getMonkeySmartSense({
+        ...params,
+        page: pageParam as number,
+        page_size: PAGE_SIZE_TEN,
+        scenario_id: scenarioId || undefined,
+        testrun_id: testRunId || undefined,
+      })
+    },
+    {
+      getNextPageParam: (lastPage) => {
+        const nextPage = lastPage.next
+        if (nextPage <= lastPage.pages) {
+          return nextPage
+        }
+
+        return undefined
+      },
+    },
+  )
+
+  const ref = useIntersect((entry, observer) => {
+    observer.unobserve(entry.target)
+    if (hasNextPage && !isFetching) {
+      fetchNextPage()
+    }
+  })
+
+  return {
+    monkeySmartSense: data?.pages.flatMap(({ items }) => items) || [],
+    total: data?.pages.length ? data.pages[0].total : 0,
+    loadingRef: ref,
+    hasNextPage,
+  }
+}
+
+/**
+ * Intelligent Monkey Section 리스트 조회 hook
+ */
+export const useIntelligentMonkeySection = (params: Parameters<typeof getIntelligentMonkeySection>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['intelligent_monkey_section', params], () =>
+    getIntelligentMonkeySection({
+      ...params,
+      scenario_id: scenarioId || undefined,
+      testrun_id: testRunId || undefined,
+    }),
+  )
+
+  return { intelligentMonkeySection: data?.items, isLoading, refetch }
+}
+
+/**
+ * Intelligent Monkey Smart Sense 리스트 조회 hook
+ */
+export const useIntelligentMonkeySmartSense = (params: Parameters<typeof getIntelligentMonkeySmartSense>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['intelligent_monkey_smart_sense', params], () =>
+    getIntelligentMonkeySmartSense({
+      ...params,
+      scenario_id: scenarioId || undefined,
+      testrun_id: testRunId || undefined,
+    }),
+  )
+
+  return { intelligentMonkeySmartSense: data?.items, isLoading, refetch }
+}
+
+/**
+ * Intelligent Monkey Smart Sense 무한스크롤 조회 hook
+ */
+export const useInfiniteIntelligentMonkeySmartSense = (
+  params: Parameters<typeof getIntelligentMonkeySmartSense>[0],
+) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, hasNextPage, isFetching, fetchNextPage } = useInfiniteQuery(
+    ['infinite_intelligent_monkey_smart_sense', params],
+    ({ pageParam = 1 }) => {
+      return getIntelligentMonkeySmartSense({
+        ...params,
+        page: pageParam as number,
+        page_size: PAGE_SIZE_TEN,
+        scenario_id: scenarioId || undefined,
+        testrun_id: testRunId || undefined,
+      })
+    },
+    {
+      getNextPageParam: (lastPage) => {
+        const nextPage = lastPage.next
+        if (nextPage <= lastPage.pages) {
+          return nextPage
+        }
+
+        return undefined
+      },
+    },
+  )
+
+  const ref = useIntersect((entry, observer) => {
+    observer.unobserve(entry.target)
+    if (hasNextPage && !isFetching) {
+      fetchNextPage()
+    }
+  })
+
+  return {
+    intelligentMonkeySmartSense: data?.pages.flatMap(({ items }) => items) || [],
     total: data?.pages.length ? data.pages[0].total : 0,
     loadingRef: ref,
     hasNextPage,

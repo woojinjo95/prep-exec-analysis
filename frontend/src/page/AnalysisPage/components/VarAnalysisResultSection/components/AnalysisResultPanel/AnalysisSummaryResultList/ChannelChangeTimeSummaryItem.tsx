@@ -8,7 +8,7 @@ import { AnalysisTypeLabel } from '../../../constant'
 /**
  * channel change time 분석결과 요약 아이템
  */
-const ChannelChangeTimeSummaryResultItem: React.FC = () => {
+const ChannelChangeTimeSummaryItem: React.FC = () => {
   return (
     <Accordion
       header={
@@ -79,4 +79,4 @@ const ChannelChangeTimeSummaryResultItem: React.FC = () => {
   )
 }
 
-export default ChannelChangeTimeSummaryResultItem
+export default ChannelChangeTimeSummaryItem

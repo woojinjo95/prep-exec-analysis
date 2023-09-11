@@ -8,14 +8,14 @@ import { logLevelFinderLogLevelFilterListState } from '@global/atom'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { AnalysisTypeLabel } from '../../../constant'
 
-interface LogLevelFinderSummaryResultItemProps {
+interface LogLevelFinderSummaryItemProps {
   logLevelFinder: NonNullable<AnalysisResultSummary['log_level_finder']>
 }
 
 /**
  * log level finder 분석결과 요약 아이템
  */
-const LogLevelFinderSummaryResultItem: React.FC<LogLevelFinderSummaryResultItemProps> = ({ logLevelFinder }) => {
+const LogLevelFinderSummaryItem: React.FC<LogLevelFinderSummaryItemProps> = ({ logLevelFinder }) => {
   const [logLevelFinderLogLevelFilterList, setLogLevelFinderLogLevelFilterList] = useRecoilState(
     logLevelFinderLogLevelFilterListState,
   )
@@ -82,4 +82,4 @@ const LogLevelFinderSummaryResultItem: React.FC<LogLevelFinderSummaryResultItemP
   )
 }
 
-export default LogLevelFinderSummaryResultItem
+export default LogLevelFinderSummaryItem

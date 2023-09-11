@@ -74,15 +74,17 @@ const LoudnessChart: React.FC<LoudnessChartProps> = ({ scaleX, startTime, endTim
         />
       )}
 
-      <AreaChart
-        chartWidth={dimension?.width}
-        scaleX={scaleX}
-        scaleY={scaleY}
-        data={loudnessData}
-        minValue={-70}
-        strokeColor={summary.loudness?.color || 'white'}
-        fillColor={summary.loudness?.color || 'white'}
-      />
+      <div style={{ height: CHART_HEIGHT }}>
+        <AreaChart
+          chartWidth={dimension?.width}
+          scaleX={scaleX}
+          scaleY={scaleY}
+          data={loudnessData}
+          minValue={-70}
+          strokeColor={summary.loudness?.color || 'white'}
+          fillColor={summary.loudness?.color || 'white'}
+        />
+      </div>
     </div>
   )
 }

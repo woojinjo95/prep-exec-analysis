@@ -5,6 +5,7 @@ import { convertDuration } from '@global/usecase'
 import { bootTypeFilterListState, resumeTypeFilterListState } from '@global/atom'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { useBoot, useResume } from '@page/AnalysisPage/api/hook'
+import { CHART_HEIGHT } from '@global/constant'
 import { useTooltipEvent } from '../hook'
 
 interface ResumeBootChartProps {
@@ -87,7 +88,12 @@ const ResumeBootChart: React.FC<ResumeBootChartProps> = ({ scaleX, startTime, en
         </div>
       )}
 
-      <RangeChart scaleX={scaleX} data={data} />
+      <div className="w-full relative border-b border-[#37383E]">
+        <div className="flex justify-center items-center" style={{ height: CHART_HEIGHT - 1 }}>
+          <div className="h-[0.5px] w-full bg-[#37383E]" />
+        </div>
+        <RangeChart scaleX={scaleX} data={data} />
+      </div>
     </div>
   )
 }

@@ -124,12 +124,12 @@ export const numberWithCommas = (x: number): string => {
  * @param spaceY 상위 엘리먼트와 createPortal로 생성된 엘리먼트 사이의 세로 간격
  * @returns createPortal 엘리먼트의 style
  */
-export const createPortalStyle = ({
+export const createPortalStyle = <T extends Element>({
   wrapperRef,
   spaceX = 0,
   spaceY = 4,
 }: {
-  wrapperRef: React.MutableRefObject<HTMLDivElement | null>
+  wrapperRef: React.MutableRefObject<T | null>
   spaceX?: number
   spaceY?: number
 }) => {
