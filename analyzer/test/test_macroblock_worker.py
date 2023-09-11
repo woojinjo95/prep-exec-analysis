@@ -19,5 +19,5 @@ while True:
     result = detector.update(frame)
     delay = time.time() - start_time
 
-    print(f'{index}: {result}, delay: {delay}')
+    print(f'{index}: {result.occurred}, delay: {delay}')
     index += 1

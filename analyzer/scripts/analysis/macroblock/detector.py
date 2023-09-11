@@ -33,8 +33,8 @@ class MacroblockDetector:
         try:
             split_result = self.preprocess_image(image)
             cls_result = self.predict_with_patch_images(split_result.patches)
-            result = self.postprocess_result(cls_result, split_result)
-            return MacroblockResult(status='success', result=result, split_result=split_result, cls_result=cls_result)
+            occurred = self.postprocess_result(cls_result, split_result)
+            return MacroblockResult(status='success', occurred=occurred, split_result=split_result, cls_result=cls_result)
         except Exception as err:
             logger.error(f'error in process_image. {err}')
             logger.warning(traceback.format_exc())
