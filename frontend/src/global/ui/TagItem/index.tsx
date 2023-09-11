@@ -76,17 +76,17 @@ const TagItem: React.FC<TagItemProps> = ({
         },
         props.className,
       )}
+      onClick={(e) => {
+        e.stopPropagation()
+        setBlocksTags((prev) => [...prev, tag])
+      }}
+      onMouseDown={(e) => {
+        e.stopPropagation()
+      }}
       {...props}
     >
       {mode === 'item' && (
-        <div
-          className="flex justify-between"
-          onClick={(e) => {
-            e.stopPropagation()
-            e.preventDefault()
-            setBlocksTags((prev) => [...prev, tag])
-          }}
-        >
+        <div className="flex justify-between">
           <Tag tag={tag} />
           <DropdownWithMoreButton type="icon" colorScheme="charcoal">
             <OptionItem colorScheme="charcoal">
@@ -98,6 +98,9 @@ const TagItem: React.FC<TagItemProps> = ({
                 onClick={(e) => {
                   e.stopPropagation()
                 }}
+                onMouseDown={(e) => {
+                  e.stopPropagation()
+                }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     putTagMutate({ targetTag: tag, newTag: tagInput })
@@ -107,16 +110,18 @@ const TagItem: React.FC<TagItemProps> = ({
               />
             </OptionItem>
             <OptionItem colorScheme="charcoal">
-              <div className="flex">
+              <div
+                className="flex"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  deleteTagMutate(tag)
+                }}
+                onMouseDown={(e) => {
+                  e.stopPropagation()
+                }}
+              >
                 <TrashIcon className="w-4 h-[19px] fill-white mr-2" />
-                <Text
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    deleteTagMutate(tag)
-                  }}
-                >
-                  Delete
-                </Text>
+                <Text>Delete</Text>
               </div>
             </OptionItem>
           </DropdownWithMoreButton>
