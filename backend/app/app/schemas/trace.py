@@ -1,11 +1,12 @@
 from typing import List
 
-from app.schemas.analysis_result import TimestampBaseModel
+# from app.schemas.analysis_result import TimestampBaseModel
 from app.schemas.enum import LogLevelEnum, ProtocolEnum
 from pydantic import BaseModel
 
 
-class Logcat(TimestampBaseModel):
+class Logcat(BaseModel):
+    timestamp: str
     module: str
     log_level: LogLevelEnum
     process_name: str
@@ -18,7 +19,8 @@ class ReadLogcat(BaseModel):
     items: List[Logcat]
 
 
-class Network(TimestampBaseModel):
+class Network(BaseModel):
+    timestamp: str
     src: str
     dst: str
     protocol: ProtocolEnum
