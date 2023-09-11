@@ -8,12 +8,6 @@ from typing import Optional
 
 class TimestampBaseModel(BaseModel):
     timestamp: str
-
-    @root_validator(pre=True)
-    def convert_timestamp_with_timezone(cls, values):
-        if "timestamp" in values:
-            values["timestamp"] = parse_datetime(values["timestamp"]).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-        return values
     
 
 class PaginationBaseModel(BaseModel):
