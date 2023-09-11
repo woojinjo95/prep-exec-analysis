@@ -16,7 +16,7 @@ while True:
 
     start_time = time.time()
     frame = cv2.resize(frame, (960, 540))
-    result = detector.check_macroblock_occured(frame)
+    result = detector.update(frame)
     delay = time.time() - start_time
 
     print(f'{index}: {result}, delay: {delay}')

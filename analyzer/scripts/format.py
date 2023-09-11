@@ -97,4 +97,6 @@ class Command(Enum):
     BOOT = 'boot'
     LOG_PATTERN_MATCHING = 'log_pattern_matching'
     CHANNEL_ZAPPING = 'channel_change_time'
+    MACROBLOCK = 'macroblock'
+    
 
