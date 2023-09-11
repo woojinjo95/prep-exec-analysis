@@ -190,8 +190,8 @@ class MakeVideo:
                           'path': os.path.join(self.mounted_output_path, video_basename),
                           'name': video_basename,
                           'stat_path':  os.path.join(self.mounted_output_path, json_basename),
-                          'start_time': raw_video_info['timestamps'][0],
-                          'end_time': raw_video_info['timestamps'][-1],
+                          'start_time': timestamp_to_datetime_with_timezone_str(raw_video_info['timestamps'][0]),
+                          'end_time': timestamp_to_datetime_with_timezone_str(raw_video_info['timestamps'][-1]),
                           'frame_count': len(raw_video_info['timestamps']),
                           }
         else:
