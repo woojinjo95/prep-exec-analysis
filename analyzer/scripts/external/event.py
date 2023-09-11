@@ -64,6 +64,7 @@ def get_dut_power_times(event_result: Dict) -> List[float]:
     return control_times
 
 
+# targets: ['adjoint_channel', 'non_adjoint_channel']
 def get_channel_key_inputs(event_result: Dict, targets: List[str]) -> List[RemoconKeyData]:
     remocon_infos = []
     for item in event_result.get('items', []):

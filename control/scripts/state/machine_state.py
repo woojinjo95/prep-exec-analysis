@@ -1,5 +1,5 @@
 import re
-import shutil
+import ipaddress
 from collections import defaultdict
 
 import psutil
@@ -9,6 +9,7 @@ from ..utils._exceptions import handle_errors, handle_none_return
 from ..utils._subprocess import get_output
 
 HARDWARE_CONFIG = 'hardware_configuration'
+COMMON = 'common'
 TESTRUN_CONFIG = 'testrun'
 
 
@@ -119,3 +120,25 @@ def get_disk_usage_in_percent() -> float:
     workspace_path = get_value(TESTRUN_CONFIG, 'workspace_path', db=RedisDBEnum.hardware)
     disk_usage_in_percent = psutil.disk_usage(workspace_path).percent
     return percent_round(disk_usage_in_percent)
+
+
+@handle_none_return(str)
+@handle_errors
+def get_current_running_state() -> str:
+    try:
+        ipaddress.ip_address(get_machine_private_ip())  # machine itself
+        ipaddress.ip_address(get_machine_dut_lan_ip())  # stb connection
+        state = get_value(COMMON, 'service_state', '0.0.0.0', db=RedisDBEnum.hardware)
+
+        if state in ('streaming', 'playblock'):
+            return 'Collecting'
+
+        elif state in ('Analyzing', 'recording'):
+            return 'Analyzing'
+
+        else:
+            # state in ('idle')
+            return 'Ready'
+
+    except ValueError:
+        return 'Check Connection'
