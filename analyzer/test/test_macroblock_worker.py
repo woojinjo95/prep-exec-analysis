@@ -16,7 +16,7 @@ while True:
 
     start_time = time.time()
     frame = cv2.resize(frame, (960, 540))
-    result = detector.update(frame)
+    result = detector.update(frame, time.time())
     delay = time.time() - start_time
 
     result.split_result = None

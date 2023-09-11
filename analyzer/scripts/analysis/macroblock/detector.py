@@ -32,7 +32,7 @@ class MacroblockDetector:
         self.last_occurred = False
         self.start_occurred_time = None
 
-    def update(self, image: np.ndarray) -> MacroblockResult:
+    def update(self, image: np.ndarray, timestamp: float) -> MacroblockResult:
         try:
             # check macroblock is occurred in this frame
             split_result = self.preprocess_image(image)
@@ -42,11 +42,11 @@ class MacroblockDetector:
             # check macroblock is finally detected
             end_occurred_time, duration = None, None
             if occurred and not self.last_occurred:  # rising edge
-                self.start_occurred_time = time.time()
+                self.start_occurred_time = timestamp
                 logger.info(f'Macroblock occurred! start_time: {self.start_occurred_time}')
                 detect = False
             elif not occurred and self.last_occurred:  # falling edge
-                end_occurred_time = time.time()
+                end_occurred_time = timestamp
                 duration = end_occurred_time - self.start_occurred_time
                 logger.info(f'Macroblock disappeared! end_time: {end_occurred_time}, duration: {duration}')
                 detect = True
