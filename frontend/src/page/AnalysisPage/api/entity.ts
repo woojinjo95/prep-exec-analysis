@@ -39,6 +39,12 @@ export interface AnalysisConfig {
       regular_expression: string
     }[]
   }
+  monkey_test?: {
+    color: string
+  }
+  intelligent_monkey_test?: {
+    color: string
+  }
 }
 
 /**

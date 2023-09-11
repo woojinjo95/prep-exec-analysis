@@ -28,7 +28,7 @@ const IconButton: React.FC<IconButtonProps> = ({
         {
           'bg-charcoal': colorScheme === 'charcoal',
           'border-light-charcoal': colorScheme === 'charcoal',
-          'hover:brightness-110': colorScheme === 'charcoal',
+          'hover:brightness-125': colorScheme === 'charcoal',
           'active:brightness-95': colorScheme === 'charcoal',
           'bg-white': colorScheme === 'light',
           'border-light-grey': colorScheme === 'light',
