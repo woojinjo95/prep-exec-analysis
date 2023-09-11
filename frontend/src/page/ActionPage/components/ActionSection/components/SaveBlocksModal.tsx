@@ -7,7 +7,7 @@ import { formatDateTo } from '@global/usecase'
 import Scrollbars from 'react-custom-scrollbars-2'
 import { useScenarioById } from '@global/api/hook'
 import { useRecoilState } from 'recoil'
-import { isTestOptionModalOpenState, scenarioIdState, testRunIdState } from '@global/atom'
+import { playStartTimeState, scenarioIdState, testRunIdState } from '@global/atom'
 import Tag from '@global/ui/Tag'
 import { useMutation, useQuery } from 'react-query'
 import { getTag, postCopyScenario, postTag, putScenario } from '@global/api/func'
@@ -113,7 +113,7 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
     return tags.filter((tag) => tag.includes(tagInput) && blocksTags.find((_tag) => _tag === tag) === undefined)
   }, [tagInput, tags, blocksTags])
 
-  const [, setIsTesetOptionModalOpen] = useRecoilState(isTestOptionModalOpenState)
+  const [, setPlayStartTime] = useRecoilState(playStartTimeState)
 
   const { mutate: postTagMutate } = useMutation(postTag, {
     onSuccess: () => {
@@ -137,8 +137,14 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
 
       close()
 
-      if (isPlay) {
-        setIsTesetOptionModalOpen(true)
+      if (isPlay && scenarioId) {
+        sendMessage({
+          level: 'info',
+          msg: 'start_playblock',
+          data: { scenario_id: scenarioId },
+        })
+
+        setPlayStartTime(new Date().getTime() / 1000)
       }
 
       // 분석페이지로 이동한다면
@@ -172,8 +178,14 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
       currentScenarioRefetch()
       close()
 
-      if (isPlay) {
-        setIsTesetOptionModalOpen(true)
+      if (isPlay && scenarioId) {
+        sendMessage({
+          level: 'info',
+          msg: 'start_playblock',
+          data: { scenario_id: scenarioId },
+        })
+
+        setPlayStartTime(new Date().getTime() / 1000)
       }
 
       if (isMoveAnalysisPage) {
@@ -393,9 +405,14 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
             onClick={() => {
               close()
 
-              console.log('isPlay', isPlay)
-              if (isPlay) {
-                setIsTesetOptionModalOpen(true)
+              if (isPlay && scenarioId) {
+                sendMessage({
+                  level: 'info',
+                  msg: 'start_playblock',
+                  data: { scenario_id: scenarioId },
+                })
+
+                setPlayStartTime(new Date().getTime() / 1000)
               }
 
               if (isMoveAnalysisPage) {

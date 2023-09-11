@@ -7,13 +7,7 @@ import { ReactComponent as StopIcon } from '@assets/images/icon_stop.svg'
 import { IconButton, OptionItem, Text, DropdownWithMoreButton } from '@global/ui'
 import { useWebsocket } from '@global/hook'
 import { useRecoilState, useRecoilValue } from 'recoil'
-import {
-  isBlockRecordModeState,
-  isTestOptionModalOpenState,
-  playStartTimeState,
-  scenarioIdState,
-  selectedBlockIdsState,
-} from '@global/atom'
+import { isBlockRecordModeState, playStartTimeState, scenarioIdState, selectedBlockIdsState } from '@global/atom'
 import { useScenarioById, useServiceState } from '@global/api/hook'
 import { useMutation } from 'react-query'
 import cx from 'classnames'
@@ -24,7 +18,6 @@ import OpenBlocksModal from './OpenBlocksModal'
 import { deleteBlock } from '../api/func'
 import AddMonkeyTestBlockModal from './AddMonkeyTestBlockModal'
 import AddIntelligentMonkeyTestBlockModal from './AddIntelligentMonkeyTestBlockModal'
-import TestOptionModal from './TestOptionModal'
 
 const BlockControls: React.FC = () => {
   const scenarioId = useRecoilValue(scenarioIdState)
@@ -36,7 +29,6 @@ const BlockControls: React.FC = () => {
   const [isAddMonkeyTestBlockModalOpen, setIsAddMonkeyTestBlockModalOpen] = useState<boolean>(false)
   const [isAddIntelligentMonkeyTestBlockModalOpen, setIsAddIntelligentMonkeyTestBlockModalOpen] =
     useState<boolean>(false)
-  const [isTestOptionModalOpen, setIsTesetOptionModalOpen] = useRecoilState(isTestOptionModalOpenState)
 
   const [isBlockRecordMode, setIsBlockRecordMode] = useRecoilState(isBlockRecordModeState)
 
@@ -53,7 +45,7 @@ const BlockControls: React.FC = () => {
   const selectedBlockIds = useRecoilValue(selectedBlockIdsState)
 
   // 재생 시작했던 시간
-  const playStartTime = useRecoilValue(playStartTimeState)
+  const [playStartTime, setPlayStartTime] = useRecoilState(playStartTimeState)
 
   const [isPlay, setIsPlay] = useState<boolean>(false)
 
@@ -149,16 +141,28 @@ const BlockControls: React.FC = () => {
                     setIsPlay(true)
                     setIsSaveBlocksModalOpen(true)
                   } else {
-                    // test option modal 실행
-                    setIsTesetOptionModalOpen(true)
+                    // 재생
+                    sendMessage({
+                      level: 'info',
+                      msg: 'start_playblock',
+                      data: { scenario_id: scenarioId },
+                    })
+
+                    setPlayStartTime(new Date().getTime() / 1000)
                   }
 
                   return
                 }
 
-                setIsTesetOptionModalOpen(true)
+                sendMessage({
+                  level: 'info',
+                  msg: 'start_playblock',
+                  data: { scenario_id: scenarioId },
+                })
 
-                setIsPlay(true)
+                setPlayStartTime(new Date().getTime() / 1000)
+
+                // setIsPlay(true)
               }}
             />
           ) : (
@@ -234,15 +238,6 @@ const BlockControls: React.FC = () => {
         <AddIntelligentMonkeyTestBlockModal
           isOpen={isAddIntelligentMonkeyTestBlockModalOpen}
           close={() => setIsAddIntelligentMonkeyTestBlockModalOpen(false)}
-        />
-      )}
-      {isTestOptionModalOpen && (
-        <TestOptionModal
-          isOpen={isTestOptionModalOpen}
-          close={() => {
-            setIsTesetOptionModalOpen(false)
-            setIsPlay(false)
-          }}
         />
       )}
     </>

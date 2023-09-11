@@ -62,14 +62,6 @@ export const selectedRemoconNameState = atom<string | null>({
 })
 
 /**
- * test Option Modal open
- */
-export const isTestOptionModalOpenState = atom<boolean>({
-  key: 'isTestOptionModalOpenState',
-  default: false,
-})
-
-/**
  * action page 재생 start time (unix timestamp)
  */
 export const playStartTimeState = atom<number | null>({
