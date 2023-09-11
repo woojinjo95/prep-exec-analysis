@@ -36,7 +36,8 @@ def test_macroblock():
 
 def task_macroblock(args: VideoInfo, config: Dict):
     progress_manager = ProgressManager(Command.MACROBLOCK.value)
-    detector = MacroblockDetector()
+    continuity_set_thld = max(int(config['min_duration'] * args.fps), 1)
+    detector = MacroblockDetector(continuity_set_thld=continuity_set_thld)
     logger.info(f'start time: {get_utc_datetime(args.timestamps[0])}')
 
     for idx, (frame, cur_time) in enumerate(FrameGenerator(args.video_path, args.timestamps)):
