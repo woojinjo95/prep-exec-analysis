@@ -113,3 +113,5 @@ def get_channel_zapping_event_datas(igmp_join_infos: List[IgmpJoinData], channel
                             
         i += 1  # Move to next igmp_join
 
+    logger.info(f'event datas: {event_datas}')
+    return event_datas
