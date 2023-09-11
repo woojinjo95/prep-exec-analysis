@@ -130,10 +130,10 @@ def get_current_running_state() -> str:
         ipaddress.ip_address(get_machine_dut_lan_ip())  # stb connection
         state = get_value(COMMON, 'service_state', '0.0.0.0', db=RedisDBEnum.hardware)
 
-        if state in ('streaming', 'playblock'):
+        if state.lower() in ('streaming', 'playblock'):
             return 'Collecting'
 
-        elif state in ('Analyzing', 'recording'):
+        elif state.lower() in ('analyzing', 'recording'):
             return 'Analyzing'
 
         else:

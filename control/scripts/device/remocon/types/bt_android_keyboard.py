@@ -53,7 +53,7 @@ class BTAndroidKeyboard(AbstractRemocon):
             if remocon_type == BT:
                 event_time = self.bt_remocon(key, press_time)
             elif remocon_type == LCD:
-                self.lcd_command(key)
+                self.lcd_command(command_queue['key']) #  now loser
                 event_time = time.time()
         except Exception as e:
             error_level = 'error' if self.error_count < 3 else 'critical'
@@ -99,9 +99,9 @@ class BTAndroidKeyboard(AbstractRemocon):
                 ser.write(bytes(string + '\n', 'utf-8'))
             event_time = start_time + self.time_offset
 
-        publish(self.redis_connection, RedisChannel.command, {'msg': 'lcd_control_response',
-                                                              'data': {"key": key,
-                                                                       "type": LCD,
-                                                                       "sensor_time": event_time}})
+        # publish(self.redis_connection, RedisChannel.command, {'msg': 'lcd_control_response',
+        #                                                       'data': {"key": key,
+        #                                                                "type": LCD,
+        #                                                                "sensor_time": event_time}})
         self.error_count = 0
         return event_time

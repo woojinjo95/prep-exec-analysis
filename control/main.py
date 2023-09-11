@@ -65,7 +65,7 @@ def main():
     remocon_process = RemoconProcess(serial_devices)
 
     init(control_board_serial_device, remocon_process)
-    start_state_service(interval=10)
+    start_state_service(remocon_process, interval=5)
 
     with get_strict_redis_connection() as src:
         for command in Subscribe(src, RedisChannel.command):

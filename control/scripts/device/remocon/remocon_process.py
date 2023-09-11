@@ -84,7 +84,7 @@ class RemoconProcess(ProcessUtil):
 
         publish(self.redis_connection, RedisChannel.command, result)
 
-    def put_command(self, key: str, _type: str, code: str = '', sleep: float = 0, press_time: float = 0) -> str:
+    def put_command(self, key: str, _type: str, code: str = '', sleep: float = 0, press_time: float = 0, mute=False) -> str:
         if _type == 'lcd':
             pass
         elif key.lower() not in self.remocon_commands:
@@ -113,6 +113,8 @@ class RemoconProcess(ProcessUtil):
                    'press_time': press_time,
                    'sleep': sleep,
                    'type': _type}
+        if mute:
+            command.update({'mute': True})
         self.transmit_command_queue.put(command)
         return _id
 

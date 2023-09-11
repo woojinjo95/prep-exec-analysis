@@ -72,7 +72,7 @@ def start_state_service(remocon_process: RemoconProcess, interval: int = 10) -> 
                     time.sleep(1)
                     for _ in range(interval - 1):
                         # update is update by 1 seconds
-                        remocon_process.put_command(key=f'update:{uptime()}', _type=LCD)
+                        remocon_process.put_command(key=f'uptime:{uptime()}', _type=LCD, mute=True)
                         time.sleep(1)
 
         except Exception as e:
