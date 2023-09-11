@@ -51,17 +51,19 @@ class LCDStrings:
 
     def wan_ip(self, ip_address: str) -> Tuple[str]:
         # WAN 초록색 설정 및 IP 주소 설정
-        if ipaddress.ip_address(ip_address):
+        try:
+            ipaddress.ip_address(ip_address)
             return ('lc011:4,0x00FF00', f'lc021:7,{ip_address}')
-        else:
+        except ValueError:
             # WAN 빨간색 설정 및 UNKNOWN
             return ('lc011:4,0xFF0000', 'lc021:7,UNKNOWN')
 
     def stb_ip(self, ip_address: str) -> Tuple[str]:
         # WAN 초록색 설정 및 IP 주소 설정
-        if ipaddress.ip_address(ip_address):
+        try:
+            ipaddress.ip_address(ip_address)
             return ('lc011:5,0x00FF00', f'lc021:8,{ip_address}')
-        else:
+        except ValueError:
             # WAN 빨간색 설정 및 UNKNOWN
             return ('lc011:5,0xFF0000', 'lc021:8,UNKNOWN')
 
