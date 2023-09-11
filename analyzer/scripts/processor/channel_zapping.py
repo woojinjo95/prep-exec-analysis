@@ -71,7 +71,9 @@ def task_channel_zapping(args: VideoInfo, config: Dict):
 
 
 def get_config() -> Dict:
-    return read_analysis_config()[Command.CHANNEL_ZAPPING.value]
+    config = read_analysis_config()[Command.CHANNEL_ZAPPING.value]
+    logger.info(f'config: {config}')
+    return config
 
 
 # iterate all igmp join times.
