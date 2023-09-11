@@ -163,7 +163,7 @@ async def consumer_handler(conn: any, CHANNEL_NAME: str):
                     # 분석 중단 메세지 전송
                     await pub_msg(conn, msg="analysis_terminate", data={})
 
-                    if await conn.hget("common", "service_state") != ServiceStateEnum.playblock:
+                    if await conn.hget("common", "service_state") != ServiceStateEnum.playblock.value:
                         # 로그수집 시작 메세지 전송
                         await pub_msg(conn, msg="stb_log", data={"control": "start"})
 
