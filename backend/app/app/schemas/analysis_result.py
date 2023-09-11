@@ -135,6 +135,16 @@ class MonkeySmartSense(PaginationBaseModel):
     items: List[MonkeySmartSenseBase]
 
 
+class IntelligentMonkeyTestBase(BaseModel):
+    section_id: int
+    start_timestamp: str
+    end_timestamp: str
+
+
+class IntelligentMonkeyTest(PaginationBaseModel):
+    items: List[IntelligentMonkeyTestBase]
+
+
 class IntelligentMonkeySmartSenseBase(TimestampBaseModel):
     section_id: int
     smart_sense_key: List[str]
@@ -227,6 +237,7 @@ class LoudnessSummary(SummaryBase):
 
 
 class MonkeyTestSummaryBase(BaseModel):
+    id: str
     duration_time: int
     smart_sense: int
 

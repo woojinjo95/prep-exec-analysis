@@ -510,7 +510,7 @@ def get_data_of_monkey_smart_sense(
 
 
 # Intelligent Monkey Section
-@router.get("/intelligent_monkey_section", response_model=schemas.MonkeyTest)
+@router.get("/intelligent_monkey_section", response_model=schemas.IntelligentMonkeyTest)
 def get_data_of_intelligent_monkey_section(
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
@@ -535,7 +535,7 @@ def get_data_of_intelligent_monkey_section(
                                                'testrun_id': testrun_id,
                                                'analysis_type': 'intelligent_monkey'}},
                                    {'$project': {'_id': 0,
-                                                 'id': '$section_id',
+                                                 'section_id': '$section_id',
                                                  'start_timestamp': {'$dateToString': {'date': '$start_timestamp'}},
                                                  'end_timestamp': {'$dateToString': {'date': '$end_timestamp'}}}}]
         monkey_section = paginate_from_mongodb_aggregation(col='monkey_section',
@@ -713,7 +713,7 @@ def get_summary_data_of_measure_result(
             elif active_analysis == 'monkey_test':
                 additional_pipeline = [
                     {'$match': {'analysis_type': 'monkey'}},
-                    {'$project': {'_id': {'$toString': '$_id'},
+                    {'$project': {'id': {'$toString': '$_id'},
                                   'smart_sense': '$smart_sense_times',
                                   'duration_time': '$user_config.duration'}},
                     {'$group': {'_id': None, 'results': {'$push': '$$ROOT'}}}]
