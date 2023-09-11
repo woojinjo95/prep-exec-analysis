@@ -4,7 +4,7 @@ import { ReactComponent as PlayIcon } from '@assets/images/icon_play.svg'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
 import { ReactComponent as StopIcon } from '@assets/images/icon_stop.svg'
 
-import { IconButton, OptionItem, Text, DropdownWithMoreButton } from '@global/ui'
+import { IconButton, OptionItem, Text, DropdownWithMoreButton, Input } from '@global/ui'
 import { useWebsocket } from '@global/hook'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { isBlockRecordModeState, playStartTimeState, scenarioIdState, selectedBlockIdsState } from '@global/atom'
@@ -15,7 +15,7 @@ import { useNavigate } from 'react-router-dom'
 import { blockControlMenu } from '../constants'
 import SaveBlocksModal from './SaveBlocksModal'
 import OpenBlocksModal from './OpenBlocksModal'
-import { deleteBlock } from '../api/func'
+import { deleteBlock, putBlockGroup } from '../api/func'
 import AddMonkeyTestBlockModal from './AddMonkeyTestBlockModal'
 import AddIntelligentMonkeyTestBlockModal from './AddIntelligentMonkeyTestBlockModal'
 
@@ -32,11 +32,24 @@ const BlockControls: React.FC = () => {
 
   const [isBlockRecordMode, setIsBlockRecordMode] = useRecoilState(isBlockRecordModeState)
 
-  const { scenario, refetch } = useScenarioById({ scenarioId })
+  const [repeatCnt, setRepeatCnt] = useState<number>(1)
+
+  const { scenario, refetch } = useScenarioById({
+    scenarioId,
+    onSuccess: (res) => {
+      setRepeatCnt(res.block_group[0].repeat_cnt)
+    },
+  })
 
   const { serviceState } = useServiceState()
 
   const { mutate: deleteBlocksMutate } = useMutation(deleteBlock, {
+    onSuccess: () => {
+      refetch()
+    },
+  })
+
+  const { mutate: putBlockGroupMutate } = useMutation(putBlockGroup, {
     onSuccess: () => {
       refetch()
     },
@@ -101,6 +114,32 @@ const BlockControls: React.FC = () => {
               </OptionItem>
             ))}
           </DropdownWithMoreButton>
+
+          <Input
+            colorScheme="light"
+            className="!w-[74px] !h-10 ml-3 mr-1"
+            value={repeatCnt}
+            type="number"
+            onChange={(e) => {
+              setRepeatCnt(Number(e.target.value))
+            }}
+            onBlur={() => {
+              if (!scenario) return
+
+              // 같을 때는 불필요하게 api 호출 X
+              if (repeatCnt === scenario.block_group[0].repeat_cnt) return
+
+              putBlockGroupMutate({
+                block_group_id: scenario.block_group[0].id,
+                repeat_cnt: repeatCnt,
+                scenario_id: scenario.id,
+              })
+            }}
+          />
+
+          <Text colorScheme="dark" weight="bold" size="sm">
+            Repeat
+          </Text>
         </div>
 
         <div className="flex items-center gap-x-1 ml-auto">
