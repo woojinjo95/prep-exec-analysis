@@ -36,8 +36,8 @@ def get_power_key_times(event_result: Dict) -> List[float]:
         service = item.get('service', '')
         msg = item.get('msg', '')
         data = item.get('data', {})
-        key = str(data.get('key', ''))
-        if service == 'control' and msg == 'remocon_response' and key.lower() == 'power':
+        key = str(data.get('key', '')).lower()
+        if service == 'control' and msg == 'remocon_response' and key in ['power', 'settoppower']:
             try:
                 sensor_time = data['sensor_time']
                 remocon_times.append(sensor_time)
