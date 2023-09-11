@@ -35,6 +35,10 @@ report_info = {
         'col_name': CollectionName.CHANNEL_ZAPPING.value,
         'user_config_name': Command.CHANNEL_ZAPPING.value
     },
+    ReportName.MACROBLOCK.value: {
+        'col_name': CollectionName.MACROBLOCK.value,
+        'user_config_name': Command.MACROBLOCK.value
+    },
 }
 
 
