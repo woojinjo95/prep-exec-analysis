@@ -167,6 +167,8 @@ export const getFreeze = async (params: {
   freeze_type?: (keyof typeof FreezeType)[]
   page?: number
   page_size?: number
+  sort_by?: keyof Pick<Freeze, 'timestamp' | 'freeze_type' | 'duration'>
+  sort_desc?: boolean
 }) => {
   try {
     const result = await API.get<PaginationResponse<Freeze[]>>(apiUrls.freeze, {
@@ -214,6 +216,8 @@ export const getResume = async (params: {
   testrun_id?: string
   page?: number
   page_size?: number
+  sort_by?: keyof Pick<Resume, 'timestamp' | 'target' | 'measure_time'>
+  sort_desc?: boolean
 }) => {
   try {
     const result = await API.get<PaginationResponse<Resume[]>>(apiUrls.resume, {
@@ -237,6 +241,8 @@ export const getBoot = async (params: {
   testrun_id?: string
   page?: number
   page_size?: number
+  sort_by?: keyof Pick<Boot, 'timestamp' | 'target' | 'measure_time'>
+  sort_desc?: boolean
 }) => {
   try {
     const result = await API.get<PaginationResponse<Boot[]>>(apiUrls.boot, {
@@ -260,6 +266,8 @@ export const getLogPatternMatching = async (params: {
   testrun_id?: string
   page?: number
   page_size?: number
+  sort_by?: keyof Pick<LogPatternMatching, 'timestamp' | 'log_pattern_name' | 'log_level'>
+  sort_desc?: boolean
 }) => {
   try {
     const result = await API.get<PaginationResponse<LogPatternMatching[]>>(apiUrls.log_pattern_matching, {

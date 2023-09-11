@@ -1,9 +1,11 @@
 import React from 'react'
+import { useRecoilState } from 'recoil'
 import { Accordion, SimpleButton, Text } from '@global/ui'
 import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.svg'
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
-// import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
+import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
 import { numberWithCommas } from '@global/usecase'
+import { freezeTypeFilterListState } from '@global/atom'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { AnalysisTypeLabel, FreezeTypeLabel } from '../../../constant'
 
@@ -16,6 +18,8 @@ interface FreezeSummaryResultItemProps {
  * freeze 분석결과 요약 아이템
  */
 const FreezeSummaryResultItem: React.FC<FreezeSummaryResultItemProps> = ({ freeze, setRawDataModalType }) => {
+  const [freezeTypeFilterList, setFreezeTypeFilterList] = useRecoilState(freezeTypeFilterListState)
+
   return (
     <Accordion
       header={
@@ -39,7 +43,7 @@ const FreezeSummaryResultItem: React.FC<FreezeSummaryResultItemProps> = ({ freez
       }
     >
       <div className="grid grid-cols-1 gap-y-4 pt-1">
-        <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 gap-y-2">
+        <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 gap-y-1 items-center">
           {/* header */}
           <Text weight="medium" size="sm">
             Error Type
@@ -55,9 +59,23 @@ const FreezeSummaryResultItem: React.FC<FreezeSummaryResultItemProps> = ({ freez
               <Text size="sm" className="text-right">
                 {numberWithCommas(total)}
               </Text>
-              <button type="button">
-                <ShowEyeIcon className="w-5" />
-              </button>
+              {freezeTypeFilterList.includes(error_type) ? (
+                <SimpleButton
+                  isIcon
+                  colorScheme="charcoal"
+                  onClick={() => setFreezeTypeFilterList((prev) => prev.filter((type) => type !== error_type))}
+                >
+                  <HiddenEyeIcon className="h-4 w-5" />
+                </SimpleButton>
+              ) : (
+                <SimpleButton
+                  colorScheme="charcoal"
+                  isIcon
+                  onClick={() => setFreezeTypeFilterList((prev) => [...prev, error_type])}
+                >
+                  <ShowEyeIcon className="h-4 w-5" />
+                </SimpleButton>
+              )}
             </React.Fragment>
           ))}
         </div>

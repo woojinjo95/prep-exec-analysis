@@ -60,41 +60,27 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
     start_time: startTime?.toISOString() || null,
     end_time: endTime?.toISOString() || null,
     onSuccess: (summary) => {
-      if (summary.freeze && !chartList.includes('video_analysis_result')) {
+      setChartList((prev) => prev.filter((v) => v === 'video' || v === 'color_reference' || v === 'event_log'))
+
+      if (summary.freeze) {
         setChartList((prev) => [...prev, 'video_analysis_result'])
       }
 
-      if (!summary.freeze) {
-        setChartList((prev) => prev.filter((v) => v !== 'video_analysis_result'))
-      }
-
-      if (summary.loudness && !chartList.includes('loudness')) {
+      if (summary.loudness) {
         setChartList((prev) => [...prev, 'loudness'])
       }
 
-      if (!summary.loudness) {
-        setChartList((prev) => prev.filter((v) => v !== 'loudness'))
-      }
-
-      if ((summary.boot || summary.resume) && !chartList.includes('resume_boot')) {
+      if (summary.boot || summary.resume) {
         setChartList((prev) => [...prev, 'resume_boot'])
       }
 
-      if (!summary.boot && !summary.resume) {
-        setChartList((prev) => prev.filter((v) => v !== 'resume_boot'))
-      }
-
       ;(['log_level_finder', 'log_pattern_matching'] as const).forEach((type) => {
-        if (summary[type] && !chartList.includes(type)) {
+        if (summary[type]) {
           setChartList((prev) => [...prev, type])
-        }
-
-        if (!summary[type]) {
-          setChartList((prev) => prev.filter((v) => v !== type))
         }
       })
 
-      setChartList((prev) => [...prev.filter((v) => v !== 'cpu' && v !== 'memory'), 'cpu', 'memory'])
+      setChartList((prev) => [...prev, 'cpu', 'memory'])
     },
   })
 

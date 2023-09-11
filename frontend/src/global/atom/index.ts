@@ -1,4 +1,6 @@
 import { atom } from 'recoil'
+import { FreezeType, LogLevel } from '@global/constant'
+import { BootType, ResumeType } from '@global/api/entity'
 
 /**
  * 분석페이지 특정 시나리오의 비디오 Blob URL
@@ -73,4 +75,44 @@ export const isTestOptionModalOpenState = atom<boolean>({
 export const playStartTimeState = atom<number | null>({
   key: 'playStartTimeState',
   default: null,
+})
+
+/**
+ * 분석 페이지 freeze 결과 filter 리스트
+ */
+export const freezeTypeFilterListState = atom<(keyof typeof FreezeType)[]>({
+  key: 'freezeTypeFilterListState',
+  default: [],
+})
+
+/**
+ * 분석 페이지 resume 결과 filter 리스트
+ */
+export const resumeTypeFilterListState = atom<ResumeType[]>({
+  key: 'resumeTypeFilterListState',
+  default: [],
+})
+
+/**
+ * 분석 페이지 boot 결과 filter 리스트
+ */
+export const bootTypeFilterListState = atom<BootType[]>({
+  key: 'bootTypeFilterListState',
+  default: [],
+})
+
+/**
+ * 분석 페이지 log level filter 결과 filter 리스트
+ */
+export const logLevelFinderLogLevelFilterListState = atom<(keyof typeof LogLevel)[]>({
+  key: 'logLevelFinderLogLevelFilterListState',
+  default: [],
+})
+
+/**
+ * 분석 페이지 log pattern matching 결과 filter 리스트
+ */
+export const logPatternMatchingNameFilterListState = atom<string[]>({
+  key: 'logPatternMatchingNameFilterListState',
+  default: [],
 })

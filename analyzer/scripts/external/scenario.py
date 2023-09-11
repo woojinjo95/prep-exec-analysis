@@ -1,9 +1,10 @@
 from typing import Dict
-from datetime import datetime
+import time
 
 from scripts.config.constant import RedisDB
 from scripts.connection.redis_conn import get_value
 from scripts.connection.mongo_db.crud import load_by_id_from_mongodb, get_mongodb_collection
+from scripts.util._timezone import get_utc_datetime
 
 
 def get_scenario_info() -> Dict:
@@ -21,7 +22,13 @@ def load_testrun() -> Dict:
     return testruns[index]
 
 
-def update_analysis_to_scenario(analysis_item: dict, analysis_last_time: datetime):
+def update_analysis_to_scenario(analysis_type: str, analysis_item: Dict={}):
+    current_time = get_utc_datetime(time.time())
+    analysis_item.update({
+        'type': analysis_type,
+        'timestamp': current_time,
+    })
+
     scenario_info = get_scenario_info()
     scenario_id = scenario_info['scenario_id']
     testrun_id = scenario_info['testrun_id']
@@ -37,7 +44,7 @@ def update_analysis_to_scenario(analysis_item: dict, analysis_last_time: datetim
     existing_measure_targets = testrun.get('measure_targets', [])
     # Check if an item with the same type exists
     for i, target in enumerate(existing_measure_targets):
-        if target.get('type') == analysis_item['type']:
+        if target.get('type') == analysis_type:
             # Update the item if it exists
             update_query = {f'testruns.{index}.measure_targets.{i}': analysis_item}
             mongo_client.update_one({'id': scenario_id}, {'$set': update_query})
@@ -49,6 +56,6 @@ def update_analysis_to_scenario(analysis_item: dict, analysis_last_time: datetim
 
 
     update_query = {
-        f'testruns.{index}.last_updated_timestamp': analysis_last_time
+        f'testruns.{index}.last_updated_timestamp': current_time
     }
     mongo_client.update_one({'id': scenario_id}, {'$set': update_query})

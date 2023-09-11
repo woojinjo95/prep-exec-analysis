@@ -4,15 +4,11 @@ from typing import List
 
 
 @dataclass
-class VideoData:
-    video_path: str
-    stat_path: str
-
-
-@dataclass
-class Videoinfo:
+class VideoInfo:
     video_path: str
     timestamps: List[float]
+    frame_count: int = 0
+    fps: float = 0.0
 
 
 @dataclass

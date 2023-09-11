@@ -40,7 +40,7 @@ services:
       - mongodb_data:/data/db
 
   mediamtx:
-    image: aler9/rtsp-simple-server:v0.23.8
+    image: bluenviron/mediamtx:1.0.3
     ports:
       - "8554:8554" # RTSP
       - "9997:9997" # API

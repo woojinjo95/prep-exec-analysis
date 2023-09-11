@@ -1,8 +1,5 @@
-import { AnalysisFrame } from '@global/api/entity'
+import { AnalysisFrame, BootType, ResumeType } from '@global/api/entity'
 import { FreezeType, LogLevel } from '@global/constant'
-
-export type ResumeType = 'image_matching' | 'screen_change_rate'
-export type BootType = 'image_matching'
 
 /**
  * 분석 설정
@@ -100,7 +97,7 @@ export interface LogLevelFinder {
    * @format timestamp
    */
   timestamp: string
-  log_level: string
+  log_level: keyof typeof LogLevel
 }
 
 /**
@@ -135,15 +132,44 @@ export interface Memory {
   lost_ram: string
 }
 
-export interface EventLog {
+interface RemoconResponseEventLog {
+  msg: 'remocon_response'
+  data: {
+    key: string
+    type: 'ir' | 'bt' // IR / BT
+    press_time: number
+    sensor_time: number
+  }
+}
+
+interface OnOffControlResponseEventLog {
+  msg: 'on_off_control_response'
+  data: {
+    enable_dut_power_transition?: string // DUT Power
+    enable_hdmi_transition?: string // HDMI
+    enable_dut_wan_transition?: string // DUT Wan
+    vac: 'on' | 'off'
+    sensor_time: number
+  }
+}
+
+interface ShellResponseEventLog {
+  msg: 'shell_response'
+  data: {
+    mode: 'adb' | 'ssh'
+    command: string
+  }
+}
+
+export type EventLogTooltip = RemoconResponseEventLog | OnOffControlResponseEventLog | ShellResponseEventLog
+
+export type EventLog = {
   /**
    * @format timestamp
    */
   timestamp: string
   service: string
-  msg: string
-  data: object
-}
+} & EventLogTooltip
 
 export interface ColorReference {
   /**

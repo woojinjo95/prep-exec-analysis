@@ -1,13 +1,11 @@
 import React, { useEffect } from 'react'
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
+import { useNavigate } from 'react-router-dom'
 import { PageContainer, Text } from '@global/ui'
 import { useVideoSummary } from '@global/api/hook'
 import { AppURL } from '@global/constant'
 import { cursorDateTimeState, scenarioIdState, testRunIdState, videoBlobURLState } from '@global/atom'
 
-import { useNavigate } from 'react-router-dom'
-import { ReactComponent as RealTimeScreenIcon } from '@assets/images/icon_realtime_screen.svg'
-import cx from 'classnames'
 import LogTraceSection from './components/LogTraceSection'
 import VideoDetailSection from './components/VideoDetailSection'
 import TimelineSection from './components/TimelineSection'
@@ -20,11 +18,21 @@ import apiUrls from './api/url'
  */
 const AnalysisPage: React.FC = () => {
   const navigate = useNavigate()
-  const { videoSummary } = useVideoSummary()
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
   const setVideoBlobURL = useSetRecoilState(videoBlobURLState)
   const [cursorDateTime, setCursorDateTime] = useRecoilState(cursorDateTimeState)
+  const { videoSummary } = useVideoSummary({
+    onSuccess: ({ start_time, end_time }) => {
+      if (
+        !cursorDateTime ||
+        new Date(cursorDateTime).getTime() < new Date(start_time).getTime() ||
+        new Date(cursorDateTime).getTime() > new Date(end_time).getTime()
+      ) {
+        setCursorDateTime(new Date(start_time))
+      }
+    },
+  })
 
   // 분석페이지 진입 시 선택된 시나리오 id 또는 테스트한 테스트런 id가 없을 경우 -> 시나리오 선택 페이지로 이동
   useEffect(() => {
@@ -32,12 +40,6 @@ const AnalysisPage: React.FC = () => {
       navigate('/', { replace: true })
     }
   }, [])
-
-  // testrun 시작시간(= videoSummary)으로 cursorDateTime 초기값 설정
-  useEffect(() => {
-    if (!!cursorDateTime || !videoSummary) return
-    setCursorDateTime(new Date(videoSummary.start_time))
-  }, [videoSummary])
 
   // 비디오 스냅샷 컴포넌트에서 사용할 video fetch
   useEffect(() => {
@@ -55,7 +57,7 @@ const AnalysisPage: React.FC = () => {
   }, [scenarioId, testRunId])
 
   return (
-    <PageContainer className="grid grid-cols-[65%_35%] grid-rows-[40%_25%_calc(35%-28px)_28px] relative">
+    <PageContainer className="grid grid-cols-[65%_35%] grid-rows-[40%_25%_calc(35%-28px)_28px]">
       <VideoDetailSection />
       <VarAnalysisResultSection />
       <LogTraceSection />
@@ -68,18 +70,6 @@ const AnalysisPage: React.FC = () => {
           © 2023 NEXTLab ALL RIGHTS RESERVED.
         </Text>
       </div>
-      <button
-        type="button"
-        className={cx(
-          'bg-[#FFFFFFCC] flex items-center justify-center absolute w-[190px] h-12 aboslute top-5 left-10 rounded-full border-2 border-primary py-3 px-1 cursor-pointer z-10 transition-opacity opacity-50 hover:opacity-100',
-        )}
-        onClick={() => {
-          navigate('/action')
-        }}
-      >
-        <RealTimeScreenIcon className="w-[18px] h-[15px] mr-2" />
-        <Text colorScheme="dark">Real-time Screen</Text>
-      </button>
     </PageContainer>
   )
 }

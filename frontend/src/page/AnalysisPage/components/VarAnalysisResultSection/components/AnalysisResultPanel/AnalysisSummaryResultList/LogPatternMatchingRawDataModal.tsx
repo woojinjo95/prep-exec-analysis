@@ -1,11 +1,13 @@
-import React from 'react'
+import React, { useState } from 'react'
 import cx from 'classnames'
 import { useSetRecoilState } from 'recoil'
-import { CardModal, SimpleButton, Text } from '@global/ui'
+import { CardModal, SimpleButton, Text, SortButton } from '@global/ui'
 import { ReactComponent as ShowIcon } from '@assets/images/icon_raw_data.svg'
+
 import { useInfiniteLogPatternMatching } from '@page/AnalysisPage/api/hook'
 import { formatDateTo, numberWithCommas } from '@global/usecase'
 import { cursorDateTimeState } from '@global/atom'
+
 import { AnalysisTypeLabel } from '../../../constant'
 
 interface LogPatternMatchingRawDataModalProps {
@@ -24,9 +26,13 @@ const LogPatternMatchingRawDataModal: React.FC<LogPatternMatchingRawDataModalPro
   startTime,
   endTime,
 }) => {
+  const [sortBy, setSortBy] = useState<Parameters<typeof useInfiniteLogPatternMatching>[0]['sort_by']>('timestamp')
+  const [sortDesc, setSortDesc] = useState<boolean>(false)
   const { logPatternMatching, total, loadingRef, hasNextPage } = useInfiniteLogPatternMatching({
     start_time: startTime,
     end_time: endTime,
+    sort_by: sortBy,
+    sort_desc: sortDesc,
   })
   const setCursorDateTime = useSetRecoilState(cursorDateTimeState)
 
@@ -43,19 +49,46 @@ const LogPatternMatchingRawDataModal: React.FC<LogPatternMatchingRawDataModalPro
           <thead className="sticky top-0">
             <tr className="text-left">
               <th className="px-6 py-1 bg-charcoal border border-r-0 border-light-charcoal">
-                <Text size="sm" weight="medium">
-                  Timestamp
-                </Text>
+                <div className="flex items-center gap-x-2">
+                  <Text size="sm" weight="medium">
+                    Timestamp
+                  </Text>
+                  <SortButton
+                    value="timestamp"
+                    sortBy={sortBy}
+                    setSortBy={setSortBy}
+                    sortDesc={sortDesc}
+                    setSortDesc={setSortDesc}
+                  />
+                </div>
               </th>
               <th className="px-6 py-1 bg-charcoal border-t border-b border-light-charcoal whitespace-nowrap">
-                <Text size="sm" weight="medium">
-                  Log Pattern Name
-                </Text>
+                <div className="flex items-center gap-x-2">
+                  <Text size="sm" weight="medium">
+                    Log Pattern Name
+                  </Text>
+                  <SortButton
+                    value="log_pattern_name"
+                    sortBy={sortBy}
+                    setSortBy={setSortBy}
+                    sortDesc={sortDesc}
+                    setSortDesc={setSortDesc}
+                  />
+                </div>
               </th>
               <th className="px-6 py-1 bg-charcoal border-t border-b border-light-charcoal whitespace-nowrap">
-                <Text size="sm" weight="medium">
-                  Log Level
-                </Text>
+                <div className="flex items-center gap-x-2">
+                  <Text size="sm" weight="medium">
+                    Log Level
+                  </Text>
+                  <SortButton
+                    value="log_level"
+                    sortBy={sortBy}
+                    setSortBy={setSortBy}
+                    sortDesc={sortDesc}
+                    setSortDesc={setSortDesc}
+                  />
+                </div>
               </th>
               <th className="px-6 py-1 bg-charcoal border-t border-b border-light-charcoal">
                 <Text size="sm" weight="medium">
