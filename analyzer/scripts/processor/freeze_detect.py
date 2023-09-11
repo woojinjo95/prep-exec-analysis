@@ -36,12 +36,12 @@ def test_freeze_detection():
 
 def task_freeze_detection(args: VideoInfo, config: Dict):
     progress_manager = ProgressManager(Command.FREEZE.value)
-    freeze_detector = set_freeze_detector(args.fps, config['min_duration'])
+    freeze_detector = set_freeze_detector(args.fps, config['duration'])
     logger.info(f'start time: {get_utc_datetime(args.timestamps[0])}')
 
     for idx, (frame, cur_time) in enumerate(FrameGenerator(args.video_path, args.timestamps)):
         result = freeze_detector.update(frame, cur_time)
-        if result['detect'] and result['duration'] > config['min_duration']:
+        if result['detect'] and result['duration'] > config['duration']:
             logger.info(f'relative time: {seconds_to_time(result["start_time"] - args.timestamps[0])}')
             report_output(ReportName.FREEZE.value, {
                 'timestamp': get_utc_datetime(result['start_time']),
@@ -73,6 +73,6 @@ def set_freeze_detector(fps: float, min_duration: float) -> FreezeDetector:
 
 def get_config() -> Dict:
     analysis_config = read_analysis_config()
-    config = analysis_config['freeze']
+    config = analysis_config[Command.FREEZE.value]
     logger.info(f'config: {config}')
     return config
