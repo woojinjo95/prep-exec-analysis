@@ -6,13 +6,17 @@ from socket import IPPROTO_IGMP, IPPROTO_UDP
 
 from ...capture.parser import get_base_info, parse_pcap_file
 from ...epg.epg import get_channel_info
+from ...mongo_db_update import PacketMongoSession
 from .analysis import check_iso_iec_structure, check_rtp_sequence
 from .common import ETHERNET_IPV4_TYPE, convert_ip_bytes_string
 from .model.local import check_valid_multicast_ip
 from .protocols.igmp import IGMPConst, igmp_parser
+from .protocols.mongodb_formatter import (format_igmp_join, format_igmp_leave,
+                                          format_udp_stream_start,
+                                          format_udp_stream_stop,
+                                          format_udp_stream_stop_and_summary)
 from .protocols.mpeg2ts import mpeg2_ts_parser
 from .rtp_stream import calc_bitrate, calc_jitter, get_default_ip_info
-from ...mongo_db_update import PacketMongoSession
 
 GIGA = 10 ** 9
 
@@ -62,18 +66,22 @@ def run_iptv_analysis(mongo_session: PacketMongoSession, stream_dict: dict, time
     ip_dict['bytes'] += len(packet_bytes)
     ip_str = convert_ip_bytes_string(ip)
 
+    # mongo_session.put_network_trace(timestamp, packet_bytes, '')
+
     if not ip_dict['joined']:
         if ip_dict['leave_time'] == 0:
             if protocol == IPPROTO_IGMP:
                 if info == IGMPConst.join and ip_dict['join_time'] == 0:
                     channel_info = get_channel_info(ip_str)
-                    mongo_session.put_network_trace(timestamp, packet_bytes, f'UDP stream joined: {ip_str} ({channel_info}) in {timestamp}')
+                    metadata = format_igmp_join(timestamp, ip_str, channel_info)
+                    mongo_session.put_network_trace(timestamp, packet_bytes, f'UDP stream joined: {ip_str} ({channel_info}) in {timestamp}', metadata=metadata)
                     ip_dict['join_time'] = timestamp
             else:
                 ip_dict['joined'] = True
                 ip_dict['join_interval'] = timestamp - ip_dict['join_time'] if ip_dict['join_time'] != 0 else -1
                 channel_info = get_channel_info(ip_str)
-                mongo_session.put_network_trace(timestamp, packet_bytes, f'UDP stream detected {ip_str} ({channel_info}) in {timestamp}')
+                metadata = format_udp_stream_start(timestamp, ip_str, channel_info)
+                mongo_session.put_network_trace(timestamp, packet_bytes, f'UDP stream detected {ip_str} ({channel_info}) in {timestamp}', metadata=metadata)
                 ip_dict['deltas'].appendleft(timestamp - ip_dict['timestamp'])
 
         elif protocol == IPPROTO_UDP:
@@ -82,10 +90,13 @@ def run_iptv_analysis(mongo_session: PacketMongoSession, stream_dict: dict, time
             if info == IGMPConst.join:
                 # IPPROTO_IGMP and already left state but re join -> re init ip_dict and archive previous state
                 channel_info = get_channel_info(ip_str)
-                mongo_session.put_network_trace(timestamp, packet_bytes, f'UDP stream re joined: {ip_str} ({channel_info}) in {timestamp}')
+                metadata = format_udp_stream_start(timestamp, ip_str, channel_info)
+                mongo_session.put_network_trace(timestamp, packet_bytes, f'UDP stream re joined: {ip_str} ({channel_info}) in {timestamp}', metadata=metadata)
                 ip_dict['active'] = False
                 archived_stream_dict[ip].append(ip_dict)
-                mongo_session.put_network_trace(timestamp, packet_bytes, f'Stream Archived!: {pformat(ip_dict, width=120)}')
+                summary = pformat(ip_dict, width=120)
+                metadata = format_udp_stream_stop_and_summary(timestamp, ip_str, channel_info, summary)
+                mongo_session.put_network_trace(timestamp, packet_bytes, f'Stream Archived!: {summary}', metadata=metadata)
                 add_new_stream_ip(stream_dict, timestamp, protocol, ip, info)
                 stream_dict[ip]['join_time'] = timestamp
             else:
@@ -95,7 +106,8 @@ def run_iptv_analysis(mongo_session: PacketMongoSession, stream_dict: dict, time
     else:
         if protocol == IPPROTO_IGMP and info == IGMPConst.leave:
             channel_info = get_channel_info(ip_str)
-            mongo_session.put_network_trace(timestamp, packet_bytes, f'UDP stream leaved: {ip_str} ({channel_info}) in {timestamp}')
+            metadata = format_igmp_leave(timestamp, ip_str, channel_info)
+            mongo_session.put_network_trace(timestamp, packet_bytes, f'UDP stream leaved: {ip_str} ({channel_info}) in {timestamp}', metadata)
             ip_dict['joined'] = False
             ip_dict['leave_time'] = timestamp
 
