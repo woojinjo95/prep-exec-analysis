@@ -19,7 +19,7 @@ class ServiceStateEnum(Enum):
     recording = "recording"
 
 
-async def update_log_level_finder_to_scenario(scenario_id: str, testrun_id: str, measure_target_dict: dict):
+async def update_to_scenario(scenario_id: str, testrun_id: str, measure_target_dict: dict):
     try:
         mongo_client = get_collection('scenario')
         doc = mongo_client.find_one({'id': scenario_id})
@@ -188,9 +188,9 @@ async def consumer_handler(conn: any, CHANNEL_NAME: str):
                             or 'intelligent_monkey_test' in measurement):  # TODO 모듈에서 하지 않는 걸로
                         testrun_id = await conn.hget("testrun", "id")
                         scenario_id = await conn.hget("testrun", "scenario_id")
-                        await update_log_level_finder_to_scenario(scenario_id, testrun_id,
-                                                                  {'type': measurement[0],
-                                                                   'timestamp': datetime.utcfromtimestamp(time.time())})
+                        await update_to_scenario(scenario_id, testrun_id,
+                                                 {'type': measurement[0],
+                                                  'timestamp': datetime.utcfromtimestamp(time.time())})
 
             except Exception as e:
                 print(e, traceback.format_exc())
