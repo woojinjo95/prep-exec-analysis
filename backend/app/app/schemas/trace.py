@@ -1,6 +1,5 @@
 from typing import List
 
-# from app.schemas.analysis_result import TimestampBaseModel
 from app.schemas.enum import LogLevelEnum, ProtocolEnum
 from pydantic import BaseModel
 
