@@ -89,7 +89,7 @@ const IntelligentMonkeyTestChart: React.FC<IntelligentMonkeyTestChartProps> = ({
           {!!tooltipData && (
             <TimelineTooltip posX={posX} data={tooltipData} wrapperRef={wrapperRef}>
               <TimelineTooltipItem label="Menu">
-                <Text colorScheme="light">#{numberWithCommas(tooltipData.section_id + 1)}</Text>
+                <Text colorScheme="light"># {numberWithCommas(tooltipData.section_id + 1)}</Text>
               </TimelineTooltipItem>
 
               <TimelineTooltipItem label="Smart Sense Key">

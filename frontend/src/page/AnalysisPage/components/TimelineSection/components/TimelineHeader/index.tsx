@@ -3,12 +3,18 @@ import { Text } from '@global/ui'
 import { createPortalStyle, formatDateTo } from '@global/usecase'
 import { ReactComponent as CursorIcon } from '@assets/images/pentagon.svg'
 import Tick from './Tick'
+import FilterButton from './FilterButton'
+import { ChartLabel } from '../../constant'
 
 interface TimelineHeaderProps {
   scaleX: d3.ScaleTime<number, number, never> | null
   chartWidth?: number
   cursorTranslateX?: number
   isCursorDragging: boolean
+  activeChartList: (keyof typeof ChartLabel)[]
+  setActiveChartList: React.Dispatch<React.SetStateAction<(keyof typeof ChartLabel)[]>>
+  allChartList: (keyof typeof ChartLabel)[]
+  setAllChartList: React.Dispatch<React.SetStateAction<(keyof typeof ChartLabel)[]>>
 }
 
 /**
@@ -16,12 +22,21 @@ interface TimelineHeaderProps {
  *
  * 필터 버튼, 시간 tick 표시
  */
-const TimelineHeader: React.FC<TimelineHeaderProps> = ({ scaleX, chartWidth, cursorTranslateX, isCursorDragging }) => {
+const TimelineHeader: React.FC<TimelineHeaderProps> = ({
+  scaleX,
+  chartWidth,
+  cursorTranslateX,
+  isCursorDragging,
+  activeChartList,
+  setActiveChartList,
+  allChartList,
+  setAllChartList,
+}) => {
   const wrapperRef = useRef<HTMLDivElement | null>(null)
 
   const ticks = useMemo(() => {
     if (!scaleX) return null
-    return scaleX.ticks(10)
+    return scaleX.ticks(7)
   }, [scaleX])
 
   // tick 컴포넌트 넓이
@@ -32,11 +47,12 @@ const TimelineHeader: React.FC<TimelineHeaderProps> = ({ scaleX, chartWidth, cur
 
   return (
     <div className="h-8 grid grid-cols-[192px_1fr] grid-rows-1">
-      <div className="h-full w-48 bg-charcoal border-b-[1px] border-light-charcoal px-5 flex items-center">
-        <Text colorScheme="light" weight="medium">
-          Filter
-        </Text>
-      </div>
+      <FilterButton
+        activeChartList={activeChartList}
+        setActiveChartList={setActiveChartList}
+        allChartList={allChartList}
+        setAllChartList={setAllChartList}
+      />
 
       {chartWidth && (
         <div

@@ -18,7 +18,7 @@ from .scenario import (CopyScenarioCreate, Scenario, ScenarioCreate,
                        ScenarioCreateResult, ScenarioPage, ScenarioTag,
                        ScenarioTagUpdate, ScenarioUpdate, Testrun,
                        TestrunUpdate)
-from .shell import Shell, ShellList, ShellLogList
+from .shell import ShellList, ShellLogList
 from .trace import ReadLogcat, ReadNetwork
 from .utility import (ExportResult, LogConnectionStatus, Regex, RegexResult,
                       ServiceState, VideoSnapshot, VideoTimestamp)
