@@ -68,7 +68,7 @@ def run_iptv_analysis(index: int, mongo_session: PacketMongoSession, stream_dict
 
     if protocol == IPPROTO_UDP:
         if index % 100 == 0:
-            mongo_session.put_network_trace(timestamp, packet_bytes, '100 UDP packets')
+            mongo_session.put_network_trace(timestamp, packet_bytes, '100 UDP packets chunk')
         else:
             pass
     else:
@@ -100,9 +100,10 @@ def run_iptv_analysis(index: int, mongo_session: PacketMongoSession, stream_dict
                 mongo_session.put_network_trace(timestamp, packet_bytes, f'UDP stream re joined: {ip_str} ({channel_info}) in {timestamp}', metadata=metadata)
                 ip_dict['active'] = False
                 archived_stream_dict[ip].append(ip_dict)
-                summary = pformat(ip_dict, width=120)
-                metadata = format_udp_stream_stop_and_summary(timestamp, ip_str, channel_info, summary)
-                mongo_session.put_network_trace(timestamp, packet_bytes, f'Stream Archived!: {summary}', metadata=metadata)
+                # TODO 아래 살리기
+                # summary = pformat(ip_dict, width=120)
+                # metadata = format_udp_stream_stop_and_summary(timestamp, ip_str, channel_info, summary)
+                # mongo_session.put_network_trace(timestamp, packet_bytes, f'Stream Archived!: {summary}', metadata=metadata)
                 add_new_stream_ip(stream_dict, timestamp, protocol, ip, info)
                 stream_dict[ip]['join_time'] = timestamp
             else:
@@ -148,7 +149,7 @@ def change_stale_stream_state(mongo_session: PacketMongoSession, current_timesta
             # TODO
             # 이 로그는 미래에서 과거에 끼워넣어야하며, 아래 몽고는 packet_bytes가 없어서 애초에 저장 안됨
             # 바이트를 mocking하고, 과거에 끼워넣도록 추가 필요
-            mongo_session.put_network_trace(timestamp, None, f'Stream Archived!: {summary}', metadata=metadata)
+            # mongo_session.put_network_trace(timestamp, None, f'Stream Archived!: {summary}', metadata=metadata)
             logger.info(f'Stream Archived!: {summary}') # update 
             stale_ip_list.append(ip)
         else:
