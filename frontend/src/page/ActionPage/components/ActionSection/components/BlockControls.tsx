@@ -81,9 +81,13 @@ const BlockControls: React.FC = () => {
     <>
       <div className="flex flex-wrap items-center px-3 py-2 gap-y-2 border-t border-[#DFE0EE] bg-white">
         <div className="flex items-center">
-          <DropdownWithMoreButton positionX="left">
+          <DropdownWithMoreButton positionX="left" disabled={serviceState === 'playblock'}>
             {blockControlMenu?.map((menu) => (
               <OptionItem
+                disabled={
+                  !isBlockRecordMode &&
+                  (menu === 'Add Monkey Test Block' || menu === 'Add Intelligent Monkey Test Block')
+                }
                 colorScheme="light"
                 key={`menu_${menu}`}
                 onClick={() => {
@@ -93,10 +97,10 @@ const BlockControls: React.FC = () => {
                   if (menu === 'Open') {
                     setIsOpenBlocksModalOpen(true)
                   }
-                  if (menu === 'Add Monkey Test Block') {
+                  if (menu === 'Add Monkey Test Block' && isBlockRecordMode) {
                     setIsAddMonkeyTestBlockModalOpen(true)
                   }
-                  if (menu === 'Add Intelligent Monkey Test Block') {
+                  if (menu === 'Add Intelligent Monkey Test Block' && isBlockRecordMode) {
                     setIsAddIntelligentMonkeyTestBlockModalOpen(true)
                   }
                 }}
