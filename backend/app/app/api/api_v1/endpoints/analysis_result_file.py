@@ -31,7 +31,7 @@ def get_analysis_result_video_summary(
                 {'$project': {"_id": 0,
                               "path": "$testruns.raw.videos.path",
                               "start_time": "$testruns.raw.videos.start_time",
-                              "end_time": "$testruns.raw.videos.end_time", }}]
+                              "end_time": "$testruns.raw.videos.end_time"}}]
     video = aggregate_from_mongodb(col='scenario', pipeline=pipeline)
     if not video:
         raise HTTPException(status_code=404, detail='Video data Not Found')
