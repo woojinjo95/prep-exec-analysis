@@ -95,7 +95,7 @@ class PacketMongoSession(InsertToMongoDB):
     def __init__(self):
         super().__init__()
 
-    def put_network_trace(self, timestamp: float, packet: bytes = None, info: str = ''):
+    def put_network_trace(self, timestamp: float, packet: bytes = None, info: str = '', metadata={}):
 
         data = {'time': timestamp,
                 'info': info,
@@ -108,6 +108,9 @@ class PacketMongoSession(InsertToMongoDB):
                          'protocol': protocol,
                          'length': length,
                          })
+            if metadata:
+                data.update({'metadata': metadata})
+
         else:
             pass
 
