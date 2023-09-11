@@ -124,7 +124,7 @@ def read_scenarios(
                     {'$project': {'id': '$id',
                                   'name': '$name',
                                   'tags': '$tags',
-                                  'updated_at': '$updated_at',
+                                  'updated_at': {'$dateToString': {'date': '$updated_at'}},
                                   "testrun_count": {"$size": {"$filter": {"input": "$testruns",
                                                                           "as": "testrun",
                                                                           "cond": {"$ifNull": ["$$testrun.last_updated_timestamp", False]}}}},

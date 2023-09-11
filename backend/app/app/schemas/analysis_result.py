@@ -1,8 +1,7 @@
 from typing import List
 
 from app.schemas.enum import LogLevelEnum, FreezeTypeEnum, ResumeTypeEnum, BootTypeEnum
-from pydantic import BaseModel, root_validator
-from pydantic.datetime_parse import parse_datetime
+from pydantic import BaseModel
 from typing import Optional
 
 
