@@ -223,3 +223,16 @@ export const convertDuration = (duration: number) => {
 export const capitalize = (word: string) => {
   return word.charAt(0).toUpperCase() + word.slice(1)
 }
+
+/**
+ * 정규표현식 문자가 들어간 문자열에 하이라이트를 준 html을 리턴하는 함수
+ *
+ * @param str 정규표현식이 통과하는 단어가 들어간 문자열
+ * @param regex 정규표현식
+ */
+export const convertRegexStringToHTML = (str: string, regex: string, color = 'white') => {
+  return `<span>${str.replace(
+    new RegExp(regex, 'g'),
+    `<b style="color: ${color}">${str.match(new RegExp(regex, 'g'))?.[0] || ''}</b>`,
+  )}</span>`
+}

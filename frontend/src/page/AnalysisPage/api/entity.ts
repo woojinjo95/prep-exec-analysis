@@ -253,7 +253,7 @@ export interface LogPatternMatching {
    */
   timestamp: string
   log_pattern_name: string
-  log_level: string
+  log_level: keyof typeof LogLevel
   message: string
   color: string
   regex: string

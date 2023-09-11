@@ -4,7 +4,7 @@ import { Scrollbars } from 'react-custom-scrollbars-2'
 import { Text } from '@global/ui'
 import { formatDateTo } from '@global/usecase'
 import { cursorDateTimeState } from '@global/atom'
-import { LogcatLogLevelColors } from '../constants'
+import { LogLevelColor } from '@global/constant'
 import { useLogcat } from '../api/hook'
 
 /**
@@ -58,27 +58,27 @@ const LogcatTrace: React.FC = () => {
               </Text>
               <Text
                 size="sm"
-                colorScheme={LogcatLogLevelColors[log_level]}
+                colorScheme={LogLevelColor[log_level]}
                 invertBackground
-                className="h-[20px] w-[20px] flex justify-center"
+                className="h-5 w-5 flex justify-center"
               >
                 {log_level}
               </Text>
-              <Text size="sm" colorScheme={log_level !== 'I' ? LogcatLogLevelColors[log_level] : 'grey'}>
+              <Text size="sm" colorScheme={log_level !== 'I' ? LogLevelColor[log_level] : 'grey'}>
                 {module}
               </Text>
-              <Text size="sm" colorScheme={log_level !== 'I' ? LogcatLogLevelColors[log_level] : 'grey'}>
+              <Text size="sm" colorScheme={log_level !== 'I' ? LogLevelColor[log_level] : 'grey'}>
                 {process_name}
               </Text>
-              <Text size="sm" colorScheme={log_level !== 'I' ? LogcatLogLevelColors[log_level] : 'grey'}>
+              <Text size="sm" colorScheme={log_level !== 'I' ? LogLevelColor[log_level] : 'grey'}>
                 {pid}
               </Text>
-              <Text size="sm" colorScheme={log_level !== 'I' ? LogcatLogLevelColors[log_level] : 'grey'}>
+              <Text size="sm" colorScheme={log_level !== 'I' ? LogLevelColor[log_level] : 'grey'}>
                 {tid}
               </Text>
               <Text
                 size="sm"
-                colorScheme={log_level !== 'I' ? LogcatLogLevelColors[log_level] : 'grey'}
+                colorScheme={log_level !== 'I' ? LogLevelColor[log_level] : 'grey'}
                 className="whitespace-pre-wrap"
               >
                 {message}
