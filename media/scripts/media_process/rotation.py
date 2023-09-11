@@ -186,12 +186,12 @@ class MakeVideo:
             video_basename = os.path.basename(self.output_video_path)
             json_basename = os.path.basename(self.output_json_path)
 
-            video_info = {'created': timestamp_to_datetime_with_timezone_str(),
+            video_info = {'created': timestamp_to_datetime_with_timezone_str().replace('+00:00', 'Z'),  # UTC+0 에서만 Z로 변경,
                           'path': os.path.join(self.mounted_output_path, video_basename),
                           'name': video_basename,
                           'stat_path':  os.path.join(self.mounted_output_path, json_basename),
-                          'start_time': timestamp_to_datetime_with_timezone_str(raw_video_info['timestamps'][0]),
-                          'end_time': timestamp_to_datetime_with_timezone_str(raw_video_info['timestamps'][-1]),
+                          'start_time': timestamp_to_datetime_with_timezone_str(raw_video_info['timestamps'][0]).replace('+00:00', 'Z'),  # UTC+0 에서만 Z로 변경,
+                          'end_time': timestamp_to_datetime_with_timezone_str(raw_video_info['timestamps'][-1]).replace('+00:00', 'Z'),  # UTC+0 에서만 Z로 변경,
                           'frame_count': len(raw_video_info['timestamps']),
                           }
         else:
