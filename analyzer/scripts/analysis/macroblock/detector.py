@@ -29,12 +29,40 @@ class MacroblockDetector:
                                                 crack_patch_ratio=get_setting_with_env('CRACK_PATCH_RATIO', 0.2),
                                                 row_crack_patch_ratio=get_setting_with_env('ROW_CRACK_PATCH_RATIO', 0.5))
 
+        self.last_occurred = False
+        self.start_occurred_time = None
+
     def update(self, image: np.ndarray) -> MacroblockResult:
         try:
+            # check macroblock is occurred in this frame
             split_result = self.preprocess_image(image)
             cls_result = self.predict_with_patch_images(split_result.patches)
             occurred = self.postprocess_result(cls_result, split_result)
-            return MacroblockResult(status='success', occurred=occurred, split_result=split_result, cls_result=cls_result)
+
+            # check macroblock is finally detected
+            if occurred and not self.last_occurred:  # rising edge
+                self.start_occurred_time = time.time()
+                logger.info(f'Macroblock occurred! start_time: {self.start_occurred_time}')
+                detect = False
+            elif not occurred and self.last_occurred:  # falling edge
+                end_occurred_time = time.time()
+                duration = end_occurred_time - self.start_occurred_time
+                logger.info(f'Macroblock disappeared! end_time: {end_occurred_time}, duration: {duration}')
+                detect = True
+            else:
+                detect = False
+
+            result = MacroblockResult(status='success', 
+                                      detect=detect,
+                                      occurred=occurred,
+                                      start_time=self.start_occurred_time,
+                                      end_time=end_occurred_time,
+                                      duration=duration,
+                                      split_result=split_result,
+                                      cls_result=cls_result)
+            self.last_occurred = occurred
+            return result
+
         except Exception as err:
             logger.error(f'error in process_image. {err}')
             logger.warning(traceback.format_exc())

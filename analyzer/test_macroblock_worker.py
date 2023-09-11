@@ -19,5 +19,8 @@ while True:
     result = detector.update(frame)
     delay = time.time() - start_time
 
-    print(f'{index}: {result.occurred}, delay: {delay}')
+    result.split_result = None
+    result.cls_result = None
+
+    print(f'{index}: {result}, delay: {delay}')
     index += 1
