@@ -50,11 +50,7 @@ const FilterButton: React.FC<FilterButtonProps> = ({
 
   const onDragEnd: OnDragEndResponder = (result) => {
     if (!result.destination) return
-    if (
-      result.destination.droppableId === result.source.droppableId &&
-      result.destination.index === result.source.index
-    )
-      return
+    if (result.source.index === result.destination.index) return
 
     // 보기 리스트에서 숨기기 리스트로 이동했을 경우
     if (result.source.droppableId === SHOWN_DROPPABLE_ID && result.destination.droppableId === HIDDEN_DROPPABLE_ID) {

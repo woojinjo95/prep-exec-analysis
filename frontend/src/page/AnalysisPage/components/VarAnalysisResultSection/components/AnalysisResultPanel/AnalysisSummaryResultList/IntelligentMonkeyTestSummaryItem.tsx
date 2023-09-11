@@ -28,7 +28,7 @@ const IntelligentMonkeyTestSummaryItem: React.FC<IntelligentMonkeyTestSummaryIte
             {AnalysisTypeLabel.intelligent_monkey_test}
           </Text>
 
-          <Text weight="medium">{numberWithCommas(intelligentMonkeyTest.results.length)}</Text>
+          <Text weight="medium">{numberWithCommas(intelligentMonkeyTest.results.length)} Menus</Text>
         </div>
       }
     >

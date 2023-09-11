@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 import * as d3 from 'd3'
 import { useRecoilValue } from 'recoil'
-import { scenarioIdState, testRunIdState, videoBlobURLState } from '@global/atom'
+import { scenarioIdState, testRunIdState } from '@global/atom'
 import { Button, Modal, Text, VideoSnapshots } from '@global/ui'
 import { AppURL } from '@global/constant'
 import { useVideoSummary } from '@global/api/hook'
@@ -42,7 +42,6 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose, onSave, defa
   const { videoSummary } = useVideoSummary()
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
-  const src = useRecoilValue(videoBlobURLState)
 
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [duration, setDuration] = useState<number | null>(null) // 단위: 초
@@ -62,7 +61,6 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose, onSave, defa
 
       try {
         const imageElement = await loadImage(
-          // FIXME: encodeURIComponent 제거
           `${AppURL.backendURL}/api/v1/file/download?path=${encodeURIComponent(message.data.path)}`,
         )
 
@@ -121,7 +119,6 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose, onSave, defa
 
       try {
         const imageElement = await loadImage(
-          // FIXME: encodeURIComponent 제거
           `${AppURL.backendURL}/api/v1/file/download?path=${encodeURIComponent(defaultFrame.path)}`,
         )
 
@@ -190,7 +187,7 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose, onSave, defa
 
         <div className="pt-4 w-full grid grid-cols-1 grid-rows-[auto_1fr] gap-y-1">
           <div className="flex items-center justify-between">
-            {timestampScaleX?.ticks(10).map((date) => (
+            {timestampScaleX?.ticks(9).map((date) => (
               <Text key={`set-roi-modal-${date.toISOString()}`} colorScheme="grey" size="xs">
                 {formatDateTo('HH:MM:SS', date)}
               </Text>
@@ -198,9 +195,8 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose, onSave, defa
           </div>
           <div className="w-full relative">
             <VideoSnapshots
-              src={src}
-              startMillisecond={0}
-              endMillisecond={new Date(videoSummary.end_time).getTime() - new Date(videoSummary.start_time).getTime()}
+              startTime={new Date(videoSummary.start_time)}
+              endTime={new Date(videoSummary.end_time)}
               tickCount={12}
             />
             {duration && (
