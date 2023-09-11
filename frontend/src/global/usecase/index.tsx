@@ -53,7 +53,7 @@ export const formatDateTo = (type: DateToken, dateObject = new Date()): string =
     case 'YYYY-MM-DD HH:MM:SS':
       return `${year}-${month}-${date} ${hour}:${minute}:${second}`
     case 'YYYY-MM-DD HH:MM:SS:MS':
-      return `${year}-${month}-${date} ${hour}:${minute}:${second}.${milliSec}`
+      return `${year}-${month}-${date} ${hour}:${minute}:${second}.${String(milliSec).padStart(3, '0')}`
     case 'YYYY_MM_DD_HH_MM_SS_MS':
       return `${year}_${month}_${date}_${hour}_${minute}_${second}_${milliSec}`
     case 'M DD YYYY, HH:MM AA': {
@@ -124,12 +124,12 @@ export const numberWithCommas = (x: number): string => {
  * @param spaceY 상위 엘리먼트와 createPortal로 생성된 엘리먼트 사이의 세로 간격
  * @returns createPortal 엘리먼트의 style
  */
-export const createPortalStyle = ({
+export const createPortalStyle = <T extends Element>({
   wrapperRef,
   spaceX = 0,
   spaceY = 4,
 }: {
-  wrapperRef: React.MutableRefObject<HTMLDivElement | null>
+  wrapperRef: React.MutableRefObject<T | null>
   spaceX?: number
   spaceY?: number
 }) => {

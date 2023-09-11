@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
 import cx from 'classnames'
 import { useSetRecoilState } from 'recoil'
-import { CardModal, IconButton, Text } from '@global/ui'
+import { CardModal, IconButton, SortButton, Text } from '@global/ui'
 import { convertDuration, formatDateTo, numberWithCommas } from '@global/usecase'
 import { cursorDateTimeState } from '@global/atom'
 import { ReactComponent as PlayIcon } from '@assets/images/icon_play.svg'
@@ -19,9 +19,13 @@ interface ResumeRawDataModalProps {
  * Resume 원본데이터 모달
  */
 const ResumeRawDataModal: React.FC<ResumeRawDataModalProps> = ({ isOpen, onClose, startTime, endTime }) => {
+  const [sortBy, setSortBy] = useState<Parameters<typeof useInfiniteResume>[0]['sort_by']>('timestamp')
+  const [sortDesc, setSortDesc] = useState<boolean>(false)
   const { resume, total, loadingRef, hasNextPage } = useInfiniteResume({
     start_time: startTime,
     end_time: endTime,
+    sort_by: sortBy,
+    sort_desc: sortDesc,
   })
   const setCursorDateTime = useSetRecoilState(cursorDateTimeState)
 
@@ -38,19 +42,46 @@ const ResumeRawDataModal: React.FC<ResumeRawDataModalProps> = ({ isOpen, onClose
           <thead className="sticky top-0">
             <tr className="text-left">
               <th className="px-6 py-1 bg-charcoal border border-r-0 border-light-charcoal">
-                <Text size="sm" weight="medium">
-                  Timestamp
-                </Text>
+                <div className="flex items-center gap-x-2">
+                  <Text size="sm" weight="medium">
+                    Timestamp
+                  </Text>
+                  <SortButton
+                    value="timestamp"
+                    sortBy={sortBy}
+                    setSortBy={setSortBy}
+                    sortDesc={sortDesc}
+                    setSortDesc={setSortDesc}
+                  />
+                </div>
               </th>
               <th className="px-6 py-1 bg-charcoal border-t border-b border-light-charcoal">
-                <Text size="sm" weight="medium">
-                  Error Type
-                </Text>
+                <div className="flex items-center gap-x-2">
+                  <Text size="sm" weight="medium">
+                    Error Type
+                  </Text>
+                  <SortButton
+                    value="target"
+                    sortBy={sortBy}
+                    setSortBy={setSortBy}
+                    sortDesc={sortDesc}
+                    setSortDesc={setSortDesc}
+                  />
+                </div>
               </th>
               <th className="px-6 py-1 bg-charcoal border-t border-b border-light-charcoal">
-                <Text size="sm" weight="medium">
-                  Duration Time
-                </Text>
+                <div className="flex items-center gap-x-2">
+                  <Text size="sm" weight="medium">
+                    Duration Time
+                  </Text>
+                  <SortButton
+                    value="measure_time"
+                    sortBy={sortBy}
+                    setSortBy={setSortBy}
+                    sortDesc={sortDesc}
+                    setSortDesc={setSortDesc}
+                  />
+                </div>
               </th>
               <th className="px-6 py-1 bg-charcoal border border-l-0 border-light-charcoal text-center">
                 <Text size="sm" weight="medium">

@@ -4,6 +4,7 @@ import { PointChart, TimelineTooltip, Text, TimelineTooltipItem } from '@global/
 import { logPatternMatchingNameFilterListState } from '@global/atom'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { useLogPatternMatching } from '@page/AnalysisPage/api/hook'
+import { CHART_HEIGHT } from '@global/constant'
 import { useTooltipEvent } from '../hook'
 
 interface LogPatternMatchingChartProps {
@@ -85,7 +86,12 @@ const LogPatternMatchingChart: React.FC<LogPatternMatchingChartProps> = ({
         </div>
       )}
 
-      <PointChart scaleX={scaleX} data={logPatternMatchingData} />
+      <div className="w-full relative border-b border-[#37383E]">
+        <div className="flex justify-center items-center" style={{ height: CHART_HEIGHT - 1 }}>
+          <div className="h-[0.5px] w-full bg-[#37383E]" />
+        </div>
+        <PointChart scaleX={scaleX} data={logPatternMatchingData} />
+      </div>
     </div>
   )
 }

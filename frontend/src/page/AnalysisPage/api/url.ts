@@ -16,6 +16,10 @@ type ApiName =
   | 'loudness'
   | 'resume'
   | 'boot'
+  | 'monkey_section'
+  | 'monkey_smart_sense'
+  | 'intelligent_monkey_section'
+  | 'intelligent_monkey_smart_sense'
 
 const apiUrls: {
   [key in ApiName]: string
@@ -37,6 +41,10 @@ const apiUrls: {
   loudness: '/api/v1/analysis_result/loudness',
   resume: '/api/v1/analysis_result/resume',
   boot: '/api/v1/analysis_result/boot',
+  monkey_section: '/api/v1/analysis_result/monkey_section',
+  monkey_smart_sense: '/api/v1/analysis_result/monkey_smart_sense',
+  intelligent_monkey_section: '/api/v1/analysis_result/intelligent_monkey_section',
+  intelligent_monkey_smart_sense: '/api/v1/analysis_result/intelligent_monkey_smart_sense',
 }
 
 export default apiUrls

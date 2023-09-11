@@ -9,15 +9,15 @@ import { logPatternMatchingNameFilterListState } from '@global/atom'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { AnalysisTypeLabel } from '../../../constant'
 
-interface LogPatternMatchingSummaryResultItemProps {
+interface LogPatternMatchingSummaryItemProps {
   logPatternMatching: NonNullable<AnalysisResultSummary['log_pattern_matching']>
   setRawDataModalType: React.Dispatch<React.SetStateAction<keyof AnalysisResultSummary | null>>
 }
 
 /**
- * log pattern matching 분석 결과 아이템
+ * log pattern matching 분석 결과 요약 아이템
  */
-const LogPatternMatchingSummaryResultItem: React.FC<LogPatternMatchingSummaryResultItemProps> = ({
+const LogPatternMatchingSummaryItem: React.FC<LogPatternMatchingSummaryItemProps> = ({
   logPatternMatching,
   setRawDataModalType,
 }) => {
@@ -29,17 +29,9 @@ const LogPatternMatchingSummaryResultItem: React.FC<LogPatternMatchingSummaryRes
     <Accordion
       header={
         <div className="flex justify-between items-center">
-          <div className="flex items-center gap-x-3">
-            <div
-              className="w-4 h-4"
-              style={{
-                backgroundColor: logPatternMatching.color,
-              }}
-            />
-            <Text size="sm" weight="medium">
-              {AnalysisTypeLabel.log_pattern_matching}
-            </Text>
-          </div>
+          <Text size="sm" weight="medium">
+            {AnalysisTypeLabel.log_pattern_matching}
+          </Text>
 
           <Text weight="medium">
             {numberWithCommas(logPatternMatching.results.reduce((acc, curr) => acc + curr.total, 0))} times
@@ -110,4 +102,4 @@ const LogPatternMatchingSummaryResultItem: React.FC<LogPatternMatchingSummaryRes
   )
 }
 
-export default LogPatternMatchingSummaryResultItem
+export default LogPatternMatchingSummaryItem

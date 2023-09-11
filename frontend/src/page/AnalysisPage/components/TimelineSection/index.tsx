@@ -21,19 +21,9 @@ import {
   LogPatternMatchingChart,
   TimelineChartContainer,
 } from './components'
-
-const ChartLabel = {
-  video: 'Video',
-  color_reference: 'Color Reference',
-  event_log: 'Event Log',
-  video_analysis_result: 'Video Analysis Result',
-  loudness: 'Loudness',
-  resume_boot: 'Resume, Boot Measurement',
-  log_level_finder: 'Log Level Finder',
-  log_pattern_matching: 'Log Pattern Matching',
-  cpu: 'CPU',
-  memory: 'Memory',
-} as const
+import MonkeyTestChart from './components/MonkeyTestChart'
+import IntelligentMonkeyTestChart from './components/IntelligentMonkeyTestChart'
+import { ChartLabel } from './constant'
 
 interface TimelineSectionProps {
   startTime: Date | null
@@ -48,8 +38,16 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
   const [dimension, setDimension] = useState<{ left: number; width: number } | null>(null)
   const [scrollBarTwoPosX, setScrollBarTwoPosX] = useState<[number, number] | null>(null)
   const src = useRecoilValue(videoBlobURLState)
-  // TODO: 순서변경 / 숨기기 / 보기
-  const [chartList, setChartList] = useState<(keyof typeof ChartLabel)[]>([
+  // 순서 중요 X
+  const [activeChartList, setActiveChartList] = useState<(keyof typeof ChartLabel)[]>([
+    'video',
+    'color_reference',
+    'event_log',
+    'cpu',
+    'memory',
+  ])
+  // 순서 중요 O, 전체 차트 순서
+  const [allChartList, setAllChartList] = useState<(keyof typeof ChartLabel)[]>([
     'video',
     'color_reference',
     'event_log',
@@ -60,27 +58,32 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
     start_time: startTime?.toISOString() || null,
     end_time: endTime?.toISOString() || null,
     onSuccess: (summary) => {
-      setChartList((prev) => prev.filter((v) => v === 'video' || v === 'color_reference' || v === 'event_log'))
+      let newAllChartList: (keyof typeof ChartLabel)[] = ['video', 'color_reference', 'event_log']
 
+      if (summary.monkey_test) {
+        newAllChartList = [...newAllChartList, 'monkey_test']
+      }
+      if (summary.intelligent_monkey_test) {
+        newAllChartList = [...newAllChartList, 'intelligent_monkey_test']
+      }
       if (summary.freeze) {
-        setChartList((prev) => [...prev, 'video_analysis_result'])
+        newAllChartList = [...newAllChartList, 'video_analysis_result']
       }
-
       if (summary.loudness) {
-        setChartList((prev) => [...prev, 'loudness'])
+        newAllChartList = [...newAllChartList, 'loudness']
       }
-
       if (summary.boot || summary.resume) {
-        setChartList((prev) => [...prev, 'resume_boot'])
+        newAllChartList = [...newAllChartList, 'resume_boot']
       }
-
       ;(['log_level_finder', 'log_pattern_matching'] as const).forEach((type) => {
         if (summary[type]) {
-          setChartList((prev) => [...prev, type])
+          newAllChartList = [...newAllChartList, type]
         }
       })
+      newAllChartList = [...newAllChartList, 'cpu', 'memory']
 
-      setChartList((prev) => [...prev, 'cpu', 'memory'])
+      setAllChartList(newAllChartList)
+      setActiveChartList(newAllChartList)
     },
   })
 
@@ -100,11 +103,12 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
   }, [dimension, timelineScaleX, scrollBarTwoPosX])
 
   // 커서 드래그 관련 state
-  const { onCursorPointerDown, onCursorPointerMove, onCursorPointerUp, cursorTranslateX } = useCursorEvent({
-    scaleX: scrollbarScaleX,
-    offsetLeft: dimension?.left,
-    width: dimension?.width,
-  })
+  const { onCursorPointerDown, onCursorPointerMove, onCursorPointerUp, cursorTranslateX, isCursorDragging } =
+    useCursorEvent({
+      scaleX: scrollbarScaleX,
+      offsetLeft: dimension?.left,
+      width: dimension?.width,
+    })
 
   useEffect(() => {
     if (!chartWrapperRef.current || dimension?.width || dimension?.left || scrollBarTwoPosX) return
@@ -131,171 +135,206 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
   }, [startTime, timelineScaleX, scrollBarTwoPosX])
 
   if (!startTime || !endTime || !analysisResultSummary) {
-    return (
-      <section className="h-full bg-black grid grid-cols-1 grid-rows-[auto_1fr_auto]">
-        <TimelineHeader scaleX={scrollbarScaleX} chartWidth={dimension?.width} />
-      </section>
-    )
+    return <section className="h-full bg-black grid grid-cols-1 grid-rows-[auto_1fr_auto]" />
   }
   return (
     <section className="h-full bg-black grid grid-cols-1 grid-rows-[auto_1fr_auto]">
       {/* time ticks */}
-      <TimelineHeader scaleX={scrollbarScaleX} chartWidth={dimension?.width} cursorTranslateX={cursorTranslateX} />
+      <TimelineHeader
+        scaleX={scrollbarScaleX}
+        chartWidth={dimension?.width}
+        cursorTranslateX={cursorTranslateX}
+        isCursorDragging={isCursorDragging}
+        activeChartList={activeChartList}
+        setActiveChartList={setActiveChartList}
+        allChartList={allChartList}
+        setAllChartList={setAllChartList}
+      />
 
       <div className="grid grid-cols-[auto_1fr] grid-rows-1 overflow-y-auto overflow-x-hidden">
         <div className="w-48 z-10">
-          {chartList.map((chartKey, index) => (
-            <div
-              key={`timeline-chart-title-${chartKey}-${index}`}
-              className="border-b-[1px] border-light-charcoal bg-charcoal py-2 px-5"
-              style={{ height: CHART_HEIGHT }}
-            >
-              <Text colorScheme="grey" weight="medium">
-                {ChartLabel[chartKey]}
-              </Text>
-            </div>
-          ))}
+          {allChartList
+            .filter((key) => activeChartList.includes(key))
+            .map((chartKey, index) => (
+              <div
+                key={`timeline-chart-title-${chartKey}-${index}`}
+                className="border-b-[1px] border-light-charcoal bg-charcoal py-2 px-5"
+                style={{ height: CHART_HEIGHT }}
+              >
+                <Text colorScheme="grey" weight="medium">
+                  {ChartLabel[chartKey]}
+                </Text>
+              </div>
+            ))}
         </div>
 
         {/* chart */}
         <TimelineChartContainer
           ref={chartWrapperRef}
-          chartCount={chartList.length}
+          chartCount={activeChartList.length}
           cursorTranslateX={cursorTranslateX}
           onPointerDown={onCursorPointerDown}
           onPointerMove={onCursorPointerMove}
           onPointerUp={onCursorPointerUp}
         >
-          {chartList.map((chartKey) => {
-            if (chartKey === 'video') {
-              return (
-                // TODO: src가 없을 때 -> progress 표시 ?
-                <VideoSnapshots
-                  key={`chart-${chartKey}`}
-                  src={src}
-                  tickCount={15}
-                  startMillisecond={snapshotStartMillisecond}
-                  endMillisecond={snapshotEndMillisecond}
-                />
-              )
-            }
+          {allChartList
+            .filter((key) => activeChartList.includes(key))
+            .map((chartKey) => {
+              if (chartKey === 'video') {
+                return (
+                  // TODO: src가 없을 때 -> progress 표시 ?
+                  <VideoSnapshots
+                    key={`chart-${chartKey}`}
+                    src={src}
+                    tickCount={15}
+                    startMillisecond={snapshotStartMillisecond}
+                    endMillisecond={snapshotEndMillisecond}
+                  />
+                )
+              }
 
-            if (chartKey === 'color_reference') {
-              return (
-                <ColorReferenceChart
-                  key={`chart-${chartKey}`}
-                  scaleX={scrollbarScaleX}
-                  startTime={startTime}
-                  endTime={endTime}
-                  dimension={dimension}
-                />
-              )
-            }
+              if (chartKey === 'color_reference') {
+                return (
+                  <ColorReferenceChart
+                    key={`chart-${chartKey}`}
+                    scaleX={scrollbarScaleX}
+                    startTime={startTime}
+                    endTime={endTime}
+                    dimension={dimension}
+                  />
+                )
+              }
 
-            if (chartKey === 'event_log') {
-              return (
-                <EventLogChart
-                  key={`chart-${chartKey}`}
-                  scaleX={scrollbarScaleX}
-                  startTime={startTime}
-                  endTime={endTime}
-                  dimension={dimension}
-                />
-              )
-            }
+              if (chartKey === 'event_log') {
+                return (
+                  <EventLogChart
+                    key={`chart-${chartKey}`}
+                    scaleX={scrollbarScaleX}
+                    startTime={startTime}
+                    endTime={endTime}
+                    dimension={dimension}
+                  />
+                )
+              }
 
-            if (chartKey === 'video_analysis_result') {
-              return (
-                <FreezeChart
-                  key={`chart-${chartKey}`}
-                  scaleX={scrollbarScaleX}
-                  startTime={startTime}
-                  endTime={endTime}
-                  dimension={dimension}
-                  summary={analysisResultSummary}
-                />
-              )
-            }
+              if (chartKey === 'monkey_test') {
+                return (
+                  <MonkeyTestChart
+                    key={`chart-${chartKey}`}
+                    scaleX={scrollbarScaleX}
+                    startTime={startTime}
+                    endTime={endTime}
+                    dimension={dimension}
+                    summary={analysisResultSummary}
+                  />
+                )
+              }
 
-            if (chartKey === 'loudness') {
-              return (
-                <LoudnessChart
-                  key={`chart-${chartKey}`}
-                  scaleX={scrollbarScaleX}
-                  startTime={startTime}
-                  endTime={endTime}
-                  dimension={dimension}
-                  summary={analysisResultSummary}
-                />
-              )
-            }
+              if (chartKey === 'intelligent_monkey_test') {
+                return (
+                  <IntelligentMonkeyTestChart
+                    key={`chart-${chartKey}`}
+                    scaleX={scrollbarScaleX}
+                    startTime={startTime}
+                    endTime={endTime}
+                    dimension={dimension}
+                    summary={analysisResultSummary}
+                  />
+                )
+              }
 
-            if (chartKey === 'resume_boot') {
-              return (
-                <ResumeBootChart
-                  key={`chart-${chartKey}`}
-                  scaleX={scrollbarScaleX}
-                  startTime={startTime}
-                  endTime={endTime}
-                  dimension={dimension}
-                  summary={analysisResultSummary}
-                />
-              )
-            }
+              if (chartKey === 'video_analysis_result') {
+                return (
+                  <FreezeChart
+                    key={`chart-${chartKey}`}
+                    scaleX={scrollbarScaleX}
+                    startTime={startTime}
+                    endTime={endTime}
+                    dimension={dimension}
+                    summary={analysisResultSummary}
+                  />
+                )
+              }
 
-            if (chartKey === 'log_level_finder') {
-              // FIXME: 데이터가 너무많음. api 로딩이 오래걸림
-              return (
-                <LogLevelFinderChart
-                  key={`chart-${chartKey}`}
-                  scaleX={scrollbarScaleX}
-                  startTime={startTime}
-                  endTime={endTime}
-                  dimension={dimension}
-                  summary={analysisResultSummary}
-                />
-              )
-            }
+              if (chartKey === 'loudness') {
+                return (
+                  <LoudnessChart
+                    key={`chart-${chartKey}`}
+                    scaleX={scrollbarScaleX}
+                    startTime={startTime}
+                    endTime={endTime}
+                    dimension={dimension}
+                    summary={analysisResultSummary}
+                  />
+                )
+              }
 
-            if (chartKey === 'log_pattern_matching') {
-              return (
-                <LogPatternMatchingChart
-                  key={`chart-${chartKey}`}
-                  scaleX={scrollbarScaleX}
-                  startTime={startTime}
-                  endTime={endTime}
-                  dimension={dimension}
-                  summary={analysisResultSummary}
-                />
-              )
-            }
+              if (chartKey === 'resume_boot') {
+                return (
+                  <ResumeBootChart
+                    key={`chart-${chartKey}`}
+                    scaleX={scrollbarScaleX}
+                    startTime={startTime}
+                    endTime={endTime}
+                    dimension={dimension}
+                    summary={analysisResultSummary}
+                  />
+                )
+              }
 
-            if (chartKey === 'cpu') {
-              return (
-                <CPUChart
-                  key={`chart-${chartKey}`}
-                  scaleX={scrollbarScaleX}
-                  startTime={startTime}
-                  endTime={endTime}
-                  dimension={dimension}
-                />
-              )
-            }
+              if (chartKey === 'log_level_finder') {
+                // FIXME: 데이터가 너무많음. api 로딩이 오래걸림
+                return (
+                  <LogLevelFinderChart
+                    key={`chart-${chartKey}`}
+                    scaleX={scrollbarScaleX}
+                    startTime={startTime}
+                    endTime={endTime}
+                    dimension={dimension}
+                    summary={analysisResultSummary}
+                  />
+                )
+              }
 
-            if (chartKey === 'memory') {
-              return (
-                <MemoryChart
-                  key={`chart-${chartKey}`}
-                  scaleX={scrollbarScaleX}
-                  startTime={startTime}
-                  endTime={endTime}
-                  dimension={dimension}
-                />
-              )
-            }
+              if (chartKey === 'log_pattern_matching') {
+                return (
+                  <LogPatternMatchingChart
+                    key={`chart-${chartKey}`}
+                    scaleX={scrollbarScaleX}
+                    startTime={startTime}
+                    endTime={endTime}
+                    dimension={dimension}
+                    summary={analysisResultSummary}
+                  />
+                )
+              }
 
-            return null
-          })}
+              if (chartKey === 'cpu') {
+                return (
+                  <CPUChart
+                    key={`chart-${chartKey}`}
+                    scaleX={scrollbarScaleX}
+                    startTime={startTime}
+                    endTime={endTime}
+                    dimension={dimension}
+                  />
+                )
+              }
+
+              if (chartKey === 'memory') {
+                return (
+                  <MemoryChart
+                    key={`chart-${chartKey}`}
+                    scaleX={scrollbarScaleX}
+                    startTime={startTime}
+                    endTime={endTime}
+                    dimension={dimension}
+                  />
+                )
+              }
+
+              return null
+            })}
         </TimelineChartContainer>
       </div>
 

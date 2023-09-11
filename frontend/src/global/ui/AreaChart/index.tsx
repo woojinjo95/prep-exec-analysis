@@ -52,11 +52,7 @@ const AreaChart: React.FC<AreaChartProps> = ({
     chart.createChart()
   }, [data, chartWidth, scaleX, scaleY, strokeColor, fillColor])
 
-  return (
-    <div style={{ height: CHART_HEIGHT }}>
-      <div ref={chartRef} className="brightness-150" />
-    </div>
-  )
+  return <div ref={chartRef} className="brightness-150" />
 }
 
 export default React.memo(AreaChart)

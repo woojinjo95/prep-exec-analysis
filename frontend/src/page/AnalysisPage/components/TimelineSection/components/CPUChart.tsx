@@ -93,15 +93,17 @@ const CPUChart: React.FC<CPUChartProps> = ({ scaleX, startTime, endTime, dimensi
         />
       )}
 
-      <AreaChart
-        chartWidth={dimension?.width}
-        scaleX={scaleX}
-        scaleY={scaleY}
-        data={cpuData}
-        minValue={0}
-        strokeColor="#f29213"
-        fillColor="#f29213"
-      />
+      <div style={{ height: CHART_HEIGHT }}>
+        <AreaChart
+          chartWidth={dimension?.width}
+          scaleX={scaleX}
+          scaleY={scaleY}
+          data={cpuData}
+          minValue={0}
+          strokeColor="#f29213"
+          fillColor="#f29213"
+        />
+      </div>
     </div>
   )
 }
