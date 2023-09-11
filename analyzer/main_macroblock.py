@@ -27,8 +27,6 @@ class CommandExecutor:
         self.service_module.stop()
 
     def execute(self, command: Dict):
-        # PUBLISH command '{"msg": "analysis", "data": {"measurement": ["macroblock"]}}'
-
         if command.get('msg') == 'analysis':
             data = command.get('data', {})
             measurement = data.get('measurement', [])
