@@ -40,6 +40,7 @@ class MacroblockDetector:
             occurred = self.postprocess_result(cls_result, split_result)
 
             # check macroblock is finally detected
+            end_occurred_time, duration = None, None
             if occurred and not self.last_occurred:  # rising edge
                 self.start_occurred_time = time.time()
                 logger.info(f'Macroblock occurred! start_time: {self.start_occurred_time}')
