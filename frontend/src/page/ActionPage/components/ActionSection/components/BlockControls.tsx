@@ -4,16 +4,10 @@ import { ReactComponent as PlayIcon } from '@assets/images/icon_play.svg'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
 import { ReactComponent as StopIcon } from '@assets/images/icon_stop.svg'
 
-import { IconButton, OptionItem, Text, DropdownWithMoreButton } from '@global/ui'
+import { IconButton, OptionItem, Text, DropdownWithMoreButton, Input } from '@global/ui'
 import { useWebsocket } from '@global/hook'
 import { useRecoilState, useRecoilValue } from 'recoil'
-import {
-  isBlockRecordModeState,
-  isTestOptionModalOpenState,
-  playStartTimeState,
-  scenarioIdState,
-  selectedBlockIdsState,
-} from '@global/atom'
+import { isBlockRecordModeState, playStartTimeState, scenarioIdState, selectedBlockIdsState } from '@global/atom'
 import { useScenarioById, useServiceState } from '@global/api/hook'
 import { useMutation } from 'react-query'
 import cx from 'classnames'
@@ -21,10 +15,9 @@ import { useNavigate } from 'react-router-dom'
 import { blockControlMenu } from '../constants'
 import SaveBlocksModal from './SaveBlocksModal'
 import OpenBlocksModal from './OpenBlocksModal'
-import { deleteBlock } from '../api/func'
+import { deleteBlock, putBlockGroup } from '../api/func'
 import AddMonkeyTestBlockModal from './AddMonkeyTestBlockModal'
 import AddIntelligentMonkeyTestBlockModal from './AddIntelligentMonkeyTestBlockModal'
-import TestOptionModal from './TestOptionModal'
 
 const BlockControls: React.FC = () => {
   const scenarioId = useRecoilValue(scenarioIdState)
@@ -36,11 +29,17 @@ const BlockControls: React.FC = () => {
   const [isAddMonkeyTestBlockModalOpen, setIsAddMonkeyTestBlockModalOpen] = useState<boolean>(false)
   const [isAddIntelligentMonkeyTestBlockModalOpen, setIsAddIntelligentMonkeyTestBlockModalOpen] =
     useState<boolean>(false)
-  const [isTestOptionModalOpen, setIsTesetOptionModalOpen] = useRecoilState(isTestOptionModalOpenState)
 
   const [isBlockRecordMode, setIsBlockRecordMode] = useRecoilState(isBlockRecordModeState)
 
-  const { scenario, refetch } = useScenarioById({ scenarioId })
+  const [repeatCnt, setRepeatCnt] = useState<number>(1)
+
+  const { scenario, refetch } = useScenarioById({
+    scenarioId,
+    onSuccess: (res) => {
+      setRepeatCnt(res.block_group[0].repeat_cnt)
+    },
+  })
 
   const { serviceState } = useServiceState()
 
@@ -50,10 +49,16 @@ const BlockControls: React.FC = () => {
     },
   })
 
+  const { mutate: putBlockGroupMutate } = useMutation(putBlockGroup, {
+    onSuccess: () => {
+      refetch()
+    },
+  })
+
   const selectedBlockIds = useRecoilValue(selectedBlockIdsState)
 
   // 재생 시작했던 시간
-  const playStartTime = useRecoilValue(playStartTimeState)
+  const [playStartTime, setPlayStartTime] = useRecoilState(playStartTimeState)
 
   const [isPlay, setIsPlay] = useState<boolean>(false)
 
@@ -81,9 +86,13 @@ const BlockControls: React.FC = () => {
     <>
       <div className="flex flex-wrap items-center px-3 py-2 gap-y-2 border-t border-[#DFE0EE] bg-white">
         <div className="flex items-center">
-          <DropdownWithMoreButton positionX="left">
+          <DropdownWithMoreButton positionX="left" disabled={serviceState === 'playblock'}>
             {blockControlMenu?.map((menu) => (
               <OptionItem
+                disabled={
+                  !isBlockRecordMode &&
+                  (menu === 'Add Monkey Test Block' || menu === 'Add Intelligent Monkey Test Block')
+                }
                 colorScheme="light"
                 key={`menu_${menu}`}
                 onClick={() => {
@@ -93,10 +102,10 @@ const BlockControls: React.FC = () => {
                   if (menu === 'Open') {
                     setIsOpenBlocksModalOpen(true)
                   }
-                  if (menu === 'Add Monkey Test Block') {
+                  if (menu === 'Add Monkey Test Block' && isBlockRecordMode) {
                     setIsAddMonkeyTestBlockModalOpen(true)
                   }
-                  if (menu === 'Add Intelligent Monkey Test Block') {
+                  if (menu === 'Add Intelligent Monkey Test Block' && isBlockRecordMode) {
                     setIsAddIntelligentMonkeyTestBlockModalOpen(true)
                   }
                 }}
@@ -105,6 +114,32 @@ const BlockControls: React.FC = () => {
               </OptionItem>
             ))}
           </DropdownWithMoreButton>
+
+          <Input
+            colorScheme="light"
+            className="!w-[74px] !h-10 ml-3 mr-1"
+            value={repeatCnt}
+            type="number"
+            onChange={(e) => {
+              setRepeatCnt(Number(e.target.value))
+            }}
+            onBlur={() => {
+              if (!scenario) return
+
+              // 같을 때는 불필요하게 api 호출 X
+              if (repeatCnt === scenario.block_group[0].repeat_cnt) return
+
+              putBlockGroupMutate({
+                block_group_id: scenario.block_group[0].id,
+                repeat_cnt: repeatCnt,
+                scenario_id: scenario.id,
+              })
+            }}
+          />
+
+          <Text colorScheme="dark" weight="bold" size="sm">
+            Repeat
+          </Text>
         </div>
 
         <div className="flex items-center gap-x-1 ml-auto">
@@ -145,16 +180,28 @@ const BlockControls: React.FC = () => {
                     setIsPlay(true)
                     setIsSaveBlocksModalOpen(true)
                   } else {
-                    // test option modal 실행
-                    setIsTesetOptionModalOpen(true)
+                    // 재생
+                    sendMessage({
+                      level: 'info',
+                      msg: 'start_playblock',
+                      data: { scenario_id: scenarioId },
+                    })
+
+                    setPlayStartTime(new Date().getTime() / 1000)
                   }
 
                   return
                 }
 
-                setIsTesetOptionModalOpen(true)
+                sendMessage({
+                  level: 'info',
+                  msg: 'start_playblock',
+                  data: { scenario_id: scenarioId },
+                })
 
-                setIsPlay(true)
+                setPlayStartTime(new Date().getTime() / 1000)
+
+                // setIsPlay(true)
               }}
             />
           ) : (
@@ -230,14 +277,6 @@ const BlockControls: React.FC = () => {
         <AddIntelligentMonkeyTestBlockModal
           isOpen={isAddIntelligentMonkeyTestBlockModalOpen}
           close={() => setIsAddIntelligentMonkeyTestBlockModalOpen(false)}
-        />
-      )}
-      {isTestOptionModalOpen && (
-        <TestOptionModal
-          isOpen={isTestOptionModalOpen}
-          close={() => {
-            setIsTesetOptionModalOpen(false)
-          }}
         />
       )}
     </>

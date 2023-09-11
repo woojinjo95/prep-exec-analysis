@@ -28,8 +28,9 @@ class Freeze(CommonBaseModel):
 
 
 class Macroblock(CommonBaseModel):
-    frame_sampling_interval: int
-    threshold_score: float
+    duration: int = 1
+    sampling_interval: int = 1
+    score_threshold: float = 0.995
 
 
 class Loudness(CommonBaseModel):

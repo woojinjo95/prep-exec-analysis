@@ -61,6 +61,9 @@ def get_shell_logs(
                                 'mode': shell_mode.value}},
                     {'$project': {'_id': 0, 'lines': 1}},
                     {'$unwind': {'path': '$lines'}},
+                    {'$project': {'lines': {'timestamp': {'$dateToString': {'date': '$lines.timestamp'}},
+                                            'module': '$lines.module',
+                                            'message': '$lines.message'}}},
                     {'$group': {'_id': None, 'lines': {'$push': '$lines'}}}]
         result = aggregate_from_mongodb(col="shell_log", pipeline=pipeline)
         res = result if result == [] else result[0]['lines']
