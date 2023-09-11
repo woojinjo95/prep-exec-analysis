@@ -126,14 +126,21 @@ def run_iptv_analysis(mongo_session: PacketMongoSession, stream_dict: dict, time
     ip_dict['timestamp'] = timestamp
 
 
-def change_stale_stream_state(current_timestamp: float, stream_dict: dict, archived_stream_dict: dict):
+def change_stale_stream_state(mongo_session: PacketMongoSession, current_timestamp: float, stream_dict: dict, archived_stream_dict: dict):
     thres_time = 0.5
     stale_ip_list = []
     for ip, ip_dict in stream_dict.items():
         if ip_dict['active'] and ip_dict['timestamp'] + thres_time < current_timestamp:
             ip_dict['active'] = False
-            archived_stream_dict[ip].append(ip_dict)
-            logger.info(f'Stream Archived!: {pformat(ip_dict, width=120)}') # update 
+
+            ip_str = convert_ip_bytes_string(ip)
+            timestamp = ip_dict['timestamp'] 
+            channel_info = get_channel_info(ip_str)
+
+            summary = pformat(ip_dict, width=120)
+            metadata = format_udp_stream_stop_and_summary(timestamp, ip_str, channel_info, summary)
+            mongo_session.put_network_trace(timestamp, 1370, f'Stream Archived!: {summary}', metadata=metadata)
+            logger.info(f'Stream Archived!: {summary}') # update 
             stale_ip_list.append(ip)
         else:
             pass
@@ -157,10 +164,10 @@ def read_pcap_and_update_dict(mongo_session: PacketMongoSession, stream_dict: di
         run_iptv_analysis(mongo_session, stream_dict, timestamp, protocol, ip_target, info, packet_bytes, archived_stream_dict)
 
         if index % 100 == 0:
-            change_stale_stream_state(timestamp, stream_dict, archived_stream_dict)
+            change_stale_stream_state(mongo_session, timestamp, stream_dict, archived_stream_dict)
 
     if index > 0:
-        # no valid packet
-        change_stale_stream_state(timestamp, stream_dict, archived_stream_dict)
+        # no valid packet if index is 0
+        change_stale_stream_state(mongo_session, timestamp, stream_dict, archived_stream_dict)
 
     return stream_dict
