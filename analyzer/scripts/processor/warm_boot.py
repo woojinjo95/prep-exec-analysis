@@ -94,7 +94,7 @@ def get_template_info(config) -> Tuple[np.ndarray, Tuple[int, int, int, int]]:
 
 def get_config() -> Dict:
     analysis_config = read_analysis_config()
-    config = analysis_config['resume']
+    config = analysis_config[Command.RESUME.value]
     logger.info(f'config: {config}')
     return config
 

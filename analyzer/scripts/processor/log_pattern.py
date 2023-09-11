@@ -54,7 +54,7 @@ def task_log_pattern_matching(args: VideoInfo, config: Dict):
 
 def get_config() -> Dict:
     analysis_config = read_analysis_config()
-    config = analysis_config['log_pattern_matching']
+    config = analysis_config[Command.LOG_PATTERN_MATCHING.value]
     logger.info(f'config: {config}')
     return config
 

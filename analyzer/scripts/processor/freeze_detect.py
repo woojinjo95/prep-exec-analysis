@@ -73,6 +73,6 @@ def set_freeze_detector(fps: float, min_duration: float) -> FreezeDetector:
 
 def get_config() -> Dict:
     analysis_config = read_analysis_config()
-    config = analysis_config['freeze']
+    config = analysis_config[Command.FREEZE.value]
     logger.info(f'config: {config}')
     return config

@@ -63,7 +63,7 @@ class ClassificationResult:
 
 @dataclass
 class MacroblockResult:
-    status: str
+    status: str  # success | error
     occurred: bool = False
     split_result: ImageSplitResult = None
     cls_result: ClassificationResult = None
