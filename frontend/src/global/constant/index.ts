@@ -44,7 +44,7 @@ export const LogConnectionStatusLabel: { [key in LogConnectionStatus]: string } 
 } as const
 
 /**
- * 분석 모듈에 전달 가능한 분석유형
+ * 설정 가능한 분석유형
  *
  * AnalysisType 참고
  */
@@ -55,6 +55,8 @@ export const AnalyzableTypes = [
   'boot',
   'log_level_finder',
   'log_pattern_matching',
+  'monkey_test',
+  'intelligent_monkey_test',
 ] as const
 
 export type AnalyzableType = (typeof AnalyzableTypes)[number]
