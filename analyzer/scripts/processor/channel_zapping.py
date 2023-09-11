@@ -48,14 +48,14 @@ def task_channel_zapping(args: VideoInfo, config: Dict):
     event_log = get_data_of_event_log(args.timestamps[0], args.timestamps[-1])
     channel_key_inputs = get_channel_key_inputs(event_log, config['targets'])  # channel key: all number key, ok key, channelup key, channeldown key
 
-    event_infos = get_channel_zapping_event_infos(igmp_join_infos, channel_key_inputs,
+    event_datas = get_channel_zapping_event_datas(igmp_join_infos, channel_key_inputs,
                                                     igmp_join_time_margin=get_setting_with_env('IGMP_JOIN_TIME_MARGIN', 5))
 
     with tempfile.TemporaryDirectory(dir='/tmp') as output_dir:
 
-        crop_videos = crop_video_with_opencv(args.video_path, args.timestamps, [ei.event_time for ei in event_infos], 
+        crop_videos = crop_video_with_opencv(args.video_path, args.timestamps, [ei.event_time for ei in event_datas], 
                                              output_dir, get_setting_with_env('CHANNEL_ZAPPING_VIDEO_LENGTH', 8))
-        for idx, (crop_video, event_info) in enumerate(zip(crop_videos, event_infos)):
+        for idx, (crop_video, event_info) in enumerate(zip(crop_videos, event_datas)):
             result = calculate_channel_zapping(crop_video.video_path, crop_video.timestamps, crop_video.timestamps[0],
                                                min_diff_rate=get_setting_with_env('CHANNEL_ZAPPING_MIN_DIFF_RATE', 0.00002))
             if result.status == 'success':
@@ -79,7 +79,7 @@ def get_config() -> Dict:
 #   -> valid key input time. accumulate last event info from igmp join time.
 # else
 #   -> invalid key input time. skip.
-def get_channel_zapping_event_infos(igmp_join_infos: List[IgmpJoinData], channel_key_inputs: List[RemoconKeyData], 
+def get_channel_zapping_event_datas(igmp_join_infos: List[IgmpJoinData], channel_key_inputs: List[RemoconKeyData], 
                                     igmp_join_time_margin: int) -> List[ChannelZappingEventData]:
     # sorting is skipped because the data is already sorted by timestamp
 
