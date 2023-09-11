@@ -712,10 +712,10 @@ def get_summary_data_of_measure_result(
             elif active_analysis == 'monkey_test':
                 additional_pipeline = [
                     {'$match': {'analysis_type': 'monkey'}},
-                    {'$group': {'_id': '$section_id', 
-                                'duration_time': {'$avg': '$user_config.duration'},
-                                'smart_sense': {'$sum': '$smart_sense_times'}}},
-                    {'$project': {'_id': 0, 'results': [{'duration_time': "$duration_time",'smart_sense': "$smart_sense"}]}}]
+                    {'$project': {'_id': {'$toString': '$_id'},
+                                  'smart_sense': '$smart_sense_times',
+                                  'duration_time': '$user_config.duration'}},
+                    {'$group': {'_id': None, 'results': {'$push': '$$ROOT'}}}]
             elif active_analysis == 'intelligent_monkey_test':
                 additional_pipeline = [
                     {'$match': {'analysis_type': 'intelligent_monkey'}},
