@@ -96,7 +96,7 @@ class BTAndroidKeyboard(AbstractRemocon):
             for string in attrgetter(func_str)(self.lcd_functions)(arg):
                 # attrgetter(func_str)(self.lcd_functions)(arg) is same to self.lcd_functions.{func_str}(arg)
                 start_time = time.time()  # count last command
-                ser.write(bytes(string, 'utf-8'))
+                ser.write(bytes(string + '\n', 'utf-8'))
             event_time = start_time + self.time_offset
 
         publish(self.redis_connection, RedisChannel.command, {'msg': 'lcd_control_response',
