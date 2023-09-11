@@ -8,17 +8,17 @@ from scripts.connection.redis_conn import get_strict_redis_connection
 from scripts.connection.redis_pubsub import Subscribe, publish_msg
 from scripts.format import Command
 from scripts.log_service.log_organizer import LogOrganizer
-from scripts.modules.freeze_detect import FreezeDetect
+from scripts.modules.macroblock import Macroblock
 
 logger = logging.getLogger('main')
 
-service_name = 'freeze'  # FIXME: service name
-command_name = Command.FREEZE.value  # FIXME: command name
+service_name = 'macroblock'  # FIXME: service name
+command_name = Command.MACROBLOCK.value  # FIXME: command name
 
 
 class CommandExecutor:
     def __init__(self):
-        self.service_module = FreezeDetect()  # FIXME: module
+        self.service_module = Macroblock()  # FIXME: module
 
     def start_service_module(self):
         self.service_module.start()
@@ -27,9 +27,6 @@ class CommandExecutor:
         self.service_module.stop()
 
     def execute(self, command: Dict):
-        # PUBLISH command '{"msg": "analysis", "data": {"measurement": ["freeze"]}}'
-        # PUBLISH command '{"msg": "service_state", "data": {"state": "streaming"}}'
-
         if command.get('msg') == 'analysis':
             data = command.get('data', {})
             measurement = data.get('measurement', [])
@@ -55,7 +52,7 @@ def main():
 if __name__ == '__main__':
     try:
         log_organizer = LogOrganizer(name=service_name)
-        log_organizer.set_stream_logger('main', color_index=0)  # FIXME: color index
+        log_organizer.set_stream_logger('main', color_index=5)  # FIXME: color index
         logger.info(f'Start {service_name} container')
         
         main()
