@@ -100,3 +100,19 @@ export const logPatternMatchingNameFilterListState = atom<string[]>({
   key: 'logPatternMatchingNameFilterListState',
   default: [],
 })
+
+/**
+ * 분석 페이지 monkey test 결과 filter 리스트(id로 필터링)
+ */
+export const monkeyTestIdFilterListState = atom<string[]>({
+  key: 'monkeyTestIdFilterListState',
+  default: [],
+})
+
+/**
+ * 분석 페이지 intelligent monkey test 결과 filter 리스트(section id로 필터링)
+ */
+export const intelligentMonkeyTestSectionIdFilterListState = atom<number[]>({
+  key: 'intelligentMonkeyTestSectionIdFilterListState',
+  default: [],
+})

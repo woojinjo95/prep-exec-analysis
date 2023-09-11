@@ -1,9 +1,11 @@
 import React, { useMemo, useRef } from 'react'
-import { useIntelligentMonkeySection, useIntelligentMonkeySmartSense } from '@page/AnalysisPage/api/hook'
-import { PointChart, RangeChart, Text, TimelineTooltip, TimelineTooltipItem } from '@global/ui'
-import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
+import { useRecoilValue } from 'recoil'
 import { CHART_HEIGHT } from '@global/constant'
 import { numberWithCommas } from '@global/usecase'
+import { intelligentMonkeyTestSectionIdFilterListState } from '@global/atom'
+import { PointChart, RangeChart, Text, TimelineTooltip, TimelineTooltipItem } from '@global/ui'
+import { useIntelligentMonkeySection, useIntelligentMonkeySmartSense } from '@page/AnalysisPage/api/hook'
+import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { useTooltipEvent } from '../hook'
 
 const IntelligentMonkeyTestSectionColors = [
@@ -38,6 +40,7 @@ const IntelligentMonkeyTestChart: React.FC<IntelligentMonkeyTestChartProps> = ({
   dimension,
   summary,
 }) => {
+  const intelligentMonkeyTestSectionIdFilterList = useRecoilValue(intelligentMonkeyTestSectionIdFilterListState)
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const { intelligentMonkeySection } = useIntelligentMonkeySection({
     start_time: startTime.toISOString(),
@@ -50,22 +53,26 @@ const IntelligentMonkeyTestChart: React.FC<IntelligentMonkeyTestChartProps> = ({
 
   const intelligentMonkeyTestData = useMemo(() => {
     if (!intelligentMonkeySection) return null
-    return intelligentMonkeySection.map(({ start_timestamp, end_timestamp }, index) => ({
-      datetime: new Date(start_timestamp).getTime(),
-      duration: new Date(end_timestamp).getTime() - new Date(start_timestamp).getTime(),
-      color: IntelligentMonkeyTestSectionColors[index % IntelligentMonkeyTestSectionColors.length],
-    }))
-  }, [intelligentMonkeySection, summary])
+    return intelligentMonkeySection
+      .filter(({ section_id }) => !intelligentMonkeyTestSectionIdFilterList.includes(section_id))
+      .map(({ start_timestamp, end_timestamp }, index) => ({
+        datetime: new Date(start_timestamp).getTime(),
+        duration: new Date(end_timestamp).getTime() - new Date(start_timestamp).getTime(),
+        color: IntelligentMonkeyTestSectionColors[index % IntelligentMonkeyTestSectionColors.length],
+      }))
+  }, [intelligentMonkeySection, summary, intelligentMonkeyTestSectionIdFilterList])
 
   const intelligentMonkeySmartSenseData = useMemo(() => {
     if (!intelligentMonkeySmartSense) return null
-    return intelligentMonkeySmartSense.map(({ timestamp, smart_sense_key, section_id }) => ({
-      datetime: new Date(timestamp).getTime(),
-      section_id,
-      smart_sense_key,
-      color: 'white',
-    }))
-  }, [intelligentMonkeySmartSense, summary])
+    return intelligentMonkeySmartSense
+      .filter(({ section_id }) => !intelligentMonkeyTestSectionIdFilterList.includes(section_id))
+      .map(({ timestamp, smart_sense_key, section_id }) => ({
+        datetime: new Date(timestamp).getTime(),
+        section_id,
+        smart_sense_key,
+        color: 'white',
+      }))
+  }, [intelligentMonkeySmartSense, summary, intelligentMonkeyTestSectionIdFilterList])
 
   const { posX, tooltipData, onMouseMove, onMouseLeave } = useTooltipEvent<
     NonNullable<typeof intelligentMonkeySmartSenseData>[number]
