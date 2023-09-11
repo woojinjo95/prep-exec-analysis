@@ -31,6 +31,7 @@ const OptionItem: React.FC<OptionItemProps> = ({
           'bg-light-charcoal': colorScheme === 'charcoal' && isActive,
           'bg-[#F1F2F4]': colorScheme === 'light' && isActive,
           '!bg-light-grey': colorScheme === 'light' && disabled,
+          // TODO : colorScheme가 light가 아닐 떄
 
           'hover:bg-charcoal': colorScheme === 'dark',
           'hover:bg-light-charcoal': colorScheme === 'charcoal',

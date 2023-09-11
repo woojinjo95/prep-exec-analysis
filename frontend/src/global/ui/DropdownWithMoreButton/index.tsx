@@ -40,6 +40,7 @@ const DropdownWithMoreButton: React.FC<DropdownWithMoreButtonProps> = ({
           colorScheme={colorScheme}
           className={cx('w-[50px] h-8', {
             '!bg-light-grey': colorScheme === 'light' && disabled,
+            // TODO : colorScheme가 light가 아닐 떄
           })}
           onClick={(e) => {
             e.stopPropagation()
