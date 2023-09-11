@@ -67,7 +67,7 @@ def task_channel_zapping(args: VideoInfo, config: Dict):
                     'dst_channel': event_info.dst,
                     'channel_name': event_info.channel_name,
                 })
-            progress_manager.update_progress(idx / len(crop_videos))
+            progress_manager.update_progress((idx + 1) / len(crop_videos))
 
 
 def get_config() -> Dict:

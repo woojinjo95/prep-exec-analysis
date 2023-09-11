@@ -45,7 +45,7 @@ def task_color_reference(args: VideoInfo, config: Dict):
                 'timestamp': get_utc_datetime(cur_time),
                 'color_reference': color_entropy,
             }) 
-            progress_manager.update_progress(idx / args.frame_count)
+            progress_manager.update_progress((idx + 1) / args.frame_count)
 
 
 def get_config() -> Dict:
