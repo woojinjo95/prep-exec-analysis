@@ -12,8 +12,8 @@ RUN pip install --upgrade pip
 
 # install requirements
 WORKDIR /app/
-ADD requirements.txt ./
-RUN pip install -r requirements.txt
+ADD requirements_cz.txt ./
+RUN pip install -r requirements_cz.txt
 
 ADD . ./
 
@@ -27,8 +27,5 @@ ENV MONGODB_AUTHENTICATION_SOURCE admin
 ENV REDIS_HOST redis
 ENV REDIS_PORT 6379
 ENV REDIS_DB 0
-ENV REDIS_PASSWORD ""
+ENV REDIS_PASSWORD 66b44dcb7f981904f8536b19e4464725
 
-ENV TF_MODEL_URL https://drive.google.com/drive/folders/13tVYiXNTXeVjUdNtShxKGcUi2hgzZ9-Y?usp=share_link
-
-# docker-compose up -d --build --force-recreate freeze resume boot log-pattern color-reference macroblock channel-zapping && docker-compose logs -f freeze resume boot log-pattern color-reference macroblock channel-zapping

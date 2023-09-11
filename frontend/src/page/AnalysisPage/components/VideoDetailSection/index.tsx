@@ -14,6 +14,7 @@ import { AppURL } from '@global/constant'
 import apiUrls from '@page/AnalysisPage/api/url'
 import { useVideoSummary } from '@global/api/hook'
 import { delay } from '@global/usecase'
+import { useWebsocket } from '@global/hook'
 
 /**
  * 간격 시간을 표현하는 함수
@@ -59,6 +60,8 @@ const VideoDetailSection: React.FC = () => {
     videoRef.current.load()
   }, [])
 
+  const { sendMessage } = useWebsocket()
+
   return (
     <section className="bg-black text-white grid grid-rows-1 grid-cols-[1fr_1.5fr_1fr]">
       <div className="flex flex-col justify-end py-5 px-6 gap-y-4">
@@ -66,6 +69,10 @@ const VideoDetailSection: React.FC = () => {
           type="button"
           className="bg-[#FFFFFFCC] py-3 px-6 flex items-center justify-center absolute top-5 left-6 rounded-full border-2 border-primary cursor-pointer z-10 transition-opacity opacity-50 hover:opacity-100"
           onClick={() => {
+            sendMessage({
+              level: 'info',
+              msg: 'action_mode',
+            })
             navigate('/action')
           }}
         >
