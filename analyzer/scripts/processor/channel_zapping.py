@@ -86,7 +86,7 @@ def get_channel_zapping_event_infos(igmp_join_infos: List[IgmpJoinData], channel
     i, j = 0, 0
     n, m = len(igmp_join_infos), len(channel_key_inputs)
 
-    event_times = []
+    event_datas = []
 
     while i < n and j < m:
         igmp_join = igmp_join_infos[i]
@@ -103,7 +103,7 @@ def get_channel_zapping_event_infos(igmp_join_infos: List[IgmpJoinData], channel
                 channel_key_input = channel_key_inputs[j]
                 
         if last_fitting_input is not None:  # If a fitting input was found, store it
-            event_times.append(ChannelZappingEventData(
+            event_datas.append(ChannelZappingEventData(
                 event_time=last_fitting_input.timestamp,
                 key=last_fitting_input.key,
                 src=igmp_join.src,
