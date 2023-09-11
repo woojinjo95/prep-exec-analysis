@@ -68,7 +68,7 @@ def run_iptv_analysis(index: int, mongo_session: PacketMongoSession, stream_dict
 
     if protocol == IPPROTO_UDP:
         if index % 100 == 0:
-            mongo_session.put_network_trace(timestamp, packet_bytes, '100x packet, if you want to get detail, get pcap file')
+            mongo_session.put_network_trace(timestamp, packet_bytes, '100 UDP packets')
         else:
             pass
     else:
