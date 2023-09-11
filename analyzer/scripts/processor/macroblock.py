@@ -42,14 +42,15 @@ def task_macroblock(args: VideoInfo, config: Dict):
     logger.info(f'start time: {get_utc_datetime(args.timestamps[0])}')
 
     for idx, (frame, cur_time) in enumerate(FrameGenerator(args.video_path, args.timestamps)):
-        result = detector.update(frame, cur_time)
-        if result.status == 'success' and result.detect and result.duration > config['min_duration']:
-            logger.info(f'relative time: {seconds_to_time(result.start_time - args.timestamps[0])}')
-            report_output(ReportName.MACROBLOCK.value, {
-                'timestamp': get_utc_datetime(result.start_time),
-                'duration': result.duration,
-            })
-        progress_manager.update_progress(idx / args.frame_count)
+        if idx % config['sampling_interval'] == 0:
+            result = detector.update(frame, cur_time)
+            if result.status == 'success' and result.detect and result.duration > config['min_duration']:
+                logger.info(f'relative time: {seconds_to_time(result.start_time - args.timestamps[0])}')
+                report_output(ReportName.MACROBLOCK.value, {
+                    'timestamp': get_utc_datetime(result.start_time),
+                    'duration': result.duration,
+                })
+            progress_manager.update_progress(idx / args.frame_count)
 
 
 def get_config() -> Dict:
