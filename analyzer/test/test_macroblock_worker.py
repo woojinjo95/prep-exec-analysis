@@ -1,8 +1,8 @@
-from scripts.analysis.macroblock.worker import Worker
+from scripts.analysis.macroblock.detector import MacroblockDetector
 import cv2
 import time
 
-worker = Worker()
+detector = MacroblockDetector()
 
 # video_path = '/app/workspace/testruns/2023-08-14T054428F718593/raw/videos/video_2023-08-22T172921F075886+0900_1800.mp4'
 video_path = '/app/workspace/macroblock_sparse.mp4'
@@ -16,8 +16,11 @@ while True:
 
     start_time = time.time()
     frame = cv2.resize(frame, (960, 540))
-    result = worker.check_macroblock_occured(frame)
+    result = detector.update(frame, time.time())
     delay = time.time() - start_time
+
+    result.split_result = None
+    result.cls_result = None
 
     print(f'{index}: {result}, delay: {delay}')
     index += 1

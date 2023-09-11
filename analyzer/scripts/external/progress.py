@@ -24,7 +24,7 @@ class ProgressManager:
             self.remaining_time = elapsed_time / self.progress - elapsed_time
         except ZeroDivisionError:
             self.remaining_time = 0
-        logger.info(f'Progress: {self.progress:.2%} | Remaining time: {self.remaining_time:.2f}s')
+        # logger.info(f'Progress: {self.progress:.2%} | Remaining time: {self.remaining_time:.2f}s')
 
     def update_progress(self, progress: float):
         self.progress = progress
