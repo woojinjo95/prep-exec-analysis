@@ -65,13 +65,13 @@ class MacroblockDetector:
             return result
 
         except Exception as err:
-            logger.error(f'error in process_image. {err}')
+            logger.error(f'error in update. {err}')
             logger.warning(traceback.format_exc())
             return MacroblockResult(status='error')
 
     def preprocess_image(self, image: np.ndarray) -> ImageSplitResult:
         split_result = split_image_with_shape(image, self.input_shape)
-        logger.info(f'image_shape: {image.shape}, row_num: {split_result.row_num}, col_num: {split_result.col_num}')
+        logger.debug(f'image_shape: {image.shape}, row_num: {split_result.row_num}, col_num: {split_result.col_num}')
         return split_result
 
     def postprocess_result(self, cls_results: ClassificationResult, split_result: ImageSplitResult) -> bool:
@@ -85,7 +85,7 @@ class MacroblockDetector:
         image_count = len(images)
         logger.debug(f'image count: {image_count}')
         batch = np.array(images)
-        logger.info(f'batch shape: {batch.shape}')
+        logger.debug(f'batch shape: {batch.shape}')
 
         # model predict with batch input datas
         start_pred_time = time.time()
@@ -95,7 +95,7 @@ class MacroblockDetector:
         pred_delay = time.time() - start_pred_time
 
         # check validation
-        logger.info(f'result shape: {pred_result.shape}')
+        logger.debug(f'result shape: {pred_result.shape}')
         if int(pred_result.shape[0]) != image_count:
             logger.error(
                 f'image count and result length are diffrent. image count: {image_count} / result length: {pred_result.shape[0]}')
@@ -106,7 +106,7 @@ class MacroblockDetector:
         scores = [float(pred[1]) for pred in pred_result]
 
         total_delay = time.time() - start_time
-        logger.info(f'Total Delay: {round(total_delay, 4)} / Prediction Delay: {round(pred_delay, 4)}')
+        logger.debug(f'Total Delay: {round(total_delay, 4)} / Prediction Delay: {round(pred_delay, 4)}')
 
         # return result
         result = ClassificationResult(
