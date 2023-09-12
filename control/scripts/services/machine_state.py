@@ -49,7 +49,11 @@ def get_machine_state() -> Dict:
 
 
 def start_state_service(remocon_process: RemoconProcess, interval: int = 10) -> ProcessMaintainer:
-    logger.info('Start state service')
+    if not get_value('devices', 'lcd', False):
+        logger.info('No LCD, do not update LCD state')
+        return
+    else:
+        logger.info('Start state service')
 
     prev_state = defaultdict(str)
 
