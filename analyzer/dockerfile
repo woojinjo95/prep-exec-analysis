@@ -30,6 +30,6 @@ ENV REDIS_PORT 6379
 ENV REDIS_DB 0
 ENV REDIS_PASSWORD ""
 
-# docker-compose up -d --build --force-recreate freeze resume boot log-pattern color-reference && docker-compose logs -f freeze resume boot log-pattern color-reference
-# docker-compose up -d --build --force-recreate macroblock && docker-compose logs -f macroblock
-# docker-compose up -d --build --force-recreate channel-zapping && docker-compose logs -f channel-zapping
+# docker-compose up -d --build freeze resume boot log-pattern color-reference && docker-compose logs -f freeze resume boot log-pattern color-reference
+# docker-compose up -d --build macroblock && docker-compose logs -f macroblock
+# docker-compose up -d --build channel-zapping && docker-compose logs -f channel-zapping
