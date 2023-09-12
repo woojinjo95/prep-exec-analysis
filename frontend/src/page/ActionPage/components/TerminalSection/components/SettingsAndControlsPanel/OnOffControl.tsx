@@ -73,7 +73,9 @@ const OnOffControl: React.FC = () => {
       if (message.msg === 'on_off_control_response') {
         refetch()
 
-        if (!scenarioId || !isBlockRecordMode) return
+        if (!scenarioId) return
+
+        if (!isBlockRecordMode) return
 
         if (message.data.enable_dut_power_transition) {
           postBlockWithMessageData({
@@ -96,6 +98,22 @@ const OnOffControl: React.FC = () => {
             blockValue: message.data.lan!,
           })
         }
+      }
+      if (message.msg === 'capture_board_response') {
+        postBlockMutate({
+          newBlock: {
+            type: 'capture_board',
+            delay_time: 3000,
+            name: 'Screen: refresh',
+            args: [
+              {
+                key: 'action',
+                value: 'refresh',
+              },
+            ],
+          },
+          scenario_id: scenarioId!,
+        })
       }
     },
   })

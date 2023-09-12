@@ -79,13 +79,12 @@ type BlockType =
   | 'remocon_transmit'
   | 'on_off_control'
   | 'shell'
-  | 'packet_control'
-  | 'packet_block'
   | 'monkey_test'
   | 'intelligent_monkey_test'
   | 'device_info'
   | 'remocon_properties'
   | 'network_emulation'
+  | 'capture_board'
 
 /**
  * 서비스 상태
