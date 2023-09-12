@@ -19,20 +19,20 @@ type NetworkEmulationMessageBody = {
   log: string
   updated: {
     create?: {
-      ip: string
-      port: string
+      ip?: string
+      port?: string
       protocol: string
     }
     update?: {
       id: string
-      ip: string
-      port: string
+      ip?: string
+      port?: string
       protocol: string
     }
     delete?: {
-      id: string
+      id?: string
       ip: string
-      port: string
+      port?: string
       protocol: string
     }
     packet_bandwidth?: number
@@ -114,7 +114,9 @@ const NetworkEmulation: React.FC = () => {
         if (message.data.updated.create) {
           return {
             type: 'network_emulation',
-            name: `IP Limit (Registered) : ${message.data.updated.create.ip}:${message.data.updated.create.port} (${message.data.updated.create.protocol})`,
+            name: `IP Limit (Registered) : ${message.data.updated.create.ip || ''}:${
+              message.data.updated.create.port || ''
+            } (${message.data.updated.create.protocol})`,
             delay_time: 3000,
             args: [
               {
@@ -131,7 +133,9 @@ const NetworkEmulation: React.FC = () => {
         if (message.data.updated.update) {
           return {
             type: 'network_emulation',
-            name: `IP Limit (Modified) : ${message.data.updated.update.ip}${message.data.updated.update.port} (${message.data.updated.update.protocol})`,
+            name: `IP Limit (Modified) : ${message.data.updated.update.ip || ''}:${
+              message.data.updated.update.port || ''
+            } (${message.data.updated.update.protocol})`,
             delay_time: 3000,
             args: [
               {
@@ -140,7 +144,7 @@ const NetworkEmulation: React.FC = () => {
               },
               {
                 key: 'packet_block',
-                value: message.data.updated.create,
+                value: message.data.updated.update,
               },
             ],
           }
@@ -148,7 +152,9 @@ const NetworkEmulation: React.FC = () => {
         if (message.data.updated.delete) {
           return {
             type: 'network_emulation',
-            name: `IP Limit (Deleted) : ${message.data.updated.delete.ip}${message.data.updated.delete.port} (${message.data.updated.delete.protocol})`,
+            name: `IP Limit (Deleted) : ${message.data.updated.delete.ip || ''}${
+              message.data.updated.delete.port || ''
+            } (${message.data.updated.delete.protocol})`,
             delay_time: 3000,
             args: [
               {
@@ -157,7 +163,7 @@ const NetworkEmulation: React.FC = () => {
               },
               {
                 key: 'packet_block',
-                value: message.data.updated.create,
+                value: message.data.updated.delete,
               },
             ],
           }
