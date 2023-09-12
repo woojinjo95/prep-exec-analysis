@@ -7,7 +7,7 @@ from sub.state import is_run_state, set_stop_state, set_run_item, is_analysis_st
 
 
 def calc_scenario_to_run_blocks(total_loop: int, scenario: dict):
-    print(f"calc_scenario_to_run_blocks:")
+    print("calc_scenario_to_run_blocks:")
     idx = 0
     blocks = []
     # 수행해야 하는 블럭을 반복조건에 맞춰서 배열로 만드는 단계
@@ -98,7 +98,10 @@ async def run_blocks(conn, db_blocks, scenario_id, testrun_id, blocks: list, eve
         print(traceback.format_exc())
     finally:
         await set_stop_state(conn, event)
-        await conn.publish(CHANNEL_NAME, publish_message("end_playblock"))
+        end_time = await conn.hset("testrun", "end_time")
+        start_time = await conn.hset("testrun", "start_time")
+        await conn.publish(CHANNEL_NAME, publish_message("end_playblock",
+                                                         data={"start_time": start_time, "end_time": end_time}))
         print("run_blocks end")
 
 
