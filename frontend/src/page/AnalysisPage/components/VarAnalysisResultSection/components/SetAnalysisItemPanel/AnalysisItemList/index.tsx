@@ -326,6 +326,7 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
 
       {selectedAnalysisItems.includes('log_pattern_matching') && unsavedAnalysisConfig.log_pattern_matching && (
         <LogPatternMatchingAnalysisItem
+          color={unsavedAnalysisConfig.log_pattern_matching.color}
           patterns={unsavedAnalysisConfig.log_pattern_matching.items}
           warningMessage={warningMessage.log_pattern_matching}
           setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
@@ -344,7 +345,11 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
       )}
 
       {selectedAnalysisItems.includes('intelligent_monkey_test') && unsavedAnalysisConfig.intelligent_monkey_test && (
-        <IntelligentMonkeyTestAnalysisItem onClickDeleteItem={onClickDeleteItem('intelligent_monkey_test')} />
+        <IntelligentMonkeyTestAnalysisItem
+          color={unsavedAnalysisConfig.intelligent_monkey_test.color}
+          onClickDeleteItem={onClickDeleteItem('intelligent_monkey_test')}
+          setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
+        />
       )}
     </div>
   )
