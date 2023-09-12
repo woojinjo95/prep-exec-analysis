@@ -34,13 +34,13 @@ def stop_logcat_manager():
         logger.warning('LogcatManager is not alive')
 
 
-def start_dumpsys_manager(connection_info: dict):
+def start_dumpsys_manager():
     global dumpsys_manager
 
     if dumpsys_manager is not None:
         logger.warning('DumpsysManager is already alive')
     else:
-        dumpsys_manager = DumpsysManager(connection_info=connection_info)
+        dumpsys_manager = DumpsysManager()
         dumpsys_manager.start()
         logger.info('Start DumpsysManager')
 
@@ -59,7 +59,7 @@ def stop_dumpsys_manager():
 def log_start():
     connection_info = get_connection_info()
     start_logcat_manager(connection_info)
-    start_dumpsys_manager(connection_info)
+    start_dumpsys_manager()
 
 
 def log_stop():

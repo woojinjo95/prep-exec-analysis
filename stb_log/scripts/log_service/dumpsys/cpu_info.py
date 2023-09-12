@@ -1,15 +1,18 @@
-from typing import List, Dict
-import re
 import logging
+import re
+from typing import List
+
+from scripts.connection.external import get_connection_info
 from scripts.connection.stb_connection.utils import exec_command
 from scripts.log_service.dumpsys.format import CPUInfo
-
+from scripts.config.config import get_setting_with_env
 
 logger = logging.getLogger('dumpsys')
 
 
-def get_cpuinfo(connection_info: Dict, timeout: float) -> List[str]:
-    result = exec_command('dumpsys cpuinfo', timeout, connection_info)
+def get_cpuinfo() -> List[str]:
+    connection_info = get_connection_info()
+    result = exec_command('dumpsys cpuinfo', get_setting_with_env('CPUINFO_EXTRACTION_TIMEOUT', 5), connection_info)
     return result.splitlines()
 
 
@@ -25,9 +28,9 @@ def parse_cpu_info_summary(chunk: List[str]) -> CPUInfo:
     return CPUInfo(**result)
 
 
-def parse_cpu_info(connection_info: Dict, timeout: float) -> CPUInfo:
+def parse_cpu_info() -> CPUInfo:
     try:
-        lines = get_cpuinfo(connection_info, timeout)
+        lines = get_cpuinfo()
         cpu_info = parse_cpu_info_summary(lines)
         cpu_info.cpu_usage = cpu_info.total
         return cpu_info
