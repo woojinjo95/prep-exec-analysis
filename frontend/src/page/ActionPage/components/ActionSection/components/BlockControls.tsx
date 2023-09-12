@@ -68,16 +68,7 @@ const BlockControls: React.FC = () => {
   const { sendMessage } = useWebsocket({
     onMessage: (message) => {
       if (message.msg === 'end_playblock') {
-        // analysis_mode message 전송 후 이동
         if (!playStartTime) return
-        sendMessage({
-          level: 'info',
-          msg: 'analysis_mode_init',
-          data: {
-            start_time: playStartTime,
-            end_time: new Date().getTime() / 1000,
-          },
-        })
         navigate('/analysis')
       }
     },

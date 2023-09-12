@@ -103,7 +103,7 @@ const IntelligentMonkeyTestRawDataModal: React.FC<IntelligentMonkeyTestRawDataMo
                 className="border-t border-light-charcoal hover:bg-charcoal/50"
               >
                 <td className={cx('px-6 py-1', { 'border-t border-light-charcoal': index !== 0 })}>
-                  <Text size="sm"># {numberWithCommas(section_id)}</Text>
+                  <Text size="sm"># {numberWithCommas(section_id + 1)}</Text>
                 </td>
                 <td className={cx('px-6 py-1', { 'border-t border-light-charcoal': index !== 0 })}>
                   <Text size="sm">{formatDateTo('YYYY-MM-DD HH:MM:SS:MS', new Date(timestamp))}</Text>
