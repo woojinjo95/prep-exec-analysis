@@ -124,7 +124,7 @@ const NetworkEmulation: React.FC = () => {
               },
               {
                 key: 'packet_block',
-                value: message.data.updated.create,
+                value: message.data.updated.update,
               },
             ],
           }
