@@ -27,13 +27,18 @@ def get_testrun_info() -> Dict[str, str]:
 
 
 def format_subscribed_log(subscribed_log: Dict) -> Dict:
-    return {'timestamp': get_utc_datetime(subscribed_log.get('time', time.time())),
+    data = {'timestamp': get_utc_datetime(subscribed_log.get('time', time.time())),
             'src': subscribed_log.get('src', ''),
             'dst': subscribed_log.get('dst', ''),
             'protocol': convert_protocol_enum_to_str(subscribed_log.get('protocol', '')),
             'length': subscribed_log.get('length', 0),
             'info': subscribed_log.get('info', ''),
             }
+
+    if subscribed_log.get('metadata'):
+        data.update({'metadata': subscribed_log.get('metadata')})
+
+    return data
 
 
 class InsertToMongoDB:
@@ -54,7 +59,7 @@ class InsertToMongoDB:
         # add filter
         # if log.get('msg') in target_msg:
         if True:
-            logger.info(log)
+            # logger.info(log)
             self.log_queue.put(log)
 
     def consume(self, stop_event: Event, run_state_event: Event):
@@ -79,7 +84,7 @@ class InsertToMongoDB:
             except queues.Empty:
                 if document is not None:
                     # 1초가 지나고 document가 비지 않으면 업데이트
-                    logger.info(f'Timeout for 1 second and update to mongodb')
+                    # logger.info(f'Timeout for 1 second and update to mongodb')
                     insert_to_mongodb('network_trace', document)
                     document = None
 
@@ -95,7 +100,7 @@ class PacketMongoSession(InsertToMongoDB):
     def __init__(self):
         super().__init__()
 
-    def put_network_trace(self, timestamp: float, packet: bytes = None, info: str = ''):
+    def put_network_trace(self, timestamp: float, packet: bytes = None, info: str = '', metadata={}):
 
         data = {'time': timestamp,
                 'info': info,
@@ -108,8 +113,11 @@ class PacketMongoSession(InsertToMongoDB):
                          'protocol': protocol,
                          'length': length,
                          })
+            if metadata:
+                data.update({'metadata': metadata})
+
         else:
             pass
 
-        logger.info(data)
+        # logger.info(data)
         super().put(data)
