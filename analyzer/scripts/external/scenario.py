@@ -1,10 +1,13 @@
 from typing import Dict
 import time
+import logging
 
 from scripts.config.constant import RedisDB
 from scripts.connection.redis_conn import get_value
 from scripts.connection.mongo_db.crud import load_by_id_from_mongodb, get_mongodb_collection
 from scripts.util._timezone import get_utc_datetime
+
+logger = logging.getLogger('main')
 
 
 def get_scenario_info() -> Dict:
@@ -16,6 +19,7 @@ def get_scenario_info() -> Dict:
 
 def load_testrun() -> Dict:
     scenario_info = get_scenario_info()
+    logger.info(f'scenario_info: {scenario_info}')
     scenario = load_by_id_from_mongodb(col='scenario', id=scenario_info['scenario_id'])
     testruns = scenario['testruns']
     index = next((i for i, item in enumerate(testruns) if item.get('id') == scenario_info['testrun_id']), None)  # find first index of testrun_id

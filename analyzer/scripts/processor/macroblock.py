@@ -50,7 +50,7 @@ def task_macroblock(args: VideoInfo, config: Dict):
                     'timestamp': get_utc_datetime(result.start_time),
                     'duration': result.duration,
                 })
-            progress_manager.update_progress(idx / args.frame_count)
+            progress_manager.update_progress((idx + 1) / args.frame_count)
 
 
 def get_config() -> Dict:
