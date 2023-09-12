@@ -72,7 +72,6 @@ async def run_blocks(conn, db_blocks, scenario_id, testrun_id, blocks: list, eve
             print("wait... message response")
             try:
                 # 몽키테스트는 완료 대기
-                # TODO: 3200 삭제 후 테스트 필요
                 print(f"monkey test wait...{block['type']}")
                 if block['type'] == 'monkey_test':
                     limit = block.get('limit') if hasattr(block, 'limit') else 300  # 디폴트 5분
@@ -80,12 +79,14 @@ async def run_blocks(conn, db_blocks, scenario_id, testrun_id, blocks: list, eve
                     print("monkey test end...")
             except Exception as e:
                 print(e)
+            finally:
+                if block['type'] == 'monkey_test':
+                    # 몽키테스트인 경우 종료 메시지 송신
+                    await conn.publish(CHANNEL_NAME, publish_message(message="monkey_terminate",))
 
             # # 다른 파트는 시간대기
             delay_time = block['delay_time']
             await asyncio.sleep(delay_time / 1000)
-
-
 
             # 완료 처리
             db_blocks.update_one(
@@ -121,8 +122,6 @@ async def run_analysis(conn, db_blocks, scenario_id, testrun_id, blocks: list, e
             # 블럭 타입이 분석이면 이벤트 대기
 
             try:
-                # 몽키테스트는 완료 대기
-                # TODO: 3200 삭제 후 테스트 필요
                 await asyncio.wait_for(event.wait(), 60)
             except Exception as e:
                 print(e)

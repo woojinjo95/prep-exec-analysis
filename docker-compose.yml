@@ -184,7 +184,7 @@ services:
     command: python -u process.py
     build:
       context: ./shell
-      dockerfile: Dockerfile.dev.m32dev4
+      dockerfile: Dockerfile
     ports:
       - 5005:80
     volumes:
@@ -254,6 +254,11 @@ services:
     build:
       context: ./analyzer
       dockerfile: dockerfile
+      args:
+        - REQUIREMENTS=requirements_mb.txt
+    environment:
+      - PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+      - TF_MODEL_URL=https://drive.google.com/drive/folders/13tVYiXNTXeVjUdNtShxKGcUi2hgzZ9-Y?usp=share_link
     volumes:
       - ./data/workspace:/app/workspace
 
@@ -290,7 +295,7 @@ services:
     command: python -u process.py
     build:
       context: ./state
-      dockerfile: Dockerfile.dev.m32dev4
+      dockerfile: Dockerfile
     volumes:
       - ./state/app:/app
 

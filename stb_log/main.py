@@ -6,10 +6,11 @@ from scripts.connection.external import (get_connection_info,
                                          set_connection_info)
 from scripts.connection.redis_conn import get_strict_redis_connection
 from scripts.connection.redis_pubsub import Subscribe
-from scripts.log_service.connection_checker import ConnectionChecker
+from scripts.log_service.connection_checker import connection_checker
 from scripts.log_service.dumpsys.manager import DumpsysManager
 from scripts.log_service.log_organizer import LogOrganizer
 from scripts.log_service.logcat.log_manager import LogcatManager
+from scripts.util.process_maintainer import ProcessMaintainer
 
 logger = logging.getLogger('main')
 
@@ -107,8 +108,10 @@ def command_parser(command: dict):
 
 
 def main():
-    connection_checker = ConnectionChecker()
-    connection_checker.start()
+    connection_checker_proc = ProcessMaintainer(target=connection_checker, 
+                                                name='connection_checker',
+                                                revive_interval=1)
+    connection_checker_proc.start()
 
     with get_strict_redis_connection(RedisDB.hardware) as src:
         for command in Subscribe(src, RedisChannel.command):
