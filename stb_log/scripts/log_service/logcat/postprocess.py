@@ -16,7 +16,7 @@ log_chunk_pattern = r"\[\s(?P<timestamp>\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})\s
 
 
 def postprocess(connection_info: Dict, stop_event: Event, queue: Queue):
-    logger.info(f"start log postprocess")
+    logger.info(f"start logcat postprocess")
 
     for log_batch in LogBatchGenerator(queue):
         if stop_event.is_set():
@@ -24,7 +24,7 @@ def postprocess(connection_info: Dict, stop_event: Event, queue: Queue):
         th = threading.Thread(target=process_batch, args=(log_batch, connection_info), daemon=True)
         th.start()
 
-    logger.info(f"finish log postprocess")
+    logger.info(f"finish logcat postprocess")
 
 
 def parse_log_chunk(chunk: str) -> Dict:

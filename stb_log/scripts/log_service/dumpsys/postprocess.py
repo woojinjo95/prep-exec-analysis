@@ -14,16 +14,16 @@ logger = logging.getLogger('dumpsys')
 
 
 def postprocess():
-    logger.info(f"start cpu and memory postprocess")
+    logger.info(f"start dumpsys postprocess")
     while True:
         time.sleep(1)
         try:
-            insert_to_db()
+            extract_data()
         except Exception as err:
-            logger.warning(f'error in insert dumpsys data to db. Cause => {err}')
+            logger.warning(f'error in extract_data. Cause => {err}')
 
 
-def insert_to_db():
+def extract_data():
     cpu_info = parse_cpu_info()
     memory_info = parse_memory_info()
     json_data = construct_json_data(cpu_info, memory_info)
