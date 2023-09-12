@@ -62,7 +62,7 @@ const IntelligentMonkeyTestSummaryItem: React.FC<IntelligentMonkeyTestSummaryIte
 
           {intelligentMonkeyTest.results.map(({ section_id, smart_sense, image_path }, index) => (
             <React.Fragment key={`monkey-test-summary-result-item-${index}`}>
-              <Text size="sm"># {numberWithCommas(section_id + 1)}</Text>
+              <Text size="sm"># {numberWithCommas(section_id)}</Text>
               <div>
                 <img
                   className="h-6"
