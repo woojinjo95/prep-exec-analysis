@@ -127,7 +127,6 @@ def get_disk_usage_in_percent() -> float:
 def get_current_running_state() -> str:
     try:
         ipaddress.ip_address(get_machine_private_ip())  # machine itself
-        ipaddress.ip_address(get_machine_dut_lan_ip())  # stb connection
         state = get_value(COMMON, 'service_state', '0.0.0.0', db=RedisDBEnum.hardware)
 
         if state.lower() in ('streaming', 'playblock'):
@@ -135,8 +134,10 @@ def get_current_running_state() -> str:
 
         elif state.lower() in ('analyzing', 'recording'):
             return 'Analyzing'
-
+        
         else:
+            # analysis and colleciton can be force start.
+            ipaddress.ip_address(get_machine_dut_lan_ip())  # stb connection
             # state in ('idle')
             return 'Ready'
 

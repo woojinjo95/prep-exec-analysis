@@ -21,8 +21,7 @@ const RemoteControl: React.FC = () => {
 
   const { refetch: scenarioRefetch } = useScenarioById({ scenarioId })
 
-  // const { mutate: postBlockMutate } =
-  useMutation(postBlock, {
+  const { mutate: postBlockMutate } = useMutation(postBlock, {
     onSuccess: () => {
       scenarioRefetch()
     },
@@ -36,21 +35,21 @@ const RemoteControl: React.FC = () => {
       if (message.msg === 'remocon_properties_response') {
         refetch()
 
-        // if (!scenarioId) return
-        // postBlockMutate({
-        //   newBlock: {
-        //     type: 'remocon_properties', // 미정
-        //     name: `Remote Control: ${message.data.type}`,
-        //     delay_time: 3000,
-        //     args: [
-        //       {
-        //         key: 'type',
-        //         value: message.data.type,
-        //       },
-        //     ],
-        //   },
-        //   scenario_id: scenarioId,
-        // })
+        if (!scenarioId) return
+        postBlockMutate({
+          newBlock: {
+            type: 'remocon_properties',
+            name: `Remote Control: ${message.data.type}`,
+            delay_time: 3000,
+            args: [
+              {
+                key: 'type',
+                value: message.data.type,
+              },
+            ],
+          },
+          scenario_id: scenarioId,
+        })
       }
     },
   })

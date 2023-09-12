@@ -81,6 +81,7 @@ type BlockType =
   | 'intelligent_monkey_test'
   | 'device_info'
   | 'remocon_properties'
+  | 'network_emulation'
 
 /**
  * 서비스 상태
