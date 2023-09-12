@@ -8,17 +8,13 @@ from scripts.util.process_maintainer import ProcessMaintainer
 logger = logging.getLogger('dumpsys')
 
 class DumpsysManager:
-    def __init__(self, connection_info: dict):
-        self.connection_info = connection_info
+    def __init__(self):
         self.postprocessor = None
 
     def __start_postprocessor(self):
         self.postprocessor = ProcessMaintainer(
             name='dumpsys_postprocessor', 
-            target=postprocess, 
-            kwargs={
-                'connection_info': self.connection_info,
-            }, 
+            target=postprocess,
             daemon=True, 
             revive_interval=10
         )

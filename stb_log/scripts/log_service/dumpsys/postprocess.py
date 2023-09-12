@@ -13,19 +13,19 @@ from .memory_info import parse_memory_info
 logger = logging.getLogger('dumpsys')
 
 
-def postprocess(connection_info: Dict):
+def postprocess():
     logger.info(f"start cpu and memory postprocess")
     while True:
-        time.sleep(30)
+        time.sleep(1)
         try:
-            insert_to_db(connection_info)
+            insert_to_db()
         except Exception as err:
             logger.warning(f'error in insert dumpsys data to db. Cause => {err}')
 
 
-def insert_to_db(connection_info: Dict):
-    cpu_info = parse_cpu_info(connection_info, 5)
-    memory_info = parse_memory_info(connection_info, 20)
+def insert_to_db():
+    cpu_info = parse_cpu_info()
+    memory_info = parse_memory_info()
     json_data = construct_json_data(cpu_info, memory_info)
 
     logger.info(f'insert {json_data} to db')
