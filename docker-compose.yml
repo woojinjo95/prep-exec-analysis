@@ -253,7 +253,9 @@ services:
     command: python -u main_channel_zapping.py
     build:
       context: ./analyzer
-      dockerfile: dockerfile.cz
+      dockerfile: dockerfile
+      args:
+        - REQUIREMENTS=requirements_cz.txt
     volumes:
       - ./data/workspace:/app/workspace
 

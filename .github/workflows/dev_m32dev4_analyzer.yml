@@ -12,12 +12,29 @@ jobs:
           registry: registry.dev-nextlab.com
           username: nextlab
           password: .nextlab1@
-      - uses: actions/checkout@v3  
+      - uses: actions/checkout@v3
         with:
             submodules: recursive
       - run: docker build -t registry.dev-nextlab.com/qaas-analyzer:dev-${{github.run_id}}${{github.run_number}} -f ./analyzer/dockerfile.dev.m32dev4 ./analyzer
         shell: bash
       - run: docker image push registry.dev-nextlab.com/qaas-analyzer:dev-${{github.run_id}}${{github.run_number}}
+        shell: bash
+
+  build-dev-m32dev4-analyzer-channel-zapping:
+    runs-on: [self-hosted, docker, Linux]
+    steps:
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: registry.dev-nextlab.com
+          username: nextlab
+          password: .nextlab1@
+      - uses: actions/checkout@v3  
+        with:
+            submodules: recursive
+      - run: docker build --build-arg REQUIREMENTS=requirements_cz.txt -t registry.dev-nextlab.com/qaas-analyzer-channel-zapping:dev-${{github.run_id}}${{github.run_number}} -f ./analyzer/dockerfile.dev.m32dev4 ./analyzer
+        shell: bash
+      - run: docker image push registry.dev-nextlab.com/qaas-analyzer-channel-zapping:dev-${{github.run_id}}${{github.run_number}}
         shell: bash
 
   deploy-dev-m32dev4-analyzer:
@@ -35,4 +52,21 @@ jobs:
       - run: sed -i "s|\b/qaas-analyzer:dev-.*\b|/qaas-analyzer:dev-${{github.run_id}}${{github.run_number}}|g" /home/jade-m32-07/service/analyzer.yml
         shell: bash
       - run: docker-compose --project-directory /home/jade-m32-07/service -f /home/jade-m32-07/service/analyzer.yml up -d
+        shell: bash
+
+  deploy-dev-m32dev4-analyzer-channel-zapping:
+    needs: [build-dev-m32dev4-analyzer-channel-zapping]
+    runs-on: [self-hosted, qaas_m32dev4]
+    steps:
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: registry.dev-nextlab.com
+          username: nextlab
+          password: .nextlab1@
+      - run: docker image pull registry.dev-nextlab.com/qaas-analyzer-channel-zapping:dev-${{github.run_id}}${{github.run_number}}
+        shell: bash
+      - run: sed -i "s|\b/qaas-analyzer:dev-.*\b|/qaas-analyzer:dev-${{github.run_id}}${{github.run_number}}|g" /home/jade-m32-07/service/analyzer_channel_zapping.yml
+        shell: bash
+      - run: docker-compose --project-directory /home/jade-m32-07/service -f /home/jade-m32-07/service/analyzer_channel_zapping.yml up -d
         shell: bash
