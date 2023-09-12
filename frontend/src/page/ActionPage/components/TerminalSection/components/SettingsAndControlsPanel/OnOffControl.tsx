@@ -100,6 +100,12 @@ const OnOffControl: React.FC = () => {
         }
       }
       if (message.msg === 'capture_board_response') {
+        refetch()
+
+        if (!scenarioId) return
+
+        if (!isBlockRecordMode) return
+
         postBlockMutate({
           newBlock: {
             type: 'capture_board',
@@ -112,7 +118,7 @@ const OnOffControl: React.FC = () => {
               },
             ],
           },
-          scenario_id: scenarioId!,
+          scenario_id: scenarioId,
         })
       }
     },
