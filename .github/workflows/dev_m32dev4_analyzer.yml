@@ -12,7 +12,7 @@ jobs:
           registry: registry.dev-nextlab.com
           username: nextlab
           password: .nextlab1@
-      - uses: actions/checkout@v3  
+      - uses: actions/checkout@v3
         with:
             submodules: recursive
       - run: docker build -t registry.dev-nextlab.com/qaas-analyzer:dev-${{github.run_id}}${{github.run_number}} -f ./analyzer/dockerfile.dev.m32dev4 ./analyzer

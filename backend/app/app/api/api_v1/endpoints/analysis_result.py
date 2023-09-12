@@ -18,39 +18,50 @@ router = APIRouter()
 # Log Level Finder
 @router.get("/log_level_finder", response_model=schemas.LogLevelFinder)
 def get_data_of_log_level_finder(
-    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    start_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     log_level: Optional[str] = Query(None, description='ex)V,D,I,W,E,F,S'),
     page_size: Optional[int] = 10,
     page: Optional[int] = None,
-    sort_by: Optional[str] = None,
+    sort_by: Optional[str] = 'timestamp',
     sort_desc: Optional[bool] = False
 ):
     """
     로그 레벨 데이터 조회
     """
     try:
-        if log_level is None:
-            log_level = parse_bytes_to_value(RedisClient.hget('analysis_config:log_level_finder', 'targets'))
-        else:
-            log_level = log_level.split(',')
+        if start_time is None and end_time is None:
+            raise HTTPException(status_code=400, detail='Need at least one time parameter')
+
+        time_range = {}
+        if start_time:
+            time_range['$gte'] = convert_iso_format(start_time)
+        if end_time:
+            time_range['$lte'] = convert_iso_format(end_time)
+
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        log_level_finder_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
-                                                               '$lte': convert_iso_format(end_time)},
-                                                 'scenario_id': scenario_id,
-                                                 'testrun_id': testrun_id}},
-                                     {'$project': {'_id': 0, 'lines.timestamp': 1, 'lines.log_level': 1}},
-                                     {'$unwind': {'path': '$lines'}},
-                                     {'$replaceRoot': {'newRoot': '$lines'}},
-                                     {'$match': {'log_level': {'$in': log_level}}},
-                                     {'$project': {'timestamp': {'$dateToString': {'date': '$timestamp'}},
-                                                   'log_level': 1}}]
 
+        log_level_finder_pipeline = [{'$match': {'timestamp': time_range,
+                                                 'scenario_id': scenario_id,
+                                                 'testrun_id': testrun_id}}]
+
+        if log_level is None:
+            log_level = parse_bytes_to_value(RedisClient.hget('analysis_config:log_level_finder', 'targets'))
+        else:
+            log_level = log_level.split(',')
+
+        additional_pipeline = [{'$project': {'_id': 0, 'lines.timestamp': 1, 'lines.log_level': 1}},
+                               {'$unwind': {'path': '$lines'}},
+                               {'$replaceRoot': {'newRoot': '$lines'}},
+                               {'$match': {'log_level': {'$in': log_level}}},
+                               {'$project': {'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                                             'log_level': 1}}]
+        log_level_finder_pipeline.extend(additional_pipeline)
         log_level_finder = paginate_from_mongodb_aggregation(col=analysis_collection['log_level_finder'],
                                                              pipeline=log_level_finder_pipeline,
                                                              page=page,
@@ -66,30 +77,44 @@ def get_data_of_log_level_finder(
 # CPU
 @router.get("/cpu", response_model=schemas.Cpu)
 def get_data_of_cpu(
-    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    start_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
     page: Optional[int] = None,
-    sort_by: Optional[str] = None,
+    sort_by: Optional[str] = 'timestamp',
     sort_desc: Optional[bool] = False
 ):
     """
     Cpu 데이터 조회
     """
     try:
+        if start_time is None and end_time is None:
+            raise HTTPException(status_code=400, detail='Need at least one time parameter')
+
+        time_range = {}
+        if start_time:
+            time_range['$gte'] = convert_iso_format(start_time)
+        if end_time:
+            time_range['$lte'] = convert_iso_format(end_time)
+
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        cpu_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
-                                                  '$lte': convert_iso_format(end_time)},
-                                    'scenario_id': scenario_id,
-                                    'testrun_id': testrun_id}},
-                        {'$project': {'_id': 0, 'timestamp': {'$dateToString': {'date': '$timestamp'}}, 'cpu_usage': 1, 'total': 1,
-                                      'user': 1, 'kernel': 1, 'iowait': 1, 'irq': 1, 'softirq': 1}}]
 
+        cpu_pipeline = [{'$match': {'timestamp': time_range,
+                                    'scenario_id': scenario_id,
+                                    'testrun_id': testrun_id}}]
+
+        additional_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
+                                                         '$lte': convert_iso_format(end_time)},
+                                           'scenario_id': scenario_id,
+                                           'testrun_id': testrun_id}},
+                               {'$project': {'_id': 0, 'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                                             'cpu_usage': 1, 'total': 1, 'user': 1, 'kernel': 1, 'iowait': 1, 'irq': 1, 'softirq': 1}}]
+        cpu_pipeline.extend(additional_pipeline)
         cpu = paginate_from_mongodb_aggregation(col=analysis_collection['cpu'],
                                                 pipeline=cpu_pipeline,
                                                 page=page,
@@ -105,13 +130,13 @@ def get_data_of_cpu(
 # Memory
 @router.get("/memory", response_model=schemas.Memory)
 def get_data_of_memory(
-    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    start_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
     page: Optional[int] = None,
-    sort_by: Optional[str] = None,
+    sort_by: Optional[str] = 'timestamp',
     sort_desc: Optional[bool] = False
 ):
     """
@@ -150,7 +175,7 @@ def get_data_of_event_log(
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
     page: Optional[int] = None,
-    sort_by: Optional[str] = None,
+    sort_by: Optional[str] = 'timestamp',
     sort_desc: Optional[bool] = False
 ):
     """
@@ -199,7 +224,7 @@ def get_data_of_color_reference(
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
     page: Optional[int] = None,
-    sort_by: Optional[str] = None,
+    sort_by: Optional[str] = 'timestamp',
     sort_desc: Optional[bool] = False
 ):
     """
@@ -237,7 +262,7 @@ def get_data_of_freeze(
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
     page: Optional[int] = None,
-    sort_by: Optional[str] = None,
+    sort_by: Optional[str] = 'timestamp',
     sort_desc: Optional[bool] = False
 ):
     """
@@ -253,7 +278,9 @@ def get_data_of_freeze(
                                                      '$lte': convert_iso_format(end_time)},
                                        'scenario_id': scenario_id,
                                        'testrun_id': testrun_id}},
-                           {'$project': {'_id': 0, 'timestamp': {'$dateToString': {'date': '$timestamp'}}, 'freeze_type': 1, 'duration': 1}}]
+                           {'$project': {'_id': 0,
+                                         'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                                         'freeze_type': 1, 'duration': 1}}]
 
         freeze = paginate_from_mongodb_aggregation(col=analysis_collection['freeze'],
                                                    pipeline=freeze_pipeline,
@@ -276,7 +303,7 @@ def get_data_of_loudness(
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
     page: Optional[int] = None,
-    sort_by: Optional[str] = None,
+    sort_by: Optional[str] = 'timestamp',
     sort_desc: Optional[bool] = False
 ):
     """
@@ -287,14 +314,17 @@ def get_data_of_loudness(
             testrun_id = RedisClient.hget('testrun', 'id')
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        loudness_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
-                                                       '$lte': convert_iso_format(end_time)},
-                                         'scenario_id': scenario_id,
-                                         'testrun_id': testrun_id}},
-                             {'$project': {'_id': 0, 'lines': 1}},
-                             {'$unwind': {'path': '$lines'}},
-                             {'$replaceRoot': {'newRoot': '$lines'}},
-                             {'$project': {'timestamp': {'$dateToString': {'date': '$timestamp'}}, 'm': '$M', 'i': '$I'}}]
+        loudness_pipeline = [
+            {
+                '$match':
+                {'timestamp': {'$gte': convert_iso_format(start_time),
+                               '$lte': convert_iso_format(end_time)},
+                 'scenario_id': scenario_id, 'testrun_id': testrun_id}},
+            {'$project': {'_id': 0, 'lines': 1}},
+            {'$unwind': {'path': '$lines'}},
+            {'$replaceRoot': {'newRoot': '$lines'}},
+            {'$project': {'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                          'm': '$M', 'i': '$I'}}]
 
         loudness = paginate_from_mongodb_aggregation(col=analysis_collection['loudness'],
                                                      pipeline=loudness_pipeline,
@@ -317,7 +347,7 @@ def get_data_of_resume(
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
     page: Optional[int] = None,
-    sort_by: Optional[str] = None,
+    sort_by: Optional[str] = 'timestamp',
     sort_desc: Optional[bool] = False
 ):
     """
@@ -332,7 +362,10 @@ def get_data_of_resume(
                                                           '$lte': convert_iso_format(end_time)},
                                             'scenario_id': scenario_id,
                                             'testrun_id': testrun_id}},
-                                {'$project': {'_id': 0, 'timestamp': {'$dateToString': {'date': '$timestamp'}}, 'measure_time': 1, 'target': '$user_config.type'}}]
+                                {'$project': {'_id': 0,
+                                              'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                                              'measure_time': 1,
+                                              'target': '$user_config.type'}}]
 
         measurement_resume = paginate_from_mongodb_aggregation(col=analysis_collection['resume'],
                                                                pipeline=measurement_pipeline,
@@ -355,7 +388,7 @@ def get_data_of_boot(
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
     page: Optional[int] = None,
-    sort_by: Optional[str] = None,
+    sort_by: Optional[str] = 'timestamp',
     sort_desc: Optional[bool] = False
 ):
     """
@@ -370,7 +403,10 @@ def get_data_of_boot(
                                                           '$lte': convert_iso_format(end_time)},
                                             'scenario_id': scenario_id,
                                             'testrun_id': testrun_id}},
-                                {'$project': {'_id': 0, 'timestamp': {'$dateToString': {'date': '$timestamp'}}, 'measure_time': 1, 'target': '$user_config.type'}}]
+                                {'$project': {'_id': 0,
+                                              'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                                              'measure_time': 1,
+                                              'target': '$user_config.type'}}]
 
         measurement_boot = paginate_from_mongodb_aggregation(col=analysis_collection['boot'],
                                                              pipeline=measurement_pipeline,
@@ -394,7 +430,7 @@ def get_data_of_log_pattern_matching(
     pattern_name: Optional[str] = None,
     page_size: Optional[int] = 10,
     page: Optional[int] = None,
-    sort_by: Optional[str] = None,
+    sort_by: Optional[str] = 'timestamp',
     sort_desc: Optional[bool] = False
 ):
     """
@@ -440,7 +476,7 @@ def get_data_of_monkey_section(
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
     page: Optional[int] = None,
-    sort_by: Optional[str] = None,
+    sort_by: Optional[str] = 'start_timestamp',
     sort_desc: Optional[bool] = False
 ):
     """
@@ -479,7 +515,7 @@ def get_data_of_monkey_smart_sense(
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
     page: Optional[int] = None,
-    sort_by: Optional[str] = None,
+    sort_by: Optional[str] = 'timestamp',
     sort_desc: Optional[bool] = False
 ):
     """
@@ -491,7 +527,7 @@ def get_data_of_monkey_smart_sense(
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
         monkey_smart_sense_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
-                                                               '$lte': convert_iso_format(end_time)},
+                                                                 '$lte': convert_iso_format(end_time)},
                                                    'scenario_id': scenario_id,
                                                    'testrun_id': testrun_id,
                                                    'analysis_type': 'monkey'}},
@@ -518,7 +554,7 @@ def get_data_of_intelligent_monkey_section(
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
     page: Optional[int] = None,
-    sort_by: Optional[str] = None,
+    sort_by: Optional[str] = 'start_timestamp',
     sort_desc: Optional[bool] = False
 ):
     """
@@ -558,7 +594,7 @@ def get_data_of_intelligent_monkey_smart_sense(
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
     page: Optional[int] = None,
-    sort_by: Optional[str] = None,
+    sort_by: Optional[str] = 'timestamp',
     sort_desc: Optional[bool] = False
 ):
     """
@@ -570,7 +606,7 @@ def get_data_of_intelligent_monkey_smart_sense(
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
         monkey_smart_sense_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
-                                                               '$lte': convert_iso_format(end_time)},
+                                                                 '$lte': convert_iso_format(end_time)},
                                                    'scenario_id': scenario_id,
                                                    'testrun_id': testrun_id,
                                                    'analysis_type': 'intelligent_monkey'}},

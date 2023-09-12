@@ -1,5 +1,6 @@
 import { LogConnectionStatus } from '@global/api/entity'
 import PagePath from './pagePath'
+import LogLevel from './logLevel'
 
 export { default as AnalysisType } from './analysisType'
 export { default as AppURL } from './appURL'
@@ -60,3 +61,17 @@ export const AnalyzableTypes = [
 ] as const
 
 export type AnalyzableType = (typeof AnalyzableTypes)[number]
+
+/**
+ * 로그레벨 색상
+ */
+export const LogLevelColor: {
+  [log_level in keyof typeof LogLevel]: 'pink' | 'red' | 'orange' | 'yellow' | 'navy' | 'green' | 'grey'
+} = {
+  F: 'red',
+  E: 'orange',
+  W: 'yellow',
+  I: 'navy',
+  D: 'green',
+  V: 'grey',
+}

@@ -1,9 +1,7 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import * as d3 from 'd3'
-import { useRecoilValue } from 'recoil'
 import { Text, VideoSnapshots } from '@global/ui'
 import { CHART_HEIGHT } from '@global/constant'
-import { videoBlobURLState } from '@global/atom'
 
 import { useAnalysisResultSummary } from '@page/AnalysisPage/api/hook'
 import { useCursorEvent } from './hook'
@@ -37,7 +35,6 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
   const chartWrapperRef = useRef<HTMLDivElement | null>(null)
   const [dimension, setDimension] = useState<{ left: number; width: number } | null>(null)
   const [scrollBarTwoPosX, setScrollBarTwoPosX] = useState<[number, number] | null>(null)
-  const src = useRecoilValue(videoBlobURLState)
   // 순서 중요 X
   const [activeChartList, setActiveChartList] = useState<(keyof typeof ChartLabel)[]>([
     'video',
@@ -110,29 +107,24 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
       width: dimension?.width,
     })
 
-  useEffect(() => {
+  const handleWindowResize = useCallback(() => {
     if (!chartWrapperRef.current || dimension?.width || dimension?.left || scrollBarTwoPosX) return
 
     setDimension({ width: chartWrapperRef.current.clientWidth, left: chartWrapperRef.current.offsetLeft })
     setScrollBarTwoPosX([0, chartWrapperRef.current.clientWidth])
+  }, [])
+
+  useEffect(() => {
+    handleWindowResize()
     // dependency array: chartWrapperRef 렌더링 조건
   }, [startTime, endTime, analysisResultSummary])
 
-  /**
-   * 스냅샷 시작 시간
-   */
-  const snapshotStartMillisecond = useMemo(() => {
-    if (!startTime || !timelineScaleX || !scrollBarTwoPosX) return null
-    return timelineScaleX.invert(scrollBarTwoPosX[0]).getTime() - startTime.getTime()
-  }, [startTime, timelineScaleX, scrollBarTwoPosX])
-
-  /**
-   * 스냅샷 끝 시간
-   */
-  const snapshotEndMillisecond = useMemo(() => {
-    if (!startTime || !timelineScaleX || !scrollBarTwoPosX) return null
-    return timelineScaleX.invert(scrollBarTwoPosX[1]).getTime() - startTime.getTime()
-  }, [startTime, timelineScaleX, scrollBarTwoPosX])
+  useEffect(() => {
+    window.addEventListener('resize', handleWindowResize)
+    return () => {
+      window.removeEventListener('resize', handleWindowResize)
+    }
+  }, [])
 
   if (!startTime || !endTime || !analysisResultSummary) {
     return <section className="h-full bg-black grid grid-cols-1 grid-rows-[auto_1fr_auto]" />
@@ -182,13 +174,12 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
             .map((chartKey) => {
               if (chartKey === 'video') {
                 return (
-                  // TODO: src가 없을 때 -> progress 표시 ?
                   <VideoSnapshots
                     key={`chart-${chartKey}`}
-                    src={src}
                     tickCount={15}
-                    startMillisecond={snapshotStartMillisecond}
-                    endMillisecond={snapshotEndMillisecond}
+                    scaleX={scrollbarScaleX}
+                    startTime={timelineScaleX && scrollBarTwoPosX ? timelineScaleX.invert(scrollBarTwoPosX[0]) : null}
+                    endTime={timelineScaleX && scrollBarTwoPosX ? timelineScaleX.invert(scrollBarTwoPosX[1]) : null}
                   />
                 )
               }

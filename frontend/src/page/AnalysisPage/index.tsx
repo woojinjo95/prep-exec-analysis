@@ -1,17 +1,14 @@
 import React, { useEffect } from 'react'
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
+import { useRecoilState, useRecoilValue } from 'recoil'
 import { useNavigate } from 'react-router-dom'
 import { PageContainer, Text } from '@global/ui'
 import { useVideoSummary } from '@global/api/hook'
-import { AppURL } from '@global/constant'
-import { cursorDateTimeState, scenarioIdState, testRunIdState, videoBlobURLState } from '@global/atom'
+import { cursorDateTimeState, scenarioIdState, testRunIdState } from '@global/atom'
 
 import LogTraceSection from './components/LogTraceSection'
 import VideoDetailSection from './components/VideoDetailSection'
 import TimelineSection from './components/TimelineSection'
 import VarAnalysisResultSection from './components/VarAnalysisResultSection'
-import { prefetchVideoFile } from './usecase'
-import apiUrls from './api/url'
 
 /**
  * 분석 조회 페이지
@@ -20,7 +17,6 @@ const AnalysisPage: React.FC = () => {
   const navigate = useNavigate()
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
-  const setVideoBlobURL = useSetRecoilState(videoBlobURLState)
   const [cursorDateTime, setCursorDateTime] = useRecoilState(cursorDateTimeState)
   const { videoSummary } = useVideoSummary({
     onSuccess: ({ start_time, end_time }) => {
@@ -40,21 +36,6 @@ const AnalysisPage: React.FC = () => {
       navigate('/', { replace: true })
     }
   }, [])
-
-  // 비디오 스냅샷 컴포넌트에서 사용할 video fetch
-  useEffect(() => {
-    if (!scenarioId || !testRunId) return
-
-    prefetchVideoFile(
-      `${AppURL.backendURL}${apiUrls.video}?scenario_id=${scenarioId}&testrun_id=${testRunId}`,
-      (url) => {
-        setVideoBlobURL(url)
-      },
-      (progress) => {
-        console.log(`${progress}%`)
-      },
-    )
-  }, [scenarioId, testRunId])
 
   return (
     <PageContainer className="grid grid-cols-[65%_35%] grid-rows-[40%_25%_calc(35%-28px)_28px]">

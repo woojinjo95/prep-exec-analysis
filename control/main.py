@@ -5,10 +5,12 @@ from scripts.configs.default import init_configs
 from scripts.connection.redis_pubsub import (Subscribe,
                                              get_strict_redis_connection)
 from scripts.device.remocon.remocon_process import RemoconProcess
+from scripts.device.remocon.types.bt_android_keyboard import LCD
 from scripts.device.serial.serial_device import (SerialDevice,
                                                  initial_serial_devices)
 from scripts.device.serial_control import change_dut_state, init_dut_state
 from scripts.log_organizer import LogOrganizer
+from scripts.services.machine_state import start_state_service
 from scripts.utils._exceptions import handle_errors
 
 logger = logging.getLogger('main')
@@ -50,6 +52,11 @@ def command_parser(command: dict, serial_device: SerialDevice, remocon_process: 
         on_off_control_args = command.get('data')
         change_dut_state(serial_device, on_off_control_args)
 
+    if command.get('msg') == 'lcd_control':
+        lcd_args = command.get('data')
+        lcd_string = lcd_args.get('func_arg')
+        remocon_process.put_command(key=lcd_string, _type=LCD)
+
 
 @handle_errors
 def main():
@@ -58,6 +65,7 @@ def main():
     remocon_process = RemoconProcess(serial_devices)
 
     init(control_board_serial_device, remocon_process)
+    start_state_service(remocon_process, interval=5)
 
     with get_strict_redis_connection() as src:
         for command in Subscribe(src, RedisChannel.command):
@@ -71,6 +79,7 @@ if __name__ == '__main__':
         log_organizer.set_stream_logger('remocon', 1)
         log_organizer.set_stream_logger('serial', 6)
         log_organizer.set_stream_logger('connection')
+        log_organizer.set_stream_logger('service')
         log_organizer.set_stream_logger('error', 10)
         logger.info('Start control container')
 

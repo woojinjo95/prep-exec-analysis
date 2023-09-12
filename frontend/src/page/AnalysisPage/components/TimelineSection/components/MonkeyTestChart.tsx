@@ -1,8 +1,10 @@
 import React, { useMemo, useRef } from 'react'
+import { useRecoilValue } from 'recoil'
 import { useMonkeySection, useMonkeySmartSense } from '@page/AnalysisPage/api/hook'
 import { PointChart, RangeChart, Text, TimelineTooltip, TimelineTooltipItem } from '@global/ui'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { CHART_HEIGHT } from '@global/constant'
+import { monkeyTestIdFilterListState } from '@global/atom'
 import { useTooltipEvent } from '../hook'
 
 interface MonkeyTestChartProps {
@@ -17,6 +19,7 @@ interface MonkeyTestChartProps {
  * Monkey Test 차트
  */
 const MonkeyTestChart: React.FC<MonkeyTestChartProps> = ({ scaleX, startTime, endTime, dimension, summary }) => {
+  const monkeyTestIdFilterList = useRecoilValue(monkeyTestIdFilterListState)
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const { monkeySection } = useMonkeySection({
     start_time: startTime.toISOString(),
@@ -29,21 +32,25 @@ const MonkeyTestChart: React.FC<MonkeyTestChartProps> = ({ scaleX, startTime, en
 
   const monkeyTestData = useMemo(() => {
     if (!monkeySection) return null
-    return monkeySection.map(({ start_timestamp, end_timestamp }) => ({
-      datetime: new Date(start_timestamp).getTime(),
-      duration: new Date(end_timestamp).getTime() - new Date(start_timestamp).getTime(),
-      color: summary.monkey_test?.color || 'white',
-    }))
-  }, [monkeySection, summary])
+    return monkeySection
+      .filter(({ id }) => !monkeyTestIdFilterList.includes(id))
+      .map(({ start_timestamp, end_timestamp }) => ({
+        datetime: new Date(start_timestamp).getTime(),
+        duration: new Date(end_timestamp).getTime() - new Date(start_timestamp).getTime(),
+        color: summary.monkey_test?.color || 'white',
+      }))
+  }, [monkeySection, summary, monkeyTestIdFilterList])
 
   const monkeySmartSenseData = useMemo(() => {
     if (!monkeySmartSense) return null
-    return monkeySmartSense.map(({ timestamp, smart_sense_key }) => ({
-      datetime: new Date(timestamp).getTime(),
-      smart_sense_key,
-      color: 'white',
-    }))
-  }, [monkeySmartSense, summary])
+    return monkeySmartSense
+      .filter(({ id }) => !monkeyTestIdFilterList.includes(id))
+      .map(({ timestamp, smart_sense_key }) => ({
+        datetime: new Date(timestamp).getTime(),
+        smart_sense_key,
+        color: 'white',
+      }))
+  }, [monkeySmartSense, summary, monkeyTestIdFilterList])
 
   const { posX, tooltipData, onMouseMove, onMouseLeave } = useTooltipEvent<
     NonNullable<typeof monkeySmartSenseData>[number]

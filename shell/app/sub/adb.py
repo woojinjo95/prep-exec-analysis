@@ -106,6 +106,20 @@ async def adb_connect(conn: any, shell_id: int, ADB_HOST: str, ADB_PORT: int, CH
     process_log_task = asyncio.create_task(process_log_queue(queue, conn, CHANNEL_NAME, "adb"))
     consumer_task = asyncio.create_task(consumer_adb_handler(conn=conn, shell_id=shell_id,
                                                              proc=proc, CHANNEL_NAME=CHANNEL_NAME, queue=queue))
+
+    await conn.publish(CHANNEL_NAME, json.dumps({
+        "msg": "config_response",
+        "level": "info",
+        "data": {
+            "mode": "adb",
+            "host": ADB_HOST,
+            "port": ADB_PORT,
+            "username": None,
+            "password": None
+        },
+        "service": "shell",
+        "timestamp": datetime.utcnow().timestamp()
+    }))
     print("start task")
     done, pending = await asyncio.wait(
         [read_stderr_task, read_stdout_task, consumer_task, process_log_task], return_when=asyncio.FIRST_COMPLETED,

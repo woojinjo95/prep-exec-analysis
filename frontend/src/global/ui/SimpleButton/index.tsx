@@ -5,7 +5,7 @@ interface SimpleButtonProps
   extends React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement> {
   isIcon?: boolean
   children: React.ReactNode | React.ReactNode[]
-  colorScheme?: 'dark' | 'charcoal' | 'light-charcoal' | 'light' | 'grey'
+  colorScheme?: 'dark' | 'charcoal' | 'light-charcoal' | 'light' | 'grey' | 'primary'
 }
 
 /**
@@ -34,6 +34,7 @@ const SimpleButton: React.FC<SimpleButtonProps> = ({
           'hover:bg-light-charcoal': colorScheme === 'light-charcoal',
           'hover:bg-grey/50': colorScheme === 'grey',
           'hover:bg-[#F1F2F4]': colorScheme === 'light',
+          'hover:bg-primary/20': colorScheme === 'primary',
         },
         className,
       )}

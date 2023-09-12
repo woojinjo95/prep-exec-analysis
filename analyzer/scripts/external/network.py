@@ -36,13 +36,14 @@ def get_igmp_join_infos(event_result: Dict) -> List[IgmpJoinData]:
         dst = item.get('dst', '')
         meta_data = item.get('metadata', {})
         type = meta_data.get('type', '')
-        if type == 'igmp_join':
+        channel_info = meta_data.get('channel_info', '')
+        if type == 'igmp_join' and channel_info:
             try:
                 igmp_join_infos.append(IgmpJoinData(
                     timestamp=meta_data['timestamp'],  # required
                     src=src,
                     dst=dst,
-                    channel_info=meta_data.get('channel_info', '')
+                    channel_info=channel_info
                 ))
             except KeyError:
                 pass
