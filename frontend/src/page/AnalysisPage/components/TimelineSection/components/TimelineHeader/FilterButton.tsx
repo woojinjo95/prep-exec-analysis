@@ -94,10 +94,15 @@ const FilterButton: React.FC<FilterButtonProps> = ({
           >
             <DragDropContext onDragEnd={onDragEnd}>
               {!!shownChartList.length && (
-                <div className="px-4">
+                <div className="px-4 flex items-center justify-between">
                   <Text size="xs" weight="medium" colorScheme="grey">
                     Shown in board
                   </Text>
+                  <SimpleButton colorScheme="primary" onClick={() => setActiveChartList([])}>
+                    <Text colorScheme="primary" weight="medium" size="xs">
+                      Hide all
+                    </Text>
+                  </SimpleButton>
                 </div>
               )}
 
@@ -151,10 +156,15 @@ const FilterButton: React.FC<FilterButtonProps> = ({
               </Droppable>
 
               {!!hiddenChartList.length && (
-                <div className="px-4">
+                <div className="px-4 flex items-center justify-between">
                   <Text size="xs" weight="medium" colorScheme="grey">
                     Hidden in board
                   </Text>
+                  <SimpleButton colorScheme="primary" onClick={() => setActiveChartList([...allChartList])}>
+                    <Text colorScheme="primary" weight="medium" size="xs">
+                      Show all
+                    </Text>
+                  </SimpleButton>
                 </div>
               )}
 
