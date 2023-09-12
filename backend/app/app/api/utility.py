@@ -1,3 +1,4 @@
+import datetime as dt
 import json
 import math
 import os
@@ -162,7 +163,9 @@ def deserialize_datetime(json_obj):
 
 def serialize_datetime(obj):
     if isinstance(obj, datetime):
-        return obj.isoformat()
+        utc_timezone = dt.timezone.utc
+        utc_datetime = obj.replace(tzinfo=utc_timezone)
+        return {"$date": utc_datetime.strftime('%Y-%m-%dT%H:%M:%S.%fZ')}
     raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
 
 
