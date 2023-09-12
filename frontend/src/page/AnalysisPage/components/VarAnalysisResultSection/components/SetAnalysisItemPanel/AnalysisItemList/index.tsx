@@ -102,6 +102,7 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
     freeze: false,
     log_pattern_matching: false,
   })
+  // FIXME: 제거해도 될 것 같으면 제거
   const [rememberedConfig, setRememberedConfig] = useState<AnalysisConfig>(
     getRememberedConfig(['freeze', 'log_pattern_matching']),
   )
