@@ -181,7 +181,22 @@ interface ShellResponseEventLog {
   }
 }
 
-export type EventLogTooltip = RemoconResponseEventLog | OnOffControlResponseEventLog | ShellResponseEventLog
+interface ConfigResponseEventLog {
+  msg: 'config_response'
+  data: {
+    mode: 'adb' | 'ssh'
+    host: string
+    port: number
+    username?: string
+    password?: string
+  }
+}
+
+export type EventLogTooltip =
+  | RemoconResponseEventLog
+  | OnOffControlResponseEventLog
+  | ShellResponseEventLog
+  | ConfigResponseEventLog
 
 export type EventLog = {
   /**

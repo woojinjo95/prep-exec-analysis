@@ -28,6 +28,14 @@ const parseEventLog = (eventLog: EventLogTooltip) => {
     return `${eventLog.data.mode} : ${eventLog.data.command}`
   }
 
+  if (eventLog.msg === 'config_response') {
+    return eventLog.data.mode === 'adb'
+      ? `Device Info : adb / ${eventLog.data.host}:${eventLog.data.port}`
+      : `Device Info : ssh / ${eventLog.data.host}:${eventLog.data.port}, ID: ${eventLog.data.username || ''}, PW: ${
+          eventLog.data.password || ''
+        }`
+  }
+
   return ''
 }
 
