@@ -16,6 +16,6 @@ def convert_protocol_enum_to_str(protocol_enum: int) -> str:
     if isinstance(protocol_enum, str):
         protocol = protocol_enum
     else:
-        protocol = IPRROTO_MAP.get(protocol_enum, f'Proto_{protocol_enum}')
+        protocol = IPRROTO_MAP.get(protocol_enum, 'ip')
 
     return protocol
