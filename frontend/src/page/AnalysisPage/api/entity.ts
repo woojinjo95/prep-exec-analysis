@@ -181,7 +181,56 @@ interface ShellResponseEventLog {
   }
 }
 
-export type EventLogTooltip = RemoconResponseEventLog | OnOffControlResponseEventLog | ShellResponseEventLog
+interface ConfigResponseEventLog {
+  msg: 'config_response'
+  data: {
+    mode: 'adb' | 'ssh'
+    host: string
+    port: number
+    username?: string
+    password?: string
+  }
+}
+
+interface NetworkEmulationResposneEventLog {
+  msg: 'network_emulation_response'
+  data: {
+    action: 'create' | 'update' | 'delete' | 'reset'
+    log: string
+    updated: {
+      create?: {
+        ip: string
+        port: string
+        protocol: string
+      }
+      update?: {
+        id: string
+        ip: string
+        port: string
+        protocol: string
+      }
+      delete?: {
+        id: string
+      }
+      packet_bandwidth?: number
+      packet_delay?: number
+      packet_loss?: number
+    }
+  }
+}
+
+interface CaptureBoardResponse {
+  msg: 'capture_board_response'
+  data: object
+}
+
+export type EventLogTooltip =
+  | RemoconResponseEventLog
+  | OnOffControlResponseEventLog
+  | ShellResponseEventLog
+  | ConfigResponseEventLog
+  | NetworkEmulationResposneEventLog
+  | CaptureBoardResponse
 
 export type EventLog = {
   /**

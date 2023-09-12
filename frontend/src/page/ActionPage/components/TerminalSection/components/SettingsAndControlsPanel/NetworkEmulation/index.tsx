@@ -15,7 +15,7 @@ import { Block } from '@global/api/entity'
 import IPLimitItem from './IPLimitItem'
 
 // body의 updated 후보 목록
-type UpdatedList = 'create' | 'update' | 'delete' | 'packet_bandwidth' | 'packet_delay' | 'packet_loss'
+// type UpdatedList = 'create' | 'update' | 'delete' | 'packet_bandwidth' | 'packet_delay' | 'packet_loss'
 
 type NetworkEmulationMessageBody = {
   action: 'create' | 'update' | 'delete' | 'reset'
