@@ -72,8 +72,8 @@ def read_logcat(
 
 @router.get("/network", response_model=schemas.ReadNetwork)
 def read_network(
-    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    start_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
