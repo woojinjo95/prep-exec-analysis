@@ -75,7 +75,8 @@ async def run_blocks(conn, db_blocks, scenario_id, testrun_id, blocks: list, eve
                 # TODO: 3200 삭제 후 테스트 필요
                 print(f"monkey test wait...{block['type']}")
                 if block['type'] == 'monkey_test':
-                    await asyncio.wait_for(event.wait(), 3200)
+                    limit = block.get('limit') if hasattr(block, 'limit') else 300  # 디폴트 5분
+                    await asyncio.wait_for(event.wait(), limit)
                     print("monkey test end...")
             except Exception as e:
                 print(e)
