@@ -51,6 +51,7 @@ async def consumer_handler(conn: any, db_scenario: any, db_blocks: any, CHANNEL_
 
                 if command == "stop_playblock" or command == "stop_analysis":
                     await set_stop_state(conn, event)
+                    event.set()
                     # 또는 여기서 중지하고 동작아이템 정리 해야 함
 
             except Exception as e:
