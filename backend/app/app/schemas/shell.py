@@ -1,7 +1,7 @@
 from typing import List
 
-from app.schemas.enum import LogModuleEnum
 from app.schemas.analysis_result import PaginationBaseModel
+from app.schemas.enum import LogModuleEnum
 from pydantic import BaseModel
 
 

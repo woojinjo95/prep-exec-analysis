@@ -1,5 +1,6 @@
 from typing import List
 
+from app.schemas.analysis_result import PaginationBaseModel
 from app.schemas.enum import LogLevelEnum, ProtocolEnum
 from pydantic import BaseModel
 
@@ -14,7 +15,7 @@ class Logcat(BaseModel):
     message: str
 
 
-class ReadLogcat(BaseModel):
+class ReadLogcat(PaginationBaseModel):
     items: List[Logcat]
 
 
@@ -27,5 +28,5 @@ class Network(BaseModel):
     info: str
 
 
-class ReadNetwork(BaseModel):
+class ReadNetwork(PaginationBaseModel):
     items: List[Network]
