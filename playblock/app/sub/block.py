@@ -101,7 +101,7 @@ async def run_blocks(conn, db_blocks, scenario_id, testrun_id, blocks: list, eve
         end_time = await conn.hget("testrun", "end_time")
         start_time = await conn.hget("testrun", "start_time")
         await conn.publish(CHANNEL_NAME, publish_message("end_playblock",
-                                                         data={"start_time": start_time, "end_time": end_time}))
+                                                         data={"start_time": float(start_time), "end_time": float(end_time)}))
         print("run_blocks end")
 
 
