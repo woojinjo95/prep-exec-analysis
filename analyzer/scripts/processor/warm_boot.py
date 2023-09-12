@@ -81,7 +81,7 @@ def task_warm_boot_with_match(args: VideoInfo, config: Dict):
                     'timestamp': get_utc_datetime(result['match_timestamp']),
                     'measure_time': result['match_time'],
                 })
-            progress_manager.update_progress(idx / len(crop_videos))
+            progress_manager.update_progress((idx + 1) / len(crop_videos))
 
 
 def get_config() -> Dict:

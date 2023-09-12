@@ -48,7 +48,7 @@ def task_log_pattern_matching(args: VideoInfo, config: Dict):
                 'matched_target': matched_target
             })
             count += 1
-        progress_manager.update_progress(idx / len(log_datas))
+        progress_manager.update_progress((idx + 1) / len(log_datas))
     logger.info(f'matched log count: {count}')
 
 
