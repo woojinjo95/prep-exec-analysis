@@ -3,8 +3,9 @@ import traceback
 from typing import Optional
 
 from app import schemas
-from app.api.utility import (convert_iso_format, parse_bytes_to_value,
-                             set_redis_pub_msg, paginate_from_mongodb_aggregation)
+from app.api.utility import (convert_iso_format, make_basic_match_pipeline,
+                             parse_bytes_to_value, paginate_from_mongodb_aggregation,
+                             set_redis_pub_msg)
 from app.crud.base import aggregate_from_mongodb
 from app.db.redis_session import RedisClient
 from app.schemas.enum import ShellModeEnum
@@ -57,28 +58,19 @@ def get_shell_logs(
         if start_time is None and end_time is None:
             raise HTTPException(status_code=400, detail='Need at least one time parameter')
 
-        time_range = {}
-        if start_time:
-            time_range['$gte'] = convert_iso_format(start_time)
-        if end_time:
-            time_range['$lte'] = convert_iso_format(end_time)
+        terminal_log_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
+                                                          testrun_id=testrun_id,
+                                                          start_time=start_time,
+                                                          end_time=end_time)
+        terminal_log_pipeline[0]['$match']['mode'] = shell_mode.value
 
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        if testrun_id is None:
-            testrun_id = RedisClient.hget('testrun', 'id')
-
-        terminal_log_pipeline = [{'$match': {'timestamp': time_range,
-                                             'scenario_id': scenario_id,
-                                             'testrun_id': testrun_id,
-                                             'mode': shell_mode.value}}]
-        additional_pipeline = [{'$project': {'_id': 0, 'lines': 1}},
-                               {'$unwind': {'path': '$lines'}},
-                               {'$project': {'lines': {
-                                   'timestamp': {'$dateToString': {'date': '$lines.timestamp'}},
-                                   'module': '$lines.module',
-                                   'message': '$lines.message'}}},
-                               {'$replaceRoot': {'newRoot': '$lines'}}]
+        additional_pipeline = [
+            {'$project': {'_id': 0, 'lines': 1}},
+            {'$unwind': {'path': '$lines'}},
+            {'$project': {'lines': {'timestamp': {'$dateToString': {'date': '$lines.timestamp'}},
+                                    'module': '$lines.module',
+                                    'message': '$lines.message'}}},
+            {'$replaceRoot': {'newRoot': '$lines'}}]
         terminal_log_pipeline.extend(additional_pipeline)
         result = paginate_from_mongodb_aggregation(col='shell_log',
                                                    pipeline=terminal_log_pipeline,
