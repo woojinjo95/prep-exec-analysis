@@ -62,7 +62,16 @@ async def consumer_ssh_handler(conn: any, channel: any, shell_id: int, CHANNEL_N
                     command = f"{message['data']['command']}\n"
                     channel.write(command)
                     queue.put_nowait({'timestamp': datetime.utcnow().timestamp(), 'module':  "stdin", 'message': command})
-
+                    await conn.publish(CHANNEL_NAME, json.dumps({
+                        "msg": "shell_response",
+                        "level": "info",
+                        "data": {
+                            "mode": "ssh",
+                            "command": command
+                        },
+                        "service": "shell",
+                        "timestamp": datetime.utcnow().timestamp()
+                    }))
             except Exception as e:
                 print(e)
                 print(traceback.format_exc())
@@ -86,7 +95,20 @@ async def ssh_connect(conn: any, shell_id: int, SSH_HOST: str,
         consumer_task = asyncio.create_task(consumer_ssh_handler(conn=conn,
                                                                  channel=channel, shell_id=shell_id,
                                                                  CHANNEL_NAME=CHANNEL_NAME, queue=queue))
-        process_log_task = asyncio.create_task(process_log_queue(queue, conn, CHANNEL_NAME, "ssh", shell_id, testinfo))
+        process_log_task = asyncio.create_task(process_log_queue(queue, conn, CHANNEL_NAME, "ssh"))
+        await conn.publish(CHANNEL_NAME, json.dumps({
+            "msg": "config_response",
+            "level": "info",
+            "data": {
+                "mode": "adb",
+                "host": SSH_HOST,
+                "port": SSH_PORT,
+                "username": SSH_USERNAME,
+                "password": SSH_PASSWORD
+            },
+            "service": "shell",
+            "timestamp": datetime.utcnow().timestamp()
+        }))
         # await channel.wait_closed()
         done, pending = await asyncio.wait(
             [consumer_task, process_log_task], return_when=asyncio.FIRST_COMPLETED,

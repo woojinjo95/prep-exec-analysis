@@ -1,7 +1,35 @@
 import React, { useMemo, useRef } from 'react'
 import { PointChart, Text, TimelineTooltip, TimelineTooltipItem } from '@global/ui'
-import { useEventLogs } from '../api/hook'
+import { useEventLogs } from '@page/AnalysisPage/api/hook'
+import { EventLogTooltip } from '@page/AnalysisPage/api/entity'
+import { capitalize } from '@global/usecase'
+import { CHART_HEIGHT } from '@global/constant'
 import { useTooltipEvent } from '../hook'
+
+// TODO: 이벤트로그 남은 항목 정리
+const parseEventLog = (eventLog: EventLogTooltip) => {
+  if (eventLog.msg === 'remocon_response') {
+    return `RCU (${eventLog.data.type.toUpperCase()}) : ${capitalize(eventLog.data.key)}`
+  }
+
+  if (eventLog.msg === 'on_off_control_response' && eventLog.data.enable_dut_power_transition) {
+    return `Control : DUT Power ${capitalize(eventLog.data.vac)}`
+  }
+
+  if (eventLog.msg === 'on_off_control_response' && eventLog.data.enable_hdmi_transition) {
+    return `Control : HDMI ${capitalize(eventLog.data.vac)}`
+  }
+
+  if (eventLog.msg === 'on_off_control_response' && eventLog.data.enable_dut_wan_transition) {
+    return `Control : DUT Wan ${capitalize(eventLog.data.vac)}`
+  }
+
+  if (eventLog.msg === 'shell_response') {
+    return `${eventLog.data.mode} : ${eventLog.data.command}`
+  }
+
+  return ''
+}
 
 interface EventLogChartProps {
   scaleX: Parameters<typeof PointChart>[0]['scaleX']
@@ -22,9 +50,10 @@ const EventLogChart: React.FC<EventLogChartProps> = ({ scaleX, startTime, endTim
 
   const eventLogsData = useMemo(() => {
     if (!eventLogs) return null
-    return eventLogs.map(({ timestamp, msg }) => ({
+    return eventLogs.map(({ timestamp, msg, data }) => ({
       datetime: new Date(timestamp).getTime(),
-      message: msg,
+      msg,
+      data,
       color: '#269',
     }))
   }, [eventLogs])
@@ -49,15 +78,21 @@ const EventLogChart: React.FC<EventLogChartProps> = ({ scaleX, startTime, endTim
           {!!tooltipData && (
             <TimelineTooltip posX={posX} data={tooltipData} wrapperRef={wrapperRef}>
               <TimelineTooltipItem label="Event Log">
-                {/* FIXME: 메시지 형식 확정 필요(기획) */}
-                <Text colorScheme="light">{tooltipData.message}</Text>
+                <Text colorScheme="light" className="break-all">
+                  {parseEventLog(tooltipData as EventLogTooltip)}
+                </Text>
               </TimelineTooltipItem>
             </TimelineTooltip>
           )}
         </div>
       )}
 
-      <PointChart scaleX={scaleX} data={eventLogsData} />
+      <div className="w-full relative border-b border-[#37383E]">
+        <div className="flex justify-center items-center" style={{ height: CHART_HEIGHT - 1 }}>
+          <div className="h-[0.5px] w-full bg-[#37383E]" />
+        </div>
+        <PointChart scaleX={scaleX} data={eventLogsData} />
+      </div>
     </div>
   )
 }

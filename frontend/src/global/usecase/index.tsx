@@ -53,15 +53,16 @@ export const formatDateTo = (type: DateToken, dateObject = new Date()): string =
     case 'YYYY-MM-DD HH:MM:SS':
       return `${year}-${month}-${date} ${hour}:${minute}:${second}`
     case 'YYYY-MM-DD HH:MM:SS:MS':
-      return `${year}-${month}-${date} ${hour}:${minute}:${second}.${milliSec}`
+      return `${year}-${month}-${date} ${hour}:${minute}:${second}.${String(milliSec).padStart(3, '0')}`
     case 'YYYY_MM_DD_HH_MM_SS_MS':
       return `${year}_${month}_${date}_${hour}_${minute}_${second}_${milliSec}`
     case 'M DD YYYY, HH:MM AA': {
       const monthName = MONTH_NAMES[dateObject.getMonth()]
       const currentDate = new Date()
+
       const isToday = !!(
-        currentDate.getFullYear() === year ||
-        currentDate.getMonth() === dateObject.getMonth() ||
+        currentDate.getFullYear() === year &&
+        currentDate.getMonth() === dateObject.getMonth() &&
         currentDate.getDate() === dateObject.getDate()
       )
       const AMPM = dateObject.getHours() < 12 ? 'AM' : 'PM'
@@ -123,12 +124,12 @@ export const numberWithCommas = (x: number): string => {
  * @param spaceY 상위 엘리먼트와 createPortal로 생성된 엘리먼트 사이의 세로 간격
  * @returns createPortal 엘리먼트의 style
  */
-export const createPortalStyle = ({
+export const createPortalStyle = <T extends Element>({
   wrapperRef,
   spaceX = 0,
   spaceY = 4,
 }: {
-  wrapperRef: React.MutableRefObject<HTMLDivElement | null>
+  wrapperRef: React.MutableRefObject<T | null>
   spaceX?: number
   spaceY?: number
 }) => {
@@ -178,4 +179,60 @@ export const delay = (sec: number): Promise<void> => {
   return new Promise((resolve) => {
     setTimeout(resolve, sec * 1000)
   })
+}
+
+/**
+ * 시간의 차이를 ms부터 일 단위까지 계산하여 표시해주는 함수
+ *
+ * @param duration 지속시간(ms)
+ */
+export const convertDuration = (duration: number) => {
+  const date = new Date(duration)
+
+  // 1일 이상
+  if (duration > 24 * 60 * 60 * 1000) {
+    return `${duration / (24 * 60 * 60 * 1000)}d ${date.getHours()}h ${date.getMinutes()}m ${date.getSeconds()}s`
+  }
+
+  // 1시간 이상
+  if (duration > 60 * 60 * 1000) {
+    return `${date.getHours()}h ${date.getMinutes()}m ${date.getSeconds()}s`
+  }
+
+  // 1분 이상
+  if (duration > 60 * 1000) {
+    return `${date.getMinutes()}m ${date.getSeconds()}s`
+  }
+
+  // 3초 이상
+  if (duration > 3 * 1000) {
+    return `${date.getSeconds()}s`
+  }
+
+  // 1초 이상
+  if (duration > 1000) {
+    return `${numberWithCommas(date.getSeconds() * 1000 + date.getMilliseconds())}ms`
+  }
+
+  return `${date.getMilliseconds()}ms`
+}
+
+/**
+ * 첫글자만 대문자로 변환하는 함수
+ */
+export const capitalize = (word: string) => {
+  return word.charAt(0).toUpperCase() + word.slice(1)
+}
+
+/**
+ * 정규표현식 문자가 들어간 문자열에 하이라이트를 준 html을 리턴하는 함수
+ *
+ * @param str 정규표현식이 통과하는 단어가 들어간 문자열
+ * @param regex 정규표현식
+ */
+export const convertRegexStringToHTML = (str: string, regex: string, color = 'white') => {
+  return `<span>${str.replace(
+    new RegExp(regex, 'g'),
+    `<b style="color: ${color}">${str.match(new RegExp(regex, 'g'))?.[0] || ''}</b>`,
+  )}</span>`
 }

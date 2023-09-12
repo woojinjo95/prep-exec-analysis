@@ -3,7 +3,7 @@ import * as d3 from 'd3'
 import { AreaChart, TimelineTooltip, TimelineTooltipItem, Text } from '@global/ui'
 import { CHART_HEIGHT } from '@global/constant'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
-import { useLoudness } from '../api/hook'
+import { useLoudness } from '@page/AnalysisPage/api/hook'
 import { useTooltipEvent } from '../hook'
 
 interface LoudnessChartProps {
@@ -74,15 +74,17 @@ const LoudnessChart: React.FC<LoudnessChartProps> = ({ scaleX, startTime, endTim
         />
       )}
 
-      <AreaChart
-        chartWidth={dimension?.width}
-        scaleX={scaleX}
-        scaleY={scaleY}
-        data={loudnessData}
-        minValue={-70}
-        strokeColor={summary.loudness?.color || 'white'}
-        fillColor={summary.loudness?.color || 'white'}
-      />
+      <div style={{ height: CHART_HEIGHT }}>
+        <AreaChart
+          chartWidth={dimension?.width}
+          scaleX={scaleX}
+          scaleY={scaleY}
+          data={loudnessData}
+          minValue={-70}
+          strokeColor={summary.loudness?.color || 'white'}
+          fillColor={summary.loudness?.color || 'white'}
+        />
+      </div>
     </div>
   )
 }

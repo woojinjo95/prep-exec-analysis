@@ -95,8 +95,7 @@ const ResumeAnalysisItem: React.FC<ResumeAnalysisItemProps> = ({
             </div>
 
             <SetROIButton
-              defaultCurrentTime={frame?.relative_time}
-              defaultROI={frame?.roi}
+              defaultFrame={frame}
               onSave={(frame) => {
                 setUnsavedAnalysisConfig((prev) => ({
                   ...prev,

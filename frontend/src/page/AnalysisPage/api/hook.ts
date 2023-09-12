@@ -1,10 +1,29 @@
 import { scenarioIdState, testRunIdState } from '@global/atom'
 import { useRecoilValue } from 'recoil'
-import { useQuery } from 'react-query'
+import { useInfiniteQuery, useQuery } from 'react-query'
 import { useEffect } from 'react'
 import { useVideoSummary } from '@global/api/hook'
+import { AnalysisType, PAGE_SIZE_TEN } from '@global/constant'
+import { useIntersect, useWebsocket } from '@global/hook'
 import { AnalysisConfig, AnalysisResultSummary } from './entity'
-import { getAnalysisConfig, getAnalysisResultSummary } from './func'
+import {
+  getAnalysisConfig,
+  getAnalysisResultSummary,
+  getBoot,
+  getCPU,
+  getColorReferences,
+  getEventLogs,
+  getFreeze,
+  getIntelligentMonkeySection,
+  getIntelligentMonkeySmartSense,
+  getLogLevelFinders,
+  getLogPatternMatching,
+  getLoudness,
+  getMemory,
+  getMonkeySection,
+  getMonkeySmartSense,
+  getResume,
+} from './func'
 
 /**
  * 분석 설정 조회 hook
@@ -65,4 +84,518 @@ export const useAnalysisResultSummary = ({
   }, [data])
 
   return { analysisResultSummary: data, isLoading, refetch }
+}
+
+type AnalysisResponseMessageBody = {
+  measurement: keyof typeof AnalysisType | 'color_reference'
+}
+
+/**
+ * Log Level Finder 리스트 조회 hook
+ */
+export const useLogLevelFinders = (params: Parameters<typeof getLogLevelFinders>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { videoSummary } = useVideoSummary()
+  const { data, isLoading, refetch } = useQuery(
+    ['log_level_finder', params],
+    () => getLogLevelFinders({ ...params, scenario_id: scenarioId!, testrun_id: testRunId! }),
+    {
+      enabled: !!videoSummary && !!scenarioId && !!testRunId,
+    },
+  )
+
+  useWebsocket<AnalysisResponseMessageBody>({
+    onMessage: (message) => {
+      if (message.msg === 'analysis_response' && message.data.measurement === 'log_level_finder') {
+        refetch()
+      }
+    },
+  })
+
+  return { logLevelFinders: data, isLoading, refetch }
+}
+
+/**
+ * CPU 사용률 리스트 조회 hook
+ */
+export const useCPU = (params: Parameters<typeof getCPU>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['cpu', params], () =>
+    getCPU({ ...params, scenario_id: scenarioId!, testrun_id: testRunId || undefined }),
+  )
+
+  return { cpu: data, isLoading, refetch }
+}
+
+/**
+ * Memory 사용률 리스트 조회 hook
+ */
+export const useMemory = (params: Parameters<typeof getMemory>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['memory', params], () =>
+    getMemory({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
+  )
+
+  return { memory: data, isLoading, refetch }
+}
+
+/**
+ * 이벤트 로그 리스트 조회 hook
+ */
+export const useEventLogs = (params: Parameters<typeof getEventLogs>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['event_log', params], () =>
+    getEventLogs({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
+  )
+
+  return { eventLogs: data, isLoading, refetch }
+}
+
+/**
+ * Color Reference 리스트 조회 hook
+ */
+export const useColorReferences = (params: Parameters<typeof getColorReferences>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['color_reference', params], () =>
+    getColorReferences({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
+  )
+
+  useWebsocket<AnalysisResponseMessageBody>({
+    onMessage: (message) => {
+      if (message.msg === 'analysis_response' && message.data.measurement === 'color_reference') {
+        refetch()
+      }
+    },
+  })
+
+  return { colorReferences: data, isLoading, refetch }
+}
+
+/**
+ * Freeze 리스트 조회 hook
+ */
+export const useFreeze = (params: Parameters<typeof getFreeze>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['freeze', params], () =>
+    getFreeze({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
+  )
+
+  useWebsocket<AnalysisResponseMessageBody>({
+    onMessage: (message) => {
+      if (message.msg === 'analysis_response' && message.data.measurement === 'freeze') {
+        refetch()
+      }
+    },
+  })
+
+  return { freeze: data?.items, isLoading, refetch }
+}
+
+/**
+ * Freeze 무한스크롤 조회 hook
+ */
+export const useInfiniteFreeze = (params: Parameters<typeof getFreeze>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, hasNextPage, isFetching, fetchNextPage } = useInfiniteQuery(
+    ['infinite_freeze', params],
+    ({ pageParam = 1 }) => {
+      return getFreeze({
+        ...params,
+        page: pageParam as number,
+        page_size: PAGE_SIZE_TEN,
+        scenario_id: scenarioId || undefined,
+        testrun_id: testRunId || undefined,
+      })
+    },
+    {
+      getNextPageParam: (lastPage) => {
+        const nextPage = lastPage.next
+        if (nextPage <= lastPage.pages) {
+          return nextPage
+        }
+
+        return undefined
+      },
+    },
+  )
+
+  const ref = useIntersect((entry, observer) => {
+    observer.unobserve(entry.target)
+    if (hasNextPage && !isFetching) {
+      fetchNextPage()
+    }
+  })
+
+  return {
+    freeze: data?.pages.flatMap(({ items }) => items) || [],
+    total: data?.pages.length ? data.pages[0].total : 0,
+    loadingRef: ref,
+    hasNextPage,
+  }
+}
+
+/**
+ * Loudness 리스트 조회 hook
+ */
+export const useLoudness = (params: Parameters<typeof getLoudness>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['loudness', params], () =>
+    getLoudness({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
+  )
+
+  return { loudness: data, isLoading, refetch }
+}
+
+/**
+ * Resume 리스트 조회 hook
+ */
+export const useResume = (params: Parameters<typeof getResume>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['resume', params], () =>
+    getResume({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
+  )
+
+  useWebsocket<AnalysisResponseMessageBody>({
+    onMessage: (message) => {
+      if (message.msg === 'analysis_response' && message.data.measurement === 'resume') {
+        refetch()
+      }
+    },
+  })
+
+  return { resume: data?.items, isLoading, refetch }
+}
+
+/**
+ * Resume 무한스크롤 조회 hook
+ */
+export const useInfiniteResume = (params: Parameters<typeof getResume>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, hasNextPage, isFetching, fetchNextPage } = useInfiniteQuery(
+    ['infinite_resume', params],
+    ({ pageParam = 1 }) => {
+      return getResume({
+        ...params,
+        page: pageParam as number,
+        page_size: PAGE_SIZE_TEN,
+        scenario_id: scenarioId || undefined,
+        testrun_id: testRunId || undefined,
+      })
+    },
+    {
+      getNextPageParam: (lastPage) => {
+        const nextPage = lastPage.next
+        if (nextPage <= lastPage.pages) {
+          return nextPage
+        }
+
+        return undefined
+      },
+    },
+  )
+
+  const ref = useIntersect((entry, observer) => {
+    observer.unobserve(entry.target)
+    if (hasNextPage && !isFetching) {
+      fetchNextPage()
+    }
+  })
+
+  return {
+    resume: data?.pages.flatMap(({ items }) => items) || [],
+    total: data?.pages.length ? data.pages[0].total : 0,
+    loadingRef: ref,
+    hasNextPage,
+  }
+}
+
+/**
+ * Boot 리스트 조회 hook
+ */
+export const useBoot = (params: Parameters<typeof getBoot>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['boot', params], () =>
+    getBoot({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
+  )
+
+  useWebsocket<AnalysisResponseMessageBody>({
+    onMessage: (message) => {
+      if (message.msg === 'analysis_response' && message.data.measurement === 'boot') {
+        refetch()
+      }
+    },
+  })
+
+  return { boot: data?.items, isLoading, refetch }
+}
+
+/**
+ * Boot 무한스크롤 조회 hook
+ */
+export const useInfiniteBoot = (params: Parameters<typeof getBoot>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, hasNextPage, isFetching, fetchNextPage } = useInfiniteQuery(
+    ['infinite_boot', params],
+    ({ pageParam = 1 }) => {
+      return getBoot({
+        ...params,
+        page: pageParam as number,
+        page_size: PAGE_SIZE_TEN,
+        scenario_id: scenarioId || undefined,
+        testrun_id: testRunId || undefined,
+      })
+    },
+    {
+      getNextPageParam: (lastPage) => {
+        const nextPage = lastPage.next
+        if (nextPage <= lastPage.pages) {
+          return nextPage
+        }
+
+        return undefined
+      },
+    },
+  )
+
+  const ref = useIntersect((entry, observer) => {
+    observer.unobserve(entry.target)
+    if (hasNextPage && !isFetching) {
+      fetchNextPage()
+    }
+  })
+
+  return {
+    boot: data?.pages.flatMap(({ items }) => items) || [],
+    total: data?.pages.length ? data.pages[0].total : 0,
+    loadingRef: ref,
+    hasNextPage,
+  }
+}
+
+/**
+ * Log Pattern Matching 리스트 조회 hook
+ */
+export const useLogPatternMatching = (params: Parameters<typeof getLogPatternMatching>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['log_pattern_matching', params], () =>
+    getLogPatternMatching({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
+  )
+
+  useWebsocket<AnalysisResponseMessageBody>({
+    onMessage: (message) => {
+      if (message.msg === 'analysis_response' && message.data.measurement === 'log_pattern_matching') {
+        refetch()
+      }
+    },
+  })
+
+  return { logPatternMatching: data?.items, isLoading, refetch }
+}
+
+/**
+ * Log Pattern Matching 무한스크롤 조회 hook
+ */
+export const useInfiniteLogPatternMatching = (params: Parameters<typeof getLogPatternMatching>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, hasNextPage, isFetching, fetchNextPage } = useInfiniteQuery(
+    ['infinite_log_pattern_matching', params],
+    ({ pageParam = 1 }) => {
+      return getLogPatternMatching({
+        ...params,
+        page: pageParam as number,
+        page_size: PAGE_SIZE_TEN,
+        scenario_id: scenarioId || undefined,
+        testrun_id: testRunId || undefined,
+      })
+    },
+    {
+      getNextPageParam: (lastPage) => {
+        const nextPage = lastPage.next
+        if (nextPage <= lastPage.pages) {
+          return nextPage
+        }
+
+        return undefined
+      },
+    },
+  )
+
+  const ref = useIntersect((entry, observer) => {
+    observer.unobserve(entry.target)
+
+    if (hasNextPage && !isFetching) {
+      fetchNextPage()
+    }
+  })
+
+  return {
+    logPatternMatching: data?.pages.flatMap(({ items }) => items) || [],
+    total: data?.pages.length ? data.pages[0].total : 0,
+    loadingRef: ref,
+    hasNextPage,
+  }
+}
+
+/**
+ * Monkey Section 리스트 조회 hook
+ */
+export const useMonkeySection = (params: Parameters<typeof getMonkeySection>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['monkey_section', params], () =>
+    getMonkeySection({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
+  )
+
+  return { monkeySection: data?.items, isLoading, refetch }
+}
+
+/**
+ * Monkey Smart Sense 리스트 조회 hook
+ */
+export const useMonkeySmartSense = (params: Parameters<typeof getMonkeySmartSense>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['monkey_smart_sense', params], () =>
+    getMonkeySmartSense({ ...params, scenario_id: scenarioId || undefined, testrun_id: testRunId || undefined }),
+  )
+
+  return { monkeySmartSense: data?.items, isLoading, refetch }
+}
+
+/**
+ * Monkey Smart Sense 무한스크롤 조회 hook
+ */
+export const useInfiniteMonkeySmartSense = (params: Parameters<typeof getMonkeySmartSense>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, hasNextPage, isFetching, fetchNextPage } = useInfiniteQuery(
+    ['infinite_monkey_smart_sense', params],
+    ({ pageParam = 1 }) => {
+      return getMonkeySmartSense({
+        ...params,
+        page: pageParam as number,
+        page_size: PAGE_SIZE_TEN,
+        scenario_id: scenarioId || undefined,
+        testrun_id: testRunId || undefined,
+      })
+    },
+    {
+      getNextPageParam: (lastPage) => {
+        const nextPage = lastPage.next
+        if (nextPage <= lastPage.pages) {
+          return nextPage
+        }
+
+        return undefined
+      },
+    },
+  )
+
+  const ref = useIntersect((entry, observer) => {
+    observer.unobserve(entry.target)
+    if (hasNextPage && !isFetching) {
+      fetchNextPage()
+    }
+  })
+
+  return {
+    monkeySmartSense: data?.pages.flatMap(({ items }) => items) || [],
+    total: data?.pages.length ? data.pages[0].total : 0,
+    loadingRef: ref,
+    hasNextPage,
+  }
+}
+
+/**
+ * Intelligent Monkey Section 리스트 조회 hook
+ */
+export const useIntelligentMonkeySection = (params: Parameters<typeof getIntelligentMonkeySection>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['intelligent_monkey_section', params], () =>
+    getIntelligentMonkeySection({
+      ...params,
+      scenario_id: scenarioId || undefined,
+      testrun_id: testRunId || undefined,
+    }),
+  )
+
+  return { intelligentMonkeySection: data?.items, isLoading, refetch }
+}
+
+/**
+ * Intelligent Monkey Smart Sense 리스트 조회 hook
+ */
+export const useIntelligentMonkeySmartSense = (params: Parameters<typeof getIntelligentMonkeySmartSense>[0]) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, isLoading, refetch } = useQuery(['intelligent_monkey_smart_sense', params], () =>
+    getIntelligentMonkeySmartSense({
+      ...params,
+      scenario_id: scenarioId || undefined,
+      testrun_id: testRunId || undefined,
+    }),
+  )
+
+  return { intelligentMonkeySmartSense: data?.items, isLoading, refetch }
+}
+
+/**
+ * Intelligent Monkey Smart Sense 무한스크롤 조회 hook
+ */
+export const useInfiniteIntelligentMonkeySmartSense = (
+  params: Parameters<typeof getIntelligentMonkeySmartSense>[0],
+) => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { data, hasNextPage, isFetching, fetchNextPage } = useInfiniteQuery(
+    ['infinite_intelligent_monkey_smart_sense', params],
+    ({ pageParam = 1 }) => {
+      return getIntelligentMonkeySmartSense({
+        ...params,
+        page: pageParam as number,
+        page_size: PAGE_SIZE_TEN,
+        scenario_id: scenarioId || undefined,
+        testrun_id: testRunId || undefined,
+      })
+    },
+    {
+      getNextPageParam: (lastPage) => {
+        const nextPage = lastPage.next
+        if (nextPage <= lastPage.pages) {
+          return nextPage
+        }
+
+        return undefined
+      },
+    },
+  )
+
+  const ref = useIntersect((entry, observer) => {
+    observer.unobserve(entry.target)
+    if (hasNextPage && !isFetching) {
+      fetchNextPage()
+    }
+  })
+
+  return {
+    intelligentMonkeySmartSense: data?.pages.flatMap(({ items }) => items) || [],
+    total: data?.pages.length ? data.pages[0].total : 0,
+    loadingRef: ref,
+    hasNextPage,
+  }
 }

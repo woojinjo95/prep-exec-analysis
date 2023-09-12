@@ -214,6 +214,10 @@ const AddMonkeyTestBlockModal: React.FC<AddMonkeyTestBlockModalProps> = ({ isOpe
                   name: 'Monkey Test',
                   args: [
                     {
+                      key: 'type',
+                      value: 'monkey_test',
+                    },
+                    {
                       key: 'duration',
                       value: durationTimeUnit === 'Sec' ? duration : duration * 60,
                     },
@@ -232,6 +236,10 @@ const AddMonkeyTestBlockModal: React.FC<AddMonkeyTestBlockModalProps> = ({ isOpe
                     {
                       key: 'remote_control_type',
                       value: hardwareConfiguration.remote_control_type,
+                    },
+                    {
+                      key: 'waiting_time',
+                      value: waitingTime,
                     },
                   ],
                   delay_time: 3000,

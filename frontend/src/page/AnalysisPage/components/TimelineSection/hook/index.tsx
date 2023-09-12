@@ -61,6 +61,7 @@ export const useCursorEvent = ({
     onCursorPointerMove,
     onCursorPointerUp,
     cursorTranslateX,
+    isCursorDragging,
   }
 }
 

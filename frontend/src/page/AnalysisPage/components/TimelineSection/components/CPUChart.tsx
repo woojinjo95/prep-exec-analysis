@@ -2,7 +2,7 @@ import React, { useMemo, useRef } from 'react'
 import * as d3 from 'd3'
 import { AreaChart, TimelineTooltip, TimelineTooltipItem, Text } from '@global/ui'
 import { CHART_HEIGHT } from '@global/constant'
-import { useCPU } from '../api/hook'
+import { useCPU } from '@page/AnalysisPage/api/hook'
 import { useTooltipEvent } from '../hook'
 
 interface CPUChartProps {
@@ -93,15 +93,17 @@ const CPUChart: React.FC<CPUChartProps> = ({ scaleX, startTime, endTime, dimensi
         />
       )}
 
-      <AreaChart
-        chartWidth={dimension?.width}
-        scaleX={scaleX}
-        scaleY={scaleY}
-        data={cpuData}
-        minValue={0}
-        strokeColor="#f29213"
-        fillColor="#f29213"
-      />
+      <div style={{ height: CHART_HEIGHT }}>
+        <AreaChart
+          chartWidth={dimension?.width}
+          scaleX={scaleX}
+          scaleY={scaleY}
+          data={cpuData}
+          minValue={0}
+          strokeColor="#f29213"
+          fillColor="#f29213"
+        />
+      </div>
     </div>
   )
 }

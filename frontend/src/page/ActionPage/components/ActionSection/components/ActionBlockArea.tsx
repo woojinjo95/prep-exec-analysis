@@ -13,9 +13,9 @@ import { CommandTransmit } from '@global/service/TerminalService/type'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { isBlockRecordModeState, scenarioIdState, selectedBlockIdsState } from '@global/atom'
 import { Block, BlockGroup, Scenario } from '@global/api/entity'
-import { getScenarioById } from '@global/api/func'
+import { getScenarioById, putScenario } from '@global/api/func'
 import ActionBlockItem from './ActionBlockItem'
-import { postBlock, postBlocks, putScenario } from '../api/func'
+import { postBlock, postBlocks } from '../api/func'
 
 type BlocksRef = {
   [id: string]: HTMLDivElement | null

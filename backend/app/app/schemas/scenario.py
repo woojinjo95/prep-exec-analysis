@@ -1,18 +1,7 @@
 from typing import List, Optional
 
 from app.schemas.block import BlockGroup
-from pydantic import BaseModel, root_validator
-from pydantic.datetime_parse import parse_datetime
-
-
-class TimestampBaseModel(BaseModel):
-    updated_at: Optional[str]
-
-    @root_validator(pre=True)
-    def convert_timestamp_with_timezone(cls, values):
-        if "updated_at" in values:
-            values["updated_at"] = parse_datetime(values["updated_at"]).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-        return values
+from pydantic import BaseModel
 
 
 class CopyScenarioCreate(BaseModel):
@@ -54,12 +43,13 @@ class Scenario(BaseModel):
     items: ScenarioBlock
 
 
-class ScenarioSummary(TimestampBaseModel):
+class ScenarioSummary(BaseModel):
     id: str
     name: str
     tags: Optional[List[str]]
     testrun_count: int
     has_block: bool
+    updated_at: Optional[str]
 
 
 class ScenarioPage(BaseModel):
@@ -82,9 +72,10 @@ class ScenarioTagUpdate(BaseModel):
     tag: str
 
 
-class TestrunBase(TimestampBaseModel):
+class TestrunBase(BaseModel):
     id: str
     measure_targets: List[str]
+    updated_at: Optional[str]
 
 
 class Testrun(BaseModel):

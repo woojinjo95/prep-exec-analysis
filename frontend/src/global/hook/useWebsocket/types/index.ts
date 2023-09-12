@@ -152,11 +152,12 @@ interface AnalysisMessage {
 }
 
 /**
- * 비디오 스냅샷 저장 요청 publish 메시지
+ * 비디오 프레임 스냅샷 저장 요청 publish 메시지
  */
 interface VideoSnapshotMessage {
-  msg: 'video_snapshot'
+  msg: 'video_frame_snapshot'
   data: {
+    testrun_id: string
     video_path: string
     relative_time: number // second
   }

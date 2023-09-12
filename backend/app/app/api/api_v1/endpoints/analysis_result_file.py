@@ -4,6 +4,7 @@ import traceback
 from typing import Optional
 
 from app import schemas
+from app.api.utility import set_redis_pub_msg
 from app.crud.base import aggregate_from_mongodb, load_from_mongodb
 from app.db.redis_session import RedisClient
 from fastapi import APIRouter, Header, HTTPException
@@ -30,12 +31,27 @@ def get_analysis_result_video_summary(
                 {'$project': {"_id": 0,
                               "path": "$testruns.raw.videos.path",
                               "start_time": "$testruns.raw.videos.start_time",
-                              "end_time": "$testruns.raw.videos.end_time", }}]
+                              "end_time": "$testruns.raw.videos.end_time"}}]
     video = aggregate_from_mongodb(col='scenario', pipeline=pipeline)
     if not video:
         raise HTTPException(status_code=404, detail='Video data Not Found')
 
     video = video[0]  # TODO 0번째 요소에 대한 접근법은 추후에 수정해야 할 부분
+
+    try:
+        # 워크스페이스 변경
+        RedisClient.hset('testrun', 'id', testrun_id)
+        RedisClient.hset('testrun', 'scenario_id', scenario_id)
+
+        # 워크스페이스 변경 메세지 전송
+        RedisClient.publish('command',
+                            set_redis_pub_msg(msg="workspace",
+                                              data={"workspace_path": RedisClient.hget('testrun', 'workspace_path'),
+                                                    "testrun_id": testrun_id,
+                                                    "scenario_id": scenario_id}))
+    except Exception as e:
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'items': {'path': video['path'],
                       'start_time': video['start_time'],
                       'end_time': video['end_time']}}

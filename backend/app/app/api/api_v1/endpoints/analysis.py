@@ -32,8 +32,7 @@ async def start_analysis(
                 delete_many_to_mongodb(collection, {'scenario_id': analysis_in['scenario_id'],
                                                     'testrun_id': analysis_in['testrun_id']})
 
-        RedisClient.publish('command', set_redis_pub_msg(msg="analysis",
-                                                         data={"measurement": measurements}))
+        RedisClient.publish('command', set_redis_pub_msg(msg="start_analysis"))
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())

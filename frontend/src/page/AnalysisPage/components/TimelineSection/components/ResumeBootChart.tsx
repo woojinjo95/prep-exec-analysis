@@ -1,7 +1,11 @@
 import React, { useMemo, useRef } from 'react'
+import { useRecoilValue } from 'recoil'
 import { PointChart, RangeChart, TimelineTooltip, TimelineTooltipItem, Text } from '@global/ui'
+import { convertDuration } from '@global/usecase'
+import { bootTypeFilterListState, resumeTypeFilterListState } from '@global/atom'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
-import { useBoot, useResume } from '../api/hook'
+import { useBoot, useResume } from '@page/AnalysisPage/api/hook'
+import { CHART_HEIGHT } from '@global/constant'
 import { useTooltipEvent } from '../hook'
 
 interface ResumeBootChartProps {
@@ -16,38 +20,42 @@ interface ResumeBootChartProps {
  * Resume(warm booting), Boot(cold booting) 시간 차트
  */
 const ResumeBootChart: React.FC<ResumeBootChartProps> = ({ scaleX, startTime, endTime, dimension, summary }) => {
+  const resumeTypeFilterList = useRecoilValue(resumeTypeFilterListState)
+  const bootTypeFilterList = useRecoilValue(bootTypeFilterListState)
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const { resume } = useResume({
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
-    // TODO: 타겟별 보기 / 숨기기 기능
   })
   const { boot } = useBoot({
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
-    // TODO: 타겟별 보기 / 숨기기 기능
   })
 
   const data: { datetime: number; duration: number; color: string; type: 'Resume' | 'Boot' }[] | null = useMemo(() => {
     if (!resume || !boot) return null
 
     return [
-      resume.map(({ timestamp, measure_time }) => ({
-        datetime: new Date(timestamp).getTime(),
-        duration: measure_time,
-        color: summary.resume?.color || 'white',
-        type: 'Resume' as const,
-      })),
-      boot.map(({ timestamp, measure_time }) => ({
-        datetime: new Date(timestamp).getTime(),
-        duration: measure_time,
-        color: summary.boot?.color || 'white',
-        type: 'Boot' as const,
-      })),
+      resume
+        .filter(({ target }) => !resumeTypeFilterList.includes(target))
+        .map(({ timestamp, measure_time }) => ({
+          datetime: new Date(timestamp).getTime(),
+          duration: measure_time,
+          color: summary.resume?.color || 'white',
+          type: 'Resume' as const,
+        })),
+      boot
+        .filter(({ target }) => !bootTypeFilterList.includes(target))
+        .map(({ timestamp, measure_time }) => ({
+          datetime: new Date(timestamp).getTime(),
+          duration: measure_time,
+          color: summary.boot?.color || 'white',
+          type: 'Boot' as const,
+        })),
     ]
       .flat()
       .sort(({ datetime: aDatetime }, { datetime: bDatetime }) => (aDatetime > bDatetime ? 1 : 0))
-  }, [resume, boot, summary])
+  }, [resume, boot, summary, resumeTypeFilterList, bootTypeFilterList])
 
   const { posX, tooltipData, onMouseMove, onMouseLeave } = useTooltipEvent<NonNullable<typeof data>[number]>({
     scaleX,
@@ -73,15 +81,19 @@ const ResumeBootChart: React.FC<ResumeBootChartProps> = ({ scaleX, startTime, en
               </TimelineTooltipItem>
 
               <TimelineTooltipItem label="Result">
-                {/* FIXME: 1000ms 이하일 경우 -> ms로 표시, 나머지 -> h/m/s 표시 */}
-                <Text colorScheme="light">{(tooltipData.duration / 1000).toFixed(1)}s</Text>
+                <Text colorScheme="light">{convertDuration(tooltipData.duration)}</Text>
               </TimelineTooltipItem>
             </TimelineTooltip>
           )}
         </div>
       )}
 
-      <RangeChart scaleX={scaleX} data={data} />
+      <div className="w-full relative border-b border-[#37383E]">
+        <div className="flex justify-center items-center" style={{ height: CHART_HEIGHT - 1 }}>
+          <div className="h-[0.5px] w-full bg-[#37383E]" />
+        </div>
+        <RangeChart scaleX={scaleX} data={data} />
+      </div>
     </div>
   )
 }

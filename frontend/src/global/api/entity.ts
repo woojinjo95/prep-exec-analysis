@@ -153,7 +153,6 @@ export interface TestRun {
  * 분석 설정 아이템 Frame
  */
 export interface AnalysisFrame {
-  id: string
   relative_time: number // second
   path: string
   roi: {
@@ -163,3 +162,13 @@ export interface AnalysisFrame {
     h: number
   }
 }
+
+/**
+ * Resume 분석 유형의 타입
+ */
+export type ResumeType = 'image_matching' | 'screen_change_rate'
+
+/**
+ * Boot 분석 유형의 타입
+ */
+export type BootType = 'image_matching'

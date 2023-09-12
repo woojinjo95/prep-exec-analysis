@@ -12,7 +12,7 @@ def open_ble_keyboard(port='COM8', baudrate=115200, parity=serial.PARITY_NONE, s
 
 
 def _write_commands(ser, command, args):
-    cmd_str = " ".join([command]+args)+"\n"
+    cmd_str = command + ",".join(args) + "\n"
     print(cmd_str, end="")
     ser.write(bytes(cmd_str, 'utf-8'))
 

@@ -3,7 +3,6 @@ from typing import List, Optional
 from app.schemas.enum import ExportItemEnum
 from pydantic import BaseModel, root_validator
 from pydantic.datetime_parse import parse_datetime
-from app.schemas.analysis_result import TimestampBaseModel
 
 
 class ServiceStateBase(BaseModel):
@@ -27,21 +26,14 @@ class VideoTimestampBase(BaseModel):
     start_time: str
     end_time: str
 
-    @root_validator(pre=True)
-    def convert_timestamp_with_timezone(cls, values):
-        if "start_time" in values:
-            values["start_time"] = parse_datetime(values["start_time"]).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-        if "end_time" in values:
-            values["end_time"] = parse_datetime(values["end_time"]).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-        return values
-
 
 class VideoTimestamp(BaseModel):
     items: VideoTimestampBase
 
 
-class VideoSnapshotBase(TimestampBaseModel):
+class VideoSnapshotBase(BaseModel):
     path: str
+    timestamp: str
 
 
 class VideoSnapshot(BaseModel):

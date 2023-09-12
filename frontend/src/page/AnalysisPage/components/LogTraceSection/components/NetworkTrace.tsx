@@ -44,7 +44,7 @@ const NetworkTrace: React.FC = () => {
           </Text>
         </div>
         <div className="flex flex-col w-full mt-1">
-          {networks?.map(({ timestamp, source, destination, protocol, length, info }, index) => (
+          {networks?.map(({ timestamp, src, dst, protocol, length, info }, index) => (
             <div
               key={`network-trace-log-${timestamp}-${index}`}
               className="w-[calc(100%-40px)] grid grid-cols-[16%_9%_10%_6%_5%_54%] gap-x-2 text-grey text-sm"
@@ -53,10 +53,10 @@ const NetworkTrace: React.FC = () => {
                 {formatDateTo('YYYY-MM-DD HH:MM:SS:MS', new Date(timestamp))}
               </Text>
               <Text size="sm" colorScheme="grey">
-                {source}
+                {src}
               </Text>
               <Text size="sm" colorScheme="grey">
-                {destination}
+                {dst}
               </Text>
               <Text size="sm" colorScheme="grey">
                 {protocol}

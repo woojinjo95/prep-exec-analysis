@@ -3,7 +3,7 @@ import { useRecoilValue } from 'recoil'
 import { scenarioIdState, testRunIdState } from '@global/atom'
 import { AnalysisConfig } from '@page/AnalysisPage/api/entity'
 import { AnalysisType } from '@global/constant'
-import { deleteAnalysisConfig, putAnalysisConfig } from './func'
+import { deleteAnalysisConfig, postAnalysis, putAnalysisConfig } from './func'
 
 /**
  * 분석 설정 변경 hook
@@ -65,5 +65,23 @@ export const useRemoveAnalysisConfig = ({
 
   return {
     removeAnalysisConfig,
+  }
+}
+
+/**
+ * 분석 시작 hook
+ */
+export const useStartAnalysis = () => {
+  const scenarioId = useRecoilValue(scenarioIdState)
+  const testRunId = useRecoilValue(testRunIdState)
+  const { mutate } = useMutation(postAnalysis)
+
+  const startAnalysis = (measurement: (keyof typeof AnalysisType)[]) => {
+    if (!scenarioId || !testRunId) return
+    mutate({ scenario_id: scenarioId, testrun_id: testRunId, measurement })
+  }
+
+  return {
+    startAnalysis,
   }
 }

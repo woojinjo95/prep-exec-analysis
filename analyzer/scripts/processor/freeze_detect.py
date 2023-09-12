@@ -1,17 +1,18 @@
 import logging
 import traceback
+from typing import Dict
 
 from scripts.analysis.freeze_detect import FreezeDetector
 from scripts.config.config import get_setting_with_env
 from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.data import load_input, read_analysis_config
 from scripts.external.report import report_output
-from scripts.external.analysis import set_analysis_info
-from scripts.format import Command, ReportName
+from scripts.external.progress import ProgressManager
+from scripts.format import Command, ReportName, VideoInfo
 from scripts.util._timezone import get_utc_datetime
 from scripts.util.common import seconds_to_time
 from scripts.util.decorator import log_decorator
-from scripts.util.video import FrameGenerator, get_video_info
+from scripts.util.video import FrameGenerator
 
 logger = logging.getLogger('main')
 
@@ -20,32 +21,34 @@ logger = logging.getLogger('main')
 def test_freeze_detection():
     try:  
         args = load_input()
-        video_info = get_video_info(args.video_path)
-        min_duration = get_duration_from_config()
-        freeze_detector = set_freeze_detector(video_info['fps'], min_duration)
-        logger.info(f'start time: {get_utc_datetime(args.timestamps[0])}')
+        config = get_config()
 
-        for frame, cur_time in FrameGenerator(args.video_path, args.timestamps):
-            result = freeze_detector.update(frame, cur_time)
-
-            if result['detect'] and result['duration'] > min_duration:
-                relative_time = result['start_time'] - args.timestamps[0]
-                logger.info(f'relative time: {seconds_to_time(relative_time)}')
-                
-                report_output(ReportName.FREEZE.value, {
-                    'timestamp': get_utc_datetime(result['start_time']),
-                    'freeze_type': result['freeze_type'],
-                    'duration': result['duration'],
-                })
+        task_freeze_detection(args, config)
 
         publish_msg({'measurement': Command.FREEZE.value}, 'analysis_response')
-        set_analysis_info(Command.FREEZE.value)
 
     except Exception as err:
         error_detail = traceback.format_exc()
         publish_msg({'measurement': Command.FREEZE.value, 'log': error_detail}, 'analysis_response', level='error')
         logger.error(f"error in detect_freeze postprocess: {err}")
         logger.warning(error_detail)
+
+
+def task_freeze_detection(args: VideoInfo, config: Dict):
+    progress_manager = ProgressManager(Command.FREEZE.value)
+    freeze_detector = set_freeze_detector(args.fps, config['duration'])
+    logger.info(f'start time: {get_utc_datetime(args.timestamps[0])}')
+
+    for idx, (frame, cur_time) in enumerate(FrameGenerator(args.video_path, args.timestamps)):
+        result = freeze_detector.update(frame, cur_time)
+        if result['detect'] and result['duration'] > config['duration']:
+            logger.info(f'relative time: {seconds_to_time(result["start_time"] - args.timestamps[0])}')
+            report_output(ReportName.FREEZE.value, {
+                'timestamp': get_utc_datetime(result['start_time']),
+                'freeze_type': result['freeze_type'],
+                'duration': result['duration'],
+            })
+        progress_manager.update_progress((idx + 1) / args.frame_count)
 
 
 def set_freeze_detector(fps: float, min_duration: float) -> FreezeDetector:
@@ -68,8 +71,8 @@ def set_freeze_detector(fps: float, min_duration: float) -> FreezeDetector:
     return freeze_detector
 
 
-def get_duration_from_config() -> float:
+def get_config() -> Dict:
     analysis_config = read_analysis_config()
-    duration = analysis_config['freeze']['duration']
-    logger.info(f'duration: {duration}')
-    return duration
+    config = analysis_config[Command.FREEZE.value]
+    logger.info(f'config: {config}')
+    return config

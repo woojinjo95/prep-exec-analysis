@@ -21,6 +21,7 @@ from ..connection.redis_pubsub import get_strict_redis_connection, publish
 from ..utils._timezone import timestamp_to_datetime_with_timezone_str
 from ..utils.file_manage import substitute_path_extension
 from .video_stat import summarize_merged_video_info, process_video_info
+from .video_snapshot import save_full_frame_video_snapshots
 
 logger = logging.getLogger('main')
 
@@ -189,8 +190,8 @@ class MakeVideo:
                           'path': os.path.join(self.mounted_output_path, video_basename),
                           'name': video_basename,
                           'stat_path':  os.path.join(self.mounted_output_path, json_basename),
-                          'start_time': raw_video_info['timestamps'][0],
-                          'end_time': raw_video_info['timestamps'][-1],
+                          'start_time': timestamp_to_datetime_with_timezone_str(raw_video_info['timestamps'][0]),
+                          'end_time': timestamp_to_datetime_with_timezone_str(raw_video_info['timestamps'][-1]),
                           'frame_count': len(raw_video_info['timestamps']),
                           }
         else:
@@ -211,3 +212,5 @@ class MakeVideo:
         log_level = 'info'
 
         attrgetter(log_level)(logger)(log)
+
+        save_full_frame_video_snapshots(scenario_id, testrun_id, video_info['path'])

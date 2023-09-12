@@ -63,7 +63,7 @@ class LogLevelEnum(ExtendedEnum):
 
 class ChannelChangeTimeTargetEnum(ExtendedEnum):
     adjoint_channel = "adjoint_channel"
-    nonadjoint_channel = "nonadjoint_channel"
+    non_adjoint_channel = "non_adjoint_channel"
 
 
 class BlockTypeEnum(ExtendedEnum):
@@ -73,6 +73,7 @@ class BlockTypeEnum(ExtendedEnum):
     packet_control = "packet_control"
     packet_block = "packet_block"
     device_info = "device_info"
+    network_emulation = "network_emulation"
     shell = "shell"
     monkey_test = "monkey_test"
     intelligent_monkey_test = "intelligent_monkey_test"

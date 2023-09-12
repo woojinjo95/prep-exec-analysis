@@ -6,21 +6,26 @@ import useIntersect from '@global/hook/useIntersect'
 import { formatDateTo } from '@global/usecase'
 import Scrollbars from 'react-custom-scrollbars-2'
 import { useScenarioById } from '@global/api/hook'
-import { useRecoilState, useRecoilValue } from 'recoil'
-import { isTestOptionModalOpenState, scenarioIdState, testRunIdState } from '@global/atom'
+import { useRecoilState } from 'recoil'
+import { playStartTimeState, scenarioIdState, testRunIdState } from '@global/atom'
 import Tag from '@global/ui/Tag'
 import { useMutation, useQuery } from 'react-query'
-import { getTag, postCopyScenario, postTag, postTestrun } from '@global/api/func'
+import { getTag, postCopyScenario, postTag, putScenario } from '@global/api/func'
 import { useToast } from '@chakra-ui/react'
 import { AxiosError } from 'axios'
-import { putScenario } from '../api/func'
+import { useWebsocket } from '@global/hook'
+import { useNavigate } from 'react-router-dom'
 
 interface SaveBlocksModalProps {
   isOpen: boolean
   close: () => void
+  // 저장 후 분석 페이지 이동 여부
+  isMoveAnalysisPage: boolean
+  // 재생으로 연결되는지 여부
+  isPlay: boolean
 }
 
-const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
+const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMoveAnalysisPage, isPlay }) => {
   const toast = useToast({ duration: 3000, isClosable: true })
 
   const firstFocusableElementRef = useRef<HTMLInputElement>(null)
@@ -38,7 +43,9 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
     refetch: scenariosRefetch,
   } = useFetchScenarios(PAGE_SIZE_TWENTY)
 
-  const scenarioId = useRecoilValue(scenarioIdState)
+  const [scenarioId, setScenarioId] = useRecoilState(scenarioIdState)
+
+  const { sendMessage } = useWebsocket()
 
   const { scenario: currentScenario, refetch: currentScenarioRefetch } = useScenarioById({
     scenarioId,
@@ -97,6 +104,8 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
 
   const [, setTestRunIdState] = useRecoilState(testRunIdState)
 
+  const navigate = useNavigate()
+
   const searchedTags = useMemo(() => {
     if (!tags || !currentScenario) return null
     // if (tagInput === '') return null
@@ -104,12 +113,13 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
     return tags.filter((tag) => tag.includes(tagInput) && blocksTags.find((_tag) => _tag === tag) === undefined)
   }, [tagInput, tags, blocksTags])
 
-  const [, setIsTesetOptionModalOpen] = useRecoilState(isTestOptionModalOpenState)
+  const [, setPlayStartTime] = useRecoilState(playStartTimeState)
 
   const { mutate: postTagMutate } = useMutation(postTag, {
     onSuccess: () => {
       tagRefetch()
       scenariosRefetch()
+      currentScenarioRefetch()
     },
     onError: (err: AxiosError) => {
       if (err.status === 406) {
@@ -118,23 +128,40 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
       console.error(err)
     },
   })
-  const { mutate: postTestrunMutate } = useMutation(postTestrun, {
-    onSuccess: (res) => {
-      close()
-      setIsTesetOptionModalOpen(true)
-      setTestRunIdState(res.id)
-    },
-    onError: (err: AxiosError) => {
-      console.error(err)
-    },
-  })
 
   const { mutate: putScenarioMutate } = useMutation(putScenario, {
     onSuccess: () => {
       tagRefetch()
+      scenariosRefetch()
+      currentScenarioRefetch()
 
-      if (scenarioId) {
-        postTestrunMutate(scenarioId)
+      close()
+
+      if (isPlay && scenarioId) {
+        sendMessage({
+          level: 'info',
+          msg: 'start_playblock',
+          data: { scenario_id: scenarioId },
+        })
+
+        setPlayStartTime(new Date().getTime() / 1000)
+      }
+
+      // 분석페이지로 이동한다면
+      if (isMoveAnalysisPage) {
+        const date = new Date()
+        const startDate = new Date(date)
+        startDate.setMinutes(date.getMinutes() - 30)
+
+        sendMessage({
+          level: 'info',
+          msg: 'analysis_mode_init',
+          data: {
+            start_time: startDate.getTime() / 1000,
+            end_time: date.getTime() / 1000,
+          },
+        })
+        navigate('/analysis')
       }
     },
     onError: (err: AxiosError) => {
@@ -144,11 +171,38 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
 
   const { mutate: postCopyScenarioMutate } = useMutation(postCopyScenario, {
     onSuccess: (res) => {
-      currentScenarioRefetch()
-      scenariosRefetch()
-      close()
+      setScenarioId(res.id)
       setTestRunIdState(res.testrun_id)
-      setIsTesetOptionModalOpen(true)
+      tagRefetch()
+      scenariosRefetch()
+      currentScenarioRefetch()
+      close()
+
+      if (isPlay && scenarioId) {
+        sendMessage({
+          level: 'info',
+          msg: 'start_playblock',
+          data: { scenario_id: scenarioId },
+        })
+
+        setPlayStartTime(new Date().getTime() / 1000)
+      }
+
+      if (isMoveAnalysisPage) {
+        const date = new Date()
+        const startDate = new Date(date)
+        startDate.setMinutes(date.getMinutes() - 30)
+
+        sendMessage({
+          level: 'info',
+          msg: 'analysis_mode_init',
+          data: {
+            start_time: startDate.getTime() / 1000,
+            end_time: date.getTime() / 1000,
+          },
+        })
+        navigate('/analysis')
+      }
     },
     onError: (err: AxiosError) => {
       console.error(err)
@@ -350,6 +404,32 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close }) => {
             ref={lastFocusableElementRef}
             onClick={() => {
               close()
+
+              if (isPlay && scenarioId) {
+                sendMessage({
+                  level: 'info',
+                  msg: 'start_playblock',
+                  data: { scenario_id: scenarioId },
+                })
+
+                setPlayStartTime(new Date().getTime() / 1000)
+              }
+
+              if (isMoveAnalysisPage) {
+                const date = new Date()
+                const startDate = new Date(date)
+                startDate.setMinutes(date.getMinutes() - 30)
+
+                sendMessage({
+                  level: 'info',
+                  msg: 'analysis_mode_init',
+                  data: {
+                    start_time: startDate.getTime() / 1000,
+                    end_time: date.getTime() / 1000,
+                  },
+                })
+                navigate('/analysis')
+              }
             }}
           >
             Cancel

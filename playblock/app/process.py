@@ -43,14 +43,15 @@ async def consumer_handler(conn: any, db_scenario: any, db_blocks: any, CHANNEL_
                     print(f"state: {state}")
                     await setup_analysis(state, db_scenario, db_blocks, conn)
 
-                if command == "analysis_response" or command == "remocon_response":
+                if command == "monkey_response" or command == "analysis_response":
                     # 일단 순차적으로 수행할 것이므로 내용물 체크 안함
                     # 여기가 애매하고 문제가 되는 부분.
-                    print(f"response set event ==> {message}")
+                    print("response set event ==> {analysis_response}")
                     event.set()
 
                 if command == "stop_playblock" or command == "stop_analysis":
-                    await set_stop_state(conn)
+                    await set_stop_state(conn, event)
+                    event.set()
                     # 또는 여기서 중지하고 동작아이템 정리 해야 함
 
             except Exception as e:
@@ -89,6 +90,8 @@ async def process_handler(conn: any, db_blocks: any, CHANNEL_NAME: str, event: a
             except Exception as e:
                 print(e)
                 print(traceback.format_exc())
+                await set_stop_state(conn, event)
+                # 예외발생시 강제 중단 처리
             # finally:
             #     await set_stop_state(conn)
     except Exception as e:

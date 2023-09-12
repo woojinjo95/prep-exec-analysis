@@ -4,18 +4,18 @@ import os
 import redis.asyncio as redis
 import pymongo
 
-REDIS_HOST = os.getenv("REDIS_HOST", "192.168.1.45")
 REDIS_HOST = os.getenv("REDIS_HOST", "192.168.1.95")
+REDIS_HOST = os.getenv("REDIS_HOST", "192.168.1.45")
 
 REDIS_PORT = os.getenv("REDIS_PORT", 6379)
 REDIS_DB = os.getenv("REDIS_DB", 0)
-REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", '66b44dcb7f981904f8536b19e4464725')
 REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", '')
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", '66b44dcb7f981904f8536b19e4464725')
 CHANNEL_NAME = os.getenv("CHANNEL_NAME", 'command')
 
 MONGODB_USERNAME = os.getenv("MONGODB_USERNAME", "admin")
 MONGODB_PASSWORD = os.getenv("MONGODB_PASSWORD", ".nextlab6318!")
-MONGODB_SERVER = os.getenv("MONGODB_SERVER", "192.168.1.95")
+MONGODB_SERVER = os.getenv("MONGODB_SERVER", "192.168.1.45")
 MONGODB_PORT = os.getenv("MONGODB_PORT", 27017)
 MONGODB_NAME = os.getenv("MONGODB_NAME", "prep-exec-analysis")
 MONGODB_AUTHENTICATION_SOURCE = os.getenv("MONGODB_AUTHENTICATION_SOURCE", "admin")
