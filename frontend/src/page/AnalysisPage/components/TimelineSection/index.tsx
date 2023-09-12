@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import * as d3 from 'd3'
 import { Text, VideoSnapshots } from '@global/ui'
 import { CHART_HEIGHT } from '@global/constant'
@@ -107,13 +107,24 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
       width: dimension?.width,
     })
 
-  useEffect(() => {
+  const handleWindowResize = useCallback(() => {
     if (!chartWrapperRef.current || dimension?.width || dimension?.left || scrollBarTwoPosX) return
 
     setDimension({ width: chartWrapperRef.current.clientWidth, left: chartWrapperRef.current.offsetLeft })
     setScrollBarTwoPosX([0, chartWrapperRef.current.clientWidth])
+  }, [])
+
+  useEffect(() => {
+    handleWindowResize()
     // dependency array: chartWrapperRef 렌더링 조건
   }, [startTime, endTime, analysisResultSummary])
+
+  useEffect(() => {
+    window.addEventListener('resize', handleWindowResize)
+    return () => {
+      window.removeEventListener('resize', handleWindowResize)
+    }
+  }, [])
 
   if (!startTime || !endTime || !analysisResultSummary) {
     return <section className="h-full bg-black grid grid-cols-1 grid-rows-[auto_1fr_auto]" />
