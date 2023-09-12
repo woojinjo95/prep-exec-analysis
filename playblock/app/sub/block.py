@@ -98,8 +98,8 @@ async def run_blocks(conn, db_blocks, scenario_id, testrun_id, blocks: list, eve
         print(traceback.format_exc())
     finally:
         await set_stop_state(conn, event)
-        end_time = await conn.hset("testrun", "end_time")
-        start_time = await conn.hset("testrun", "start_time")
+        end_time = await conn.hget("testrun", "end_time")
+        start_time = await conn.hget("testrun", "start_time")
         await conn.publish(CHANNEL_NAME, publish_message("end_playblock",
                                                          data={"start_time": start_time, "end_time": end_time}))
         print("run_blocks end")
