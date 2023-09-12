@@ -46,11 +46,12 @@ async def consumer_handler(conn: any, db_scenario: any, db_blocks: any, CHANNEL_
                 if command == "monkey_response" or command == "analysis_response":
                     # 일단 순차적으로 수행할 것이므로 내용물 체크 안함
                     # 여기가 애매하고 문제가 되는 부분.
-                    print("response set event ==> {analysis_response}")
+                    print(f"response set event ==> {command}")
                     event.set()
 
                 if command == "stop_playblock" or command == "stop_analysis":
                     await set_stop_state(conn, event)
+                    print(f"stop set event ==> {command}")
                     event.set()
                     # 또는 여기서 중지하고 동작아이템 정리 해야 함
 
