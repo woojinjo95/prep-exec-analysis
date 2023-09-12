@@ -7,6 +7,7 @@ import { KeyEvent } from '@page/ActionPage/types'
 import { useServiceState } from '@global/api/hook'
 import { useRecoilState } from 'recoil'
 import { selectedRemoconNameState } from '@global/atom'
+import ControlNotice from '@global/ui/ControlNotice'
 import { Remocon } from './api/entity'
 import { getRemocon } from './api/func'
 import RemoconComponent from './components/RemoconComponent'
@@ -84,7 +85,10 @@ const RemoconSection: React.FC<RemoconSectionProps> = ({ keyEvent }) => {
 
       {selectedRemocon && <RemoconComponent remocon={selectedRemocon} keyEvent={keyEvent} />}
       {serviceState === 'playblock' && (
-        <div className="absolute top-0 left-0 w-full h-full z-10 bg-black opacity-[0.6]" />
+        <>
+          <div className="absolute top-0 left-0 w-full h-full z-10 bg-black opacity-[0.6]" />
+          <ControlNotice />
+        </>
       )}
     </section>
   )

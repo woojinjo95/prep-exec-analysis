@@ -1,8 +1,5 @@
-import { AnalysisFrame } from '@global/api/entity'
+import { AnalysisFrame, BootType, ResumeType } from '@global/api/entity'
 import { FreezeType, LogLevel } from '@global/constant'
-
-export type ResumeType = 'image_matching' | 'screen_change_rate'
-export type BootType = 'image_matching'
 
 /**
  * 분석 설정
@@ -42,6 +39,12 @@ export interface AnalysisConfig {
       regular_expression: string
     }[]
   }
+  monkey_test?: {
+    color: string
+  }
+  intelligent_monkey_test?: {
+    color: string
+  }
 }
 
 /**
@@ -63,7 +66,14 @@ export interface AnalysisResultSummary {
       error_type: keyof typeof FreezeType
     }[]
   }
-  // intelligent_monkey_test?: null
+  intelligent_monkey_test?: {
+    color: string
+    results: {
+      section_id: number
+      smart_sense: number
+      image_path: string
+    }[]
+  }
   last_updated_timestamp: string
   log_level_finder?: {
     color: string
@@ -92,7 +102,13 @@ export interface AnalysisResultSummary {
       avg_time: number // 단위: ms
     }[]
   }
-  // monkey_test?: null
+  monkey_test?: {
+    color: string
+    results: {
+      duration_time: number // 단위: s
+      smart_sense: number
+    }[]
+  }
 }
 
 export interface LogLevelFinder {
@@ -100,7 +116,7 @@ export interface LogLevelFinder {
    * @format timestamp
    */
   timestamp: string
-  log_level: string
+  log_level: keyof typeof LogLevel
 }
 
 /**
@@ -241,4 +257,43 @@ export interface LogPatternMatching {
   message: string
   color: string
   regex: string
+}
+
+export interface MonkeySection {
+  /**
+   * @format timestamp
+   */
+  start_timestamp: string
+  /**
+   * @format timestamp
+   */
+  end_timestamp: string
+}
+
+export interface MonkeySmartSense {
+  /**
+   * @format timestamp
+   */
+  timestamp: string
+  smart_sense_key: string[]
+}
+
+export interface IntelligentMonkeySection {
+  /**
+   * @format timestamp
+   */
+  start_timestamp: string
+  /**
+   * @format timestamp
+   */
+  end_timestamp: string
+}
+
+export interface IntelligentMonkeySmartSense {
+  /**
+   * @format timestamp
+   */
+  timestamp: string
+  section_id: number
+  smart_sense_key: string[]
 }

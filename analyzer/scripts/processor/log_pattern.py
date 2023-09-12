@@ -48,13 +48,13 @@ def task_log_pattern_matching(args: VideoInfo, config: Dict):
                 'matched_target': matched_target
             })
             count += 1
-        progress_manager.update_progress(idx / len(log_datas))
+        progress_manager.update_progress((idx + 1) / len(log_datas))
     logger.info(f'matched log count: {count}')
 
 
 def get_config() -> Dict:
     analysis_config = read_analysis_config()
-    config = analysis_config['log_pattern_matching']
+    config = analysis_config[Command.LOG_PATTERN_MATCHING.value]
     logger.info(f'config: {config}')
     return config
 

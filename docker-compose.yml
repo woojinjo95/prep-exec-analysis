@@ -246,6 +246,30 @@ services:
     volumes:
       - ./data/workspace:/app/workspace
 
+  macroblock:
+    container_name: macroblock
+    restart: always
+    image: registry.dev-nextlab.com/qaas-analyzer:dev-0
+    command: python -u main_macroblock.py
+    build:
+      context: ./analyzer
+      dockerfile: dockerfile
+    volumes:
+      - ./data/workspace:/app/workspace
+
+  channel-zapping:
+    container_name: channel-zapping
+    restart: always
+    image: registry.dev-nextlab.com/qaas-analyzer:dev-0
+    command: python -u main_channel_zapping.py
+    build:
+      context: ./analyzer
+      dockerfile: dockerfile
+      args:
+        - REQUIREMENTS=requirements_cz.txt
+    volumes:
+      - ./data/workspace:/app/workspace
+
   monkey:
     container_name: monkey
     restart: always

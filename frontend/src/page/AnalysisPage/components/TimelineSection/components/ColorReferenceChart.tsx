@@ -66,7 +66,15 @@ const ColorReferenceChart: React.FC<ColorReferenceChartProps> = ({ scaleX, start
         />
       )}
 
-      <AreaChart chartWidth={dimension?.width} scaleX={scaleX} scaleY={scaleY} data={colorReferenceData} minValue={0} />
+      <div style={{ height: CHART_HEIGHT }}>
+        <AreaChart
+          chartWidth={dimension?.width}
+          scaleX={scaleX}
+          scaleY={scaleY}
+          data={colorReferenceData}
+          minValue={0}
+        />
+      </div>
     </div>
   )
 }

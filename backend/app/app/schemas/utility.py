@@ -26,14 +26,6 @@ class VideoTimestampBase(BaseModel):
     start_time: str
     end_time: str
 
-    @root_validator(pre=True)
-    def convert_timestamp_with_timezone(cls, values):
-        if "start_time" in values:
-            values["start_time"] = parse_datetime(values["start_time"]).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-        if "end_time" in values:
-            values["end_time"] = parse_datetime(values["end_time"]).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-        return values
-
 
 class VideoTimestamp(BaseModel):
     items: VideoTimestampBase
@@ -42,12 +34,6 @@ class VideoTimestamp(BaseModel):
 class VideoSnapshotBase(BaseModel):
     path: str
     timestamp: str
-
-    @root_validator(pre=True)
-    def convert_timestamp_with_timezone(cls, values):
-        if "timestamp" in values:
-            values["timestamp"] = parse_datetime(values["timestamp"]).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-        return values
 
 
 class VideoSnapshot(BaseModel):

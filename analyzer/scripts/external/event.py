@@ -1,7 +1,7 @@
 import logging
 from typing import List, Dict
 
-from scripts.config.constant import CHANNEL_KEY_ADJOINT_CANDIDATES, CHANNEL_KEY_NON_ADJOINT_CANDIDATES
+from scripts.config.constant import POWER_KEY_NAMES, CHANNEL_KEY_ADJOINT_CANDIDATES, CHANNEL_KEY_NON_ADJOINT_CANDIDATES
 from scripts.connection.mongo_db.crud import aggregate_from_mongodb
 from scripts.external.scenario import get_scenario_info
 from scripts.util._timezone import get_utc_datetime
@@ -36,8 +36,8 @@ def get_power_key_times(event_result: Dict) -> List[float]:
         service = item.get('service', '')
         msg = item.get('msg', '')
         data = item.get('data', {})
-        key = str(data.get('key', ''))
-        if service == 'control' and msg == 'remocon_response' and key.lower() == 'power':
+        key = str(data.get('key', '')).lower()
+        if service == 'control' and msg == 'remocon_response' and key in POWER_KEY_NAMES:
             try:
                 sensor_time = data['sensor_time']
                 remocon_times.append(sensor_time)

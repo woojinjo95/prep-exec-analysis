@@ -8,7 +8,7 @@ import { AnalysisTypeLabel } from '../../../constant'
 /**
  * channel change time 분석결과 요약 아이템
  */
-const ChannelChangeTimeSummaryResultItem: React.FC = () => {
+const ChannelChangeTimeSummaryItem: React.FC = () => {
   return (
     <Accordion
       header={
@@ -31,7 +31,7 @@ const ChannelChangeTimeSummaryResultItem: React.FC = () => {
       }
     >
       <div className="grid grid-cols-1 gap-y-4 pt-1">
-        <div className="grid grid-cols-[1fr_auto_auto_auto] gap-x-4 gap-y-2">
+        <div className="grid grid-cols-[1fr_auto_auto_auto] gap-x-4 gap-y-1 items-center">
           {/* header */}
           <Text weight="medium" size="sm">
             Target
@@ -52,9 +52,9 @@ const ChannelChangeTimeSummaryResultItem: React.FC = () => {
           <Text size="sm" className="text-right">
             869ms
           </Text>
-          <button type="button">
+          <SimpleButton colorScheme="charcoal" isIcon>
             <ShowEyeIcon className="w-5" />
-          </button>
+          </SimpleButton>
 
           <Text size="sm">Nonadjoint</Text>
           <Text size="sm" className="text-right">
@@ -79,4 +79,4 @@ const ChannelChangeTimeSummaryResultItem: React.FC = () => {
   )
 }
 
-export default ChannelChangeTimeSummaryResultItem
+export default ChannelChangeTimeSummaryItem

@@ -1,7 +1,9 @@
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 import cv2
+
+from scripts.format import ImageSplitResult
 
 
 def calc_image_value_rate(image: np.ndarray) -> float:
@@ -64,3 +66,35 @@ def calc_color_entropy(image: np.ndarray) -> float:
     probabilities = counts / pixel_num  # array of appearance probability about each pixel value
     entropy = -np.sum(probabilities * np.log2(probabilities))  # Shannon entropy formula (maximum=8)
     return entropy
+
+
+def split_image_with_shape(image: np.ndarray, patch_shape: Tuple) -> ImageSplitResult:
+    height, width = image.shape[:2]
+    crop_height, crop_width = patch_shape[:2]
+    patches = []
+    regions = []
+    row_num = 0
+
+    for ys in range(0, height, crop_height):
+        ye = ys + crop_height
+        if ye > height:  # if overflowed, pull ys
+            ys = height - crop_height
+            ye = height
+        row_num += 1
+
+        col_num = 0
+        for xs in range(0, width, crop_width):
+            xe = xs + crop_width
+            if xe > width:  # if overflowed, pull xs
+                xs = width - crop_width
+                xe = width
+            col_num += 1
+            patches.append(image[ys:ye, xs:xe])
+            regions.append((ys, ye, xs, xe))  # y1, y2, x1, x2
+
+    return ImageSplitResult(
+        patches=patches,
+        regions=regions,
+        row_num=row_num,
+        col_num=col_num
+    )

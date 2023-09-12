@@ -14,12 +14,12 @@ logger = logging.getLogger(__name__)
 class ServiceStateEnum(Enum):
     idle = "idle"
     streaming = "streaming"
-    playblock = "playblock" # 플레이블럭의 블럭 수행 여부에 의해 결정됨
-    analysis = "analysis"  # 플레이블럭의 분석 수행 여부에 의해 결정됨
+    playblock = "playblock"
+    analysis = "analysis"
     recording = "recording"
 
 
-async def update_log_level_finder_to_scenario(scenario_id: str, testrun_id: str, measure_target_dict: dict):
+async def update_to_scenario(scenario_id: str, testrun_id: str, measure_target_dict: dict):
     try:
         mongo_client = get_collection('scenario')
         doc = mongo_client.find_one({'id': scenario_id})
@@ -90,106 +90,108 @@ async def consumer_handler(conn: any, CHANNEL_NAME: str):
                 data = json.loads(command_data) if isinstance(command_data, str) else {}
                 msg = data.get('msg', None)
 
-                if msg == 'start_playblock_response':
-                    print('----> start_playblock_response')
-                    # 상태 변경 및 메세지 전송
-                    await set_service_state_and_pub(conn, ServiceStateEnum.playblock)
-
-                # 레코딩이 끝났을 때
+                # 레코딩을 시작했을 때
                 if msg == 'recording_response':
-                    print('----> recording_response')
+                    print(f'----> {msg}')
                     # 스트리밍 중단 메세지 전송
                     await pub_msg(conn, msg="streaming", data={"action": "stop"})
 
+                    # 상태 변경 및 메세지 전송
+                    await set_service_state_and_pub(conn, ServiceStateEnum.recording)
+
+                    # 레코딩이 끝났을 때
                     if data.get('data', {}).get('video_info', {}).get('error', None) is None:
+                        # 상태 변경 및 메세지 전송
+                        await set_service_state_and_pub(conn, ServiceStateEnum.idle)
+
                         # 컬러레퍼런스 분석 메세지 전송
                         await pub_msg(conn, msg="analysis", data={"measurement": ["color_reference"]})
 
-                # 액션 페이지에서 분석 페이지에 진입했을때 -> recording
-                if msg == 'analysis_mode_init':
-                    print('----> analysis_mode_init')
+                # 분석이 종료되었을 때
+                if msg == 'end_analysis':
+                    print(f'----> {msg}')
+                    # 상태 변경 및 메세지 전송
+                    await set_service_state_and_pub(conn, ServiceStateEnum.idle)
+
+                # 분석이 시작되었을 때
+                if msg == 'start_analysis_response':
+                    print(f'----> {msg}')
+                    # 상태 변경 및 메세지 전송
+                    await set_service_state_and_pub(conn, ServiceStateEnum.analysis)
+
+                # 플레이블럭이 시작했을 때
+                if msg == 'start_playblock_response':
+                    print(f'----> {msg}')
+                    # 상태 변경 및 메세지 전송
+                    await set_service_state_and_pub(conn, ServiceStateEnum.playblock)
+
+                # 액션 페이지에서 분석 페이지에 진입했을때(수동, 자동)
+                if msg == 'analysis_mode_init' or msg == 'end_playblock':
+                    print(f'----> {msg}')
                     # 로그수집 중단 메세지 전송
                     await pub_msg(conn, msg="stb_log", data={"control": "stop"})
 
                     # 패킷 캡쳐 중단 메세지 전송
                     await pub_msg(conn, msg="packet_capture", data={"action": "stop"})
+
+                    # 상태 변경 및 메세지 전송
+                    await set_service_state_and_pub(conn, ServiceStateEnum.idle)
 
                     # 레코딩 시작 메세지 전송
                     msg_data = data.get('data', {})
                     await pub_msg(conn, msg="recording", data={"start_time": msg_data.get('start_time', 0),
                                                                "end_time":  msg_data.get('end_time', 0)})
 
-                    # 상태 변경 및 메세지 전송
-                    await set_service_state_and_pub(conn, ServiceStateEnum.recording)
-
-                # 메인 페이지에서 분석 페이지에 진입했을때 -> 대기
+                # 메인 페이지에서 분석 페이지에 진입했을때(수동)
                 if msg == 'analysis_mode':
-                    print('----> analysis_mode')
+                    print(f'----> {msg}')
                     # 로그수집 중단 메세지 전송
                     await pub_msg(conn, msg="stb_log", data={"control": "stop"})
-
-                    # 스트리밍 중단 메세지 전송
-                    await pub_msg(conn, msg="streaming", data={"action": "stop"})
 
                     # 패킷 캡쳐 중단 메세지 전송
                     await pub_msg(conn, msg="packet_capture", data={"action": "stop"})
 
+                    # 스트리밍 중단 메세지 전송
+                    await pub_msg(conn, msg="streaming", data={"action": "stop"})
+
                     # 상태 변경 및 메세지 전송
                     await set_service_state_and_pub(conn, ServiceStateEnum.idle)
 
-                # 액션 페이지에 진입했을때 -> 녹화
+                # 액션 페이지에 진입했을때(수동)
                 if msg == 'action_mode':
-                    print('----> action_mode')
+                    print(f'----> {msg}')
                     # 분석 중단 메세지 전송
                     await pub_msg(conn, msg="analysis_terminate", data={})
 
-                    # 로그수집 시작 메세지 전송
-                    await pub_msg(conn, msg="stb_log", data={"control": "start"})
+                    if await conn.hget("common", "service_state") != ServiceStateEnum.playblock:
+                        # 로그수집 시작 메세지 전송
+                        await pub_msg(conn, msg="stb_log", data={"control": "start"})
 
-                    # 스트리밍 시작 메세지 전송
-                    await pub_msg(conn, msg="streaming", data={"action": "start"})
+                        # 패킷 캡쳐 시작 메세지 전송
+                        await pub_msg(conn, msg="packet_capture", data={"action": "start"})
 
-                    # 패킷 캡쳐 시작 메세지 전송
-                    await pub_msg(conn, msg="packet_capture", data={"action": "start"})
+                        # 스트리밍 시작 메세지 전송
+                        await pub_msg(conn, msg="streaming", data={"action": "start"})
 
-                    # 상태 변경 및 메세지 전송
-                    await set_service_state_and_pub(conn, ServiceStateEnum.streaming)
-
-                # 분석이 시작되었을 때
-                if msg == 'analysis_started':
-                    print('----> analysis_started')
-                    # 상태 변경 및 메세지 전송
-                    await set_service_state_and_pub(conn, ServiceStateEnum.analysis)
-
-                # 분석이 종료되었을 때
-                if msg == 'analysis_response':
-                    print('----> analysis_response')
-                    # 상태 변경 및 메세지 전송
-                    await set_service_state_and_pub(conn, ServiceStateEnum.idle)
+                        # 상태 변경 및 메세지 전송
+                        await set_service_state_and_pub(conn, ServiceStateEnum.streaming)
 
                 # 분석 시작
                 if msg == 'analysis':
-                    print('----> analysis')
+                    print(f'----> {msg}')
                     msg_data = data.get('data', {})
                     measurement = msg_data.get('measurement', [])
 
-                    if 'loudness' in measurement \
-                            or 'monkey_test' in measurement \
-                            or 'log_level_finder' in measurement \
-                            or 'intelligent_monkey_test' in measurement:
-                        target_measurement = msg_data.get('measurement', [''])
-                        msg_data['measurement'] = target_measurement[0]
-                        await pub_msg(conn, msg="analysis_response", data=msg_data)
-
-                        if 'log_level_finder' in measurement:
-                            testrun_id = await conn.hget("testrun", "id")
-                            scenario_id = await conn.hget("testrun", "scenario_id")
-                            await update_log_level_finder_to_scenario(scenario_id, testrun_id,
-                                                                      {'type': 'log_level_finder',
-                                                                       'timestamp': datetime.utcfromtimestamp(time.time())})
-
-                        # 상태 변경 및 메세지 전송
-                        await set_service_state_and_pub(conn, ServiceStateEnum.idle)
+                    # 마지막 측정결과 갱신
+                    if ('loudness' in measurement
+                            or 'monkey_test' in measurement
+                            or 'log_level_finder' in measurement
+                            or 'intelligent_monkey_test' in measurement):  # TODO 모듈에서 하지 않는 걸로
+                        testrun_id = await conn.hget("testrun", "id")
+                        scenario_id = await conn.hget("testrun", "scenario_id")
+                        await update_to_scenario(scenario_id, testrun_id,
+                                                 {'type': measurement[0],
+                                                  'timestamp': datetime.utcfromtimestamp(time.time())})
 
             except Exception as e:
                 print(e, traceback.format_exc())

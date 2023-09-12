@@ -77,9 +77,12 @@ export const putBlockGroup = async ({
   scenario_id: string
 }) => {
   try {
-    const result = await API.put<{ msg: string }>(`${apiUrls.block_group}/${scenario_id}/${block_group_id}`, {
-      repeat_cnt,
-    })
+    const result = await API.put<{ msg: string; id: string }>(
+      `${apiUrls.block_group}/${scenario_id}/${block_group_id}`,
+      {
+        repeat_cnt,
+      },
+    )
 
     return result.data
   } catch (err) {

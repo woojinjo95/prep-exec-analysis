@@ -28,6 +28,7 @@ class CommandExecutor:
 
     def execute(self, command: Dict):
         # PUBLISH command '{"msg": "analysis", "data": {"measurement": ["freeze"]}}'
+        # PUBLISH command '{"msg": "service_state", "data": {"state": "streaming"}}'
 
         if command.get('msg') == 'analysis':
             data = command.get('data', {})

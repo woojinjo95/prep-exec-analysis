@@ -1,13 +1,15 @@
 import React from 'react'
+import { useRecoilState } from 'recoil'
 import { Accordion, SimpleButton, Text } from '@global/ui'
 import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.svg'
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
-// import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
+import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
 import { convertDuration, numberWithCommas } from '@global/usecase'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
+import { resumeTypeFilterListState } from '@global/atom'
 import { AnalysisTypeLabel, ResumeTypeLabel } from '../../../constant'
 
-interface ResumeSummaryResultItemProps {
+interface ResumeSummaryItemProps {
   resume: NonNullable<AnalysisResultSummary['resume']>
   setRawDataModalType: React.Dispatch<React.SetStateAction<keyof AnalysisResultSummary | null>>
 }
@@ -15,7 +17,9 @@ interface ResumeSummaryResultItemProps {
 /**
  * resume 분석결과 요약 아이템
  */
-const ResumeSummaryResultItem: React.FC<ResumeSummaryResultItemProps> = ({ resume, setRawDataModalType }) => {
+const ResumeSummaryItem: React.FC<ResumeSummaryItemProps> = ({ resume, setRawDataModalType }) => {
+  const [resumeTypeFilterList, setResumeTypeFilterList] = useRecoilState(resumeTypeFilterListState)
+
   return (
     <Accordion
       header={
@@ -39,7 +43,7 @@ const ResumeSummaryResultItem: React.FC<ResumeSummaryResultItemProps> = ({ resum
       }
     >
       <div className="grid grid-cols-1 gap-y-4 pt-1">
-        <div className="grid grid-cols-[1fr_auto_auto_auto] gap-x-4 gap-y-2">
+        <div className="grid grid-cols-[1fr_auto_auto_auto] gap-x-4 gap-y-1 items-center">
           {/* header */}
           <Text weight="medium" size="sm">
             Target
@@ -61,9 +65,23 @@ const ResumeSummaryResultItem: React.FC<ResumeSummaryResultItemProps> = ({ resum
               <Text size="sm" className="text-right">
                 {convertDuration(avg_time)}
               </Text>
-              <button type="button">
-                <ShowEyeIcon className="w-5" />
-              </button>
+              {resumeTypeFilterList.includes(target) ? (
+                <SimpleButton
+                  isIcon
+                  colorScheme="charcoal"
+                  onClick={() => setResumeTypeFilterList((prev) => prev.filter((type) => type !== target))}
+                >
+                  <HiddenEyeIcon className="h-4 w-5" />
+                </SimpleButton>
+              ) : (
+                <SimpleButton
+                  isIcon
+                  colorScheme="charcoal"
+                  onClick={() => setResumeTypeFilterList((prev) => [...prev, target])}
+                >
+                  <ShowEyeIcon className="h-4 w-5" />
+                </SimpleButton>
+              )}
             </React.Fragment>
           ))}
         </div>
@@ -79,4 +97,4 @@ const ResumeSummaryResultItem: React.FC<ResumeSummaryResultItemProps> = ({ resum
   )
 }
 
-export default ResumeSummaryResultItem
+export default ResumeSummaryItem

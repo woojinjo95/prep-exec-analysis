@@ -81,7 +81,14 @@ def task_warm_boot_with_match(args: VideoInfo, config: Dict):
                     'timestamp': get_utc_datetime(result['match_timestamp']),
                     'measure_time': result['match_time'],
                 })
-            progress_manager.update_progress(idx / len(crop_videos))
+            progress_manager.update_progress((idx + 1) / len(crop_videos))
+
+
+def get_config() -> Dict:
+    analysis_config = read_analysis_config()
+    config = analysis_config[Command.RESUME.value]
+    logger.info(f'config: {config}')
+    return config
 
 
 def get_template_info(config) -> Tuple[np.ndarray, Tuple[int, int, int, int]]:
@@ -90,11 +97,3 @@ def get_template_info(config) -> Tuple[np.ndarray, Tuple[int, int, int, int]]:
     roi = (roi_data['x'], roi_data['y'], roi_data['w'], roi_data['h'])
     logger.info(f'template shape: {template.shape}, roi: {roi}')
     return template, roi
-
-
-def get_config() -> Dict:
-    analysis_config = read_analysis_config()
-    config = analysis_config['resume']
-    logger.info(f'config: {config}')
-    return config
-

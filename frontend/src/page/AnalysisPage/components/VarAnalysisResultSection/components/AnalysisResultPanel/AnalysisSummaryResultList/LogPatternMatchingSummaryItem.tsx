@@ -1,39 +1,37 @@
 import React from 'react'
+import { useRecoilState } from 'recoil'
 import { Accordion, SimpleButton, Text } from '@global/ui'
 import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.svg'
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
-// import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
+import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
 import { numberWithCommas } from '@global/usecase'
+import { logPatternMatchingNameFilterListState } from '@global/atom'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { AnalysisTypeLabel } from '../../../constant'
 
-interface LogPatternMatchingSummaryResultItemProps {
+interface LogPatternMatchingSummaryItemProps {
   logPatternMatching: NonNullable<AnalysisResultSummary['log_pattern_matching']>
   setRawDataModalType: React.Dispatch<React.SetStateAction<keyof AnalysisResultSummary | null>>
 }
 
 /**
- * log pattern matching 분석 결과 아이템
+ * log pattern matching 분석 결과 요약 아이템
  */
-const LogPatternMatchingSummaryResultItem: React.FC<LogPatternMatchingSummaryResultItemProps> = ({
+const LogPatternMatchingSummaryItem: React.FC<LogPatternMatchingSummaryItemProps> = ({
   logPatternMatching,
   setRawDataModalType,
 }) => {
+  const [logPatternMatchingNameFilterList, setLogPatternMatchingNameFilterList] = useRecoilState(
+    logPatternMatchingNameFilterListState,
+  )
+
   return (
     <Accordion
       header={
         <div className="flex justify-between items-center">
-          <div className="flex items-center gap-x-3">
-            <div
-              className="w-4 h-4"
-              style={{
-                backgroundColor: logPatternMatching.color,
-              }}
-            />
-            <Text size="sm" weight="medium">
-              {AnalysisTypeLabel.log_pattern_matching}
-            </Text>
-          </div>
+          <Text size="sm" weight="medium">
+            {AnalysisTypeLabel.log_pattern_matching}
+          </Text>
 
           <Text weight="medium">
             {numberWithCommas(logPatternMatching.results.reduce((acc, curr) => acc + curr.total, 0))} times
@@ -42,7 +40,7 @@ const LogPatternMatchingSummaryResultItem: React.FC<LogPatternMatchingSummaryRes
       }
     >
       <div className="grid grid-cols-1 gap-y-4 pt-1">
-        <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 gap-y-2">
+        <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 gap-y-1 items-center">
           {/* header */}
           <Text weight="medium" size="sm">
             Log Pattern Name
@@ -66,9 +64,25 @@ const LogPatternMatchingSummaryResultItem: React.FC<LogPatternMatchingSummaryRes
               <Text size="sm" className="text-right">
                 {numberWithCommas(total)}
               </Text>
-              <button type="button">
-                <ShowEyeIcon className="w-5" />
-              </button>
+              {logPatternMatchingNameFilterList.includes(log_pattern_name) ? (
+                <SimpleButton
+                  isIcon
+                  colorScheme="charcoal"
+                  onClick={() =>
+                    setLogPatternMatchingNameFilterList((prev) => prev.filter((type) => type !== log_pattern_name))
+                  }
+                >
+                  <HiddenEyeIcon className="h-4 w-5" />
+                </SimpleButton>
+              ) : (
+                <SimpleButton
+                  isIcon
+                  colorScheme="charcoal"
+                  onClick={() => setLogPatternMatchingNameFilterList((prev) => [...prev, log_pattern_name])}
+                >
+                  <ShowEyeIcon className="h-4 w-5" />
+                </SimpleButton>
+              )}
             </React.Fragment>
           ))}
         </div>
@@ -88,4 +102,4 @@ const LogPatternMatchingSummaryResultItem: React.FC<LogPatternMatchingSummaryRes
   )
 }
 
-export default LogPatternMatchingSummaryResultItem
+export default LogPatternMatchingSummaryItem
