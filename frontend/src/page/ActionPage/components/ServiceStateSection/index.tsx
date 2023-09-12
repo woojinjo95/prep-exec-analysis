@@ -31,7 +31,7 @@ const ServiceStateSection: React.FC = () => {
     <div
       className={cx('w-full px-8 flex items-center bg-black border-b border-light-charcoal', {
         'border-red border-l-4 border-r-4 border-t-0 border-b-4': isBlockRecordMode && isBorderVisible,
-        'border-primary border-l-4 border-t-4 border-r-4': serviceState === 'playblock' && isBorderVisible,
+        'border-primary border-l-4 border-t-0 border-r-4 border-b-4': serviceState === 'playblock' && isBorderVisible,
       })}
     >
       <Text colorScheme="light" className="!text-[12px]">

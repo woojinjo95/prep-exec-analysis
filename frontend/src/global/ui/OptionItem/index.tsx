@@ -29,20 +29,19 @@ const OptionItem: React.FC<OptionItemProps> = ({
         {
           'bg-charcoal': colorScheme === 'dark' && isActive,
           'bg-light-charcoal': colorScheme === 'charcoal' && isActive,
-          'bg-[#F1F2F4]': colorScheme === 'light' && isActive,
-          '!bg-light-grey': colorScheme === 'light' && disabled,
+          'bg-[#F1F2F4]': colorScheme === 'light' && (isActive || disabled),
           // TODO : colorScheme가 light가 아닐 떄
 
           'hover:bg-charcoal': colorScheme === 'dark',
           'hover:bg-light-charcoal': colorScheme === 'charcoal',
           'hover:bg-[#F1F2F4]': colorScheme === 'light',
-          '!hover:bg-light-grey': colorScheme === 'light' && disabled,
+          '!hover:bg-[#F1F2F4]': colorScheme === 'light' && disabled,
         },
         props.className,
       )}
       {...props}
     >
-      <Text size="sm" colorScheme={colorScheme === 'light' ? 'dark' : 'light'}>
+      <Text size="sm" colorScheme={colorScheme === 'light' ? 'dark' : 'light'} isActive={!disabled}>
         {children}
       </Text>
     </li>

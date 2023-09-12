@@ -32,12 +32,15 @@ const BlockControls: React.FC = () => {
 
   const [isBlockRecordMode, setIsBlockRecordMode] = useRecoilState(isBlockRecordModeState)
 
+  // 최소 1을 가지고 있음
   const [repeatCnt, setRepeatCnt] = useState<number>(1)
 
   const { scenario, refetch } = useScenarioById({
     scenarioId,
     onSuccess: (res) => {
-      setRepeatCnt(res.block_group[0].repeat_cnt)
+      if (res.block_group.length > 0) {
+        setRepeatCnt(res.block_group[0].repeat_cnt)
+      }
     },
   })
 
@@ -115,31 +118,35 @@ const BlockControls: React.FC = () => {
             ))}
           </DropdownWithMoreButton>
 
-          <Input
-            colorScheme="light"
-            className="!w-[74px] !h-10 ml-3 mr-1"
-            value={repeatCnt}
-            type="number"
-            onChange={(e) => {
-              setRepeatCnt(Number(e.target.value))
-            }}
-            onBlur={() => {
-              if (!scenario) return
+          {scenario.block_group.length > 0 && (
+            <>
+              <Input
+                disabled={serviceState === 'playblock'}
+                colorScheme="light"
+                className={cx('!w-[74px] !h-10 ml-3 mr-1', { '!bg-light-grey': serviceState === 'playblock' })}
+                value={repeatCnt}
+                type="number"
+                onChange={(e) => {
+                  setRepeatCnt(Number(e.target.value))
+                }}
+                onBlur={() => {
+                  if (!scenario) return
 
-              // 같을 때는 불필요하게 api 호출 X
-              if (repeatCnt === scenario.block_group[0].repeat_cnt) return
+                  // 같을 때는 불필요하게 api 호출 X
+                  if (repeatCnt === scenario.block_group[0].repeat_cnt) return
 
-              putBlockGroupMutate({
-                block_group_id: scenario.block_group[0].id,
-                repeat_cnt: repeatCnt,
-                scenario_id: scenario.id,
-              })
-            }}
-          />
-
-          <Text colorScheme="dark" weight="bold" size="sm">
-            Repeat
-          </Text>
+                  putBlockGroupMutate({
+                    block_group_id: scenario.block_group[0].id,
+                    repeat_cnt: repeatCnt,
+                    scenario_id: scenario.id,
+                  })
+                }}
+              />
+              <Text colorScheme="dark" weight="bold" size="sm">
+                Repeat
+              </Text>
+            </>
+          )}
         </div>
 
         <div className="flex items-center gap-x-1 ml-auto">
@@ -237,7 +244,7 @@ const BlockControls: React.FC = () => {
           <div
             className={cx(
               'flex justify-center items-center border border-[#DFE0EE] h-[40px] w-[74px] rounded-[20px] text-[14px] font-medium cursor-pointer',
-              { 'cusror-none bg-light-grey': isBlockRecordMode },
+              { 'cusror-none bg-light-grey': serviceState === 'playblock' },
             )}
             onClick={() => {
               if (!scenarioId) return
