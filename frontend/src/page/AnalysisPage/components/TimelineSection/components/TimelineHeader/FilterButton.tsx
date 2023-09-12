@@ -50,11 +50,7 @@ const FilterButton: React.FC<FilterButtonProps> = ({
 
   const onDragEnd: OnDragEndResponder = (result) => {
     if (!result.destination) return
-    if (
-      result.destination.droppableId === result.source.droppableId &&
-      result.destination.index === result.source.index
-    )
-      return
+    if (result.source.index === result.destination.index) return
 
     // 보기 리스트에서 숨기기 리스트로 이동했을 경우
     if (result.source.droppableId === SHOWN_DROPPABLE_ID && result.destination.droppableId === HIDDEN_DROPPABLE_ID) {
@@ -98,10 +94,15 @@ const FilterButton: React.FC<FilterButtonProps> = ({
           >
             <DragDropContext onDragEnd={onDragEnd}>
               {!!shownChartList.length && (
-                <div className="px-4">
+                <div className="px-4 flex items-center justify-between">
                   <Text size="xs" weight="medium" colorScheme="grey">
                     Shown in board
                   </Text>
+                  <SimpleButton colorScheme="primary" onClick={() => setActiveChartList([])}>
+                    <Text colorScheme="primary" weight="medium" size="xs">
+                      Hide all
+                    </Text>
+                  </SimpleButton>
                 </div>
               )}
 
@@ -155,10 +156,15 @@ const FilterButton: React.FC<FilterButtonProps> = ({
               </Droppable>
 
               {!!hiddenChartList.length && (
-                <div className="px-4">
+                <div className="px-4 flex items-center justify-between">
                   <Text size="xs" weight="medium" colorScheme="grey">
                     Hidden in board
                   </Text>
+                  <SimpleButton colorScheme="primary" onClick={() => setActiveChartList([...allChartList])}>
+                    <Text colorScheme="primary" weight="medium" size="xs">
+                      Show all
+                    </Text>
+                  </SimpleButton>
                 </div>
               )}
 

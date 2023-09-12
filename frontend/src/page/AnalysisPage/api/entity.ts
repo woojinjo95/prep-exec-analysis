@@ -105,6 +105,7 @@ export interface AnalysisResultSummary {
   monkey_test?: {
     color: string
     results: {
+      id: string
       duration_time: number // 단위: s
       smart_sense: number
     }[]
@@ -253,13 +254,14 @@ export interface LogPatternMatching {
    */
   timestamp: string
   log_pattern_name: string
-  log_level: string
+  log_level: keyof typeof LogLevel
   message: string
   color: string
   regex: string
 }
 
 export interface MonkeySection {
+  id: string
   /**
    * @format timestamp
    */
@@ -271,6 +273,7 @@ export interface MonkeySection {
 }
 
 export interface MonkeySmartSense {
+  id: string
   /**
    * @format timestamp
    */
@@ -279,6 +282,7 @@ export interface MonkeySmartSense {
 }
 
 export interface IntelligentMonkeySection {
+  section_id: number
   /**
    * @format timestamp
    */
