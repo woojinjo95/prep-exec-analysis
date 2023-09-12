@@ -98,7 +98,7 @@ const NetworkEmulation: React.FC = () => {
       if (message.data.action === 'stop') {
         return {
           type: 'network_emulation',
-          name: `All IP Allow`,
+          name: `Network Emulation: All Allow`,
           delay_time: 3000,
           args: [
             {
