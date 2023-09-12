@@ -1,11 +1,53 @@
+/* eslint-disable no-nested-ternary */
 import React, { useCallback, useState } from 'react'
 import { useToast } from '@chakra-ui/react'
 
 import { ReactComponent as RefreshIcon } from '@assets/images/icon_refresh_w.svg'
 import { Input, Title, ToggleButton, Text, Divider, Button } from '@global/ui'
-import { useHardwareConfiguration } from '@global/api/hook'
+import { useHardwareConfiguration, useScenarioById } from '@global/api/hook'
 import { useWebsocket } from '@global/hook'
+import { useRecoilValue } from 'recoil'
+import { isBlockRecordModeState, scenarioIdState } from '@global/atom'
+import { SubscribeMessage } from '@global/hook/useWebsocket/types'
+import { useMutation } from 'react-query'
+import { postBlock } from '@page/ActionPage/components/ActionSection/api/func'
+import { Block } from '@global/api/entity'
 import IPLimitItem from './IPLimitItem'
+
+// body의 updated 후보 목록
+type UpdatedList = 'create' | 'update' | 'delete' | 'packet_bandwidth' | 'packet_delay' | 'packet_loss'
+
+type NetworkEmulationMessageBody = {
+  action: 'create' | 'update' | 'delete' | 'reset'
+  log: string
+  updated: {
+    create?: {
+      ip: string
+      port: string
+      protocol: string
+    }
+    update?: {
+      id: string
+      ip: string
+      port: string
+      protocol: string
+    }
+    delete?: {
+      // delete에도 ip, port, protocol이 추가되어야 함
+      id: string
+    }
+    packet_bandwidth?: number
+    packet_delay?: number
+    packet_loss?: number
+  }
+}
+
+// limit action과 대응되는 block name
+const ActionBlockName: { [key in 'create' | 'update' | 'delete']: string } = {
+  create: 'Registed',
+  update: 'Modified',
+  delete: 'Deleted',
+}
 
 /**
  * 네트워크 에뮬레이션 컴포넌트
@@ -26,10 +68,178 @@ const NetworkEmulation: React.FC = () => {
       })
     },
   })
-  const { sendMessage } = useWebsocket({
+
+  const isBlockRecordMode = useRecoilValue(isBlockRecordModeState)
+
+  // updated에 따라 block을 만들어주는 함수
+  const makeBlockByUpdated: (message: SubscribeMessage<NetworkEmulationMessageBody>) => Omit<Block, 'id'> | null =
+    useCallback((message: SubscribeMessage<NetworkEmulationMessageBody>) => {
+      // reset 일 때
+      if (message.data.action === 'reset') {
+        return {
+          type: 'network_emulation',
+          name: `Reset: Network emulation`,
+          delay_time: 3000,
+          args: [
+            {
+              key: 'action',
+              value: 'reset',
+            },
+          ],
+        }
+      }
+
+      // ip limit 일 때
+      if (message.data.updated.create || message.data.updated.update || message.data.updated.delete) {
+        if (message.data.updated.create) {
+          return {
+            type: 'network_emulation',
+            name: `IP Limit (${ActionBlockName[message.data.action]}) : ${message.data.updated.create.ip}:${
+              message.data.updated.create.port
+            } (${message.data.updated.create.protocol})`,
+            delay_time: 3000,
+            args: [
+              {
+                key: 'action',
+                value: message.data.action,
+              },
+              {
+                key: 'packet_block',
+                value: message.data.updated.create,
+              },
+            ],
+          }
+        }
+        if (message.data.updated.update) {
+          return {
+            type: 'network_emulation',
+            name: `IP Limit (${ActionBlockName[message.data.action]}) : ${message.data.updated.update.ip}${
+              message.data.updated.update.port
+            } (${message.data.updated.update.protocol})`,
+            delay_time: 3000,
+            args: [
+              {
+                key: 'action',
+                value: message.data.action,
+              },
+              {
+                key: 'packet_block',
+                value: message.data.updated.create,
+              },
+            ],
+          }
+        }
+        // if (message.data.updated.delete) {
+        //   return {
+        //     type: 'network_emulation',
+        //     name: `IP Limit (${ActionBlockName[message.data.action]}) : ${message.data.updated.delete.ip}`,
+        //     delay_time: 3000,
+        //     args: [
+        //       {
+        //         key: 'action',
+        //         value: message.data.action,
+        //       },
+        //       {
+        //         key: 'packet_block',
+        //         value: message.data.updated.create,
+        //       },
+        //     ],
+        //   }
+        // }
+      }
+
+      // packet Control 일 때
+      if (
+        message.data.updated.packet_bandwidth ||
+        message.data.updated.packet_delay ||
+        message.data.updated.packet_loss
+      ) {
+        if (message.data.updated.packet_bandwidth) {
+          return {
+            type: 'network_emulation',
+            name: `Packet Control: BandWidth ${message.data.updated.packet_bandwidth}Mbps`,
+            delay_time: 3000,
+            args: [
+              {
+                key: 'action',
+                value: 'update',
+              },
+              {
+                key: 'packet_bandwidth',
+                value: message.data.updated.packet_bandwidth,
+              },
+            ],
+          }
+        }
+
+        if (message.data.updated.packet_delay) {
+          return {
+            type: 'network_emulation',
+            name: `Packet Control: Delay ${message.data.updated.packet_delay}ms`,
+            delay_time: 3000,
+            args: [
+              {
+                key: 'action',
+                value: 'update',
+              },
+              {
+                key: 'packet_delay',
+                value: message.data.updated.packet_delay,
+              },
+            ],
+          }
+        }
+
+        if (message.data.updated.packet_loss) {
+          return {
+            type: 'network_emulation',
+            name: `Packet Control: Loss ${message.data.updated.packet_loss}%`,
+            delay_time: 3000,
+            args: [
+              {
+                key: 'action',
+                value: 'update',
+              },
+              {
+                key: 'packet_loss',
+                value: message.data.updated.packet_loss,
+              },
+            ],
+          }
+        }
+      }
+
+      return null
+    }, [])
+
+  const scenarioId = useRecoilValue(scenarioIdState)
+
+  const { refetch: scenarioRefetch } = useScenarioById({ scenarioId })
+
+  const { mutate: postBlockMutate } = useMutation(postBlock, {
+    onSuccess: () => {
+      scenarioRefetch()
+    },
+    onError: (err) => {
+      console.error(err)
+    },
+  })
+
+  const { sendMessage } = useWebsocket<NetworkEmulationMessageBody>({
     onMessage: (message) => {
       if (message.msg === 'network_emulation_response') {
         refetch()
+
+        if (!scenarioId) return
+
+        // 녹화중인 상태일 때만
+        if (!isBlockRecordMode) return
+        if (!makeBlockByUpdated(message)) return
+
+        postBlockMutate({
+          newBlock: makeBlockByUpdated(message)!,
+          scenario_id: scenarioId,
+        })
       }
     },
   })
