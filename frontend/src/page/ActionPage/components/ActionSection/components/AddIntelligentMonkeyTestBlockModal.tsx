@@ -272,6 +272,10 @@ const AddIntelligentMonkeyTestBlockModal: React.FC<AddIntelligentMonkeyTestBlock
                       key: 'waiting_time',
                       value: waitingTime,
                     },
+                    {
+                      key: 'limit',
+                      value: 300,
+                    },
                   ],
                   delay_time: 3000,
                 },
