@@ -11,9 +11,10 @@ RUN ln -s /usr/bin/pip3 /usr/bin/pip
 RUN pip install --upgrade pip
 
 # install requirements
+ARG REQUIREMENTS=requirements.txt
 WORKDIR /app/
-ADD requirements.txt ./
-RUN pip install -r requirements.txt
+ADD ${REQUIREMENTS} ./
+RUN pip install -r ${REQUIREMENTS}
 
 ADD . ./
 
