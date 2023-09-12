@@ -4,7 +4,7 @@ from typing import Optional
 
 from app import schemas
 from app.api.utility import (convert_iso_format, parse_bytes_to_value,
-                             set_redis_pub_msg)
+                             set_redis_pub_msg, paginate_from_mongodb_aggregation)
 from app.crud.base import aggregate_from_mongodb
 from app.db.redis_session import RedisClient
 from app.schemas.enum import ShellModeEnum
@@ -41,36 +41,55 @@ def get_shell_modes(
 @router.get("/logs", response_model=schemas.ShellLogList)
 def get_shell_logs(
     shell_mode: ShellModeEnum,
-    start_time: str = Query(..., description="ex.2009-02-13T23:31:30+00:00"),
-    end_time: str = Query(..., description="ex.2009-02-13T23:31:30+00:00"),
+    start_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
-    testrun_id: Optional[str] = None
-) -> schemas.ShellLogList:
+    testrun_id: Optional[str] = None,
+    page_size: Optional[int] = 10,
+    page: Optional[int] = None,
+    sort_by: Optional[str] = 'timestamp',
+    sort_desc: Optional[bool] = False
+):
     """
     터미널별 일정기간 로그 조회
     """
     try:
+        if start_time is None and end_time is None:
+            raise HTTPException(status_code=400, detail='Need at least one time parameter')
+
+        time_range = {}
+        if start_time:
+            time_range['$gte'] = convert_iso_format(start_time)
+        if end_time:
+            time_range['$lte'] = convert_iso_format(end_time)
+
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
         if testrun_id is None:
             testrun_id = RedisClient.hget('testrun', 'id')
-        pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
-                                              '$lte': convert_iso_format(end_time)},
-                                'scenario_id': scenario_id,
-                                'testrun_id': testrun_id,
-                                'mode': shell_mode.value}},
-                    {'$project': {'_id': 0, 'lines': 1}},
-                    {'$unwind': {'path': '$lines'}},
-                    {'$project': {'lines': {'timestamp': {'$dateToString': {'date': '$lines.timestamp'}},
-                                            'module': '$lines.module',
-                                            'message': '$lines.message'}}},
-                    {'$group': {'_id': None, 'lines': {'$push': '$lines'}}}]
-        result = aggregate_from_mongodb(col="shell_log", pipeline=pipeline)
-        res = result if result == [] else result[0]['lines']
+
+        terminal_log_pipeline = [{'$match': {'timestamp': time_range,
+                                             'scenario_id': scenario_id,
+                                             'testrun_id': testrun_id,
+                                             'mode': shell_mode.value}}]
+        additional_pipeline = [{'$project': {'_id': 0, 'lines': 1}},
+                               {'$unwind': {'path': '$lines'}},
+                               {'$project': {'lines': {
+                                   'timestamp': {'$dateToString': {'date': '$lines.timestamp'}},
+                                   'module': '$lines.module',
+                                   'message': '$lines.message'}}},
+                               {'$replaceRoot': {'newRoot': '$lines'}}]
+        terminal_log_pipeline.extend(additional_pipeline)
+        result = paginate_from_mongodb_aggregation(col='shell_log',
+                                                   pipeline=terminal_log_pipeline,
+                                                   page=page,
+                                                   page_size=page_size,
+                                                   sort_by=sort_by,
+                                                   sort_desc=sort_desc)
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return {'items': res}
+    return result
 
 
 @router.post("/connect", response_model=schemas.Msg)

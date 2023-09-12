@@ -1,6 +1,7 @@
 from typing import List
 
 from app.schemas.enum import LogModuleEnum
+from app.schemas.analysis_result import PaginationBaseModel
 from pydantic import BaseModel
 
 
@@ -10,7 +11,7 @@ class Log(BaseModel):
     message: str
 
 
-class ShellLogList(BaseModel):
+class ShellLogList(PaginationBaseModel):
     items: List[Log]
 
 
