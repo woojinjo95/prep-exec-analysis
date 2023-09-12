@@ -55,10 +55,10 @@ const IntelligentMonkeyTestChart: React.FC<IntelligentMonkeyTestChartProps> = ({
     if (!intelligentMonkeySection) return null
     return intelligentMonkeySection
       .filter(({ section_id }) => !intelligentMonkeyTestSectionIdFilterList.includes(section_id))
-      .map(({ start_timestamp, end_timestamp }, index) => ({
+      .map(({ start_timestamp, end_timestamp, section_id }) => ({
         datetime: new Date(start_timestamp).getTime(),
         duration: new Date(end_timestamp).getTime() - new Date(start_timestamp).getTime(),
-        color: IntelligentMonkeyTestSectionColors[index % IntelligentMonkeyTestSectionColors.length],
+        color: IntelligentMonkeyTestSectionColors[section_id % IntelligentMonkeyTestSectionColors.length],
       }))
   }, [intelligentMonkeySection, summary, intelligentMonkeyTestSectionIdFilterList])
 
