@@ -32,8 +32,6 @@ async def setup_playblock(state: dict, db_scenario: any, db_blocks: any, conn: a
 async def setup_analysis(state: dict, db_scenario: any, db_blocks: any, conn: any):
     testrun_id = state.get('id')
     scenario_id = state.get('scenario_id')
-    # scenario_id = '3201ba8a-b96d-4b11-9298-35cdee3eb476'
-    # testrun_id = '2023-09-01T065554F133036'
     pipeline = [{"$match": {'id': scenario_id}},
                 {"$unwind": "$testruns"},
                 {"$project": {"testrun_id": "$testruns.id",

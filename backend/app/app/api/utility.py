@@ -1,3 +1,4 @@
+import datetime as dt
 import json
 import math
 import os
@@ -5,9 +6,10 @@ import time
 from ast import literal_eval
 from datetime import datetime
 
+from app import schemas
 from app.core.config import settings
-from app.crud.base import (load_from_mongodb, load_paginate_from_mongodb,
-                           aggregate_from_mongodb)
+from app.crud.base import (aggregate_from_mongodb, load_from_mongodb,
+                           load_paginate_from_mongodb)
 from app.db.redis_session import RedisClient
 
 analysis_collection = {
@@ -162,7 +164,9 @@ def deserialize_datetime(json_obj):
 
 def serialize_datetime(obj):
     if isinstance(obj, datetime):
-        return obj.isoformat()
+        utc_timezone = dt.timezone.utc
+        utc_datetime = obj.replace(tzinfo=utc_timezone)
+        return {"$date": utc_datetime.strftime('%Y-%m-%dT%H:%M:%S.%fZ')}
     raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
 
 
@@ -175,6 +179,20 @@ def get_config_from_scenario_mongodb(scenario_id: str, testrun_id: str):
                 {"$project": {"_id": 0, "config": 1}}]
     res = aggregate_from_mongodb('scenario', pipeline)
     return res[0] if len(res) > 0 else {}
+
+
+def convert_data_in(collection_name, document):
+    if collection_name == 'scenario':
+        data = schemas.ImportScenario(
+            id=document['id'],  # TODO 변경여부 확인
+            updated_at=document['updated_at'],
+            is_active=document['is_active'],
+            name=f"{document['name']}_{datetime.today().strftime('%Y-%m-%dT%H%M%SF%f')}",
+            tags=document['tags'],
+            block_group=document['block_group'],
+            testruns=document['testruns'],
+        )
+    return data
 
 
 def make_basic_match_pipeline(scenario_id: str=None, testrun_id: str=None, start_time: str=None, end_time: str=None):

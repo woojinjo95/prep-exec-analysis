@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Accordion, Checkbox, ColorPickerBox, Input, OptionItem, Select, Text } from '@global/ui'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
+import { AnalysisType } from '@global/constant'
 import { AnalysisTypeLabel } from '../../../constant'
 import { UnsavedAnalysisConfig } from '../../../types'
 
@@ -11,6 +12,8 @@ interface FreezeAnalysisItemProps {
   duration: NonNullable<UnsavedAnalysisConfig['freeze']>['duration']
   onClickDeleteItem: React.MouseEventHandler<SVGSVGElement>
   setUnsavedAnalysisConfig: React.Dispatch<React.SetStateAction<UnsavedAnalysisConfig>>
+  isRememberChecked: boolean
+  setIsRememberedConfig: React.Dispatch<React.SetStateAction<{ [key in keyof typeof AnalysisType]?: boolean }>>
 }
 
 /**
@@ -21,9 +24,10 @@ const FreezeAnalysisItem: React.FC<FreezeAnalysisItemProps> = ({
   duration,
   onClickDeleteItem,
   setUnsavedAnalysisConfig,
+  isRememberChecked,
+  setIsRememberedConfig,
 }) => {
   const [durationUnit, setDurationUnit] = useState<'Sec' | 'Min'>(Number(duration) > 60 ? 'Min' : 'Sec')
-  const [isRememberChecked, setIsRememberChecked] = useState<boolean>(false)
 
   const displayDuration = useMemo(() => {
     if (!duration) return ''
@@ -158,12 +162,11 @@ const FreezeAnalysisItem: React.FC<FreezeAnalysisItemProps> = ({
           </Select>
         </div>
 
-        {/* TODO: local storage에 저장 */}
         <Checkbox
           colorScheme="light"
           isChecked={isRememberChecked}
           label="Remember current settings"
-          onClick={(isChecked) => setIsRememberChecked(isChecked)}
+          onClick={(isChecked) => setIsRememberedConfig((prev) => ({ ...prev, freeze: isChecked }))}
         />
       </div>
     </Accordion>

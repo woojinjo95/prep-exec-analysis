@@ -1,15 +1,19 @@
-from typing import List, Dict
-import re
 import logging
+import re
+from typing import List
+
+from scripts.connection.external import get_connection_info
 from scripts.connection.stb_connection.utils import exec_command
 from scripts.log_service.dumpsys.format import MemoryInfo
 from scripts.util.common import convert_comma_separated_number_to_int
+from scripts.config.config import get_setting_with_env
 
 logger = logging.getLogger('dumpsys')
 
 
-def get_meminfo(connection_info: Dict, timeout: float) -> List[str]:
-    result = exec_command('dumpsys meminfo', timeout, connection_info)
+def get_meminfo() -> List[str]:
+    connection_info = get_connection_info()
+    result = exec_command('dumpsys meminfo', get_setting_with_env('MEMINFO_EXTRACTION_TIMEOUT', 20), connection_info)
     return result.splitlines()
 
 
@@ -32,9 +36,9 @@ def parse_mem_info_summary(chunk: List[str]) -> MemoryInfo:
     return MemoryInfo(**result)
 
 
-def parse_memory_info(connection_info: Dict, timeout: float) -> MemoryInfo:
+def parse_memory_info() -> MemoryInfo:
     try:
-        lines = get_meminfo(connection_info, timeout)
+        lines = get_meminfo()
         mem_info = parse_mem_info_summary(lines)
         mem_info.memory_usage = str((int(mem_info.used_ram) / int(mem_info.total_ram)) * 100)
         return mem_info

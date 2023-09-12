@@ -63,7 +63,7 @@ class LogLevelEnum(ExtendedEnum):
 
 class ChannelChangeTimeTargetEnum(ExtendedEnum):
     adjoint_channel = "adjoint_channel"
-    nonadjoint_channel = "nonadjoint_channel"
+    non_adjoint_channel = "non_adjoint_channel"
 
 
 class BlockTypeEnum(ExtendedEnum):
@@ -73,6 +73,7 @@ class BlockTypeEnum(ExtendedEnum):
     packet_control = "packet_control"
     packet_block = "packet_block"
     device_info = "device_info"
+    network_emulation = "network_emulation"
     shell = "shell"
     monkey_test = "monkey_test"
     intelligent_monkey_test = "intelligent_monkey_test"
@@ -106,6 +107,17 @@ class FreezeTypeEnum(ExtendedEnum):
 
 class ExportItemEnum(ExtendedEnum):
     scenario = "scenario"
-    videos = "videos"
-    analysis_config = "analysis_config"
     stb_log = "stb_log"
+    stb_info = "stb_info"
+    loudness = "loudness"
+    network_trace = "network_trace"
+    terminal_log = "terminal_log"
+    monkey_smart_sense = "monkey_smart_sense"
+    monkey_section = "monkey_section"
+    an_color_reference = "an_color_reference"
+    an_freeze = "an_freeze"
+    an_warm_boot = "an_warm_boot"
+    an_cold_boot = "an_cold_boot"
+    an_log_pattern = "an_log_pattern"
+    videos = "videos"
+    frames = "frames"

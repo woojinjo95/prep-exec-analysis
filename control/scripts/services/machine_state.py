@@ -6,7 +6,7 @@ from multiprocessing import Event
 from typing import Dict
 
 from ..configs.config import get_value
-from ..configs.constant import RedisChannel
+from ..configs.constant import RedisChannel, RedisDBEnum
 from ..connection.redis_pubsub import get_strict_redis_connection, publish
 from ..device.remocon.remocon_process import RemoconProcess
 from ..state.machine_state import (get_cpu_usage_average_in_percent,
@@ -32,13 +32,13 @@ def uptime() -> str:
 def get_machine_state() -> Dict:
     # key itself is function name of LCDString class
     # value is string or string() object
-    values = {'ir_state': 'on' if get_value(HARDWARE_CONFIG, 'remote_control_type') == 'ir' else 'off',
+    values = {'ir_state': 'on' if get_value(HARDWARE_CONFIG, 'remote_control_type', db=RedisDBEnum.hardware) == 'ir' else 'off',
               'bt_state': 'off',
               'uptime': uptime(),
               'set_status': get_current_running_state(),
               'wan_ip': get_machine_private_ip(),
               'stb_ip': get_machine_dut_lan_ip(),
-              'video_input_state': 'on' if get_value(HARDWARE_CONFIG, DUT_HDMI) else 'off',  # temp
+              'video_input_state': 'on' if get_value(HARDWARE_CONFIG, DUT_HDMI, db=RedisDBEnum.hardware) else 'off',  # temp
               'cpu_temp': get_representive_temperature(),
               #   'cpu_usage': get_cpu_usage_average_in_percent(),
               'memory_usage': get_memory_usage_in_percent(),

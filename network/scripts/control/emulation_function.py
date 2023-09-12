@@ -131,7 +131,7 @@ def update_packet_block(block_args: dict):
             logger.warning(f'No uuid is specified: {block_args}')
 
 
-def delete_packet_block(query: dict):
+def delete_packet_block(query: dict) -> dict:
     with get_strict_redis_connection(db=RedisDBEnum.hardware) as src:
         deleted_item = None
         packet_block_list = hget_value(src, HARDWARE_CONFIG, PACKET_BLOCK)
@@ -150,9 +150,10 @@ def delete_packet_block(query: dict):
                 logger.info(f'{deleted_item} is deleted')
                 packet_block_list.remove(deleted_item)
                 hset_value(src, HARDWARE_CONFIG, PACKET_BLOCK, packet_block_list)
-                return
+                return deleted_item
 
         logger.warning(f'{query} is not valid to remove')
+        return {}
 
 
 def apply_network_emulation_args(args: Dict):
@@ -218,7 +219,8 @@ def apply_network_emulation_args(args: Dict):
                         add_packet_block(block_args)
                         updated['create'] = block_args
                     elif action == 'delete':
-                        delete_packet_block(block_args)
+                        deleted_item = delete_packet_block(block_args)
+                        block_args.update(deleted_item)
                         updated['delete'] = block_args
                     elif action == 'update':
                         update_packet_block(block_args)
