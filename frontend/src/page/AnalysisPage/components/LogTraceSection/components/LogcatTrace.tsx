@@ -5,26 +5,25 @@ import { Text } from '@global/ui'
 import { formatDateTo } from '@global/usecase'
 import { cursorDateTimeState } from '@global/atom'
 import { LogLevelColor } from '@global/constant'
-import { useLogcat } from '../api/hook'
+import { useInfiniteLogcat } from '../api/hook'
 
 /**
  * Logcat 로그 추적 영역
  */
 const LogcatTrace: React.FC = () => {
   const cursorDateTime = useRecoilValue(cursorDateTimeState)
-  const { logcats } = useLogcat({
-    // cursorDateTime 기준 전후 30초씩(총 1분)
-    start_time: new Date((cursorDateTime?.getTime() || 0) - 1000 * 30).toISOString(),
-    end_time: new Date((cursorDateTime?.getTime() || 0) + 1000 * 30).toISOString(),
+  const { logcats, loadingRef, hasNextPage } = useInfiniteLogcat({
+    start_time: cursorDateTime?.toISOString()!,
     enabled: !!cursorDateTime,
   })
 
+  if (!logcats) return null
   return (
     <div className="w-full flex flex-col h-full overflow-x-hidden overflow-y-auto">
       <Scrollbars
         renderThumbVertical={({ ...props }) => <div {...props} className="bg-light-charcoal w-2 rounded-[5px]" />}
       >
-        <div className="w-[calc(100%-48px)] grid grid-cols-[16%_6%_9%_9%_5%_5%_50%] gap-x-2 text-grey sticky top-0 bg-black">
+        <div className="w-full grid grid-cols-[16%_6%_9%_9%_5%_5%_50%] gap-x-2 text-grey sticky top-0 bg-black">
           <Text size="sm" colorScheme="grey">
             Timestamp
           </Text>
@@ -51,7 +50,7 @@ const LogcatTrace: React.FC = () => {
           {logcats?.map(({ timestamp, module, log_level, process_name, pid, tid, message }, index) => (
             <div
               key={`logcat-trace-log-${timestamp}-${index}`}
-              className="w-[calc(100%-48px)] grid grid-cols-[16%_6%_9%_9%_5%_5%_50%] gap-x-2 text-grey text-sm"
+              className="w-full grid grid-cols-[16%_6%_9%_9%_5%_5%_50%] gap-x-2 text-grey text-sm"
             >
               <Text size="sm" colorScheme="grey">
                 {formatDateTo('YYYY-MM-DD HH:MM:SS:MS', new Date(timestamp))}
@@ -85,6 +84,14 @@ const LogcatTrace: React.FC = () => {
               </Text>
             </div>
           ))}
+        </div>
+        <div
+          ref={loadingRef}
+          className="p-2 flex items-center justify-center w-full"
+          style={{ display: !hasNextPage ? 'none' : '' }}
+        >
+          {/* TODO: Loading spin 같은 로딩 UI가 필요 */}
+          Loading...
         </div>
       </Scrollbars>
     </div>
