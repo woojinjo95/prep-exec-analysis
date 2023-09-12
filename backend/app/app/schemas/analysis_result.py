@@ -117,6 +117,7 @@ class LogPatternMatching(PaginationBaseModel):
 
 
 class MonkeyTestBase(BaseModel):
+    id: str
     start_timestamp: str
     end_timestamp: str
 
@@ -126,11 +127,22 @@ class MonkeyTest(PaginationBaseModel):
 
 
 class MonkeySmartSenseBase(TimestampBaseModel):
+    id: str
     smart_sense_key: List[str]
 
 
 class MonkeySmartSense(PaginationBaseModel):
     items: List[MonkeySmartSenseBase]
+
+
+class IntelligentMonkeyTestBase(BaseModel):
+    section_id: int
+    start_timestamp: str
+    end_timestamp: str
+
+
+class IntelligentMonkeyTest(PaginationBaseModel):
+    items: List[IntelligentMonkeyTestBase]
 
 
 class IntelligentMonkeySmartSenseBase(TimestampBaseModel):
@@ -225,6 +237,7 @@ class LoudnessSummary(SummaryBase):
 
 
 class MonkeyTestSummaryBase(BaseModel):
+    id: str
     duration_time: int
     smart_sense: int
 
