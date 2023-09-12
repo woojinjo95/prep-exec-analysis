@@ -32,13 +32,13 @@ def uptime() -> str:
 def get_machine_state() -> Dict:
     # key itself is function name of LCDString class
     # value is string or string() object
-    values = {'ir_state': 'on' if get_value(HARDWARE_CONFIG, 'remote_control_type', RedisDBEnum.hardware) == 'ir' else 'off',
+    values = {'ir_state': 'on' if get_value(HARDWARE_CONFIG, 'remote_control_type', db=RedisDBEnum.hardware) == 'ir' else 'off',
               'bt_state': 'off',
               'uptime': uptime(),
               'set_status': get_current_running_state(),
               'wan_ip': get_machine_private_ip(),
               'stb_ip': get_machine_dut_lan_ip(),
-              'video_input_state': 'on' if get_value(HARDWARE_CONFIG, DUT_HDMI, RedisDBEnum.hardware) else 'off',  # temp
+              'video_input_state': 'on' if get_value(HARDWARE_CONFIG, DUT_HDMI, db=RedisDBEnum.hardware) else 'off',  # temp
               'cpu_temp': get_representive_temperature(),
               #   'cpu_usage': get_cpu_usage_average_in_percent(),
               'memory_usage': get_memory_usage_in_percent(),
