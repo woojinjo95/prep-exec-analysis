@@ -13,19 +13,8 @@ const parseEventLog = (eventLog: EventLogTooltip) => {
     return `RCU (${eventLog.data.type.toUpperCase()}) : ${capitalize(eventLog.data.key)}`
   }
 
-  // On/Off 제어
-  if (eventLog.msg === 'on_off_control_response') {
-    if (eventLog.data.enable_dut_power_transition) {
-      return `Control : DUT Power ${capitalize(eventLog.data.vac)}`
-    }
-
-    if (eventLog.data.enable_hdmi_transition) {
-      return `Control : HDMI ${capitalize(eventLog.data.vac)}`
-    }
-
-    if (eventLog.data.enable_dut_wan_transition) {
-      return `Control : DUT Wan ${capitalize(eventLog.data.vac)}`
-    }
+  if (eventLog.msg === 'capture_board_response') {
+    return `Screen : Reset`
   }
 
   // 쉘 명령
@@ -40,6 +29,21 @@ const parseEventLog = (eventLog: EventLogTooltip) => {
       : `Device Info : ssh / ${eventLog.data.host}:${eventLog.data.port}, ID: ${eventLog.data.username || ''}, PW: ${
           eventLog.data.password || ''
         }`
+  }
+
+  // On/Off 제어
+  if (eventLog.msg === 'on_off_control_response') {
+    if (eventLog.data.enable_dut_power_transition) {
+      return `Control : DUT Power ${capitalize(eventLog.data.vac)}`
+    }
+
+    if (eventLog.data.enable_hdmi_transition) {
+      return `Control : HDMI ${capitalize(eventLog.data.vac)}`
+    }
+
+    if (eventLog.data.enable_dut_wan_transition) {
+      return `Control : DUT Wan ${capitalize(eventLog.data.vac)}`
+    }
   }
 
   // 네트워크 제어

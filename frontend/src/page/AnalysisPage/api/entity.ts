@@ -219,12 +219,18 @@ interface NetworkEmulationResposneEventLog {
   }
 }
 
+interface CaptureBoardResponse {
+  msg: 'capture_board_response'
+  data: object
+}
+
 export type EventLogTooltip =
   | RemoconResponseEventLog
   | OnOffControlResponseEventLog
   | ShellResponseEventLog
   | ConfigResponseEventLog
   | NetworkEmulationResposneEventLog
+  | CaptureBoardResponse
 
 export type EventLog = {
   /**
