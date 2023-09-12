@@ -184,7 +184,7 @@ services:
     command: python -u process.py
     build:
       context: ./shell
-      dockerfile: Dockerfile.dev.m32dev4
+      dockerfile: Dockerfile
     ports:
       - 5005:80
     volumes:
@@ -290,7 +290,7 @@ services:
     command: python -u process.py
     build:
       context: ./state
-      dockerfile: Dockerfile.dev.m32dev4
+      dockerfile: Dockerfile
     volumes:
       - ./state/app:/app
 
