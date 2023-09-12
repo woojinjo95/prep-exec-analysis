@@ -1,6 +1,7 @@
 import React from 'react'
 import { Tabs } from '@global/ui'
 import { useServiceState } from '@global/api/hook'
+import ControlNotice from '@global/ui/ControlNotice'
 import SettingsAndControlsPanel from './components/SettingsAndControlsPanel'
 import TerminalPanel from './components/TerminalPanel/TerminalPanel'
 
@@ -16,7 +17,10 @@ const TerminalSection: React.FC = () => {
         <TerminalPanel />
       </Tabs>
       {serviceState === 'playblock' && (
-        <div className="absolute top-0 left-0 w-full h-full z-10 bg-black opacity-[0.6]" />
+        <>
+          <div className="absolute top-0 left-0 w-full h-full z-10 bg-black opacity-[0.6] flex justify-center items-center" />
+          <ControlNotice />
+        </>
       )}
     </section>
   )
