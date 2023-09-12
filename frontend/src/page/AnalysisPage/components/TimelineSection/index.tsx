@@ -107,12 +107,12 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
       width: dimension?.width,
     })
 
-  const handleWindowResize = useCallback(() => {
+  const handleWindowResize = () => {
     if (!chartWrapperRef.current || dimension?.width || dimension?.left || scrollBarTwoPosX) return
 
     setDimension({ width: chartWrapperRef.current.clientWidth, left: chartWrapperRef.current.offsetLeft })
     setScrollBarTwoPosX([0, chartWrapperRef.current.clientWidth])
-  }, [])
+  }
 
   useEffect(() => {
     handleWindowResize()
