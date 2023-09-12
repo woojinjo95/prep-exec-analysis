@@ -72,8 +72,8 @@ def read_logcat(
 
 @router.get("/network", response_model=schemas.ReadNetwork)
 def read_network(
-    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    start_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
@@ -100,8 +100,8 @@ def read_network(
             testrun_id = RedisClient.hget('testrun', 'id')
 
         network_pipeline = [{'$match': {'timestamp': time_range,
-                                       'scenario_id': scenario_id,
-                                       'testrun_id': testrun_id}}]
+                                        'scenario_id': scenario_id,
+                                        'testrun_id': testrun_id}}]
         additional_pipeline = [
             {'$project': {'_id': 0, 'lines': 1}},
             {'$unwind': {'path': '$lines'}},

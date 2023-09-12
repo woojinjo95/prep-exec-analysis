@@ -8,6 +8,7 @@ from datetime import datetime
 from app.core.config import settings
 from app.crud.base import (load_from_mongodb, load_paginate_from_mongodb,
                            aggregate_from_mongodb)
+from app.db.redis_session import RedisClient
 
 analysis_collection = {
     "log_level_finder": "stb_log",
@@ -174,3 +175,19 @@ def get_config_from_scenario_mongodb(scenario_id: str, testrun_id: str):
                 {"$project": {"_id": 0, "config": 1}}]
     res = aggregate_from_mongodb('scenario', pipeline)
     return res[0] if len(res) > 0 else {}
+
+
+def make_basic_match_pipeline(scenario_id: str=None, testrun_id: str=None, start_time: str=None, end_time: str=None):
+    time_range = {}
+    if start_time:
+        time_range['$gte'] = convert_iso_format(start_time)
+    if end_time:
+        time_range['$lte'] = convert_iso_format(end_time)
+    if testrun_id is None:
+            testrun_id = RedisClient.hget('testrun', 'id')
+    if scenario_id is None:
+        scenario_id = RedisClient.hget('testrun', 'scenario_id')
+
+    return [{'$match': {'timestamp': time_range,
+                        'scenario_id': scenario_id,
+                        'testrun_id': testrun_id}}]
