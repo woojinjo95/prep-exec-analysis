@@ -63,7 +63,7 @@ class LogLevelEnum(ExtendedEnum):
 
 class ChannelChangeTimeTargetEnum(ExtendedEnum):
     adjoint_channel = "adjoint_channel"
-    nonadjoint_channel = "nonadjoint_channel"
+    non_adjoint_channel = "non_adjoint_channel"
 
 
 class BlockTypeEnum(ExtendedEnum):
