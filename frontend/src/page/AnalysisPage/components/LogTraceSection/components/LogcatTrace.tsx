@@ -5,20 +5,19 @@ import { Text } from '@global/ui'
 import { formatDateTo } from '@global/usecase'
 import { cursorDateTimeState } from '@global/atom'
 import { LogLevelColor } from '@global/constant'
-import { useLogcat } from '../api/hook'
+import { useInfiniteLogcat } from '../api/hook'
 
 /**
  * Logcat 로그 추적 영역
  */
 const LogcatTrace: React.FC = () => {
   const cursorDateTime = useRecoilValue(cursorDateTimeState)
-  const { logcats } = useLogcat({
-    // cursorDateTime 기준 전후 30초씩(총 1분)
-    start_time: new Date((cursorDateTime?.getTime() || 0) - 1000 * 30).toISOString(),
-    end_time: new Date((cursorDateTime?.getTime() || 0) + 1000 * 30).toISOString(),
+  const { logcats, loadingRef, hasNextPage } = useInfiniteLogcat({
+    start_time: cursorDateTime?.toISOString()!,
     enabled: !!cursorDateTime,
   })
 
+  if (!logcats) return null
   return (
     <div className="w-full flex flex-col h-full overflow-x-hidden overflow-y-auto">
       <Scrollbars
@@ -85,6 +84,14 @@ const LogcatTrace: React.FC = () => {
               </Text>
             </div>
           ))}
+        </div>
+        <div
+          ref={loadingRef}
+          className="p-2 flex items-center justify-center w-full"
+          style={{ display: !hasNextPage ? 'none' : '' }}
+        >
+          {/* TODO: Loading spin 같은 로딩 UI가 필요 */}
+          Loading...
         </div>
       </Scrollbars>
     </div>

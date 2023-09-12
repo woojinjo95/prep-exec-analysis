@@ -8,24 +8,76 @@ import { useTooltipEvent } from '../hook'
 
 // TODO: 이벤트로그 남은 항목 정리
 const parseEventLog = (eventLog: EventLogTooltip) => {
+  // 리모컨
   if (eventLog.msg === 'remocon_response') {
     return `RCU (${eventLog.data.type.toUpperCase()}) : ${capitalize(eventLog.data.key)}`
   }
 
-  if (eventLog.msg === 'on_off_control_response' && eventLog.data.enable_dut_power_transition) {
-    return `Control : DUT Power ${capitalize(eventLog.data.vac)}`
+  if (eventLog.msg === 'capture_board_response') {
+    return `Screen : Reset`
   }
 
-  if (eventLog.msg === 'on_off_control_response' && eventLog.data.enable_hdmi_transition) {
-    return `Control : HDMI ${capitalize(eventLog.data.vac)}`
-  }
-
-  if (eventLog.msg === 'on_off_control_response' && eventLog.data.enable_dut_wan_transition) {
-    return `Control : DUT Wan ${capitalize(eventLog.data.vac)}`
-  }
-
+  // 쉘 명령
   if (eventLog.msg === 'shell_response') {
     return `${eventLog.data.mode} : ${eventLog.data.command}`
+  }
+
+  // 쉘 연결(device info)
+  if (eventLog.msg === 'config_response') {
+    return eventLog.data.mode === 'adb'
+      ? `Device Info : adb / ${eventLog.data.host}:${eventLog.data.port}`
+      : `Device Info : ssh / ${eventLog.data.host}:${eventLog.data.port}, ID: ${eventLog.data.username || ''}, PW: ${
+          eventLog.data.password || ''
+        }`
+  }
+
+  // On/Off 제어
+  if (eventLog.msg === 'on_off_control_response') {
+    if (eventLog.data.enable_dut_power_transition) {
+      return `Control : DUT Power ${capitalize(eventLog.data.vac)}`
+    }
+
+    if (eventLog.data.enable_hdmi_transition) {
+      return `Control : HDMI ${capitalize(eventLog.data.vac)}`
+    }
+
+    if (eventLog.data.enable_dut_wan_transition) {
+      return `Control : DUT Wan ${capitalize(eventLog.data.vac)}`
+    }
+  }
+
+  // 네트워크 제어
+  if (eventLog.msg === 'network_emulation_response') {
+    // FIXME: bandwidth, delay, loss - 하나가 변경되어도 전체 bandwidth, delay, loss 데이터를 표기해야함
+    if (eventLog.data.updated.packet_bandwidth && eventLog.data.action === 'update') {
+      return `Packet Control : Bandwidth ${eventLog.data.updated.packet_bandwidth}Mbps`
+    }
+
+    if (eventLog.data.updated.packet_delay && eventLog.data.action === 'update') {
+      return `Packet Control : Delay ${eventLog.data.updated.packet_delay}ms`
+    }
+
+    if (eventLog.data.updated.packet_loss && eventLog.data.action === 'update') {
+      return `Packet Control : Loss ${eventLog.data.updated.packet_loss}%`
+    }
+
+    if (eventLog.data.updated.create && eventLog.data.action === 'create') {
+      return `IP Limit(Registed) : ${eventLog.data.updated.create.ip}:${eventLog.data.updated.create.port} (${eventLog.data.updated.create.protocol})`
+    }
+
+    if (eventLog.data.updated.update && eventLog.data.action === 'update') {
+      return `IP Limit(Modified) : ${eventLog.data.updated.update.ip}:${eventLog.data.updated.update.port} (${eventLog.data.updated.update.protocol})`
+    }
+
+    if (eventLog.data.updated.delete && eventLog.data.action === 'delete') {
+      // FIXME: 무엇을 delete 했는지
+      return `IP Limit(Deleted)`
+    }
+
+    if (eventLog.data.action === 'reset') {
+      // FIXME: 무슨 데이터를 어떻게 표기해야 하는지
+      return `Network Emulation Reset`
+    }
   }
 
   return ''
