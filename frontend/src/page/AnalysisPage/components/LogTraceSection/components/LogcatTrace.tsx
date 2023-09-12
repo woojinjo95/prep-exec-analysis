@@ -23,7 +23,7 @@ const LogcatTrace: React.FC = () => {
       <Scrollbars
         renderThumbVertical={({ ...props }) => <div {...props} className="bg-light-charcoal w-2 rounded-[5px]" />}
       >
-        <div className="w-full grid grid-cols-[16%_6%_9%_9%_5%_5%_50%] gap-x-2 text-grey sticky top-0 bg-black">
+        <div className="w-[calc(100%-48px)] grid grid-cols-[16%_6%_9%_9%_5%_5%_50%] gap-x-2 text-grey sticky top-0 bg-black">
           <Text size="sm" colorScheme="grey">
             Timestamp
           </Text>
@@ -50,7 +50,7 @@ const LogcatTrace: React.FC = () => {
           {logcats?.map(({ timestamp, module, log_level, process_name, pid, tid, message }, index) => (
             <div
               key={`logcat-trace-log-${timestamp}-${index}`}
-              className="w-full grid grid-cols-[16%_6%_9%_9%_5%_5%_50%] gap-x-2 text-grey text-sm"
+              className="w-[calc(100%-48px)] grid grid-cols-[16%_6%_9%_9%_5%_5%_50%] gap-x-2 text-grey text-sm"
             >
               <Text size="sm" colorScheme="grey">
                 {formatDateTo('YYYY-MM-DD HH:MM:SS:MS', new Date(timestamp))}
