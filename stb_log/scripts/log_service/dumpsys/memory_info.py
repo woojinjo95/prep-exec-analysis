@@ -1,17 +1,19 @@
-from typing import List, Dict
-import re
 import logging
+import re
+from typing import List
+
+from scripts.connection.external import get_connection_info
 from scripts.connection.stb_connection.utils import exec_command
 from scripts.log_service.dumpsys.format import MemoryInfo
 from scripts.util.common import convert_comma_separated_number_to_int
-from scripts.connection.external import get_connection_info
+from scripts.config.config import get_setting_with_env
 
 logger = logging.getLogger('dumpsys')
 
 
 def get_meminfo() -> List[str]:
     connection_info = get_connection_info()
-    result = exec_command('dumpsys meminfo', 20, connection_info)
+    result = exec_command('dumpsys meminfo', get_setting_with_env('MEMINFO_EXTRACTION_TIMEOUT', 20), connection_info)
     return result.splitlines()
 
 

@@ -1,17 +1,18 @@
-from typing import List, Dict
-import re
 import logging
+import re
+from typing import List
+
+from scripts.connection.external import get_connection_info
 from scripts.connection.stb_connection.utils import exec_command
 from scripts.log_service.dumpsys.format import CPUInfo
-from scripts.connection.external import get_connection_info
-
+from scripts.config.config import get_setting_with_env
 
 logger = logging.getLogger('dumpsys')
 
 
 def get_cpuinfo() -> List[str]:
     connection_info = get_connection_info()
-    result = exec_command('dumpsys cpuinfo', 5, connection_info)
+    result = exec_command('dumpsys cpuinfo', get_setting_with_env('CPUINFO_EXTRACTION_TIMEOUT', 5), connection_info)
     return result.splitlines()
 
 
