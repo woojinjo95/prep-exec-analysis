@@ -1,11 +1,12 @@
-import itertools
 import logging
 import traceback
 from typing import Optional
 
 from app import schemas
-from app.api.utility import (convert_iso_format, parse_bytes_to_value,
-                             paginate_from_mongodb_aggregation)
+from app.api.utility import (analysis_collection, convert_iso_format,
+                             get_config_from_scenario_mongodb,
+                             paginate_from_mongodb_aggregation,
+                             parse_bytes_to_value)
 from app.crud.base import aggregate_from_mongodb, load_from_mongodb
 from app.db.redis_session import RedisClient
 from fastapi import APIRouter, HTTPException, Query
@@ -23,7 +24,9 @@ def get_data_of_log_level_finder(
     testrun_id: Optional[str] = None,
     log_level: Optional[str] = Query(None, description='ex)V,D,I,W,E,F,S'),
     page_size: Optional[int] = 10,
-    page: Optional[int] = None
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
 ):
     """
     로그 레벨 데이터 조회
@@ -41,13 +44,19 @@ def get_data_of_log_level_finder(
                                                                '$lte': convert_iso_format(end_time)},
                                                  'scenario_id': scenario_id,
                                                  'testrun_id': testrun_id}},
-                                     {'$project': {'_id': 0, 'timestamp': 1, 'log_level': '$lines.log_level'}},
-                                     {'$unwind': {'path': '$log_level'}},
-                                     {'$match': {'log_level': {'$in': log_level}}}]
-        log_level_finder = paginate_from_mongodb_aggregation(col='stb_log',
+                                     {'$project': {'_id': 0, 'lines.timestamp': 1, 'lines.log_level': 1}},
+                                     {'$unwind': {'path': '$lines'}},
+                                     {'$replaceRoot': {'newRoot': '$lines'}},
+                                     {'$match': {'log_level': {'$in': log_level}}},
+                                     {'$project': {'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                                                   'log_level': 1}}]
+
+        log_level_finder = paginate_from_mongodb_aggregation(col=analysis_collection['log_level_finder'],
                                                              pipeline=log_level_finder_pipeline,
                                                              page=page,
-                                                             page_size=page_size)
+                                                             page_size=page_size,
+                                                             sort_by=sort_by,
+                                                             sort_desc=sort_desc)
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
@@ -62,7 +71,9 @@ def get_data_of_cpu(
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
-    page: Optional[int] = None
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
 ):
     """
     Cpu 데이터 조회
@@ -76,12 +87,15 @@ def get_data_of_cpu(
                                                   '$lte': convert_iso_format(end_time)},
                                     'scenario_id': scenario_id,
                                     'testrun_id': testrun_id}},
-                        {'$project': {'_id': 0, 'timestamp': 1, 'cpu_usage': 1, 'total': 1,
+                        {'$project': {'_id': 0, 'timestamp': {'$dateToString': {'date': '$timestamp'}}, 'cpu_usage': 1, 'total': 1,
                                       'user': 1, 'kernel': 1, 'iowait': 1, 'irq': 1, 'softirq': 1}}]
-        cpu = paginate_from_mongodb_aggregation(col='stb_info',
+
+        cpu = paginate_from_mongodb_aggregation(col=analysis_collection['cpu'],
                                                 pipeline=cpu_pipeline,
                                                 page=page,
-                                                page_size=page_size)
+                                                page_size=page_size,
+                                                sort_by=sort_by,
+                                                sort_desc=sort_desc)
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
@@ -96,7 +110,9 @@ def get_data_of_memory(
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
-    page: Optional[int] = None
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
 ):
     """
     Memory 데이터 조회
@@ -110,12 +126,15 @@ def get_data_of_memory(
                                                      '$lte': convert_iso_format(end_time)},
                                        'scenario_id': scenario_id,
                                        'testrun_id': testrun_id}},
-                           {'$project': {'_id': 0, 'timestamp': 1, 'memory_usage': 1,
+                           {'$project': {'_id': 0, 'timestamp': {'$dateToString': {'date': '$timestamp'}}, 'memory_usage': 1,
                                          'total_ram': 1, 'free_ram': 1, 'used_ram': 1, 'lost_ram': 1}}]
-        memory = paginate_from_mongodb_aggregation(col='stb_info',
+
+        memory = paginate_from_mongodb_aggregation(col=analysis_collection['memory'],
                                                    pipeline=memory_pipeline,
                                                    page=page,
-                                                   page_size=page_size)
+                                                   page_size=page_size,
+                                                   sort_by=sort_by,
+                                                   sort_desc=sort_desc)
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
@@ -130,7 +149,9 @@ def get_data_of_event_log(
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
-    page: Optional[int] = None
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
 ):
     """
     이벤트 로그 데이터 조회
@@ -140,17 +161,29 @@ def get_data_of_event_log(
             testrun_id = RedisClient.hget('testrun', 'id')
         if scenario_id is None:
             scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        event_log_type_list = ['remocon_response', 'on_off_control_response',
+                               'network_emulation_response', 'shell_response',
+                               'capture_board_response', 'config']
         event_log_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
                                                         '$lte': convert_iso_format(end_time)},
                                           'scenario_id': scenario_id,
                                           'testrun_id': testrun_id}},
                               {'$project': {'_id': 0, 'lines': 1}},
                               {'$unwind': {'path': '$lines'}},
-                              {'$replaceRoot': {'newRoot': '$lines'}}]
-        event_log = paginate_from_mongodb_aggregation(col='event_log',
+                              {'$match': {'lines.msg': {
+                                  '$in': event_log_type_list}}},
+                              {'$replaceRoot': {'newRoot': '$lines'}},
+                              {'$project': {'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                                            'service': 1,
+                                            'msg': 1,
+                                            'data': 1}}]
+
+        event_log = paginate_from_mongodb_aggregation(col=analysis_collection['event_log'],
                                                       pipeline=event_log_pipeline,
                                                       page=page,
-                                                      page_size=page_size)
+                                                      page_size=page_size,
+                                                      sort_by=sort_by,
+                                                      sort_desc=sort_desc)
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
@@ -165,7 +198,9 @@ def get_data_of_color_reference(
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
-    page: Optional[int] = None
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
 ):
     """
     컬러 레퍼런스 데이터 조회
@@ -179,11 +214,14 @@ def get_data_of_color_reference(
                                                               '$lte': convert_iso_format(end_time)},
                                                 'scenario_id': scenario_id,
                                                 'testrun_id': testrun_id}},
-                                    {'$project': {'_id': 0, 'timestamp': 1, 'color_reference': 1}}]
-        color_reference = paginate_from_mongodb_aggregation(col='an_color_reference',
+                                    {'$project': {'_id': 0, 'timestamp': {'$dateToString': {'date': '$timestamp'}}, 'color_reference': 1}}]
+
+        color_reference = paginate_from_mongodb_aggregation(col=analysis_collection['color_reference'],
                                                             pipeline=color_reference_pipeline,
                                                             page=page,
-                                                            page_size=page_size)
+                                                            page_size=page_size,
+                                                            sort_by=sort_by,
+                                                            sort_desc=sort_desc)
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
@@ -198,7 +236,9 @@ def get_data_of_freeze(
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
-    page: Optional[int] = None
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
 ):
     """
     화면 멈춤 데이터 조회
@@ -213,11 +253,14 @@ def get_data_of_freeze(
                                                      '$lte': convert_iso_format(end_time)},
                                        'scenario_id': scenario_id,
                                        'testrun_id': testrun_id}},
-                           {'$project': {'_id': 0, 'timestamp': 1, 'freeze_type': 1, 'duration': 1}}]
-        freeze = paginate_from_mongodb_aggregation(col='an_freeze',
+                           {'$project': {'_id': 0, 'timestamp': {'$dateToString': {'date': '$timestamp'}}, 'freeze_type': 1, 'duration': 1}}]
+
+        freeze = paginate_from_mongodb_aggregation(col=analysis_collection['freeze'],
                                                    pipeline=freeze_pipeline,
                                                    page=page,
-                                                   page_size=page_size)
+                                                   page_size=page_size,
+                                                   sort_by=sort_by,
+                                                   sort_desc=sort_desc)
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
@@ -232,7 +275,9 @@ def get_data_of_loudness(
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
-    page: Optional[int] = None
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
 ):
     """
     Loudness 데이터 조회
@@ -249,11 +294,14 @@ def get_data_of_loudness(
                              {'$project': {'_id': 0, 'lines': 1}},
                              {'$unwind': {'path': '$lines'}},
                              {'$replaceRoot': {'newRoot': '$lines'}},
-                             {'$project': {'timestamp': '$timestamp', 'm': '$M', 'i': '$I'}}]
-        loudness = paginate_from_mongodb_aggregation(col='loudness',
+                             {'$project': {'timestamp': {'$dateToString': {'date': '$timestamp'}}, 'm': '$M', 'i': '$I'}}]
+
+        loudness = paginate_from_mongodb_aggregation(col=analysis_collection['loudness'],
                                                      pipeline=loudness_pipeline,
                                                      page=page,
-                                                     page_size=page_size)
+                                                     page_size=page_size,
+                                                     sort_by=sort_by,
+                                                     sort_desc=sort_desc)
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
@@ -261,14 +309,16 @@ def get_data_of_loudness(
 
 
 # Measurement_resume (warm boot)
-@router.get("/resume", response_model=schemas.MeasurementBoot)
+@router.get("/resume", response_model=schemas.Resume)
 def get_data_of_resume(
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
-    page: Optional[int] = None
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
 ):
     """
     분석 데이터 조회 : Resume(Warm booting)
@@ -282,11 +332,14 @@ def get_data_of_resume(
                                                           '$lte': convert_iso_format(end_time)},
                                             'scenario_id': scenario_id,
                                             'testrun_id': testrun_id}},
-                                {'$project': {'_id': 0, 'timestamp': 1, 'measure_time': 1, 'target': '$user_config.type'}}]
-        measurement_resume = paginate_from_mongodb_aggregation(col='an_warm_boot',
+                                {'$project': {'_id': 0, 'timestamp': {'$dateToString': {'date': '$timestamp'}}, 'measure_time': 1, 'target': '$user_config.type'}}]
+
+        measurement_resume = paginate_from_mongodb_aggregation(col=analysis_collection['resume'],
                                                                pipeline=measurement_pipeline,
                                                                page=page,
-                                                               page_size=page_size)
+                                                               page_size=page_size,
+                                                               sort_by=sort_by,
+                                                               sort_desc=sort_desc)
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
@@ -294,14 +347,16 @@ def get_data_of_resume(
 
 
 # Measurement_resume (cold boot)
-@router.get("/boot", response_model=schemas.MeasurementBoot)
+@router.get("/boot", response_model=schemas.Boot)
 def get_data_of_boot(
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
-    page: Optional[int] = None
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
 ):
     """
     분석 데이터 조회 : Boot(Cold booting)
@@ -315,11 +370,14 @@ def get_data_of_boot(
                                                           '$lte': convert_iso_format(end_time)},
                                             'scenario_id': scenario_id,
                                             'testrun_id': testrun_id}},
-                                {'$project': {'_id': 0, 'timestamp': 1, 'measure_time': 1, 'target': '$user_config.type'}}]
-        measurement_boot = paginate_from_mongodb_aggregation(col='an_cold_boot',
+                                {'$project': {'_id': 0, 'timestamp': {'$dateToString': {'date': '$timestamp'}}, 'measure_time': 1, 'target': '$user_config.type'}}]
+
+        measurement_boot = paginate_from_mongodb_aggregation(col=analysis_collection['boot'],
                                                              pipeline=measurement_pipeline,
                                                              page=page,
-                                                             page_size=page_size)
+                                                             page_size=page_size,
+                                                             sort_by=sort_by,
+                                                             sort_desc=sort_desc)
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
@@ -333,8 +391,11 @@ def get_data_of_log_pattern_matching(
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
+    pattern_name: Optional[str] = None,
     page_size: Optional[int] = 10,
-    page: Optional[int] = None
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
 ):
     """
     로그 패턴 매칭 데이터 조회
@@ -348,18 +409,184 @@ def get_data_of_log_pattern_matching(
                                                                    '$lte': convert_iso_format(end_time)},
                                                      'scenario_id': scenario_id,
                                                      'testrun_id': testrun_id}},
-                                         {'$project': {'_id': 0, 'log_level': 1, 'timestamp': 1, 'message': 1,
+                                         {'$project': {'_id': 0,
+                                                       'log_level': 1,
+                                                       'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                                                       'message': 1,
                                                        'regex': '$matched_target.regular_expression',
                                                        'color': '$matched_target.color', 'log_pattern_name': '$matched_target.name'}}]
+        if pattern_name is not None:
+            pattern_name = pattern_name.split(',')
+            log_pattern_matching_pipeline[0]['$match']['matched_target.name'] = {'$in': pattern_name}
 
-        log_pattern_matching = paginate_from_mongodb_aggregation(col='an_log_pattern',
+        log_pattern_matching = paginate_from_mongodb_aggregation(col=analysis_collection['log_pattern_matching'],
                                                                  pipeline=log_pattern_matching_pipeline,
                                                                  page=page,
-                                                                 page_size=page_size)
+                                                                 page_size=page_size,
+                                                                 sort_by=sort_by,
+                                                                 sort_desc=sort_desc)
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return log_pattern_matching
+
+
+# Monkey Section
+@router.get("/monkey_section", response_model=schemas.MonkeyTest)
+def get_data_of_monkey_section(
+    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    scenario_id: Optional[str] = None,
+    testrun_id: Optional[str] = None,
+    page_size: Optional[int] = 10,
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
+):
+    """
+    일반 몽키 테스트 섹션 데이터 조회(범위)
+    """
+    try:
+        if testrun_id is None:
+            testrun_id = RedisClient.hget('testrun', 'id')
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        monkey_section_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
+                                                             '$lte': convert_iso_format(end_time)},
+                                               'scenario_id': scenario_id,
+                                               'testrun_id': testrun_id,
+                                               'analysis_type': 'monkey'}},
+                                   {'$project': {'id': {'$toString': '$_id'},
+                                                 'start_timestamp': {'$dateToString': {'date': '$start_timestamp'}},
+                                                 'end_timestamp': {'$dateToString': {'date': '$end_timestamp'}}}}]
+        monkey_section = paginate_from_mongodb_aggregation(col='monkey_section',
+                                                           pipeline=monkey_section_pipeline,
+                                                           page=page,
+                                                           page_size=page_size,
+                                                           sort_by=sort_by,
+                                                           sort_desc=sort_desc)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return monkey_section
+
+
+# Monkey Smart Sense
+@router.get("/monkey_smart_sense", response_model=schemas.MonkeySmartSense)
+def get_data_of_monkey_smart_sense(
+    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    scenario_id: Optional[str] = None,
+    testrun_id: Optional[str] = None,
+    page_size: Optional[int] = 10,
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
+):
+    """
+    일반 몽키 테스트 스마트 센스 키 조회
+    """
+    try:
+        if testrun_id is None:
+            testrun_id = RedisClient.hget('testrun', 'id')
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        monkey_smart_sense_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
+                                                               '$lte': convert_iso_format(end_time)},
+                                                   'scenario_id': scenario_id,
+                                                   'testrun_id': testrun_id,
+                                                   'analysis_type': 'monkey'}},
+                                       {'$project': {'id': {'$toString': '$_id'},
+                                                     'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                                                     'smart_sense_key': 1}}]
+        monkey_section = paginate_from_mongodb_aggregation(col='monkey_smart_sense',
+                                                           pipeline=monkey_smart_sense_pipeline,
+                                                           page=page,
+                                                           page_size=page_size,
+                                                           sort_by=sort_by,
+                                                           sort_desc=sort_desc)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return monkey_section
+
+
+# Intelligent Monkey Section
+@router.get("/intelligent_monkey_section", response_model=schemas.IntelligentMonkeyTest)
+def get_data_of_intelligent_monkey_section(
+    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    scenario_id: Optional[str] = None,
+    testrun_id: Optional[str] = None,
+    page_size: Optional[int] = 10,
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
+):
+    """
+    인텔리전트 몽키 테스트 섹션 데이터 조회(범위)
+    """
+    try:
+        if testrun_id is None:
+            testrun_id = RedisClient.hget('testrun', 'id')
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        monkey_section_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
+                                                             '$lte': convert_iso_format(end_time)},
+                                               'scenario_id': scenario_id,
+                                               'testrun_id': testrun_id,
+                                               'analysis_type': 'intelligent_monkey'}},
+                                   {'$project': {'_id': 0,
+                                                 'section_id': '$section_id',
+                                                 'start_timestamp': {'$dateToString': {'date': '$start_timestamp'}},
+                                                 'end_timestamp': {'$dateToString': {'date': '$end_timestamp'}}}}]
+        monkey_section = paginate_from_mongodb_aggregation(col='monkey_section',
+                                                           pipeline=monkey_section_pipeline,
+                                                           page=page,
+                                                           page_size=page_size,
+                                                           sort_by=sort_by,
+                                                           sort_desc=sort_desc)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return monkey_section
+
+
+# Intelligent Monkey Smart Sense
+@router.get("/intelligent_monkey_smart_sense", response_model=schemas.IntelligentMonkeySmartSense)
+def get_data_of_intelligent_monkey_smart_sense(
+    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    scenario_id: Optional[str] = None,
+    testrun_id: Optional[str] = None,
+    page_size: Optional[int] = 10,
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
+):
+    """
+    인텔리전트 몽키 테스트 스마트 센스 키 조회
+    """
+    try:
+        if testrun_id is None:
+            testrun_id = RedisClient.hget('testrun', 'id')
+        if scenario_id is None:
+            scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        monkey_smart_sense_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
+                                                               '$lte': convert_iso_format(end_time)},
+                                                   'scenario_id': scenario_id,
+                                                   'testrun_id': testrun_id,
+                                                   'analysis_type': 'intelligent_monkey'}},
+                                       {'$project': {'_id': 0,
+                                                     'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                                                     'smart_sense_key': 1,
+                                                     'section_id': 1}}]
+        monkey_section = paginate_from_mongodb_aggregation(col='monkey_smart_sense',
+                                                           pipeline=monkey_smart_sense_pipeline,
+                                                           page=page,
+                                                           page_size=page_size,
+                                                           sort_by=sort_by,
+                                                           sort_desc=sort_desc)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return monkey_section
 
 
 # Process Lifecycle
@@ -370,7 +597,9 @@ def get_data_of_process_lifecycle(
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
-    page: Optional[int] = None
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
 ):
     """
     프로세스 활동주기 데이터 조회
@@ -395,7 +624,9 @@ def get_data_of_network_filter(
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
-    page: Optional[int] = None
+    page: Optional[int] = None,
+    sort_by: Optional[str] = None,
+    sort_desc: Optional[bool] = False
 ):
     """
     네트워크 필터 데이터 조회
@@ -435,56 +666,100 @@ def get_summary_data_of_measure_result(
                                       'scenario_id': scenario_id,
                                       'testrun_id': testrun_id}}]
 
-        active_analysis_list = RedisClient.scan_iter(match="analysis_config:*")
-        for active_analysis in itertools.chain(active_analysis_list, ['loudness']):
-            active_analysis = active_analysis.split(':')[-1]
-
+        testrun_config = get_config_from_scenario_mongodb(scenario_id=scenario_id, testrun_id=testrun_id)
+        active_analysis_list = testrun_config.get('config', {})
+        for active_analysis, config in active_analysis_list.items():
+            if config is None:
+                continue
             pipeline = []
             additional_pipeline = []
             if active_analysis == 'log_level_finder':
-                collection = 'stb_log'
-                additional_pipeline = [{'$project': {'_id': 0, 'lines.log_level': 1}},
-                                       {'$unwind': {'path': '$lines'}},
-                                       {'$group': {'_id': '$lines.log_level', 'total': {'$sum': 1}}},
-                                       {'$project': {'_id': 0, 'target': '$_id', 'total': 1}}]
+                log_level_list = config.get('targets', [])
+                additional_pipeline = [
+                    {'$project': {'_id': 0, 'lines.log_level': 1}},
+                    {'$unwind': {'path': '$lines'}},
+                    {'$match': {'lines.log_level': {'$in': log_level_list}}},
+                    {'$group': {'_id': '$lines.log_level', 'total': {'$sum': 1}}},
+                    {'$group': {'_id': None, 'results': {'$push': {'target': '$_id', 'total': '$total'}}}},
+                    {'$project': {'_id': 0, 'results': 1}}]
             elif active_analysis == 'freeze':
-                collection = 'an_freeze'
-                additional_pipeline = [{'$group': {'_id': '$freeze_type', 'total': {'$sum': 1}}},
-                                       {'$project': {'_id': 0, 'target': '$_id', 'total': 1}}]
+                additional_pipeline = [
+                    {'$group': {'_id': '$freeze_type', 'total': {'$sum': 1}, 'color': {'$first': '$user_config.color'}}},
+                    {'$group': {'_id': '$color', 'results': {
+                        '$push': {'total': '$total', 'error_type': '$_id'}}}},
+                    {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'resume':
-                collection = 'an_warm_boot'
-                additional_pipeline = [{'$group': {'_id': '$user_config.type', 'total': {'$sum': 1},
-                                                   'avg_time': {'$avg': '$measure_time'}}},
-                                       {'$project': {'_id': 0, 'target': '$_id',
-                                                     'total': 1, 'avg_time': '$avg_time'}}]
+                additional_pipeline = [
+                    {'$group': {'_id': '$user_config.type', 'total': {'$sum': 1},
+                                'avg_time': {'$avg': '$measure_time'}, 'color': {'$first': '$user_config.color'}}},
+                    {'$group': {'_id': '$color', 'results': {
+                        '$push': {'target': '$_id', 'total': '$total', 'avg_time': '$avg_time'}}}},
+                    {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'boot':
-                collection = 'an_cold_boot'
-                additional_pipeline = [{'$group': {'_id': '$user_config.type', 'total': {'$sum': 1},
-                                                   'avg_time': {'$avg': '$measure_time'}}},
-                                       {'$project': {'_id': 0, 'target': '$_id',
-                                                     'total': 1, 'avg_time': '$avg_time'}}]
+                additional_pipeline = [
+                    {'$group': {'_id': '$user_config.type', 'total': {'$sum': 1},
+                                'avg_time': {'$avg': '$measure_time'}, 'color': {'$first': '$user_config.color'}}},
+                    {'$group': {'_id': '$color', 'results': {
+                        '$push': {'target': '$_id', 'total': '$total', 'avg_time': '$avg_time'}}}},
+                    {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'log_pattern_matching':
-                collection = 'an_log_pattern'
-                additional_pipeline = [{'$project': {'_id': 0, 'log_pattern_name': '$matched_target.name', 'color': '$matched_target.color'}},
-                                       {'$group': {'_id': {'name': '$log_pattern_name', 'color': '$color'}, 'total': {'$sum': 1}}},
-                                       {'$project': {'_id': 0, 'log_pattern_name': '$_id.name', 'total': 1, 'color': '$_id.color'}}]
+                additional_pipeline = [
+                    {'$project': {'_id': 0, 'list': ['$matched_target.name', '$matched_target.color'], 'color': '$user_config.color'}},
+                    {'$group': {'_id': '$list', 'total': {'$sum': 1}, 'color': {'$first': '$color'}}},
+                    {'$group': {'_id': '$color', 'results': {'$push': {'total': '$total',
+                                                                       'log_pattern_name': {'$arrayElemAt': ['$_id', 0]},
+                                                                       'color': {'$arrayElemAt': ['$_id', 1]}}}}},
+                    {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
+            elif active_analysis == 'monkey_test':
+                additional_pipeline = [
+                    {'$match': {'analysis_type': 'monkey'}},
+                    {'$project': {'id': {'$toString': '$_id'},
+                                  'smart_sense': '$smart_sense_times',
+                                  'duration_time': '$user_config.duration'}},
+                    {'$group': {'_id': None, 'results': {'$push': '$$ROOT'}}}]
+            elif active_analysis == 'intelligent_monkey_test':
+                additional_pipeline = [
+                    {'$match': {'analysis_type': 'intelligent_monkey'}},
+                    {'$group': {'_id': ['$section_id', '$image_path'], 'smart_sense': {'$sum': '$smart_sense_times'}}},
+                    {'$project': {'_id': 0,
+                                  'smart_sense': '$smart_sense',
+                                  'section_id': {'$arrayElemAt': ['$_id', 0]},
+                                  'image_path': {'$arrayElemAt': ['$_id', 1]}}},
+                    {'$sort': {'section_id': 1}},
+                    {'$group': {'_id': None, 'results': {'$push': {'section_id': '$section_id',
+                                                                   'smart_sense': '$smart_sense',
+                                                                   'image_path': '$image_path'}}}}]
             elif active_analysis == 'macroblock':
                 continue
             elif active_analysis == 'channel_change_time':
                 continue
             elif active_analysis == 'process_lifecycle_analysis':
                 continue
-            else:
-                collection = 'loudness'
+            elif active_analysis == 'network_filter':
+                continue
+            elif active_analysis == 'loudness':
                 additional_pipeline = [{'$project': {'_id': 0, 'lines': 1}},
                                        {'$unwind': {'path': '$lines'}},
                                        {'$group': {'_id': None, 'lkfs': {'$avg': '$lines.I'}}},
                                        {'$project': {'_id': 0, 'lkfs': 1}}]
             pipeline = basic_pipeline + additional_pipeline
-            aggregation = aggregate_from_mongodb(col=collection, pipeline=pipeline)
+            aggregation = aggregate_from_mongodb(col=analysis_collection[active_analysis], pipeline=pipeline)
             if len(aggregation) == 0:
                 continue
+            else:
+                aggregation = aggregation[0]
+            aggregation['color'] = config.get('color', '')
             result[active_analysis] = aggregation
+        timestamp_pipeline = [{'$match': {'id': scenario_id}},
+                              {'$project': {'_id': 0, 'testruns': 1}},
+                              {'$unwind': {'path': '$testruns'}},
+                              {'$match': {'testruns.id': testrun_id}},
+                              {'$project': {'last_updated_timestamp': '$testruns.last_updated_timestamp'}}]
+        last_updated_timestamp = aggregate_from_mongodb(col='scenario', pipeline=timestamp_pipeline)
+        last_updated_timestamp = last_updated_timestamp[0].get('last_updated_timestamp', None)\
+            if len(last_updated_timestamp) > 0 else None
+        result['last_updated_timestamp'] = last_updated_timestamp.strftime('%Y-%m-%dT%H:%M:%S.%fZ')\
+            if (last_updated_timestamp is not None) else None
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {"items": result}

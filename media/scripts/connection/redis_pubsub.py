@@ -39,7 +39,7 @@ def publish(redis_client: StrictRedis, channel: str, payload: dict) -> int:
     return redis_client.publish(channel, data)
 
 
-def Subscribe(redis_client: StrictRedis, channel: str, stop_event: Event = Event()) -> Generator[dict, None, None]:
+def Subscribe(redis_client: StrictRedis, channel: str, stop_event: Event = Event(), log=True) -> Generator[dict, None, None]:
     """_summary_
     redis_client 상 channel에서 JSON 값을 가져옴
     Args:
@@ -56,7 +56,8 @@ def Subscribe(redis_client: StrictRedis, channel: str, stop_event: Event = Event
     while not stop_event.is_set():
         try:
             message = pubsub.get_message(ignore_subscribe_messages=True, timeout=None)
-            logger.debug(f'sub: {message}')
+            if log is True:
+                logger.debug(f'sub: {message}')
             # message : {'type': 'message', 'pattern': None, 'channel': b'test', 'data': b'{"test": 1}'}
             if isinstance(message, dict):
                 payload = json.loads(message['data'])

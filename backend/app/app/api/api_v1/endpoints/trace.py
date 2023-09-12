@@ -33,6 +33,13 @@ def read_logcat(
                                 'testrun_id': testrun_id}},
                     {'$project': {'_id': 0, 'lines': 1}},
                     {'$unwind': {'path': '$lines'}},
+                    {'$project': {'lines': {'timestamp': {'$dateToString': {'date': '$lines.timestamp'}},
+                                            'module': '$lines.module',
+                                            'log_level': '$lines.log_level',
+                                            'process_name': '$lines.process_name',
+                                            'pid': '$lines.pid',
+                                            'tid': '$lines.tid',
+                                            'message': '$lines.message'}}},
                     {'$group': {'_id': None, 'items': {'$push': '$lines'}}}]
         aggregation_result = aggregate_from_mongodb(col='stb_log', pipeline=pipeline)
         log_list = aggregation_result[0].get('items', []) if aggregation_result != [] else aggregation_result
@@ -63,6 +70,12 @@ def read_network(
                                 'testrun_id': testrun_id}},
                     {'$project': {'_id': 0, 'lines': 1}},
                     {'$unwind': {'path': '$lines'}},
+                    {'$project': {'lines': {'timestamp': {'$dateToString': {'date': '$lines.timestamp'}},
+                                            'src': '$lines.src',
+                                            'dst': '$lines.dst',
+                                            'protocol': '$lines.protocol',
+                                            'length': '$lines.length',
+                                            'info': '$lines.info'}}},
                     {'$group': {'_id': None, 'items': {'$push': '$lines'}}}]
         aggregation_result = aggregate_from_mongodb(col='network_trace', pipeline=pipeline)
         log_list = aggregation_result[0].get('items', []) if aggregation_result != [] else aggregation_result

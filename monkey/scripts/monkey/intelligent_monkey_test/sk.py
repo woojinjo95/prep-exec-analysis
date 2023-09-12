@@ -6,16 +6,16 @@ import threading
 
 import numpy as np
 
-from scripts.analysis.image import get_cursor_xywh, get_cropped_image
-from scripts.external.report import report_data
-from scripts.monkey.format import FrameInfo, MonkeyArgs
+from scripts.analysis.image import get_cropped_image
+from scripts.monkey.format import NodeInfo, MonkeyArgs
 from scripts.monkey.monkey import Monkey
 from scripts.monkey.util import (check_cursor_is_same, exec_keys_with_each_interval,
-                                 get_current_image, head_to_next,
-                                 optimize_path)
-from scripts.util._timezone import get_utc_datetime
-from scripts.external.image import save_image
-from scripts.external.redis import get_monkey_test_arguments
+                                 get_current_image, head_to_parent_sibling,
+                                 optimize_path, get_last_breadth_start_image,
+                                 get_cursor)
+from scripts.external.report import report_section
+from scripts.external.image import get_skipped_images, save_test_image
+from scripts.util._timezone import get_time_str
 
 logger = logging.getLogger('monkey_test')
 
@@ -36,19 +36,18 @@ class IntelligentMonkeyTestSK:
         # 1. 배터리 방전 팝업 없애기 위해 home 두번 입력
         # 2. 검증 대상 셋탑의 경우, up 4회
         self.root_keyset = ['home', 'home', 'left'] + ['up'] * 4
+        self.skipped_images = get_skipped_images()
 
         # init variables
-        self.last_fi = None
-        self.key_histories = []
-        self.section_id = 0
         self.main_stop_event = threading.Event()
+        self.node_histories = []
+        self.keyset = []
+        self.section_id = 0
 
     ##### Entry Point #####
     def run(self):
         logger.info('start intelligent monkey test. mode: SK.')
         self.set_root_keyset(self.root_keyset)
-        if not self.root_cursor:
-            self.set_root_keyset(self.root_keyset)  # try one more
 
         self.visit()
         logger.info('stop intelligent monkey test. mode: SK.')
@@ -59,70 +58,77 @@ class IntelligentMonkeyTestSK:
     ##### Visit #####
     def visit(self):
         while not self.main_stop_event.is_set():
-            self.exec_keys(self.key_histories)
-            status = self.check_status()
-            if status == 'depth_end':
-                continue
-            elif status == 'visit_end':
-                return
+            self.exec_keys(self.keyset)
+            image = get_current_image()
+            node_info = NodeInfo(image=image, cursor=self.get_cursor(image))
 
-            if self.check_leaf_node():
-                current_node_keyset = [*self.key_histories, self.depth_key]
-                logger.info(f'current_node_keyset: {current_node_keyset}')
-                self.start_monkey(current_node_keyset, self.cursor_image)
+            if self.check_breadth_end(node_info):
+                if self.head_to_next():
+                    continue
+                else:
+                    return
+
+            self.exec_keys([self.depth_key])
+            if self.check_leaf_node(node_info):
+                node_info.is_leaf = True
+                self.start_monkey(node_info, [*self.keyset, self.depth_key])
                 self.append_key(self.breadth_key)
             else:
+                node_info.is_leaf = False
                 self.append_key(self.depth_key)
 
-    def check_status(self) -> str:
-        logger.info('check status.')
-        image, cursor = get_current_image(), self.get_cursor()
-        if self.last_fi and check_cursor_is_same(self.last_fi.image, self.last_fi.cursor, image, cursor):
-            try:
-                self.head_to_next()
-                logger.info(f'head to next done. {self.key_histories}')
-                self.last_fi = None
-                return 'depth_end'
-            except IndexError as err:
-                logger.info(f'visit done. {self.key_histories}. {err}')
-                return 'visit_end'
-        else:
-            return 'none'
+            self.node_histories.append(node_info)
 
-    def check_leaf_node(self) -> bool:
+    def check_breadth_end(self, node_info: NodeInfo) -> bool:
+        try:
+            logger.info('check breadth end.')
+
+            same_with_prev = check_cursor_is_same(self.node_histories[-1].image, self.node_histories[-1].cursor, 
+                                                node_info.image, node_info.cursor, 
+                                                sim_thld=0.98)
+            last_breadth_start_image = get_last_breadth_start_image(self.node_histories)
+            same_with_breadth_start = check_cursor_is_same(last_breadth_start_image, self.get_cursor(last_breadth_start_image),
+                                                        node_info.image, node_info.cursor, 
+                                                        sim_thld=0.98)
+            same_with_skipped_image = self.compare_skipped_with_cursor(node_info.image)
+
+            breadth_end_cond = same_with_prev or same_with_breadth_start or same_with_skipped_image
+            is_breadth_end = True if breadth_end_cond else False
+            logger.info(f'check breadth end done. is_breadth_end: {is_breadth_end}, same_with_prev: {same_with_prev}, same_with_breadth_start: {same_with_breadth_start}')
+            
+            # # test
+            # time_str = get_time_str()
+            # save_test_image(f'{time_str}_cursor_cur', get_cropped_image(node_info.image, node_info.cursor))
+            # save_test_image(f'{time_str}_cursor_prev', get_cropped_image(self.node_histories[-1].image, self.node_histories[-1].cursor))
+            # save_test_image(f'{time_str}_cursor_last_breadth_start', get_cropped_image(last_breadth_start_image, self.get_cursor(last_breadth_start_image)))
+            # save_test_image(f'{time_str}_cursor_skipped', get_cropped_image(self.skipped_images[0], self.get_cursor(self.skipped_images[0])))
+            # #####
+            return is_breadth_end
+        except Exception as err:
+            logger.warning(f'check breadth end error. {err}')
+            return False
+
+    def check_leaf_node(self, node_info: NodeInfo) -> bool:
         logger.info('check leaf node.')
-        image = get_current_image()
-        cursor = self.get_cursor()
-        fi = FrameInfo(image, cursor)
-        self.cursor_image = self.get_cursor_image(image, cursor)
-
-        self.exec_keys([self.depth_key])
-
-        leaf_node = False
-        if self.check_leftmenu_is_opened(image, cursor, get_current_image(), self.get_cursor()):
-            leaf_node = False
-        else:
-            leaf_node = True
-        logger.info(f'leaf node: {leaf_node}')
-
-        self.last_fi = fi
+        leaf_node = False if self.check_leftmenu_opened(node_info.image, node_info.cursor, get_current_image(), self.get_cursor()) else True
+        logger.info(f'check leaf node done. leaf node: {leaf_node}')
         return leaf_node
 
     ##### Functions #####
-    def get_cursor(self, image: np.ndarray=None) -> Tuple:
-        if image is None:
-            image = get_current_image()
-        return get_cursor_xywh(image)
+    def set_root_keyset(self, keys: List[str] = [], find_root_cursor_max_try: int=3):
+        for try_count in range(find_root_cursor_max_try):
+            self.keyset = keys
+            logger.info(f'root keyset: {self.keyset}')
+            self.exec_keys(self.keyset)
+            self.root_cursor = self.get_cursor()
+            logger.info(f'root cursor: {self.root_cursor}. try_count: {try_count}')
+            if self.root_cursor:
+                break
+        else:
+            logger.info(f'cannot find root cursor. try_count: {try_count}')
+            raise Exception('cannot find root cursor')
 
-    def set_root_keyset(self, keys: List[str] = []):
-        self.key_histories = keys
-        logger.info(f'root keyset: {self.key_histories}')
-
-        self.exec_keys(self.key_histories)
-        self.root_cursor = self.get_cursor()
-        logger.info(f'root cursor: {self.root_cursor}')
-
-    def check_leftmenu_is_opened(self, prev_image: np.ndarray, prev_cursor: Tuple, image: np.ndarray, cursor: Tuple, 
+    def check_leftmenu_opened(self, prev_image: np.ndarray, prev_cursor: Tuple, image: np.ndarray, cursor: Tuple, 
                                  max_width_diff: int=10, max_height_diff: int=10) -> bool:
         if cursor is None:
             return False
@@ -137,17 +143,10 @@ class IntelligentMonkeyTestSK:
             return True if is_width_similar and is_height_similar and not is_cursor_same else False
 
     def append_key(self, key: str):
-        self.key_histories.append(key)
-        self.key_histories = optimize_path(self.key_histories)
+        self.keyset.append(key)
+        self.keyset = optimize_path(self.keyset)
 
-    def get_cursor_image(self, image: np.ndarray=None, cursor: Tuple=None) -> np.ndarray:
-        if image is None:
-            image = get_current_image()
-        if cursor is None:
-            cursor = self.get_cursor(image)
-        return get_cropped_image(image, cursor)
-
-    def start_monkey(self, current_node_keyset: List[str], cursor_image: np.ndarray):
+    def start_monkey(self, node_info: NodeInfo, current_node_keyset: List[str]):
         start_time = time.time()
 
         monkey = Monkey(
@@ -162,36 +161,51 @@ class IntelligentMonkeyTestSK:
             report_data={
                 'analysis_type': self.analysis_type,
                 'section_id': self.section_id,
-            }
+            },
+            root_when_start=False,
         )
         monkey.run()
 
-        end_time = time.time()
-        self.report_section(start_time, end_time, cursor_image, monkey.smart_sense_count)
+        report_section(start_time=start_time,
+                       end_time=time.time(),
+                       analysis_type=self.analysis_type,
+                       section_id=self.section_id,
+                       image=get_cropped_image(node_info.image, node_info.cursor),
+                       smart_sense_times=monkey.smart_sense_count)
 
         if monkey.banned_image_detected:
             self.stop()
-        
         self.section_id += 1
 
-    def report_section(self, start_time: float, end_time: float, image: np.ndarray, smart_sense_times: int):
-        image_path = save_image(get_utc_datetime(time.time()).strftime('%y-%m-%d %H:%M:%S'), image)
-
-        report_data('monkey_section', {
-            'start_timestamp': get_utc_datetime(start_time),
-            'end_timestamp': get_utc_datetime(end_time),
-            'analysis_type': self.analysis_type,
-            'section_id': self.section_id,
-            'image_path': image_path,
-            'smart_sense_times': smart_sense_times,
-            'user_config': get_monkey_test_arguments()
-        })
+    ##### Skipped Image #####
+    def compare_skipped_with_cursor(self, image: np.ndarray) -> bool:
+        cursor = self.get_cursor(image)
+        for skipped_image in self.skipped_images:
+            skipped_cursor = self.get_cursor(skipped_image)
+            if check_cursor_is_same(image, cursor, skipped_image, skipped_cursor):
+                return True
+        else:
+            return False
 
     ##### Re-Defined Functions #####
     def exec_keys(self, keys: List[str]):
-        logger.info(f'exec_keys: {keys}')
         key_and_intervals = [(key, self.key_interval) if key != 'home' else (key, 3) for key in keys]
         exec_keys_with_each_interval(key_and_intervals, self.profile, self.remocon_type)
 
-    def head_to_next(self):
-        self.key_histories = head_to_next(self.key_histories, self.depth_key, self.breadth_key)
+    def head_to_next(self) -> bool:
+        try:
+            keyset = head_to_parent_sibling(self.keyset, self.depth_key, self.breadth_key)
+            self.keyset = optimize_path(keyset)
+            return True
+        except Exception:
+            return False
+
+    def get_cursor(self, image: np.ndarray=None) -> Tuple[int, int, int, int]:
+        try:
+            if image is None:
+                image = get_current_image()
+            cursor = get_cursor(self.profile, image)
+            return (cursor.x, cursor.y, cursor.w, cursor.h)
+        except Exception as err:
+            logger.warning(f'get cursor error. {err}')
+            return None

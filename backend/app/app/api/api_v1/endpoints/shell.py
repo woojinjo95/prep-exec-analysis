@@ -41,7 +41,6 @@ def get_shell_modes(
 @router.get("/logs", response_model=schemas.ShellLogList)
 def get_shell_logs(
     shell_mode: ShellModeEnum,
-    shell_id: int,
     start_time: str = Query(..., description="ex.2009-02-13T23:31:30+00:00"),
     end_time: str = Query(..., description="ex.2009-02-13T23:31:30+00:00"),
     scenario_id: Optional[str] = None,
@@ -59,10 +58,12 @@ def get_shell_logs(
                                               '$lte': convert_iso_format(end_time)},
                                 'scenario_id': scenario_id,
                                 'testrun_id': testrun_id,
-                                'mode': shell_mode.value,
-                                'shell_id': shell_id}},
+                                'mode': shell_mode.value}},
                     {'$project': {'_id': 0, 'lines': 1}},
                     {'$unwind': {'path': '$lines'}},
+                    {'$project': {'lines': {'timestamp': {'$dateToString': {'date': '$lines.timestamp'}},
+                                            'module': '$lines.module',
+                                            'message': '$lines.message'}}},
                     {'$group': {'_id': None, 'lines': {'$push': '$lines'}}}]
         result = aggregate_from_mongodb(col="shell_log", pipeline=pipeline)
         res = result if result == [] else result[0]['lines']

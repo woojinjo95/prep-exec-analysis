@@ -4,7 +4,7 @@ import cv2
 import logging
 import os
 
-from scripts.format import InputData
+from scripts.format import VideoInfo
 from scripts.external.scenario import load_testrun, get_scenario_info
 from scripts.connection.mongo_db.crud import aggregate_from_mongodb
 
@@ -15,15 +15,13 @@ def load_data() -> Dict:
     testrun = load_testrun()
     video_path = str(testrun['raw']['videos'][0]['path'])
     stat_path = str(testrun['raw']['videos'][0]['stat_path'])
-    # video_path = video_path.replace('./data', '/app')
-    # stat_path = stat_path.replace('./data', '/app')
     return {
         "video_path": video_path,
         "stat_path": stat_path,
     }
 
 
-def load_input() -> InputData:
+def load_input() -> VideoInfo:
     data = load_data()
 
     video_path = data['video_path']
@@ -43,9 +41,11 @@ def load_input() -> InputData:
     if frame_count != len(timestamps):
         raise Exception(f'frame count and timestamp length are not matched. frame count: {frame_count}, timestamp length: {len(timestamps)}')
 
-    return InputData(
+    return VideoInfo(
         video_path=video_path,
         timestamps=timestamps,
+        frame_count=frame_count,
+        fps=fps,
     )
 
 

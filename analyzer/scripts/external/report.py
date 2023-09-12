@@ -5,7 +5,7 @@ import logging
 from scripts.util._timezone import get_utc_datetime
 from scripts.connection.mongo_db.crud import insert_to_mongodb
 from scripts.external.scenario import get_scenario_info
-from scripts.format import CollectionName, ReportName
+from scripts.format import CollectionName, ReportName, Command
 from scripts.external.data import read_analysis_config
 
 logger = logging.getLogger('main')
@@ -17,19 +17,27 @@ report_info = {
     },
     ReportName.FREEZE.value: {
         'col_name': CollectionName.FREEZE.value,  # collection name for mongo db
-        'user_config_name': 'freeze'  # user config name for redis (analysis_config/analysis_config:freeze)
+        'user_config_name': Command.FREEZE.value  # user config name for redis (analysis_config/analysis_config:freeze)
     },
     ReportName.WARM_BOOT.value: {
         'col_name': CollectionName.WARM_BOOT.value,
-        'user_config_name': 'resume'
+        'user_config_name': Command.RESUME.value
     },
     ReportName.COLD_BOOT.value: {
         'col_name': CollectionName.COLD_BOOT.value,
-        'user_config_name': 'boot'
+        'user_config_name': Command.BOOT.value
     },
     ReportName.LOG_PATTERN.value: {
         'col_name': CollectionName.LOG_PATTERN.value,
-        'user_config_name': 'log_pattern_matching'
+        'user_config_name': Command.LOG_PATTERN_MATCHING.value
+    },
+    ReportName.CHANNEL_ZAPPING.value: {
+        'col_name': CollectionName.CHANNEL_ZAPPING.value,
+        'user_config_name': Command.CHANNEL_ZAPPING.value
+    },
+    ReportName.MACROBLOCK.value: {
+        'col_name': CollectionName.MACROBLOCK.value,
+        'user_config_name': Command.MACROBLOCK.value
     },
 }
 

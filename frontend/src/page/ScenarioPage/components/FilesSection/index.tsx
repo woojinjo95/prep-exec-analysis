@@ -1,20 +1,20 @@
-import { Text, Title } from '@global/ui'
-import React, { useMemo, useState } from 'react'
-import cx from 'classnames'
-import { ReactComponent as MoreIcon } from '@assets/images/button_more.svg'
-import { formatDateTo } from '@global/usecase'
+import { Button, Text, Title } from '@global/ui'
+import React, { useMemo } from 'react'
 import Scrollbars from 'react-custom-scrollbars-2'
 import useIntersect from '@global/hook/useIntersect'
-import { useRecoilState } from 'recoil'
-import { scenarioIdState } from '@global/atom'
-import { useNavigate } from 'react-router-dom'
 import useFetchScenarios from '@global/hook/useFetchScenarios'
 import { PAGE_SIZE_TWENTY } from '@global/constant'
+import { useMutation } from 'react-query'
+import { postScenario } from '@global/api/func'
+import { useNavigate } from 'react-router-dom'
+import { useRecoilState } from 'recoil'
+import { scenarioIdState, testRunIdState } from '@global/atom'
+import { useWebsocket } from '@global/hook'
+import ScenarioItem from './ScenarioItem'
 
 const FilesSection: React.FC = () => {
-  const [selectedMenu, setSelectedMenu] = useState<'Blocks' | 'Analysis Results'>('Blocks')
-
-  const { data, hasNextPage, isFetching, fetchNextPage } = useFetchScenarios(PAGE_SIZE_TWENTY)
+  const navigate = useNavigate()
+  const { data, hasNextPage, isFetching, fetchNextPage, refetch } = useFetchScenarios(PAGE_SIZE_TWENTY)
 
   const ref = useIntersect((entry, observer) => {
     // 발견시 실행될 callback
@@ -26,6 +26,8 @@ const FilesSection: React.FC = () => {
     }
   })
 
+  const { sendMessage } = useWebsocket()
+
   const scenarios = useMemo(() => {
     // InfiniteData type의 data를 flatMap으로 1 depth 배열로 평탄화 작업
     return data ? data.pages.flatMap(({ items }) => items) : []
@@ -33,15 +35,39 @@ const FilesSection: React.FC = () => {
 
   const [, setScenarioId] = useRecoilState(scenarioIdState)
 
-  const navigate = useNavigate()
+  const [, setTestRunId] = useRecoilState(testRunIdState)
 
+  const { mutate: postScenarioMutate } = useMutation(postScenario, {
+    onSuccess: (res) => {
+      setScenarioId(res.id)
+      setTestRunId(res.testrun_id)
+
+      sendMessage({
+        level: 'info',
+        msg: 'action_mode',
+      })
+      navigate('/action')
+    },
+  })
   return (
-    <div className="flex flex-col w-full h-full p-7 min-h-full border-r-[1px] border-b-grey">
+    <div className="flex flex-col w-full h-full p-7 min-h-full">
       <div className="min-h-[100px]">
-        <div className="flex justify-between mt-5">
-          <Title as="h1" className="mb-5 text-white">
-            Files
+        <div className="flex justify-between mt-5 items-center">
+          <Title as="h1" className="text-white flex">
+            Project
           </Title>
+          <Button
+            className="!w-[190px] !h-[50px]"
+            colorScheme="primary"
+            onClick={() => {
+              postScenarioMutate({ is_active: false })
+            }}
+          >
+            New Workspace
+          </Button>
+        </div>
+        <div className="flex w-full justify-between mt-5">
+          <Text className="!text-[15px] mr-[23px] cursor-pointer !text-primary">All</Text>
           <div className="flex">
             <Text size="md" className="mr-6 cursor-pointer">
               Search
@@ -51,87 +77,43 @@ const FilesSection: React.FC = () => {
             </Text>
           </div>
         </div>
-        <div className="flex">
-          <Text
-            className={cx('!text-[15px] mr-[23px] cursor-pointer', {
-              'text-primary': selectedMenu === 'Blocks',
-              'text-white': selectedMenu !== 'Blocks',
-            })}
-            onClick={() => {
-              setSelectedMenu('Blocks')
-            }}
-          >
-            Blocks
-          </Text>
-          <Text
-            className={cx('!text-[15px] cursor-pointer', {
-              'text-primary': selectedMenu === 'Analysis Results',
-              'text-white': selectedMenu !== 'Analysis Results',
-            })}
-            onClick={() => {
-              setSelectedMenu('Analysis Results')
-            }}
-          >
-            Analysis Results
-          </Text>
-        </div>
       </div>
       <div className="mt-5 flex w-full min-h-[calc(100%-100px)]">
         <div className="flex flex-col w-full">
-          <div className="w-full grid grid-cols-[30%_40%_25%_5%] border-b-grey border-b-[1px] h-8 items-center">
-            <Text className="text-sm" colorScheme="grey">
-              Name
-            </Text>
-            <Text className="text-sm" colorScheme="grey">
-              Tag
-            </Text>
-            <Text className="text-sm" colorScheme="grey">
-              Last modified
-            </Text>
-            <div />
+          <div className="px-5 py-3 w-full">
+            <div className="pl-[28px]">
+              <div className="w-[calc(100%-96px)] grid grid-cols-[20.5%_37%_5%_12.5%_17.5%_5%_3%] min-h-8 items-center gap-x-4">
+                <Text className="text-sm" colorScheme="grey">
+                  Name
+                </Text>
+                <Text className="text-sm" colorScheme="grey">
+                  Tag
+                </Text>
+                <Text className="text-sm" colorScheme="grey">
+                  Block
+                </Text>
+                <Text className="text-sm" colorScheme="grey">
+                  Number of Analysis Result
+                </Text>
+                <Text className="text-sm" colorScheme="grey">
+                  Last Modified
+                </Text>
+                <div />
+                <div />
+              </div>
+            </div>
           </div>
           <Scrollbars
             renderThumbVertical={({ ...props }) => <div {...props} className="bg-light-charcoal w-2 rounded-[5px]" />}
           >
             {scenarios?.map((scenario) => (
               <div className="flex flex-col w-full" key={`file_${scenario.name}`}>
-                <div className="w-full grid grid-cols-[30%_40%_25%_5%] border-b-grey border-b-[1px] min-h-[48px] items-center">
-                  <div>
-                    <Text className="text-white mr-3" invertBackground colorScheme="light-orange">
-                      B
-                    </Text>
-                    <Text
-                      size="md"
-                      colorScheme="light"
-                      className="cursor-pointer"
-                      onClick={() => {
-                        setScenarioId(scenario.id)
-                        navigate('/action')
-                      }}
-                    >
-                      {scenario.name}
-                    </Text>
-                  </div>
-
-                  <div className="flex flex-wrap w-full h-full pt-[10px] items-center">
-                    {scenario.tags.map((tag) => (
-                      <Text
-                        className="text-white mr-2 mb-2"
-                        invertBackground
-                        colorScheme="dark-grey"
-                        key={`${scenario.name}_tag_${tag}`}
-                      >
-                        {tag}
-                      </Text>
-                    ))}
-                  </div>
-                  <Text size="md" colorScheme="light">
-                    {formatDateTo('M DD YYYY, HH:MM AA', new Date(scenario.updated_at))}
-                  </Text>
-                  <div className="flex justify-center cursor-pointer h-full">
-                    <MoreIcon className="w-[20px] fill-white " />
-                  </div>
-                </div>
+                <ScenarioItem
+                  scenarioSummary={scenario}
+                  scenariosRefetch={() => {
+                    refetch()
+                  }}
+                />
               </div>
             ))}
             {/* Intersect Target */}

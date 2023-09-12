@@ -22,6 +22,7 @@ def read_remocon() -> schemas.RemoconRead:
     try:
         remocon_list = [{k: parse_bytes_to_value(v) for k, v in RedisClient.hgetall(key).items()}
                         for key in RedisClient.scan_iter(match='remocon:*')]
+        remocon_list.sort(key=lambda remocon: remocon['sort_index'])
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())

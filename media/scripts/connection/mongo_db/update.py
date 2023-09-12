@@ -73,3 +73,39 @@ def update_video_info_to_scenario(col: str, scenario_id: str, testrun_id: str, d
 
     except Exception as e:
         return False, str(e)
+
+
+def update_loundess_to_scenario(col: str, scenario_id: str, testrun_id: str, measure_target_dict: dict):
+    try:
+        mongo_client = get_mongodb_collection(col)
+        doc = mongo_client.find_one({'id': scenario_id})
+        testruns = doc.get('testruns', [])
+        index = next((i for i, item in enumerate(testruns) if item.get('id') == testrun_id), None)
+
+        # Fetch the existing 'measure_targets' list from MongoDB
+        testrun = testruns[index]
+        existing_measure_targets = testrun.get('measure_targets', [])
+        # Check if an item with the same type exists
+        for i, target in enumerate(existing_measure_targets):
+            if target.get('type') == measure_target_dict['type']:
+                # Update the item if it exists
+                update_query = {f'testruns.{index}.measure_targets.{i}': measure_target_dict}
+                mongo_client.update_one({'id': scenario_id}, {'$set': update_query})
+                break
+        # If not found, append the new element
+        else:
+            update_query = {f'testruns.{index}.measure_targets': measure_target_dict}
+            mongo_client.update_one({'id': scenario_id}, {'$push': update_query})
+
+        update_query = {
+            f'testruns.{index}.last_updated_timestamp': measure_target_dict['timestamp']
+        }
+        res = mongo_client.update_one({'id': scenario_id}, {'$set': update_query})
+
+        acknowledged = res.acknowledged
+        upserted_id = res.upserted_id  # This will be None if no document was inserted
+
+        return acknowledged, upserted_id
+
+    except Exception as e:
+        return False, str(e)

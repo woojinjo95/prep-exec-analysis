@@ -1,19 +1,36 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Button, OptionItem, Select, Text } from '@global/ui'
 import { AnalysisService } from '@global/service'
 import { useServiceState } from '@global/api/hook'
-import { AnalysisTypeLabel, ConfigurableAnalysisTypes } from '../../../constant'
+import { useObservableState } from '@global/hook'
+import { AnalyzableTypes } from '@global/constant'
+import { AnalysisTypeLabel } from '../../../constant'
 
 interface HeaderProps {
-  selectedAnalysisItems: (keyof typeof AnalysisTypeLabel)[]
-  setSelectedAnalysisItems: React.Dispatch<React.SetStateAction<(keyof typeof AnalysisTypeLabel)[]>>
+  selectedAnalysisItems: (typeof AnalyzableTypes)[number][]
+  setSelectedAnalysisItems: React.Dispatch<React.SetStateAction<(typeof AnalyzableTypes)[number][]>>
 }
 
 /**
  * 분석 아이템 설정 패널 헤더
  */
 const Header: React.FC<HeaderProps> = ({ selectedAnalysisItems, setSelectedAnalysisItems }) => {
-  const { serviceState } = useServiceState()
+  const [isStartAnalysis, setIsStartAnalysis] = useState<boolean>(false)
+  const { serviceState } = useServiceState({
+    onSuccess: (state) => {
+      if (isStartAnalysis && state !== 'analysis') {
+        setIsStartAnalysis(false)
+      }
+    },
+  })
+
+  useObservableState({
+    obs$: AnalysisService.onAnalysis$(),
+    callback: (state) => {
+      if (state?.msg !== 'not_validate_analysis') return
+      setIsStartAnalysis(false)
+    },
+  })
 
   return (
     <div className="flex gap-x-4 w-full">
@@ -26,7 +43,7 @@ const Header: React.FC<HeaderProps> = ({ selectedAnalysisItems, setSelectedAnaly
         }
         className="grow"
       >
-        {ConfigurableAnalysisTypes.filter((type) => !selectedAnalysisItems.includes(type)).map((analysisType) => (
+        {AnalyzableTypes.filter((type) => !selectedAnalysisItems.includes(type)).map((analysisType) => (
           <OptionItem
             colorScheme="dark"
             key={`set-analysis-items-${analysisType}`}
@@ -43,12 +60,12 @@ const Header: React.FC<HeaderProps> = ({ selectedAnalysisItems, setSelectedAnaly
         ))}
       </Select>
 
-      {/* TODO: 분석 시작 명령 전송 후 응답(analysis_response) 오기 전까지 로딩 표시 */}
       <Button
         colorScheme="primary"
-        disabled={serviceState === 'analysis'}
+        disabled={isStartAnalysis || serviceState === 'analysis' || serviceState === 'recording'}
         onClick={() => {
           AnalysisService.startAnalysis({ msg: 'analysis' })
+          setIsStartAnalysis(true)
         }}
       >
         Analysis

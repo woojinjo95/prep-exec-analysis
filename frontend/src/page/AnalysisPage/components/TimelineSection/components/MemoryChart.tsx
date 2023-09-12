@@ -3,7 +3,7 @@ import * as d3 from 'd3'
 import { AreaChart, TimelineTooltip, TimelineTooltipItem, Text } from '@global/ui'
 import { CHART_HEIGHT } from '@global/constant'
 import { bytesToSize } from '@global/usecase'
-import { useMemory } from '../api/hook'
+import { useMemory } from '@page/AnalysisPage/api/hook'
 import { useTooltipEvent } from '../hook'
 
 interface MemoryChartProps {
@@ -86,15 +86,17 @@ const MemoryChart: React.FC<MemoryChartProps> = ({ scaleX, startTime, endTime, d
         />
       )}
 
-      <AreaChart
-        chartWidth={dimension?.width}
-        scaleX={scaleX}
-        scaleY={scaleY}
-        data={memoryData}
-        minValue={0}
-        strokeColor="#fa70d8"
-        fillColor="#fa70d8"
-      />
+      <div style={{ height: CHART_HEIGHT }}>
+        <AreaChart
+          chartWidth={dimension?.width}
+          scaleX={scaleX}
+          scaleY={scaleY}
+          data={memoryData}
+          minValue={0}
+          strokeColor="#fa70d8"
+          fillColor="#fa70d8"
+        />
+      </div>
     </div>
   )
 }

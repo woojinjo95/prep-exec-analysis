@@ -9,7 +9,7 @@ const DurationUnits = ['Sec', 'Min'] as const
 interface FreezeAnalysisItemProps {
   color: NonNullable<UnsavedAnalysisConfig['freeze']>['color']
   duration: NonNullable<UnsavedAnalysisConfig['freeze']>['duration']
-  onClickDeleteItem: () => void
+  onClickDeleteItem: React.MouseEventHandler<SVGSVGElement>
   setUnsavedAnalysisConfig: React.Dispatch<React.SetStateAction<UnsavedAnalysisConfig>>
 }
 

@@ -1,4 +1,6 @@
 import { atom } from 'recoil'
+import { FreezeType, LogLevel } from '@global/constant'
+import { BootType, ResumeType } from '@global/api/entity'
 
 /**
  * 분석페이지 특정 시나리오의 비디오 Blob URL
@@ -13,9 +15,8 @@ export const videoBlobURLState = atom<string | null>({
  */
 export const scenarioIdState = atom<string | null>({
   key: 'scenarioIdState',
-  // FIXME: null로 변경, 서비스 진입 시 설정되도록 변경필요
   // default: '61e34251-73da-4614-b460-999a4f29c44b',
-  // default: '5e731960-616a-436e-9cad-84fdbb39bbf4',
+  // default: '3201ba8a-b96d-4b11-9298-35cdee3eb476',
   default: null,
 })
 
@@ -24,8 +25,8 @@ export const scenarioIdState = atom<string | null>({
  */
 export const testRunIdState = atom<string | null>({
   key: 'testRunIdState',
-  // FIXME: null로 변경, 분석 페이지 진입 시 설정되도록 변경필요
-  default: '2023-08-14T054428F718593',
+  // default: '2023-09-01T065554F133036',
+  default: null,
 })
 
 /**
@@ -58,4 +59,52 @@ export const selectedBlockIdsState = atom<string[]>({
 export const selectedRemoconNameState = atom<string | null>({
   key: 'selectedRemoconState',
   default: null,
+})
+
+/**
+ * action page 재생 start time (unix timestamp)
+ */
+export const playStartTimeState = atom<number | null>({
+  key: 'playStartTimeState',
+  default: null,
+})
+
+/**
+ * 분석 페이지 freeze 결과 filter 리스트(freeze type으로 필터링)
+ */
+export const freezeTypeFilterListState = atom<(keyof typeof FreezeType)[]>({
+  key: 'freezeTypeFilterListState',
+  default: [],
+})
+
+/**
+ * 분석 페이지 resume 결과 filter 리스트(resume type으로 필터링)
+ */
+export const resumeTypeFilterListState = atom<ResumeType[]>({
+  key: 'resumeTypeFilterListState',
+  default: [],
+})
+
+/**
+ * 분석 페이지 boot 결과 filter 리스트(boot type으로 필터링)
+ */
+export const bootTypeFilterListState = atom<BootType[]>({
+  key: 'bootTypeFilterListState',
+  default: [],
+})
+
+/**
+ * 분석 페이지 log level filter 결과 filter 리스트(log level로 필터링)
+ */
+export const logLevelFinderLogLevelFilterListState = atom<(keyof typeof LogLevel)[]>({
+  key: 'logLevelFinderLogLevelFilterListState',
+  default: [],
+})
+
+/**
+ * 분석 페이지 log pattern matching 결과 filter 리스트(log pattern name으로 필터링)
+ */
+export const logPatternMatchingNameFilterListState = atom<string[]>({
+  key: 'logPatternMatchingNameFilterListState',
+  default: [],
 })

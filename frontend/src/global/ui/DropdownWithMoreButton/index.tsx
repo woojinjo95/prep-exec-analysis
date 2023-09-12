@@ -13,6 +13,8 @@ interface DropdownWithMoreButtonProps {
   colorScheme?: 'light' | 'charcoal'
   type?: 'icon-button' | 'icon'
   positionX?: 'left' | 'right'
+  iconColorScheme?: 'light' | 'charcoal'
+  disabled?: boolean
 }
 
 /**
@@ -24,6 +26,8 @@ const DropdownWithMoreButton: React.FC<DropdownWithMoreButtonProps> = ({
   colorScheme = 'light',
   type = 'icon-button',
   positionX = 'right',
+  iconColorScheme,
+  disabled,
 }) => {
   const divRef = useRef<HTMLDivElement | null>(null)
   const [isButtonClicked, setIsButtonClicked] = useState<boolean>(false)
@@ -34,9 +38,14 @@ const DropdownWithMoreButton: React.FC<DropdownWithMoreButtonProps> = ({
       {type === 'icon-button' && (
         <IconButton
           colorScheme={colorScheme}
-          className="w-[50px] h-8"
+          className={cx('w-[50px] h-8', {
+            '!bg-light-grey': colorScheme === 'light' && disabled,
+            // TODO : colorScheme가 light가 아닐 떄
+          })}
           onClick={(e) => {
             e.stopPropagation()
+            if (disabled) return
+
             setIsButtonClicked((prev) => !prev)
           }}
           icon={<MoreIcon className="w-[20px] h-[20px] cursor-pointer" />}
@@ -44,7 +53,11 @@ const DropdownWithMoreButton: React.FC<DropdownWithMoreButtonProps> = ({
       )}
       {type === 'icon' && (
         <MoreIcon
-          className={cx('dropdown-with-more-button-icon', colorScheme, 'w-[20px] h-[20px] cursor-pointer')}
+          className={cx(
+            'dropdown-with-more-button-icon',
+            iconColorScheme || colorScheme,
+            'w-[20px] h-[20px] cursor-pointer',
+          )}
           onClick={(e) => {
             e.stopPropagation()
             setIsButtonClicked((prev) => !prev)
@@ -59,6 +72,7 @@ const DropdownWithMoreButton: React.FC<DropdownWithMoreButtonProps> = ({
         widthOption="fit-content"
         positionX={positionX}
         onClick={() => {
+          if (disabled) return
           setIsButtonClicked(false)
         }}
         colorScheme={colorScheme}

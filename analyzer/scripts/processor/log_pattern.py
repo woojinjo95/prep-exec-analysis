@@ -7,8 +7,8 @@ from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.data import load_input, read_analysis_config
 from scripts.external.log import get_data_of_log
 from scripts.external.report import report_output
-from scripts.external.analysis import set_analysis_info
-from scripts.format import Command, ReportName
+from scripts.external.progress import ProgressManager
+from scripts.format import Command, ReportName, VideoInfo
 from scripts.util.decorator import log_decorator
 
 logger = logging.getLogger('main')
@@ -18,24 +18,11 @@ logger = logging.getLogger('main')
 def test_log_pattern_matching():
     try:
         args = load_input()
-        log_data = get_data_of_log(args.timestamps[0], args.timestamps[-1])
-        # log_data = get_data_of_log(time.time() - 600, time.time() - 300)
-        target_items = get_target_from_config()
+        config = get_config()
 
-        count = 0
-        for log in log_data['items']:
-            matched_target = check_log_pattern_match(log, target_items)
-            if matched_target:
-                # logger.info(f'log: {log}')
-                report_output(ReportName.LOG_PATTERN.value, {
-                    **log,
-                    'matched_target': matched_target
-                })
-                count += 1
-        logger.info(f'matched log count: {count}')
+        task_log_pattern_matching(args, config)
 
         publish_msg({'measurement': Command.LOG_PATTERN_MATCHING.value}, 'analysis_response')
-        set_analysis_info(Command.LOG_PATTERN_MATCHING.value)
 
     except Exception as err:
         error_detail = traceback.format_exc()
@@ -44,11 +31,32 @@ def test_log_pattern_matching():
         logger.warning(error_detail)
 
 
-def get_target_from_config() -> List[Dict]:
+def task_log_pattern_matching(args: VideoInfo, config: Dict):
+    progress_manager = ProgressManager(Command.LOG_PATTERN_MATCHING.value)
+    log_data = get_data_of_log(args.timestamps[0], args.timestamps[-1])
+    # log_data = get_data_of_log(time.time() - 600, time.time() - 300)
+    target_items = config['items']
+    log_datas = log_data['items']
+
+    count = 0
+    for idx, log in enumerate(log_datas):
+        matched_target = check_log_pattern_match(log, target_items)
+        if matched_target:
+            # logger.info(f'log: {log}')
+            report_output(ReportName.LOG_PATTERN.value, {
+                **log,
+                'matched_target': matched_target
+            })
+            count += 1
+        progress_manager.update_progress((idx + 1) / len(log_datas))
+    logger.info(f'matched log count: {count}')
+
+
+def get_config() -> Dict:
     analysis_config = read_analysis_config()
-    target_items = analysis_config['log_pattern_matching']['items']
-    logger.info(f'target_items: {target_items}')
-    return target_items
+    config = analysis_config[Command.LOG_PATTERN_MATCHING.value]
+    logger.info(f'config: {config}')
+    return config
 
 
 def check_pattern_match(msg: str, pattern: str) -> bool:

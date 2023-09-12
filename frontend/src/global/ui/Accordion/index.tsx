@@ -9,14 +9,13 @@ interface AccordionProps {
   header: React.ReactNode
   children?: React.ReactNode
   colorScheme?: 'dark'
+  warningMessage?: string
 }
 
 /**
  * 아코디언 컴포넌트
- *
- * TODO: 테두리 색 주입
  */
-const Accordion: React.FC<AccordionProps> = ({ header, children, colorScheme = 'dark' }) => {
+const Accordion: React.FC<AccordionProps> = ({ header, children, colorScheme = 'dark', warningMessage }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
 
   return (
@@ -26,6 +25,7 @@ const Accordion: React.FC<AccordionProps> = ({ header, children, colorScheme = '
           'text-white': colorScheme === 'dark',
           'bg-light-black': colorScheme === 'dark',
           'border-charcoal': colorScheme === 'dark',
+          '!border-orange': !!warningMessage?.length,
           'rounded-lg': !isOpen,
           'rounded-t-lg !border-b-0': isOpen,
         })}
@@ -53,6 +53,7 @@ const Accordion: React.FC<AccordionProps> = ({ header, children, colorScheme = '
           className={cx('border border-t-0 rounded-b-lg p-5 pt-0', {
             'bg-light-black': colorScheme === 'dark',
             'border-charcoal': colorScheme === 'dark',
+            '!border-orange': !!warningMessage?.length,
           })}
         >
           <div className="w-full h-[0.5px] bg-light-charcoal mb-3" />
