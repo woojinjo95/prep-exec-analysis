@@ -73,17 +73,18 @@ const HLSPlayer: React.FC<HlsPlayerProps> = ({ src, autoPlay, ...props }) => {
               })
               .catch((err) => {
                 setIsConnectHLS(false)
-                console.log(err)
               })
           }
         })
       })
 
       newHls.on(Hls.Events.ERROR, (_, data) => {
-        if (data.fatal) {
+        if (data.fatal && playerRef.current != null) {
           switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
-              newHls.startLoad()
+              // network err가 발생했을 경우 1초 후 hls 재설정
+              newHls.destroy()
+              setTimeout(initPlayer, 1000)
               break
             case Hls.ErrorTypes.MEDIA_ERROR:
               newHls.recoverMediaError()
@@ -91,7 +92,6 @@ const HLSPlayer: React.FC<HlsPlayerProps> = ({ src, autoPlay, ...props }) => {
             default:
               // initPlayer 재 실행
               newHls.destroy()
-
               setTimeout(initPlayer, 2000)
               break
           }
