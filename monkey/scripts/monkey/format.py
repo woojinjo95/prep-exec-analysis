@@ -3,12 +3,6 @@ from typing import Tuple
 from dataclasses import dataclass, field
 
 
-class FrameInfo:
-    def __init__(self, image: np.ndarray, cursor: Tuple[int, int, int, int]):
-        self.image = image
-        self.cursor = cursor  # x,y,w,h
-
-
 @dataclass
 class NodeInfo:
     image: field(default_factory=lambda: np.array([]), repr=False)
