@@ -37,5 +37,5 @@ def update_section(id: str, section_in: SectionData):
     
     data_to_update = {key: value for key, value in section_in.__dict__.items() if value is not None}
     if data_to_update:
-        logger.info(f'update section {id} with data {data_to_update}')
+        # logger.info(f'update section {id} with data {data_to_update}')
         update_by_id_to_mongodb(col='monkey_section', id=id, data=data_to_update)
