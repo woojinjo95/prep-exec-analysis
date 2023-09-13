@@ -130,14 +130,18 @@ const ModifyProjectModal: React.FC<ModifyProjectModalProps> = ({
             {tagInput !== '' && (
               <div
                 className="h-11 flex px-3 py-2 hover:bg-light-charcoal cursor-pointer"
-                onClick={() => {
-                  if (!scenarioTags.find((tag) => tag === tagInput)) {
+                onClick={(e) => {
+                  e.stopPropagation()
+                  if (tags && !tags.find((tag) => tag === tagInput)) {
                     postTagMutate(tagInput)
                     setScenarioTags((prev) => [...prev, tagInput])
                     setTagInput('')
                   } else {
                     toast({ status: 'error', title: 'Tag name duplicated' })
                   }
+                }}
+                onMouseDown={(e) => {
+                  e.stopPropagation()
                 }}
               >
                 <Text colorScheme="light" className="mr-2">

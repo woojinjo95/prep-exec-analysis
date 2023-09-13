@@ -119,7 +119,6 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
     onSuccess: () => {
       tagRefetch()
       scenariosRefetch()
-      currentScenarioRefetch()
     },
     onError: (err: AxiosError) => {
       if (err.status === 406) {
@@ -280,14 +279,19 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
             {tagInput !== '' && (
               <div
                 className="h-11 flex px-3 py-2 hover:bg-light-charcoal cursor-pointer"
-                onClick={() => {
-                  if (!blocksTags.find((tag) => tag === tagInput)) {
+                onClick={(e) => {
+                  e.stopPropagation()
+
+                  if (tags && !tags.find((tag) => tag === tagInput)) {
                     postTagMutate(tagInput)
                     setBlocksTags((prev) => [...prev, tagInput])
                     setTagInput('')
                   } else {
                     toast({ status: 'error', title: 'Tag name duplicated' })
                   }
+                }}
+                onMouseDown={(e) => {
+                  e.stopPropagation()
                 }}
               >
                 <Text colorScheme="light" className="mr-2">
