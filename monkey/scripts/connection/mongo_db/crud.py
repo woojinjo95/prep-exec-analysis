@@ -23,18 +23,12 @@ def insert_to_mongodb(col, data: Dict) -> pymongo.results.InsertOneResult:
     return res
 
 
-def insert_many_to_mongodb(col, data_list: List[Dict]) -> pymongo.results.InsertManyResult:
-    col = get_mongodb_collection(col)
-    res = col.insert_many(data_list)
-    return res
-
-
-def aggregate_from_mongodb(col, pipeline):
-    col = get_mongodb_collection(col)
-    return list(col.aggregate(pipeline))
-
-
 def load_by_id_from_mongodb(col, id, proj=None):
     col = get_mongodb_collection(col)
     res = col.find_one({'id': id}, proj)
     return res
+
+
+def update_by_id_to_mongodb(col: str, id: str, data: Dict):
+    col = get_mongodb_collection(col)
+    return col.update_one({'id': id}, {'$set': data})
