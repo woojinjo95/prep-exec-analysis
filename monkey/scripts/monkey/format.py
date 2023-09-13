@@ -3,12 +3,6 @@ from typing import Tuple
 from dataclasses import dataclass, field
 
 
-class FrameInfo:
-    def __init__(self, image: np.ndarray, cursor: Tuple[int, int, int, int]):
-        self.image = image
-        self.cursor = cursor  # x,y,w,h
-
-
 @dataclass
 class NodeInfo:
     image: field(default_factory=lambda: np.array([]), repr=False)
@@ -35,3 +29,12 @@ class Cursor:
     y: int
     w: int
     h: int
+
+
+# 외부에서 주입받아야 하는 정보
+@dataclass
+class MonkeyExternalInfo:
+    analysis_type: str = ''  # 분석 종류
+    section_id: int = 0  # 현재 섹션 번호
+    image_path: str = ''  # 현재 섹션 대표 이미지 경로
+

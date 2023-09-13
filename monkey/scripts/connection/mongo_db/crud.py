@@ -1,6 +1,7 @@
 import pymongo
 from .config import Settings
-from typing import Dict, List
+from typing import Dict
+from bson import ObjectId
 
 
 def conn_mongodb():
@@ -23,18 +24,13 @@ def insert_to_mongodb(col, data: Dict) -> pymongo.results.InsertOneResult:
     return res
 
 
-def insert_many_to_mongodb(col, data_list: List[Dict]) -> pymongo.results.InsertManyResult:
+def load_by_id_from_mongodb(col, id, proj=None):
     col = get_mongodb_collection(col)
-    res = col.insert_many(data_list)
+    res = col.find_one({'_id': ObjectId(id)}, proj)
     return res
 
 
-def aggregate_from_mongodb(col, pipeline):
+def update_by_id_to_mongodb(col, id, data):
     col = get_mongodb_collection(col)
-    return list(col.aggregate(pipeline))
-
-
-def load_by_id_from_mongodb(col, id, proj=None):
-    col = get_mongodb_collection(col)
-    res = col.find_one({'id': id}, proj)
+    res = col.update_one({'_id': ObjectId(id)}, {'$set': data})
     return res
