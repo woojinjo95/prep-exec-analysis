@@ -6,7 +6,6 @@ import { AnalysisType, AnalyzableType, AnalyzableTypes } from '@global/constant'
 
 import { useAnalysisConfig } from '@page/AnalysisPage/api/hook'
 import { AnalysisConfig } from '@page/AnalysisPage/api/entity'
-import { AnalysisTypeLabel } from '../../../constant'
 import { useRemoveAnalysisConfig, useStartAnalysis, useUpdateAnalysisConfig } from '../../../api/hook'
 import { UnsavedAnalysisConfig } from '../../../types'
 import FreezeAnalysisItem from './FreezeAnalysisItem'
@@ -187,7 +186,7 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
    * 분석 아이템 삭제
    */
   const onClickDeleteItem = useCallback(
-    (type: keyof typeof AnalysisTypeLabel): React.MouseEventHandler<SVGSVGElement> =>
+    (type: keyof typeof AnalysisType): React.MouseEventHandler<SVGSVGElement> =>
       (e) => {
         e.stopPropagation()
         removeAnalysisConfig(type)
@@ -199,7 +198,7 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
     if (!selectedAnalysisItems.length) return
 
     // 분석아이템을 추가할 경우 -> 아이템별 default값 설정
-    Object.keys(AnalysisTypeLabel).forEach((_type) => {
+    Object.keys(AnalysisType).forEach((_type) => {
       const type = _type as (typeof AnalyzableTypes)[number]
       // 분석 아이템 리스트에 없거나 이미 값이 있을 경우 -> escape
       if (!selectedAnalysisItems.includes(type) || unsavedAnalysisConfig[type]) return

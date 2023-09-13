@@ -1,6 +1,6 @@
 import React from 'react'
 import { useRecoilState } from 'recoil'
-import { AppURL } from '@global/constant'
+import { AnalysisTypeLabel, AppURL } from '@global/constant'
 import { numberWithCommas } from '@global/usecase'
 import { Accordion, SimpleButton, Text } from '@global/ui'
 import { intelligentMonkeyTestSectionIdFilterListState } from '@global/atom'
@@ -8,7 +8,6 @@ import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
 import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
-import { AnalysisTypeLabel } from '../../../constant'
 
 interface IntelligentMonkeyTestSummaryItemProps {
   intelligentMonkeyTest: NonNullable<AnalysisResultSummary['intelligent_monkey_test']>

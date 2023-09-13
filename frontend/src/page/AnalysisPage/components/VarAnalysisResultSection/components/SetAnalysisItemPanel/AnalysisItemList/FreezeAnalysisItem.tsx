@@ -1,8 +1,7 @@
 import React, { useCallback } from 'react'
 import { Accordion, Checkbox, ColorPickerBox, Input, OptionItem, Select, Text } from '@global/ui'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
-import { AnalysisType } from '@global/constant'
-import { AnalysisTypeLabel } from '../../../constant'
+import { AnalysisType, AnalysisTypeLabel } from '@global/constant'
 import { UnsavedAnalysisConfig } from '../../../types'
 
 const DurationUnits = ['Sec', 'Min'] as const

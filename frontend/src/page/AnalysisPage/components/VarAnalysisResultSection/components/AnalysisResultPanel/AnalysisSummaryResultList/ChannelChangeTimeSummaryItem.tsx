@@ -3,7 +3,7 @@ import { Accordion, SimpleButton, Text } from '@global/ui'
 import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.svg'
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
 import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
-import { AnalysisTypeLabel } from '../../../constant'
+import { AnalysisTypeLabel } from '@global/constant'
 
 /**
  * channel change time 분석결과 요약 아이템

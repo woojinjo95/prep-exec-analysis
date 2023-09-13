@@ -3,13 +3,10 @@ import cx from 'classnames'
 import { useSetRecoilState } from 'recoil'
 import { CardModal, SimpleButton, Text, SortButton } from '@global/ui'
 import { ReactComponent as ShowIcon } from '@assets/images/icon_raw_data.svg'
-
-import { useInfiniteLogPatternMatching } from '@page/AnalysisPage/api/hook'
 import { convertRegexStringToHTML, formatDateTo, numberWithCommas } from '@global/usecase'
 import { cursorDateTimeState } from '@global/atom'
-
-import { LogLevelColor } from '@global/constant'
-import { AnalysisTypeLabel } from '../../../constant'
+import { AnalysisTypeLabel, LogLevelColor } from '@global/constant'
+import { useInfiniteLogPatternMatching } from '@page/AnalysisPage/api/hook'
 
 interface LogPatternMatchingRawDataModalProps {
   isOpen: boolean
