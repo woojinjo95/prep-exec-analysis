@@ -19,29 +19,30 @@ const NetworkTrace: React.FC = () => {
   if (!networks) return null
   return (
     <div className="w-full flex flex-col overflow-y-auto h-full overflow-x-hidden relative">
+      <div className="w-[calc(100%-40px)] grid grid-cols-[16%_9%_10%_6%_5%_54%] gap-x-2 text-grey bg-black">
+        <Text size="sm" colorScheme="grey">
+          Timestamp
+        </Text>
+        <Text size="sm" colorScheme="grey">
+          Source
+        </Text>
+        <Text size="sm" colorScheme="grey">
+          Destination
+        </Text>
+        <Text size="sm" colorScheme="grey">
+          Protocol
+        </Text>
+        <Text size="sm" colorScheme="grey">
+          Length
+        </Text>
+        <Text size="sm" colorScheme="grey">
+          Info
+        </Text>
+      </div>
+
       <Scrollbars
         renderThumbVertical={({ ...props }) => <div {...props} className="bg-light-charcoal w-2 rounded-[5px]" />}
       >
-        <div className="w-[calc(100%-40px)] grid grid-cols-[16%_9%_10%_6%_5%_54%] gap-x-2 text-grey sticky top-0 bg-black">
-          <Text size="sm" colorScheme="grey">
-            Timestamp
-          </Text>
-          <Text size="sm" colorScheme="grey">
-            Source
-          </Text>
-          <Text size="sm" colorScheme="grey">
-            Destination
-          </Text>
-          <Text size="sm" colorScheme="grey">
-            Protocol
-          </Text>
-          <Text size="sm" colorScheme="grey">
-            Length
-          </Text>
-          <Text size="sm" colorScheme="grey">
-            Info
-          </Text>
-        </div>
         <div className="flex flex-col w-full mt-1">
           {networks.map(({ timestamp, src, dst, protocol, length, info }, index) => (
             <div

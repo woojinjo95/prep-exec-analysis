@@ -20,32 +20,33 @@ const LogcatTrace: React.FC = () => {
   if (!logcats) return null
   return (
     <div className="w-full flex flex-col h-full overflow-x-hidden overflow-y-auto">
+      <div className="w-[calc(100%-48px)] grid grid-cols-[16%_6%_9%_9%_5%_5%_50%] gap-x-2 text-grey bg-black">
+        <Text size="sm" colorScheme="grey">
+          Timestamp
+        </Text>
+        <Text size="sm" colorScheme="grey">
+          Log Level
+        </Text>
+        <Text size="sm" colorScheme="grey">
+          Module
+        </Text>
+        <Text size="sm" colorScheme="grey">
+          Process
+        </Text>
+        <Text size="sm" colorScheme="grey">
+          Pid
+        </Text>
+        <Text size="sm" colorScheme="grey">
+          Tid
+        </Text>
+        <Text size="sm" colorScheme="grey">
+          Message
+        </Text>
+      </div>
+
       <Scrollbars
         renderThumbVertical={({ ...props }) => <div {...props} className="bg-light-charcoal w-2 rounded-[5px]" />}
       >
-        <div className="w-[calc(100%-48px)] grid grid-cols-[16%_6%_9%_9%_5%_5%_50%] gap-x-2 text-grey sticky top-0 bg-black">
-          <Text size="sm" colorScheme="grey">
-            Timestamp
-          </Text>
-          <Text size="sm" colorScheme="grey">
-            Log Level
-          </Text>
-          <Text size="sm" colorScheme="grey">
-            Module
-          </Text>
-          <Text size="sm" colorScheme="grey">
-            Process
-          </Text>
-          <Text size="sm" colorScheme="grey">
-            Pid
-          </Text>
-          <Text size="sm" colorScheme="grey">
-            Tid
-          </Text>
-          <Text size="sm" colorScheme="grey">
-            Message
-          </Text>
-        </div>
         <div className="flex flex-col w-full mt-1">
           {logcats?.map(({ timestamp, module, log_level, process_name, pid, tid, message }, index) => (
             <div
