@@ -60,7 +60,7 @@ const MonkeyTestChart: React.FC<MonkeyTestChartProps> = ({ scaleX, startTime, en
     width: dimension?.width,
   })
 
-  if (!monkeyTestData || !monkeySmartSenseData) return <div />
+  if (!monkeyTestData || !monkeySmartSenseData) return <div style={{ height: CHART_HEIGHT }} />
   return (
     <div onMouseMove={onMouseMove(monkeySmartSenseData)} onMouseLeave={onMouseLeave} className="relative">
       {!!posX && (

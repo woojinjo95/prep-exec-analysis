@@ -43,7 +43,7 @@ const LoudnessChart: React.FC<LoudnessChartProps> = ({ scaleX, startTime, endTim
     width: dimension?.width,
   })
 
-  if (!loudnessData) return <div />
+  if (!loudnessData) return <div style={{ height: CHART_HEIGHT }} />
   return (
     <div onMouseMove={onMouseMove(loudnessData)} onMouseLeave={onMouseLeave} className="relative overflow-hidden">
       {!!posX && (

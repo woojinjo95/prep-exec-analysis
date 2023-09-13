@@ -116,7 +116,7 @@ const EventLogChart: React.FC<EventLogChartProps> = ({ scaleX, startTime, endTim
     width: dimension?.width,
   })
 
-  if (!eventLogsData) return <div />
+  if (!eventLogsData) return <div style={{ height: CHART_HEIGHT }} />
   return (
     <div onMouseMove={onMouseMove(eventLogsData)} onMouseLeave={onMouseLeave} className="relative">
       {!!posX && (

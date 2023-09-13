@@ -63,7 +63,7 @@ const ResumeBootChart: React.FC<ResumeBootChartProps> = ({ scaleX, startTime, en
     width: dimension?.width,
   })
 
-  if (!data) return <div />
+  if (!data) return <div style={{ height: CHART_HEIGHT }} />
   return (
     <div onMouseMove={onMouseMove(data)} onMouseLeave={onMouseLeave} className="relative">
       {!!posX && (

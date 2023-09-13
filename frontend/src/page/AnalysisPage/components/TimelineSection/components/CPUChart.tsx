@@ -42,7 +42,7 @@ const CPUChart: React.FC<CPUChartProps> = ({ scaleX, startTime, endTime, dimensi
     width: dimension?.width,
   })
 
-  if (!cpuData) return <div />
+  if (!cpuData) return <div style={{ height: CHART_HEIGHT }} />
   return (
     <div onMouseMove={onMouseMove(cpuData)} onMouseLeave={onMouseLeave} className="relative overflow-hidden">
       {!!posX && (
