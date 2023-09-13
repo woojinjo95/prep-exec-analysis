@@ -83,12 +83,6 @@ const BootAnalysisItem: React.FC<BootAnalysisItemProps> = ({
             }}
           />
         </div>
-
-        {!!warningMessage && (
-          <div className="pt-2">
-            <Text colorScheme="orange">{warningMessage}</Text>
-          </div>
-        )}
       </div>
     </Accordion>
   )

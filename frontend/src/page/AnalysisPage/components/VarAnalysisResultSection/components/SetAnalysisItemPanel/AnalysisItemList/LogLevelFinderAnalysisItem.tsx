@@ -79,12 +79,6 @@ const LogLevelFinderAnalysisItem: React.FC<LogLevelFinderAnalysisItemProps> = ({
           })}
         </div>
       </div>
-
-      {!!warningMessage && (
-        <div className="pt-2">
-          <Text colorScheme="orange">{warningMessage}</Text>
-        </div>
-      )}
     </Accordion>
   )
 }

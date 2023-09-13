@@ -81,12 +81,6 @@ const LogPatternMatchingAnalysisItem: React.FC<LogPatternMatchingAnalysisItemPro
           onClick={(isChecked) => setIsRememberedConfig((prev) => ({ ...prev, log_pattern_matching: isChecked }))}
         />
 
-        {!!warningMessage && (
-          <div className="pt-2">
-            <Text colorScheme="orange">{warningMessage}</Text>
-          </div>
-        )}
-
         {isOpenAddLogPatternModal && (
           <LogPatternModal
             isOpen={isOpenAddLogPatternModal}

@@ -16,7 +16,7 @@ const LogTraceSection: React.FC = () => {
       <Tabs
         header={['Logcat Trace', 'Network Trace', ...(shells?.map(({ mode }) => mode) || [])]}
         colorScheme="dark"
-        className="pl-5 pr-1 py-1"
+        className="pl-5 pr-1 py-1 !gap-y-2"
       >
         <LogcatTrace />
         <NetworkTrace />

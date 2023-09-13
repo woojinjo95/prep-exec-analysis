@@ -108,12 +108,6 @@ const ResumeAnalysisItem: React.FC<ResumeAnalysisItemProps> = ({
             />
           </div>
         )}
-
-        {!!warningMessage && (
-          <div className="pt-2">
-            <Text colorScheme="orange">{warningMessage}</Text>
-          </div>
-        )}
       </div>
     </Accordion>
   )
