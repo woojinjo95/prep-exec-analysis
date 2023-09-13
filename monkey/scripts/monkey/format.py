@@ -29,3 +29,12 @@ class Cursor:
     y: int
     w: int
     h: int
+
+
+# 외부에서 주입받아야 하는 정보
+@dataclass
+class MonkeyExternalInfo:
+    analysis_type: str = ''  # 분석 종류
+    section_id: int = 0  # 현재 섹션 번호
+    image_path: str = ''  # 현재 섹션 대표 이미지 경로
+
