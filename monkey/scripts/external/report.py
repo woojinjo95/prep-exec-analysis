@@ -34,4 +34,7 @@ def update_section(id: str, section_in: SectionData):
     section_data = load_by_id_from_mongodb(col='monkey_section', id=id)
     if not section_data:
         raise Exception(f'The section with this id does not exist in the system: {id}')
-    update_by_id_to_mongodb(col='monkey_section', id=id, data=section_in.__dict__)
+    
+    data_to_update = {key: value for key, value in section_in.__dict__.items() if value is not None}
+    if data_to_update:
+        update_by_id_to_mongodb(col='monkey_section', id=id, data=data_to_update)

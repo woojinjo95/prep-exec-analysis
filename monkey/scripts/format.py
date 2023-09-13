@@ -7,9 +7,8 @@ from typing import Dict
 class SectionData:
     start_time: datetime = None
     end_time: datetime = None
-    analysis_type: str = ''
-    section_id: int = 0
-    image_path: str = ''
-    smart_sense_times: int = 0
-    user_config: Dict = field(default_factory=dict)
-
+    analysis_type: str = None
+    section_id: int = None
+    image_path: str = None
+    smart_sense_times: int = None
+    user_config: Dict = None
