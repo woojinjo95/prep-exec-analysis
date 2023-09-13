@@ -89,7 +89,15 @@ const TimelineHeader: React.FC<TimelineHeaderProps> = ({
           {scaleX && ticks && tickWidth && (
             <>
               {/* 맨 앞쪽 tick은 안보이기 때문에 채우기용 tick 추가 */}
-              <Tick time={new Date()} width={tickWidth} translateX={scaleX(ticks[0]) - tickWidth} />
+              <Tick
+                time={
+                  ticks.length > 1
+                    ? new Date(ticks[0].getTime() - (ticks[1].getTime() - ticks[0].getTime()))
+                    : new Date()
+                }
+                width={tickWidth}
+                translateX={scaleX(ticks[0]) - tickWidth}
+              />
 
               {/* tick 리스트 */}
               {ticks.map((time) => (
