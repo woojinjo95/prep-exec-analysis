@@ -8,6 +8,7 @@ import { scenarioIdState } from '@global/atom'
 import { Block } from '@global/api/entity'
 import { ActionStatus } from '../types'
 import { putBlock } from '../api/func'
+import { useRunBlock } from '../api/hook'
 
 interface ActionBlockItemProps {
   block: Block
@@ -32,6 +33,8 @@ const ActionBlockItem = ({
     // 부모 컴포넌트의 onMouseDown 이벤트 발생을 막기 위해서
     e.stopPropagation()
   }
+
+  const { runBlock } = useRunBlock()
 
   const [changedMin, setChangedMin] = useState<string>('')
 
@@ -111,7 +114,7 @@ const ActionBlockItem = ({
             '!outline !outline-[1px] !outline-[#4C4E68]': selectedBlockIds.includes(block.id),
             '!bg-[#F1F2F4]': selectedBlockIds.includes(block.id) && modifyingBlockId !== block.id,
             '!border-[#FF2300] !outline-[#FF2300]': actionStatus === 'RFC',
-            '!border-[#00B1FF] !outline-[#00B1FF]': actionStatus === 'playing',
+            '!border-[#00B1FF] !outline-[#00B1FF]': actionStatus === 'playing' && runBlock && runBlock.id === block.id,
           },
         )}
       >
@@ -122,7 +125,7 @@ const ActionBlockItem = ({
               'hover:border-r-2 hover:border-[4C4E68]': !selectedBlockIds.includes(block.id),
               '!border-r-[1px] !border-[#4C4E68]': selectedBlockIds.includes(block.id),
               '!border-[#FF2300] border-r-[2px]': actionStatus === 'RFC',
-              '!border-[#00B1FF] border-r-[2px]': actionStatus === 'playing',
+              '!border-[#00B1FF] border-r-[2px]': actionStatus === 'playing' && runBlock && runBlock.id === block.id,
             },
           )}
         >
