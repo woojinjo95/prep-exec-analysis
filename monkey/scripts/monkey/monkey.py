@@ -75,7 +75,7 @@ class Monkey:
                     self.go_to_root()
                     self.start_smart_sense()
             
-            self.update_section(SectionData(end_time=get_utc_datetime(time.time())))
+            self.update_section(SectionData(end_timestamp=get_utc_datetime(time.time())))
 
         self.stop_smart_sense()
         logger.info('Stop Monkey')
@@ -132,8 +132,8 @@ class Monkey:
     ##### Section #####
     def create_section(self):
         section_data = SectionData(
-            start_time=get_utc_datetime(time.time()),
-            end_time=get_utc_datetime(time.time()),
+            start_timestamp=get_utc_datetime(time.time()),
+            end_timestamp=get_utc_datetime(time.time()),
             analysis_type=self.external_info.analysis_type,
             section_id=self.external_info.section_id,
             image_path=self.external_info.image_path,

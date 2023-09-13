@@ -5,8 +5,8 @@ from typing import Dict
 
 @dataclass
 class SectionData:
-    start_time: datetime = None
-    end_time: datetime = None
+    start_timestamp: datetime = None
+    end_timestamp: datetime = None
     analysis_type: str = None
     section_id: int = None
     image_path: str = None
