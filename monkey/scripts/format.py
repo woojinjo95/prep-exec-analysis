@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Dict
 
@@ -11,5 +11,5 @@ class SectionData:
     section_id: int = 0
     image_path: str = ''
     smart_sense_times: int = 0
-    user_config: Dict = {}
+    user_config: Dict = field(default_factory=dict)
 
