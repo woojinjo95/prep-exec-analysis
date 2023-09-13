@@ -73,6 +73,7 @@ const HLSPlayer: React.FC<HlsPlayerProps> = ({ src, autoPlay, ...props }) => {
               })
               .catch((err) => {
                 setIsConnectHLS(false)
+                console.error(err)
               })
           }
         })
