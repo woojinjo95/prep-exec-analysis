@@ -6,7 +6,7 @@ import { ButtonGroup, Divider, GroupButton, Title } from '@global/ui'
 import { useWebsocket } from '@global/hook'
 import { useHardwareConfiguration, useScenarioById } from '@global/api/hook'
 import { useRecoilValue } from 'recoil'
-import { scenarioIdState } from '@global/atom'
+import { isBlockRecordModeState, scenarioIdState } from '@global/atom'
 import { useMutation } from 'react-query'
 import { postBlock } from '@page/ActionPage/components/ActionSection/api/func'
 
@@ -30,12 +30,15 @@ const RemoteControl: React.FC = () => {
     },
   })
 
+  const isBlockRecordMode = useRecoilValue(isBlockRecordModeState)
+
   const { sendMessage } = useWebsocket<RemoteControlResponseMessageBody>({
     onMessage: (message) => {
       if (message.msg === 'remocon_properties_response') {
         refetch()
 
         if (!scenarioId) return
+        if (!isBlockRecordMode) return
         postBlockMutate({
           newBlock: {
             type: 'remocon_properties',
