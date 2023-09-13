@@ -94,8 +94,6 @@ const ActionBlockItem = ({
     }
   }, [handleOutsideClick, modifyingBlockId])
 
-  console.log('test', actionStatus === 'playing', runBlock, block.id)
-
   return (
     <div
       ref={itemRef}
