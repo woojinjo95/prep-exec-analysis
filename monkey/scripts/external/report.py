@@ -22,14 +22,15 @@ def construct_report_data() -> Dict:
     }
 
 
-def report_data(col_name: str, data: Dict):
+def report_data(col_name: str, data: Dict) -> str:
     report = {**construct_report_data(), **data}
     logger.info(f'insert {report} to db')
-    insert_to_mongodb(col_name, report)
+    res = insert_to_mongodb(col_name, report)
+    return res.inserted_id
 
 
-def create_section(section_data: SectionData):
-    report_data('monkey_section', section_data.__dict__)
+def create_section(section_data: SectionData) -> str:
+    return report_data('monkey_section', section_data.__dict__)
 
 
 def update_section(id: str, section_in: SectionData):
