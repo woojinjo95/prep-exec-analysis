@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react'
+import cx from 'classnames'
 
 /**
  * 스크롤바 높이 사이즈
@@ -67,7 +68,9 @@ const HorizontalScrollBar: React.FC<HorizontalScrollBarProps> = ({
       >
         {/* 스크롤바 왼쪽 조절 버튼 */}
         <div
-          className="rounded-full border-[3px] border-gray-400 cursor-ew-resize absolute top-0 left-0"
+          className={cx('rounded-full border-[3px] border-gray-400 cursor-ew-resize absolute top-0 left-0', {
+            'z-[5]': scrollBarTwoPosX[0] === scrollBarTwoPosX[1] - SCROLL_BAR_HEIGHT,
+          })}
           style={{
             width: SCROLL_BAR_HEIGHT,
             height: SCROLL_BAR_HEIGHT,
@@ -92,7 +95,9 @@ const HorizontalScrollBar: React.FC<HorizontalScrollBarProps> = ({
 
         {/* 스크롤바 오른쪽 조절 버튼 */}
         <div
-          className="rounded-full border-[3px] border-gray-400 cursor-ew-resize  absolute top-0 right-0"
+          className={cx('rounded-full border-[3px] border-gray-400 cursor-ew-resize  absolute top-0 right-0', {
+            'z-[5]': scrollBarTwoPosX[1] === SCROLL_BAR_HEIGHT,
+          })}
           style={{
             width: SCROLL_BAR_HEIGHT,
             height: SCROLL_BAR_HEIGHT,
