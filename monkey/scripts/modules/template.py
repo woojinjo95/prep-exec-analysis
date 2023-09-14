@@ -12,12 +12,15 @@ class Module:
         self.processor = None
 
     def __start_processor(self):
+        # [CAUTION]
+        # for having child (Monkey Agent), daemon is False because python daemon process cannot have child process
+        # so if you don't use some like signal handler, it cause zombie process
         self.processor = Process(target=self.func, kwargs={
         }, daemon=False)
         self.processor.start()
 
     def __stop_processor(self):
-        self.processor.terminate()
+        self.processor.terminate()  # it send SIGTERM to child process
 
     def start(self):
         if self.processor and self.processor.is_alive():

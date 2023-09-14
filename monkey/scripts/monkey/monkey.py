@@ -5,6 +5,8 @@ import time
 from typing import List
 import ctypes
 from multiprocessing import Value, Process
+import os
+import signal
 
 import numpy as np
 
@@ -163,8 +165,18 @@ class Monkey:
 
 
 def run_monkey(monkey: Monkey):
-    monkey_proc = Process(target=monkey.run, daemon=False)
+    monkey_proc = Process(target=monkey.run, daemon=True)
     monkey_proc.start()
+
+    # the process hierachy is A(main) - B(test_module) - C(monkey_agent). 
+    # A - B(daemon=False) - C(daemon=True) is forced because python daemon process cannot have child process.
+    # so C must have signal handler because B is non daemon process. (non daemon means that it cannot be auto terminated when parent process is terminated.)
+    def signal_handler(signum, frame):
+        monkey_proc.terminate()
+        os._exit(0)
+    # stop child process(Monkey Agent) when signal is received. (SIGTERM)
+    # if not, child process will be alive even if parent process is terminated.
+    signal.signal(signal.SIGTERM, signal_handler)
     
     start_time = time.time()
     current_duration = time.time() - start_time
