@@ -8,8 +8,7 @@ from datetime import datetime
 from typing import Optional
 
 from app import schemas
-from app.api.utility import (analysis_collection, convert_data_in,
-                             convert_iso_format, deserialize_datetime,
+from app.api.utility import (analysis_collection, deserialize_datetime,
                              get_config_from_scenario_mongodb,
                              paginate_from_mongodb_aggregation,
                              parse_bytes_to_value, serialize_datetime,
@@ -50,7 +49,8 @@ def get_data_of_log_level_finder(
                                                               end_time=end_time)
 
         if log_level is None:
-            log_level = parse_bytes_to_value(RedisClient.hget('analysis_config:log_level_finder', 'targets'))
+            config = get_config_from_scenario_mongodb(scenario_id=scenario_id, testrun_id=testrun_id, target='log_level_finder')
+            log_level = config.get('targets', [])
         else:
             log_level = log_level.split(',')
 
