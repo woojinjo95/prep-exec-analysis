@@ -92,11 +92,10 @@ class IntelligentMonkeyTestSK:
             same_with_breadth_start = check_cursor_is_same(last_breadth_start_image, self.get_cursor(last_breadth_start_image),
                                                         node_info.image, node_info.cursor, 
                                                         sim_thld=0.98)
-            shape_similar_with_prev = check_shape_similar(self.node_histories[-1].cursor, node_info.cursor)
+            shape_diff_with_prev = not check_shape_similar(self.node_histories[-1].cursor, node_info.cursor)
 
-            breadth_end_cond = same_with_prev or same_with_breadth_start or not shape_similar_with_prev
-            is_breadth_end = True if breadth_end_cond else False
-            logger.info(f'check breadth end done. is_breadth_end: {is_breadth_end}, same_with_prev: {same_with_prev}, same_with_breadth_start: {same_with_breadth_start}')
+            is_breadth_end = True if same_with_prev or same_with_breadth_start or shape_diff_with_prev else False
+            logger.info(f'check breadth end done. is_breadth_end: {is_breadth_end}, same_with_prev: {same_with_prev}, same_with_breadth_start: {same_with_breadth_start}, shape_diff_with_prev: {shape_diff_with_prev}')
             return is_breadth_end
         except Exception as err:
             logger.warning(f'check breadth end error. {err}')

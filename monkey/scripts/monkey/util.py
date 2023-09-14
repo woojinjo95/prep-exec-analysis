@@ -66,7 +66,7 @@ def check_cursor_is_same(image1: np.ndarray, cursor1: Tuple, image2: np.ndarray,
                                             min_color_depth_diff, 
                                             sim_thld)
         same = positional_similar and temporal_similar
-        logger.info(f'check cursor is same. same: {same}, positional_similar: {positional_similar}, temporal_similar: {temporal_similar}')
+        # logger.info(f'check cursor is same. same: {same}, positional_similar: {positional_similar}, temporal_similar: {temporal_similar}')
         return same
 
 
