@@ -13,7 +13,7 @@ class Module:
 
     def __start_processor(self):
         self.processor = Process(target=self.func, kwargs={
-        }, daemon=True)
+        }, daemon=False)
         self.processor.start()
 
     def __stop_processor(self):

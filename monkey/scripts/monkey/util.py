@@ -138,5 +138,3 @@ def get_last_breadth_start_image(node_histories: List[NodeInfo]):
             return node_histories[0].image
     except Exception as err:
         raise Exception(f'get last breadth start cursor image error. {err}')
-
-

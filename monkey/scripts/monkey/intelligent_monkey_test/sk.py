@@ -8,7 +8,7 @@ import numpy as np
 
 from scripts.analysis.image import get_cropped_image
 from scripts.monkey.format import NodeInfo, MonkeyArgs
-from scripts.monkey.monkey import Monkey
+from scripts.monkey.monkey import Monkey, run_monkey
 from scripts.monkey.util import (check_cursor_is_same, check_shape_similar, 
                                  exec_keys_with_each_interval, get_current_image, head_to_parent_sibling,
                                  optimize_path, get_last_breadth_start_image,
@@ -37,7 +37,7 @@ class IntelligentMonkeyTestSK:
         # root keyset 근거
         # 1. 배터리 방전 팝업 없애기 위해 home 두번 입력
         # 2. 검증 대상 셋탑의 경우, up 4회
-        self.root_keyset = ['home', 'home', 'left'] + ['up'] * 4
+        self.root_keyset = ['exit', 'home', 'home', 'left'] + ['up'] * 4
         self.skipped_images = get_skipped_images()
 
         # init variables
@@ -92,7 +92,7 @@ class IntelligentMonkeyTestSK:
             same_with_breadth_start = check_cursor_is_same(last_breadth_start_image, self.get_cursor(last_breadth_start_image),
                                                         node_info.image, node_info.cursor, 
                                                         sim_thld=0.98)
-            shape_diff_with_prev = not check_shape_similar(self.node_histories[-1].cursor, node_info.cursor)
+            shape_diff_with_prev = not check_shape_similar(self.root_cursor, node_info.cursor)
 
             is_breadth_end = True if same_with_prev or same_with_breadth_start or shape_diff_with_prev else False
             logger.info(f'check breadth end done. is_breadth_end: {is_breadth_end}, same_with_prev: {same_with_prev}, same_with_breadth_start: {same_with_breadth_start}, shape_diff_with_prev: {shape_diff_with_prev}')
@@ -150,10 +150,11 @@ class IntelligentMonkeyTestSK:
             ),
             root_when_start=False,
         )
-        monkey.run()
+        run_monkey(monkey)
 
-        if monkey.banned_image_detected:
+        if monkey.banned_image_detected.value:
             self.stop()
+
         self.section_id += 1
 
     ##### Skipped Image #####
@@ -168,7 +169,7 @@ class IntelligentMonkeyTestSK:
 
     ##### Re-Defined Functions #####
     def exec_keys(self, keys: List[str]):
-        key_and_intervals = [(key, self.key_interval) if key != 'home' else (key, 3) for key in keys]
+        key_and_intervals = [(key, 3) if key in ['home', 'exit'] else (key, self.key_interval) for key in keys]
         exec_keys_with_each_interval(key_and_intervals, self.profile, self.remocon_type)
 
     def head_to_next(self) -> bool:
