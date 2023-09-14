@@ -41,6 +41,20 @@ def exec_keys_with_each_interval(key_and_intervals: List[Tuple[str, float]], com
         exec_key(key, interval, company, type)
 
 
+def get_cursor(company: str, image: np.ndarray) -> Cursor:
+    try:
+        if company == 'roku':
+            cursor = find_roku_cursor(image)
+            return Cursor(x=cursor[0], y=cursor[1], w=cursor[2], h=cursor[3])
+        elif company == 'skb':
+            cursor = get_cursor_xywh(image)
+            return Cursor(x=cursor[0], y=cursor[1], w=cursor[2], h=cursor[3])
+        else:
+            raise Exception(f'invalid company. => {company}')
+    except Exception as err:
+        raise Exception(f'get cursor error. {err}')
+
+
 def check_cursor_is_same(image1: np.ndarray, cursor1: Tuple, image2: np.ndarray, cursor2: Tuple, 
                         iou_thld: float=0.9, min_color_depth_diff: int=10, sim_thld: float=0.95) -> bool:
     if image1 is None or image2 is None or cursor1 is None or cursor2 is None:
@@ -118,15 +132,3 @@ def get_last_breadth_start_image(node_histories: List[NodeInfo]):
         raise Exception(f'get last breadth start cursor image error. {err}')
 
 
-def get_cursor(company: str, image: np.ndarray) -> Cursor:
-    try:
-        if company == 'roku':
-            cursor = find_roku_cursor(image)
-            return Cursor(x=cursor[0], y=cursor[1], w=cursor[2], h=cursor[3])
-        elif company == 'skb':
-            cursor = get_cursor_xywh(image)
-            return Cursor(x=cursor[0], y=cursor[1], w=cursor[2], h=cursor[3])
-        else:
-            raise Exception(f'invalid company. => {company}')
-    except Exception as err:
-        raise Exception(f'get cursor error. {err}')
