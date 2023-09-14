@@ -723,27 +723,40 @@ def get_summary_data_of_measure_result(
                     {'$group': {'_id': None, 'results': {'$push': {'target': '$_id', 'total': '$total'}}}},
                     {'$project': {'_id': 0, 'results': 1}}]
             elif active_analysis == 'freeze':
+                duration = config.get('duration', 0)
                 additional_pipeline = [
+                    {'$match': {'user_config.duration': duration}},
                     {'$group': {'_id': '$freeze_type', 'total': {'$sum': 1}, 'color': {'$first': '$user_config.color'}}},
                     {'$group': {'_id': '$color', 'results': {
                         '$push': {'total': '$total', 'error_type': '$_id'}}}},
                     {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'resume':
+                type = config.get('type', '')
+                frame = config.get('frame', {})
                 additional_pipeline = [
+                    {'$match': {'user_config.type': type, 'user_config.frame': frame}},
                     {'$group': {'_id': '$user_config.type', 'total': {'$sum': 1},
                                 'avg_time': {'$avg': '$measure_time'}, 'color': {'$first': '$user_config.color'}}},
                     {'$group': {'_id': '$color', 'results': {
                         '$push': {'target': '$_id', 'total': '$total', 'avg_time': '$avg_time'}}}},
                     {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'boot':
+                frame = config.get('frame', {})
                 additional_pipeline = [
+                    {'$match': {'user_config.frame': frame}},
                     {'$group': {'_id': '$user_config.type', 'total': {'$sum': 1},
                                 'avg_time': {'$avg': '$measure_time'}, 'color': {'$first': '$user_config.color'}}},
                     {'$group': {'_id': '$color', 'results': {
                         '$push': {'target': '$_id', 'total': '$total', 'avg_time': '$avg_time'}}}},
                     {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'log_pattern_matching':
+                name = config.get('name', '')
+                color = config.get('color', '')
+                level = config.get('level', '')
+                regular_expression = config.get('regular_expression', '')
                 additional_pipeline = [
+                    {'$match': {'matched_target': {'color': color, 'name': name, 'level': level,
+                                                   'regular_expression': regular_expression}}},
                     {'$project': {'_id': 0, 'list': ['$matched_target.name',
                                                      '$matched_target.color'], 'color': '$user_config.color'}},
                     {'$group': {'_id': '$list', 'total': {'$sum': 1}, 'color': {'$first': '$color'}}},
