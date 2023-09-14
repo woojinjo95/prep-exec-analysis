@@ -56,6 +56,28 @@ def check_cursor_is_same(image1: np.ndarray, cursor1: Tuple, image2: np.ndarray,
         return same
 
 
+def check_positional_similar(cursor1: Tuple, cursor2: Tuple, iou_thld: float=0.9) -> bool:
+    iou_rate = calc_iou(cursor1, cursor2)
+    return iou_rate > iou_thld
+
+
+def check_image_similar(image1: np.ndarray, image2: np.ndarray, min_color_depth_diff: int=10, sim_thld: float=0.95) -> bool:
+    def preprocess_image(image: np.ndarray) -> np.ndarray:
+        return cv2.cvtColor(cv2.resize(image, (960, 540)), cv2.COLOR_BGR2GRAY)
+    
+    diff_rate = calc_diff_rate(preprocess_image(image1), preprocess_image(image2), min_color_depth_diff)
+    sim_rate = 1 - diff_rate
+    return sim_rate > sim_thld
+
+
+def check_image_similar_with_ssim(image1: np.ndarray, image2: np.ndarray, sim_thld: float=0.95) -> bool:
+    def preprocess_image(image: np.ndarray) -> np.ndarray:
+        return cv2.cvtColor(cv2.resize(image, (960, 540)), cv2.COLOR_BGR2GRAY)
+    
+    sim_rate = is_similar_by_compare_ssim(preprocess_image(image1), preprocess_image(image2), match_thres=sim_thld)
+    return sim_rate > sim_thld
+
+
 def optimize_path(path: List[str]) -> List[str]:
     stack = []
     for action in path:
@@ -83,28 +105,6 @@ def head_to_parent_sibling(key_histories: List[str], depth_key: str, breadth_key
     except IndexError:
         logger.info(f'key_histories is empty. key_histories: {key_histories}')
         raise IndexError('key_histories is empty.')
-
-
-def check_positional_similar(cursor1: Tuple, cursor2: Tuple, iou_thld: float=0.9) -> bool:
-    iou_rate = calc_iou(cursor1, cursor2)
-    return iou_rate > iou_thld
-
-
-def check_image_similar(image1: np.ndarray, image2: np.ndarray, min_color_depth_diff: int=10, sim_thld: float=0.95) -> bool:
-    def preprocess_image(image: np.ndarray) -> np.ndarray:
-        return cv2.cvtColor(cv2.resize(image, (960, 540)), cv2.COLOR_BGR2GRAY)
-    
-    diff_rate = calc_diff_rate(preprocess_image(image1), preprocess_image(image2), min_color_depth_diff)
-    sim_rate = 1 - diff_rate
-    return sim_rate > sim_thld
-
-
-def check_image_similar_with_ssim(image1: np.ndarray, image2: np.ndarray, sim_thld: float=0.95) -> bool:
-    def preprocess_image(image: np.ndarray) -> np.ndarray:
-        return cv2.cvtColor(cv2.resize(image, (960, 540)), cv2.COLOR_BGR2GRAY)
-    
-    sim_rate = is_similar_by_compare_ssim(preprocess_image(image1), preprocess_image(image2), match_thres=sim_thld)
-    return sim_rate > sim_thld
 
 
 def get_last_breadth_start_image(node_histories: List[NodeInfo]):
