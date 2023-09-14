@@ -41,20 +41,17 @@ def exec_keys_with_each_interval(key_and_intervals: List[Tuple[str, float]], com
         exec_key(key, interval, company, type)
 
 
-def check_cursor_is_same(prev_image: np.ndarray, prev_cursor: Tuple, image: np.ndarray, cursor: Tuple, 
+def check_cursor_is_same(image1: np.ndarray, cursor1: Tuple, image2: np.ndarray, cursor2: Tuple, 
                         iou_thld: float=0.9, min_color_depth_diff: int=10, sim_thld: float=0.95) -> bool:
-    # logger.info(f'cursor same check. prev_cursor: {prev_cursor}, cursor: {cursor}')
-    if prev_image is None or image is None or prev_cursor is None or cursor is None:
+    if image1 is None or image2 is None or cursor1 is None or cursor2 is None:
         return False
     else:
-        positional_similar = check_positional_similar(prev_cursor, cursor, iou_thld)
-        temporal_similar = check_image_similar(get_cropped_image(prev_image, prev_cursor), 
-                                        get_cropped_image(image, cursor), 
-                                        min_color_depth_diff, 
-                                        sim_thld)
-        # 1. 위치적 동일성이 일정 수준 이하 => 커서가 움직임
-        # 2. 위치적 동일성이 높지만, 시간적 동일성이 낮음 => 커서는 움직이지 않았지만, 내용물이 변함
-        same = False if not positional_similar or (positional_similar and not temporal_similar) else True
+        positional_similar = check_positional_similar(cursor1, cursor2, iou_thld)
+        temporal_similar = check_image_similar(get_cropped_image(image1, cursor1), 
+                                            get_cropped_image(image2, cursor2), 
+                                            min_color_depth_diff, 
+                                            sim_thld)
+        same = positional_similar and temporal_similar
         logger.info(f'check cursor is same. same: {same}, positional_similar: {positional_similar}, temporal_similar: {temporal_similar}')
         return same
 
@@ -88,9 +85,8 @@ def head_to_parent_sibling(key_histories: List[str], depth_key: str, breadth_key
         raise IndexError('key_histories is empty.')
 
 
-def check_positional_similar(prev_cursor: Tuple, cursor: Tuple, iou_thld: float=0.9) -> bool:
-    iou_rate = calc_iou(prev_cursor, cursor)
-    # logger.info(f'check positional similar. iou_rate: {iou_rate:.6f}, iou_thld: {iou_thld:.6f}')
+def check_positional_similar(cursor1: Tuple, cursor2: Tuple, iou_thld: float=0.9) -> bool:
+    iou_rate = calc_iou(cursor1, cursor2)
     return iou_rate > iou_thld
 
 
@@ -100,7 +96,6 @@ def check_image_similar(image1: np.ndarray, image2: np.ndarray, min_color_depth_
     
     diff_rate = calc_diff_rate(preprocess_image(image1), preprocess_image(image2), min_color_depth_diff)
     sim_rate = 1 - diff_rate
-    # logger.info(f'check temporal similar. diff_rate: {diff_rate:.6f}, diff_thld: {diff_thld:.6f}')
     return sim_rate > sim_thld
 
 
