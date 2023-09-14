@@ -3,12 +3,10 @@ import cx from 'classnames'
 import { useSetRecoilState } from 'recoil'
 import { CardModal, SimpleButton, Text, SortButton } from '@global/ui'
 import { ReactComponent as ShowIcon } from '@assets/images/icon_raw_data.svg'
-
-import { useInfiniteLogPatternMatching } from '@page/AnalysisPage/api/hook'
-import { formatDateTo, numberWithCommas } from '@global/usecase'
+import { convertRegexStringToHTML, formatDateTo, numberWithCommas } from '@global/usecase'
 import { cursorDateTimeState } from '@global/atom'
-
-import { AnalysisTypeLabel } from '../../../constant'
+import { AnalysisTypeLabel, LogLevelColor } from '@global/constant'
+import { useInfiniteLogPatternMatching } from '@page/AnalysisPage/api/hook'
 
 interface LogPatternMatchingRawDataModalProps {
   isOpen: boolean
@@ -103,7 +101,7 @@ const LogPatternMatchingRawDataModal: React.FC<LogPatternMatchingRawDataModalPro
             </tr>
           </thead>
           <tbody>
-            {logPatternMatching.map(({ timestamp, log_pattern_name, log_level, message }, index) => (
+            {logPatternMatching.map(({ timestamp, log_pattern_name, log_level, message, regex, color }, index) => (
               <tr
                 key={`log-pattern-matching-raw-data-${timestamp}-${index}`}
                 className="border-t border-light-charcoal hover:bg-charcoal/50"
@@ -112,13 +110,26 @@ const LogPatternMatchingRawDataModal: React.FC<LogPatternMatchingRawDataModalPro
                   <Text size="sm">{formatDateTo('YYYY-MM-DD HH:MM:SS:MS', new Date(timestamp))}</Text>
                 </td>
                 <td className={cx('px-6 py-1', { 'border-t border-light-charcoal': index !== 0 })}>
-                  <Text size="sm">{log_pattern_name}</Text>
+                  <div className="flex items-center gap-x-2">
+                    <div className="w-4 h-4" style={{ backgroundColor: color }} />
+                    <Text size="sm">{log_pattern_name}</Text>
+                  </div>
                 </td>
                 <td className={cx('px-6 py-1', { 'border-t border-light-charcoal': index !== 0 })}>
-                  <Text size="sm">{log_level}</Text>
+                  <Text colorScheme={LogLevelColor[log_level]} invertBackground>
+                    {log_level}
+                  </Text>
                 </td>
                 <td className={cx('px-6 py-1 break-all', { 'border-t border-light-charcoal': index !== 0 })}>
-                  <Text size="sm">{message}</Text>
+                  <Text size="sm">
+                    <div
+                      // eslint-disable-next-line react/no-danger
+                      dangerouslySetInnerHTML={{
+                        __html: convertRegexStringToHTML(message, regex, '#00B1FF'),
+                      }}
+                      className="text-white"
+                    />
+                  </Text>
                 </td>
                 <td className={cx('px-6 py-1', { 'border-t border-light-charcoal': index !== 0 })}>
                   <SimpleButton

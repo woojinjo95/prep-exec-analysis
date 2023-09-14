@@ -1,7 +1,7 @@
 import React from 'react'
 import { Accordion, ColorPickerBox, Text } from '@global/ui'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
-import { AnalysisTypeLabel } from '../../../constant'
+import { AnalysisTypeLabel } from '@global/constant'
 import { UnsavedAnalysisConfig } from '../../../types'
 
 interface LoudnessAnalysisItemProps {

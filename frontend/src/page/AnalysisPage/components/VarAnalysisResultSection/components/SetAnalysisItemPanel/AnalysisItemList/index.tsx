@@ -6,7 +6,6 @@ import { AnalysisType, AnalyzableType, AnalyzableTypes } from '@global/constant'
 
 import { useAnalysisConfig } from '@page/AnalysisPage/api/hook'
 import { AnalysisConfig } from '@page/AnalysisPage/api/entity'
-import { AnalysisTypeLabel } from '../../../constant'
 import { useRemoveAnalysisConfig, useStartAnalysis, useUpdateAnalysisConfig } from '../../../api/hook'
 import { UnsavedAnalysisConfig } from '../../../types'
 import FreezeAnalysisItem from './FreezeAnalysisItem'
@@ -24,6 +23,7 @@ const DefaultAnalysisConfig: Required<UnsavedAnalysisConfig> = {
   freeze: {
     color: '#42FF00',
     duration: '3',
+    unit: 'Sec',
   },
   loudness: {
     color: '#0106FF',
@@ -63,6 +63,18 @@ const DefaultAnalysisConfig: Required<UnsavedAnalysisConfig> = {
  */
 const validateAnalysisConfig = (config: UnsavedAnalysisConfig) => {
   const newWarningMessage: { -readonly [key in keyof typeof AnalysisType]?: string } = {}
+
+  // 유효하지 않은 duration 값을 입력했을 경우
+  if (
+    config.freeze &&
+    (!config.freeze.duration ||
+      Number.isNaN(config.freeze.duration) ||
+      Number(config.freeze.duration) <= 0 ||
+      (Number(config.freeze.duration) > 60 && config.freeze.unit === 'Min') ||
+      (Number(config.freeze.duration) > 60 * 60 && config.freeze.unit === 'Sec'))
+  ) {
+    newWarningMessage.freeze = 'Duration must be greater than 0 seconds and less than or equal to 60 minutes.'
+  }
 
   // 로그 패턴을 하나도 추가하지 않은 경우
   if (config.log_pattern_matching && !config.log_pattern_matching.items.length) {
@@ -174,7 +186,7 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
    * 분석 아이템 삭제
    */
   const onClickDeleteItem = useCallback(
-    (type: keyof typeof AnalysisTypeLabel): React.MouseEventHandler<SVGSVGElement> =>
+    (type: keyof typeof AnalysisType): React.MouseEventHandler<SVGSVGElement> =>
       (e) => {
         e.stopPropagation()
         removeAnalysisConfig(type)
@@ -186,7 +198,7 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
     if (!selectedAnalysisItems.length) return
 
     // 분석아이템을 추가할 경우 -> 아이템별 default값 설정
-    Object.keys(AnalysisTypeLabel).forEach((_type) => {
+    Object.keys(AnalysisType).forEach((_type) => {
       const type = _type as (typeof AnalyzableTypes)[number]
       // 분석 아이템 리스트에 없거나 이미 값이 있을 경우 -> escape
       if (!selectedAnalysisItems.includes(type) || unsavedAnalysisConfig[type]) return
@@ -214,7 +226,8 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
           freeze: freezeConfig
             ? {
                 ...freezeConfig,
-                duration: String(freezeConfig.duration),
+                duration: String(freezeConfig.duration > 60 ? freezeConfig.duration / 60 : freezeConfig.duration),
+                unit: freezeConfig.duration > 60 ? 'Min' : 'Sec',
               }
             : undefined,
         }))
@@ -233,10 +246,10 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
     callback: (state) => {
       if (state?.msg !== 'analysis') return
       const newWarningMessage = validateAnalysisConfig(unsavedAnalysisConfig)
+      setWarningMessage(newWarningMessage)
 
       if (Object.keys(newWarningMessage).length) {
         AnalysisService.startAnalysis({ msg: 'not_validate_analysis' })
-        setWarningMessage(newWarningMessage)
         return
       }
 
@@ -244,8 +257,11 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
         ...(unsavedAnalysisConfig as AnalysisConfig),
         freeze: unsavedAnalysisConfig.freeze
           ? {
-              ...unsavedAnalysisConfig.freeze,
-              duration: Number(unsavedAnalysisConfig.freeze.duration),
+              color: unsavedAnalysisConfig.freeze.color,
+              duration:
+                unsavedAnalysisConfig.freeze.unit === 'Min'
+                  ? Number(unsavedAnalysisConfig.freeze.duration) * 60
+                  : Number(unsavedAnalysisConfig.freeze.duration),
             }
           : undefined,
       })
@@ -269,6 +285,8 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
         <FreezeAnalysisItem
           color={unsavedAnalysisConfig.freeze.color}
           duration={unsavedAnalysisConfig.freeze.duration}
+          unit={unsavedAnalysisConfig.freeze.unit}
+          warningMessage={warningMessage.freeze}
           setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
           onClickDeleteItem={onClickDeleteItem('freeze')}
           isRememberChecked={!!isRememberedConfig.freeze}

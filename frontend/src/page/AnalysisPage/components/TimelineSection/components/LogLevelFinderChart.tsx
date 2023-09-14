@@ -52,7 +52,7 @@ const LogLevelFinderChart: React.FC<LogLevelFinderChartProps> = ({
     width: dimension?.width,
   })
 
-  if (!logLevelFinderData) return <div />
+  if (!logLevelFinderData) return <div style={{ height: CHART_HEIGHT }} />
   return (
     <div onMouseMove={onMouseMove(logLevelFinderData)} onMouseLeave={onMouseLeave} className="relative">
       {!!posX && (

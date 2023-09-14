@@ -7,7 +7,8 @@ import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
 import { convertDuration, numberWithCommas } from '@global/usecase'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { resumeTypeFilterListState } from '@global/atom'
-import { AnalysisTypeLabel, ResumeTypeLabel } from '../../../constant'
+import { AnalysisTypeLabel } from '@global/constant'
+import { ResumeTypeLabel } from '../../../constant'
 
 interface ResumeSummaryItemProps {
   resume: NonNullable<AnalysisResultSummary['resume']>

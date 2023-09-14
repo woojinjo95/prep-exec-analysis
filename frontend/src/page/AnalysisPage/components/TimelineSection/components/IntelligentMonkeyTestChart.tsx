@@ -82,7 +82,7 @@ const IntelligentMonkeyTestChart: React.FC<IntelligentMonkeyTestChartProps> = ({
     width: dimension?.width,
   })
 
-  if (!intelligentMonkeyTestData || !intelligentMonkeySmartSenseData) return <div />
+  if (!intelligentMonkeyTestData || !intelligentMonkeySmartSenseData) return <div style={{ height: CHART_HEIGHT }} />
   return (
     <div onMouseMove={onMouseMove(intelligentMonkeySmartSenseData)} onMouseLeave={onMouseLeave} className="relative">
       {!!posX && (

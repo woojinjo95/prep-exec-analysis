@@ -43,7 +43,7 @@ const MemoryChart: React.FC<MemoryChartProps> = ({ scaleX, startTime, endTime, d
     width: dimension?.width,
   })
 
-  if (!memoryData) return <div />
+  if (!memoryData) return <div style={{ height: CHART_HEIGHT }} />
   return (
     <div onMouseMove={onMouseMove(memoryData)} onMouseLeave={onMouseLeave} className="relative overflow-hidden">
       {!!posX && (

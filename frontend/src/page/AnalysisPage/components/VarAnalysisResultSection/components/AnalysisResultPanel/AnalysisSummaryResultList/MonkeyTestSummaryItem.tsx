@@ -7,7 +7,7 @@ import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
 import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
 import { monkeyTestIdFilterListState } from '@global/atom'
-import { AnalysisTypeLabel } from '../../../constant'
+import { AnalysisTypeLabel } from '@global/constant'
 
 interface MonkeyTestSummaryItemProps {
   monkeyTest: NonNullable<AnalysisResultSummary['monkey_test']>

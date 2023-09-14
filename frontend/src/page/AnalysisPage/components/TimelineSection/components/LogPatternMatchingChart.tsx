@@ -57,7 +57,7 @@ const LogPatternMatchingChart: React.FC<LogPatternMatchingChartProps> = ({
     width: dimension?.width,
   })
 
-  if (!logPatternMatchingData) return <div />
+  if (!logPatternMatchingData) return <div style={{ height: CHART_HEIGHT }} />
   return (
     <div onMouseMove={onMouseMove(logPatternMatchingData)} onMouseLeave={onMouseLeave} className="relative">
       {!!posX && (

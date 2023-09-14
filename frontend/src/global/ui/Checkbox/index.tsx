@@ -1,6 +1,6 @@
 import React from 'react'
 import classnames from 'classnames/bind'
-import { ReactComponent as CheckIcon } from '@assets/images/check.svg'
+import { ReactComponent as CheckIcon } from '@assets/images/checkbox_checked_w.svg'
 import styles from './Checkbox.module.scss'
 import { Text } from '..'
 

@@ -24,20 +24,21 @@ const ShellLog: React.FC<ShellLogProps> = ({ shell_mode }) => {
 
   return (
     <div className="w-full flex flex-col h-full overflow-x-hidden overflow-y-auto">
+      <div className="w-full grid grid-cols-[16%_9%_1fr] gap-2 bg-black">
+        <Text size="sm" colorScheme="grey">
+          Timestamp
+        </Text>
+        <Text size="sm" colorScheme="grey">
+          Module
+        </Text>
+        <Text size="sm" colorScheme="grey">
+          Message
+        </Text>
+      </div>
+
       <Scrollbars
         renderThumbVertical={({ ...props }) => <div {...props} className="bg-light-charcoal w-2 rounded-[5px]" />}
       >
-        <div className="w-full grid grid-cols-[16%_9%_1fr] gap-2 sticky top-0 bg-black">
-          <Text size="sm" colorScheme="grey">
-            Timestamp
-          </Text>
-          <Text size="sm" colorScheme="grey">
-            Module
-          </Text>
-          <Text size="sm" colorScheme="grey">
-            Message
-          </Text>
-        </div>
         <div className="flex flex-col w-full mt-1">
           {shellLogs?.map(({ timestamp, module, message }, index) => (
             <div

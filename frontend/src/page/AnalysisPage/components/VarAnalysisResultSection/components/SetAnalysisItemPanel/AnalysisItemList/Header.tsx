@@ -3,8 +3,7 @@ import { Button, OptionItem, Select, Text } from '@global/ui'
 import { AnalysisService } from '@global/service'
 import { useServiceState } from '@global/api/hook'
 import { useObservableState } from '@global/hook'
-import { AnalyzableTypes } from '@global/constant'
-import { AnalysisTypeLabel } from '../../../constant'
+import { AnalysisTypeLabel, AnalyzableTypes } from '@global/constant'
 
 interface HeaderProps {
   selectedAnalysisItems: (typeof AnalyzableTypes)[number][]

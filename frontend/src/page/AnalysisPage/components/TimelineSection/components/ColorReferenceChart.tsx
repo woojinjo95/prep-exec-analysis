@@ -43,7 +43,7 @@ const ColorReferenceChart: React.FC<ColorReferenceChartProps> = ({ scaleX, start
     width: dimension?.width,
   })
 
-  if (!colorReferenceData) return <div />
+  if (!colorReferenceData) return <div style={{ height: CHART_HEIGHT }} />
   return (
     <div onMouseMove={onMouseMove(colorReferenceData)} onMouseLeave={onMouseLeave} className="relative overflow-hidden">
       {!!posX && (

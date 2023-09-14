@@ -45,7 +45,7 @@ const FreezeChart: React.FC<FreezeChartProps> = ({ scaleX, startTime, endTime, d
     width: dimension?.width,
   })
 
-  if (!freezeData) return <div />
+  if (!freezeData) return <div style={{ height: CHART_HEIGHT }} />
   return (
     <div onMouseMove={onMouseMove(freezeData)} onMouseLeave={onMouseLeave} className="relative">
       {!!posX && (
