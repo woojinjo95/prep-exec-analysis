@@ -177,7 +177,7 @@ def get_config_from_scenario_mongodb(scenario_id: str, testrun_id: str, target: 
                               "config": f"$testruns.analysis.config"}},
                 {"$match": {"testrun_id": testrun_id}}]
     if target:
-        pipeline.append({"$project": {"_id": 0, f"config.{target}": 1}})
+        pipeline.append({"$project": {"_id": 0, "config": f"$config.{target}"}})
     else:
         pipeline.append({"$project": {"_id": 0, "config.": 1}})
     res = aggregate_from_mongodb('scenario', pipeline)

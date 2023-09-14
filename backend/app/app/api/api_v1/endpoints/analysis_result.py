@@ -49,17 +49,20 @@ def get_data_of_log_level_finder(
                                                               end_time=end_time)
 
         if log_level is None:
-            config = get_config_from_scenario_mongodb(scenario_id=scenario_id, testrun_id=testrun_id, target='log_level_finder')
-            log_level = config.get('targets', [])
+            config = get_config_from_scenario_mongodb(scenario_id=scenario_id,
+                                                      testrun_id=testrun_id,
+                                                      target='log_level_finder')
+            log_level = config.get('config', {}).get('targets', [])
         else:
             log_level = log_level.split(',')
 
-        additional_pipeline = [{'$project': {'_id': 0, 'lines.timestamp': 1, 'lines.log_level': 1}},
-                               {'$unwind': {'path': '$lines'}},
-                               {'$replaceRoot': {'newRoot': '$lines'}},
-                               {'$match': {'log_level': {'$in': log_level}}},
-                               {'$project': {'timestamp': {'$dateToString': {'date': '$timestamp'}},
-                                             'log_level': 1}}]
+        additional_pipeline = [
+            {'$project': {'_id': 0, 'lines.timestamp': 1, 'lines.log_level': 1}},
+            {'$unwind': {'path': '$lines'}},
+            {'$replaceRoot': {'newRoot': '$lines'}},
+            {'$match': {'log_level': {'$in': log_level}}},
+            {'$project': {'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                          'log_level': 1}}]
         log_level_finder_pipeline.extend(additional_pipeline)
         log_level_finder = paginate_from_mongodb_aggregation(col=analysis_collection['log_level_finder'],
                                                              pipeline=log_level_finder_pipeline,
