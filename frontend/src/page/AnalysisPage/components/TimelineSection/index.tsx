@@ -4,7 +4,7 @@ import { Text, VideoSnapshots } from '@global/ui'
 import { CHART_HEIGHT } from '@global/constant'
 
 import { useAnalysisResultSummary } from '@page/AnalysisPage/api/hook'
-import { useCursorEvent } from './hook'
+import { useCursorEvent, useHandleChartWheel } from './hook'
 import {
   HorizontalScrollBar,
   CPUChart,
@@ -83,6 +83,10 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
       setActiveChartList(newAllChartList)
     },
   })
+  const isReadyRenderChart = useMemo(
+    () => !!startTime && !!endTime && !!analysisResultSummary,
+    [startTime, endTime, analysisResultSummary],
+  )
 
   // X축 전체 scale
   const timelineScaleX: d3.ScaleTime<number, number, never> | null = useMemo(() => {
@@ -107,6 +111,14 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
       width: dimension?.width,
     })
 
+  // 차트 가로스크롤 hook
+  useHandleChartWheel({
+    ref: chartWrapperRef.current,
+    isReadyRenderChart,
+    setScrollBarTwoPosX,
+    chartWidth: dimension?.width,
+  })
+
   const handleWindowResize = () => {
     if (!chartWrapperRef.current || dimension?.width || dimension?.left || scrollBarTwoPosX) return
 
@@ -117,7 +129,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
   useEffect(() => {
     handleWindowResize()
     // dependency array: chartWrapperRef 렌더링 조건
-  }, [startTime, endTime, analysisResultSummary])
+  }, [isReadyRenderChart])
 
   useEffect(() => {
     window.addEventListener('resize', handleWindowResize)
@@ -126,6 +138,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
     }
   }, [])
 
+  // === isReadyRenderChart
   if (!startTime || !endTime || !analysisResultSummary) {
     return <section className="h-full bg-black grid grid-cols-1 grid-rows-[auto_1fr_auto]" />
   }
