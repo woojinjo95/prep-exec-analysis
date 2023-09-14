@@ -23,7 +23,7 @@ const VideoSnapshots: React.FC<VideoSnapshotsProps> = ({ startTime, endTime, tic
   const snapshotScaleX: d3.ScaleLinear<number, number, never> | null = useMemo(() => {
     if (!videoSnapshots || !clientWidth || !startTime || !endTime) return null
 
-    const indexedVideoSnapshots = videoSnapshots.map((d, index) => ({ index, ...d }))
+    const indexedVideoSnapshots = videoSnapshots.map((d, snapshotIndex) => ({ snapshotIndex, ...d }))
     const scaledVideoSnapshots = indexedVideoSnapshots.filter(
       ({ timestamp }) =>
         new Date(timestamp).getTime() >= startTime.getTime() && new Date(timestamp).getTime() < endTime.getTime(),
@@ -31,12 +31,31 @@ const VideoSnapshots: React.FC<VideoSnapshotsProps> = ({ startTime, endTime, tic
 
     if (scaledVideoSnapshots.length < 2) return null
 
-    // 스냅샷 리스트 앞부분이 비는 것을 방지
-    const startIndex = Math.max(scaledVideoSnapshots[0].index - 1, 0)
-    const endIndex = scaledVideoSnapshots[scaledVideoSnapshots.length - 1].index
+    const startIndex = scaledVideoSnapshots[0].snapshotIndex
+    const endIndex = scaledVideoSnapshots[scaledVideoSnapshots.length - 1].snapshotIndex
 
     return d3.scaleLinear().domain([startIndex, endIndex]).range([0, clientWidth])
   }, [videoSnapshots, clientWidth, startTime, endTime])
+
+  // 스냅샷 리스트 앞부분이 비는 것을 방지하기 위한 index
+  const firstSnapshotIndex = useMemo(() => {
+    if (!snapshotScaleX) return null
+    const ticks = snapshotScaleX.ticks(tickCount)
+
+    if (!Number.isInteger(ticks[1] - ticks[0])) {
+      return ticks[0] - (ticks[2] - ticks[0])
+    }
+
+    return ticks[0] - (ticks[1] - ticks[0])
+  }, [snapshotScaleX, tickCount])
+
+  const snapshots = useMemo(() => {
+    if (!snapshotScaleX || !videoSnapshots) return []
+    return [
+      ...(firstSnapshotIndex !== null && !!videoSnapshots[firstSnapshotIndex] ? [firstSnapshotIndex] : []),
+      ...snapshotScaleX.ticks(tickCount).filter((index) => Number.isInteger(index)),
+    ]
+  }, [snapshotScaleX, videoSnapshots, firstSnapshotIndex])
 
   return (
     <div
@@ -48,22 +67,20 @@ const VideoSnapshots: React.FC<VideoSnapshotsProps> = ({ startTime, endTime, tic
       style={{ height: VIDEO_SNAPSHOT_HEIGHT }}
     >
       {videoSnapshots &&
-        snapshotScaleX
-          ?.ticks(tickCount)
-          .filter((index) => Number.isInteger(index))
-          .map((index) => (
-            <img
-              key={`snapshot-${index}`}
-              src={`${AppURL.backendURL}/api/v1/file/download?path=${encodeURIComponent(videoSnapshots[index].path)}`}
-              alt="snapshot"
-              className="aspect-video absolute top-0 h-full"
-              style={{
-                transform: scaleX
-                  ? `translateX(${scaleX(new Date(videoSnapshots[index].timestamp))}px)`
-                  : `translateX(${snapshotScaleX(index)}px)`,
-              }}
-            />
-          ))}
+        snapshotScaleX &&
+        snapshots?.map((index) => (
+          <img
+            key={`snapshot-${index}`}
+            src={`${AppURL.backendURL}/api/v1/file/download?path=${encodeURIComponent(videoSnapshots[index].path)}`}
+            alt="snapshot"
+            className="aspect-video absolute top-0 h-full"
+            style={{
+              transform: `translateX(${
+                scaleX ? scaleX(new Date(videoSnapshots[index].timestamp)) : snapshotScaleX(index)
+              }px)`,
+            }}
+          />
+        ))}
     </div>
   )
 }
