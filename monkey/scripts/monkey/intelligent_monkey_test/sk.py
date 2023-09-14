@@ -13,9 +13,11 @@ from scripts.monkey.util import (check_cursor_is_same, exec_keys_with_each_inter
                                  get_current_image, head_to_parent_sibling,
                                  optimize_path, get_last_breadth_start_image,
                                  get_cursor)
-from scripts.external.report import report_section
-from scripts.external.image import get_skipped_images, save_test_image
-from scripts.util._timezone import get_time_str
+from scripts.external.image import get_skipped_images
+from scripts.external.image import save_section_cursor_image
+from scripts.util._timezone import get_utc_datetime
+from scripts.monkey.format import MonkeyExternalInfo
+
 
 logger = logging.getLogger('monkey_test')
 
@@ -95,14 +97,6 @@ class IntelligentMonkeyTestSK:
             breadth_end_cond = same_with_prev or same_with_breadth_start or same_with_skipped_image
             is_breadth_end = True if breadth_end_cond else False
             logger.info(f'check breadth end done. is_breadth_end: {is_breadth_end}, same_with_prev: {same_with_prev}, same_with_breadth_start: {same_with_breadth_start}')
-            
-            # # test
-            # time_str = get_time_str()
-            # save_test_image(f'{time_str}_cursor_cur', get_cropped_image(node_info.image, node_info.cursor))
-            # save_test_image(f'{time_str}_cursor_prev', get_cropped_image(self.node_histories[-1].image, self.node_histories[-1].cursor))
-            # save_test_image(f'{time_str}_cursor_last_breadth_start', get_cropped_image(last_breadth_start_image, self.get_cursor(last_breadth_start_image)))
-            # save_test_image(f'{time_str}_cursor_skipped', get_cropped_image(self.skipped_images[0], self.get_cursor(self.skipped_images[0])))
-            # #####
             return is_breadth_end
         except Exception as err:
             logger.warning(f'check breadth end error. {err}')
@@ -147,8 +141,6 @@ class IntelligentMonkeyTestSK:
         self.keyset = optimize_path(self.keyset)
 
     def start_monkey(self, node_info: NodeInfo, current_node_keyset: List[str]):
-        start_time = time.time()
-
         monkey = Monkey(
             duration=self.monkey_args.duration,
             key_candidates=['right', 'up', 'down', 'ok'],
@@ -158,20 +150,15 @@ class IntelligentMonkeyTestSK:
             remocon_type=self.remocon_type,
             enable_smart_sense=self.monkey_args.enable_smart_sense,
             waiting_time=self.monkey_args.waiting_time,
-            report_data={
-                'analysis_type': self.analysis_type,
-                'section_id': self.section_id,
-            },
+            external_info=MonkeyExternalInfo(
+                analysis_type=self.analysis_type,
+                section_id=self.section_id,
+                image_path=save_section_cursor_image(get_utc_datetime(time.time()).strftime('%y-%m-%d_%H:%M:%S.%f'), 
+                                                     get_cropped_image(node_info.image, node_info.cursor)),
+            ),
             root_when_start=False,
         )
         monkey.run()
-
-        report_section(start_time=start_time,
-                       end_time=time.time(),
-                       analysis_type=self.analysis_type,
-                       section_id=self.section_id,
-                       image=get_cropped_image(node_info.image, node_info.cursor),
-                       smart_sense_times=monkey.smart_sense_count)
 
         if monkey.banned_image_detected:
             self.stop()

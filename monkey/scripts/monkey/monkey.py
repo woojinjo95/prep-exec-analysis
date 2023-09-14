@@ -2,15 +2,18 @@ import logging
 import random
 import threading
 import time
-from typing import Dict, List
+from typing import List
 
 import numpy as np
 
-from scripts.external.report import report_data
+from scripts.external.report import report_data, create_section, update_section
 from scripts.external.redis import get_monkey_test_arguments
 from scripts.external.image import get_banned_images
 from scripts.monkey.util import (check_image_similar, exec_keys,
                                  get_current_image)
+from scripts.util._timezone import get_utc_datetime
+from scripts.format import SectionData
+from scripts.monkey.format import MonkeyExternalInfo
 
 logger = logging.getLogger('monkey_agent')
 
@@ -24,7 +27,7 @@ class Monkey:
                  key_candidates: List[str], root_keyset: List[str], 
                  key_interval: float, company: str, remocon_type: str,
                  enable_smart_sense: bool=False, waiting_time: float=3, 
-                 report_data: Dict={},
+                 external_info: MonkeyExternalInfo=None,
                  root_when_start: bool=True):
         self.duration = duration
         self.key_interval = key_interval
@@ -34,9 +37,12 @@ class Monkey:
         self.remocon_type = remocon_type
         self.enable_smart_sense = enable_smart_sense
         self.waiting_time = waiting_time
-        self.report_data = report_data
+        self.external_info = external_info
         self.root_when_start = root_when_start
         logger.info(f'set monkey. args: {locals()}')
+
+        if not self.external_info:
+            self.external_info = MonkeyExternalInfo()
 
         self.main_stop_event = threading.Event()
         self.smart_sense_detected = False
@@ -45,6 +51,8 @@ class Monkey:
 
         self.banned_images = get_banned_images()
         self.banned_image_detected = False
+
+        self.create_section()
 
     def run(self):
         logger.info('Start Monkey')
@@ -66,6 +74,8 @@ class Monkey:
                     self.report_smart_sense()
                     self.go_to_root()
                     self.start_smart_sense()
+            
+            self.update_section(SectionData(end_timestamp=get_utc_datetime(time.time())))
 
         self.stop_smart_sense()
         logger.info('Stop Monkey')
@@ -111,11 +121,29 @@ class Monkey:
 
     def report_smart_sense(self):
         data = {
-            **self.report_data,
+            'analysis_type': self.external_info.analysis_type,
+            'section_id': self.external_info.section_id,
             'smart_sense_key': self.root_keyset,
             'user_config': get_monkey_test_arguments()
         }
         report_data('monkey_smart_sense', data)
+        self.update_section(SectionData(smart_sense_times=self.smart_sense_count))
+
+    ##### Section #####
+    def create_section(self):
+        section_data = SectionData(
+            start_timestamp=get_utc_datetime(time.time()),
+            end_timestamp=get_utc_datetime(time.time()),
+            analysis_type=self.external_info.analysis_type,
+            section_id=self.external_info.section_id,
+            image_path=self.external_info.image_path,
+            smart_sense_times=0,
+            user_config=get_monkey_test_arguments()
+        )
+        self.section_report_id = create_section(section_data)
+    
+    def update_section(self, section_in: SectionData):
+        update_section(self.section_report_id, section_in)
 
     ##### Banned Image #####
     def compare_banned_image(self, image: np.ndarray) -> bool:
