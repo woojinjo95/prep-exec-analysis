@@ -143,7 +143,7 @@ export const useHandleChartWheel = <T extends HTMLElement>({
 }) => {
   const handleWheel = (e: WheelEvent) => {
     if (!e.deltaX || !chartWidth) return
-    // mac에서 브라우저 뒤로가기 기능을 비활성화하기 위함
+    // preventDefault <- mac에서 브라우저 뒤로가기 기능을 비활성화하기 위함
     e.preventDefault()
 
     if (e.deltaX < 0) {
