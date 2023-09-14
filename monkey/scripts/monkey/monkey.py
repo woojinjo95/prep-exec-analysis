@@ -4,7 +4,7 @@ import threading
 import time
 from typing import List
 import ctypes
-from multiprocessing import Value, Process
+import multiprocessing
 import os
 import signal
 
@@ -44,19 +44,19 @@ class Monkey:
         if not self.external_info:
             self.external_info = MonkeyExternalInfo()
 
-        self.main_stop_event = threading.Event()
+        self.main_stop_event = multiprocessing.Event()
+
         self.smart_sense_detected = False
         self.smart_sense_stop_event = threading.Event()
         self.smart_sense_count = 0
 
         self.banned_images = get_banned_images()
-        self.banned_image_detected = Value(ctypes.c_bool, False)
+        self.banned_image_detected = multiprocessing.Value(ctypes.c_bool, False)
 
         self.create_section()
 
     def run(self):
         logger.info('Start Monkey')
-        self.main_stop_event.clear()
         start_time = time.time()
 
         if self.root_when_start:
@@ -96,7 +96,7 @@ class Monkey:
     ##### Smart Sense #####
     def smart_sense(self):
         prev_frame = None
-        while not self.smart_sense_stop_event.is_set():
+        while not self.main_stop_event.is_set() and not self.smart_sense_stop_event.is_set():
             time.sleep(self.waiting_time)
             frame = get_current_image()
             if prev_frame is not None:
@@ -160,28 +160,33 @@ class Monkey:
         snapshot = get_current_image()
         if self.compare_banned_image(snapshot):
             logger.info('banned image is detected.')
-            self.stop()
             self.banned_image_detected.value = True
+            self.stop()
 
 
 def run_monkey(monkey: Monkey):
-    monkey_proc = Process(target=monkey.run, daemon=True)
+    monkey_proc = multiprocessing.Process(target=monkey.run, daemon=True)
     monkey_proc.start()
+
+    def stop_monkey():
+        monkey.stop()  # to kill all threads in monkey because threads are not killed though process is daemon.
+        monkey_proc.terminate()
 
     # the process hierachy is A(main) - B(test_module) - C(monkey_agent). 
     # A - B(daemon=False) - C(daemon=True) is forced because python daemon process cannot have child process.
     # so C must have signal handler because B is non daemon process. (non daemon means that it cannot be auto terminated when parent process is terminated.)
     def signal_handler(signum, frame):
-        monkey_proc.terminate()
+        stop_monkey()
         os._exit(0)
     # stop child process(Monkey Agent) when signal is received. (SIGTERM)
     # if not, child process will be alive even if parent process is terminated.
     signal.signal(signal.SIGTERM, signal_handler)
-    
+
     start_time = time.time()
     current_duration = time.time() - start_time
     while monkey_proc.is_alive() and current_duration < monkey.duration:
         time.sleep(0.1)
         current_duration = time.time() - start_time
     logger.info(f'stop monkey process. current_duration: {current_duration} sec, duration: {monkey.duration} sec')
-    monkey_proc.terminate()
+
+    stop_monkey()
