@@ -12,7 +12,8 @@ from app.api.utility import (analysis_collection, convert_data_in,
                              convert_iso_format, deserialize_datetime,
                              get_config_from_scenario_mongodb,
                              paginate_from_mongodb_aggregation,
-                             parse_bytes_to_value, serialize_datetime)
+                             parse_bytes_to_value, serialize_datetime,
+                             make_basic_match_pipeline)
 from app.crud.base import (aggregate_from_mongodb, insert_many_to_mongodb,
                            load_from_mongodb)
 from app.db.redis_session import RedisClient
@@ -43,20 +44,10 @@ def get_data_of_log_level_finder(
         if start_time is None and end_time is None:
             raise HTTPException(status_code=400, detail='Need at least one time parameter')
 
-        time_range = {}
-        if start_time:
-            time_range['$gte'] = convert_iso_format(start_time)
-        if end_time:
-            time_range['$lte'] = convert_iso_format(end_time)
-
-        if testrun_id is None:
-            testrun_id = RedisClient.hget('testrun', 'id')
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
-
-        log_level_finder_pipeline = [{'$match': {'timestamp': time_range,
-                                                 'scenario_id': scenario_id,
-                                                 'testrun_id': testrun_id}}]
+        log_level_finder_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
+                                                              testrun_id=testrun_id,
+                                                              start_time=start_time,
+                                                              end_time=end_time)
 
         if log_level is None:
             log_level = parse_bytes_to_value(RedisClient.hget('analysis_config:log_level_finder', 'targets'))
@@ -101,27 +92,16 @@ def get_data_of_cpu(
         if start_time is None and end_time is None:
             raise HTTPException(status_code=400, detail='Need at least one time parameter')
 
-        time_range = {}
-        if start_time:
-            time_range['$gte'] = convert_iso_format(start_time)
-        if end_time:
-            time_range['$lte'] = convert_iso_format(end_time)
+        cpu_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
+                                                 testrun_id=testrun_id,
+                                                 start_time=start_time,
+                                                 end_time=end_time)
 
-        if testrun_id is None:
-            testrun_id = RedisClient.hget('testrun', 'id')
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
-
-        cpu_pipeline = [{'$match': {'timestamp': time_range,
-                                    'scenario_id': scenario_id,
-                                    'testrun_id': testrun_id}}]
-
-        additional_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
-                                                         '$lte': convert_iso_format(end_time)},
-                                           'scenario_id': scenario_id,
-                                           'testrun_id': testrun_id}},
-                               {'$project': {'_id': 0, 'timestamp': {'$dateToString': {'date': '$timestamp'}},
-                                             'cpu_usage': 1, 'total': 1, 'user': 1, 'kernel': 1, 'iowait': 1, 'irq': 1, 'softirq': 1}}]
+        additional_pipeline = [
+            {'$project': {'_id': 0,
+                          'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                          'cpu_usage': 1, 'total': 1, 'user': 1, 'kernel': 1,
+                          'iowait': 1, 'irq': 1, 'softirq': 1}}]
         cpu_pipeline.extend(additional_pipeline)
         cpu = paginate_from_mongodb_aggregation(col=analysis_collection['cpu'],
                                                 pipeline=cpu_pipeline,
@@ -151,16 +131,21 @@ def get_data_of_memory(
     Memory 데이터 조회
     """
     try:
-        if testrun_id is None:
-            testrun_id = RedisClient.hget('testrun', 'id')
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        memory_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
-                                                     '$lte': convert_iso_format(end_time)},
-                                       'scenario_id': scenario_id,
-                                       'testrun_id': testrun_id}},
-                           {'$project': {'_id': 0, 'timestamp': {'$dateToString': {'date': '$timestamp'}}, 'memory_usage': 1,
-                                         'total_ram': 1, 'free_ram': 1, 'used_ram': 1, 'lost_ram': 1}}]
+        if start_time is None and end_time is None:
+            raise HTTPException(status_code=400, detail='Need at least one time parameter')
+
+        memory_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
+                                                    testrun_id=testrun_id,
+                                                    start_time=start_time,
+                                                    end_time=end_time)
+
+        additional_pipeline = [
+            {'$project': {'_id': 0, 
+                          'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                          'memory_usage': 1,
+                          'total_ram': 1, 'free_ram': 1,
+                          'used_ram': 1, 'lost_ram': 1}}]
+        memory_pipeline.extend(additional_pipeline)
 
         memory = paginate_from_mongodb_aggregation(col=analysis_collection['memory'],
                                                    pipeline=memory_pipeline,
@@ -177,8 +162,8 @@ def get_data_of_memory(
 # Event Log
 @router.get("/event_log", response_model=schemas.EventLog)
 def get_data_of_event_log(
-    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    start_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
@@ -190,26 +175,25 @@ def get_data_of_event_log(
     이벤트 로그 데이터 조회
     """
     try:
-        if testrun_id is None:
-            testrun_id = RedisClient.hget('testrun', 'id')
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        if start_time is None and end_time is None:
+            raise HTTPException(status_code=400, detail='Need at least one time parameter')
+
+        event_log_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
+                                                       testrun_id=testrun_id,
+                                                       start_time=start_time,
+                                                       end_time=end_time)
+
         event_log_type_list = ['remocon_response', 'on_off_control_response',
                                'network_emulation_response', 'shell_response',
-                               'capture_board_response', 'config']
-        event_log_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
-                                                        '$lte': convert_iso_format(end_time)},
-                                          'scenario_id': scenario_id,
-                                          'testrun_id': testrun_id}},
-                              {'$project': {'_id': 0, 'lines': 1}},
-                              {'$unwind': {'path': '$lines'}},
-                              {'$match': {'lines.msg': {
-                                  '$in': event_log_type_list}}},
-                              {'$replaceRoot': {'newRoot': '$lines'}},
-                              {'$project': {'timestamp': {'$dateToString': {'date': '$timestamp'}},
-                                            'service': 1,
-                                            'msg': 1,
-                                            'data': 1}}]
+                               'capture_board_response', 'config_response']
+        additional_pipeline = [
+            {'$project': {'_id': 0, 'lines': 1}},
+            {'$unwind': {'path': '$lines'}},
+            {'$match': {'lines.msg': {'$in': event_log_type_list}}},
+            {'$replaceRoot': {'newRoot': '$lines'}},
+            {'$project': {'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                          'service': 1, 'msg': 1, 'data': 1}}]
+        event_log_pipeline.extend(additional_pipeline)
 
         event_log = paginate_from_mongodb_aggregation(col=analysis_collection['event_log'],
                                                       pipeline=event_log_pipeline,
@@ -226,8 +210,8 @@ def get_data_of_event_log(
 # Color Reference
 @router.get("/color_reference", response_model=schemas.ColorReference)
 def get_data_of_color_reference(
-    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    start_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
@@ -239,15 +223,18 @@ def get_data_of_color_reference(
     컬러 레퍼런스 데이터 조회
     """
     try:
-        if testrun_id is None:
-            testrun_id = RedisClient.hget('testrun', 'id')
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        color_reference_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
-                                                              '$lte': convert_iso_format(end_time)},
-                                                'scenario_id': scenario_id,
-                                                'testrun_id': testrun_id}},
-                                    {'$project': {'_id': 0, 'timestamp': {'$dateToString': {'date': '$timestamp'}}, 'color_reference': 1}}]
+        if start_time is None and end_time is None:
+            raise HTTPException(status_code=400, detail='Need at least one time parameter')
+
+        color_reference_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
+                                                       testrun_id=testrun_id,
+                                                       start_time=start_time,
+                                                       end_time=end_time)
+
+        color_reference_pipeline = [
+            {'$project': {'_id': 0,
+                          'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                          'color_reference': 1}}]
 
         color_reference = paginate_from_mongodb_aggregation(col=analysis_collection['color_reference'],
                                                             pipeline=color_reference_pipeline,
@@ -264,8 +251,8 @@ def get_data_of_color_reference(
 # Freeze
 @router.get("/freeze", response_model=schemas.Freeze)
 def get_data_of_freeze(
-    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    start_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
@@ -277,18 +264,20 @@ def get_data_of_freeze(
     화면 멈춤 데이터 조회
     """
     try:
-        if testrun_id is None:
-            testrun_id = RedisClient.hget('testrun', 'id')
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        if start_time is None and end_time is None:
+            raise HTTPException(status_code=400, detail='Need at least one time parameter')
 
-        freeze_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
-                                                     '$lte': convert_iso_format(end_time)},
-                                       'scenario_id': scenario_id,
-                                       'testrun_id': testrun_id}},
-                           {'$project': {'_id': 0,
-                                         'timestamp': {'$dateToString': {'date': '$timestamp'}},
-                                         'freeze_type': 1, 'duration': 1}}]
+        freeze_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
+                                                    testrun_id=testrun_id,
+                                                    start_time=start_time,
+                                                    end_time=end_time)
+
+        additional_pipeline = [
+            {'$project': {'_id': 0,
+                          'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                          'freeze_type': 1,
+                          'duration': 1}}]
+        freeze_pipeline.extend(additional_pipeline)
 
         freeze = paginate_from_mongodb_aggregation(col=analysis_collection['freeze'],
                                                    pipeline=freeze_pipeline,
@@ -305,8 +294,8 @@ def get_data_of_freeze(
 # Loudness
 @router.get("/loudness", response_model=schemas.Loudness)
 def get_data_of_loudness(
-    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    start_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
@@ -318,21 +307,21 @@ def get_data_of_loudness(
     Loudness 데이터 조회
     """
     try:
-        if testrun_id is None:
-            testrun_id = RedisClient.hget('testrun', 'id')
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        loudness_pipeline = [
-            {
-                '$match':
-                {'timestamp': {'$gte': convert_iso_format(start_time),
-                               '$lte': convert_iso_format(end_time)},
-                 'scenario_id': scenario_id, 'testrun_id': testrun_id}},
+        if start_time is None and end_time is None:
+            raise HTTPException(status_code=400, detail='Need at least one time parameter')
+
+        loudness_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
+                                                      testrun_id=testrun_id,
+                                                      start_time=start_time,
+                                                      end_time=end_time)
+        
+        additional_pipeline = [
             {'$project': {'_id': 0, 'lines': 1}},
             {'$unwind': {'path': '$lines'}},
             {'$replaceRoot': {'newRoot': '$lines'}},
             {'$project': {'timestamp': {'$dateToString': {'date': '$timestamp'}},
                           'm': '$M', 'i': '$I'}}]
+        loudness_pipeline.extend(additional_pipeline)
 
         loudness = paginate_from_mongodb_aggregation(col=analysis_collection['loudness'],
                                                      pipeline=loudness_pipeline,
@@ -349,8 +338,8 @@ def get_data_of_loudness(
 # Measurement_resume (warm boot)
 @router.get("/resume", response_model=schemas.Resume)
 def get_data_of_resume(
-    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    start_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
@@ -362,18 +351,19 @@ def get_data_of_resume(
     분석 데이터 조회 : Resume(Warm booting)
     """
     try:
-        if testrun_id is None:
-            testrun_id = RedisClient.hget('testrun', 'id')
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        measurement_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
-                                                          '$lte': convert_iso_format(end_time)},
-                                            'scenario_id': scenario_id,
-                                            'testrun_id': testrun_id}},
-                                {'$project': {'_id': 0,
-                                              'timestamp': {'$dateToString': {'date': '$timestamp'}},
-                                              'measure_time': 1,
-                                              'target': '$user_config.type'}}]
+        if start_time is None and end_time is None:
+            raise HTTPException(status_code=400, detail='Need at least one time parameter')
+
+        measurement_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
+                                                         testrun_id=testrun_id,
+                                                         start_time=start_time,
+                                                         end_time=end_time)
+        
+        additional_pipeline = [{'$project': {'_id': 0,
+                                             'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                                             'measure_time': 1,
+                                             'target': '$user_config.type'}}]
+        measurement_pipeline.extend(additional_pipeline)
 
         measurement_resume = paginate_from_mongodb_aggregation(col=analysis_collection['resume'],
                                                                pipeline=measurement_pipeline,
@@ -390,8 +380,8 @@ def get_data_of_resume(
 # Measurement_resume (cold boot)
 @router.get("/boot", response_model=schemas.Boot)
 def get_data_of_boot(
-    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    start_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
@@ -403,18 +393,20 @@ def get_data_of_boot(
     분석 데이터 조회 : Boot(Cold booting)
     """
     try:
-        if testrun_id is None:
-            testrun_id = RedisClient.hget('testrun', 'id')
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        measurement_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
-                                                          '$lte': convert_iso_format(end_time)},
-                                            'scenario_id': scenario_id,
-                                            'testrun_id': testrun_id}},
-                                {'$project': {'_id': 0,
-                                              'timestamp': {'$dateToString': {'date': '$timestamp'}},
-                                              'measure_time': 1,
-                                              'target': '$user_config.type'}}]
+        if start_time is None and end_time is None:
+            raise HTTPException(status_code=400, detail='Need at least one time parameter')
+
+        measurement_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
+                                                         testrun_id=testrun_id,
+                                                         start_time=start_time,
+                                                         end_time=end_time)
+
+        additional_pipeline = [
+            {'$project': {'_id': 0,
+                          'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                          'measure_time': 1,
+                          'target': '$user_config.type'}}]
+        measurement_pipeline.extend(additional_pipeline)
 
         measurement_boot = paginate_from_mongodb_aggregation(col=analysis_collection['boot'],
                                                              pipeline=measurement_pipeline,
@@ -431,8 +423,8 @@ def get_data_of_boot(
 # Log Pattern Maching
 @router.get("/log_pattern_matching", response_model=schemas.LogPatternMatching)
 def get_data_of_log_pattern_matching(
-    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    start_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     pattern_name: Optional[str] = None,
@@ -445,23 +437,26 @@ def get_data_of_log_pattern_matching(
     로그 패턴 매칭 데이터 조회
     """
     try:
-        if testrun_id is None:
-            testrun_id = RedisClient.hget('testrun', 'id')
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        log_pattern_matching_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
-                                                                   '$lte': convert_iso_format(end_time)},
-                                                     'scenario_id': scenario_id,
-                                                     'testrun_id': testrun_id}},
-                                         {'$project': {'_id': 0,
-                                                       'log_level': 1,
-                                                       'timestamp': {'$dateToString': {'date': '$timestamp'}},
-                                                       'message': 1,
-                                                       'regex': '$matched_target.regular_expression',
-                                                       'color': '$matched_target.color', 'log_pattern_name': '$matched_target.name'}}]
+        if start_time is None and end_time is None:
+            raise HTTPException(status_code=400, detail='Need at least one time parameter')
+
+        log_pattern_matching_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
+                                                                  testrun_id=testrun_id,
+                                                                  start_time=start_time,
+                                                                  end_time=end_time)
         if pattern_name is not None:
             pattern_name = pattern_name.split(',')
             log_pattern_matching_pipeline[0]['$match']['matched_target.name'] = {'$in': pattern_name}
+
+        additional_pipeline = [
+            {'$project': {'_id': 0,
+                          'log_level': 1,
+                          'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                          'message': 1,
+                          'regex': '$matched_target.regular_expression',
+                          'color': '$matched_target.color',
+                          'log_pattern_name': '$matched_target.name'}}]
+        log_pattern_matching_pipeline.extend(additional_pipeline)
 
         log_pattern_matching = paginate_from_mongodb_aggregation(col=analysis_collection['log_pattern_matching'],
                                                                  pipeline=log_pattern_matching_pipeline,
@@ -478,8 +473,8 @@ def get_data_of_log_pattern_matching(
 # Monkey Section
 @router.get("/monkey_section", response_model=schemas.MonkeyTest)
 def get_data_of_monkey_section(
-    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    start_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
@@ -491,18 +486,20 @@ def get_data_of_monkey_section(
     일반 몽키 테스트 섹션 데이터 조회(범위)
     """
     try:
-        if testrun_id is None:
-            testrun_id = RedisClient.hget('testrun', 'id')
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        monkey_section_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
-                                                             '$lte': convert_iso_format(end_time)},
-                                               'scenario_id': scenario_id,
-                                               'testrun_id': testrun_id,
-                                               'analysis_type': 'monkey'}},
-                                   {'$project': {'id': {'$toString': '$_id'},
-                                                 'start_timestamp': {'$dateToString': {'date': '$start_timestamp'}},
-                                                 'end_timestamp': {'$dateToString': {'date': '$end_timestamp'}}}}]
+        if start_time is None and end_time is None:
+            raise HTTPException(status_code=400, detail='Need at least one time parameter')
+
+        monkey_section_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
+                                                            testrun_id=testrun_id,
+                                                            start_time=start_time,
+                                                            end_time=end_time)
+        monkey_section_pipeline[0]['$match']['analysis_type'] = 'monkey'
+        additional_pipeline = [
+            {'$project': {'id': {'$toString': '$_id'},
+                          'start_timestamp': {'$dateToString': {'date': '$start_timestamp'}},
+                          'end_timestamp': {'$dateToString': {'date': '$end_timestamp'}}}}]
+        monkey_section_pipeline.extend(additional_pipeline)
+
         monkey_section = paginate_from_mongodb_aggregation(col='monkey_section',
                                                            pipeline=monkey_section_pipeline,
                                                            page=page,
@@ -517,8 +514,8 @@ def get_data_of_monkey_section(
 # Monkey Smart Sense
 @router.get("/monkey_smart_sense", response_model=schemas.MonkeySmartSense)
 def get_data_of_monkey_smart_sense(
-    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    start_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
@@ -530,18 +527,19 @@ def get_data_of_monkey_smart_sense(
     일반 몽키 테스트 스마트 센스 키 조회
     """
     try:
-        if testrun_id is None:
-            testrun_id = RedisClient.hget('testrun', 'id')
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        monkey_smart_sense_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
-                                                                 '$lte': convert_iso_format(end_time)},
-                                                   'scenario_id': scenario_id,
-                                                   'testrun_id': testrun_id,
-                                                   'analysis_type': 'monkey'}},
-                                       {'$project': {'id': {'$toString': '$_id'},
-                                                     'timestamp': {'$dateToString': {'date': '$timestamp'}},
-                                                     'smart_sense_key': 1}}]
+        if start_time is None and end_time is None:
+            raise HTTPException(status_code=400, detail='Need at least one time parameter')
+
+        monkey_smart_sense_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
+                                                                testrun_id=testrun_id,
+                                                                start_time=start_time,
+                                                                end_time=end_time)
+        monkey_smart_sense_pipeline[0]['$match']['analysis_type'] = 'monkey'
+        additional_pipeline = [{'$project': {'id': {'$toString': '$_id'},
+                                             'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                                             'smart_sense_key': 1}}]
+        monkey_smart_sense_pipeline.extend(additional_pipeline)
+
         monkey_section = paginate_from_mongodb_aggregation(col='monkey_smart_sense',
                                                            pipeline=monkey_smart_sense_pipeline,
                                                            page=page,
@@ -556,8 +554,8 @@ def get_data_of_monkey_smart_sense(
 # Intelligent Monkey Section
 @router.get("/intelligent_monkey_section", response_model=schemas.IntelligentMonkeyTest)
 def get_data_of_intelligent_monkey_section(
-    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    start_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
@@ -569,19 +567,20 @@ def get_data_of_intelligent_monkey_section(
     인텔리전트 몽키 테스트 섹션 데이터 조회(범위)
     """
     try:
-        if testrun_id is None:
-            testrun_id = RedisClient.hget('testrun', 'id')
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        monkey_section_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
-                                                             '$lte': convert_iso_format(end_time)},
-                                               'scenario_id': scenario_id,
-                                               'testrun_id': testrun_id,
-                                               'analysis_type': 'intelligent_monkey'}},
-                                   {'$project': {'_id': 0,
-                                                 'section_id': '$section_id',
-                                                 'start_timestamp': {'$dateToString': {'date': '$start_timestamp'}},
-                                                 'end_timestamp': {'$dateToString': {'date': '$end_timestamp'}}}}]
+        if start_time is None and end_time is None:
+            raise HTTPException(status_code=400, detail='Need at least one time parameter')
+
+        monkey_section_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
+                                                            testrun_id=testrun_id,
+                                                            start_time=start_time,
+                                                            end_time=end_time)
+        monkey_section_pipeline[0]['$match']['analysis_type'] = 'intelligent_monkey'
+        additional_pipeline = [
+            {'$project': {'_id': 0,
+                          'section_id': '$section_id',
+                          'start_timestamp': {'$dateToString': {'date': '$start_timestamp'}},
+                          'end_timestamp': {'$dateToString': {'date': '$end_timestamp'}}}}]
+        monkey_section_pipeline.extend(additional_pipeline)
         monkey_section = paginate_from_mongodb_aggregation(col='monkey_section',
                                                            pipeline=monkey_section_pipeline,
                                                            page=page,
@@ -596,8 +595,8 @@ def get_data_of_intelligent_monkey_section(
 # Intelligent Monkey Smart Sense
 @router.get("/intelligent_monkey_smart_sense", response_model=schemas.IntelligentMonkeySmartSense)
 def get_data_of_intelligent_monkey_smart_sense(
-    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    start_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
@@ -609,19 +608,21 @@ def get_data_of_intelligent_monkey_smart_sense(
     인텔리전트 몽키 테스트 스마트 센스 키 조회
     """
     try:
-        if testrun_id is None:
-            testrun_id = RedisClient.hget('testrun', 'id')
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        monkey_smart_sense_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
-                                                                 '$lte': convert_iso_format(end_time)},
-                                                   'scenario_id': scenario_id,
-                                                   'testrun_id': testrun_id,
-                                                   'analysis_type': 'intelligent_monkey'}},
-                                       {'$project': {'_id': 0,
-                                                     'timestamp': {'$dateToString': {'date': '$timestamp'}},
-                                                     'smart_sense_key': 1,
-                                                     'section_id': 1}}]
+        if start_time is None and end_time is None:
+            raise HTTPException(status_code=400, detail='Need at least one time parameter')
+
+        monkey_smart_sense_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
+                                                                testrun_id=testrun_id,
+                                                                start_time=start_time,
+                                                                end_time=end_time)
+        monkey_smart_sense_pipeline[0]['$match']['analysis_type'] = 'intelligent_monkey'
+        additional_pipeline = [
+            {'$project': {'_id': 0,
+                          'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                          'smart_sense_key': 1,
+                          'section_id': 1}}]
+        monkey_smart_sense_pipeline.extend(additional_pipeline)
+
         monkey_section = paginate_from_mongodb_aggregation(col='monkey_smart_sense',
                                                            pipeline=monkey_smart_sense_pipeline,
                                                            page=page,
@@ -636,8 +637,8 @@ def get_data_of_intelligent_monkey_smart_sense(
 # Process Lifecycle
 # @router.get("/process_lifecycle", response_model=schemas.ProcessLifecycle)
 def get_data_of_process_lifecycle(
-    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    start_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
@@ -663,8 +664,8 @@ def get_data_of_process_lifecycle(
 # Network Filter
 # @router.get("/network_filter", response_model=schemas.NetworkFilter)
 def get_data_of_network_filter(
-    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    start_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
     page_size: Optional[int] = 10,
@@ -690,8 +691,8 @@ def get_data_of_network_filter(
 # Data Summary
 @router.get("/summary", response_model=schemas.DataSummary)
 def get_summary_data_of_measure_result(
-    start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
-    end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
+    start_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None
 ):
@@ -699,16 +700,11 @@ def get_summary_data_of_measure_result(
     분석 결과 데이터 개요
     """
     try:
-        if testrun_id is None:
-            testrun_id = RedisClient.hget('testrun', 'id')
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
-
+        basic_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
+                                                   testrun_id=testrun_id,
+                                                   start_time=start_time,
+                                                   end_time=end_time)
         result = {}
-        basic_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
-                                                    '$lte': convert_iso_format(end_time)},
-                                      'scenario_id': scenario_id,
-                                      'testrun_id': testrun_id}}]
 
         testrun_config = get_config_from_scenario_mongodb(scenario_id=scenario_id, testrun_id=testrun_id)
         active_analysis_list = testrun_config.get('config', {})
