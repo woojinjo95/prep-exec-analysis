@@ -3,6 +3,8 @@ import random
 import threading
 import time
 from typing import List
+import ctypes
+from multiprocessing import Value, Process
 
 import numpy as np
 
@@ -19,11 +21,7 @@ logger = logging.getLogger('monkey_agent')
 
 
 class Monkey:
-    """_summary_
-    press random keys for duration seconds.
-    if smart sense is detected, go to root.
-    """
-    def __init__(self, duration: float, 
+    def __init__(self, duration: float,
                  key_candidates: List[str], root_keyset: List[str], 
                  key_interval: float, company: str, remocon_type: str,
                  enable_smart_sense: bool=False, waiting_time: float=3, 
@@ -50,7 +48,7 @@ class Monkey:
         self.smart_sense_count = 0
 
         self.banned_images = get_banned_images()
-        self.banned_image_detected = False
+        self.banned_image_detected = Value(ctypes.c_bool, False)
 
         self.create_section()
 
@@ -154,4 +152,17 @@ class Monkey:
         if self.compare_banned_image(snapshot):
             logger.info('banned image is detected.')
             self.stop()
-            self.banned_image_detected = True
+            self.banned_image_detected.value = True
+
+
+def run_monkey(monkey: Monkey):
+    monkey_proc = Process(target=monkey.run, daemon=False)
+    monkey_proc.start()
+    
+    start_time = time.time()
+    current_duration = time.time() - start_time
+    while monkey_proc.is_alive() and current_duration < monkey.duration:
+        time.sleep(0.1)
+        current_duration = time.time() - start_time
+    logger.info(f'stop monkey process. current_duration: {current_duration} sec, duration: {monkey.duration} sec')
+    monkey_proc.terminate()

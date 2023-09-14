@@ -2,7 +2,7 @@
 import logging
 
 from scripts.monkey.format import MonkeyArgs, RemoconInfo
-from scripts.monkey.monkey import Monkey
+from scripts.monkey.monkey import Monkey, run_monkey
 from scripts.monkey.format import MonkeyExternalInfo
 
 
@@ -43,4 +43,5 @@ class MonkeyTest:
                 image_path=''
             )
         )
-        monkey.run()
+        run_monkey(monkey)
+

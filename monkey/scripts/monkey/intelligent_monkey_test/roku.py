@@ -8,7 +8,7 @@ import numpy as np
 
 from scripts.analysis.image import find_roku_cursor, get_cropped_image
 from scripts.monkey.format import MonkeyArgs, NodeInfo
-from scripts.monkey.monkey import Monkey
+from scripts.monkey.monkey import Monkey, run_monkey
 from scripts.monkey.util import (check_cursor_is_same, exec_keys,
                                  get_current_image, head_to_parent_sibling,
                                  optimize_path)
@@ -167,9 +167,9 @@ class IntelligentMonkeyTestRoku:
             ),
             root_when_start=False,
         )
-        monkey.run()
+        run_monkey(monkey)
 
-        if monkey.banned_image_detected:
+        if monkey.banned_image_detected.value:
             self.stop()
         self.section_id += 1
 
