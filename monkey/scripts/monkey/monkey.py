@@ -72,8 +72,6 @@ class Monkey:
                     self.report_smart_sense()
                     self.go_to_root()
                     self.start_smart_sense()
-            
-            self.update_section(SectionData(end_timestamp=get_utc_datetime(time.time())))
 
         self.stop_smart_sense()
         logger.info('Stop Monkey')
@@ -139,9 +137,18 @@ class Monkey:
             user_config=get_monkey_test_arguments()
         )
         self.section_report_id = create_section(section_data)
-    
+        self.start_end_time_updator()
+
     def update_section(self, section_in: SectionData):
         update_section(self.section_report_id, section_in)
+
+    def start_end_time_updator(self):
+        def end_time_updator():
+            while not self.main_stop_event.is_set():
+                self.update_section(SectionData(end_timestamp=get_utc_datetime(time.time())))
+                time.sleep(0.5)
+        th = threading.Thread(target=end_time_updator, daemon=True)
+        th.start()
 
     ##### Banned Image #####
     def compare_banned_image(self, image: np.ndarray) -> bool:
