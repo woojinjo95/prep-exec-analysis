@@ -634,6 +634,53 @@ def get_data_of_intelligent_monkey_smart_sense(
     return monkey_section
 
 
+# Channel Change Time
+@router.get("/channel_change_time", response_model=schemas.ChannelChangeTime)
+def get_data_of_boot(
+    start_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
+    scenario_id: Optional[str] = None,
+    testrun_id: Optional[str] = None,
+    page_size: Optional[int] = 10,
+    page: Optional[int] = None,
+    sort_by: Optional[str] = 'timestamp',
+    sort_desc: Optional[bool] = False
+):
+    """
+    채널 변경 시간 데이터 조회
+    """
+    try:
+        if start_time is None and end_time is None:
+            raise HTTPException(status_code=400, detail='Need at least one time parameter')
+
+        channel_zapping_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
+                                                             testrun_id=testrun_id,
+                                                             start_time=start_time,
+                                                             end_time=end_time)
+
+        additional_pipeline = [
+            {'$project': {'_id': 0,
+                          'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                          'channel_name': 1,
+                          'section_a': 1,
+                          'section_b': 1,
+                          'section_c': 1,
+                          'measure_time': 1,
+                          'targets': '$user_config.targets'}}]
+        channel_zapping_pipeline.extend(additional_pipeline)
+
+        measurement_boot = paginate_from_mongodb_aggregation(col=analysis_collection['channel_change_time'],
+                                                             pipeline=channel_zapping_pipeline,
+                                                             page=page,
+                                                             page_size=page_size,
+                                                             sort_by=sort_by,
+                                                             sort_desc=sort_desc)
+    except Exception as e:
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    return measurement_boot
+
+
 # Process Lifecycle
 # @router.get("/process_lifecycle", response_model=schemas.ProcessLifecycle)
 def get_data_of_process_lifecycle(
@@ -770,19 +817,29 @@ def get_summary_data_of_measure_result(
                     {'$group': {'_id': None, 'results': {'$push': {'section_id': '$section_id',
                                                                    'smart_sense': '$smart_sense',
                                                                    'image_path': '$image_path'}}}}]
-            elif active_analysis == 'macroblock':
-                continue
             elif active_analysis == 'channel_change_time':
+                additional_pipeline = [
+                    {'$project': {'_id': 0, 'measure_time': 1, 'targets': '$user_config.targets'}},
+                    {'$unwind': {'path': '$targets'}},
+                    {'$group': {'_id': '$targets',
+                                'avg_time': {'$avg': '$measure_time'},
+                                'total': {'$sum': 1}}},
+                    {'$group': {'_id': None,
+                                'results': {'$push': {'target': '$_id',
+                                                      'avg_time': '$avg_time',
+                                                      'total': '$total'}}}}]
+            elif active_analysis == 'macroblock':
                 continue
             elif active_analysis == 'process_lifecycle_analysis':
                 continue
             elif active_analysis == 'network_filter':
                 continue
             elif active_analysis == 'loudness':
-                additional_pipeline = [{'$project': {'_id': 0, 'lines': 1}},
-                                       {'$unwind': {'path': '$lines'}},
-                                       {'$group': {'_id': None, 'lkfs': {'$avg': '$lines.I'}}},
-                                       {'$project': {'_id': 0, 'lkfs': 1}}]
+                additional_pipeline = [
+                    {'$project': {'_id': 0, 'lines': 1}},
+                    {'$unwind': {'path': '$lines'}},
+                    {'$group': {'_id': None, 'lkfs': {'$avg': '$lines.I'}}},
+                    {'$project': {'_id': 0, 'lkfs': 1}}]
             pipeline = basic_pipeline + additional_pipeline
             aggregation = aggregate_from_mongodb(col=analysis_collection[active_analysis], pipeline=pipeline)
             if len(aggregation) == 0:

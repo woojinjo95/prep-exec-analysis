@@ -154,6 +154,19 @@ class IntelligentMonkeySmartSense(PaginationBaseModel):
     items: List[IntelligentMonkeySmartSenseBase]
 
 
+class ChannelChangeTimeBase(TimestampBaseModel):
+    measure_time: int
+    section_a: int
+    section_b: int
+    section_c: int
+    channel_name: str
+    targets: List[str]
+
+
+class ChannelChangeTime(BaseModel):
+    items: List[ChannelChangeTimeBase]
+
+
 class ProcessLifecycleBase(BaseModel):
     pass
 
@@ -205,12 +218,12 @@ class BootSummary(SummaryBase):
     results: List[BootSummaryBase]
 
 
-class ChannelChangeTimeSummaryBase(SummaryInnerBase):   # 미적용
+class ChannelChangeTimeSummaryBase(SummaryInnerBase):
     target: str
     avg_time: int
 
 
-class ChannelChangeTimeSummary(SummaryBase):    # 미적용
+class ChannelChangeTimeSummary(SummaryBase):
     results: List[ChannelChangeTimeSummaryBase]
 
 
@@ -262,7 +275,7 @@ class MacroblockSummary(BaseModel): # 미적용
 
 class DataSummaryBase(BaseModel):
     boot: Optional[BootSummary] = None
-    # channel_change_time: Optional[ChannelChangeTimeSummary] = None
+    channel_change_time: Optional[ChannelChangeTimeSummary] = None
     freeze: Optional[FreezeSummary] = None
     intelligent_monkey_test: Optional[IntelligentMonkeyTestSummary] = None
     last_updated_timestamp: Optional[str] = None
