@@ -9,8 +9,8 @@ import numpy as np
 from scripts.analysis.image import get_cropped_image
 from scripts.monkey.format import NodeInfo, MonkeyArgs
 from scripts.monkey.monkey import Monkey
-from scripts.monkey.util import (check_cursor_is_same, exec_keys_with_each_interval,
-                                 get_current_image, head_to_parent_sibling,
+from scripts.monkey.util import (check_cursor_is_same, check_shape_similar, 
+                                 exec_keys_with_each_interval, get_current_image, head_to_parent_sibling,
                                  optimize_path, get_last_breadth_start_image,
                                  get_cursor)
 from scripts.external.image import get_skipped_images
@@ -121,19 +121,12 @@ class IntelligentMonkeyTestSK:
             logger.info(f'cannot find root cursor. try_count: {try_count}')
             raise Exception('cannot find root cursor')
 
-    def check_leftmenu_opened(self, prev_image: np.ndarray, prev_cursor: Tuple, image: np.ndarray, cursor: Tuple, 
-                                 max_width_diff: int=10, max_height_diff: int=10) -> bool:
+    def check_leftmenu_opened(self, prev_image: np.ndarray, prev_cursor: Tuple, image: np.ndarray, cursor: Tuple) -> bool:
         if cursor is None:
             return False
-        else:
-            width_diff = abs(cursor[2] - self.root_cursor[2])
-            height_diff = abs(cursor[3] - self.root_cursor[3])
-            is_width_similar = width_diff < max_width_diff
-            is_height_similar = height_diff < max_height_diff
-
-            is_cursor_same = check_cursor_is_same(prev_image, prev_cursor, image, cursor)
-            
-            return True if is_width_similar and is_height_similar and not is_cursor_same else False
+        shape_similar = check_shape_similar(self.root_cursor, cursor, 10, 10)
+        is_cursor_same = check_cursor_is_same(prev_image, prev_cursor, image, cursor)
+        return True if shape_similar and not is_cursor_same else False
 
     def append_key(self, key: str):
         self.keyset.append(key)

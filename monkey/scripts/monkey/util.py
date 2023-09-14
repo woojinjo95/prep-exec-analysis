@@ -92,6 +92,14 @@ def check_image_similar_with_ssim(image1: np.ndarray, image2: np.ndarray, sim_th
     return sim_rate > sim_thld
 
 
+def check_shape_similar(cursor1: Tuple, cursor2: Tuple, max_width_diff: int=10, max_height_diff: int=10) -> bool:
+    width_diff = abs(cursor1[2] - cursor2[2])
+    height_diff = abs(cursor1[3] - cursor2[3])
+    is_width_similar = width_diff < max_width_diff
+    is_height_similar = height_diff < max_height_diff
+    return True if is_width_similar and is_height_similar else False
+
+
 def optimize_path(path: List[str]) -> List[str]:
     stack = []
     for action in path:
