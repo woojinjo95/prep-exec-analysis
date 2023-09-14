@@ -92,9 +92,8 @@ class IntelligentMonkeyTestSK:
             same_with_breadth_start = check_cursor_is_same(last_breadth_start_image, self.get_cursor(last_breadth_start_image),
                                                         node_info.image, node_info.cursor, 
                                                         sim_thld=0.98)
-            same_with_skipped_image = self.compare_skipped_with_cursor(node_info.image)
 
-            breadth_end_cond = same_with_prev or same_with_breadth_start or same_with_skipped_image
+            breadth_end_cond = same_with_prev or same_with_breadth_start
             is_breadth_end = True if breadth_end_cond else False
             logger.info(f'check breadth end done. is_breadth_end: {is_breadth_end}, same_with_prev: {same_with_prev}, same_with_breadth_start: {same_with_breadth_start}')
             return is_breadth_end
