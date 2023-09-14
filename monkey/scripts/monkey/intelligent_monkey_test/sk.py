@@ -9,8 +9,8 @@ import numpy as np
 from scripts.analysis.image import get_cropped_image
 from scripts.monkey.format import NodeInfo, MonkeyArgs
 from scripts.monkey.monkey import Monkey
-from scripts.monkey.util import (check_cursor_is_same, exec_keys_with_each_interval,
-                                 get_current_image, head_to_parent_sibling,
+from scripts.monkey.util import (check_cursor_is_same, check_shape_similar, 
+                                 exec_keys_with_each_interval, get_current_image, head_to_parent_sibling,
                                  optimize_path, get_last_breadth_start_image,
                                  get_cursor)
 from scripts.external.image import get_skipped_images
@@ -92,11 +92,10 @@ class IntelligentMonkeyTestSK:
             same_with_breadth_start = check_cursor_is_same(last_breadth_start_image, self.get_cursor(last_breadth_start_image),
                                                         node_info.image, node_info.cursor, 
                                                         sim_thld=0.98)
-            same_with_skipped_image = self.compare_skipped_with_cursor(node_info.image)
+            shape_diff_with_prev = not check_shape_similar(self.node_histories[-1].cursor, node_info.cursor)
 
-            breadth_end_cond = same_with_prev or same_with_breadth_start or same_with_skipped_image
-            is_breadth_end = True if breadth_end_cond else False
-            logger.info(f'check breadth end done. is_breadth_end: {is_breadth_end}, same_with_prev: {same_with_prev}, same_with_breadth_start: {same_with_breadth_start}')
+            is_breadth_end = True if same_with_prev or same_with_breadth_start or shape_diff_with_prev else False
+            logger.info(f'check breadth end done. is_breadth_end: {is_breadth_end}, same_with_prev: {same_with_prev}, same_with_breadth_start: {same_with_breadth_start}, shape_diff_with_prev: {shape_diff_with_prev}')
             return is_breadth_end
         except Exception as err:
             logger.warning(f'check breadth end error. {err}')
@@ -122,19 +121,12 @@ class IntelligentMonkeyTestSK:
             logger.info(f'cannot find root cursor. try_count: {try_count}')
             raise Exception('cannot find root cursor')
 
-    def check_leftmenu_opened(self, prev_image: np.ndarray, prev_cursor: Tuple, image: np.ndarray, cursor: Tuple, 
-                                 max_width_diff: int=10, max_height_diff: int=10) -> bool:
+    def check_leftmenu_opened(self, prev_image: np.ndarray, prev_cursor: Tuple, image: np.ndarray, cursor: Tuple) -> bool:
         if cursor is None:
             return False
-        else:
-            width_diff = abs(cursor[2] - self.root_cursor[2])
-            height_diff = abs(cursor[3] - self.root_cursor[3])
-            is_width_similar = width_diff < max_width_diff
-            is_height_similar = height_diff < max_height_diff
-
-            is_cursor_same = check_cursor_is_same(prev_image, prev_cursor, image, cursor)
-            
-            return True if is_width_similar and is_height_similar and not is_cursor_same else False
+        shape_similar = check_shape_similar(self.root_cursor, cursor, 10, 10)
+        is_cursor_same = check_cursor_is_same(prev_image, prev_cursor, image, cursor)
+        return True if shape_similar and not is_cursor_same else False
 
     def append_key(self, key: str):
         self.keyset.append(key)
