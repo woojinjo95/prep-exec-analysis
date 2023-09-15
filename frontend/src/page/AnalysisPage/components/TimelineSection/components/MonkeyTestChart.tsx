@@ -13,12 +13,20 @@ interface MonkeyTestChartProps {
   endTime: Date
   dimension: { left: number; width: number } | null
   summary: AnalysisResultSummary
+  isVisible?: boolean
 }
 
 /**
  * Monkey Test 차트
  */
-const MonkeyTestChart: React.FC<MonkeyTestChartProps> = ({ scaleX, startTime, endTime, dimension, summary }) => {
+const MonkeyTestChart: React.FC<MonkeyTestChartProps> = ({
+  scaleX,
+  startTime,
+  endTime,
+  dimension,
+  summary,
+  isVisible,
+}) => {
   const monkeyTestIdFilterList = useRecoilValue(monkeyTestIdFilterListState)
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const { monkeySection } = useMonkeySection({
@@ -60,6 +68,7 @@ const MonkeyTestChart: React.FC<MonkeyTestChartProps> = ({ scaleX, startTime, en
     width: dimension?.width,
   })
 
+  if (!isVisible) return null
   if (!monkeyTestData || !monkeySmartSenseData) return <div style={{ height: CHART_HEIGHT }} />
   return (
     <div onMouseMove={onMouseMove(monkeySmartSenseData)} onMouseLeave={onMouseLeave} className="relative">

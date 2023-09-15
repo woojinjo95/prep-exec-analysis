@@ -14,12 +14,13 @@ interface FreezeChartProps {
   endTime: Date
   dimension: { left: number; width: number } | null
   summary: AnalysisResultSummary
+  isVisible?: boolean
 }
 
 /**
  * Video Analysis Result(freeze) 차트
  */
-const FreezeChart: React.FC<FreezeChartProps> = ({ scaleX, startTime, endTime, dimension, summary }) => {
+const FreezeChart: React.FC<FreezeChartProps> = ({ scaleX, startTime, endTime, dimension, summary, isVisible }) => {
   const freezeTypeFilterList = useRecoilValue(freezeTypeFilterListState)
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const { freeze } = useFreeze({
@@ -45,6 +46,7 @@ const FreezeChart: React.FC<FreezeChartProps> = ({ scaleX, startTime, endTime, d
     width: dimension?.width,
   })
 
+  if (!isVisible) return null
   if (!freezeData) return <div style={{ height: CHART_HEIGHT }} />
   return (
     <div onMouseMove={onMouseMove(freezeData)} onMouseLeave={onMouseLeave} className="relative">

@@ -14,12 +14,20 @@ interface ResumeBootChartProps {
   endTime: Date
   dimension: { left: number; width: number } | null
   summary: AnalysisResultSummary
+  isVisible?: boolean
 }
 
 /**
  * Resume(warm booting), Boot(cold booting) 시간 차트
  */
-const ResumeBootChart: React.FC<ResumeBootChartProps> = ({ scaleX, startTime, endTime, dimension, summary }) => {
+const ResumeBootChart: React.FC<ResumeBootChartProps> = ({
+  scaleX,
+  startTime,
+  endTime,
+  dimension,
+  summary,
+  isVisible,
+}) => {
   const resumeTypeFilterList = useRecoilValue(resumeTypeFilterListState)
   const bootTypeFilterList = useRecoilValue(bootTypeFilterListState)
   const wrapperRef = useRef<HTMLDivElement | null>(null)
@@ -63,6 +71,7 @@ const ResumeBootChart: React.FC<ResumeBootChartProps> = ({ scaleX, startTime, en
     width: dimension?.width,
   })
 
+  if (!isVisible) return null
   if (!data) return <div style={{ height: CHART_HEIGHT }} />
   return (
     <div onMouseMove={onMouseMove(data)} onMouseLeave={onMouseLeave} className="relative">

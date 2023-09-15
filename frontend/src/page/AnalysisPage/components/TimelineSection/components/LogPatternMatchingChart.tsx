@@ -14,6 +14,7 @@ interface LogPatternMatchingChartProps {
   endTime: Date
   dimension: { left: number; width: number } | null
   summary: AnalysisResultSummary
+  isVisible?: boolean
 }
 
 /**
@@ -25,6 +26,7 @@ const LogPatternMatchingChart: React.FC<LogPatternMatchingChartProps> = ({
   endTime,
   dimension,
   summary,
+  isVisible,
 }) => {
   const logPatternMatchingNameFilterList = useRecoilValue(logPatternMatchingNameFilterListState)
   const wrapperRef = useRef<HTMLDivElement | null>(null)
@@ -57,6 +59,7 @@ const LogPatternMatchingChart: React.FC<LogPatternMatchingChartProps> = ({
     width: dimension?.width,
   })
 
+  if (!isVisible) return null
   if (!logPatternMatchingData) return <div style={{ height: CHART_HEIGHT }} />
   return (
     <div onMouseMove={onMouseMove(logPatternMatchingData)} onMouseLeave={onMouseLeave} className="relative">
