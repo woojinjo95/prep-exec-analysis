@@ -814,7 +814,7 @@ async def export_result(
     try:
         now = datetime.today().strftime('%Y-%m-%dT%H%M%SF%f')
         export_type = {
-            'file': ['videos', 'frames', 'monkey'],
+            'file': ['videos', 'frames', 'monkey'],  # TODO frames 필수
             'db': ['scenario', 'stb_log', 'stb_info', 'loudness', 'network_trace', 'terminal_log',
                    'monkey_smart_sense', 'monkey_section', 'an_color_reference', 'an_freeze',
                    'an_warm_boot', 'an_cold_boot', 'an_log_pattern']
