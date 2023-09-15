@@ -11,12 +11,13 @@ interface MemoryChartProps {
   startTime: Date
   endTime: Date
   dimension: { left: number; width: number } | null
+  isVisible?: boolean
 }
 
 /**
  * Memory 사용률 차트
  */
-const MemoryChart: React.FC<MemoryChartProps> = ({ scaleX, startTime, endTime, dimension }) => {
+const MemoryChart: React.FC<MemoryChartProps> = ({ scaleX, startTime, endTime, dimension, isVisible }) => {
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const { memory } = useMemory({
     start_time: startTime.toISOString(),
@@ -43,7 +44,8 @@ const MemoryChart: React.FC<MemoryChartProps> = ({ scaleX, startTime, endTime, d
     width: dimension?.width,
   })
 
-  if (!memoryData) return <div />
+  if (!isVisible) return null
+  if (!memoryData) return <div style={{ height: CHART_HEIGHT }} />
   return (
     <div onMouseMove={onMouseMove(memoryData)} onMouseLeave={onMouseLeave} className="relative overflow-hidden">
       {!!posX && (

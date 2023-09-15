@@ -10,6 +10,7 @@ interface TextProps extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLSpa
   colorScheme?:
     | 'dark'
     | 'light'
+    | 'primary'
     | 'pink'
     | 'red'
     | 'orange'
@@ -62,6 +63,7 @@ const Text: React.FC<TextProps> = ({
           'text-yellow': colorScheme === 'yellow',
           'text-navy': colorScheme === 'navy',
           'text-green': colorScheme === 'green',
+          'text-primary': colorScheme === 'primary',
           '!text-grey': !isActive || colorScheme === 'grey',
         },
         invertBackground && {

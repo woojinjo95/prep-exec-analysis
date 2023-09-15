@@ -7,7 +7,7 @@ import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
 import { numberWithCommas } from '@global/usecase'
 import { logPatternMatchingNameFilterListState } from '@global/atom'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
-import { AnalysisTypeLabel } from '../../../constant'
+import { AnalysisTypeLabel } from '@global/constant'
 
 interface LogPatternMatchingSummaryItemProps {
   logPatternMatching: NonNullable<AnalysisResultSummary['log_pattern_matching']>
@@ -29,9 +29,17 @@ const LogPatternMatchingSummaryItem: React.FC<LogPatternMatchingSummaryItemProps
     <Accordion
       header={
         <div className="flex justify-between items-center">
-          <Text size="sm" weight="medium">
-            {AnalysisTypeLabel.log_pattern_matching}
-          </Text>
+          <div className="flex items-center gap-x-3">
+            <div
+              className="w-4 h-4"
+              style={{
+                backgroundColor: logPatternMatching.color,
+              }}
+            />
+            <Text size="sm" weight="medium">
+              {AnalysisTypeLabel.log_pattern_matching}
+            </Text>
+          </div>
 
           <Text weight="medium">
             {numberWithCommas(logPatternMatching.results.reduce((acc, curr) => acc + curr.total, 0))} times

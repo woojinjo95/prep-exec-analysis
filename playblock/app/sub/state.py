@@ -1,10 +1,12 @@
 from sub.db import CHANNEL_NAME
 import asyncio
+from datetime import datetime
 from sub.message import publish_message
 
 
 async def set_run_state(redis_connection):
     print("run_scenario")
+    await redis_connection.hset("testrun", "start_time", datetime.utcnow().timestamp())
     await redis_connection.hset("testrun", "state", "run")
     await redis_connection.publish(CHANNEL_NAME, publish_message("start_playblock_response"))
 
@@ -31,6 +33,7 @@ async def set_stop_state(redis_connection, event: asyncio.Event):
     print("stop_scenario")
     event.set()
     await redis_connection.hset("testrun", "state", "stop")
+    await redis_connection.hset("testrun", "end_time", datetime.utcnow().timestamp())
     await redis_connection.publish(CHANNEL_NAME, publish_message("stop_playblock_response"))
     await redis_connection.publish(CHANNEL_NAME, publish_message("stop_analysis_response"))
 

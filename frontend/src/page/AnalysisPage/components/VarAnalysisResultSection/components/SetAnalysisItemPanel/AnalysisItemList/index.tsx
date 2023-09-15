@@ -6,7 +6,6 @@ import { AnalysisType, AnalyzableType, AnalyzableTypes } from '@global/constant'
 
 import { useAnalysisConfig } from '@page/AnalysisPage/api/hook'
 import { AnalysisConfig } from '@page/AnalysisPage/api/entity'
-import { AnalysisTypeLabel } from '../../../constant'
 import { useRemoveAnalysisConfig, useStartAnalysis, useUpdateAnalysisConfig } from '../../../api/hook'
 import { UnsavedAnalysisConfig } from '../../../types'
 import FreezeAnalysisItem from './FreezeAnalysisItem'
@@ -18,11 +17,13 @@ import LogPatternMatchingAnalysisItem from './LogPatternMatchingAnalysisItem'
 import LoudnessAnalysisItem from './LoudnessAnalysisItem'
 import MonkeyTestAnalysisItem from './MonkeyTestAnalysisItem'
 import IntelligentMonkeyTestAnalysisItem from './IntelligentMonkeyTestAnalysisItem'
+import { getRememberedConfig } from '../../../usecase'
 
 const DefaultAnalysisConfig: Required<UnsavedAnalysisConfig> = {
   freeze: {
     color: '#42FF00',
     duration: '3',
+    unit: 'Sec',
   },
   loudness: {
     color: '#0106FF',
@@ -63,6 +64,18 @@ const DefaultAnalysisConfig: Required<UnsavedAnalysisConfig> = {
 const validateAnalysisConfig = (config: UnsavedAnalysisConfig) => {
   const newWarningMessage: { -readonly [key in keyof typeof AnalysisType]?: string } = {}
 
+  // 유효하지 않은 duration 값을 입력했을 경우
+  if (
+    config.freeze &&
+    (!config.freeze.duration ||
+      Number.isNaN(config.freeze.duration) ||
+      Number(config.freeze.duration) <= 0 ||
+      (Number(config.freeze.duration) > 60 && config.freeze.unit === 'Min') ||
+      (Number(config.freeze.duration) > 60 * 60 && config.freeze.unit === 'Sec'))
+  ) {
+    newWarningMessage.freeze = 'Duration must be greater than 0 seconds and less than or equal to 60 minutes.'
+  }
+
   // 로그 패턴을 하나도 추가하지 않은 경우
   if (config.log_pattern_matching && !config.log_pattern_matching.items.length) {
     newWarningMessage.log_pattern_matching = 'Please set log pattern.'
@@ -97,6 +110,14 @@ interface AnalysisItemListProps {
 const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisItems, setSelectedAnalysisItems }) => {
   const [unsavedAnalysisConfig, setUnsavedAnalysisConfig] = useState<UnsavedAnalysisConfig>({})
   const [warningMessage, setWarningMessage] = useState<{ [key in keyof typeof AnalysisType]?: string }>({})
+  const [isRememberedConfig, setIsRememberedConfig] = useState<{ [key in keyof typeof AnalysisType]?: boolean }>({
+    freeze: false,
+    log_pattern_matching: false,
+  })
+  // FIXME: 제거해도 될 것 같으면 제거
+  const [rememberedConfig, setRememberedConfig] = useState<AnalysisConfig>(
+    getRememberedConfig(['freeze', 'log_pattern_matching']),
+  )
   const { analysisConfig, refetch } = useAnalysisConfig({
     onSuccess: (data) => {
       if (Object.keys(unsavedAnalysisConfig).length) return
@@ -107,15 +128,6 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
           (key) => !!data[key as (typeof AnalyzableTypes)[number]],
         ) as (typeof AnalyzableTypes)[number][],
       )
-      setUnsavedAnalysisConfig(() => ({
-        ...data,
-        freeze: data.freeze
-          ? {
-              ...data.freeze,
-              duration: String(data.freeze.duration),
-            }
-          : undefined,
-      }))
     },
   })
 
@@ -131,6 +143,24 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
 
       // 설정한 분석아이템이 없을 경우
       if (!measurement.length) return
+
+      // 분석설정 기억하기(remember current settings) - 로컬스토리지 관리
+      Object.keys(isRememberedConfig).forEach((_type) => {
+        const type = _type as keyof typeof isRememberedConfig
+
+        // 체크박스를 해제하였을 경우
+        if (!isRememberedConfig[type]) {
+          localStorage.removeItem(type)
+          setRememberedConfig((prev) => ({ ...prev, [type]: undefined }))
+          return
+        }
+
+        // 체크박스 체크를 했고 분석설정도 했을 경우
+        if (isRememberedConfig[type] && config[type]) {
+          localStorage.setItem(type, JSON.stringify(config[type]!))
+          setRememberedConfig((prev) => ({ ...prev, [type]: config[type] }))
+        }
+      })
 
       // 분석 설정 수정에 성공하면 -> 분석 시작
       startAnalysis(measurement)
@@ -156,7 +186,7 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
    * 분석 아이템 삭제
    */
   const onClickDeleteItem = useCallback(
-    (type: keyof typeof AnalysisTypeLabel): React.MouseEventHandler<SVGSVGElement> =>
+    (type: keyof typeof AnalysisType): React.MouseEventHandler<SVGSVGElement> =>
       (e) => {
         e.stopPropagation()
         removeAnalysisConfig(type)
@@ -168,39 +198,58 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
     if (!selectedAnalysisItems.length) return
 
     // 분석아이템을 추가할 경우 -> 아이템별 default값 설정
-    Object.keys(AnalysisTypeLabel).forEach((_type) => {
+    Object.keys(AnalysisType).forEach((_type) => {
       const type = _type as (typeof AnalyzableTypes)[number]
       // 분석 아이템 리스트에 없거나 이미 값이 있을 경우 -> escape
       if (!selectedAnalysisItems.includes(type) || unsavedAnalysisConfig[type]) return
 
-      // redis 분석설정(analysisConfig)이 있을 경우 -> 해당 config로 설정
-      if (analysisConfig?.[type]) {
+      // 1순위: testrun에 분석설정(analysisConfig)
+      // 2순위: Remember current setting으로 설정된 로컬설정
+      const config = (analysisConfig?.[type] || rememberedConfig[type]) as AnalysisConfig[typeof type]
+
+      if (!config) {
+        // 3순위: default config 설정
         setUnsavedAnalysisConfig((prev) => ({
           ...prev,
-          [type]: analysisConfig[type],
+          [type]: DefaultAnalysisConfig[type],
         }))
         return
       }
 
-      // TODO: Remember current setting으로 설정된 경우 -> localstorage에 저장된 설정값으로 설정
+      // remember 체크박스 초기화
+      setIsRememberedConfig((prev) => ({ ...prev, [type]: !!rememberedConfig[type] }))
 
-      // default config로 설정
+      if (type === 'freeze') {
+        const freezeConfig = config as AnalysisConfig['freeze']
+        setUnsavedAnalysisConfig((prev) => ({
+          ...prev,
+          freeze: freezeConfig
+            ? {
+                ...freezeConfig,
+                duration: String(freezeConfig.duration > 60 ? freezeConfig.duration / 60 : freezeConfig.duration),
+                unit: freezeConfig.duration > 60 ? 'Min' : 'Sec',
+              }
+            : undefined,
+        }))
+        return
+      }
+
       setUnsavedAnalysisConfig((prev) => ({
         ...prev,
-        [type]: DefaultAnalysisConfig[type],
+        [type]: config,
       }))
     })
-  }, [selectedAnalysisItems, analysisConfig])
+  }, [selectedAnalysisItems])
 
   useObservableState({
     obs$: AnalysisService.onAnalysis$(),
     callback: (state) => {
       if (state?.msg !== 'analysis') return
       const newWarningMessage = validateAnalysisConfig(unsavedAnalysisConfig)
+      setWarningMessage(newWarningMessage)
 
       if (Object.keys(newWarningMessage).length) {
         AnalysisService.startAnalysis({ msg: 'not_validate_analysis' })
-        setWarningMessage(newWarningMessage)
         return
       }
 
@@ -208,8 +257,11 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
         ...(unsavedAnalysisConfig as AnalysisConfig),
         freeze: unsavedAnalysisConfig.freeze
           ? {
-              ...unsavedAnalysisConfig.freeze,
-              duration: Number(unsavedAnalysisConfig.freeze.duration),
+              color: unsavedAnalysisConfig.freeze.color,
+              duration:
+                unsavedAnalysisConfig.freeze.unit === 'Min'
+                  ? Number(unsavedAnalysisConfig.freeze.duration) * 60
+                  : Number(unsavedAnalysisConfig.freeze.duration),
             }
           : undefined,
       })
@@ -233,8 +285,12 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
         <FreezeAnalysisItem
           color={unsavedAnalysisConfig.freeze.color}
           duration={unsavedAnalysisConfig.freeze.duration}
+          unit={unsavedAnalysisConfig.freeze.unit}
+          warningMessage={warningMessage.freeze}
           setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
           onClickDeleteItem={onClickDeleteItem('freeze')}
+          isRememberChecked={!!isRememberedConfig.freeze}
+          setIsRememberedConfig={setIsRememberedConfig}
         />
       )}
 
@@ -289,10 +345,13 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
 
       {selectedAnalysisItems.includes('log_pattern_matching') && unsavedAnalysisConfig.log_pattern_matching && (
         <LogPatternMatchingAnalysisItem
+          color={unsavedAnalysisConfig.log_pattern_matching.color}
           patterns={unsavedAnalysisConfig.log_pattern_matching.items}
           warningMessage={warningMessage.log_pattern_matching}
           setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
           onClickDeleteItem={onClickDeleteItem('log_pattern_matching')}
+          isRememberChecked={!!isRememberedConfig.log_pattern_matching}
+          setIsRememberedConfig={setIsRememberedConfig}
         />
       )}
 
@@ -305,7 +364,11 @@ const AnalysisItemList: React.FC<AnalysisItemListProps> = ({ selectedAnalysisIte
       )}
 
       {selectedAnalysisItems.includes('intelligent_monkey_test') && unsavedAnalysisConfig.intelligent_monkey_test && (
-        <IntelligentMonkeyTestAnalysisItem onClickDeleteItem={onClickDeleteItem('intelligent_monkey_test')} />
+        <IntelligentMonkeyTestAnalysisItem
+          color={unsavedAnalysisConfig.intelligent_monkey_test.color}
+          onClickDeleteItem={onClickDeleteItem('intelligent_monkey_test')}
+          setUnsavedAnalysisConfig={setUnsavedAnalysisConfig}
+        />
       )}
     </div>
   )

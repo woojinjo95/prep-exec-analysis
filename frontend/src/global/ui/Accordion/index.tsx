@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import classnames from 'classnames/bind'
 import { ReactComponent as DropdownIcon } from '@assets/images/select_arrow.svg'
+import { Text } from '@global/ui'
 import styles from './Accordion.module.scss'
 
 const cx = classnames.bind(styles)
@@ -57,7 +58,15 @@ const Accordion: React.FC<AccordionProps> = ({ header, children, colorScheme = '
           })}
         >
           <div className="w-full h-[0.5px] bg-light-charcoal mb-3" />
-          <div className="px-1">{children}</div>
+          <div className="px-1">
+            {children}
+
+            {!!warningMessage && (
+              <div className="pt-2">
+                <Text colorScheme="orange">{warningMessage}</Text>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

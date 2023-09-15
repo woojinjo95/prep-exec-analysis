@@ -40,6 +40,9 @@ class RemoconProcess(ProcessUtil):
             'bt': BTAndroidKeyboard(self.event_time_dict, self.bt_serial_device),
             # 'adb': ADBAndroidKeyboard(self.event_time_dict, slot_index),
         }
+        # ir 리모콘과 같은 형식을 일단 찾지 못해 임시(영구) 지정
+        # bt와 같은 객체를 씀, bt와 같은 장비를 제어하기 때문
+        self.remocon_types['lcd'] = self.remocon_types['bt']
 
         # start when remocon is constructed
         for device_thread in self.remocon_types.values():
@@ -81,8 +84,10 @@ class RemoconProcess(ProcessUtil):
 
         publish(self.redis_connection, RedisChannel.command, result)
 
-    def put_command(self, key: str, _type: str, code: str = '', sleep: float = 0, press_time: float = 0) -> str:
-        if key.lower() not in self.remocon_commands:
+    def put_command(self, key: str, _type: str, code: str = '', sleep: float = 0, press_time: float = 0, mute=False) -> str:
+        if _type == 'lcd':
+            pass
+        elif key.lower() not in self.remocon_commands:
             publish(self.redis_connection, RedisChannel.command, {'msg': 'remocon_response',
                                                                   'level': 'error',
                                                                   'data': {"key": key,
@@ -108,6 +113,8 @@ class RemoconProcess(ProcessUtil):
                    'press_time': press_time,
                    'sleep': sleep,
                    'type': _type}
+        if mute:
+            command.update({'mute': True})
         self.transmit_command_queue.put(command)
         return _id
 

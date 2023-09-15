@@ -1,12 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import * as d3 from 'd3'
-import { useRecoilValue } from 'recoil'
 import { Text, VideoSnapshots } from '@global/ui'
 import { CHART_HEIGHT } from '@global/constant'
-import { videoBlobURLState } from '@global/atom'
 
 import { useAnalysisResultSummary } from '@page/AnalysisPage/api/hook'
-import { useCursorEvent } from './hook'
+import { useCursorEvent, useHandleChartWheel } from './hook'
 import {
   HorizontalScrollBar,
   CPUChart,
@@ -37,7 +35,6 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
   const chartWrapperRef = useRef<HTMLDivElement | null>(null)
   const [dimension, setDimension] = useState<{ left: number; width: number } | null>(null)
   const [scrollBarTwoPosX, setScrollBarTwoPosX] = useState<[number, number] | null>(null)
-  const src = useRecoilValue(videoBlobURLState)
   // 순서 중요 X
   const [activeChartList, setActiveChartList] = useState<(keyof typeof ChartLabel)[]>([
     'video',
@@ -86,6 +83,10 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
       setActiveChartList(newAllChartList)
     },
   })
+  const isReadyRenderChart = useMemo(
+    () => !!startTime && !!endTime && !!analysisResultSummary,
+    [startTime, endTime, analysisResultSummary],
+  )
 
   // X축 전체 scale
   const timelineScaleX: d3.ScaleTime<number, number, never> | null = useMemo(() => {
@@ -110,30 +111,34 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
       width: dimension?.width,
     })
 
-  useEffect(() => {
+  // 차트 가로스크롤 hook
+  useHandleChartWheel({
+    ref: chartWrapperRef.current,
+    isReadyRenderChart,
+    setScrollBarTwoPosX,
+    chartWidth: dimension?.width,
+  })
+
+  const handleWindowResize = () => {
     if (!chartWrapperRef.current || dimension?.width || dimension?.left || scrollBarTwoPosX) return
 
     setDimension({ width: chartWrapperRef.current.clientWidth, left: chartWrapperRef.current.offsetLeft })
     setScrollBarTwoPosX([0, chartWrapperRef.current.clientWidth])
+  }
+
+  useEffect(() => {
+    handleWindowResize()
     // dependency array: chartWrapperRef 렌더링 조건
-  }, [startTime, endTime, analysisResultSummary])
+  }, [isReadyRenderChart])
 
-  /**
-   * 스냅샷 시작 시간
-   */
-  const snapshotStartMillisecond = useMemo(() => {
-    if (!startTime || !timelineScaleX || !scrollBarTwoPosX) return null
-    return timelineScaleX.invert(scrollBarTwoPosX[0]).getTime() - startTime.getTime()
-  }, [startTime, timelineScaleX, scrollBarTwoPosX])
+  useEffect(() => {
+    window.addEventListener('resize', handleWindowResize)
+    return () => {
+      window.removeEventListener('resize', handleWindowResize)
+    }
+  }, [])
 
-  /**
-   * 스냅샷 끝 시간
-   */
-  const snapshotEndMillisecond = useMemo(() => {
-    if (!startTime || !timelineScaleX || !scrollBarTwoPosX) return null
-    return timelineScaleX.invert(scrollBarTwoPosX[1]).getTime() - startTime.getTime()
-  }, [startTime, timelineScaleX, scrollBarTwoPosX])
-
+  // === isReadyRenderChart
   if (!startTime || !endTime || !analysisResultSummary) {
     return <section className="h-full bg-black grid grid-cols-1 grid-rows-[auto_1fr_auto]" />
   }
@@ -177,164 +182,173 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
           onPointerMove={onCursorPointerMove}
           onPointerUp={onCursorPointerUp}
         >
-          {allChartList
-            .filter((key) => activeChartList.includes(key))
-            .map((chartKey) => {
-              if (chartKey === 'video') {
-                return (
-                  // TODO: src가 없을 때 -> progress 표시 ?
-                  <VideoSnapshots
-                    key={`chart-${chartKey}`}
-                    src={src}
-                    tickCount={15}
-                    startMillisecond={snapshotStartMillisecond}
-                    endMillisecond={snapshotEndMillisecond}
-                  />
-                )
-              }
+          {allChartList.map((chartKey) => {
+            if (chartKey === 'video') {
+              return (
+                <VideoSnapshots
+                  key={`chart-${chartKey}`}
+                  isVisible={activeChartList.includes(chartKey)}
+                  tickCount={15}
+                  scaleX={scrollbarScaleX}
+                  startTime={timelineScaleX && scrollBarTwoPosX ? timelineScaleX.invert(scrollBarTwoPosX[0]) : null}
+                  endTime={timelineScaleX && scrollBarTwoPosX ? timelineScaleX.invert(scrollBarTwoPosX[1]) : null}
+                />
+              )
+            }
 
-              if (chartKey === 'color_reference') {
-                return (
-                  <ColorReferenceChart
-                    key={`chart-${chartKey}`}
-                    scaleX={scrollbarScaleX}
-                    startTime={startTime}
-                    endTime={endTime}
-                    dimension={dimension}
-                  />
-                )
-              }
+            if (chartKey === 'color_reference') {
+              return (
+                <ColorReferenceChart
+                  key={`chart-${chartKey}`}
+                  isVisible={activeChartList.includes(chartKey)}
+                  scaleX={scrollbarScaleX}
+                  startTime={startTime}
+                  endTime={endTime}
+                  dimension={dimension}
+                />
+              )
+            }
 
-              if (chartKey === 'event_log') {
-                return (
-                  <EventLogChart
-                    key={`chart-${chartKey}`}
-                    scaleX={scrollbarScaleX}
-                    startTime={startTime}
-                    endTime={endTime}
-                    dimension={dimension}
-                  />
-                )
-              }
+            if (chartKey === 'event_log') {
+              return (
+                <EventLogChart
+                  key={`chart-${chartKey}`}
+                  isVisible={activeChartList.includes(chartKey)}
+                  scaleX={scrollbarScaleX}
+                  startTime={startTime}
+                  endTime={endTime}
+                  dimension={dimension}
+                />
+              )
+            }
 
-              if (chartKey === 'monkey_test') {
-                return (
-                  <MonkeyTestChart
-                    key={`chart-${chartKey}`}
-                    scaleX={scrollbarScaleX}
-                    startTime={startTime}
-                    endTime={endTime}
-                    dimension={dimension}
-                    summary={analysisResultSummary}
-                  />
-                )
-              }
+            if (chartKey === 'monkey_test') {
+              return (
+                <MonkeyTestChart
+                  key={`chart-${chartKey}`}
+                  isVisible={activeChartList.includes(chartKey)}
+                  scaleX={scrollbarScaleX}
+                  startTime={startTime}
+                  endTime={endTime}
+                  dimension={dimension}
+                  summary={analysisResultSummary}
+                />
+              )
+            }
 
-              if (chartKey === 'intelligent_monkey_test') {
-                return (
-                  <IntelligentMonkeyTestChart
-                    key={`chart-${chartKey}`}
-                    scaleX={scrollbarScaleX}
-                    startTime={startTime}
-                    endTime={endTime}
-                    dimension={dimension}
-                    summary={analysisResultSummary}
-                  />
-                )
-              }
+            if (chartKey === 'intelligent_monkey_test') {
+              return (
+                <IntelligentMonkeyTestChart
+                  key={`chart-${chartKey}`}
+                  isVisible={activeChartList.includes(chartKey)}
+                  scaleX={scrollbarScaleX}
+                  startTime={startTime}
+                  endTime={endTime}
+                  dimension={dimension}
+                  summary={analysisResultSummary}
+                />
+              )
+            }
 
-              if (chartKey === 'video_analysis_result') {
-                return (
-                  <FreezeChart
-                    key={`chart-${chartKey}`}
-                    scaleX={scrollbarScaleX}
-                    startTime={startTime}
-                    endTime={endTime}
-                    dimension={dimension}
-                    summary={analysisResultSummary}
-                  />
-                )
-              }
+            if (chartKey === 'video_analysis_result') {
+              return (
+                <FreezeChart
+                  key={`chart-${chartKey}`}
+                  isVisible={activeChartList.includes(chartKey)}
+                  scaleX={scrollbarScaleX}
+                  startTime={startTime}
+                  endTime={endTime}
+                  dimension={dimension}
+                  summary={analysisResultSummary}
+                />
+              )
+            }
 
-              if (chartKey === 'loudness') {
-                return (
-                  <LoudnessChart
-                    key={`chart-${chartKey}`}
-                    scaleX={scrollbarScaleX}
-                    startTime={startTime}
-                    endTime={endTime}
-                    dimension={dimension}
-                    summary={analysisResultSummary}
-                  />
-                )
-              }
+            if (chartKey === 'loudness') {
+              return (
+                <LoudnessChart
+                  key={`chart-${chartKey}`}
+                  isVisible={activeChartList.includes(chartKey)}
+                  scaleX={scrollbarScaleX}
+                  startTime={startTime}
+                  endTime={endTime}
+                  dimension={dimension}
+                  summary={analysisResultSummary}
+                />
+              )
+            }
 
-              if (chartKey === 'resume_boot') {
-                return (
-                  <ResumeBootChart
-                    key={`chart-${chartKey}`}
-                    scaleX={scrollbarScaleX}
-                    startTime={startTime}
-                    endTime={endTime}
-                    dimension={dimension}
-                    summary={analysisResultSummary}
-                  />
-                )
-              }
+            if (chartKey === 'resume_boot') {
+              return (
+                <ResumeBootChart
+                  key={`chart-${chartKey}`}
+                  isVisible={activeChartList.includes(chartKey)}
+                  scaleX={scrollbarScaleX}
+                  startTime={startTime}
+                  endTime={endTime}
+                  dimension={dimension}
+                  summary={analysisResultSummary}
+                />
+              )
+            }
 
-              if (chartKey === 'log_level_finder') {
-                // FIXME: 데이터가 너무많음. api 로딩이 오래걸림
-                return (
-                  <LogLevelFinderChart
-                    key={`chart-${chartKey}`}
-                    scaleX={scrollbarScaleX}
-                    startTime={startTime}
-                    endTime={endTime}
-                    dimension={dimension}
-                    summary={analysisResultSummary}
-                  />
-                )
-              }
+            if (chartKey === 'log_level_finder') {
+              // FIXME: 데이터가 너무많음. api 로딩이 오래걸림
+              return (
+                <LogLevelFinderChart
+                  key={`chart-${chartKey}`}
+                  isVisible={activeChartList.includes(chartKey)}
+                  scaleX={scrollbarScaleX}
+                  startTime={startTime}
+                  endTime={endTime}
+                  dimension={dimension}
+                  summary={analysisResultSummary}
+                />
+              )
+            }
 
-              if (chartKey === 'log_pattern_matching') {
-                return (
-                  <LogPatternMatchingChart
-                    key={`chart-${chartKey}`}
-                    scaleX={scrollbarScaleX}
-                    startTime={startTime}
-                    endTime={endTime}
-                    dimension={dimension}
-                    summary={analysisResultSummary}
-                  />
-                )
-              }
+            if (chartKey === 'log_pattern_matching') {
+              return (
+                <LogPatternMatchingChart
+                  key={`chart-${chartKey}`}
+                  isVisible={activeChartList.includes(chartKey)}
+                  scaleX={scrollbarScaleX}
+                  startTime={startTime}
+                  endTime={endTime}
+                  dimension={dimension}
+                  summary={analysisResultSummary}
+                />
+              )
+            }
 
-              if (chartKey === 'cpu') {
-                return (
-                  <CPUChart
-                    key={`chart-${chartKey}`}
-                    scaleX={scrollbarScaleX}
-                    startTime={startTime}
-                    endTime={endTime}
-                    dimension={dimension}
-                  />
-                )
-              }
+            if (chartKey === 'cpu') {
+              return (
+                <CPUChart
+                  key={`chart-${chartKey}`}
+                  isVisible={activeChartList.includes(chartKey)}
+                  scaleX={scrollbarScaleX}
+                  startTime={startTime}
+                  endTime={endTime}
+                  dimension={dimension}
+                />
+              )
+            }
 
-              if (chartKey === 'memory') {
-                return (
-                  <MemoryChart
-                    key={`chart-${chartKey}`}
-                    scaleX={scrollbarScaleX}
-                    startTime={startTime}
-                    endTime={endTime}
-                    dimension={dimension}
-                  />
-                )
-              }
+            if (chartKey === 'memory') {
+              return (
+                <MemoryChart
+                  key={`chart-${chartKey}`}
+                  isVisible={activeChartList.includes(chartKey)}
+                  scaleX={scrollbarScaleX}
+                  startTime={startTime}
+                  endTime={endTime}
+                  dimension={dimension}
+                />
+              )
+            }
 
-              return null
-            })}
+            return null
+          })}
         </TimelineChartContainer>
       </div>
 

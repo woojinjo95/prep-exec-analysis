@@ -12,12 +12,13 @@ interface LoudnessChartProps {
   endTime: Date
   dimension: { left: number; width: number } | null
   summary: AnalysisResultSummary
+  isVisible?: boolean
 }
 
 /**
  * Loudness(소리) 변화 차트
  */
-const LoudnessChart: React.FC<LoudnessChartProps> = ({ scaleX, startTime, endTime, dimension, summary }) => {
+const LoudnessChart: React.FC<LoudnessChartProps> = ({ scaleX, startTime, endTime, dimension, summary, isVisible }) => {
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const { loudness } = useLoudness({
     start_time: startTime.toISOString(),
@@ -43,7 +44,8 @@ const LoudnessChart: React.FC<LoudnessChartProps> = ({ scaleX, startTime, endTim
     width: dimension?.width,
   })
 
-  if (!loudnessData) return <div />
+  if (!isVisible) return null
+  if (!loudnessData) return <div style={{ height: CHART_HEIGHT }} />
   return (
     <div onMouseMove={onMouseMove(loudnessData)} onMouseLeave={onMouseLeave} className="relative overflow-hidden">
       {!!posX && (

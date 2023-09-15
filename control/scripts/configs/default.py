@@ -4,7 +4,8 @@ from .constant import RedisDBEnum
 
 settings = {'devices': {'serial_baud_rate': 115200,
                         'ir_remocon_port': '/dev/ttyUSB1',
-                        'bt_remocon_port': '/dev/ttyUSB0'}}
+                        'bt_remocon_port': '/dev/ttyUSB0',
+                        'lcd': False}}
 
 hardware_settings = {'hardware_configuration': {'ssh_port': 2345}}
 

@@ -13,6 +13,7 @@ interface LogLevelFinderChartProps {
   endTime: Date
   dimension: { left: number; width: number } | null
   summary: AnalysisResultSummary
+  isVisible?: boolean
 }
 
 /**
@@ -24,6 +25,7 @@ const LogLevelFinderChart: React.FC<LogLevelFinderChartProps> = ({
   endTime,
   dimension,
   summary,
+  isVisible,
 }) => {
   const logLevelFinderLogLevelFilterList = useRecoilValue(logLevelFinderLogLevelFilterListState)
   const wrapperRef = useRef<HTMLDivElement | null>(null)
@@ -52,7 +54,8 @@ const LogLevelFinderChart: React.FC<LogLevelFinderChartProps> = ({
     width: dimension?.width,
   })
 
-  if (!logLevelFinderData) return <div />
+  if (!isVisible) return null
+  if (!logLevelFinderData) return <div style={{ height: CHART_HEIGHT }} />
   return (
     <div onMouseMove={onMouseMove(logLevelFinderData)} onMouseLeave={onMouseLeave} className="relative">
       {!!posX && (

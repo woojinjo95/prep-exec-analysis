@@ -48,7 +48,7 @@ def task_freeze_detection(args: VideoInfo, config: Dict):
                 'freeze_type': result['freeze_type'],
                 'duration': result['duration'],
             })
-        progress_manager.update_progress(idx / args.frame_count)
+        progress_manager.update_progress((idx + 1) / args.frame_count)
 
 
 def set_freeze_detector(fps: float, min_duration: float) -> FreezeDetector:

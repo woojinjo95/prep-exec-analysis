@@ -1,9 +1,13 @@
 import React from 'react'
+import { useRecoilState } from 'recoil'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { Accordion, SimpleButton, Text } from '@global/ui'
 import { convertDuration, numberWithCommas } from '@global/usecase'
 import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.svg'
-import { AnalysisTypeLabel } from '../../../constant'
+import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
+import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
+import { monkeyTestIdFilterListState } from '@global/atom'
+import { AnalysisTypeLabel } from '@global/constant'
 
 interface MonkeyTestSummaryItemProps {
   monkeyTest: NonNullable<AnalysisResultSummary['monkey_test']>
@@ -14,6 +18,8 @@ interface MonkeyTestSummaryItemProps {
  * monkey test 분석 결과 요약 아이템
  */
 const MonkeyTestSummaryItem: React.FC<MonkeyTestSummaryItemProps> = ({ monkeyTest, setRawDataModalType }) => {
+  const [monkeyTestIdFilterList, setMonkeyTestIdFilterList] = useRecoilState(monkeyTestIdFilterListState)
+
   return (
     <Accordion
       header={
@@ -48,7 +54,7 @@ const MonkeyTestSummaryItem: React.FC<MonkeyTestSummaryItemProps> = ({ monkeyTes
           </Text>
           <div />
 
-          {monkeyTest.results.map(({ duration_time, smart_sense }, index) => (
+          {monkeyTest.results.map(({ id, duration_time, smart_sense }, index) => (
             <React.Fragment key={`monkey-test-summary-result-item-${index}`}>
               <Text size="sm">{index + 1}</Text>
               <Text size="sm" className="text-right">
@@ -57,13 +63,11 @@ const MonkeyTestSummaryItem: React.FC<MonkeyTestSummaryItemProps> = ({ monkeyTes
               <Text size="sm" className="text-right">
                 {numberWithCommas(smart_sense)} times
               </Text>
-              <div />
-              {/* FIXME: 필터 어떻게 하는지? */}
-              {/* {monkeyTestTypeFilterList.includes(target) ? (
+              {monkeyTestIdFilterList.includes(id) ? (
                 <SimpleButton
                   isIcon
                   colorScheme="charcoal"
-                  onClick={() => setBootTypeFilterList((prev) => prev.filter((type) => type !== target))}
+                  onClick={() => setMonkeyTestIdFilterList((prev) => prev.filter((type) => type !== id))}
                 >
                   <HiddenEyeIcon className="h-4 w-5" />
                 </SimpleButton>
@@ -71,11 +75,11 @@ const MonkeyTestSummaryItem: React.FC<MonkeyTestSummaryItemProps> = ({ monkeyTes
                 <SimpleButton
                   isIcon
                   colorScheme="charcoal"
-                  onClick={() => setBootTypeFilterList((prev) => [...prev, target])}
+                  onClick={() => setMonkeyTestIdFilterList((prev) => [...prev, id])}
                 >
                   <ShowEyeIcon className="h-4 w-5" />
                 </SimpleButton>
-              )} */}
+              )}
             </React.Fragment>
           ))}
         </div>

@@ -2,6 +2,7 @@ import React, { useMemo, useRef } from 'react'
 import { Text } from '@global/ui'
 import { createPortalStyle, formatDateTo } from '@global/usecase'
 import { ReactComponent as CursorIcon } from '@assets/images/pentagon.svg'
+import { ReactComponent as RightArrowIcon } from '@assets/images/arrow-right.svg'
 import Tick from './Tick'
 import FilterButton from './FilterButton'
 import { ChartLabel } from '../../constant'
@@ -63,33 +64,51 @@ const TimelineHeader: React.FC<TimelineHeaderProps> = ({
           }}
         >
           {cursorTranslateX !== undefined && (
-            <div>
-              {/* 인디케이터의 오각형 아이콘 */}
-              <CursorIcon
-                className="absolute w-3 h-3 fill-primary bottom-0 -left-1.5 z-[5]"
-                style={{
-                  transform: `translateX(${cursorTranslateX}px)`,
-                }}
-              />
-              {/* 인디케이터가 위치하는 시간 */}
-              {isCursorDragging && !!scaleX && (
-                <div
-                  className="fixed bg-primary z-[5] px-2 rounded-sm"
+            <>
+              <div>
+                {/* 인디케이터의 오각형 아이콘 */}
+                <CursorIcon
+                  className="absolute w-3 h-3 fill-primary bottom-0 -left-1.5 z-[5]"
                   style={{
-                    ...createPortalStyle({ wrapperRef, spaceY: -60 }),
                     transform: `translateX(${cursorTranslateX}px)`,
                   }}
-                >
-                  <Text size="xs">{formatDateTo('YYYY-MM-DD HH:MM:SS:MS', scaleX.invert(cursorTranslateX))}</Text>
-                </div>
+                />
+                {/* 인디케이터가 위치하는 시간 */}
+                {isCursorDragging && !!scaleX && (
+                  <div
+                    className="fixed bg-primary z-[5] px-2 rounded-sm"
+                    style={{
+                      ...createPortalStyle({ wrapperRef, spaceY: -60 }),
+                      transform: `translateX(${cursorTranslateX}px)`,
+                    }}
+                  >
+                    <Text size="xs">{formatDateTo('YYYY-MM-DD HH:MM:SS:MS', scaleX.invert(cursorTranslateX))}</Text>
+                  </div>
+                )}
+              </div>
+              {/* 인디케이터가 왼쪽으로 벗어나있을 경우 표시하는 화살표 */}
+              {cursorTranslateX < 0 && (
+                <RightArrowIcon className="w-4 h-4 fill-primary z-[5] absolute bottom-2 left-1 rotate-180" />
               )}
-            </div>
+              {/* 인디케이터가 오른쪽으로 벗어나있을 경우 표시하는 화살표 */}
+              {cursorTranslateX > chartWidth && (
+                <RightArrowIcon className="w-4 h-4 fill-primary z-[5] absolute bottom-2 right-1" />
+              )}
+            </>
           )}
 
           {scaleX && ticks && tickWidth && (
             <>
               {/* 맨 앞쪽 tick은 안보이기 때문에 채우기용 tick 추가 */}
-              <Tick time={new Date()} width={tickWidth} translateX={scaleX(ticks[0]) - tickWidth} />
+              <Tick
+                time={
+                  ticks.length > 1
+                    ? new Date(ticks[0].getTime() - (ticks[1].getTime() - ticks[0].getTime()))
+                    : new Date()
+                }
+                width={tickWidth}
+                translateX={scaleX(ticks[0]) - tickWidth}
+              />
 
               {/* tick 리스트 */}
               {ticks.map((time) => (

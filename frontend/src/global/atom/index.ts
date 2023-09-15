@@ -3,14 +3,6 @@ import { FreezeType, LogLevel } from '@global/constant'
 import { BootType, ResumeType } from '@global/api/entity'
 
 /**
- * 분석페이지 특정 시나리오의 비디오 Blob URL
- */
-export const videoBlobURLState = atom<string | null>({
-  key: 'videoBlobURLState',
-  default: null,
-})
-
-/**
  * 서비스가 타겟중인 시나리오 id
  */
 export const scenarioIdState = atom<string | null>({
@@ -62,14 +54,6 @@ export const selectedRemoconNameState = atom<string | null>({
 })
 
 /**
- * test Option Modal open
- */
-export const isTestOptionModalOpenState = atom<boolean>({
-  key: 'isTestOptionModalOpenState',
-  default: false,
-})
-
-/**
  * action page 재생 start time (unix timestamp)
  */
 export const playStartTimeState = atom<number | null>({
@@ -114,5 +98,21 @@ export const logLevelFinderLogLevelFilterListState = atom<(keyof typeof LogLevel
  */
 export const logPatternMatchingNameFilterListState = atom<string[]>({
   key: 'logPatternMatchingNameFilterListState',
+  default: [],
+})
+
+/**
+ * 분석 페이지 monkey test 결과 filter 리스트(id로 필터링)
+ */
+export const monkeyTestIdFilterListState = atom<string[]>({
+  key: 'monkeyTestIdFilterListState',
+  default: [],
+})
+
+/**
+ * 분석 페이지 intelligent monkey test 결과 filter 리스트(section id로 필터링)
+ */
+export const intelligentMonkeyTestSectionIdFilterListState = atom<number[]>({
+  key: 'intelligentMonkeyTestSectionIdFilterListState',
   default: [],
 })

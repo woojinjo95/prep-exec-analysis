@@ -30,13 +30,15 @@ class AbstractRemocon(metaclass=ABCMeta):
         command_queue = self.command_queue.get()
         # wait until value get
         start_time = time.monotonic()
+        if not command_queue.get('mute'):
+            logger.debug(f'command_queue accepted: {command_queue}')
 
-        logger.debug(f'command_queue accepted: {command_queue}')
         interval = command_queue.get('sleep', 0)
         _id = command_queue.get('id', 'default')
         event_time = self.press_key_by_command(command_queue)
         self.event_time_dict[_id] = event_time
-        logger.debug(f'event_time has been get, {_id}: {event_time}')
+        if not command_queue.get('mute'):
+            logger.debug(f'event_time has been get, {_id}: {event_time}')
 
         process_time = time.monotonic() - start_time
         time.sleep(max(0, max(self.default_interval, interval) - process_time))

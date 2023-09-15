@@ -4,6 +4,7 @@ services:
   backend:
     container_name: backend
     image: registry.dev-nextlab.com/prep-exec-analysis-backend:dev-0
+    restart: always
     build:
       context: ./backend
       dockerfile: dockerfile.dev
@@ -18,6 +19,7 @@ services:
   frontend:
     container_name: frontend
     image: registry.dev-nextlab.com/prep-exec-analysis-frontend:dev-0
+    restart: always
     build:
       context: ./frontend
       dockerfile: dockerfile.development
@@ -31,6 +33,7 @@ services:
   mongodb:
     container_name: mongodb
     image: mongo:4.4.2
+    restart: always
     ports:
       - 27017:27017
     environment:
@@ -40,7 +43,9 @@ services:
       - mongodb_data:/data/db
 
   mediamtx:
+    container_name: mediamtx
     image: bluenviron/mediamtx:1.0.3
+    restart: always
     ports:
       - "8554:8554" # RTSP
       - "9997:9997" # API
@@ -57,6 +62,7 @@ services:
         max-size: "250m"
 
   media:
+    container_name: media
     image: registry.dev-nextlab.com/prep-exec-media:dev-0
     restart: always
     build:
@@ -77,6 +83,7 @@ services:
       - "host.docker.internal:host-gateway"
 
   control:
+    container_name: control
     image: registry.dev-nextlab.com/prep-exec-control:dev-0
     restart: always
     build:
@@ -92,11 +99,13 @@ services:
     privileged: true
     volumes:
       - "$HOME/.ssh:/app/static/keys"
+      - ./data/workspace:/app/workspace
       - "./logs:/app/logs"
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
   network:
+    container_name: network
     image: registry.dev-nextlab.com/prep-exec-network:dev-0
     restart: always
     build:
@@ -115,6 +124,7 @@ services:
       - "host.docker.internal:host-gateway"
 
   watcher:
+    container_name: watcher
     image: registry.dev-nextlab.com/prep-exec-watcher:dev-0
     restart: always
     build:
@@ -129,11 +139,10 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-
-
   adminer:
     container_name: adminer
     image: dockette/adminer:full
+    restart: always
     ports:
       - 8082:80
 
@@ -152,8 +161,7 @@ services:
     image: rediscommander/redis-commander:latest
     platform: linux/amd64
     environment:
-      - REDIS_HOSTS=hardware:redis:6379:0
-        collector:redis:6379:3
+      - REDIS_HOSTS=hardware:redis:6379:0 collector:redis:6379:3
     ports:
       - 8081:8081
 
@@ -168,14 +176,15 @@ services:
     volumes:
       - "adb-rsa:/root/.android"
       - "./logs:/app/logs"
-  
+
   shell:
     container_name: shell
+    restart: always
     image: registry.dev-nextlab.com/qaas-shell:dev-2
     command: python -u process.py
     build:
       context: ./shell
-      dockerfile: Dockerfile.dev.m32dev4
+      dockerfile: Dockerfile
     ports:
       - 5005:80
     volumes:
@@ -245,6 +254,24 @@ services:
     build:
       context: ./analyzer
       dockerfile: dockerfile
+      args:
+        - REQUIREMENTS=requirements_mb.txt
+    environment:
+      - PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+      - TF_MODEL_URL=https://drive.google.com/drive/folders/13tVYiXNTXeVjUdNtShxKGcUi2hgzZ9-Y?usp=share_link
+    volumes:
+      - ./data/workspace:/app/workspace
+
+  channel-zapping:
+    container_name: channel-zapping
+    restart: always
+    image: registry.dev-nextlab.com/qaas-analyzer:dev-0
+    command: python -u main_channel_zapping.py
+    build:
+      context: ./analyzer
+      dockerfile: dockerfile
+      args:
+        - REQUIREMENTS=requirements_cz.txt
     volumes:
       - ./data/workspace:/app/workspace
 
@@ -263,11 +290,12 @@ services:
 
   state:
     container_name: state
+    restart: always
     image: registry.dev-nextlab.com/qaas-state:dev-0
     command: python -u process.py
     build:
       context: ./state
-      dockerfile: Dockerfile.dev.m32dev4
+      dockerfile: Dockerfile
     volumes:
       - ./state/app:/app
 
@@ -281,6 +309,7 @@ services:
     command: python -u process.py
     volumes:
       - ./playblock/app:/app
+
 volumes:
   mongodb_data: {}
   redis_data: {}

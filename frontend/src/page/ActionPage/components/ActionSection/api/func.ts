@@ -1,6 +1,6 @@
 import API from '@global/api'
 import { AxiosError } from 'axios'
-import { Block } from '@global/api/entity'
+import { Block, Response } from '@global/api/entity'
 import apiUrls from './url'
 
 export const postBlock = async ({ newBlock, scenario_id }: { newBlock: Omit<Block, 'id'>; scenario_id: string }) => {
@@ -77,11 +77,25 @@ export const putBlockGroup = async ({
   scenario_id: string
 }) => {
   try {
-    const result = await API.put<{ msg: string }>(`${apiUrls.block_group}/${scenario_id}/${block_group_id}`, {
-      repeat_cnt,
-    })
+    const result = await API.put<{ msg: string; id: string }>(
+      `${apiUrls.block_group}/${scenario_id}/${block_group_id}`,
+      {
+        repeat_cnt,
+      },
+    )
 
     return result.data
+  } catch (err) {
+    const er = err as AxiosError
+    throw er
+  }
+}
+
+export const getRunBlock = async () => {
+  try {
+    const result = await API.get<Response<{ id: string }>>(`${apiUrls.run_block}`)
+
+    return result.data.items
   } catch (err) {
     const er = err as AxiosError
     throw er

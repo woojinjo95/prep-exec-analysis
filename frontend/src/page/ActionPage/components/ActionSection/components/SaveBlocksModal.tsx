@@ -7,10 +7,10 @@ import { formatDateTo } from '@global/usecase'
 import Scrollbars from 'react-custom-scrollbars-2'
 import { useScenarioById } from '@global/api/hook'
 import { useRecoilState } from 'recoil'
-import { isTestOptionModalOpenState, scenarioIdState, testRunIdState } from '@global/atom'
+import { playStartTimeState, scenarioIdState, testRunIdState } from '@global/atom'
 import Tag from '@global/ui/Tag'
 import { useMutation, useQuery } from 'react-query'
-import { getTag, postCopyScenario, postTag, postTestrun, putScenario } from '@global/api/func'
+import { getTag, postCopyScenario, postTag, putScenario } from '@global/api/func'
 import { useToast } from '@chakra-ui/react'
 import { AxiosError } from 'axios'
 import { useWebsocket } from '@global/hook'
@@ -47,7 +47,7 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
 
   const { sendMessage } = useWebsocket()
 
-  const { scenario: currentScenario } = useScenarioById({
+  const { scenario: currentScenario, refetch: currentScenarioRefetch } = useScenarioById({
     scenarioId,
     onSuccess: (res) => {
       if (res.is_active) {
@@ -113,7 +113,7 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
     return tags.filter((tag) => tag.includes(tagInput) && blocksTags.find((_tag) => _tag === tag) === undefined)
   }, [tagInput, tags, blocksTags])
 
-  const [, setIsTesetOptionModalOpen] = useRecoilState(isTestOptionModalOpenState)
+  const [, setPlayStartTime] = useRecoilState(playStartTimeState)
 
   const { mutate: postTagMutate } = useMutation(postTag, {
     onSuccess: () => {
@@ -127,14 +127,23 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
       console.error(err)
     },
   })
-  const { mutate: postTestrunMutate } = useMutation(postTestrun, {
-    onSuccess: (res) => {
+
+  const { mutate: putScenarioMutate } = useMutation(putScenario, {
+    onSuccess: () => {
+      tagRefetch()
+      scenariosRefetch()
+      currentScenarioRefetch()
+
       close()
 
-      setTestRunIdState(res.id)
+      if (isPlay && scenarioId) {
+        sendMessage({
+          level: 'info',
+          msg: 'start_playblock',
+          data: { scenario_id: scenarioId },
+        })
 
-      if (isPlay) {
-        setIsTesetOptionModalOpen(true)
+        setPlayStartTime(new Date().getTime() / 1000)
       }
 
       // 분석페이지로 이동한다면
@@ -159,28 +168,23 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
     },
   })
 
-  const { mutate: putScenarioMutate } = useMutation(putScenario, {
-    onSuccess: () => {
-      tagRefetch()
-
-      if (scenarioId) {
-        postTestrunMutate(scenarioId)
-      }
-    },
-    onError: (err: AxiosError) => {
-      console.error(err)
-    },
-  })
-
   const { mutate: postCopyScenarioMutate } = useMutation(postCopyScenario, {
     onSuccess: (res) => {
       setScenarioId(res.id)
       setTestRunIdState(res.testrun_id)
+      tagRefetch()
       scenariosRefetch()
+      currentScenarioRefetch()
       close()
 
-      if (isPlay) {
-        setIsTesetOptionModalOpen(true)
+      if (isPlay && scenarioId) {
+        sendMessage({
+          level: 'info',
+          msg: 'start_playblock',
+          data: { scenario_id: scenarioId },
+        })
+
+        setPlayStartTime(new Date().getTime() / 1000)
       }
 
       if (isMoveAnalysisPage) {
@@ -275,14 +279,19 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
             {tagInput !== '' && (
               <div
                 className="h-11 flex px-3 py-2 hover:bg-light-charcoal cursor-pointer"
-                onClick={() => {
-                  if (!blocksTags.find((tag) => tag === tagInput)) {
+                onClick={(e) => {
+                  e.stopPropagation()
+
+                  if (tags && !tags.find((tag) => tag === tagInput)) {
                     postTagMutate(tagInput)
                     setBlocksTags((prev) => [...prev, tagInput])
                     setTagInput('')
                   } else {
                     toast({ status: 'error', title: 'Tag name duplicated' })
                   }
+                }}
+                onMouseDown={(e) => {
+                  e.stopPropagation()
                 }}
               >
                 <Text colorScheme="light" className="mr-2">
@@ -400,8 +409,14 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
             onClick={() => {
               close()
 
-              if (isPlay) {
-                setIsTesetOptionModalOpen(true)
+              if (isPlay && scenarioId) {
+                sendMessage({
+                  level: 'info',
+                  msg: 'start_playblock',
+                  data: { scenario_id: scenarioId },
+                })
+
+                setPlayStartTime(new Date().getTime() / 1000)
               }
 
               if (isMoveAnalysisPage) {
