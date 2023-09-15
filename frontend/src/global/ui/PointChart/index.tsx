@@ -8,8 +8,6 @@ interface PointChartProps {
 
 /**
  * 포인트 차트
- *
- * TODO: resizing event
  */
 const PointChart: React.FC<PointChartProps> = ({ data, scaleX }) => {
   if (!scaleX) return <div />

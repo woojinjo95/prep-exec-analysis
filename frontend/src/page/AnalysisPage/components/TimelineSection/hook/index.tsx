@@ -94,17 +94,17 @@ export const useTooltipEvent = <T extends DefaultChartDataType>({
         if (nearIndex === -1) return
         const findedData = data[nearIndex]
 
-        // 가장 가까운 데이터가 마우스 기준 4px 이상 떨어져 있다면 -> 데이터를 표시하지 않음
-        if (findedData.duration === undefined && Math.abs(scaleX(new Date(findedData.datetime)) - posX) > 4) {
+        // 가장 가까운 데이터가 마우스 기준 32px 이상 떨어져 있다면 -> 데이터를 표시하지 않음
+        if (findedData.duration === undefined && Math.abs(scaleX(new Date(findedData.datetime)) - posX) > 32) {
           setTooltipData(null)
           return
         }
 
-        // 지속시간이 있는(duration) 데이터이고 마우스가 지속시간 양옆으로 4px 이상 떨어져 있다면 -> 데이터를 표시하지 않음
+        // 지속시간이 있는(duration) 데이터이고 마우스가 지속시간 양옆으로 32px 이상 떨어져 있다면 -> 데이터를 표시하지 않음
         if (
           findedData.duration !== undefined &&
-          (posX + 4 < scaleX(new Date(findedData.datetime)) ||
-            scaleX(new Date(findedData.datetime + findedData.duration)) + 4 < posX)
+          (posX + 32 < scaleX(new Date(findedData.datetime)) ||
+            scaleX(new Date(findedData.datetime + findedData.duration)) + 32 < posX)
         ) {
           setTooltipData(null)
           return
@@ -145,6 +145,7 @@ export const useHandleChartWheel = <T extends HTMLElement>({
   const [isPressAlt, setIsPressAlt] = useState<boolean>(false)
   const [isPressCtrl, setIsPressCtrl] = useState<boolean>(false)
 
+  // TODO: 해당사항 없을 때 -> 렌더링 안되도록 최적화
   const handleWheel = (e: WheelEvent) => {
     if (!chartWidth) return
 
