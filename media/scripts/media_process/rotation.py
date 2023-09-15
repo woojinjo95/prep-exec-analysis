@@ -18,7 +18,7 @@ from ..configs.config import RedisDBEnum, get_value
 from ..configs.constant import RedisChannel
 from ..connection.mongo_db.update import update_to_mongodb, update_video_info_to_scenario
 from ..connection.redis_pubsub import get_strict_redis_connection, publish
-from ..utils._timezone import timestamp_to_datetime_with_timezone_str
+from ..utils._timezone import timestamp_to_datetime_with_timezone_str, get_utc_datetime
 from ..utils.file_manage import substitute_path_extension
 from .video_stat import summarize_merged_video_info, process_video_info
 from .video_snapshot import save_full_frame_video_snapshots
@@ -186,12 +186,12 @@ class MakeVideo:
             video_basename = os.path.basename(self.output_video_path)
             json_basename = os.path.basename(self.output_json_path)
 
-            video_info = {'created': timestamp_to_datetime_with_timezone_str(),
+            video_info = {'created': get_utc_datetime(time.time()),
                           'path': os.path.join(self.mounted_output_path, video_basename),
                           'name': video_basename,
                           'stat_path':  os.path.join(self.mounted_output_path, json_basename),
-                          'start_time': timestamp_to_datetime_with_timezone_str(raw_video_info['timestamps'][0]),
-                          'end_time': timestamp_to_datetime_with_timezone_str(raw_video_info['timestamps'][-1]),
+                          'start_time': get_utc_datetime(raw_video_info['timestamps'][0]),
+                          'end_time': get_utc_datetime(raw_video_info['timestamps'][-1]),
                           'frame_count': len(raw_video_info['timestamps']),
                           }
         else:
