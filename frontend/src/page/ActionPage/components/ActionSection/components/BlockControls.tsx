@@ -7,7 +7,13 @@ import { ReactComponent as StopIcon } from '@assets/images/icon_stop.svg'
 import { IconButton, OptionItem, Text, DropdownWithMoreButton, Input } from '@global/ui'
 import { useWebsocket } from '@global/hook'
 import { useRecoilState, useRecoilValue } from 'recoil'
-import { isBlockRecordModeState, playStartTimeState, scenarioIdState, selectedBlockIdsState } from '@global/atom'
+import {
+  isBlockRecordModeState,
+  playStartTimeState,
+  scenarioIdState,
+  selectedBlockIdsState,
+  testRunIdState,
+} from '@global/atom'
 import { useScenarioById, useServiceState } from '@global/api/hook'
 import { useMutation } from 'react-query'
 import cx from 'classnames'
@@ -21,6 +27,7 @@ import AddIntelligentMonkeyTestBlockModal from './AddIntelligentMonkeyTestBlockM
 
 const BlockControls: React.FC = () => {
   const scenarioId = useRecoilValue(scenarioIdState)
+  const testrunId = useRecoilValue(testRunIdState)
 
   const navigate = useNavigate()
 
@@ -37,6 +44,7 @@ const BlockControls: React.FC = () => {
 
   const { scenario, refetch } = useScenarioById({
     scenarioId,
+    testrunId,
     onSuccess: (res) => {
       if (res.block_group.length > 0) {
         setRepeatCnt(res.block_group[0].repeat_cnt)

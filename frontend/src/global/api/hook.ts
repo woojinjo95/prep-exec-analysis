@@ -86,19 +86,21 @@ export const useHardwareConfiguration = ({ onSuccess }: { onSuccess?: (data: Har
 export const useScenarioById = ({
   onSuccess,
   scenarioId,
+  testrunId,
 }: {
   onSuccess?: (data: Scenario) => void
   scenarioId: string | null
+  testrunId: string | null
 }) => {
   const { data, refetch, isLoading } = useQuery<Scenario>(
     ['scenario', scenarioId],
-    () => getScenarioById({ scenario_id: scenarioId! }),
+    () => getScenarioById({ scenario_id: scenarioId!, testrun_id: testrunId! }),
     {
       onSuccess,
       onError: (err) => {
         console.error(err)
       },
-      enabled: !!scenarioId,
+      enabled: !!(scenarioId && testrunId),
     },
   )
 
