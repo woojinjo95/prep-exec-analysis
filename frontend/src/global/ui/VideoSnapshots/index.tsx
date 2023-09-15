@@ -9,6 +9,7 @@ interface VideoSnapshotsProps {
   endTime: Date | null
   tickCount?: number
   scaleX?: d3.ScaleTime<number, number, never> | null
+  isVisible?: boolean
 }
 
 /**
@@ -16,7 +17,13 @@ interface VideoSnapshotsProps {
  *
  * @param scaleX 스냅샷이 위치할 x좌표를 계산하는 scale
  */
-const VideoSnapshots: React.FC<VideoSnapshotsProps> = ({ startTime, endTime, tickCount = 10, scaleX }) => {
+const VideoSnapshots: React.FC<VideoSnapshotsProps> = ({
+  startTime,
+  endTime,
+  tickCount = 10,
+  scaleX,
+  isVisible = true,
+}) => {
   const [clientWidth, setClientWidth] = useState<number | null>(null)
   const { videoSnapshots } = useVideoSnapshots()
 
@@ -57,6 +64,7 @@ const VideoSnapshots: React.FC<VideoSnapshotsProps> = ({ startTime, endTime, tic
     ]
   }, [snapshotScaleX, videoSnapshots, firstSnapshotIndex])
 
+  if (!isVisible) return null
   return (
     <div
       ref={(ref) => {
