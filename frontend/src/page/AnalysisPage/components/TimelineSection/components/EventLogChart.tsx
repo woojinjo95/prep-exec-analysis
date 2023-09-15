@@ -88,12 +88,13 @@ interface EventLogChartProps {
   startTime: Date
   endTime: Date
   dimension: { left: number; width: number } | null
+  isVisible?: boolean
 }
 
 /**
  * 이벤트 로그 차트
  */
-const EventLogChart: React.FC<EventLogChartProps> = ({ scaleX, startTime, endTime, dimension }) => {
+const EventLogChart: React.FC<EventLogChartProps> = ({ scaleX, startTime, endTime, dimension, isVisible }) => {
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const { eventLogs } = useEventLogs({
     start_time: startTime.toISOString(),
@@ -116,6 +117,7 @@ const EventLogChart: React.FC<EventLogChartProps> = ({ scaleX, startTime, endTim
     width: dimension?.width,
   })
 
+  if (!isVisible) return null
   if (!eventLogsData) return <div style={{ height: CHART_HEIGHT }} />
   return (
     <div onMouseMove={onMouseMove(eventLogsData)} onMouseLeave={onMouseLeave} className="relative">
