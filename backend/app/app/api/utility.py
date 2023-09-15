@@ -1,3 +1,4 @@
+from dateutil.parser import isoparse
 import datetime as dt
 import json
 import math
@@ -156,7 +157,7 @@ def deserialize_datetime(json_obj):
             json_obj[i] = deserialize_datetime(json_obj[i])
     elif isinstance(json_obj, str):
         try:
-            return datetime.fromisoformat(json_obj)
+            return isoparse(json_obj)
         except (TypeError, ValueError):
             pass
     return json_obj
@@ -166,7 +167,7 @@ def serialize_datetime(obj):
     if isinstance(obj, datetime):
         utc_timezone = dt.timezone.utc
         utc_datetime = obj.replace(tzinfo=utc_timezone)
-        return {"$date": utc_datetime.strftime('%Y-%m-%dT%H:%M:%S.%fZ')}
+        return utc_datetime.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
     raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
 
 
@@ -195,14 +196,14 @@ def convert_data_in(collection_name, document):
     return data
 
 
-def make_basic_match_pipeline(scenario_id: str=None, testrun_id: str=None, start_time: str=None, end_time: str=None):
+def make_basic_match_pipeline(scenario_id: str = None, testrun_id: str = None, start_time: str = None, end_time: str = None):
     time_range = {}
     if start_time:
         time_range['$gte'] = convert_iso_format(start_time)
     if end_time:
         time_range['$lte'] = convert_iso_format(end_time)
     if testrun_id is None:
-            testrun_id = RedisClient.hget('testrun', 'id')
+        testrun_id = RedisClient.hget('testrun', 'id')
     if scenario_id is None:
         scenario_id = RedisClient.hget('testrun', 'scenario_id')
 

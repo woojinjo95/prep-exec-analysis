@@ -9,13 +9,13 @@ from typing import Optional
 
 from app import schemas
 from app.api.utility import (analysis_collection, convert_data_in,
-                             convert_iso_format, deserialize_datetime,
+                             deserialize_datetime,
                              get_config_from_scenario_mongodb,
+                             make_basic_match_pipeline,
                              paginate_from_mongodb_aggregation,
-                             parse_bytes_to_value, serialize_datetime,
-                             make_basic_match_pipeline)
+                             parse_bytes_to_value, serialize_datetime)
 from app.crud.base import (aggregate_from_mongodb, insert_many_to_mongodb,
-                           load_from_mongodb)
+                           insert_one_to_mongodb, load_from_mongodb)
 from app.db.redis_session import RedisClient
 from fastapi import APIRouter, File, HTTPException, Query, Response, UploadFile
 from fastapi.encoders import jsonable_encoder
@@ -140,7 +140,7 @@ def get_data_of_memory(
                                                     end_time=end_time)
 
         additional_pipeline = [
-            {'$project': {'_id': 0, 
+            {'$project': {'_id': 0,
                           'timestamp': {'$dateToString': {'date': '$timestamp'}},
                           'memory_usage': 1,
                           'total_ram': 1, 'free_ram': 1,
@@ -227,9 +227,9 @@ def get_data_of_color_reference(
             raise HTTPException(status_code=400, detail='Need at least one time parameter')
 
         color_reference_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
-                                                       testrun_id=testrun_id,
-                                                       start_time=start_time,
-                                                       end_time=end_time)
+                                                             testrun_id=testrun_id,
+                                                             start_time=start_time,
+                                                             end_time=end_time)
 
         color_reference_pipeline = [
             {'$project': {'_id': 0,
@@ -314,7 +314,7 @@ def get_data_of_loudness(
                                                       testrun_id=testrun_id,
                                                       start_time=start_time,
                                                       end_time=end_time)
-        
+
         additional_pipeline = [
             {'$project': {'_id': 0, 'lines': 1}},
             {'$unwind': {'path': '$lines'}},
@@ -358,7 +358,7 @@ def get_data_of_resume(
                                                          testrun_id=testrun_id,
                                                          start_time=start_time,
                                                          end_time=end_time)
-        
+
         additional_pipeline = [{'$project': {'_id': 0,
                                              'timestamp': {'$dateToString': {'date': '$timestamp'}},
                                              'measure_time': 1,
@@ -873,15 +873,16 @@ async def import_result(file: UploadFile = File(...)) -> schemas.Msg:
                 if file_type == 'db':
                     file_data = zipf.read(full_name).decode("utf-8")
                     collection_name = os.path.dirname(f'{file_path}/{file_name}')
-                    # data = convert_data_in(collection_name, deserialize_datetime(json.loads(file_data)))
-                    data = deserialize_datetime(json.loads(file_data))
-                    if collection_name in mongo_data:
-                        mongo_data[collection_name].append(data)
-                    else:
-                        mongo_data[collection_name] = [data]
-
-        for collection_name, data in mongo_data.items():
-            insert_many_to_mongodb(collection_name, jsonable_encoder(data))
+                    data = jsonable_encoder(convert_data_in(collection_name, json.loads(file_data)))
+                    # data = deserialize_datetime(json.loads(file_data))
+                    insert_one_to_mongodb(col=collection_name, data=deserialize_datetime(data))
+        #             if collection_name in mongo_data:
+        #                 mongo_data[collection_name].append(data)
+        #             else:
+        #                 mongo_data[collection_name] = [data]
+        # logger.info(mongo_data)
+        # for collection_name, data2 in mongo_data.items():
+        #     insert_many_to_mongodb(collection_name, data2)
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())

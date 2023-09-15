@@ -12,11 +12,12 @@ class Raw(BaseModel):
 class MeasureTargets(BaseModel):
     type: str
     timestamp: datetime
+    progress: Optional[float] = 0
+    remaining_time: Optional[float] = 0
 
 
 class Testruns(BaseModel):
     id: str
-    is_active: bool
     raw: Raw
     analysis: dict
     measure_targets: Optional[List[MeasureTargets]]
