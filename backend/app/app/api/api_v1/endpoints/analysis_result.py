@@ -275,7 +275,13 @@ def get_data_of_freeze(
                                                     start_time=start_time,
                                                     end_time=end_time)
 
+        config = get_config_from_scenario_mongodb(scenario_id=scenario_id,
+                                                  testrun_id=testrun_id,
+                                                  target='freeze')
+        duration = config.get('duration', 3)
+
         additional_pipeline = [
+            {'$match': {'user_config.duration': duration}},
             {'$project': {'_id': 0,
                           'timestamp': {'$dateToString': {'date': '$timestamp'}},
                           'freeze_type': 1,
@@ -361,11 +367,19 @@ def get_data_of_resume(
                                                          testrun_id=testrun_id,
                                                          start_time=start_time,
                                                          end_time=end_time)
+
+        config = get_config_from_scenario_mongodb(scenario_id=scenario_id,
+                                                  testrun_id=testrun_id,
+                                                  target='resume')
+        type = config.get('type', '')
+        frame = config.get('frame', {})
         
-        additional_pipeline = [{'$project': {'_id': 0,
-                                             'timestamp': {'$dateToString': {'date': '$timestamp'}},
-                                             'measure_time': 1,
-                                             'target': '$user_config.type'}}]
+        additional_pipeline = [
+            {'$match': {'user_config.type': type, 'user_config.frame': frame}},
+            {'$project': {'_id': 0,
+                          'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                          'measure_time': 1,
+                          'target': '$user_config.type'}}]
         measurement_pipeline.extend(additional_pipeline)
 
         measurement_resume = paginate_from_mongodb_aggregation(col=analysis_collection['resume'],
@@ -404,7 +418,13 @@ def get_data_of_boot(
                                                          start_time=start_time,
                                                          end_time=end_time)
 
+        config = get_config_from_scenario_mongodb(scenario_id=scenario_id,
+                                                  testrun_id=testrun_id,
+                                                  target='boot')
+        frame = config.get('frame', {})
+
         additional_pipeline = [
+            {'$match': {'user.config.frame': frame}},
             {'$project': {'_id': 0,
                           'timestamp': {'$dateToString': {'date': '$timestamp'}},
                           'measure_time': 1,
@@ -447,9 +467,17 @@ def get_data_of_log_pattern_matching(
                                                                   testrun_id=testrun_id,
                                                                   start_time=start_time,
                                                                   end_time=end_time)
-        if pattern_name is not None:
+        if pattern_name:
             pattern_name = pattern_name.split(',')
-            log_pattern_matching_pipeline[0]['$match']['matched_target.name'] = {'$in': pattern_name}
+            name_pipeline = [{'$match': {'matched_target.name': {'$in': pattern_name}}}]
+            log_pattern_matching_pipeline.extend(name_pipeline)
+        else:
+            config = get_config_from_scenario_mongodb(scenario_id=scenario_id,
+                                                      testrun_id=testrun_id,
+                                                      target='log_pattern_matching.items')
+            config_pipeline = [
+                {'$match': {'user_config.items': {'$in': config.get('config', [])}}}]
+            log_pattern_matching_pipeline.extend(config_pipeline)
 
         additional_pipeline = [
             {'$project': {'_id': 0,
