@@ -4,6 +4,7 @@ import * as d3 from 'd3'
 import { cursorDateTimeState } from '@global/atom'
 import { DefaultChartDataType } from '@global/types'
 import { findNearIndex } from '../usecase'
+import { SCROLL_BAR_HEIGHT } from '../constant'
 
 /**
  * 커서 드래그 관련 hook
@@ -128,7 +129,7 @@ export const useTooltipEvent = <T extends DefaultChartDataType>({
 }
 
 /**
- * 차트 가로스크롤 hook
+ * 차트 가로스크롤 / 확대 / 축소 휠 이벤트 hook
  */
 export const useHandleChartWheel = <T extends HTMLElement>({
   ref,
@@ -140,12 +141,33 @@ export const useHandleChartWheel = <T extends HTMLElement>({
   isReadyRenderChart: boolean
   setScrollBarTwoPosX: React.Dispatch<React.SetStateAction<[number, number] | null>>
   chartWidth?: number
-}) => {
+}): void => {
+  const [isPressAlt, setIsPressAlt] = useState<boolean>(false)
+  const [isPressCtrl, setIsPressCtrl] = useState<boolean>(false)
+
   const handleWheel = (e: WheelEvent) => {
-    if (!e.deltaX || !chartWidth) return
+    if (!chartWidth) return
+
+    if (isPressAlt && isPressCtrl) {
+      // preventDefault <- 차트의 기본 세로스크롤 이벤트를 막기 위함
+      e.preventDefault()
+
+      setScrollBarTwoPosX((prev) => {
+        if (!prev) return prev
+        if (e.deltaY >= 0 && prev[1] - prev[0] === SCROLL_BAR_HEIGHT) return prev
+
+        const posX1 = Math.min(Math.max(prev[0] + e.deltaY, 0), prev[1] - SCROLL_BAR_HEIGHT)
+        const posX2 = Math.min(Math.max(prev[1] - e.deltaY, prev[0] + SCROLL_BAR_HEIGHT), chartWidth)
+        return [posX1, posX2]
+      })
+      return
+    }
+
+    if (!e.deltaX) return
     // preventDefault <- mac에서 브라우저 뒤로가기 기능을 비활성화하기 위함
     e.preventDefault()
 
+    // 왼쪽 -> 오른쪽 스크롤 시
     if (e.deltaX < 0) {
       setScrollBarTwoPosX((prev) => {
         if (!prev) return prev
@@ -154,7 +176,9 @@ export const useHandleChartWheel = <T extends HTMLElement>({
         const posX1 = Math.max(prev[0] + e.deltaX, 0)
         return [posX1, posX1 + scrollbarWidth]
       })
-    } else {
+    }
+    // 오른쪽 -> 왼쪽 스크롤 시
+    else {
       setScrollBarTwoPosX((prev) => {
         if (!prev) return prev
 
@@ -164,6 +188,39 @@ export const useHandleChartWheel = <T extends HTMLElement>({
       })
     }
   }
+
+  useEffect(() => {
+    const keyDownHandler = (e: KeyboardEvent) => {
+      if (e.repeat) return
+
+      if (e.altKey) {
+        e.preventDefault()
+        setIsPressAlt(true)
+      }
+      if (e.ctrlKey) {
+        e.preventDefault()
+        setIsPressCtrl(true)
+      }
+    }
+
+    const keyUpHandler = (e: KeyboardEvent) => {
+      if (!e.altKey) {
+        e.preventDefault()
+        setIsPressAlt(false)
+      }
+      if (!e.ctrlKey) {
+        e.preventDefault()
+        setIsPressCtrl(false)
+      }
+    }
+
+    window.addEventListener('keydown', keyDownHandler)
+    window.addEventListener('keyup', keyUpHandler)
+    return () => {
+      window.removeEventListener('keydown', keyDownHandler)
+      window.removeEventListener('keyup', keyUpHandler)
+    }
+  }, [])
 
   useEffect(() => {
     if (!ref) return undefined
