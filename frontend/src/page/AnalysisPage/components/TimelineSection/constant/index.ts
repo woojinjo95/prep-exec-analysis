@@ -15,3 +15,8 @@ export const ChartLabel = {
   cpu: 'CPU',
   memory: 'Memory',
 } as const
+
+/**
+ * 타임라인 차트 가로 스크롤바 높이 사이즈
+ */
+export const SCROLL_BAR_HEIGHT = 12

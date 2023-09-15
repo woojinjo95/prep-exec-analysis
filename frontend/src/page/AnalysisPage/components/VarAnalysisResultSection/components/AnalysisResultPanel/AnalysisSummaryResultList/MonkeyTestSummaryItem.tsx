@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useRecoilState } from 'recoil'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { Accordion, SimpleButton, Text } from '@global/ui'
@@ -19,6 +19,10 @@ interface MonkeyTestSummaryItemProps {
  */
 const MonkeyTestSummaryItem: React.FC<MonkeyTestSummaryItemProps> = ({ monkeyTest, setRawDataModalType }) => {
   const [monkeyTestIdFilterList, setMonkeyTestIdFilterList] = useRecoilState(monkeyTestIdFilterListState)
+
+  useEffect(() => {
+    setMonkeyTestIdFilterList([])
+  }, [])
 
   return (
     <Accordion
