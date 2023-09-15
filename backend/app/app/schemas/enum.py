@@ -122,3 +122,4 @@ class ExportItemEnum(ExtendedEnum):
     an_log_pattern = "an_log_pattern"
     videos = "videos"
     frames = "frames"
+    monkey = "monkey"
