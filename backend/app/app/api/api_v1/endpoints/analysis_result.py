@@ -14,8 +14,8 @@ from app.api.utility import (analysis_collection, convert_data_in,
                              make_basic_match_pipeline,
                              paginate_from_mongodb_aggregation,
                              parse_bytes_to_value, serialize_datetime)
-from app.crud.base import (aggregate_from_mongodb, insert_many_to_mongodb,
-                           insert_one_to_mongodb, load_from_mongodb)
+from app.crud.base import (aggregate_from_mongodb, insert_one_to_mongodb,
+                           load_from_mongodb)
 from app.db.redis_session import RedisClient
 from fastapi import APIRouter, File, HTTPException, Query, Response, UploadFile
 from fastapi.encoders import jsonable_encoder
@@ -873,16 +873,10 @@ async def import_result(file: UploadFile = File(...)) -> schemas.Msg:
                 if file_type == 'db':
                     file_data = zipf.read(full_name).decode("utf-8")
                     collection_name = os.path.dirname(f'{file_path}/{file_name}')
-                    data = jsonable_encoder(convert_data_in(collection_name, json.loads(file_data)))
+                    data = deserialize_datetime(jsonable_encoder(
+                        convert_data_in(collection_name, json.loads(file_data))))
                     # data = deserialize_datetime(json.loads(file_data))
-                    insert_one_to_mongodb(col=collection_name, data=deserialize_datetime(data))
-        #             if collection_name in mongo_data:
-        #                 mongo_data[collection_name].append(data)
-        #             else:
-        #                 mongo_data[collection_name] = [data]
-        # logger.info(mongo_data)
-        # for collection_name, data2 in mongo_data.items():
-        #     insert_many_to_mongodb(collection_name, data2)
+                    insert_one_to_mongodb(col=collection_name, data=data)
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
