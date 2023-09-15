@@ -59,7 +59,7 @@ def load_paginate_from_mongodb(col, page, page_size, param={}, proj=None, sort_i
 
 def aggregate_from_mongodb(col, pipeline):
     col = get_mongodb_collection(col)
-    return list(col.aggregate(pipeline))
+    return list(col.aggregate(pipeline, allowDiskUse=True))
 
 
 def update_to_mongodb(col, param, data):
