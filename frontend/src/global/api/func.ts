@@ -18,9 +18,9 @@ import apiUrls from './url'
  * 시나리오 단건 조회 api
  */
 
-export const getScenarioById = async ({ scenario_id }: { scenario_id: string }) => {
+export const getScenarioById = async ({ scenario_id, testrun_id }: { scenario_id: string; testrun_id: string }) => {
   try {
-    const result = await API.get<Response<Scenario>>(`${apiUrls.scenario}/${scenario_id}`)
+    const result = await API.get<Response<Scenario>>(`${apiUrls.scenario}/${scenario_id}/${testrun_id}`)
 
     return result.data.items
   } catch (err) {

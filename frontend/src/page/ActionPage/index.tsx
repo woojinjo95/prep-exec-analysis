@@ -3,7 +3,7 @@ import { PageContainer } from '@global/ui'
 
 import { useScenarioById } from '@global/api/hook'
 import { useRecoilValue } from 'recoil'
-import { scenarioIdState } from '@global/atom'
+import { scenarioIdState, testRunIdState } from '@global/atom'
 import { useNavigate } from 'react-router-dom'
 import cx from 'classnames'
 import ActionSection from './components/ActionSection'
@@ -46,8 +46,11 @@ const ActionPage: React.FC = () => {
 
   const scenarioId = useRecoilValue(scenarioIdState)
 
+  const testrunId = useRecoilValue(testRunIdState)
+
   const { scenario } = useScenarioById({
     scenarioId,
+    testrunId,
   })
 
   useEffect(() => {
