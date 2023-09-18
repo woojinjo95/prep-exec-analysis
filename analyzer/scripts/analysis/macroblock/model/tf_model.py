@@ -24,7 +24,8 @@ class TensorflowModel:
         self.input_shape = self.get_input_shape()
 
     def download_model(self, model_url: str) -> str:
-        model_name = re.search('file/d/(.*)/view?', model_url).group(1)
+        model_name = re.search('/uc\?id=(.*)', model_url).group(1)
+        logger.info(f'model name: {model_name}')
         model_path = os.path.join(self.output_dir, model_name) + '.tflite'
 
         if not os.path.exists(model_path):
@@ -71,7 +72,7 @@ class TensorflowModel:
     def get_input_shape(self) -> tuple:
         input_details = self.model.get_input_details()
         input_shape = input_details[0]['shape'][1:]
-        logger.info(f'input shape: {self.input_shape}')
+        logger.info(f'input shape: {input_shape}')
         return input_shape
 
 class MacroblockModel(TensorflowModel):

@@ -20,9 +20,8 @@ class MacroblockDetector:
     def __init__(self, score_thld: float, continuity_set_thld: int):
         self.input_shape = get_setting_with_env('MODEL_INPUT_SHAPE', (224, 224, 3))
 
-        model_dir_url = get_setting_with_env('TF_MODEL_URL')
-        model_output_dir = get_setting_with_env('MODEL_SAVE_DIR', '/app/workspace/macroblock_models')
-        self.macroblock_model = MacroblockModel(model_dir_url=model_dir_url, model_output_dir=model_output_dir)
+        self.macroblock_model = MacroblockModel(model_url=get_setting_with_env('TF_MODEL_URL'), 
+                                                model_output_dir=get_setting_with_env('MODEL_SAVE_DIR', '/app/workspace/macroblock_models'))
 
         self.discriminator = CrackDiscriminator(crack_score_thld=score_thld,
                                                 continuity_set_thld=continuity_set_thld,
