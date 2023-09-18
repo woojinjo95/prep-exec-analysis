@@ -1,7 +1,7 @@
 import React from 'react'
 import { useRecoilValue } from 'recoil'
 import { Scrollbars } from 'react-custom-scrollbars-2'
-import { Text } from '@global/ui'
+import { Skeleton, Text } from '@global/ui'
 import { formatDateTo } from '@global/usecase'
 import { cursorDateTimeState } from '@global/atom'
 import { LogLevelColor } from '@global/constant'
@@ -17,7 +17,7 @@ const LogcatTrace: React.FC = () => {
     enabled: !!cursorDateTime,
   })
 
-  if (!logcats) return null
+  if (!logcats) return <Skeleton className="w-full h-full" colorScheme="dark" />
   return (
     <div className="w-full flex flex-col h-full overflow-x-hidden overflow-y-auto">
       <div className="w-[calc(100%-48px)] grid grid-cols-[16%_6%_9%_9%_5%_5%_50%] gap-x-2 text-grey bg-black">

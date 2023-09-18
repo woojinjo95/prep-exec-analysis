@@ -1,7 +1,7 @@
 import React from 'react'
 import { useRecoilValue } from 'recoil'
 import { cursorDateTimeState } from '@global/atom'
-import { Text } from '@global/ui'
+import { Skeleton, Text } from '@global/ui'
 import Scrollbars from 'react-custom-scrollbars-2'
 import { formatDateTo } from '@global/usecase'
 import { Shell } from '../api/entity'
@@ -22,6 +22,7 @@ const ShellLog: React.FC<ShellLogProps> = ({ shell_mode }) => {
     enabled: !!cursorDateTime,
   })
 
+  if (!shellLogs) return <Skeleton className="w-full h-full" colorScheme="dark" />
   return (
     <div className="w-full flex flex-col h-full overflow-x-hidden overflow-y-auto">
       <div className="w-full grid grid-cols-[16%_9%_1fr] gap-2 bg-black">
@@ -40,7 +41,7 @@ const ShellLog: React.FC<ShellLogProps> = ({ shell_mode }) => {
         renderThumbVertical={({ ...props }) => <div {...props} className="bg-light-charcoal w-2 rounded-[5px]" />}
       >
         <div className="flex flex-col w-full mt-1">
-          {shellLogs?.map(({ timestamp, module, message }, index) => (
+          {shellLogs.map(({ timestamp, module, message }, index) => (
             <div
               key={`shell-logs-${shell_mode}-${timestamp}-${module}-${index}`}
               className="w-full grid grid-cols-[16%_9%_1fr] gap-2"

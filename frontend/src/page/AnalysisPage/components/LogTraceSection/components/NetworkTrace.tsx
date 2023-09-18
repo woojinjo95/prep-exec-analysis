@@ -1,6 +1,6 @@
 import React from 'react'
 import { useRecoilValue } from 'recoil'
-import { Text } from '@global/ui'
+import { Skeleton, Text } from '@global/ui'
 import { Scrollbars } from 'react-custom-scrollbars-2'
 import { formatDateTo } from '@global/usecase'
 import { cursorDateTimeState } from '@global/atom'
@@ -16,7 +16,7 @@ const NetworkTrace: React.FC = () => {
     enabled: !!cursorDateTime,
   })
 
-  if (!networks) return null
+  if (!networks) return <Skeleton className="w-full h-full" colorScheme="dark" />
   return (
     <div className="w-full flex flex-col overflow-y-auto h-full overflow-x-hidden relative">
       <div className="w-[calc(100%-40px)] grid grid-cols-[16%_9%_10%_6%_5%_54%] gap-x-2 text-grey bg-black">
