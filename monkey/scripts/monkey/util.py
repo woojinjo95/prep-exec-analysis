@@ -3,11 +3,12 @@ from typing import List, Tuple
 
 import cv2
 import numpy as np
-from scripts.analysis.image import (calc_diff_rate, calc_iou, get_cropped_image, is_similar_by_compare_ssim,
-                                    get_cursor_xywh, find_roku_cursor)
+from scripts.analysis.image import (calc_diff_rate, calc_iou, find_roku_cursor,
+                                    get_cropped_image, get_cursor_xywh,
+                                    is_similar_by_compare_ssim)
 from scripts.control.image import get_snapshot
 from scripts.control.remocon import publish_remocon_msg
-from scripts.format import NodeInfo, Cursor
+from scripts.format import Cursor, NodeInfo
 
 logger = logging.getLogger('monkey_test')
 

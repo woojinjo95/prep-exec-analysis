@@ -1,15 +1,15 @@
 import logging
 import traceback
 
-from scripts.util.decorator import log_decorator
-from scripts.monkey.intelligent_monkey_test.roku import IntelligentMonkeyTestRoku
-from scripts.monkey.intelligent_monkey_test.sk import IntelligentMonkeyTestSK
-from scripts.monkey.monkey_test.default import MonkeyTest
-from scripts.format import MonkeyArgs, RemoconInfo
 from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.redis import get_monkey_test_arguments
 from scripts.external.scenario import update_history
-
+from scripts.format import MonkeyArgs, RemoconInfo
+from scripts.monkey.intelligent_monkey_test.roku import \
+    IntelligentMonkeyTestRoku
+from scripts.monkey.intelligent_monkey_test.sk import IntelligentMonkeyTestSK
+from scripts.monkey.monkey_test.default import MonkeyTest
+from scripts.util.decorator import log_decorator
 
 logger = logging.getLogger('main')
 

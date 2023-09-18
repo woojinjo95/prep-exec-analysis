@@ -1,22 +1,21 @@
+import ctypes
 import logging
+import multiprocessing
+import os
 import random
+import signal
 import threading
 import time
 from typing import List
-import ctypes
-import multiprocessing
-import os
-import signal
 
 import numpy as np
-
-from scripts.external.report import report_data, create_section, update_section
-from scripts.external.redis import get_monkey_test_arguments
 from scripts.external.image import get_banned_images
+from scripts.external.redis import get_monkey_test_arguments
+from scripts.external.report import create_section, report_data, update_section
+from scripts.format import MonkeyExternalInfo, SectionData
 from scripts.monkey.util import (check_image_similar, exec_keys,
                                  get_current_image)
 from scripts.util._timezone import get_utc_datetime
-from scripts.format import SectionData, MonkeyExternalInfo
 
 logger = logging.getLogger('monkey_agent')
 

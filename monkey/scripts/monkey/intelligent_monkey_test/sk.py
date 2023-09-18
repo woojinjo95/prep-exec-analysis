@@ -1,22 +1,21 @@
 
 import logging
-from typing import List
-import time
 import threading
+import time
+from typing import List
 
 import numpy as np
-
 from scripts.analysis.image import get_cropped_image
-from scripts.format import NodeInfo, MonkeyArgs, Cursor, MonkeyExternalInfo
+from scripts.external.image import (get_skipped_images,
+                                    save_section_cursor_image)
+from scripts.format import Cursor, MonkeyArgs, MonkeyExternalInfo, NodeInfo
 from scripts.monkey.monkey import Monkey, run_monkey
-from scripts.monkey.util import (check_cursor_is_same, check_shape_similar, 
-                                 exec_keys_with_each_interval, get_current_image, head_to_parent_sibling,
-                                 optimize_path, get_last_breadth_start_image,
-                                 get_cursor, cursor_to_xywh)
-from scripts.external.image import get_skipped_images
-from scripts.external.image import save_section_cursor_image
+from scripts.monkey.util import (check_cursor_is_same, check_shape_similar,
+                                 cursor_to_xywh, exec_keys_with_each_interval,
+                                 get_current_image, get_cursor,
+                                 get_last_breadth_start_image,
+                                 head_to_parent_sibling, optimize_path)
 from scripts.util._timezone import get_utc_datetime
-
 
 logger = logging.getLogger('monkey_test')
 
