@@ -16,8 +16,7 @@ from scripts.external.image import get_banned_images
 from scripts.monkey.util import (check_image_similar, exec_keys,
                                  get_current_image)
 from scripts.util._timezone import get_utc_datetime
-from scripts.format import SectionData
-from scripts.monkey.format import MonkeyExternalInfo
+from scripts.format import SectionData, MonkeyExternalInfo
 
 logger = logging.getLogger('monkey_agent')
 

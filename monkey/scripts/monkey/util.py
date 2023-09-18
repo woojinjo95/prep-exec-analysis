@@ -7,7 +7,7 @@ from scripts.analysis.image import (calc_diff_rate, calc_iou, get_cropped_image,
                                     get_cursor_xywh, find_roku_cursor)
 from scripts.control.image import get_snapshot
 from scripts.control.remocon import publish_remocon_msg
-from scripts.monkey.format import NodeInfo, Cursor
+from scripts.format import NodeInfo, Cursor
 
 logger = logging.getLogger('monkey_test')
 

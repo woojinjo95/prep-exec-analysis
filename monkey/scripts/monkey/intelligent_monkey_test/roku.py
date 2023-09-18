@@ -7,14 +7,13 @@ import threading
 import numpy as np
 
 from scripts.analysis.image import get_cropped_image
-from scripts.monkey.format import MonkeyArgs, NodeInfo, Cursor
+from scripts.format import MonkeyArgs, NodeInfo, Cursor, MonkeyExternalInfo
 from scripts.monkey.monkey import Monkey, run_monkey
 from scripts.monkey.util import (check_cursor_is_same, exec_keys, get_cursor,
                                  get_current_image, head_to_parent_sibling,
                                  optimize_path, cursor_to_xywh)
 from scripts.external.image import save_section_cursor_image
 from scripts.util._timezone import get_utc_datetime
-from scripts.monkey.format import MonkeyExternalInfo
 
 logger = logging.getLogger('monkey_test')
 
