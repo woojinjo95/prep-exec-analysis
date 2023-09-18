@@ -96,6 +96,7 @@ class ServiceStateEnum(ExtendedEnum):
     streaming = "streaming"
     playblock = "playblock"
     analysis = "analysis"
+    recording = "recording"
 
 
 class FreezeTypeEnum(ExtendedEnum):

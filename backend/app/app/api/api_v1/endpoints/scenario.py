@@ -15,6 +15,7 @@ from app.crud.base import (count_from_mongodb, delete_part_to_mongodb,
                            insert_one_to_mongodb, load_by_id_from_mongodb,
                            update_by_id_to_mongodb)
 from app.db.redis_session import RedisClient
+from app.schemas.enum import ServiceStateEnum
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.encoders import jsonable_encoder
 
@@ -22,17 +23,33 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.get("/{scenario_id}", response_model=schemas.Scenario)
+@router.get("/{scenario_id}/{testrun_id}", response_model=schemas.Scenario)
 def read_scenario_by_id(
     scenario_id: str,
+    testrun_id: str,
 ) -> schemas.Scenario:
     """
     Get a specific scenario by id.
     """
+    if RedisClient.hget('common', 'service_state') == ServiceStateEnum.playblock.value:
+        scenario_id = RedisClient.hget('testrun', 'scenario_id')
+        testrun_id = RedisClient.hget('testrun', 'id')
+
     scenario = load_by_id_from_mongodb(col='scenario', id=scenario_id)
     if not scenario:
         raise HTTPException(
             status_code=404, detail="The scenario with this id does not exist in the system.")
+
+    # 워크스페이스 변경
+    RedisClient.hset('testrun', 'id', testrun_id)
+    RedisClient.hset('testrun', 'scenario_id', scenario_id)
+
+    # 워크스페이스 변경 메세지 전송
+    RedisClient.publish('command',
+                        set_redis_pub_msg(msg="workspace",
+                                          data={"workspace_path": RedisClient.hget('testrun', 'workspace_path'),
+                                                "testrun_id": testrun_id,
+                                                "scenario_id": scenario_id}))
     return {'items': scenario}
 
 
@@ -197,17 +214,6 @@ def create_scenario(
                                                                   'raw': {'videos': []},
                                                                   'analysis': {}}]})
 
-        # 워크스페이스 변경
-        RedisClient.hset('testrun', 'id', testrun_id)
-        RedisClient.hset('testrun', 'scenario_id', scenario_id)
-
-        # 워크스페이스 변경 메세지 전송
-        RedisClient.publish('command',
-                            set_redis_pub_msg(msg="workspace",
-                                              data={"workspace_path": workspace_path,
-                                                    "testrun_id": testrun_id,
-                                                    "scenario_id": scenario_id}))
-
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
@@ -288,17 +294,6 @@ def copy_scenario(
                                                     'tags': scenario_in.tags,
                                                     'block_group': block_group_data,
                                                     'testruns': testruns})
-
-        # 워크스페이스 변경
-        RedisClient.hset('testrun', 'id', testrun_id)
-        RedisClient.hset('testrun', 'scenario_id', scenario_id)
-
-        # 워크스페이스 변경 메세지 전송
-        RedisClient.publish('command',
-                            set_redis_pub_msg(msg="workspace",
-                                              data={"workspace_path": workspace_path,
-                                                    "testrun_id": testrun_id,
-                                                    "scenario_id": scenario_id}))
 
     except Exception as e:
         logger.error(traceback.format_exc())

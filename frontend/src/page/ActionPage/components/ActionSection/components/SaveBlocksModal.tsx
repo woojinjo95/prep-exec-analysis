@@ -6,7 +6,7 @@ import useIntersect from '@global/hook/useIntersect'
 import { formatDateTo } from '@global/usecase'
 import Scrollbars from 'react-custom-scrollbars-2'
 import { useScenarioById } from '@global/api/hook'
-import { useRecoilState } from 'recoil'
+import { useRecoilState, useRecoilValue } from 'recoil'
 import { playStartTimeState, scenarioIdState, testRunIdState } from '@global/atom'
 import Tag from '@global/ui/Tag'
 import { useMutation, useQuery } from 'react-query'
@@ -47,8 +47,11 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
 
   const { sendMessage } = useWebsocket()
 
+  const testrunId = useRecoilValue(testRunIdState)
+
   const { scenario: currentScenario, refetch: currentScenarioRefetch } = useScenarioById({
     scenarioId,
+    testrunId,
     onSuccess: (res) => {
       if (res.is_active) {
         setBlocksName(res.name)

@@ -7,8 +7,10 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Scrollbars } from 'react-custom-scrollbars-2'
 import cx from 'classnames'
 import { useRecoilState } from 'recoil'
-import { scenarioIdState } from '@global/atom'
+import { scenarioIdState, testRunIdState } from '@global/atom'
 import { useNavigate } from 'react-router-dom'
+import { useMutation } from 'react-query'
+import { postTestrun } from '@global/api/func'
 
 interface OpenBlocksModalProps {
   isOpen: boolean
@@ -64,7 +66,19 @@ const OpenBlocksModal: React.FC<OpenBlocksModalProps> = ({ isOpen, close }) => {
 
   const [, setScenarioId] = useRecoilState(scenarioIdState)
 
+  const [, setTestRunId] = useRecoilState(testRunIdState)
+
   const navigate = useNavigate()
+
+  const { mutate: postTestrunMutate } = useMutation(postTestrun, {
+    onSuccess: (res) => {
+      setScenarioId(selectedScenarioId)
+      setTestRunId(res.id)
+      // 새로고침하지 않고 강제로 이동하게 해야 함
+      navigate('/action', { replace: true, state: { force: true } })
+      close()
+    },
+  })
 
   return (
     <Modal
@@ -147,10 +161,9 @@ const OpenBlocksModal: React.FC<OpenBlocksModalProps> = ({ isOpen, close }) => {
             colorScheme="primary"
             className="w-[132px] h-[48px] mr-3 text-white rounded-3xl"
             onClick={() => {
-              setScenarioId(selectedScenarioId)
-              // 새로고침하지 않고 강제로 이동하게 해야 함
-              navigate('/action', { replace: true, state: { force: true } })
-              close()
+              if (selectedScenarioId) {
+                postTestrunMutate(selectedScenarioId)
+              }
             }}
           >
             Open

@@ -1,10 +1,8 @@
 
 import logging
 
-from scripts.monkey.format import MonkeyArgs, RemoconInfo
+from scripts.format import MonkeyArgs, MonkeyExternalInfo, RemoconInfo
 from scripts.monkey.monkey import Monkey, run_monkey
-from scripts.monkey.format import MonkeyExternalInfo
-
 
 logger = logging.getLogger('monkey_test')
 
