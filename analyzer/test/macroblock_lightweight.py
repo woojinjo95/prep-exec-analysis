@@ -5,6 +5,7 @@ saved_model_dir = r'G:\공유 드라이브\Macro-Block\models\lightweight\2022-0
 
 # Convert the model to the TensorFlow Lite format with quantization
 converter = tf.lite.TFLiteConverter.from_saved_model(saved_model_dir)
+converter.input_shapes = {"input_2": [45, 224, 224, 3]}
 converter.optimizations = [tf.lite.Optimize.DEFAULT]
 tflite_quant_model = converter.convert()
 
