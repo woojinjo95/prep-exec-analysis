@@ -1,18 +1,18 @@
 
 import logging
-from typing import List, Tuple
+from typing import List
 import time
 import threading
 
 import numpy as np
 
 from scripts.analysis.image import get_cropped_image
-from scripts.monkey.format import NodeInfo, MonkeyArgs
+from scripts.monkey.format import NodeInfo, MonkeyArgs, Cursor
 from scripts.monkey.monkey import Monkey, run_monkey
 from scripts.monkey.util import (check_cursor_is_same, check_shape_similar, 
                                  exec_keys_with_each_interval, get_current_image, head_to_parent_sibling,
                                  optimize_path, get_last_breadth_start_image,
-                                 get_cursor)
+                                 get_cursor, cursor_to_xywh)
 from scripts.external.image import get_skipped_images
 from scripts.external.image import save_section_cursor_image
 from scripts.util._timezone import get_utc_datetime
@@ -121,7 +121,7 @@ class IntelligentMonkeyTestSK:
             logger.info(f'cannot find root cursor. try_count: {try_count}')
             raise Exception('cannot find root cursor')
 
-    def check_leftmenu_opened(self, prev_image: np.ndarray, prev_cursor: Tuple, image: np.ndarray, cursor: Tuple) -> bool:
+    def check_leftmenu_opened(self, prev_image: np.ndarray, prev_cursor: Cursor, image: np.ndarray, cursor: Cursor) -> bool:
         if cursor is None:
             return False
         shape_similar = check_shape_similar(self.root_cursor, cursor, 10, 10)
@@ -146,7 +146,7 @@ class IntelligentMonkeyTestSK:
                 analysis_type=self.analysis_type,
                 section_id=self.section_id,
                 image_path=save_section_cursor_image(get_utc_datetime(time.time()).strftime('%y-%m-%d_%H:%M:%S.%f'), 
-                                                     get_cropped_image(node_info.image, node_info.cursor)),
+                                                     get_cropped_image(node_info.image, cursor_to_xywh(node_info.cursor))),
             ),
             root_when_start=False,
         )
@@ -156,16 +156,6 @@ class IntelligentMonkeyTestSK:
             self.stop()
 
         self.section_id += 1
-
-    ##### Skipped Image #####
-    def compare_skipped_with_cursor(self, image: np.ndarray) -> bool:
-        cursor = self.get_cursor(image)
-        for skipped_image in self.skipped_images:
-            skipped_cursor = self.get_cursor(skipped_image)
-            if check_cursor_is_same(image, cursor, skipped_image, skipped_cursor):
-                return True
-        else:
-            return False
 
     ##### Re-Defined Functions #####
     def exec_keys(self, keys: List[str]):
@@ -180,12 +170,11 @@ class IntelligentMonkeyTestSK:
         except Exception:
             return False
 
-    def get_cursor(self, image: np.ndarray=None) -> Tuple[int, int, int, int]:
+    def get_cursor(self, image: np.ndarray=None) -> Cursor:
         try:
             if image is None:
                 image = get_current_image()
-            cursor = get_cursor(self.profile, image)
-            return (cursor.x, cursor.y, cursor.w, cursor.h)
+            return get_cursor(self.profile, image)
         except Exception as err:
             logger.warning(f'get cursor error. {err}')
             return None

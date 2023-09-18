@@ -41,6 +41,10 @@ def exec_keys_with_each_interval(key_and_intervals: List[Tuple[str, float]], com
         exec_key(key, interval, company, type)
 
 
+def cursor_to_xywh(cursor: Cursor) -> Tuple[int, int, int, int]:
+    return cursor.x, cursor.y, cursor.w, cursor.h
+
+
 def get_cursor(company: str, image: np.ndarray) -> Cursor:
     try:
         if company == 'roku':
@@ -55,14 +59,14 @@ def get_cursor(company: str, image: np.ndarray) -> Cursor:
         raise Exception(f'get cursor error. {err}')
 
 
-def check_cursor_is_same(image1: np.ndarray, cursor1: Tuple, image2: np.ndarray, cursor2: Tuple, 
+def check_cursor_is_same(image1: np.ndarray, cursor1: Cursor, image2: np.ndarray, cursor2: Cursor, 
                         iou_thld: float=0.9, min_color_depth_diff: int=10, sim_thld: float=0.95) -> bool:
     if image1 is None or image2 is None or cursor1 is None or cursor2 is None:
         return False
     else:
         positional_similar = check_positional_similar(cursor1, cursor2, iou_thld)
-        temporal_similar = check_image_similar(get_cropped_image(image1, cursor1), 
-                                            get_cropped_image(image2, cursor2), 
+        temporal_similar = check_image_similar(get_cropped_image(image1, cursor_to_xywh(cursor1)), 
+                                            get_cropped_image(image2, cursor_to_xywh(cursor2)), 
                                             min_color_depth_diff, 
                                             sim_thld)
         same = positional_similar and temporal_similar
@@ -70,8 +74,8 @@ def check_cursor_is_same(image1: np.ndarray, cursor1: Tuple, image2: np.ndarray,
         return same
 
 
-def check_positional_similar(cursor1: Tuple, cursor2: Tuple, iou_thld: float=0.9) -> bool:
-    iou_rate = calc_iou(cursor1, cursor2)
+def check_positional_similar(cursor1: Cursor, cursor2: Cursor, iou_thld: float=0.9) -> bool:
+    iou_rate = calc_iou(cursor_to_xywh(cursor1), cursor_to_xywh(cursor2))
     return iou_rate > iou_thld
 
 
@@ -92,9 +96,9 @@ def check_image_similar_with_ssim(image1: np.ndarray, image2: np.ndarray, sim_th
     return sim_rate > sim_thld
 
 
-def check_shape_similar(cursor1: Tuple, cursor2: Tuple, max_width_diff: int=10, max_height_diff: int=10) -> bool:
-    width_diff = abs(cursor1[2] - cursor2[2])
-    height_diff = abs(cursor1[3] - cursor2[3])
+def check_shape_similar(cursor1: Cursor, cursor2: Cursor, max_width_diff: int=10, max_height_diff: int=10) -> bool:
+    width_diff = abs(cursor1.w - cursor2.w)
+    height_diff = abs(cursor1.h - cursor2.h)
     is_width_similar = width_diff < max_width_diff
     is_height_similar = height_diff < max_height_diff
     return True if is_width_similar and is_height_similar else False

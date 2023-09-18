@@ -1,12 +1,19 @@
 import numpy as np
-from typing import Tuple
 from dataclasses import dataclass, field
+
+
+@dataclass
+class Cursor:
+    x: int
+    y: int
+    w: int
+    h: int
 
 
 @dataclass
 class NodeInfo:
     image: field(default_factory=lambda: np.array([]), repr=False)
-    cursor: Tuple[int, int, int, int] = (0, 0, 0, 0)  # x,y,w,h
+    cursor: field(default_factory=lambda: Cursor(0, 0, 0, 0))
     is_leaf: bool = False
 
 
@@ -21,14 +28,6 @@ class MonkeyArgs:
 class RemoconInfo:
     remocon_name: str
     remote_control_type: str
-
-
-@dataclass
-class Cursor:
-    x: int
-    y: int
-    w: int
-    h: int
 
 
 # 외부에서 주입받아야 하는 정보

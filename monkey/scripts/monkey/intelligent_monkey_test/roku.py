@@ -1,17 +1,17 @@
 
 import logging
-from typing import List, Tuple
+from typing import List
 import time
 import threading
 
 import numpy as np
 
-from scripts.analysis.image import find_roku_cursor, get_cropped_image
-from scripts.monkey.format import MonkeyArgs, NodeInfo
+from scripts.analysis.image import get_cropped_image
+from scripts.monkey.format import MonkeyArgs, NodeInfo, Cursor
 from scripts.monkey.monkey import Monkey, run_monkey
-from scripts.monkey.util import (check_cursor_is_same, exec_keys,
+from scripts.monkey.util import (check_cursor_is_same, exec_keys, get_cursor,
                                  get_current_image, head_to_parent_sibling,
-                                 optimize_path)
+                                 optimize_path, cursor_to_xywh)
 from scripts.external.image import save_section_cursor_image
 from scripts.util._timezone import get_utc_datetime
 from scripts.monkey.format import MonkeyExternalInfo
@@ -99,10 +99,14 @@ class IntelligentMonkeyTestRoku:
         return leaf_node
 
     ##### Functions #####
-    def get_cursor(self, image: np.ndarray=None) -> Tuple:
-        if image is None:
-            image = get_current_image()
-        return find_roku_cursor(image)
+    def get_cursor(self, image: np.ndarray=None) -> Cursor:
+        try:
+            if image is None:
+                image = get_current_image()
+            return get_cursor(self.profile, image)
+        except Exception as err:
+            logger.warning(f'get cursor error. {err}')
+            return None
 
     def set_root_keyset(self, keys: List[str] = [], find_root_cursor_max_try: int=3):
         for try_count in range(find_root_cursor_max_try):
@@ -117,11 +121,11 @@ class IntelligentMonkeyTestRoku:
             logger.info(f'cannot find root cursor. try_count: {try_count}')
             raise Exception('cannot find root cursor')
         
-    def check_leftmenu_is_opened(self, prev_image: np.ndarray, prev_cursor: Tuple, image: np.ndarray, cursor: Tuple, max_height_diff: int=10) -> bool:
+    def check_leftmenu_is_opened(self, prev_image: np.ndarray, prev_cursor: Cursor, image: np.ndarray, cursor: Cursor, max_height_diff: int=10) -> bool:
         if cursor is None:
             return False
         else:
-            height_diff = abs(cursor[3] - self.root_cursor[3])
+            height_diff = abs(cursor.h - self.root_cursor.h)
             is_height_similar = height_diff < max_height_diff
 
             is_cursor_same = check_cursor_is_same(prev_image, prev_cursor, image, cursor)
@@ -131,13 +135,6 @@ class IntelligentMonkeyTestRoku:
     def append_key(self, key: str):
         self.keyset.append(key)
         self.keyset = optimize_path(self.keyset)
-
-    def get_cursor_image(self, image: np.ndarray=None, cursor: Tuple=None) -> np.ndarray:
-        if image is None:
-            image = get_current_image()
-        if cursor is None:
-            cursor = self.get_cursor(image)
-        return get_cropped_image(image, cursor)
 
     def get_last_breadth_start_image(self, node_histories: List[NodeInfo]):
         try:
@@ -163,7 +160,7 @@ class IntelligentMonkeyTestRoku:
                 analysis_type=self.analysis_type,
                 section_id=self.section_id,
                 image_path=save_section_cursor_image(get_utc_datetime(time.time()).strftime('%y-%m-%d_%H:%M:%S.%f'), 
-                                                     get_cropped_image(node_info.image, node_info.cursor)),
+                                                     get_cropped_image(node_info.image, cursor_to_xywh(node_info.cursor))),
             ),
             root_when_start=False,
         )
