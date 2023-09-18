@@ -258,7 +258,7 @@ services:
         - REQUIREMENTS=requirements_mb.txt
     environment:
       - PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
-      - TF_MODEL_URL=https://drive.google.com/file/d/19sfVFFK4_FtB8Q2gfCER7Q3CbJOxqyVQ/view?usp=sharing
+      - TF_MODEL_URL=https://drive.google.com/uc?id=19sfVFFK4_FtB8Q2gfCER7Q3CbJOxqyVQ
     volumes:
       - ./data/workspace:/app/workspace
 
