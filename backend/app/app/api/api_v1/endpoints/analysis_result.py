@@ -1,10 +1,10 @@
-import tarfile
 import io
 import json
 import logging
 import os
+import tarfile
 import traceback
-import zipfile
+import uuid
 from datetime import datetime
 from typing import Optional
 
@@ -814,7 +814,7 @@ async def export_result(
     try:
         now = datetime.today().strftime('%Y-%m-%dT%H%M%SF%f')
         export_type = {
-            'file': ['videos', 'frames', 'monkey'],  # TODO frames 필수
+            'file': ['videos', 'frames', 'monkey'],  # TODO
             'db': ['scenario', 'stb_log', 'stb_info', 'loudness', 'network_trace', 'terminal_log',
                    'monkey_smart_sense', 'monkey_section', 'an_color_reference', 'an_freeze',
                    'an_warm_boot', 'an_cold_boot', 'an_log_pattern']
@@ -857,6 +857,7 @@ async def export_result(
 @router.post("/import", response_model=schemas.Msg)
 async def import_result(file: UploadFile = File(...)) -> schemas.Msg:
     try:
+        scenario_id = str(uuid.uuid4())
         tar_gz_data = await file.read()
         with tarfile.open(fileobj=io.BytesIO(tar_gz_data), mode="r:gz") as tarf:
             for tar_info in tarf:
@@ -877,11 +878,13 @@ async def import_result(file: UploadFile = File(...)) -> schemas.Msg:
 
                     if file_type == 'db':
                         collection_name = os.path.dirname(f'{file_path}/{file_name}')
-                        data = deserialize_datetime(jsonable_encoder(
-                            convert_data_in(collection_name, json.loads(file_data.decode("utf-8")))))
+                        data = deserialize_datetime(convert_data_in(
+                            scenario_id, collection_name, json.loads(file_data.decode("utf-8"))))
                         # data = deserialize_datetime(json.loads(file_data.decode("utf-8")))
                         insert_one_to_mongodb(col=collection_name, data=data)
     except Exception as e:
         logger.error(traceback.format_exc())
-        raise HTTPException(status_code=500, detail=traceback.format_exc())
+        # raise HTTPException(status_code=500, detail=traceback.format_exc())
+    finally:
+        pass
     return {'msg': f"Data from {file.filename} uploaded and restored to corresponding collections"}

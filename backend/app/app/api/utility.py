@@ -1,9 +1,10 @@
-from dateutil.parser import isoparse
 import datetime as dt
 import json
+import logging
 import math
 import os
 import time
+import traceback
 from ast import literal_eval
 from datetime import datetime
 
@@ -12,7 +13,12 @@ from app.core.config import settings
 from app.crud.base import (aggregate_from_mongodb, load_from_mongodb,
                            load_paginate_from_mongodb)
 from app.db.redis_session import RedisClient
+from dateutil.parser import isoparse
+from fastapi import APIRouter, HTTPException
+from fastapi.encoders import jsonable_encoder
 
+logger = logging.getLogger(__name__)
+router = APIRouter()
 analysis_collection = {
     "log_level_finder": "stb_log",
     "freeze": "an_freeze",
@@ -182,18 +188,161 @@ def get_config_from_scenario_mongodb(scenario_id: str, testrun_id: str):
     return res[0] if len(res) > 0 else {}
 
 
-def convert_data_in(collection_name, document):
-    if collection_name == 'scenario':
-        data = schemas.ImportScenario(
-            id=document['id'],  # TODO 변경여부 확인
-            updated_at=document['updated_at'],
-            is_active=document['is_active'],
-            name=f"{document['name']}_{datetime.today().strftime('%Y-%m-%dT%H%M%SF%f')}",
-            tags=document['tags'],
-            block_group=document['block_group'],
-            testruns=document['testruns'],
-        )
-    return data
+def convert_data_in(scenario_id, collection_name, document):
+    data = {}
+    try:
+        if collection_name == 'scenario':
+            data = schemas.ImportScenario(
+                id=scenario_id,
+                updated_at=document.get('updated_at', None),
+                is_active=document.get('is_active', None),
+                name=f"{document.get('name')}_{datetime.today().strftime('%Y-%m-%dT%H%M%SF%f')}",
+                tags=document.get('tags', None),
+                block_group=document.get('block_group', None),
+                testruns=document.get('testruns', None),
+            )
+        elif collection_name == 'event_log':
+            data = schemas.ImportEventLog(
+                timestamp=document.get('timestamp', None),
+                scenario_id=scenario_id,
+                testrun_id=document.get('testrun_id', None),
+                lines=document.get('lines', None),
+            )
+        elif collection_name == 'loudness':
+            data = schemas.ImportLoudness(
+                timestamp=document.get('timestamp', None),
+                scenario_id=scenario_id,
+                testrun_id=document.get('testrun_id', None),
+                lines=document.get('lines', None),
+            )
+        elif collection_name == 'monkey_section':
+            data = schemas.ImportMonkeySection(
+                scenario_id=scenario_id,
+                testrun_id=document.get('testrun_id', None),
+                timestamp=document.get('timestamp', None),
+                start_timestamp=document.get('start_timestamp', None),
+                end_timestamp=document.get('end_timestamp', None),
+                analysis_type=document.get('analysis_type', None),
+                section_id=document.get('section_id', None),
+                image_path=document.get('image_path', None),
+                smart_sense_times=document.get('smart_sense_times', None),
+                user_config=document.get('user_config', None),
+            )
+        elif collection_name == 'monkey_smart_sense':
+            data = schemas.ImportMonkeySmartSense(
+                timestamp=document.get('timestamp', None),
+                scenario_id=scenario_id,
+                testrun_id=document.get('testrun_id', None),  # timestamp 확인
+                analysis_type=document.get('analysis_type', None),
+                section_id=document.get('section_id', None),
+                smart_sense_key=document.get('smart_sense_key', None),
+                user_config=document.get('user_config', None),
+            )
+        elif collection_name == 'network_trace':
+            data = schemas.ImportNetworkTrace(
+                timestamp=document.get('timestamp', None),
+                scenario_id=scenario_id,
+                testrun_id=document.get('testrun_id', None),
+                lines=document.get('lines', None),
+            )
+        elif collection_name == 'shell_log':
+            data = schemas.ImportShellLog(
+                timestamp=document.get('timestamp', None),
+                scenario_id=scenario_id,
+                testrun_id=document.get('testrun_id', None),
+                mode=document.get('mode', None),
+                lines=document.get('lines', None),
+            )
+        elif collection_name == 'stb_info':
+            data = schemas.ImportStbInfo(
+                timestamp=document.get('timestamp', None),
+                scenario_id=scenario_id,
+                testrun_id=document.get('testrun_id', None),
+                cpu_usage=document.get('cpu_usage', None),
+                total=document.get('total', None),
+                user=document.get('user', None),
+                kernel=document.get('kernel', None),
+                iowait=document.get('iowait', None),
+                irq=document.get('irq', None),
+                softirq=document.get('softirq', None),
+                memory_usage=document.get('memory_usage', None),
+                total_ram=document.get('total_ram', None),
+                free_ram=document.get('free_ram', None),
+                used_ram=document.get('used_ram', None),
+                lost_ram=document.get('lost_ram', None),
+            )
+        elif collection_name == 'stb_log':
+            data = schemas.ImportStbLog(
+                timestamp=document.get('timestamp', None),
+                scenario_id=scenario_id,
+                testrun_id=document.get('testrun_id', None),
+                lines=document.get('lines', None),
+            )
+        elif collection_name == 'video_snapshot':
+            data = schemas.ImportVideoSnapshot(
+                timestamp=document.get('timestamp', None),
+                scenario_id=scenario_id,
+                testrun_id=document.get('testrun_id', None),
+                video_path=document.get('video_path', None),
+                path=document.get('path', None),
+                extension=document.get('extension', None),
+                names=document.get('names', None),
+            )
+        elif collection_name == 'an_cold_boot':
+            data = schemas.ImportAnColdBoot(
+                timestamp=document.get('timestamp', None),
+                scenario_id=scenario_id,
+                testrun_id=document.get('testrun_id', None),
+                measure_time=document.get('measure_time', None),
+                user_config=document.get('user_config', None),
+            )
+        elif collection_name == 'an_color_reference':
+            data = schemas.ImportAnColorReference(
+                timestamp=document.get('timestamp', None),
+                scenario_id=scenario_id,
+                testrun_id=document.get('testrun_id', None),
+                color_reference=document.get('color_reference', None),
+                user_config=document.get('user_config', None),
+            )
+        elif collection_name == 'an_freeze':
+            data = schemas.ImportAnFreeze(
+                timestamp=document.get('timestamp', None),
+                scenario_id=scenario_id,
+                testrun_id=document.get('testrun_id', None),
+                freeze_type=document.get('freeze_type', None),
+                duration=document.get('duration', None),
+                user_config=document.get('user_config', None),
+            )
+        elif collection_name == 'an_log_pattern':
+            data = schemas.ImportAnLogPattern(
+                timestamp=document.get('timestamp', None),
+                scenario_id=scenario_id,
+                testrun_id=document.get('testrun_id', None),
+                module=document.get('module', None),
+                log_level=document.get('log_level', None),
+                process_name=document.get('process_name', None),
+                pid=document.get('pid', None),
+                tid=document.get('tid', None),
+                message=document.get('message', None),
+                matched_target=document.get('matched_target', None),
+                user_config=document.get('user_config', None),
+            )
+        elif collection_name == 'an_warm_boot':
+            data = schemas.ImportAnWarmBoot(
+                timestamp=document.get('timestamp', None),
+                scenario_id=scenario_id,
+                testrun_id=document.get('testrun_id', None),
+                measure_time=document.get('measure_time', None),
+                user_config=document.get('user_config', None),
+            )
+        else:
+            raise HTTPException(status_code=404, detail='This is undefined collection_name')
+    except Exception as e:
+        logging.info(traceback.format_exc())
+        # raise HTTPException(status_code=422, detail=traceback.format_exc())
+    finally:
+        pass
+    return jsonable_encoder(data)
 
 
 def make_basic_match_pipeline(scenario_id: str = None, testrun_id: str = None, start_time: str = None, end_time: str = None):

@@ -122,5 +122,6 @@ class ExportItemEnum(ExtendedEnum):
     an_cold_boot = "an_cold_boot"
     an_log_pattern = "an_log_pattern"
     videos = "videos"
+    video_snapshot = "video_snapshot"
     frames = "frames"
     monkey = "monkey"
