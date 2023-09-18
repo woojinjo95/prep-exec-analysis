@@ -477,7 +477,7 @@ const NetworkEmulation: React.FC = () => {
 
       <div className="pb-1 px-1">
         <div>
-          <Text weight="medium">Packet Contorl (Inbound)</Text>
+          <Text weight="medium">Packet Control (Inbound)</Text>
         </div>
 
         <div className="pt-2 flex justify-between">

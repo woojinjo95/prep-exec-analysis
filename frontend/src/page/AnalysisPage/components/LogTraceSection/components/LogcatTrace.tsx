@@ -34,10 +34,10 @@ const LogcatTrace: React.FC = () => {
           Process
         </Text>
         <Text size="sm" colorScheme="grey">
-          Pid
+          PID
         </Text>
         <Text size="sm" colorScheme="grey">
-          Tid
+          TID
         </Text>
         <Text size="sm" colorScheme="grey">
           Message
