@@ -44,9 +44,12 @@ class TensorflowModel:
     def load_model(self, model_path: str) -> tf.lite.Interpreter:
         interpreter = tf.lite.Interpreter(model_path=model_path)
         interpreter.allocate_tensors()
+        input_details = interpreter.get_input_details()
+        interpreter.resize_tensor_input(input_details[0]['index'], (45, 224, 224, 3))
+        interpreter.allocate_tensors()
         return interpreter
 
-    def predict_with_batch(self, batch) -> np.ndarray:
+    def predict_with_batch(self, batch: np.ndarray) -> np.ndarray:
         # Get input and output details
         input_details = self.model.get_input_details()
         output_details = self.model.get_output_details()
@@ -92,4 +95,5 @@ class MacroblockModel(TensorflowModel):
 
     def predict_with_preprocess(self, batch):
         batch = np.array([self.preprocess(patch) for patch in batch])
+        logger.info(f'batch shape: {batch.shape}')
         return self.predict(batch)
