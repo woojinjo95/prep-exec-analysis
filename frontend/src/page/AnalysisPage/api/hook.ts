@@ -96,12 +96,11 @@ type AnalysisResponseMessageBody = {
 export const useLogLevelFinders = (params: Parameters<typeof getLogLevelFinders>[0]) => {
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
-  const { videoSummary } = useVideoSummary()
   const { data, isLoading, refetch } = useQuery(
     ['log_level_finder', params],
     () => getLogLevelFinders({ ...params, scenario_id: scenarioId!, testrun_id: testRunId! }),
     {
-      enabled: !!videoSummary && !!scenarioId && !!testRunId,
+      enabled: !!scenarioId && !!testRunId,
     },
   )
 
