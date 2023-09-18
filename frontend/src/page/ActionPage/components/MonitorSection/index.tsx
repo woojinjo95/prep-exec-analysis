@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { AppURL } from '@global/constant'
 import { Text } from '@global/ui'
 import { useRecoilValue } from 'recoil'
-import { isBlockRecordModeState, scenarioIdState } from '@global/atom'
+import { isBlockRecordModeState, scenarioIdState, testRunIdState } from '@global/atom'
 import { useScenarioById, useServiceState } from '@global/api/hook'
 import { useWebsocket } from '@global/hook'
 import { ReactComponent as AnalysisIcon } from '@assets/images/icon_analysis.svg'
@@ -39,7 +39,9 @@ const MonitorSection: React.FC = () => {
 
   const scenarioId = useRecoilValue(scenarioIdState)
 
-  const { scenario } = useScenarioById({ scenarioId })
+  const testrunId = useRecoilValue(testRunIdState)
+
+  const { scenario } = useScenarioById({ scenarioId, testrunId })
 
   const [isSaveBlocksModalOpen, setIsSaveBlocksModalOpen] = useState<boolean>(false)
 
