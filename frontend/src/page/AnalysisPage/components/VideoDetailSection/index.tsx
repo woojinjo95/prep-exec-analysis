@@ -61,8 +61,6 @@ const VideoDetailSection: React.FC = () => {
     videoRef.current.load()
   }, [])
 
-  console.log('isVideoLoaded: ', isVideoLoaded, duration)
-
   const { sendMessage } = useWebsocket()
 
   return (
