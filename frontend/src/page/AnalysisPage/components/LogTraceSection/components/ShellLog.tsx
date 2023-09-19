@@ -1,6 +1,6 @@
 import React from 'react'
 import { useRecoilValue } from 'recoil'
-import Scrollbars from 'react-custom-scrollbars-2'
+import ScrollComponent from '@global/ui/ScrollComponent'
 import { cursorDateTimeState } from '@global/atom'
 import { Skeleton, Text } from '@global/ui'
 import { formatDateTo } from '@global/usecase'
@@ -38,9 +38,7 @@ const ShellLog: React.FC<ShellLogProps> = ({ shell_mode }) => {
         </Text>
       </div>
 
-      <Scrollbars
-        renderThumbVertical={({ ...props }) => <div {...props} className="bg-light-charcoal w-2 rounded-[5px]" />}
-      >
+      <ScrollComponent>
         <div className="flex flex-col w-full mt-1">
           {shellLogs.map(({ timestamp, module, message }, index) => (
             <div
@@ -66,7 +64,7 @@ const ShellLog: React.FC<ShellLogProps> = ({ shell_mode }) => {
         >
           <LoadingIcon className="fill-grey w-5 h-5 animate-spin" />
         </div>
-      </Scrollbars>
+      </ScrollComponent>
     </div>
   )
 }
