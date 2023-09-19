@@ -26,10 +26,10 @@ const Tag: React.FC<TagProps> = ({ tag, onDelete, colorScheme }) => {
       </Text>
       {onDelete && (
         <XIcon
-          className="w-[9px] h-[9px] ml-3 fill-white hover:bg-grey"
+          className="w-[9px] h-[9px] ml-3 fill-white"
           onClick={(e) => {
             e.stopPropagation()
-            onDelete?.()
+            onDelete()
           }}
         />
       )}
