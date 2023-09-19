@@ -438,7 +438,7 @@ const ActionBlockArea = (): JSX.Element => {
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
-                                className={cx('w-full cursor-grab ', {})}
+                                className={cx('w-full cursor-grab', {})}
                               >
                                 {dummy.map((block) => {
                                   return (
@@ -449,7 +449,6 @@ const ActionBlockArea = (): JSX.Element => {
                                       }}
                                     >
                                       <ActionBlockItem
-                                        actionStatus="normal"
                                         block={block}
                                         selectedBlockIds={selectedBlockIds}
                                         handleBlockClick={handleBlockClick}
@@ -497,7 +496,7 @@ const ActionBlockArea = (): JSX.Element => {
           />
         )}
       </div>
-      {modifyingBlockId && <div className="absolute top-0 left-0 h-full z-10 w-full bg-gray-100 opacity-50" />}
+      {modifyingBlockId && <div className="absolute top-0 left-0 h-full z-20 w-full bg-gray-100 opacity-50" />}
     </div>
   )
 }
