@@ -53,7 +53,7 @@ const FreezeChart: React.FC<FreezeChartProps> = ({ scaleX, startTime, endTime, d
       {!!posX && (
         <div
           ref={wrapperRef}
-          className="absolute top-0 h-full w-1 bg-white opacity-30 z-[5]"
+          className="absolute top-0 h-[calc(100%-1px)] w-1 bg-white/30 z-[5]"
           style={{
             transform: `translateX(${posX - 2}px)`,
           }}
@@ -70,6 +70,20 @@ const FreezeChart: React.FC<FreezeChartProps> = ({ scaleX, startTime, endTime, d
             </TimelineTooltip>
           )}
         </div>
+      )}
+
+      {/* 툴팁 데이터 위치를 표시하는 엘리먼트 */}
+      {!!tooltipData && !!scaleX && (
+        <div
+          className="absolute top-0 h-[calc(100%-1px)] bg-white/50 z-[5]"
+          style={{
+            transform: `translateX(${scaleX(new Date(tooltipData.datetime)) - 1}px)`,
+            width: Math.max(
+              scaleX(new Date(tooltipData.datetime + tooltipData.duration)) - scaleX(new Date(tooltipData.datetime)),
+              2,
+            ),
+          }}
+        />
       )}
 
       <div className="w-full relative border-b border-[#37383E]">

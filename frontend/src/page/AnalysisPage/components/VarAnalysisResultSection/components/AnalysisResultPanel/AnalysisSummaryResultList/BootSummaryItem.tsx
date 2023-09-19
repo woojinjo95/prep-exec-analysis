@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useRecoilState } from 'recoil'
 import { Accordion, Text, SimpleButton } from '@global/ui'
 import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.svg'
@@ -20,6 +20,10 @@ interface BootSummaryItemProps {
  */
 const BootSummaryItem: React.FC<BootSummaryItemProps> = ({ boot, setRawDataModalType }) => {
   const [bootTypeFilterList, setBootTypeFilterList] = useRecoilState(bootTypeFilterListState)
+
+  useEffect(() => {
+    setBootTypeFilterList([])
+  }, [])
 
   return (
     <Accordion

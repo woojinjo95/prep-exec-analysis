@@ -66,7 +66,7 @@ const LogPatternMatchingChart: React.FC<LogPatternMatchingChartProps> = ({
       {!!posX && (
         <div
           ref={wrapperRef}
-          className="absolute top-0 h-full w-1 bg-white opacity-30 z-[5]"
+          className="absolute top-0 h-full w-1 bg-white/30 z-[5]"
           style={{
             transform: `translateX(${posX - 2}px)`,
           }}
@@ -106,6 +106,16 @@ const LogPatternMatchingChart: React.FC<LogPatternMatchingChartProps> = ({
             </TimelineTooltip>
           )}
         </div>
+      )}
+
+      {/* 툴팁 데이터 위치를 표시하는 엘리먼트 */}
+      {!!tooltipData && !!scaleX && (
+        <div
+          className="absolute top-0 w-0.5 h-[calc(100%-1px)] bg-white/50 z-[5]"
+          style={{
+            transform: `translateX(${scaleX(new Date(tooltipData.datetime)) - 1}px)`,
+          }}
+        />
       )}
 
       <div className="w-full relative border-b border-[#37383E]">
