@@ -1,7 +1,7 @@
 import { ScenarioSummary } from '@global/api/entity'
 import { deleteScenario, postTestrun } from '@global/api/func'
 import { scenarioIdState, testRunIdState } from '@global/atom'
-import { Accordion, Button, DropdownWithMoreButton, OptionItem, Text } from '@global/ui'
+import { Accordion, Button, DropdownWithMoreButton, OptionItem, Tag, Text } from '@global/ui'
 import { formatDateTo } from '@global/usecase'
 import { AxiosError } from 'axios'
 import React, { useState } from 'react'
@@ -66,14 +66,7 @@ const ScenarioItem: React.FC<ScenarioItemProps> = ({ scenarioSummary, scenariosR
             </Text>
             <div className="flex flex-wrap w-full">
               {scenarioSummary.tags.map((tag) => (
-                <Text
-                  className="text-white mr-2 h-full"
-                  invertBackground
-                  colorScheme="dark-grey"
-                  key={`${scenarioSummary.name}_tag_${tag}`}
-                >
-                  {tag}
-                </Text>
+                <Tag key={`${scenarioSummary.name}_tag_${tag}`} colorScheme="dark" tag={tag} />
               ))}
             </div>
             {/* <Text>{scenario.has_block ? 'true' : 'false'}</Text> */}

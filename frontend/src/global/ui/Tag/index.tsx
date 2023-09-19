@@ -12,7 +12,7 @@ interface TagProps {
 const Tag: React.FC<TagProps> = ({ tag, onDelete, colorScheme }) => {
   return (
     <div
-      className={cx('flex justify-between items-center border rounded-[4px] px-2 py-1 mr-2', {
+      className={cx('flex justify-between items-center border rounded-[4px] px-2 py-1 mr-1', {
         'bg-white': colorScheme === 'light',
         'border-light-grey': colorScheme === 'light',
         'bg-light-charcoal': colorScheme === 'charcoal',

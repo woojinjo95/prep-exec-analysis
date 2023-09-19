@@ -330,16 +330,9 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
                     </Text>
                   </div>
 
-                  <div className="flex flex-wrap w-full h-full pt-[10px] items-center">
+                  <div className="flex flex-wrap w-full h-full items-center">
                     {scenario.tags.map((tag) => (
-                      <Text
-                        className="text-white mr-2 mb-2"
-                        invertBackground
-                        colorScheme="dark-grey"
-                        key={`${scenario.name}_tag_${tag}`}
-                      >
-                        {tag}
-                      </Text>
+                      <Tag key={`${scenario.name}_tag_${tag}`} tag={tag} colorScheme="dark" />
                     ))}
                   </div>
                   <Text size="md" colorScheme="light">
