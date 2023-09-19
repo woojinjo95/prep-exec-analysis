@@ -817,7 +817,7 @@ async def export_result(
             'file': ['videos', 'frames', 'monkey'],  # TODO
             'db': ['scenario', 'stb_log', 'stb_info', 'loudness', 'network_trace', 'terminal_log',
                    'monkey_smart_sense', 'monkey_section', 'an_color_reference', 'an_freeze',
-                   'an_warm_boot', 'an_cold_boot', 'an_log_pattern']
+                   'an_warm_boot', 'an_cold_boot', 'an_log_pattern', 'video_snapshot']
         }
         export_item = {key: [item for item in jsonable_encoder(export_in.items) if item in values]
                        for key, values in export_type.items()}
