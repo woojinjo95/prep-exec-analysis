@@ -3,7 +3,6 @@ import traceback
 
 from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.redis import get_monkey_test_arguments
-from scripts.external.scenario import update_history
 from scripts.format import MonkeyArgs, RemoconInfo
 from scripts.monkey.intelligent_monkey_test.roku import \
     IntelligentMonkeyTestRoku
@@ -71,7 +70,6 @@ def test_monkey():
             raise NotImplementedError(f"invalid analysis_type: {analysis_type}")
 
         publish_msg({'measurement': analysis_type}, 'monkey_response')
-        update_history(analysis_type)
 
     except Exception as err:
         error_detail = traceback.format_exc()
