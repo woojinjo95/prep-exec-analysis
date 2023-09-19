@@ -5,6 +5,7 @@ import { Skeleton, Text } from '@global/ui'
 import { formatDateTo } from '@global/usecase'
 import { cursorDateTimeState } from '@global/atom'
 import { LogLevelColor } from '@global/constant'
+import { ReactComponent as LoadingIcon } from '@assets/images/loading.svg'
 import { useInfiniteLogcat } from '../api/hook'
 
 /**
@@ -91,8 +92,7 @@ const LogcatTrace: React.FC = () => {
           className="p-2 flex items-center justify-center w-full"
           style={{ display: !hasNextPage ? 'none' : '' }}
         >
-          {/* TODO: Loading spin 같은 로딩 UI가 필요 */}
-          Loading...
+          <LoadingIcon className="fill-grey w-5 h-5 animate-spin" />
         </div>
       </Scrollbars>
     </div>

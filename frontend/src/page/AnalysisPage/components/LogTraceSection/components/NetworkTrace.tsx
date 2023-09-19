@@ -4,6 +4,7 @@ import { Skeleton, Text } from '@global/ui'
 import { Scrollbars } from 'react-custom-scrollbars-2'
 import { formatDateTo } from '@global/usecase'
 import { cursorDateTimeState } from '@global/atom'
+import { ReactComponent as LoadingIcon } from '@assets/images/loading.svg'
 import { useInfiniteNetwork } from '../api/hook'
 
 /**
@@ -75,8 +76,7 @@ const NetworkTrace: React.FC = () => {
           className="p-2 flex items-center justify-center w-full"
           style={{ display: !hasNextPage ? 'none' : '' }}
         >
-          {/* TODO: Loading spin 같은 로딩 UI가 필요 */}
-          Loading...
+          <LoadingIcon className="fill-grey w-5 h-5 animate-spin" />
         </div>
       </Scrollbars>
       {/* <Button className="absolute top-0 right-6 border-none bg-black">

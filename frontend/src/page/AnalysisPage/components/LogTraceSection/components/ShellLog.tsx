@@ -1,9 +1,10 @@
 import React from 'react'
 import { useRecoilValue } from 'recoil'
+import Scrollbars from 'react-custom-scrollbars-2'
 import { cursorDateTimeState } from '@global/atom'
 import { Skeleton, Text } from '@global/ui'
-import Scrollbars from 'react-custom-scrollbars-2'
 import { formatDateTo } from '@global/usecase'
+import { ReactComponent as LoadingIcon } from '@assets/images/loading.svg'
 import { Shell } from '../api/entity'
 import { useInfiniteShellLogs } from '../api/hook'
 
@@ -63,8 +64,7 @@ const ShellLog: React.FC<ShellLogProps> = ({ shell_mode }) => {
           className="p-2 flex items-center justify-center w-full"
           style={{ display: !hasNextPage ? 'none' : '' }}
         >
-          {/* TODO: Loading spin 같은 로딩 UI가 필요 */}
-          Loading...
+          <LoadingIcon className="fill-grey w-5 h-5 animate-spin" />
         </div>
       </Scrollbars>
     </div>
