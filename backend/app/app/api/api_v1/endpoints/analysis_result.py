@@ -30,7 +30,6 @@ def get_data_of_log_level_finder(
     end_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
-    log_level: Optional[str] = Query(None, description='ex)V,D,I,W,E,F,S'),
     page_size: Optional[int] = 10,
     page: Optional[int] = None,
     sort_by: Optional[str] = 'timestamp',
@@ -48,13 +47,12 @@ def get_data_of_log_level_finder(
                                                               start_time=start_time,
                                                               end_time=end_time)
 
-        if log_level is None:
-            config = get_config_from_scenario_mongodb(scenario_id=scenario_id,
-                                                      testrun_id=testrun_id,
-                                                      target='log_level_finder')
-            log_level = config.get('config', {}).get('targets', [])
-        else:
-            log_level = log_level.split(',')
+        config = get_config_from_scenario_mongodb(scenario_id=scenario_id,
+                                                  testrun_id=testrun_id,
+                                                  target='log_level_finder')
+        if config is None:
+            raise HTTPException(status_code=404, detail='Not Found log_level_finder Configurataion')
+        log_level = config.get('config', {}).get('targets', [])
 
         additional_pipeline = [
             {'$project': {'_id': 0, 'lines.timestamp': 1, 'lines.log_level': 1}},
@@ -143,7 +141,7 @@ def get_data_of_memory(
                                                     end_time=end_time)
 
         additional_pipeline = [
-            {'$project': {'_id': 0, 
+            {'$project': {'_id': 0,
                           'timestamp': {'$dateToString': {'date': '$timestamp'}},
                           'memory_usage': 1,
                           'total_ram': 1, 'free_ram': 1,
@@ -230,9 +228,9 @@ def get_data_of_color_reference(
             raise HTTPException(status_code=400, detail='Need at least one time parameter')
 
         color_reference_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
-                                                       testrun_id=testrun_id,
-                                                       start_time=start_time,
-                                                       end_time=end_time)
+                                                             testrun_id=testrun_id,
+                                                             start_time=start_time,
+                                                             end_time=end_time)
 
         color_reference_pipeline = [
             {'$project': {'_id': 0,
@@ -323,7 +321,7 @@ def get_data_of_loudness(
                                                       testrun_id=testrun_id,
                                                       start_time=start_time,
                                                       end_time=end_time)
-        
+
         additional_pipeline = [
             {'$project': {'_id': 0, 'lines': 1}},
             {'$unwind': {'path': '$lines'}},
@@ -373,7 +371,7 @@ def get_data_of_resume(
                                                   target='resume')
         type = config.get('type', '')
         frame = config.get('frame', {})
-        
+
         additional_pipeline = [
             {'$match': {'user_config.type': type, 'user_config.frame': frame}},
             {'$project': {'_id': 0,
