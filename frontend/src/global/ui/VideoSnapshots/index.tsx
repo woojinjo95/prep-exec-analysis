@@ -1,9 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import * as d3 from 'd3'
-import { VIDEO_SNAPSHOT_HEIGHT } from '@global/ui/VideoSnapshots/constant'
-import { AppURL } from '@global/constant'
+import { AppURL, VIDEO_SNAPSHOT_HEIGHT } from '@global/constant'
 import { useVideoSnapshots } from './api/hook'
-import { Skeleton } from '..'
 
 interface VideoSnapshotsProps {
   startTime: Date | null
@@ -11,6 +9,7 @@ interface VideoSnapshotsProps {
   tickCount?: number
   scaleX?: d3.ScaleTime<number, number, never> | null
   isVisible?: boolean
+  loadingComponent: React.ReactNode
 }
 
 /**
@@ -24,6 +23,7 @@ const VideoSnapshots: React.FC<VideoSnapshotsProps> = ({
   tickCount = 10,
   scaleX,
   isVisible = true,
+  loadingComponent,
 }) => {
   const [clientWidth, setClientWidth] = useState<number | null>(null)
   const { videoSnapshots, isLoading } = useVideoSnapshots()
@@ -66,15 +66,7 @@ const VideoSnapshots: React.FC<VideoSnapshotsProps> = ({
   }, [snapshotScaleX, videoSnapshots, firstSnapshotIndex])
 
   if (!isVisible) return null
-  if (isLoading) {
-    return (
-      <Skeleton
-        className="w-full"
-        style={{ height: VIDEO_SNAPSHOT_HEIGHT }}
-        colorScheme={scaleX ? 'dark' : 'charcoal'}
-      />
-    )
-  }
+  if (isLoading) return loadingComponent
   return (
     <div
       ref={(ref) => {

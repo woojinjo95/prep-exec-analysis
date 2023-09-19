@@ -33,6 +33,11 @@ export const PAGE_SIZE_TEN = 10
 export const CHART_HEIGHT = 64
 
 /**
+ * 비디오 스냅샷 높이
+ */
+export const VIDEO_SNAPSHOT_HEIGHT = 64
+
+/**
  * 월 영어 이름
  */
 export const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
