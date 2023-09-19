@@ -8,7 +8,6 @@ from typing import Dict
 from .configs.config import get_value
 from .configs.constant import RedisDBEnum
 from .connection.mongo_db.create import insert_to_mongodb
-from .connection.mongo_db.update import update_loundess_to_scenario
 from .utils._multi_process import ProcessMaintainer
 from .utils._timezone import get_utc_datetime
 from .utils._exceptions import handle_errors, handle_none_return
@@ -55,13 +54,11 @@ class InsertLoudnessToDB:
 
     def consume(self, stop_event: Event, run_state_event: Event):
         document = None
-        loudness_stream = False
 
         while not stop_event.is_set():
             try:
                 log = self.log_queue.get(timeout=1)
                 log_time = get_utc_datetime(log.get('time', time.time()))
-                loudness_stream = True
 
                 if document is None:
                     # document가 없음
@@ -80,15 +77,6 @@ class InsertLoudnessToDB:
                     # logger.debug(f'Timeout for 1 second and update to mongodb')
                     insert_to_mongodb('loudness', document)
                     document = None
-
-                if loudness_stream:
-                    logger.info('Timeout for update last loudness time. update to current active sceanrio info')
-                    loudness_info = {'type': 'loudness', 'timestamp': log_time}
-                    testrun_info = get_testrun_info()
-                    scenario_id = testrun_info['scenario_id']
-                    testrun_id = testrun_info['testrun_id']
-                    update_loundess_to_scenario('scenario', scenario_id, testrun_id, loudness_info)
-                    loudness_stream = False
 
             except Exception as e:
                 logger.error(f'Comsumeing log to upload mongodb failed: {e}')

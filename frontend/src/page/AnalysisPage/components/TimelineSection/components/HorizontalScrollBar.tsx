@@ -1,10 +1,6 @@
 import React, { useCallback, useState } from 'react'
 import cx from 'classnames'
-
-/**
- * 스크롤바 높이 사이즈
- */
-const SCROLL_BAR_HEIGHT = 12
+import { SCROLL_BAR_HEIGHT } from '../constant'
 
 interface HorizontalScrollBarProps {
   scrollBarTwoPosX: [number, number] | null

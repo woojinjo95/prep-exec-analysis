@@ -3,6 +3,7 @@ import * as d3 from 'd3'
 import { VIDEO_SNAPSHOT_HEIGHT } from '@global/ui/VideoSnapshots/constant'
 import { AppURL } from '@global/constant'
 import { useVideoSnapshots } from './api/hook'
+import { Skeleton } from '..'
 
 interface VideoSnapshotsProps {
   startTime: Date | null
@@ -25,7 +26,7 @@ const VideoSnapshots: React.FC<VideoSnapshotsProps> = ({
   isVisible = true,
 }) => {
   const [clientWidth, setClientWidth] = useState<number | null>(null)
-  const { videoSnapshots } = useVideoSnapshots()
+  const { videoSnapshots, isLoading } = useVideoSnapshots()
 
   const snapshotScaleX: d3.ScaleLinear<number, number, never> | null = useMemo(() => {
     if (!videoSnapshots || !clientWidth || !startTime || !endTime) return null
@@ -65,6 +66,15 @@ const VideoSnapshots: React.FC<VideoSnapshotsProps> = ({
   }, [snapshotScaleX, videoSnapshots, firstSnapshotIndex])
 
   if (!isVisible) return null
+  if (isLoading) {
+    return (
+      <Skeleton
+        className="w-full"
+        style={{ height: VIDEO_SNAPSHOT_HEIGHT }}
+        colorScheme={scaleX ? 'dark' : 'charcoal'}
+      />
+    )
+  }
   return (
     <div
       ref={(ref) => {

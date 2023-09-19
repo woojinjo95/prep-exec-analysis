@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useRecoilState } from 'recoil'
 import { Accordion, SimpleButton, Text } from '@global/ui'
 import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.svg'
@@ -24,6 +24,10 @@ const LogPatternMatchingSummaryItem: React.FC<LogPatternMatchingSummaryItemProps
   const [logPatternMatchingNameFilterList, setLogPatternMatchingNameFilterList] = useRecoilState(
     logPatternMatchingNameFilterListState,
   )
+
+  useEffect(() => {
+    setLogPatternMatchingNameFilterList([])
+  }, [])
 
   return (
     <Accordion

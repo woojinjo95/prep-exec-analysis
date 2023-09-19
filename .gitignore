@@ -20,3 +20,4 @@ total.log.*
 
 # analyzer
 analyzer/test/images/
+*.tflite
