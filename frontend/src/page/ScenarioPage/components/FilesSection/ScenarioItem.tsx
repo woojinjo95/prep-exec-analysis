@@ -1,7 +1,7 @@
 import { ScenarioSummary } from '@global/api/entity'
 import { deleteScenario, postTestrun } from '@global/api/func'
 import { scenarioIdState, testRunIdState } from '@global/atom'
-import { Accordion, DropdownWithMoreButton, OptionItem, Text } from '@global/ui'
+import { Accordion, Button, DropdownWithMoreButton, OptionItem, Text } from '@global/ui'
 import { formatDateTo } from '@global/usecase'
 import { AxiosError } from 'axios'
 import React, { useState } from 'react'
@@ -60,7 +60,7 @@ const ScenarioItem: React.FC<ScenarioItemProps> = ({ scenarioSummary, scenariosR
     <div className="mt-1">
       <Accordion
         header={
-          <div className="w-[calc(100%-96px)] grid grid-cols-[20.5%_37%_5%_12.5%_17.5%_5%_3%] min-h-8 gap-x-4 items-center">
+          <div className="w-[calc(100%-96px)] grid grid-cols-[20.5%_37%_5%_12.5%_17.5%_6%_3%] min-h-8 gap-x-4 items-center">
             <Text colorScheme="light" size="md">
               {scenarioSummary.name}
             </Text>
@@ -84,17 +84,16 @@ const ScenarioItem: React.FC<ScenarioItemProps> = ({ scenarioSummary, scenariosR
             <Text size="md" colorScheme="light">
               {formatDateTo('M DD YYYY, HH:MM AA', new Date(scenarioSummary.updated_at))}
             </Text>
-            <Text
-              className="w-[74px] h-7 cursor-pointer flex justify-center !rounded-[14px]"
-              colorScheme="light-charcoal"
-              invertBackground
+            <Button
+              size="sm"
+              colorScheme="charcoal"
               onClick={(e) => {
                 e.stopPropagation()
                 postTestrunMutate(scenarioSummary.id)
               }}
             >
               Open
-            </Text>
+            </Button>
             <DropdownWithMoreButton colorScheme="charcoal" type="icon">
               <OptionItem
                 colorScheme="charcoal"
