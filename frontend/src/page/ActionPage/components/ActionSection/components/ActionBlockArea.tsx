@@ -11,7 +11,7 @@ import { CustomKeyTransmit, RemoconTransmit } from '@global/service/RemoconServi
 import { terminalService } from '@global/service/TerminalService/TerminalService'
 import { CommandTransmit } from '@global/service/TerminalService/type'
 import { useRecoilState, useRecoilValue } from 'recoil'
-import { isBlockRecordModeState, scenarioIdState, selectedBlockIdsState } from '@global/atom'
+import { isBlockRecordModeState, scenarioIdState, selectedBlockIdsState, testRunIdState } from '@global/atom'
 import { Block, BlockGroup, Scenario } from '@global/api/entity'
 import { getScenarioById, putScenario } from '@global/api/func'
 import ActionBlockItem from './ActionBlockItem'
@@ -34,9 +34,11 @@ const ActionBlockArea = (): JSX.Element => {
    */
   const [blockDummys, setBlockDummys] = useState<Block[][]>([])
 
+  const testrunId = useRecoilValue(testRunIdState)
+
   const { data: scenario, refetch: blockRefetch } = useQuery<Scenario>(
     ['scenario', scenarioId],
-    () => getScenarioById({ scenario_id: scenarioId! }),
+    () => getScenarioById({ scenario_id: scenarioId!, testrun_id: testrunId! }),
     {
       onSuccess: (res) => {
         if (res) {
@@ -53,7 +55,7 @@ const ActionBlockArea = (): JSX.Element => {
       onError: (err) => {
         console.error(err)
       },
-      enabled: !!scenarioId,
+      enabled: !!(scenarioId && testrunId),
     },
   )
 

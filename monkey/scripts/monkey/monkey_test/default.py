@@ -1,10 +1,8 @@
 
 import logging
 
-from scripts.monkey.format import MonkeyArgs, RemoconInfo
-from scripts.monkey.monkey import Monkey
-from scripts.monkey.format import MonkeyExternalInfo
-
+from scripts.format import MonkeyArgs, MonkeyExternalInfo, RemoconInfo
+from scripts.monkey.monkey import Monkey, run_monkey
 
 logger = logging.getLogger('monkey_test')
 
@@ -43,4 +41,5 @@ class MonkeyTest:
                 image_path=''
             )
         )
-        monkey.run()
+        run_monkey(monkey)
+

@@ -2,10 +2,12 @@ import { useToast } from '@chakra-ui/react'
 import { ScenarioSummary } from '@global/api/entity'
 import { getTag, postTag, putScenario } from '@global/api/func'
 import { useScenarioById } from '@global/api/hook'
+import { testRunIdState } from '@global/atom'
 import { Modal, Text, Input, Button, Select, Tag, TagItem } from '@global/ui'
 import { AxiosError } from 'axios'
 import React, { useMemo, useRef, useState } from 'react'
 import { useMutation, useQuery } from 'react-query'
+import { useRecoilValue } from 'recoil'
 
 interface ModifyProjectModalProps {
   scenarioSummary: ScenarioSummary
@@ -38,7 +40,9 @@ const ModifyProjectModal: React.FC<ModifyProjectModalProps> = ({
     return tags.filter((tag) => tag.includes(tagInput) && scenarioTags.find((_tag) => _tag === tag) === undefined)
   }, [tagInput, tags, scenarioTags])
 
-  const { scenario } = useScenarioById({ scenarioId: scenarioSummary.id })
+  const testrunId = useRecoilValue(testRunIdState)
+
+  const { scenario } = useScenarioById({ scenarioId: scenarioSummary.id, testrunId })
 
   const { mutate: postTagMutate } = useMutation(postTag, {
     onSuccess: () => {

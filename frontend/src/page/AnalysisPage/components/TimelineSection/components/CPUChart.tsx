@@ -10,12 +10,13 @@ interface CPUChartProps {
   startTime: Date
   endTime: Date
   dimension: { left: number; width: number } | null
+  isVisible?: boolean
 }
 
 /**
  * CPU 사용률 차트
  */
-const CPUChart: React.FC<CPUChartProps> = ({ scaleX, startTime, endTime, dimension }) => {
+const CPUChart: React.FC<CPUChartProps> = ({ scaleX, startTime, endTime, dimension, isVisible }) => {
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const { cpu } = useCPU({
     start_time: startTime.toISOString(),
@@ -42,6 +43,7 @@ const CPUChart: React.FC<CPUChartProps> = ({ scaleX, startTime, endTime, dimensi
     width: dimension?.width,
   })
 
+  if (!isVisible) return null
   if (!cpuData) return <div style={{ height: CHART_HEIGHT }} />
   return (
     <div onMouseMove={onMouseMove(cpuData)} onMouseLeave={onMouseLeave} className="relative overflow-hidden">

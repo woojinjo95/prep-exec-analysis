@@ -3,6 +3,7 @@ import traceback
 
 from scripts.connection.redis_pubsub import publish_msg
 from scripts.external.redis import get_monkey_test_arguments
+from scripts.format import MonkeyArgs, RemoconInfo
 from scripts.monkey.format import MonkeyArgs, RemoconInfo
 from scripts.monkey.intelligent_monkey_test.roku import \
     IntelligentMonkeyTestRoku

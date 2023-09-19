@@ -7,7 +7,7 @@ import { HardwareConfiguration } from '@global/api/entity'
 import { useHardwareConfiguration, useLogConnectionStatus, useScenarioById } from '@global/api/hook'
 import { postBlock } from '@page/ActionPage/components/ActionSection/api/func'
 import { useRecoilValue } from 'recoil'
-import { isBlockRecordModeState, scenarioIdState } from '@global/atom'
+import { isBlockRecordModeState, scenarioIdState, testRunIdState } from '@global/atom'
 import { putHardwareConfigurationSTBConnection } from '../../api/func'
 
 const validateIP = (ip?: string | null) => {
@@ -73,7 +73,9 @@ const DeviceInfo: React.FC = () => {
 
   const scenarioId = useRecoilValue(scenarioIdState)
 
-  const { refetch: scenarioRefetch } = useScenarioById({ scenarioId })
+  const testrunId = useRecoilValue(testRunIdState)
+
+  const { refetch: scenarioRefetch } = useScenarioById({ scenarioId, testrunId })
 
   const { mutate: postBlockMutate } = useMutation(postBlock, {
     onSuccess: () => {

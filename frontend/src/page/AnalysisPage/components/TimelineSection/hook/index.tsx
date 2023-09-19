@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRecoilState } from 'recoil'
 import * as d3 from 'd3'
 import { cursorDateTimeState } from '@global/atom'
@@ -125,4 +125,53 @@ export const useTooltipEvent = <T extends DefaultChartDataType>({
     onMouseMove,
     onMouseLeave,
   }
+}
+
+/**
+ * 차트 가로스크롤 hook
+ */
+export const useHandleChartWheel = <T extends HTMLElement>({
+  ref,
+  isReadyRenderChart,
+  setScrollBarTwoPosX,
+  chartWidth,
+}: {
+  ref: T | null
+  isReadyRenderChart: boolean
+  setScrollBarTwoPosX: React.Dispatch<React.SetStateAction<[number, number] | null>>
+  chartWidth?: number
+}) => {
+  const handleWheel = (e: WheelEvent) => {
+    if (!e.deltaX || !chartWidth) return
+    // preventDefault <- mac에서 브라우저 뒤로가기 기능을 비활성화하기 위함
+    e.preventDefault()
+
+    if (e.deltaX < 0) {
+      setScrollBarTwoPosX((prev) => {
+        if (!prev) return prev
+
+        const scrollbarWidth = prev[1] - prev[0]
+        const posX1 = Math.max(prev[0] + e.deltaX, 0)
+        return [posX1, posX1 + scrollbarWidth]
+      })
+    } else {
+      setScrollBarTwoPosX((prev) => {
+        if (!prev) return prev
+
+        const scrollbarWidth = prev[1] - prev[0]
+        const posX2 = Math.min(prev[1] + e.deltaX, chartWidth)
+        return [posX2 - scrollbarWidth, posX2]
+      })
+    }
+  }
+
+  useEffect(() => {
+    if (!ref) return undefined
+    // passive: false <- handler에서 preventDefault를 사용하기 위함
+    ref.addEventListener('wheel', handleWheel, { passive: false })
+
+    return () => {
+      ref?.removeEventListener('wheel', handleWheel)
+    }
+  }, [isReadyRenderChart, handleWheel])
 }

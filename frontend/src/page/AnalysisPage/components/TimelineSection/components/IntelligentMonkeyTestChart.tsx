@@ -28,6 +28,7 @@ interface IntelligentMonkeyTestChartProps {
   endTime: Date
   dimension: { left: number; width: number } | null
   summary: AnalysisResultSummary
+  isVisible?: boolean
 }
 
 /**
@@ -39,6 +40,7 @@ const IntelligentMonkeyTestChart: React.FC<IntelligentMonkeyTestChartProps> = ({
   endTime,
   dimension,
   summary,
+  isVisible,
 }) => {
   const intelligentMonkeyTestSectionIdFilterList = useRecoilValue(intelligentMonkeyTestSectionIdFilterListState)
   const wrapperRef = useRef<HTMLDivElement | null>(null)
@@ -82,6 +84,7 @@ const IntelligentMonkeyTestChart: React.FC<IntelligentMonkeyTestChartProps> = ({
     width: dimension?.width,
   })
 
+  if (!isVisible) return null
   if (!intelligentMonkeyTestData || !intelligentMonkeySmartSenseData) return <div style={{ height: CHART_HEIGHT }} />
   return (
     <div onMouseMove={onMouseMove(intelligentMonkeySmartSenseData)} onMouseLeave={onMouseLeave} className="relative">

@@ -10,12 +10,19 @@ interface ColorReferenceChartProps {
   startTime: Date
   endTime: Date
   dimension: { left: number; width: number } | null
+  isVisible?: boolean
 }
 
 /**
  * Color Reference 차트
  */
-const ColorReferenceChart: React.FC<ColorReferenceChartProps> = ({ scaleX, startTime, endTime, dimension }) => {
+const ColorReferenceChart: React.FC<ColorReferenceChartProps> = ({
+  scaleX,
+  startTime,
+  endTime,
+  dimension,
+  isVisible,
+}) => {
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const { colorReferences } = useColorReferences({
     start_time: startTime.toISOString(),
@@ -43,6 +50,7 @@ const ColorReferenceChart: React.FC<ColorReferenceChartProps> = ({ scaleX, start
     width: dimension?.width,
   })
 
+  if (!isVisible) return null
   if (!colorReferenceData) return <div style={{ height: CHART_HEIGHT }} />
   return (
     <div onMouseMove={onMouseMove(colorReferenceData)} onMouseLeave={onMouseLeave} className="relative overflow-hidden">
