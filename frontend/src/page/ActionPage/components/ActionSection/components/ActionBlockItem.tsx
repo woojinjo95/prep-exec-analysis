@@ -108,7 +108,7 @@ const ActionBlockItem = ({
     >
       <div
         className={cx(
-          `border-box h-full w-full min-h-[48px] pl-[10px] pr-[10px] grid grid-cols-[1fr_minmax(100px,auto)] border-[1px] border-[#DFE0EE] bg-white rounded-xl`,
+          `border-box h-full w-full min-h-[48px] pl-[10px] pr-[10px] grid grid-cols-[1fr_minmax(100px,auto)] border-[1px] border-[#DFE0EE] bg-white  rounded-xl`,
           {
             'hover:outline-1 hover:outline-[#4C4E68] hover:outline': !selectedBlockIds.includes(block.id),
             '!outline !outline-[1px] !outline-[#4C4E68]': selectedBlockIds.includes(block.id),

@@ -2,8 +2,8 @@ import React from 'react'
 import { useRecoilValue } from 'recoil'
 import { cursorDateTimeState } from '@global/atom'
 import { Text } from '@global/ui'
-import Scrollbars from 'react-custom-scrollbars-2'
 import { formatDateTo } from '@global/usecase'
+import ScrollComponent from '@global/ui/ScrollComponent'
 import { Shell } from '../api/entity'
 import { useInfiniteShellLogs } from '../api/hook'
 
@@ -36,9 +36,7 @@ const ShellLog: React.FC<ShellLogProps> = ({ shell_mode }) => {
         </Text>
       </div>
 
-      <Scrollbars
-        renderThumbVertical={({ ...props }) => <div {...props} className="bg-light-charcoal w-2 rounded-[5px]" />}
-      >
+      <ScrollComponent>
         <div className="flex flex-col w-full mt-1">
           {shellLogs?.map(({ timestamp, module, message }, index) => (
             <div
@@ -65,7 +63,7 @@ const ShellLog: React.FC<ShellLogProps> = ({ shell_mode }) => {
           {/* TODO: Loading spin 같은 로딩 UI가 필요 */}
           Loading...
         </div>
-      </Scrollbars>
+      </ScrollComponent>
     </div>
   )
 }

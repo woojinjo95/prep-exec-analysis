@@ -4,13 +4,13 @@ import useIntersect from '@global/hook/useIntersect'
 import { Button, Modal, Text } from '@global/ui'
 import { formatDateTo } from '@global/usecase'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { Scrollbars } from 'react-custom-scrollbars-2'
 import cx from 'classnames'
 import { useRecoilState } from 'recoil'
 import { scenarioIdState, testRunIdState } from '@global/atom'
 import { useNavigate } from 'react-router-dom'
 import { useMutation } from 'react-query'
 import { postTestrun } from '@global/api/func'
+import ScrollComponent from '@global/ui/ScrollComponent'
 
 interface OpenBlocksModalProps {
   isOpen: boolean
@@ -101,11 +101,7 @@ const OpenBlocksModal: React.FC<OpenBlocksModalProps> = ({ isOpen, close }) => {
               Last modified
             </Text>
           </div>
-          <Scrollbars
-            renderThumbVertical={({ ...props }) => (
-              <div {...props} className="w-2 rounded-[5px] pr-2 bg-light-charcoal" />
-            )}
-          >
+          <ScrollComponent>
             {scenarios.map((scenario) => (
               <div
                 className={cx('flex flex-col w-full cursor-pointer', {
@@ -153,7 +149,7 @@ const OpenBlocksModal: React.FC<OpenBlocksModalProps> = ({ isOpen, close }) => {
               {/* Loading spin 같은 로딩 UI가 필요 */}
               Loading...
             </div>
-          </Scrollbars>
+          </ScrollComponent>
         </div>
         <div className="flex justify-end mt-7">
           <Button

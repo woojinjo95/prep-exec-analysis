@@ -1,9 +1,9 @@
 import React from 'react'
 import { useRecoilValue } from 'recoil'
 import { Text } from '@global/ui'
-import { Scrollbars } from 'react-custom-scrollbars-2'
 import { formatDateTo } from '@global/usecase'
 import { cursorDateTimeState } from '@global/atom'
+import ScrollComponent from '@global/ui/ScrollComponent'
 import { useInfiniteNetwork } from '../api/hook'
 
 /**
@@ -40,9 +40,7 @@ const NetworkTrace: React.FC = () => {
         </Text>
       </div>
 
-      <Scrollbars
-        renderThumbVertical={({ ...props }) => <div {...props} className="bg-light-charcoal w-2 rounded-[5px]" />}
-      >
+      <ScrollComponent>
         <div className="flex flex-col w-full mt-1">
           {networks.map(({ timestamp, src, dst, protocol, length, info }, index) => (
             <div
@@ -78,7 +76,7 @@ const NetworkTrace: React.FC = () => {
           {/* TODO: Loading spin 같은 로딩 UI가 필요 */}
           Loading...
         </div>
-      </Scrollbars>
+      </ScrollComponent>
       {/* <Button className="absolute top-0 right-6 border-none bg-black">
         <span className="text-base">Search</span>
       </Button>
