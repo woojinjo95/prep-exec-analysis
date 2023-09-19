@@ -28,10 +28,11 @@ const IconButton: React.FC<IconButtonProps> = ({
         {
           'bg-charcoal': colorScheme === 'charcoal',
           'border-light-charcoal': colorScheme === 'charcoal',
-          'hover:brightness-125': colorScheme === 'charcoal',
-          'active:brightness-95': colorScheme === 'charcoal',
+          'hover:brightness-125': colorScheme === 'charcoal' && !props.disabled,
+          'active:brightness-95': colorScheme === 'charcoal' && !props.disabled,
           'bg-white': colorScheme === 'light',
           'border-light-grey': colorScheme === 'light',
+          'grayscale-[.75] brightness-75': props.disabled,
 
           'w-[52px] h-10': size === 'md',
           'w-8 h-6': size === 'sm',
