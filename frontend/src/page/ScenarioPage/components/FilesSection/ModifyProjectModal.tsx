@@ -100,8 +100,8 @@ const ModifyProjectModal: React.FC<ModifyProjectModalProps> = ({
                 {scenarioTags.map((tag) => (
                   <React.Fragment key={`blocks_${scenarioSummary.id}_${tag}`}>
                     <Tag
+                      colorScheme="charcoal"
                       tag={tag}
-                      mode="delete"
                       onDelete={() => setScenarioTags((prev) => prev.filter((_tag) => _tag !== tag))}
                     />
                   </React.Fragment>
@@ -151,7 +151,7 @@ const ModifyProjectModal: React.FC<ModifyProjectModalProps> = ({
                 <Text colorScheme="light" className="mr-2">
                   Create :{' '}
                 </Text>
-                <Tag tag={tagInput} />
+                <Tag colorScheme="charcoal" tag={tagInput} />
               </div>
             )}
           </Select>

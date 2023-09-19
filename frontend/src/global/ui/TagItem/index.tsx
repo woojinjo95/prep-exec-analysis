@@ -86,8 +86,8 @@ const TagItem: React.FC<TagItemProps> = ({
       {...props}
     >
       {mode === 'item' && (
-        <div className="flex justify-between">
-          <Tag tag={tag} />
+        <div className="flex justify-between items-center">
+          <Tag colorScheme={colorScheme} tag={tag} />
           <DropdownWithMoreButton type="icon" colorScheme="charcoal">
             <OptionItem colorScheme="charcoal">
               <Input
