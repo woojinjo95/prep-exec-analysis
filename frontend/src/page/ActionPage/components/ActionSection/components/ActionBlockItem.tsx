@@ -191,7 +191,7 @@ const ActionBlockItem = ({
               </div>
               <EditIcon
                 className={cx('cursor-pointer ml-[10px] h-4 w-4', {
-                  'fill-light-grey cursor-none': serviceState === 'playblock' || isBlockRecordMode,
+                  'fill-light-grey cursor-auto': serviceState === 'playblock' || isBlockRecordMode,
                 })}
                 onClick={(e) => {
                   e.stopPropagation()

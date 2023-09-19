@@ -14,6 +14,7 @@ import { isBlockRecordModeState, scenarioIdState, selectedBlockIdsState, testRun
 import { Block, BlockGroup, Scenario } from '@global/api/entity'
 import { getScenarioById, putScenario } from '@global/api/func'
 import ScrollComponent from '@global/ui/ScrollComponent'
+import { useServiceState } from '@global/api/hook'
 import ActionBlockItem from './ActionBlockItem'
 import { postBlock, postBlocks } from '../api/func'
 
@@ -23,6 +24,8 @@ type BlocksRef = {
 
 const ActionBlockArea = (): JSX.Element => {
   const scenarioId = useRecoilValue(scenarioIdState)
+
+  const { serviceState } = useServiceState()
 
   // 전체 블럭
   const [blocks, setBlocks] = useState<Block[] | null>(null)
@@ -430,7 +433,11 @@ const ActionBlockArea = (): JSX.Element => {
                             draggableId={`dummy-${dummyIdx}`}
                             index={dummyIdx}
                             isDragDisabled={
-                              !!(modifyingBlockId && dummy.find((block) => block.id === modifyingBlockId))
+                              !!(
+                                (modifyingBlockId && dummy.find((block) => block.id === modifyingBlockId)) ||
+                                serviceState === 'playblock' ||
+                                isBlockRecordMode
+                              )
                             }
                           >
                             {(provided) => (
