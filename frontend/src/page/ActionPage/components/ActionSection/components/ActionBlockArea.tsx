@@ -14,6 +14,7 @@ import { isBlockRecordModeState, scenarioIdState, selectedBlockIdsState, testRun
 import { Block, BlockGroup, Scenario } from '@global/api/entity'
 import { getScenarioById, putScenario } from '@global/api/func'
 import ScrollComponent from '@global/ui/ScrollComponent'
+import { useServiceState } from '@global/api/hook'
 import ActionBlockItem from './ActionBlockItem'
 import { postBlock, postBlocks } from '../api/func'
 
@@ -23,6 +24,8 @@ type BlocksRef = {
 
 const ActionBlockArea = (): JSX.Element => {
   const scenarioId = useRecoilValue(scenarioIdState)
+
+  const { serviceState } = useServiceState()
 
   // 전체 블럭
   const [blocks, setBlocks] = useState<Block[] | null>(null)
@@ -430,7 +433,11 @@ const ActionBlockArea = (): JSX.Element => {
                             draggableId={`dummy-${dummyIdx}`}
                             index={dummyIdx}
                             isDragDisabled={
-                              !!(modifyingBlockId && dummy.find((block) => block.id === modifyingBlockId))
+                              !!(
+                                (modifyingBlockId && dummy.find((block) => block.id === modifyingBlockId)) ||
+                                serviceState === 'playblock' ||
+                                isBlockRecordMode
+                              )
                             }
                           >
                             {(provided) => (
@@ -438,7 +445,7 @@ const ActionBlockArea = (): JSX.Element => {
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
-                                className={cx('w-full cursor-grab ', {})}
+                                className={cx('w-full cursor-grab', {})}
                               >
                                 {dummy.map((block) => {
                                   return (
@@ -449,7 +456,6 @@ const ActionBlockArea = (): JSX.Element => {
                                       }}
                                     >
                                       <ActionBlockItem
-                                        actionStatus="normal"
                                         block={block}
                                         selectedBlockIds={selectedBlockIds}
                                         handleBlockClick={handleBlockClick}
@@ -497,7 +503,7 @@ const ActionBlockArea = (): JSX.Element => {
           />
         )}
       </div>
-      {modifyingBlockId && <div className="absolute top-0 left-0 h-full z-10 w-full bg-gray-100 opacity-50" />}
+      {modifyingBlockId && <div className="absolute top-0 left-0 h-full z-20 w-full bg-gray-100 opacity-50" />}
     </div>
   )
 }
