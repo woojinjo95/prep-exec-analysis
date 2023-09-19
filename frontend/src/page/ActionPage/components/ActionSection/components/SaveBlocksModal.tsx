@@ -281,7 +281,7 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
               })}
             {tagInput !== '' && (
               <div
-                className="h-11 flex px-3 py-2 hover:bg-light-charcoal cursor-pointer"
+                className="rounded-[4px] flex items-center px-3 py-1 hover:bg-light-charcoal cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation()
 
