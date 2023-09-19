@@ -1,7 +1,7 @@
 import { PAGE_SIZE_TWENTY } from '@global/constant'
 import useFetchScenarios from '@global/hook/useFetchScenarios'
 import useIntersect from '@global/hook/useIntersect'
-import { Button, Modal, Text } from '@global/ui'
+import { Button, Modal, Tag, Text } from '@global/ui'
 import { formatDateTo } from '@global/usecase'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import cx from 'classnames'
@@ -122,16 +122,9 @@ const OpenBlocksModal: React.FC<OpenBlocksModalProps> = ({ isOpen, close }) => {
                     </Text>
                   </div>
 
-                  <div className="flex flex-wrap w-full h-full pt-[10px] items-center">
+                  <div className="flex flex-wrap w-full h-full items-center">
                     {scenario.tags.map((tag) => (
-                      <Text
-                        className="text-white mr-2 mb-2"
-                        invertBackground
-                        colorScheme="dark-grey"
-                        key={`${scenario.name}_tag_${tag}`}
-                      >
-                        {tag}
-                      </Text>
+                      <Tag key={`${scenario.name}_tag_${tag}`} colorScheme="dark" tag={tag} />
                     ))}
                   </div>
                   <Text size="md" colorScheme="light">

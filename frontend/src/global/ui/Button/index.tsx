@@ -7,6 +7,7 @@ interface ButtonProps
   extends React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement> {
   children: React.ReactNode
   colorScheme?: 'dark' | 'charcoal' | 'grey' | 'primary'
+  size?: 'md' | 'sm'
   className?: string
   isRoundedFull?: boolean
 }
@@ -18,15 +19,17 @@ interface ButtonProps
  */
 const Button: React.ForwardRefExoticComponent<Omit<ButtonProps, 'ref'> & React.RefAttributes<HTMLButtonElement>> =
   React.forwardRef<HTMLButtonElement, ButtonProps>(
-    ({ children, colorScheme = 'charcoal', isRoundedFull = true, className, ...props }, ref) => {
+    ({ children, colorScheme = 'charcoal', size = 'md', isRoundedFull = true, className, ...props }, ref) => {
       return (
         <button
           ref={ref}
           // eslint-disable-next-line react/button-has-type
           type="button"
           className={cx(
-            'py-3 px-10 h-fit',
+            'h-fit',
             {
+              'py-3 px-10': size === 'md',
+              'py-1 px-5': size === 'sm',
               'bg-light-black': colorScheme === 'dark',
               'bg-light-charcoal': colorScheme === 'charcoal',
               'bg-grey': colorScheme === 'grey',

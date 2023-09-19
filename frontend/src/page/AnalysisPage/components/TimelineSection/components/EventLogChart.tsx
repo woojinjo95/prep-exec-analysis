@@ -1,5 +1,5 @@
 import React, { useMemo, useRef } from 'react'
-import { PointChart, Text, TimelineTooltip, TimelineTooltipItem } from '@global/ui'
+import { PointChart, Skeleton, Text, TimelineTooltip, TimelineTooltipItem } from '@global/ui'
 import { useEventLogs } from '@page/AnalysisPage/api/hook'
 import { EventLogTooltip } from '@page/AnalysisPage/api/entity'
 import { capitalize } from '@global/usecase'
@@ -118,7 +118,9 @@ const EventLogChart: React.FC<EventLogChartProps> = ({ scaleX, startTime, endTim
   })
 
   if (!isVisible) return null
-  if (!eventLogsData) return <div style={{ height: CHART_HEIGHT }} />
+  if (!eventLogsData) {
+    return <Skeleton className="w-full border-b border-[#37383E]" style={{ height: CHART_HEIGHT }} colorScheme="dark" />
+  }
   return (
     <div onMouseMove={onMouseMove(eventLogsData)} onMouseLeave={onMouseLeave} className="relative">
       {!!posX && (

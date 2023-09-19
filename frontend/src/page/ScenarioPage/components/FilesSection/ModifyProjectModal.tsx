@@ -100,8 +100,8 @@ const ModifyProjectModal: React.FC<ModifyProjectModalProps> = ({
                 {scenarioTags.map((tag) => (
                   <React.Fragment key={`blocks_${scenarioSummary.id}_${tag}`}>
                     <Tag
+                      colorScheme="charcoal"
                       tag={tag}
-                      mode="delete"
                       onDelete={() => setScenarioTags((prev) => prev.filter((_tag) => _tag !== tag))}
                     />
                   </React.Fragment>
@@ -133,7 +133,7 @@ const ModifyProjectModal: React.FC<ModifyProjectModalProps> = ({
               })}
             {tagInput !== '' && (
               <div
-                className="h-11 flex px-3 py-2 hover:bg-light-charcoal cursor-pointer"
+                className="rounded-[4px] flex items-center px-3 py-1 hover:bg-light-charcoal cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation()
                   if (tags && !tags.find((tag) => tag === tagInput)) {
@@ -151,7 +151,7 @@ const ModifyProjectModal: React.FC<ModifyProjectModalProps> = ({
                 <Text colorScheme="light" className="mr-2">
                   Create :{' '}
                 </Text>
-                <Tag tag={tagInput} />
+                <Tag colorScheme="charcoal" tag={tagInput} />
               </div>
             )}
           </Select>

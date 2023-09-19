@@ -1,6 +1,6 @@
 import React, { useMemo, useRef } from 'react'
 import * as d3 from 'd3'
-import { AreaChart } from '@global/ui'
+import { AreaChart, Skeleton } from '@global/ui'
 import { CHART_HEIGHT } from '@global/constant'
 import { useColorReferences } from '@page/AnalysisPage/api/hook'
 import { useTooltipEvent } from '../hook'
@@ -51,7 +51,9 @@ const ColorReferenceChart: React.FC<ColorReferenceChartProps> = ({
   })
 
   if (!isVisible) return null
-  if (!colorReferenceData) return <div style={{ height: CHART_HEIGHT }} />
+  if (!colorReferenceData) {
+    return <Skeleton className="w-full border-b border-[#37383E]" style={{ height: CHART_HEIGHT }} colorScheme="dark" />
+  }
   return (
     <div onMouseMove={onMouseMove(colorReferenceData)} onMouseLeave={onMouseLeave} className="relative overflow-hidden">
       {!!posX && (

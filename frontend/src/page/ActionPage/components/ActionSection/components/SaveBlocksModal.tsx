@@ -245,8 +245,8 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
                 {blocksTags.map((tag) => (
                   <React.Fragment key={`blocks_${currentScenario.id}_${tag}`}>
                     <Tag
+                      colorScheme="charcoal"
                       tag={tag}
-                      mode="delete"
                       onDelete={() => setBlocksTags((prev) => prev.filter((_tag) => _tag !== tag))}
                     />
                   </React.Fragment>
@@ -281,7 +281,7 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
               })}
             {tagInput !== '' && (
               <div
-                className="h-11 flex px-3 py-2 hover:bg-light-charcoal cursor-pointer"
+                className="rounded-[4px] flex items-center px-3 py-1 hover:bg-light-charcoal cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation()
 
@@ -300,7 +300,7 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
                 <Text colorScheme="light" className="mr-2">
                   Create :{' '}
                 </Text>
-                <Tag tag={tagInput} />
+                <Tag colorScheme="charcoal" tag={tagInput} />
               </div>
             )}
           </Select>
@@ -330,16 +330,9 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
                     </Text>
                   </div>
 
-                  <div className="flex flex-wrap w-full h-full pt-[10px] items-center">
+                  <div className="flex flex-wrap w-full h-full items-center">
                     {scenario.tags.map((tag) => (
-                      <Text
-                        className="text-white mr-2 mb-2"
-                        invertBackground
-                        colorScheme="dark-grey"
-                        key={`${scenario.name}_tag_${tag}`}
-                      >
-                        {tag}
-                      </Text>
+                      <Tag key={`${scenario.name}_tag_${tag}`} tag={tag} colorScheme="dark" />
                     ))}
                   </div>
                   <Text size="md" colorScheme="light">

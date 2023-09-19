@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import * as d3 from 'd3'
-import { Text, VideoSnapshots } from '@global/ui'
-import { CHART_HEIGHT } from '@global/constant'
+import { Skeleton, Text, VideoSnapshots } from '@global/ui'
+import { CHART_HEIGHT, VIDEO_SNAPSHOT_HEIGHT } from '@global/constant'
 
 import { useAnalysisResultSummary } from '@page/AnalysisPage/api/hook'
 import ScrollComponent from '@global/ui/ScrollComponent'
@@ -194,6 +194,13 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
                     scaleX={scrollbarScaleX}
                     startTime={timelineScaleX && scrollBarTwoPosX ? timelineScaleX.invert(scrollBarTwoPosX[0]) : null}
                     endTime={timelineScaleX && scrollBarTwoPosX ? timelineScaleX.invert(scrollBarTwoPosX[1]) : null}
+                    loadingComponent={
+                      <Skeleton
+                        className="w-full border-b border-[#37383E]"
+                        style={{ height: VIDEO_SNAPSHOT_HEIGHT }}
+                        colorScheme="dark"
+                      />
+                    }
                   />
                 )
               }

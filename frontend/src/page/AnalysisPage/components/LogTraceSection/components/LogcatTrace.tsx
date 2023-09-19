@@ -1,7 +1,6 @@
 import React from 'react'
 import { useRecoilValue } from 'recoil'
-import { Scrollbars } from 'react-custom-scrollbars-2'
-import { Skeleton, Text } from '@global/ui'
+import { ScrollComponent, Skeleton, Text } from '@global/ui'
 import { formatDateTo } from '@global/usecase'
 import { cursorDateTimeState } from '@global/atom'
 import { LogLevelColor } from '@global/constant'
@@ -45,11 +44,9 @@ const LogcatTrace: React.FC = () => {
         </Text>
       </div>
 
-      <Scrollbars
-        renderThumbVertical={({ ...props }) => <div {...props} className="bg-light-charcoal w-2 rounded-[5px]" />}
-      >
+      <ScrollComponent>
         <div className="flex flex-col w-full mt-1">
-          {logcats?.map(({ timestamp, module, log_level, process_name, pid, tid, message }, index) => (
+          {logcats.map(({ timestamp, module, log_level, process_name, pid, tid, message }, index) => (
             <div
               key={`logcat-trace-log-${timestamp}-${index}`}
               className="w-[calc(100%-48px)] grid grid-cols-[16%_6%_9%_9%_5%_5%_50%] gap-x-2 text-grey text-sm"
@@ -94,7 +91,7 @@ const LogcatTrace: React.FC = () => {
         >
           <LoadingIcon className="fill-grey w-5 h-5 animate-spin" />
         </div>
-      </Scrollbars>
+      </ScrollComponent>
     </div>
   )
 }

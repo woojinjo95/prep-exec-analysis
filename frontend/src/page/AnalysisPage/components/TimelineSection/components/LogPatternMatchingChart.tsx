@@ -1,6 +1,6 @@
 import React, { useMemo, useRef } from 'react'
 import { useRecoilValue } from 'recoil'
-import { PointChart, TimelineTooltip, Text, TimelineTooltipItem } from '@global/ui'
+import { PointChart, TimelineTooltip, Text, TimelineTooltipItem, Skeleton } from '@global/ui'
 import { logPatternMatchingNameFilterListState } from '@global/atom'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { useLogPatternMatching } from '@page/AnalysisPage/api/hook'
@@ -60,7 +60,9 @@ const LogPatternMatchingChart: React.FC<LogPatternMatchingChartProps> = ({
   })
 
   if (!isVisible) return null
-  if (!logPatternMatchingData) return <div style={{ height: CHART_HEIGHT }} />
+  if (!logPatternMatchingData) {
+    return <Skeleton className="w-full border-b border-[#37383E]" style={{ height: CHART_HEIGHT }} colorScheme="dark" />
+  }
   return (
     <div onMouseMove={onMouseMove(logPatternMatchingData)} onMouseLeave={onMouseLeave} className="relative">
       {!!posX && (

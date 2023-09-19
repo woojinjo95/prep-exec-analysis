@@ -1,6 +1,6 @@
 import React, { useMemo, useRef } from 'react'
 import { useRecoilValue } from 'recoil'
-import { PointChart, RangeChart, TimelineTooltip, TimelineTooltipItem, Text } from '@global/ui'
+import { PointChart, RangeChart, TimelineTooltip, TimelineTooltipItem, Text, Skeleton } from '@global/ui'
 import { convertDuration } from '@global/usecase'
 import { bootTypeFilterListState, resumeTypeFilterListState } from '@global/atom'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
@@ -72,7 +72,9 @@ const ResumeBootChart: React.FC<ResumeBootChartProps> = ({
   })
 
   if (!isVisible) return null
-  if (!data) return <div style={{ height: CHART_HEIGHT }} />
+  if (!data) {
+    return <Skeleton className="w-full border-b border-[#37383E]" style={{ height: CHART_HEIGHT }} colorScheme="dark" />
+  }
   return (
     <div onMouseMove={onMouseMove(data)} onMouseLeave={onMouseLeave} className="relative">
       {!!posX && (
