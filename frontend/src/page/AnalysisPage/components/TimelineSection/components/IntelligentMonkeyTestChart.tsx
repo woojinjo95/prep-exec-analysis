@@ -3,7 +3,7 @@ import { useRecoilValue } from 'recoil'
 import { CHART_HEIGHT } from '@global/constant'
 import { numberWithCommas } from '@global/usecase'
 import { intelligentMonkeyTestSectionIdFilterListState } from '@global/atom'
-import { PointChart, RangeChart, Text, TimelineTooltip, TimelineTooltipItem } from '@global/ui'
+import { PointChart, RangeChart, Skeleton, Text, TimelineTooltip, TimelineTooltipItem } from '@global/ui'
 import { useIntelligentMonkeySection, useIntelligentMonkeySmartSense } from '@page/AnalysisPage/api/hook'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { useTooltipEvent } from '../hook'
@@ -85,7 +85,9 @@ const IntelligentMonkeyTestChart: React.FC<IntelligentMonkeyTestChartProps> = ({
   })
 
   if (!isVisible) return null
-  if (!intelligentMonkeyTestData || !intelligentMonkeySmartSenseData) return <div style={{ height: CHART_HEIGHT }} />
+  if (!intelligentMonkeyTestData || !intelligentMonkeySmartSenseData) {
+    return <Skeleton className="w-full border-b border-[#37383E]" style={{ height: CHART_HEIGHT }} colorScheme="dark" />
+  }
   return (
     <div onMouseMove={onMouseMove(intelligentMonkeySmartSenseData)} onMouseLeave={onMouseLeave} className="relative">
       {!!posX && (

@@ -1,6 +1,6 @@
 import React, { useMemo, useRef } from 'react'
 import * as d3 from 'd3'
-import { AreaChart, TimelineTooltip, TimelineTooltipItem, Text } from '@global/ui'
+import { AreaChart, TimelineTooltip, TimelineTooltipItem, Text, Skeleton } from '@global/ui'
 import { CHART_HEIGHT } from '@global/constant'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { useLoudness } from '@page/AnalysisPage/api/hook'
@@ -45,7 +45,9 @@ const LoudnessChart: React.FC<LoudnessChartProps> = ({ scaleX, startTime, endTim
   })
 
   if (!isVisible) return null
-  if (!loudnessData) return <div style={{ height: CHART_HEIGHT }} />
+  if (!loudnessData) {
+    return <Skeleton className="w-full border-b border-[#37383E]" style={{ height: CHART_HEIGHT }} colorScheme="dark" />
+  }
   return (
     <div onMouseMove={onMouseMove(loudnessData)} onMouseLeave={onMouseLeave} className="relative overflow-hidden">
       {!!posX && (

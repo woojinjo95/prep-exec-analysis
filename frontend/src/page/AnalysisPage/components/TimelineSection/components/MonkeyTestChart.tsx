@@ -1,7 +1,7 @@
 import React, { useMemo, useRef } from 'react'
 import { useRecoilValue } from 'recoil'
 import { useMonkeySection, useMonkeySmartSense } from '@page/AnalysisPage/api/hook'
-import { PointChart, RangeChart, Text, TimelineTooltip, TimelineTooltipItem } from '@global/ui'
+import { PointChart, RangeChart, Skeleton, Text, TimelineTooltip, TimelineTooltipItem } from '@global/ui'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { CHART_HEIGHT } from '@global/constant'
 import { monkeyTestIdFilterListState } from '@global/atom'
@@ -69,7 +69,9 @@ const MonkeyTestChart: React.FC<MonkeyTestChartProps> = ({
   })
 
   if (!isVisible) return null
-  if (!monkeyTestData || !monkeySmartSenseData) return <div style={{ height: CHART_HEIGHT }} />
+  if (!monkeyTestData || !monkeySmartSenseData) {
+    return <Skeleton className="w-full border-b border-[#37383E]" style={{ height: CHART_HEIGHT }} colorScheme="dark" />
+  }
   return (
     <div onMouseMove={onMouseMove(monkeySmartSenseData)} onMouseLeave={onMouseLeave} className="relative">
       {!!posX && (

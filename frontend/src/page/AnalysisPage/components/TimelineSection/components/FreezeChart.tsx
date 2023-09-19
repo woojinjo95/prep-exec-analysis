@@ -1,6 +1,6 @@
 import React, { useMemo, useRef } from 'react'
 import { useRecoilValue } from 'recoil'
-import { RangeChart, TimelineTooltip, TimelineTooltipItem, Text } from '@global/ui'
+import { RangeChart, TimelineTooltip, TimelineTooltipItem, Text, Skeleton } from '@global/ui'
 import { freezeTypeFilterListState } from '@global/atom'
 import { convertDuration } from '@global/usecase'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
@@ -47,7 +47,9 @@ const FreezeChart: React.FC<FreezeChartProps> = ({ scaleX, startTime, endTime, d
   })
 
   if (!isVisible) return null
-  if (!freezeData) return <div style={{ height: CHART_HEIGHT }} />
+  if (!freezeData) {
+    return <Skeleton className="w-full border-b border-[#37383E]" style={{ height: CHART_HEIGHT }} colorScheme="dark" />
+  }
   return (
     <div onMouseMove={onMouseMove(freezeData)} onMouseLeave={onMouseLeave} className="relative">
       {!!posX && (
