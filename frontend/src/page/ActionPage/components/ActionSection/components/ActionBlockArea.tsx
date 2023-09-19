@@ -339,7 +339,7 @@ const ActionBlockArea = (): JSX.Element => {
       .onCustomKey$()
       .subscribe((customKeyTransmit: CustomKeyTransmit) => {
         if (scenarioId && isBlockRecordMode) {
-          const newBlocks = customKeyTransmit.data.map((keyTransmit) => {
+          const newBlocks = customKeyTransmit.data.map((keyTransmit, idx) => {
             return {
               type: customKeyTransmit.msg,
               args: [
@@ -360,7 +360,7 @@ const ActionBlockArea = (): JSX.Element => {
                   value: keyTransmit.name,
                 },
               ],
-              delay_time: 0,
+              delay_time: idx === customKeyTransmit.data.length - 1 ? 3000 : 0,
               name: `RCU (${keyTransmit.type}) : ${keyTransmit.key}`,
             }
           })
