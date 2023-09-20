@@ -41,7 +41,7 @@ const ResumeSummaryItem: React.FC<ResumeSummaryItemProps> = ({ resume, setRawDat
             </Text>
           </div>
 
-          <Text weight="medium">
+          <Text size="sm" weight="medium">
             {numberWithCommas(resume.results.reduce((acc, curr) => acc + curr.total, 0))} times
           </Text>
         </div>

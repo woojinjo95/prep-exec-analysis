@@ -41,7 +41,7 @@ const FreezeSummaryItem: React.FC<FreezeSummaryItemProps> = ({ freeze, setRawDat
             </Text>
           </div>
 
-          <Text weight="medium">
+          <Text size="sm" weight="medium">
             {numberWithCommas(freeze.results.reduce((acc, curr) => acc + curr.total, 0))} times
           </Text>
         </div>

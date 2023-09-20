@@ -40,7 +40,9 @@ const MonkeyTestSummaryItem: React.FC<MonkeyTestSummaryItemProps> = ({ monkeyTes
             </Text>
           </div>
 
-          <Text weight="medium">{numberWithCommas(monkeyTest.results.length)} times</Text>
+          <Text size="sm" weight="medium">
+            {numberWithCommas(monkeyTest.results.length)} times
+          </Text>
         </div>
       }
     >

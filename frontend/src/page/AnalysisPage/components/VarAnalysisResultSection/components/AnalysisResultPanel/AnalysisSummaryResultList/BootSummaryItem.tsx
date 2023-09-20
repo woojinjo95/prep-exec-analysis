@@ -41,7 +41,9 @@ const BootSummaryItem: React.FC<BootSummaryItemProps> = ({ boot, setRawDataModal
             </Text>
           </div>
 
-          <Text weight="medium">{numberWithCommas(boot.results.reduce((acc, curr) => acc + curr.total, 0))} times</Text>
+          <Text size="sm" weight="medium">
+            {numberWithCommas(boot.results.reduce((acc, curr) => acc + curr.total, 0))} times
+          </Text>
         </div>
       }
     >
