@@ -15,6 +15,9 @@ interface SummaryItemsProps {
   setRawDataModalType: React.Dispatch<React.SetStateAction<keyof AnalysisResultSummary | null>>
 }
 
+/**
+ * 분석결과 요약 아이템
+ */
 const SummaryItems: React.FC<SummaryItemsProps> = ({ summary, setRawDataModalType }) => {
   return (
     <>

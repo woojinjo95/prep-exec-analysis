@@ -14,6 +14,9 @@ interface RawDataModalsProps {
   endTime: string
 }
 
+/**
+ * 원본데이터 모달
+ */
 const RawDataModals: React.FC<RawDataModalsProps> = ({ rawDataModalType, setRawDataModalType, startTime, endTime }) => {
   return (
     <>
