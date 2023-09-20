@@ -1,6 +1,6 @@
 import React, { useMemo, useRef } from 'react'
 import * as d3 from 'd3'
-import { AreaChart, TimelineTooltip, TimelineTooltipItem, Text } from '@global/ui'
+import { AreaChart, TimelineTooltip, TimelineTooltipItem, Text, Skeleton } from '@global/ui'
 import { CHART_HEIGHT } from '@global/constant'
 import { bytesToSize } from '@global/usecase'
 import { useMemory } from '@page/AnalysisPage/api/hook'
@@ -45,13 +45,15 @@ const MemoryChart: React.FC<MemoryChartProps> = ({ scaleX, startTime, endTime, d
   })
 
   if (!isVisible) return null
-  if (!memoryData) return <div style={{ height: CHART_HEIGHT }} />
+  if (!memoryData) {
+    return <Skeleton className="w-full border-b border-[#37383E]" style={{ height: CHART_HEIGHT }} colorScheme="dark" />
+  }
   return (
     <div onMouseMove={onMouseMove(memoryData)} onMouseLeave={onMouseLeave} className="relative overflow-hidden">
       {!!posX && (
         <div
           ref={wrapperRef}
-          className="absolute top-0 h-full w-1 bg-white opacity-30 z-[5]"
+          className="absolute top-0 h-full w-1 bg-white/30 z-[5]"
           style={{
             transform: `translateX(${posX - 2}px)`,
           }}

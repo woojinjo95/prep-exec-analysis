@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useRecoilState } from 'recoil'
 import { Accordion, SimpleButton, Text } from '@global/ui'
 import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.svg'
@@ -20,6 +20,10 @@ interface FreezeSummaryItemProps {
  */
 const FreezeSummaryItem: React.FC<FreezeSummaryItemProps> = ({ freeze, setRawDataModalType }) => {
   const [freezeTypeFilterList, setFreezeTypeFilterList] = useRecoilState(freezeTypeFilterListState)
+
+  useEffect(() => {
+    setFreezeTypeFilterList([])
+  }, [])
 
   return (
     <Accordion

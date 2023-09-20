@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { AnalysisTypeLabel, AppURL } from '@global/constant'
 import { numberWithCommas } from '@global/usecase'
@@ -26,6 +26,10 @@ const IntelligentMonkeyTestSummaryItem: React.FC<IntelligentMonkeyTestSummaryIte
     intelligentMonkeyTestSectionIdFilterListState,
   )
   const [zoomInImagePath, setZoomInImagePath] = useState<string | null>(null)
+
+  useEffect(() => {
+    setIntelligentMonkeyTestSectionIdFilterList([])
+  }, [])
 
   return (
     <Accordion

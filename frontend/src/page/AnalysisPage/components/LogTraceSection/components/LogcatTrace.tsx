@@ -1,10 +1,10 @@
 import React from 'react'
 import { useRecoilValue } from 'recoil'
-import { Scrollbars } from 'react-custom-scrollbars-2'
-import { Text } from '@global/ui'
+import { ScrollComponent, Skeleton, Text } from '@global/ui'
 import { formatDateTo } from '@global/usecase'
 import { cursorDateTimeState } from '@global/atom'
 import { LogLevelColor } from '@global/constant'
+import { ReactComponent as LoadingIcon } from '@assets/images/loading.svg'
 import { useInfiniteLogcat } from '../api/hook'
 
 /**
@@ -17,7 +17,7 @@ const LogcatTrace: React.FC = () => {
     enabled: !!cursorDateTime,
   })
 
-  if (!logcats) return null
+  if (!logcats) return <Skeleton className="w-full h-full" colorScheme="dark" />
   return (
     <div className="w-full flex flex-col h-full overflow-x-hidden overflow-y-auto">
       <div className="w-[calc(100%-48px)] grid grid-cols-[16%_6%_9%_9%_5%_5%_50%] gap-x-2 text-grey bg-black">
@@ -34,21 +34,19 @@ const LogcatTrace: React.FC = () => {
           Process
         </Text>
         <Text size="sm" colorScheme="grey">
-          Pid
+          PID
         </Text>
         <Text size="sm" colorScheme="grey">
-          Tid
+          TID
         </Text>
         <Text size="sm" colorScheme="grey">
           Message
         </Text>
       </div>
 
-      <Scrollbars
-        renderThumbVertical={({ ...props }) => <div {...props} className="bg-light-charcoal w-2 rounded-[5px]" />}
-      >
+      <ScrollComponent>
         <div className="flex flex-col w-full mt-1">
-          {logcats?.map(({ timestamp, module, log_level, process_name, pid, tid, message }, index) => (
+          {logcats.map(({ timestamp, module, log_level, process_name, pid, tid, message }, index) => (
             <div
               key={`logcat-trace-log-${timestamp}-${index}`}
               className="w-[calc(100%-48px)] grid grid-cols-[16%_6%_9%_9%_5%_5%_50%] gap-x-2 text-grey text-sm"
@@ -91,10 +89,9 @@ const LogcatTrace: React.FC = () => {
           className="p-2 flex items-center justify-center w-full"
           style={{ display: !hasNextPage ? 'none' : '' }}
         >
-          {/* TODO: Loading spin 같은 로딩 UI가 필요 */}
-          Loading...
+          <LoadingIcon className="fill-grey w-5 h-5 animate-spin" />
         </div>
-      </Scrollbars>
+      </ScrollComponent>
     </div>
   )
 }

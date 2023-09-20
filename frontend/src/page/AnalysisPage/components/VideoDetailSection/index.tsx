@@ -8,7 +8,7 @@ import { ReactComponent as StepForwardIcon } from '@assets/images/icon_step_forw
 import { ReactComponent as GoToLastIcon } from '@assets/images/icon_go_to_last_w.svg'
 import { ReactComponent as StopIcon } from '@assets/images/icon_stop.svg'
 import { ReactComponent as RealTimeScreenIcon } from '@assets/images/icon_realtime_screen.svg'
-import { IconButton, Text } from '@global/ui'
+import { IconButton, Skeleton, Text } from '@global/ui'
 import { cursorDateTimeState, scenarioIdState, testRunIdState } from '@global/atom'
 import { AppURL } from '@global/constant'
 import apiUrls from '@page/AnalysisPage/api/url'
@@ -39,6 +39,7 @@ const VideoDetailSection: React.FC = () => {
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
   const [isPlaying, setIsPlaying] = useState<boolean>(false)
+  const [isVideoLoaded, setIsVideoLoaded] = useState<boolean>(false)
   const [currentTime, setCurrentTime] = useState<number>(0)
   const [duration, setDuration] = useState<number>(0)
   const cursorDateTime = useRecoilValue(cursorDateTimeState)
@@ -53,7 +54,7 @@ const VideoDetailSection: React.FC = () => {
     videoRef.current.currentTime = newCurrentTime
   }, [cursorDateTime])
 
-  const onLoadVideoError = useCallback(async () => {
+  const reloadVideo = useCallback(async () => {
     if (!videoRef.current) return
 
     await delay(2)
@@ -93,6 +94,7 @@ const VideoDetailSection: React.FC = () => {
               if (!videoRef.current) return
               videoRef.current.currentTime = 0
             }}
+            disabled={!isVideoLoaded}
           />
           <IconButton
             colorScheme="charcoal"
@@ -101,6 +103,7 @@ const VideoDetailSection: React.FC = () => {
               if (!videoRef.current) return
               videoRef.current.currentTime = Math.max(videoRef.current.currentTime - 1, 0)
             }}
+            disabled={!isVideoLoaded}
           />
           {isPlaying && (
             <IconButton
@@ -110,6 +113,7 @@ const VideoDetailSection: React.FC = () => {
                 if (!videoRef.current) return
                 videoRef.current.pause()
               }}
+              disabled={!isVideoLoaded}
             />
           )}
           {!isPlaying && (
@@ -120,6 +124,7 @@ const VideoDetailSection: React.FC = () => {
                 if (!videoRef.current) return
                 videoRef.current.play()
               }}
+              disabled={!isVideoLoaded}
             />
           )}
           <IconButton
@@ -129,6 +134,7 @@ const VideoDetailSection: React.FC = () => {
               if (!videoRef.current) return
               videoRef.current.currentTime = Math.min(videoRef.current.currentTime + 1, videoRef.current.duration)
             }}
+            disabled={!isVideoLoaded}
           />
           <IconButton
             colorScheme="charcoal"
@@ -137,11 +143,18 @@ const VideoDetailSection: React.FC = () => {
               if (!videoRef.current) return
               videoRef.current.currentTime = videoRef.current.duration
             }}
+            disabled={!isVideoLoaded}
           />
         </div>
       </div>
 
       <div className="aspect-video">
+        {!isVideoLoaded && (
+          <Skeleton className="h-full aspect-video" colorScheme="dark">
+            <video className="h-full" />
+          </Skeleton>
+        )}
+
         {scenarioId && testRunId && (
           <video
             ref={videoRef}
@@ -153,6 +166,7 @@ const VideoDetailSection: React.FC = () => {
             onPause={() => setIsPlaying(false)}
             onLoadedData={() => {
               if (!videoRef.current) return
+              setIsVideoLoaded(true)
               setCurrentTime(videoRef.current.currentTime)
               setDuration(videoRef.current.duration)
             }}
@@ -161,7 +175,8 @@ const VideoDetailSection: React.FC = () => {
               setCurrentTime(videoRef.current.currentTime)
             }}
             onError={() => {
-              onLoadVideoError()
+              setIsVideoLoaded(false)
+              reloadVideo()
             }}
           />
         )}

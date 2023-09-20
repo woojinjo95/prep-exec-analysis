@@ -4,7 +4,6 @@ import useFetchScenarios from '@global/hook/useFetchScenarios'
 import { PAGE_SIZE_TWENTY } from '@global/constant'
 import useIntersect from '@global/hook/useIntersect'
 import { formatDateTo } from '@global/usecase'
-import Scrollbars from 'react-custom-scrollbars-2'
 import { useScenarioById } from '@global/api/hook'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { playStartTimeState, scenarioIdState, testRunIdState } from '@global/atom'
@@ -15,6 +14,7 @@ import { useToast } from '@chakra-ui/react'
 import { AxiosError } from 'axios'
 import { useWebsocket } from '@global/hook'
 import { useNavigate } from 'react-router-dom'
+import ScrollComponent from '@global/ui/ScrollComponent'
 
 interface SaveBlocksModalProps {
   isOpen: boolean
@@ -245,8 +245,8 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
                 {blocksTags.map((tag) => (
                   <React.Fragment key={`blocks_${currentScenario.id}_${tag}`}>
                     <Tag
+                      colorScheme="charcoal"
                       tag={tag}
-                      mode="delete"
                       onDelete={() => setBlocksTags((prev) => prev.filter((_tag) => _tag !== tag))}
                     />
                   </React.Fragment>
@@ -281,7 +281,7 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
               })}
             {tagInput !== '' && (
               <div
-                className="h-11 flex px-3 py-2 hover:bg-light-charcoal cursor-pointer"
+                className="rounded-[4px] flex items-center px-3 py-1 hover:bg-light-charcoal cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation()
 
@@ -300,7 +300,7 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
                 <Text colorScheme="light" className="mr-2">
                   Create :{' '}
                 </Text>
-                <Tag tag={tagInput} />
+                <Tag colorScheme="charcoal" tag={tagInput} />
               </div>
             )}
           </Select>
@@ -317,11 +317,7 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
               Last modified
             </Text>
           </div>
-          <Scrollbars
-            renderThumbVertical={({ ...props }) => (
-              <div {...props} className="w-2 rounded-[5px] pr-2 bg-light-charcoal" />
-            )}
-          >
+          <ScrollComponent>
             {scenarios.map((scenario) => (
               <div className="flex flex-col w-full" key={`file_${scenario.name}`}>
                 <div className="w-[calc(100%-16px)] grid grid-cols-[35%_45%_20%]  gap-x-2 border-b-grey border-b-[1px] min-h-[48px] items-center">
@@ -334,16 +330,9 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
                     </Text>
                   </div>
 
-                  <div className="flex flex-wrap w-full h-full pt-[10px] items-center">
+                  <div className="flex flex-wrap w-full h-full items-center">
                     {scenario.tags.map((tag) => (
-                      <Text
-                        className="text-white mr-2 mb-2"
-                        invertBackground
-                        colorScheme="dark-grey"
-                        key={`${scenario.name}_tag_${tag}`}
-                      >
-                        {tag}
-                      </Text>
+                      <Tag key={`${scenario.name}_tag_${tag}`} tag={tag} colorScheme="dark" />
                     ))}
                   </div>
                   <Text size="md" colorScheme="light">
@@ -361,7 +350,7 @@ const SaveBlocksModal: React.FC<SaveBlocksModalProps> = ({ isOpen, close, isMove
               {/* Loading spin 같은 로딩 UI가 필요 */}
               Loading...
             </div>
-          </Scrollbars>
+          </ScrollComponent>
         </div>
         <div className="flex justify-end mt-7">
           <Button

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useRecoilState } from 'recoil'
 import { Accordion, SimpleButton, Text } from '@global/ui'
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
@@ -19,6 +19,10 @@ const LogLevelFinderSummaryItem: React.FC<LogLevelFinderSummaryItemProps> = ({ l
   const [logLevelFinderLogLevelFilterList, setLogLevelFinderLogLevelFilterList] = useRecoilState(
     logLevelFinderLogLevelFilterListState,
   )
+
+  useEffect(() => {
+    setLogLevelFinderLogLevelFilterList([])
+  }, [])
 
   return (
     <Accordion

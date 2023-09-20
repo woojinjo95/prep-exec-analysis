@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import * as d3 from 'd3'
-import { VIDEO_SNAPSHOT_HEIGHT } from '@global/ui/VideoSnapshots/constant'
-import { AppURL } from '@global/constant'
+import { AppURL, VIDEO_SNAPSHOT_HEIGHT } from '@global/constant'
 import { useVideoSnapshots } from './api/hook'
 
 interface VideoSnapshotsProps {
@@ -10,6 +9,7 @@ interface VideoSnapshotsProps {
   tickCount?: number
   scaleX?: d3.ScaleTime<number, number, never> | null
   isVisible?: boolean
+  loadingComponent: React.ReactNode
 }
 
 /**
@@ -23,9 +23,10 @@ const VideoSnapshots: React.FC<VideoSnapshotsProps> = ({
   tickCount = 10,
   scaleX,
   isVisible = true,
+  loadingComponent,
 }) => {
   const [clientWidth, setClientWidth] = useState<number | null>(null)
-  const { videoSnapshots } = useVideoSnapshots()
+  const { videoSnapshots, isLoading } = useVideoSnapshots()
 
   const snapshotScaleX: d3.ScaleLinear<number, number, never> | null = useMemo(() => {
     if (!videoSnapshots || !clientWidth || !startTime || !endTime) return null
@@ -65,6 +66,7 @@ const VideoSnapshots: React.FC<VideoSnapshotsProps> = ({
   }, [snapshotScaleX, videoSnapshots, firstSnapshotIndex])
 
   if (!isVisible) return null
+  if (isLoading) return loadingComponent
   return (
     <div
       ref={(ref) => {

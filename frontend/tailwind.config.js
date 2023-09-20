@@ -11,7 +11,6 @@ export default {
         'light-charcoal': '#4E525A',
         grey: '#8F949E',
         'light-grey': '#DFE0EE',
-        'dark-grey': '#707070',
 
         // palette
         pink: '#D89B9B',
