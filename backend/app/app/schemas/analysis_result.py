@@ -170,6 +170,14 @@ class NetworkFilter(BaseModel):
     items: List[NetworkFilterBase]
 
 
+class MacroblockBase(TimestampBaseModel):
+    duration: float
+
+
+class Macroblock(PaginationBaseModel):
+    items: List[MacroblockBase]
+
+
 # ----- Summary Schemas -----
 class SummaryInnerBase(BaseModel):
     total: int

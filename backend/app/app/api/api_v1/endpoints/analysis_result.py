@@ -635,7 +635,7 @@ def get_data_of_intelligent_monkey_smart_sense(
 
 
 # Macro Block
-@router.get("/macroblock")#, response_model=schemas.Freeze)
+@router.get("/macroblock", response_model=schemas.Macroblock)
 def get_data_of_macro_block(
     start_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
     end_time: str = Query(..., description='ex)2009-02-13T23:31:30+00:00'),
@@ -650,16 +650,11 @@ def get_data_of_macro_block(
     화면 깨짐 데이터 조회
     """
     try:
-        if testrun_id is None:
-            testrun_id = RedisClient.hget('testrun', 'id')
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
-
-        macroblock_pipeline = [{'$match': {'timestamp': {'$gte': convert_iso_format(start_time),
-                                                         '$lte': convert_iso_format(end_time)},
-                                           'scenario_id': scenario_id,
-                                           'testrun_id': testrun_id}},
-                               {'$project': {'_id': 0,
+        macroblock_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
+                                                            testrun_id=testrun_id,
+                                                            start_time=start_time,
+                                                            end_time=end_time)
+        macroblock_pipeline = [{'$project': {'_id': 0,
                                              'timestamp': {'$dateToString': {'date': '$timestamp'}},
                                              'duration': 1}}]
 
