@@ -1,8 +1,7 @@
 import React from 'react'
 import { Accordion, Checkbox, ColorPickerBox, Text } from '@global/ui'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
-import { LogLevel } from '@global/constant'
-import { AnalysisTypeLabel } from '../../../constant'
+import { AnalysisTypeLabel, LogLevel } from '@global/constant'
 import { UnsavedAnalysisConfig } from '../../../types'
 
 interface LogLevelFinderAnalysisItemProps {
@@ -79,12 +78,6 @@ const LogLevelFinderAnalysisItem: React.FC<LogLevelFinderAnalysisItemProps> = ({
           })}
         </div>
       </div>
-
-      {!!warningMessage && (
-        <div className="pt-2">
-          <Text colorScheme="orange">{warningMessage}</Text>
-        </div>
-      )}
     </Accordion>
   )
 }

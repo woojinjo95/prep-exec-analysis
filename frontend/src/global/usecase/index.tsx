@@ -167,7 +167,7 @@ export const bytesToSize = (bytes: number) => {
 
   if (bytes === 0) return ''
 
-  const i = Math.floor(Math.log(bytes) / Math.log(1024))
+  const i = Math.floor(Math.log(Math.abs(bytes)) / Math.log(1024))
   if (i === 0) return `${dropDecimalPoint(bytes)} ${sizes[i]}`
   return `${dropDecimalPoint(bytes / 1024 ** i)} ${sizes[i]}`
 }

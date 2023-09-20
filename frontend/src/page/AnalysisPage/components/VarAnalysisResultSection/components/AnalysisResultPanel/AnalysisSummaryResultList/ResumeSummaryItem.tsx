@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useRecoilState } from 'recoil'
 import { Accordion, SimpleButton, Text } from '@global/ui'
 import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.svg'
@@ -7,7 +7,8 @@ import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
 import { convertDuration, numberWithCommas } from '@global/usecase'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { resumeTypeFilterListState } from '@global/atom'
-import { AnalysisTypeLabel, ResumeTypeLabel } from '../../../constant'
+import { AnalysisTypeLabel } from '@global/constant'
+import { ResumeTypeLabel } from '../../../constant'
 
 interface ResumeSummaryItemProps {
   resume: NonNullable<AnalysisResultSummary['resume']>
@@ -19,6 +20,10 @@ interface ResumeSummaryItemProps {
  */
 const ResumeSummaryItem: React.FC<ResumeSummaryItemProps> = ({ resume, setRawDataModalType }) => {
   const [resumeTypeFilterList, setResumeTypeFilterList] = useRecoilState(resumeTypeFilterListState)
+
+  useEffect(() => {
+    setResumeTypeFilterList([])
+  }, [])
 
   return (
     <Accordion

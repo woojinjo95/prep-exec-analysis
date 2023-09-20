@@ -2,7 +2,8 @@ import React from 'react'
 import { Accordion, ColorPickerBox, OptionItem, Select, SetROIButton, Text } from '@global/ui'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
 import { ReactComponent as ISValidIcon } from '@assets/images/icon_Is_valid.svg'
-import { AnalysisTypeLabel, ResumeTypeLabel } from '../../../constant'
+import { AnalysisTypeLabel } from '@global/constant'
+import { ResumeTypeLabel } from '../../../constant'
 import { UnsavedAnalysisConfig } from '../../../types'
 
 interface ResumeAnalysisItemProps {
@@ -106,12 +107,6 @@ const ResumeAnalysisItem: React.FC<ResumeAnalysisItemProps> = ({
                 }))
               }}
             />
-          </div>
-        )}
-
-        {!!warningMessage && (
-          <div className="pt-2">
-            <Text colorScheme="orange">{warningMessage}</Text>
           </div>
         )}
       </div>

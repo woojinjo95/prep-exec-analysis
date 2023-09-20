@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useRecoilState } from 'recoil'
 import { Accordion, SimpleButton, Text } from '@global/ui'
 import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.svg'
@@ -7,7 +7,8 @@ import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
 import { numberWithCommas } from '@global/usecase'
 import { freezeTypeFilterListState } from '@global/atom'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
-import { AnalysisTypeLabel, FreezeTypeLabel } from '../../../constant'
+import { AnalysisTypeLabel } from '@global/constant'
+import { FreezeTypeLabel } from '../../../constant'
 
 interface FreezeSummaryItemProps {
   freeze: NonNullable<AnalysisResultSummary['freeze']>
@@ -19,6 +20,10 @@ interface FreezeSummaryItemProps {
  */
 const FreezeSummaryItem: React.FC<FreezeSummaryItemProps> = ({ freeze, setRawDataModalType }) => {
   const [freezeTypeFilterList, setFreezeTypeFilterList] = useRecoilState(freezeTypeFilterListState)
+
+  useEffect(() => {
+    setFreezeTypeFilterList([])
+  }, [])
 
   return (
     <Accordion

@@ -2,7 +2,7 @@ import React from 'react'
 import { Accordion, Text } from '@global/ui'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { dropDecimalPoint } from '@global/usecase'
-import { AnalysisTypeLabel } from '../../../constant'
+import { AnalysisTypeLabel } from '@global/constant'
 
 interface LoudnessSummaryItemProps {
   loudness: NonNullable<AnalysisResultSummary['loudness']>

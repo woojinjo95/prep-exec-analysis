@@ -45,7 +45,7 @@ class AnalysisTypeEnum(ExtendedEnum):
     channel_change_time = "channel_change_time"
     log_level_finder = "log_level_finder"
     log_pattern_matching = "log_pattern_matching"
-    process_lifecycle_analysis = "process_lifecycle_analysis"
+    process_lifecycle = "process_lifecycle"
     network_filter = "network_filter"
     monkey_test = "monkey_test"
     intelligent_monkey_test = "intelligent_monkey_test"
@@ -96,6 +96,7 @@ class ServiceStateEnum(ExtendedEnum):
     streaming = "streaming"
     playblock = "playblock"
     analysis = "analysis"
+    recording = "recording"
 
 
 class FreezeTypeEnum(ExtendedEnum):

@@ -43,7 +43,7 @@ export const useInfiniteLogcat = ({ enabled, ...params }: Parameters<typeof getL
   })
 
   return {
-    logcats: data?.pages.flatMap(({ items }) => items) || [],
+    logcats: data?.pages.flatMap(({ items }) => items),
     loadingRef: ref,
     hasNextPage,
   }
@@ -90,7 +90,7 @@ export const useInfiniteNetwork = ({
   })
 
   return {
-    networks: data?.pages.flatMap(({ items }) => items) || [],
+    networks: data?.pages.flatMap(({ items }) => items),
     loadingRef: ref,
     hasNextPage,
   }
@@ -150,7 +150,7 @@ export const useInfiniteShellLogs = ({
   })
 
   return {
-    shellLogs: data?.pages.flatMap(({ items }) => items) || [],
+    shellLogs: data?.pages.flatMap(({ items }) => items),
     loadingRef: ref,
     hasNextPage,
   }

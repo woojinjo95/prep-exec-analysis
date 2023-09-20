@@ -8,11 +8,11 @@ api_router.include_router(remocon.router, prefix="/remocon", tags=["remocon"])
 
 api_router.include_router(scenario_tag.router, prefix="/scenario/tag", tags=["scenario:tag"])
 api_router.include_router(testrun.router, prefix="/scenario/testrun", tags=["scenario:testrun"])
-api_router.include_router(scenario.router, prefix="/scenario", tags=["scenario"])
-api_router.include_router(scenario.router_detail, prefix="/copy_scenario", tags=["scenario"])
 api_router.include_router(block.router, prefix="/scenario/block", tags=["scenario:block"])
 api_router.include_router(block.router_detail, prefix="/scenario/blocks", tags=["scenario:block"])
 api_router.include_router(block.block_group_router, prefix="/scenario/block_group", tags=["scenario:block"])
+api_router.include_router(scenario.router, prefix="/scenario", tags=["scenario"])
+api_router.include_router(scenario.router_detail, prefix="/copy_scenario", tags=["scenario"])
 
 api_router.include_router(analysis.router, prefix="/analysis", tags=["analysis"])
 api_router.include_router(analysis_config.router, prefix="/analysis_config", tags=["analysis_config"])

@@ -1,9 +1,10 @@
 import React from 'react'
 import { useRecoilValue } from 'recoil'
+import ScrollComponent from '@global/ui/ScrollComponent'
 import { cursorDateTimeState } from '@global/atom'
-import { Text } from '@global/ui'
-import Scrollbars from 'react-custom-scrollbars-2'
+import { Skeleton, Text } from '@global/ui'
 import { formatDateTo } from '@global/usecase'
+import { ReactComponent as LoadingIcon } from '@assets/images/loading.svg'
 import { Shell } from '../api/entity'
 import { useInfiniteShellLogs } from '../api/hook'
 
@@ -22,24 +23,24 @@ const ShellLog: React.FC<ShellLogProps> = ({ shell_mode }) => {
     enabled: !!cursorDateTime,
   })
 
+  if (!shellLogs) return <Skeleton className="w-full h-full" colorScheme="dark" />
   return (
     <div className="w-full flex flex-col h-full overflow-x-hidden overflow-y-auto">
-      <Scrollbars
-        renderThumbVertical={({ ...props }) => <div {...props} className="bg-light-charcoal w-2 rounded-[5px]" />}
-      >
-        <div className="w-full grid grid-cols-[16%_9%_1fr] gap-2 sticky top-0 bg-black">
-          <Text size="sm" colorScheme="grey">
-            Timestamp
-          </Text>
-          <Text size="sm" colorScheme="grey">
-            Module
-          </Text>
-          <Text size="sm" colorScheme="grey">
-            Message
-          </Text>
-        </div>
+      <div className="w-full grid grid-cols-[16%_9%_1fr] gap-2 bg-black">
+        <Text size="sm" colorScheme="grey">
+          Timestamp
+        </Text>
+        <Text size="sm" colorScheme="grey">
+          Module
+        </Text>
+        <Text size="sm" colorScheme="grey">
+          Message
+        </Text>
+      </div>
+
+      <ScrollComponent>
         <div className="flex flex-col w-full mt-1">
-          {shellLogs?.map(({ timestamp, module, message }, index) => (
+          {shellLogs.map(({ timestamp, module, message }, index) => (
             <div
               key={`shell-logs-${shell_mode}-${timestamp}-${module}-${index}`}
               className="w-full grid grid-cols-[16%_9%_1fr] gap-2"
@@ -61,10 +62,9 @@ const ShellLog: React.FC<ShellLogProps> = ({ shell_mode }) => {
           className="p-2 flex items-center justify-center w-full"
           style={{ display: !hasNextPage ? 'none' : '' }}
         >
-          {/* TODO: Loading spin 같은 로딩 UI가 필요 */}
-          Loading...
+          <LoadingIcon className="fill-grey w-5 h-5 animate-spin" />
         </div>
-      </Scrollbars>
+      </ScrollComponent>
     </div>
   )
 }

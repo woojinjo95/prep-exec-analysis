@@ -1,6 +1,7 @@
 import { LogConnectionStatus } from '@global/api/entity'
 import PagePath from './pagePath'
 import LogLevel from './logLevel'
+import AnalysisType from './analysisType'
 
 export { default as AnalysisType } from './analysisType'
 export { default as AppURL } from './appURL'
@@ -30,6 +31,11 @@ export const PAGE_SIZE_TEN = 10
  * AreaChart, PointChart 높이
  */
 export const CHART_HEIGHT = 64
+
+/**
+ * 비디오 스냅샷 높이
+ */
+export const VIDEO_SNAPSHOT_HEIGHT = 64
 
 /**
  * 월 영어 이름
@@ -75,3 +81,18 @@ export const LogLevelColor: {
   D: 'green',
   V: 'grey',
 }
+
+/**
+ * 측정타입 라벨
+ */
+export const AnalysisTypeLabel: { [key in keyof typeof AnalysisType]: string } = {
+  freeze: 'Freeze Detection',
+  loudness: 'Loudness Measurement',
+  resume: 'Resume Measurement',
+  boot: 'Boot Measurement',
+  channel_change_time: 'Channel Change Time Measurement',
+  log_level_finder: 'Log Level Finder',
+  log_pattern_matching: 'Log Pattern Matching',
+  monkey_test: 'Monkey Test',
+  intelligent_monkey_test: 'Intelligent Monkey Test (All-Menu Navigation)',
+} as const

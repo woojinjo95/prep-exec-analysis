@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useRecoilState } from 'recoil'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { Accordion, SimpleButton, Text } from '@global/ui'
@@ -7,7 +7,7 @@ import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
 import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
 import { monkeyTestIdFilterListState } from '@global/atom'
-import { AnalysisTypeLabel } from '../../../constant'
+import { AnalysisTypeLabel } from '@global/constant'
 
 interface MonkeyTestSummaryItemProps {
   monkeyTest: NonNullable<AnalysisResultSummary['monkey_test']>
@@ -19,6 +19,10 @@ interface MonkeyTestSummaryItemProps {
  */
 const MonkeyTestSummaryItem: React.FC<MonkeyTestSummaryItemProps> = ({ monkeyTest, setRawDataModalType }) => {
   const [monkeyTestIdFilterList, setMonkeyTestIdFilterList] = useRecoilState(monkeyTestIdFilterListState)
+
+  useEffect(() => {
+    setMonkeyTestIdFilterList([])
+  }, [])
 
   return (
     <Accordion

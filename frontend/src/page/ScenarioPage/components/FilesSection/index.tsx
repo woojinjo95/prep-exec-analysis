@@ -1,6 +1,5 @@
 import { Button, Text, Title } from '@global/ui'
 import React, { useMemo } from 'react'
-import Scrollbars from 'react-custom-scrollbars-2'
 import useIntersect from '@global/hook/useIntersect'
 import useFetchScenarios from '@global/hook/useFetchScenarios'
 import { PAGE_SIZE_TWENTY } from '@global/constant'
@@ -10,6 +9,7 @@ import { useNavigate } from 'react-router-dom'
 import { useRecoilState } from 'recoil'
 import { scenarioIdState, testRunIdState } from '@global/atom'
 import { useWebsocket } from '@global/hook'
+import ScrollComponent from '@global/ui/ScrollComponent'
 import ScenarioItem from './ScenarioItem'
 
 const FilesSection: React.FC = () => {
@@ -103,9 +103,7 @@ const FilesSection: React.FC = () => {
               </div>
             </div>
           </div>
-          <Scrollbars
-            renderThumbVertical={({ ...props }) => <div {...props} className="bg-light-charcoal w-2 rounded-[5px]" />}
-          >
+          <ScrollComponent>
             {scenarios?.map((scenario) => (
               <div className="flex flex-col w-full" key={`file_${scenario.name}`}>
                 <ScenarioItem
@@ -125,7 +123,7 @@ const FilesSection: React.FC = () => {
               {/* Loading spin 같은 로딩 UI가 필요 */}
               Loading...
             </div>
-          </Scrollbars>
+          </ScrollComponent>
         </div>
       </div>
       {/* scenario 생성 모달

@@ -4,9 +4,10 @@ import { useNavigate } from 'react-router-dom'
 import { AppURL } from '@global/constant'
 import { Text } from '@global/ui'
 import { useRecoilValue } from 'recoil'
-import { isBlockRecordModeState, scenarioIdState } from '@global/atom'
+import { isBlockRecordModeState, scenarioIdState, testRunIdState } from '@global/atom'
 import { useScenarioById, useServiceState } from '@global/api/hook'
 import { useWebsocket } from '@global/hook'
+import { ReactComponent as AnalysisIcon } from '@assets/images/icon_analysis.svg'
 import HLSPlayer from './components/HLSPlayer'
 import SaveBlocksModal from '../ActionSection/components/SaveBlocksModal'
 import { LKFSPlayload } from './type'
@@ -38,7 +39,9 @@ const MonitorSection: React.FC = () => {
 
   const scenarioId = useRecoilValue(scenarioIdState)
 
-  const { scenario } = useScenarioById({ scenarioId })
+  const testrunId = useRecoilValue(testRunIdState)
+
+  const { scenario } = useScenarioById({ scenarioId, testrunId })
 
   const [isSaveBlocksModalOpen, setIsSaveBlocksModalOpen] = useState<boolean>(false)
 
@@ -64,7 +67,7 @@ const MonitorSection: React.FC = () => {
     >
       <button
         className={cx(
-          'absolute top-5 left-1/2 -translate-x-1/2 bg-white/80 rounded-full border-2 border-primary py-3 px-10 cursor-pointer z-10 transition-opacity',
+          'absolute top-5 left-1/2 -translate-x-1/2 bg-white/80 rounded-full border-2 border-primary py-3 px-10 cursor-pointer z-10 transition-opacity flex justify-center items-start gap-x-2',
           {
             'opacity-30': !isHovered,
             'opacity-100': isHovered,
@@ -96,6 +99,7 @@ const MonitorSection: React.FC = () => {
           navigate('/analysis')
         }}
       >
+        <AnalysisIcon className="w-[18px] mt-0.5" />
         <Text weight="medium" colorScheme="dark">
           Analysis
         </Text>

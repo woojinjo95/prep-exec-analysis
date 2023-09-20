@@ -14,6 +14,7 @@ interface OptionListProps extends React.HTMLAttributes<HTMLUListElement> {
   isVisible?: boolean
   wrapperRef: React.MutableRefObject<HTMLDivElement | null>
   widthOption?: 'fit-content' | 'fit-wrapper'
+  className?: string
   positionX?: 'left' | 'right'
 }
 
@@ -32,6 +33,8 @@ interface OptionListProps extends React.HTMLAttributes<HTMLUListElement> {
  * FIXME: 스크롤 시 닫히도록
  *
  * FIXME: 위아래 고정 옵션
+ *
+ * FIXME: 화면을 벗어났을 경우 -> overflow-y-auto
  */
 const OptionList: React.ForwardRefExoticComponent<OptionListProps & React.RefAttributes<HTMLUListElement>> =
   React.forwardRef<HTMLUListElement, OptionListProps>(
@@ -43,6 +46,7 @@ const OptionList: React.ForwardRefExoticComponent<OptionListProps & React.RefAtt
         widthOption = 'fit-wrapper',
         wrapperRef,
         positionX = 'left',
+        className,
         ...props
       },
       ref,
@@ -83,7 +87,7 @@ const OptionList: React.ForwardRefExoticComponent<OptionListProps & React.RefAtt
         <ul
           ref={ref}
           className={cx(
-            'fixed border rounded-lg p-[3px] grid grid-cols-1 gap-y-1 z-20',
+            'fixed border rounded-lg p-[3px] grid grid-cols-1 gap-y-1 z-20 overflow-y-auto',
             {
               'bg-white': colorScheme === 'light',
               'border-light-grey': colorScheme === 'light',
@@ -92,7 +96,7 @@ const OptionList: React.ForwardRefExoticComponent<OptionListProps & React.RefAtt
               'bg-light-black': colorScheme === 'dark',
               'border-charcoal': colorScheme === 'dark',
             },
-            props.className,
+            className,
           )}
           style={createDefaultStyle(wrapperRef)}
           {...props}

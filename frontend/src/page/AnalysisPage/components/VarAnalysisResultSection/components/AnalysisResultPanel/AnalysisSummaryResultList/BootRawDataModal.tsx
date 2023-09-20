@@ -6,7 +6,8 @@ import { convertDuration, formatDateTo, numberWithCommas } from '@global/usecase
 import { ReactComponent as PlayIcon } from '@assets/images/icon_play.svg'
 import { useInfiniteBoot } from '@page/AnalysisPage/api/hook'
 import { cursorDateTimeState } from '@global/atom'
-import { AnalysisTypeLabel, BootTypeLabel } from '../../../constant'
+import { AnalysisTypeLabel } from '@global/constant'
+import { BootTypeLabel } from '../../../constant'
 
 interface BootRawDataModalProps {
   isOpen: boolean

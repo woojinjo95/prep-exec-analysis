@@ -2,8 +2,8 @@ import React, { useCallback, useMemo, useRef, useState } from 'react'
 import * as d3 from 'd3'
 import { useRecoilValue } from 'recoil'
 import { scenarioIdState, testRunIdState } from '@global/atom'
-import { Button, Modal, Text, VideoSnapshots } from '@global/ui'
-import { AppURL } from '@global/constant'
+import { Button, Modal, Skeleton, Text, VideoSnapshots } from '@global/ui'
+import { AppURL, VIDEO_SNAPSHOT_HEIGHT } from '@global/constant'
 import { useVideoSummary } from '@global/api/hook'
 import { delay, formatDateTo } from '@global/usecase'
 import { AnalysisFrame } from '@global/api/entity'
@@ -198,6 +198,9 @@ const SetROIModal: React.FC<SetROIModalProps> = ({ isOpen, onClose, onSave, defa
               startTime={new Date(videoSummary.start_time)}
               endTime={new Date(videoSummary.end_time)}
               tickCount={12}
+              loadingComponent={
+                <Skeleton className="w-full" style={{ height: VIDEO_SNAPSHOT_HEIGHT }} colorScheme="charcoal" />
+              }
             />
             {duration && (
               <VideoSnapshotsCursor

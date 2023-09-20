@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useRecoilState } from 'recoil'
 import { Accordion, Text, SimpleButton } from '@global/ui'
 import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.svg'
@@ -7,7 +7,8 @@ import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
 import { convertDuration, numberWithCommas } from '@global/usecase'
 import { bootTypeFilterListState } from '@global/atom'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
-import { AnalysisTypeLabel, BootTypeLabel } from '../../../constant'
+import { AnalysisTypeLabel } from '@global/constant'
+import { BootTypeLabel } from '../../../constant'
 
 interface BootSummaryItemProps {
   boot: NonNullable<AnalysisResultSummary['boot']>
@@ -19,6 +20,10 @@ interface BootSummaryItemProps {
  */
 const BootSummaryItem: React.FC<BootSummaryItemProps> = ({ boot, setRawDataModalType }) => {
   const [bootTypeFilterList, setBootTypeFilterList] = useRecoilState(bootTypeFilterListState)
+
+  useEffect(() => {
+    setBootTypeFilterList([])
+  }, [])
 
   return (
     <Accordion

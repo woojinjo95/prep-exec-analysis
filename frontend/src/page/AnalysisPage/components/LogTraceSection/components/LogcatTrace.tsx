@@ -1,10 +1,10 @@
 import React from 'react'
 import { useRecoilValue } from 'recoil'
-import { Scrollbars } from 'react-custom-scrollbars-2'
-import { Text } from '@global/ui'
+import { ScrollComponent, Skeleton, Text } from '@global/ui'
 import { formatDateTo } from '@global/usecase'
 import { cursorDateTimeState } from '@global/atom'
 import { LogLevelColor } from '@global/constant'
+import { ReactComponent as LoadingIcon } from '@assets/images/loading.svg'
 import { useInfiniteLogcat } from '../api/hook'
 
 /**
@@ -17,37 +17,36 @@ const LogcatTrace: React.FC = () => {
     enabled: !!cursorDateTime,
   })
 
-  if (!logcats) return null
+  if (!logcats) return <Skeleton className="w-full h-full" colorScheme="dark" />
   return (
     <div className="w-full flex flex-col h-full overflow-x-hidden overflow-y-auto">
-      <Scrollbars
-        renderThumbVertical={({ ...props }) => <div {...props} className="bg-light-charcoal w-2 rounded-[5px]" />}
-      >
-        <div className="w-[calc(100%-48px)] grid grid-cols-[16%_6%_9%_9%_5%_5%_50%] gap-x-2 text-grey sticky top-0 bg-black">
-          <Text size="sm" colorScheme="grey">
-            Timestamp
-          </Text>
-          <Text size="sm" colorScheme="grey">
-            Log Level
-          </Text>
-          <Text size="sm" colorScheme="grey">
-            Module
-          </Text>
-          <Text size="sm" colorScheme="grey">
-            Process
-          </Text>
-          <Text size="sm" colorScheme="grey">
-            Pid
-          </Text>
-          <Text size="sm" colorScheme="grey">
-            Tid
-          </Text>
-          <Text size="sm" colorScheme="grey">
-            Message
-          </Text>
-        </div>
+      <div className="w-[calc(100%-48px)] grid grid-cols-[16%_6%_9%_9%_5%_5%_50%] gap-x-2 text-grey bg-black">
+        <Text size="sm" colorScheme="grey">
+          Timestamp
+        </Text>
+        <Text size="sm" colorScheme="grey">
+          Log Level
+        </Text>
+        <Text size="sm" colorScheme="grey">
+          Module
+        </Text>
+        <Text size="sm" colorScheme="grey">
+          Process
+        </Text>
+        <Text size="sm" colorScheme="grey">
+          PID
+        </Text>
+        <Text size="sm" colorScheme="grey">
+          TID
+        </Text>
+        <Text size="sm" colorScheme="grey">
+          Message
+        </Text>
+      </div>
+
+      <ScrollComponent>
         <div className="flex flex-col w-full mt-1">
-          {logcats?.map(({ timestamp, module, log_level, process_name, pid, tid, message }, index) => (
+          {logcats.map(({ timestamp, module, log_level, process_name, pid, tid, message }, index) => (
             <div
               key={`logcat-trace-log-${timestamp}-${index}`}
               className="w-[calc(100%-48px)] grid grid-cols-[16%_6%_9%_9%_5%_5%_50%] gap-x-2 text-grey text-sm"
@@ -90,10 +89,9 @@ const LogcatTrace: React.FC = () => {
           className="p-2 flex items-center justify-center w-full"
           style={{ display: !hasNextPage ? 'none' : '' }}
         >
-          {/* TODO: Loading spin 같은 로딩 UI가 필요 */}
-          Loading...
+          <LoadingIcon className="fill-grey w-5 h-5 animate-spin" />
         </div>
-      </Scrollbars>
+      </ScrollComponent>
     </div>
   )
 }

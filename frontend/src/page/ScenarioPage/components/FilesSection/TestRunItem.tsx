@@ -42,7 +42,7 @@ const TestRunItem: React.FC<TestRunItemProps> = ({ scenarioSummary }) => {
               Last Updated
             </Text>
             <Text className="text-sm" colorScheme="grey">
-              Analyis Item
+              Analysis Item
             </Text>
             <div />
           </div>
@@ -64,7 +64,7 @@ const TestRunItem: React.FC<TestRunItemProps> = ({ scenarioSummary }) => {
                 {formatDateTo('M DD YYYY, HH:MM AA', new Date(testrun.updated_at))}
               </Text>
               <Text className="text-sm" colorScheme="light">
-                {testrun.measure_targets.join(',')}
+                {testrun.measure_targets.join(', ')}
               </Text>
               <TrashIcon
                 className="w-4 fill-white cursor-pointer"
