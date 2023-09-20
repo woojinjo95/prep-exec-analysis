@@ -163,8 +163,7 @@ def deserialize_datetime(json_obj):
             json_obj[i] = deserialize_datetime(json_obj[i])
     elif isinstance(json_obj, str):
         try:
-            json_obj = json_obj.replace('Z', '')
-            datetime.fromisoformat(json_obj)
+            datetime.fromisoformat(json_obj.replace('Z', ''))
             return isoparse(json_obj)
         except (TypeError, ValueError):
             pass
