@@ -180,9 +180,8 @@ def get_config_from_scenario_mongodb(scenario_id: str, testrun_id: str, target: 
         pipeline.append({"$project": {"_id": 0, "config": f"$config.{target}"}})
     else:
         pipeline.append({"$project": {"_id": 0, "config": 1}})
-    res = aggregate_from_mongodb('scenario', pipeline)
-    print(res)
-    return res[0] if len(res) > 0 else {}
+    config = aggregate_from_mongodb('scenario', pipeline)
+    return config[0] if len(config) > 0 else {}
 
 
 def convert_data_in(collection_name, document):

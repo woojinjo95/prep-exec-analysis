@@ -276,7 +276,7 @@ def get_data_of_freeze(
         config = get_config_from_scenario_mongodb(scenario_id=scenario_id,
                                                   testrun_id=testrun_id,
                                                   target='freeze')
-        duration = config.get('duration', 3)
+        duration = config.get('config', {}).get('duration', 3)
 
         additional_pipeline = [
             {'$match': {'user_config.duration': duration}},
