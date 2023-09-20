@@ -8,7 +8,7 @@ import { numberWithCommas } from '@global/usecase'
 import { freezeTypeFilterListState } from '@global/atom'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { AnalysisTypeLabel } from '@global/constant'
-import { FreezeTypeLabel } from '../../../constant'
+import { FreezeTypeLabel } from '../../../../constant'
 
 interface FreezeSummaryItemProps {
   freeze: NonNullable<AnalysisResultSummary['freeze']>

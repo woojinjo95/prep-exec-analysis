@@ -8,7 +8,7 @@ import { convertDuration, numberWithCommas } from '@global/usecase'
 import { bootTypeFilterListState } from '@global/atom'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { AnalysisTypeLabel } from '@global/constant'
-import { BootTypeLabel } from '../../../constant'
+import { BootTypeLabel } from '../../../../constant'
 
 interface BootSummaryItemProps {
   boot: NonNullable<AnalysisResultSummary['boot']>

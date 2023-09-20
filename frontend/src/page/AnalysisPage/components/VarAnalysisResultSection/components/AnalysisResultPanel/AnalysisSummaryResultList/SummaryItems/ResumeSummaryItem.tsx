@@ -8,7 +8,7 @@ import { convertDuration, numberWithCommas } from '@global/usecase'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { resumeTypeFilterListState } from '@global/atom'
 import { AnalysisTypeLabel } from '@global/constant'
-import { ResumeTypeLabel } from '../../../constant'
+import { ResumeTypeLabel } from '../../../../constant'
 
 interface ResumeSummaryItemProps {
   resume: NonNullable<AnalysisResultSummary['resume']>
