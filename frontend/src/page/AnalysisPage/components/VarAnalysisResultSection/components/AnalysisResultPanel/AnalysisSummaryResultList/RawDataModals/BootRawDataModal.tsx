@@ -4,12 +4,12 @@ import { useSetRecoilState } from 'recoil'
 import { CardModal, IconButton, SortButton, Text } from '@global/ui'
 import { convertDuration, formatDateTo, numberWithCommas } from '@global/usecase'
 import { ReactComponent as PlayIcon } from '@assets/images/icon_play.svg'
-import { useInfiniteFreeze } from '@page/AnalysisPage/api/hook'
+import { useInfiniteBoot } from '@page/AnalysisPage/api/hook'
 import { cursorDateTimeState } from '@global/atom'
 import { AnalysisTypeLabel } from '@global/constant'
-import { FreezeTypeLabel } from '../../../constant'
+import { BootTypeLabel } from '../../../../constant'
 
-interface FreezeRawDataModalProps {
+interface BootRawDataModalProps {
   isOpen: boolean
   onClose: () => void
   startTime: string
@@ -17,12 +17,12 @@ interface FreezeRawDataModalProps {
 }
 
 /**
- * Freeze 원본데이터 모달
+ * Boot 원본데이터 모달
  */
-const FreezeRawDataModal: React.FC<FreezeRawDataModalProps> = ({ isOpen, onClose, startTime, endTime }) => {
-  const [sortBy, setSortBy] = useState<Parameters<typeof useInfiniteFreeze>[0]['sort_by']>('timestamp')
+const BootRawDataModal: React.FC<BootRawDataModalProps> = ({ isOpen, onClose, startTime, endTime }) => {
+  const [sortBy, setSortBy] = useState<Parameters<typeof useInfiniteBoot>[0]['sort_by']>('timestamp')
   const [sortDesc, setSortDesc] = useState<boolean>(false)
-  const { freeze, total, loadingRef, hasNextPage } = useInfiniteFreeze({
+  const { boot, total, loadingRef, hasNextPage } = useInfiniteBoot({
     start_time: startTime,
     end_time: endTime,
     sort_by: sortBy,
@@ -30,19 +30,19 @@ const FreezeRawDataModal: React.FC<FreezeRawDataModalProps> = ({ isOpen, onClose
   })
   const setCursorDateTime = useSetRecoilState(cursorDateTimeState)
 
-  if (!freeze) return null
+  if (!boot) return null
   return (
     <CardModal
       isOpen={isOpen}
       onClose={onClose}
-      title={AnalysisTypeLabel.freeze}
+      title={AnalysisTypeLabel.boot}
       subtitle={`${numberWithCommas(total)} times`}
     >
       <div className="h-full w-full overflow-y-auto">
         <table className="border-separate border-spacing-0 w-full">
           <thead className="sticky top-0">
             <tr className="text-left">
-              <th className="px-6 py-1 bg-charcoal border border-r-0 border-light-charcoal flex items-center gap-x-2">
+              <th className="px-6 py-1 bg-charcoal border border-r-0 border-light-charcoal">
                 <div className="flex items-center gap-x-2">
                   <Text size="sm" weight="medium">
                     Timestamp
@@ -62,7 +62,7 @@ const FreezeRawDataModal: React.FC<FreezeRawDataModalProps> = ({ isOpen, onClose
                     Error Type
                   </Text>
                   <SortButton
-                    value="freeze_type"
+                    value="target"
                     sortBy={sortBy}
                     setSortBy={setSortBy}
                     sortDesc={sortDesc}
@@ -76,7 +76,7 @@ const FreezeRawDataModal: React.FC<FreezeRawDataModalProps> = ({ isOpen, onClose
                     Duration Time
                   </Text>
                   <SortButton
-                    value="duration"
+                    value="measure_time"
                     sortBy={sortBy}
                     setSortBy={setSortBy}
                     sortDesc={sortDesc}
@@ -92,19 +92,19 @@ const FreezeRawDataModal: React.FC<FreezeRawDataModalProps> = ({ isOpen, onClose
             </tr>
           </thead>
           <tbody>
-            {freeze.map(({ timestamp, freeze_type, duration }, index) => (
+            {boot.map(({ timestamp, measure_time, target }, index) => (
               <tr
-                key={`freeze-raw-data-${timestamp}-${index}`}
+                key={`boot-raw-data-${timestamp}-${index}`}
                 className="border-t border-light-charcoal hover:bg-charcoal/50"
               >
                 <td className={cx('px-6 py-1', { 'border-t border-light-charcoal': index !== 0 })}>
                   <Text size="sm">{formatDateTo('YYYY-MM-DD HH:MM:SS:MS', new Date(timestamp))}</Text>
                 </td>
                 <td className={cx('px-6 py-1', { 'border-t border-light-charcoal': index !== 0 })}>
-                  <Text size="sm">{FreezeTypeLabel[freeze_type]}</Text>
+                  <Text size="sm">{BootTypeLabel[target]}</Text>
                 </td>
                 <td className={cx('px-6 py-1', { 'border-t border-light-charcoal': index !== 0 })}>
-                  <Text size="sm">{convertDuration(duration * 1000)}</Text>
+                  <Text size="sm">{convertDuration(measure_time)}</Text>
                 </td>
                 <td className={cx('px-6 py-1 flex justify-center', { 'border-t border-light-charcoal': index !== 0 })}>
                   <IconButton
@@ -132,4 +132,4 @@ const FreezeRawDataModal: React.FC<FreezeRawDataModalProps> = ({ isOpen, onClose
   )
 }
 
-export default FreezeRawDataModal
+export default BootRawDataModal
