@@ -170,18 +170,13 @@ def serialize_datetime(obj):
     raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
 
 
-def get_config_from_scenario_mongodb(scenario_id: str, testrun_id: str, target: str = None):
-    pipeline = [{"$match": {'id': scenario_id}},
-                {"$unwind": "$testruns"},
-                {"$project": {"testrun_id": "$testruns.id",
-                              "config": "$testruns.analysis.config"}},
-                {"$match": {"testrun_id": testrun_id}}]
-    if target:
-        pipeline.append({"$project": {"_id": 0, "config": f"$config.{target}"}})
-    else:
-        pipeline.append({"$project": {"_id": 0, "config": 1}})
+def get_config_from_scenario_mongodb(scenario_id: str, testrun_id: str, target: str):
+    pipeline = [{'$match': {'id': scenario_id}},
+                {'$unwind': {'path': '$testruns'}},
+                {'$match': {'testruns.id': testrun_id}},
+                {'$replaceRoot': {'newRoot': '$testruns.analysis.config.'+target}}]
     config = aggregate_from_mongodb('scenario', pipeline)
-    return config[0] if len(config) > 0 else {}
+    return config[0] if len(config) else {}
 
 
 def convert_data_in(collection_name, document):

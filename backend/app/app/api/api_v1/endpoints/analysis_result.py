@@ -50,9 +50,9 @@ def get_data_of_log_level_finder(
         config = get_config_from_scenario_mongodb(scenario_id=scenario_id,
                                                   testrun_id=testrun_id,
                                                   target='log_level_finder')
-        if config is None:
-            raise HTTPException(status_code=404, detail='Not Found log_level_finder Configurataion')
-        log_level = config.get('config', {}).get('targets', [])
+        if config == {}:
+            raise HTTPException(status_code=404, detail='Not Found LogLevelFinder Configurataion')
+        log_level = config.get('targets', [])
 
         additional_pipeline = [
             {'$project': {'_id': 0, 'lines.timestamp': 1, 'lines.log_level': 1}},
@@ -276,7 +276,9 @@ def get_data_of_freeze(
         config = get_config_from_scenario_mongodb(scenario_id=scenario_id,
                                                   testrun_id=testrun_id,
                                                   target='freeze')
-        duration = config.get('config', {}).get('duration', 3)
+        if config == {}:
+            raise HTTPException(status_code=404, detail='Not Found Freeze Configurataion')
+        duration = config.get('duration', 3)
 
         additional_pipeline = [
             {'$match': {'user_config.duration': duration}},
@@ -369,6 +371,8 @@ def get_data_of_resume(
         config = get_config_from_scenario_mongodb(scenario_id=scenario_id,
                                                   testrun_id=testrun_id,
                                                   target='resume')
+        if config == {}:
+            raise HTTPException(status_code=404, detail='Not Found Resume Configurataion')
         type = config.get('type', '')
         frame = config.get('frame', {})
 
@@ -419,6 +423,8 @@ def get_data_of_boot(
         config = get_config_from_scenario_mongodb(scenario_id=scenario_id,
                                                   testrun_id=testrun_id,
                                                   target='boot')
+        if config == {}:
+            raise HTTPException(status_code=404, detail='Not Found Boot Configurataion')
         frame = config.get('frame', {})
 
         additional_pipeline = [
@@ -457,45 +463,42 @@ def get_data_of_log_pattern_matching(
     """
     로그 패턴 매칭 데이터 조회
     """
-    try:
-        if start_time is None and end_time is None:
-            raise HTTPException(status_code=400, detail='Need at least one time parameter')
+    if start_time is None and end_time is None:
+        raise HTTPException(status_code=400, detail='Need at least one time parameter')
 
-        log_pattern_matching_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
-                                                                  testrun_id=testrun_id,
-                                                                  start_time=start_time,
-                                                                  end_time=end_time)
-        if pattern_name:
-            pattern_name = pattern_name.split(',')
-            name_pipeline = [{'$match': {'matched_target.name': {'$in': pattern_name}}}]
-            log_pattern_matching_pipeline.extend(name_pipeline)
-        else:
-            config = get_config_from_scenario_mongodb(scenario_id=scenario_id,
-                                                      testrun_id=testrun_id,
-                                                      target='log_pattern_matching.items')
-            config_pipeline = [
-                {'$match': {'user_config.items': {'$in': config.get('config', [])}}}]
-            log_pattern_matching_pipeline.extend(config_pipeline)
+    log_pattern_matching_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
+                                                              testrun_id=testrun_id,
+                                                              start_time=start_time,
+                                                              end_time=end_time)
+    if pattern_name:
+        name_pipeline = [{'$match': {'matched_target.name': {'$in': pattern_name.split(',')}}}]
+        log_pattern_matching_pipeline.extend(name_pipeline)
+    else:
+        config = get_config_from_scenario_mongodb(scenario_id=scenario_id,
+                                                  testrun_id=testrun_id,
+                                                  target='log_pattern_matching')
+        if config == {}:
+            raise HTTPException(status_code=404, detail='Not Found LogPatternMatching Configurataion')
+        name_pipeline = [
+            {'$match': {'user_config.items': {'$in': config.get('items', [])}}}]
+        log_pattern_matching_pipeline.extend(name_pipeline)
 
-        additional_pipeline = [
-            {'$project': {'_id': 0,
-                          'log_level': 1,
-                          'timestamp': {'$dateToString': {'date': '$timestamp'}},
-                          'message': 1,
-                          'regex': '$matched_target.regular_expression',
-                          'color': '$matched_target.color',
-                          'log_pattern_name': '$matched_target.name'}}]
-        log_pattern_matching_pipeline.extend(additional_pipeline)
+    additional_pipeline = [
+        {'$project': {'_id': 0,
+                      'log_level': 1,
+                      'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                      'message': 1,
+                      'regex': '$matched_target.regular_expression',
+                      'color': '$matched_target.color',
+                      'log_pattern_name': '$matched_target.name'}}]
+    log_pattern_matching_pipeline.extend(additional_pipeline)
 
-        log_pattern_matching = paginate_from_mongodb_aggregation(col=analysis_collection['log_pattern_matching'],
-                                                                 pipeline=log_pattern_matching_pipeline,
-                                                                 page=page,
-                                                                 page_size=page_size,
-                                                                 sort_by=sort_by,
-                                                                 sort_desc=sort_desc)
-    except Exception as e:
-        logger.error(traceback.format_exc())
-        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    log_pattern_matching = paginate_from_mongodb_aggregation(col=analysis_collection['log_pattern_matching'],
+                                                                pipeline=log_pattern_matching_pipeline,
+                                                                page=page,
+                                                                page_size=page_size,
+                                                                sort_by=sort_by,
+                                                                sort_desc=sort_desc)
     return log_pattern_matching
 
 
