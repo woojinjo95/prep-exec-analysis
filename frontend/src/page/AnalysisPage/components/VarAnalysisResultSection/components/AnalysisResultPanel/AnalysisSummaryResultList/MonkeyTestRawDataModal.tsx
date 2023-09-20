@@ -6,7 +6,7 @@ import { formatDateTo, numberWithCommas } from '@global/usecase'
 import { ReactComponent as ShowIcon } from '@assets/images/icon_raw_data.svg'
 import { useInfiniteMonkeySmartSense } from '@page/AnalysisPage/api/hook'
 import { cursorDateTimeState } from '@global/atom'
-import { AnalysisTypeLabel } from '../../../constant'
+import { AnalysisTypeLabel } from '@global/constant'
 
 interface MonkeyTestRawDataModalProps {
   isOpen: boolean

@@ -6,7 +6,8 @@ import { convertDuration, formatDateTo, numberWithCommas } from '@global/usecase
 import { cursorDateTimeState } from '@global/atom'
 import { ReactComponent as PlayIcon } from '@assets/images/icon_play.svg'
 import { useInfiniteResume } from '@page/AnalysisPage/api/hook'
-import { AnalysisTypeLabel, ResumeTypeLabel } from '../../../constant'
+import { AnalysisTypeLabel } from '@global/constant'
+import { ResumeTypeLabel } from '../../../constant'
 
 interface ResumeRawDataModalProps {
   isOpen: boolean

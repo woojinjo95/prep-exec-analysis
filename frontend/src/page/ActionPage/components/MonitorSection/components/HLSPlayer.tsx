@@ -1,12 +1,42 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import Hls from 'hls.js'
 
 export interface HlsPlayerProps extends React.VideoHTMLAttributes<HTMLVideoElement> {
   src: string
 }
 
+const pullCurrentPlayTime = (videoElement: HTMLVideoElement | null, diffTime = 0) => {
+  if (videoElement && videoElement.currentTime) {
+    // 불러온 영상의 마지막 시간 1초전으로 현재 재생시간을 맞춤
+    // eslint-disable-next-line no-param-reassign
+    videoElement.currentTime = videoElement.duration + diffTime
+    videoElement.play().catch(() => {
+      console.log('error')
+    })
+  }
+}
+
 const HLSPlayer: React.FC<HlsPlayerProps> = ({ src, autoPlay, ...props }) => {
   const playerRef = React.useRef<HTMLVideoElement | null>(null)
+  const [isConnectHLS, setIsConnectHLS] = useState<boolean>(false)
+
+  useEffect(() => {
+    window.addEventListener('focus', () => {
+      pullCurrentPlayTime(playerRef.current)
+    })
+  }, [])
+
+  useEffect(() => {
+    const timerId = setInterval(() => {
+      if (isConnectHLS) {
+        pullCurrentPlayTime(playerRef.current, -1)
+      }
+    }, 1000 * 60)
+
+    return () => {
+      clearInterval(timerId)
+    }
+  }, [isConnectHLS])
 
   useEffect(() => {
     let hls: Hls
@@ -35,22 +65,35 @@ const HLSPlayer: React.FC<HlsPlayerProps> = ({ src, autoPlay, ...props }) => {
         newHls.on(Hls.Events.MANIFEST_PARSED, () => {
           if (autoPlay && playerRef.current) {
             playerRef.current.muted = true
-            playerRef.current.play().catch((err) => console.log(err))
+            playerRef.current
+              .play()
+              .then(() => {
+                setIsConnectHLS(true)
+                pullCurrentPlayTime(playerRef.current)
+              })
+              .catch((err) => {
+                setIsConnectHLS(false)
+                console.error(err)
+              })
           }
         })
       })
 
       newHls.on(Hls.Events.ERROR, (_, data) => {
-        if (data.fatal) {
+        if (data.fatal && playerRef.current != null) {
           switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
-              newHls.startLoad()
+              // network err가 발생했을 경우 1초 후 hls 재설정
+              newHls.destroy()
+              setTimeout(initPlayer, 1000)
               break
             case Hls.ErrorTypes.MEDIA_ERROR:
               newHls.recoverMediaError()
               break
             default:
-              initPlayer()
+              // initPlayer 재 실행
+              newHls.destroy()
+              setTimeout(initPlayer, 2000)
               break
           }
         }

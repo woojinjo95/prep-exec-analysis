@@ -1,6 +1,6 @@
 import React, { useMemo, useRef } from 'react'
 import { useRecoilValue } from 'recoil'
-import { PointChart, TimelineTooltip, Text, TimelineTooltipItem } from '@global/ui'
+import { PointChart, TimelineTooltip, Text, TimelineTooltipItem, Skeleton } from '@global/ui'
 import { logPatternMatchingNameFilterListState } from '@global/atom'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { useLogPatternMatching } from '@page/AnalysisPage/api/hook'
@@ -14,6 +14,7 @@ interface LogPatternMatchingChartProps {
   endTime: Date
   dimension: { left: number; width: number } | null
   summary: AnalysisResultSummary
+  isVisible?: boolean
 }
 
 /**
@@ -25,6 +26,7 @@ const LogPatternMatchingChart: React.FC<LogPatternMatchingChartProps> = ({
   endTime,
   dimension,
   summary,
+  isVisible,
 }) => {
   const logPatternMatchingNameFilterList = useRecoilValue(logPatternMatchingNameFilterListState)
   const wrapperRef = useRef<HTMLDivElement | null>(null)
@@ -57,13 +59,16 @@ const LogPatternMatchingChart: React.FC<LogPatternMatchingChartProps> = ({
     width: dimension?.width,
   })
 
-  if (!logPatternMatchingData) return <div />
+  if (!isVisible) return null
+  if (!logPatternMatchingData) {
+    return <Skeleton className="w-full border-b border-[#37383E]" style={{ height: CHART_HEIGHT }} colorScheme="dark" />
+  }
   return (
     <div onMouseMove={onMouseMove(logPatternMatchingData)} onMouseLeave={onMouseLeave} className="relative">
       {!!posX && (
         <div
           ref={wrapperRef}
-          className="absolute top-0 h-full w-1 bg-white opacity-30 z-[5]"
+          className="absolute top-0 h-full w-1 bg-white/30 z-[5]"
           style={{
             transform: `translateX(${posX - 2}px)`,
           }}
@@ -103,6 +108,16 @@ const LogPatternMatchingChart: React.FC<LogPatternMatchingChartProps> = ({
             </TimelineTooltip>
           )}
         </div>
+      )}
+
+      {/* 툴팁 데이터 위치를 표시하는 엘리먼트 */}
+      {!!tooltipData && !!scaleX && (
+        <div
+          className="absolute top-0 w-0.5 h-[calc(100%-1px)] bg-white/50 z-[5]"
+          style={{
+            transform: `translateX(${scaleX(new Date(tooltipData.datetime)) - 1}px)`,
+          }}
+        />
       )}
 
       <div className="w-full relative border-b border-[#37383E]">

@@ -1,6 +1,6 @@
 import React, { useMemo, useRef } from 'react'
 import { useRecoilValue } from 'recoil'
-import { RangeChart, TimelineTooltip, TimelineTooltipItem, Text } from '@global/ui'
+import { RangeChart, TimelineTooltip, TimelineTooltipItem, Text, Skeleton } from '@global/ui'
 import { freezeTypeFilterListState } from '@global/atom'
 import { convertDuration } from '@global/usecase'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
@@ -14,12 +14,13 @@ interface FreezeChartProps {
   endTime: Date
   dimension: { left: number; width: number } | null
   summary: AnalysisResultSummary
+  isVisible?: boolean
 }
 
 /**
  * Video Analysis Result(freeze) 차트
  */
-const FreezeChart: React.FC<FreezeChartProps> = ({ scaleX, startTime, endTime, dimension, summary }) => {
+const FreezeChart: React.FC<FreezeChartProps> = ({ scaleX, startTime, endTime, dimension, summary, isVisible }) => {
   const freezeTypeFilterList = useRecoilValue(freezeTypeFilterListState)
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const { freeze } = useFreeze({
@@ -45,13 +46,16 @@ const FreezeChart: React.FC<FreezeChartProps> = ({ scaleX, startTime, endTime, d
     width: dimension?.width,
   })
 
-  if (!freezeData) return <div />
+  if (!isVisible) return null
+  if (!freezeData) {
+    return <Skeleton className="w-full border-b border-[#37383E]" style={{ height: CHART_HEIGHT }} colorScheme="dark" />
+  }
   return (
     <div onMouseMove={onMouseMove(freezeData)} onMouseLeave={onMouseLeave} className="relative">
       {!!posX && (
         <div
           ref={wrapperRef}
-          className="absolute top-0 h-full w-1 bg-white opacity-30 z-[5]"
+          className="absolute top-0 h-[calc(100%-1px)] w-1 bg-white/30 z-[5]"
           style={{
             transform: `translateX(${posX - 2}px)`,
           }}
@@ -68,6 +72,20 @@ const FreezeChart: React.FC<FreezeChartProps> = ({ scaleX, startTime, endTime, d
             </TimelineTooltip>
           )}
         </div>
+      )}
+
+      {/* 툴팁 데이터 위치를 표시하는 엘리먼트 */}
+      {!!tooltipData && !!scaleX && (
+        <div
+          className="absolute top-0 h-[calc(100%-1px)] bg-white/50 z-[5]"
+          style={{
+            transform: `translateX(${scaleX(new Date(tooltipData.datetime)) - 1}px)`,
+            width: Math.max(
+              scaleX(new Date(tooltipData.datetime + tooltipData.duration)) - scaleX(new Date(tooltipData.datetime)),
+              2,
+            ),
+          }}
+        />
       )}
 
       <div className="w-full relative border-b border-[#37383E]">

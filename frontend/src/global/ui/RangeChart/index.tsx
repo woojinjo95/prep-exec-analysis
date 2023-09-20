@@ -8,8 +8,6 @@ interface RangeChartProps {
 
 /**
  * 범위 차트
- *
- * TODO: resizing event
  */
 const RangeChart: React.FC<RangeChartProps> = ({ data, scaleX }) => {
   if (!scaleX) return <div />

@@ -25,6 +25,7 @@ def start_capture(mongo_session: PacketMongoSession, stop_event: Event):
 
     archived_stream_dict = init_archived_stream_dict()
     read_path_list = init_read_path_list(rotating_file_count)
+    history = {}
 
     dump_state = {}  # dump state
 
@@ -35,7 +36,7 @@ def start_capture(mongo_session: PacketMongoSession, stop_event: Event):
 
     def read_process(stream_dict: dict, archived_stream_dict: dict, read_path_list: list, path: str):
         if path not in read_path_list:
-            read_pcap_and_update_dict(mongo_session, stream_dict, path, archived_stream_dict)
+            read_pcap_and_update_dict(mongo_session, stream_dict, path, archived_stream_dict, history)
             read_path_list.append(path)
 
     time.sleep(segmnet_interval + 1)  # wait for first dump end.

@@ -17,8 +17,6 @@ interface AreaChartProps {
 
 /**
  * 영역 차트
- *
- * TODO: resizing event
  */
 const AreaChart: React.FC<AreaChartProps> = ({
   chartWidth,

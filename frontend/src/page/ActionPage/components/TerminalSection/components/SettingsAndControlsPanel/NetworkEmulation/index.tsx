@@ -7,46 +7,38 @@ import { Input, Title, ToggleButton, Text, Divider, Button } from '@global/ui'
 import { useHardwareConfiguration, useScenarioById } from '@global/api/hook'
 import { useWebsocket } from '@global/hook'
 import { useRecoilValue } from 'recoil'
-import { isBlockRecordModeState, scenarioIdState } from '@global/atom'
+import { isBlockRecordModeState, scenarioIdState, testRunIdState } from '@global/atom'
 import { SubscribeMessage } from '@global/hook/useWebsocket/types'
 import { useMutation } from 'react-query'
-import { postBlock } from '@page/ActionPage/components/ActionSection/api/func'
+import { postBlock, postBlocks } from '@page/ActionPage/components/ActionSection/api/func'
 import { Block } from '@global/api/entity'
 import IPLimitItem from './IPLimitItem'
 
-// body의 updated 후보 목록
-// type UpdatedList = 'create' | 'update' | 'delete' | 'packet_bandwidth' | 'packet_delay' | 'packet_loss'
-
 type NetworkEmulationMessageBody = {
-  action: 'create' | 'update' | 'delete' | 'reset'
+  action: 'create' | 'update' | 'delete' | 'reset' | 'start' | 'stop'
   log: string
   updated: {
     create?: {
-      ip: string
-      port: string
+      ip?: string
+      port?: string
       protocol: string
     }
     update?: {
       id: string
-      ip: string
-      port: string
+      ip?: string
+      port?: string
       protocol: string
     }
     delete?: {
-      // delete에도 ip, port, protocol이 추가되어야 함
-      id: string
+      id?: string
+      ip: string
+      port?: string
+      protocol: string
     }
     packet_bandwidth?: number
     packet_delay?: number
     packet_loss?: number
   }
-}
-
-// limit action과 대응되는 block name
-const ActionBlockName: { [key in 'create' | 'update' | 'delete']: string } = {
-  create: 'Registed',
-  update: 'Modified',
-  delete: 'Deleted',
 }
 
 /**
@@ -71,6 +63,21 @@ const NetworkEmulation: React.FC = () => {
 
   const isBlockRecordMode = useRecoilValue(isBlockRecordModeState)
 
+  const scenarioId = useRecoilValue(scenarioIdState)
+
+  const testrunId = useRecoilValue(testRunIdState)
+
+  const { refetch: scenarioRefetch } = useScenarioById({ scenarioId, testrunId })
+
+  const { mutate: postBlockMutate } = useMutation(postBlock, {
+    onSuccess: () => {
+      scenarioRefetch()
+    },
+    onError: (err) => {
+      console.error(err)
+    },
+  })
+
   // updated에 따라 block을 만들어주는 함수
   const makeBlockByUpdated: (message: SubscribeMessage<NetworkEmulationMessageBody>) => Omit<Block, 'id'> | null =
     useCallback((message: SubscribeMessage<NetworkEmulationMessageBody>) => {
@@ -89,13 +96,28 @@ const NetworkEmulation: React.FC = () => {
         }
       }
 
+      // toggle stop일 때 (toggle on 일 때는 postBlocks이므로 따로 처리)
+      if (message.data.action === 'stop') {
+        return {
+          type: 'network_emulation',
+          name: `Network Emulation: All Allow`,
+          delay_time: 3000,
+          args: [
+            {
+              key: 'action',
+              value: 'stop',
+            },
+          ],
+        }
+      }
+
       // ip limit 일 때
       if (message.data.updated.create || message.data.updated.update || message.data.updated.delete) {
         if (message.data.updated.create) {
           return {
             type: 'network_emulation',
-            name: `IP Limit (${ActionBlockName[message.data.action]}) : ${message.data.updated.create.ip}:${
-              message.data.updated.create.port
+            name: `IP Limit (Registered) : ${message.data.updated.create.ip || ''}:${
+              message.data.updated.create.port || ''
             } (${message.data.updated.create.protocol})`,
             delay_time: 3000,
             args: [
@@ -113,8 +135,8 @@ const NetworkEmulation: React.FC = () => {
         if (message.data.updated.update) {
           return {
             type: 'network_emulation',
-            name: `IP Limit (${ActionBlockName[message.data.action]}) : ${message.data.updated.update.ip}${
-              message.data.updated.update.port
+            name: `IP Limit (Modified) : ${message.data.updated.update.ip || ''}:${
+              message.data.updated.update.port || ''
             } (${message.data.updated.update.protocol})`,
             delay_time: 3000,
             args: [
@@ -129,23 +151,25 @@ const NetworkEmulation: React.FC = () => {
             ],
           }
         }
-        // if (message.data.updated.delete) {
-        //   return {
-        //     type: 'network_emulation',
-        //     name: `IP Limit (${ActionBlockName[message.data.action]}) : ${message.data.updated.delete.ip}`,
-        //     delay_time: 3000,
-        //     args: [
-        //       {
-        //         key: 'action',
-        //         value: message.data.action,
-        //       },
-        //       {
-        //         key: 'packet_block',
-        //         value: message.data.updated.create,
-        //       },
-        //     ],
-        //   }
-        // }
+        if (message.data.updated.delete) {
+          return {
+            type: 'network_emulation',
+            name: `IP Limit (Deleted) : ${message.data.updated.delete.ip || ''}${
+              message.data.updated.delete.port || ''
+            } (${message.data.updated.delete.protocol})`,
+            delay_time: 3000,
+            args: [
+              {
+                key: 'action',
+                value: message.data.action,
+              },
+              {
+                key: 'packet_block',
+                value: message.data.updated.delete,
+              },
+            ],
+          }
+        }
       }
 
       // packet Control 일 때
@@ -212,11 +236,7 @@ const NetworkEmulation: React.FC = () => {
       return null
     }, [])
 
-  const scenarioId = useRecoilValue(scenarioIdState)
-
-  const { refetch: scenarioRefetch } = useScenarioById({ scenarioId })
-
-  const { mutate: postBlockMutate } = useMutation(postBlock, {
+  const { mutate: postBlocksMutate } = useMutation(postBlocks, {
     onSuccess: () => {
       scenarioRefetch()
     },
@@ -234,6 +254,86 @@ const NetworkEmulation: React.FC = () => {
 
         // 녹화중인 상태일 때만
         if (!isBlockRecordMode) return
+
+        // toggle start일 때
+        if (message.data.action === 'start' && hardwareConfiguration) {
+          const bandwidthBlock: Omit<Block, 'id'> = {
+            type: 'network_emulation',
+            name: `Packet Control: BandWidth ${hardwareConfiguration.packet_bandwidth}Mbps`,
+            delay_time: 3000,
+            args: [
+              {
+                key: 'action',
+                value: 'update',
+              },
+              {
+                key: 'packet_bandwidth',
+                value: hardwareConfiguration.packet_bandwidth,
+              },
+            ],
+          }
+          const delayBlock: Omit<Block, 'id'> = {
+            type: 'network_emulation',
+            name: `Packet Control: Delay ${hardwareConfiguration.packet_delay}ms`,
+            delay_time: 3000,
+            args: [
+              {
+                key: 'action',
+                value: 'update',
+              },
+              {
+                key: 'packet_delay',
+                value: hardwareConfiguration.packet_delay,
+              },
+            ],
+          }
+          const lossBlock: Omit<Block, 'id'> = {
+            type: 'network_emulation',
+            name: `Packet Control: Loss ${hardwareConfiguration.packet_loss}%`,
+            delay_time: 3000,
+            args: [
+              {
+                key: 'action',
+                value: 'update',
+              },
+              {
+                key: 'packet_loss',
+                value: hardwareConfiguration.packet_loss,
+              },
+            ],
+          }
+          const ipLimitBlocks: Omit<Block, 'id'>[] | undefined = hardwareConfiguration.packet_block?.map(
+            (ip_limit) => ({
+              type: 'network_emulation',
+              name: `IP Limit (Registered) : ${ip_limit.ip || ''}:${ip_limit.port || ''} (${ip_limit.protocol})`,
+              delay_time: 3000,
+              args: [
+                {
+                  key: 'action',
+                  value: 'create',
+                },
+                {
+                  key: 'packet_block',
+                  value: {
+                    ip: ip_limit.ip || '',
+                    port: ip_limit.port || '',
+                    protocol: ip_limit.protocol,
+                  },
+                },
+              ],
+            }),
+          )
+          const newBlocks: Omit<Block, 'id'>[] = ipLimitBlocks
+            ? [bandwidthBlock, delayBlock, lossBlock, ...ipLimitBlocks]
+            : [bandwidthBlock, delayBlock, lossBlock]
+
+          postBlocksMutate({
+            newBlocks,
+            scenario_id: scenarioId,
+          })
+        }
+
+        // toggle on 이외의 상황
         if (!makeBlockByUpdated(message)) return
 
         postBlockMutate({
@@ -379,7 +479,7 @@ const NetworkEmulation: React.FC = () => {
 
       <div className="pb-1 px-1">
         <div>
-          <Text weight="medium">Packet Contorl (Inbound)</Text>
+          <Text weight="medium">Packet Control (Inbound)</Text>
         </div>
 
         <div className="pt-2 flex justify-between">

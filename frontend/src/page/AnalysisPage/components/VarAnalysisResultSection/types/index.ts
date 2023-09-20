@@ -13,8 +13,8 @@ export interface UnsavedAnalysisConfig
     | 'monkey_test'
     | 'intelligent_monkey_test'
   > {
-  // duration -> number로 변경 후 api call
-  freeze?: Omit<NonNullable<AnalysisConfig['freeze']>, 'duration'> & { duration: string }
+  // duration -> number로 변경 및 sec 단위로 변환 후 api call
+  freeze?: Omit<NonNullable<AnalysisConfig['freeze']>, 'duration'> & { duration: string; unit: 'Sec' | 'Min' }
   resume?: Omit<NonNullable<AnalysisConfig['resume']>, 'frame'> & {
     frame?: NonNullable<AnalysisConfig['resume']>['frame']
   }

@@ -2,10 +2,12 @@ import { useToast } from '@chakra-ui/react'
 import { ScenarioSummary } from '@global/api/entity'
 import { getTag, postTag, putScenario } from '@global/api/func'
 import { useScenarioById } from '@global/api/hook'
+import { testRunIdState } from '@global/atom'
 import { Modal, Text, Input, Button, Select, Tag, TagItem } from '@global/ui'
 import { AxiosError } from 'axios'
 import React, { useMemo, useRef, useState } from 'react'
 import { useMutation, useQuery } from 'react-query'
+import { useRecoilValue } from 'recoil'
 
 interface ModifyProjectModalProps {
   scenarioSummary: ScenarioSummary
@@ -38,7 +40,9 @@ const ModifyProjectModal: React.FC<ModifyProjectModalProps> = ({
     return tags.filter((tag) => tag.includes(tagInput) && scenarioTags.find((_tag) => _tag === tag) === undefined)
   }, [tagInput, tags, scenarioTags])
 
-  const { scenario } = useScenarioById({ scenarioId: scenarioSummary.id })
+  const testrunId = useRecoilValue(testRunIdState)
+
+  const { scenario } = useScenarioById({ scenarioId: scenarioSummary.id, testrunId })
 
   const { mutate: postTagMutate } = useMutation(postTag, {
     onSuccess: () => {
@@ -96,8 +100,8 @@ const ModifyProjectModal: React.FC<ModifyProjectModalProps> = ({
                 {scenarioTags.map((tag) => (
                   <React.Fragment key={`blocks_${scenarioSummary.id}_${tag}`}>
                     <Tag
+                      colorScheme="charcoal"
                       tag={tag}
-                      mode="delete"
                       onDelete={() => setScenarioTags((prev) => prev.filter((_tag) => _tag !== tag))}
                     />
                   </React.Fragment>
@@ -129,9 +133,10 @@ const ModifyProjectModal: React.FC<ModifyProjectModalProps> = ({
               })}
             {tagInput !== '' && (
               <div
-                className="h-11 flex px-3 py-2 hover:bg-light-charcoal cursor-pointer"
-                onClick={() => {
-                  if (!scenarioTags.find((tag) => tag === tagInput)) {
+                className="rounded-[4px] flex items-center px-3 py-1 hover:bg-light-charcoal cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  if (tags && !tags.find((tag) => tag === tagInput)) {
                     postTagMutate(tagInput)
                     setScenarioTags((prev) => [...prev, tagInput])
                     setTagInput('')
@@ -139,11 +144,14 @@ const ModifyProjectModal: React.FC<ModifyProjectModalProps> = ({
                     toast({ status: 'error', title: 'Tag name duplicated' })
                   }
                 }}
+                onMouseDown={(e) => {
+                  e.stopPropagation()
+                }}
               >
                 <Text colorScheme="light" className="mr-2">
                   Create :{' '}
                 </Text>
-                <Tag tag={tagInput} />
+                <Tag colorScheme="charcoal" tag={tagInput} />
               </div>
             )}
           </Select>

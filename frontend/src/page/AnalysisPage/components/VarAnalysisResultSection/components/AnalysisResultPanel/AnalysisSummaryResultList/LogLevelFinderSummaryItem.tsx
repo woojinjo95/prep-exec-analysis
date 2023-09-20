@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useRecoilState } from 'recoil'
 import { Accordion, SimpleButton, Text } from '@global/ui'
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
@@ -6,7 +6,7 @@ import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
 import { numberWithCommas } from '@global/usecase'
 import { logLevelFinderLogLevelFilterListState } from '@global/atom'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
-import { AnalysisTypeLabel } from '../../../constant'
+import { AnalysisTypeLabel } from '@global/constant'
 
 interface LogLevelFinderSummaryItemProps {
   logLevelFinder: NonNullable<AnalysisResultSummary['log_level_finder']>
@@ -19,6 +19,10 @@ const LogLevelFinderSummaryItem: React.FC<LogLevelFinderSummaryItemProps> = ({ l
   const [logLevelFinderLogLevelFilterList, setLogLevelFinderLogLevelFilterList] = useRecoilState(
     logLevelFinderLogLevelFilterListState,
   )
+
+  useEffect(() => {
+    setLogLevelFinderLogLevelFilterList([])
+  }, [])
 
   return (
     <Accordion

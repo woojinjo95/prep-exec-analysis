@@ -66,7 +66,7 @@ class LogPatternMatching(CommonBaseModel):
     items: List[LogPatternMatchingItems]
 
 
-class ProcessLifecycleAnalysis(CommonBaseModel):
+class ProcessLifecycle(CommonBaseModel):
     pass
 
 
@@ -91,7 +91,7 @@ class AnalysisConfig(BaseModel):
     channel_change_time: Optional[ChannelChangeTime]
     log_level_finder: Optional[LogLevelFinder]
     log_pattern_matching: Optional[LogPatternMatching]
-    process_lifecycle_analysis: Optional[ProcessLifecycleAnalysis]
+    process_lifecycle: Optional[ProcessLifecycle]
     network_filter: Optional[NetworkFilter]
     monkey_test: Optional[MonkeyTest]
     intelligent_monkey_test: Optional[IntelligentMonkeyTest]

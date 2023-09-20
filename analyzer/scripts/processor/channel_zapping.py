@@ -62,6 +62,9 @@ def task_channel_zapping(args: VideoInfo, config: Dict):
                 report_output(ReportName.CHANNEL_ZAPPING.value, {
                     'timestamp': get_utc_datetime(event_info.event_time),
                     'measure_time': result.total,
+                    'section_a': result.a,
+                    'section_b': result.b,
+                    'section_c': result.c,
                     'remocon_key': event_info.key,
                     'src_channel': event_info.src,
                     'dst_channel': event_info.dst,

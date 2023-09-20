@@ -3,8 +3,8 @@ import traceback
 from typing import Optional
 
 from app import schemas
-from app.api.utility import convert_iso_format, paginate_from_mongodb_aggregation
-from app.crud.base import aggregate_from_mongodb
+from app.api.utility import (convert_iso_format, make_basic_match_pipeline,
+                             paginate_from_mongodb_aggregation)
 from app.db.redis_session import RedisClient
 from fastapi import APIRouter, HTTPException, Query
 
@@ -30,20 +30,10 @@ def read_logcat(
         if start_time is None and end_time is None:
             raise HTTPException(status_code=400, detail='Need at least one time parameter')
 
-        time_range = {}
-        if start_time:
-            time_range['$gte'] = convert_iso_format(start_time)
-        if end_time:
-            time_range['$lte'] = convert_iso_format(end_time)
-
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        if testrun_id is None:
-            testrun_id = RedisClient.hget('testrun', 'id')
-
-        logcat_pipeline = [{'$match': {'timestamp': time_range,
-                                       'scenario_id': scenario_id,
-                                       'testrun_id': testrun_id}}]
+        logcat_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
+                                                    testrun_id=testrun_id,
+                                                    start_time=start_time,
+                                                    end_time=end_time)
 
         additional_pipeline = [
             {'$project': {'_id': 0, 'lines': 1}},
@@ -88,20 +78,11 @@ def read_network(
         if start_time is None and end_time is None:
             raise HTTPException(status_code=400, detail='Need at least one time parameter')
 
-        time_range = {}
-        if start_time:
-            time_range['$gte'] = convert_iso_format(start_time)
-        if end_time:
-            time_range['$lte'] = convert_iso_format(end_time)
+        network_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
+                                                     testrun_id=testrun_id,
+                                                     start_time=start_time,
+                                                     end_time=end_time)
 
-        if scenario_id is None:
-            scenario_id = RedisClient.hget('testrun', 'scenario_id')
-        if testrun_id is None:
-            testrun_id = RedisClient.hget('testrun', 'id')
-
-        network_pipeline = [{'$match': {'timestamp': time_range,
-                                       'scenario_id': scenario_id,
-                                       'testrun_id': testrun_id}}]
         additional_pipeline = [
             {'$project': {'_id': 0, 'lines': 1}},
             {'$unwind': {'path': '$lines'}},

@@ -1,14 +1,16 @@
 import { PAGE_SIZE_TWENTY } from '@global/constant'
 import useFetchScenarios from '@global/hook/useFetchScenarios'
 import useIntersect from '@global/hook/useIntersect'
-import { Button, Modal, Text } from '@global/ui'
+import { Button, Modal, Tag, Text } from '@global/ui'
 import { formatDateTo } from '@global/usecase'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { Scrollbars } from 'react-custom-scrollbars-2'
 import cx from 'classnames'
 import { useRecoilState } from 'recoil'
-import { scenarioIdState } from '@global/atom'
+import { scenarioIdState, testRunIdState } from '@global/atom'
 import { useNavigate } from 'react-router-dom'
+import { useMutation } from 'react-query'
+import { postTestrun } from '@global/api/func'
+import ScrollComponent from '@global/ui/ScrollComponent'
 
 interface OpenBlocksModalProps {
   isOpen: boolean
@@ -64,7 +66,19 @@ const OpenBlocksModal: React.FC<OpenBlocksModalProps> = ({ isOpen, close }) => {
 
   const [, setScenarioId] = useRecoilState(scenarioIdState)
 
+  const [, setTestRunId] = useRecoilState(testRunIdState)
+
   const navigate = useNavigate()
+
+  const { mutate: postTestrunMutate } = useMutation(postTestrun, {
+    onSuccess: (res) => {
+      setScenarioId(selectedScenarioId)
+      setTestRunId(res.id)
+      // 새로고침하지 않고 강제로 이동하게 해야 함
+      navigate('/action', { replace: true, state: { force: true } })
+      close()
+    },
+  })
 
   return (
     <Modal
@@ -87,11 +101,7 @@ const OpenBlocksModal: React.FC<OpenBlocksModalProps> = ({ isOpen, close }) => {
               Last modified
             </Text>
           </div>
-          <Scrollbars
-            renderThumbVertical={({ ...props }) => (
-              <div {...props} className="w-2 rounded-[5px] pr-2 bg-light-charcoal" />
-            )}
-          >
+          <ScrollComponent>
             {scenarios.map((scenario) => (
               <div
                 className={cx('flex flex-col w-full cursor-pointer', {
@@ -112,16 +122,9 @@ const OpenBlocksModal: React.FC<OpenBlocksModalProps> = ({ isOpen, close }) => {
                     </Text>
                   </div>
 
-                  <div className="flex flex-wrap w-full h-full pt-[10px] items-center">
+                  <div className="flex flex-wrap w-full h-full items-center">
                     {scenario.tags.map((tag) => (
-                      <Text
-                        className="text-white mr-2 mb-2"
-                        invertBackground
-                        colorScheme="dark-grey"
-                        key={`${scenario.name}_tag_${tag}`}
-                      >
-                        {tag}
-                      </Text>
+                      <Tag key={`${scenario.name}_tag_${tag}`} colorScheme="dark" tag={tag} />
                     ))}
                   </div>
                   <Text size="md" colorScheme="light">
@@ -139,7 +142,7 @@ const OpenBlocksModal: React.FC<OpenBlocksModalProps> = ({ isOpen, close }) => {
               {/* Loading spin 같은 로딩 UI가 필요 */}
               Loading...
             </div>
-          </Scrollbars>
+          </ScrollComponent>
         </div>
         <div className="flex justify-end mt-7">
           <Button
@@ -147,10 +150,9 @@ const OpenBlocksModal: React.FC<OpenBlocksModalProps> = ({ isOpen, close }) => {
             colorScheme="primary"
             className="w-[132px] h-[48px] mr-3 text-white rounded-3xl"
             onClick={() => {
-              setScenarioId(selectedScenarioId)
-              // 새로고침하지 않고 강제로 이동하게 해야 함
-              navigate('/action', { replace: true, state: { force: true } })
-              close()
+              if (selectedScenarioId) {
+                postTestrunMutate(selectedScenarioId)
+              }
             }}
           >
             Open

@@ -6,7 +6,8 @@ import { convertDuration, formatDateTo, numberWithCommas } from '@global/usecase
 import { ReactComponent as PlayIcon } from '@assets/images/icon_play.svg'
 import { useInfiniteFreeze } from '@page/AnalysisPage/api/hook'
 import { cursorDateTimeState } from '@global/atom'
-import { AnalysisTypeLabel, FreezeTypeLabel } from '../../../constant'
+import { AnalysisTypeLabel } from '@global/constant'
+import { FreezeTypeLabel } from '../../../constant'
 
 interface FreezeRawDataModalProps {
   isOpen: boolean

@@ -4,7 +4,7 @@ import { ToggleButton, Text, Divider, Title } from '@global/ui'
 import { useWebsocket } from '@global/hook'
 import { useHardwareConfiguration, useScenarioById } from '@global/api/hook'
 import { useRecoilValue } from 'recoil'
-import { isBlockRecordModeState, scenarioIdState } from '@global/atom'
+import { isBlockRecordModeState, scenarioIdState, testRunIdState } from '@global/atom'
 import { useMutation } from 'react-query'
 import { postBlock } from '@page/ActionPage/components/ActionSection/api/func'
 
@@ -26,7 +26,9 @@ const OnOffControl: React.FC = () => {
 
   const scenarioId = useRecoilValue(scenarioIdState)
 
-  const { refetch: scenarioRefetch } = useScenarioById({ scenarioId })
+  const testrunId = useRecoilValue(testRunIdState)
+
+  const { refetch: scenarioRefetch } = useScenarioById({ scenarioId, testrunId })
 
   const { mutate: postBlockMutate } = useMutation(postBlock, {
     onSuccess: () => {
@@ -73,7 +75,9 @@ const OnOffControl: React.FC = () => {
       if (message.msg === 'on_off_control_response') {
         refetch()
 
-        if (!scenarioId || !isBlockRecordMode) return
+        if (!scenarioId) return
+
+        if (!isBlockRecordMode) return
 
         if (message.data.enable_dut_power_transition) {
           postBlockWithMessageData({
@@ -96,6 +100,28 @@ const OnOffControl: React.FC = () => {
             blockValue: message.data.lan!,
           })
         }
+      }
+      if (message.msg === 'capture_board_response') {
+        refetch()
+
+        if (!scenarioId) return
+
+        if (!isBlockRecordMode) return
+
+        postBlockMutate({
+          newBlock: {
+            type: 'capture_board',
+            delay_time: 3000,
+            name: 'Screen: refresh',
+            args: [
+              {
+                key: 'action',
+                value: 'refresh',
+              },
+            ],
+          },
+          scenario_id: scenarioId,
+        })
       }
     },
   })

@@ -2,8 +2,7 @@ import React, { useState } from 'react'
 import { Accordion, Button, Checkbox, ColorPickerBox, Text } from '@global/ui'
 import { ReactComponent as TrashIcon } from '@assets/images/icon_trash.svg'
 import { UnsavedAnalysisConfig } from '@page/AnalysisPage/components/VarAnalysisResultSection/types'
-import { AnalysisType } from '@global/constant'
-import { AnalysisTypeLabel } from '../../../../constant'
+import { AnalysisType, AnalysisTypeLabel } from '@global/constant'
 import LogPattern from './LogPattern'
 import LogPatternModal from './LogPatternModal'
 
@@ -80,12 +79,6 @@ const LogPatternMatchingAnalysisItem: React.FC<LogPatternMatchingAnalysisItemPro
           label="Remember current settings"
           onClick={(isChecked) => setIsRememberedConfig((prev) => ({ ...prev, log_pattern_matching: isChecked }))}
         />
-
-        {!!warningMessage && (
-          <div className="pt-2">
-            <Text colorScheme="orange">{warningMessage}</Text>
-          </div>
-        )}
 
         {isOpenAddLogPatternModal && (
           <LogPatternModal
