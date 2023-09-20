@@ -8,7 +8,10 @@ import { getLogcat, getNetwork, getShellLogs, getShells } from './func'
 /**
  * Logcat 무한스크롤 조회 hook
  */
-export const useInfiniteLogcat = ({ enabled, ...params }: Parameters<typeof getLogcat>[0] & { enabled?: boolean }) => {
+export const useInfiniteLogcat = <T extends HTMLElement = HTMLDivElement>({
+  enabled,
+  ...params
+}: Parameters<typeof getLogcat>[0] & { enabled?: boolean }) => {
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
   const { data, hasNextPage, isFetching, fetchNextPage } = useInfiniteQuery(
@@ -35,7 +38,7 @@ export const useInfiniteLogcat = ({ enabled, ...params }: Parameters<typeof getL
     },
   )
 
-  const ref = useIntersect((entry, observer) => {
+  const ref = useIntersect<T>((entry, observer) => {
     observer.unobserve(entry.target)
     if (hasNextPage && !isFetching) {
       fetchNextPage()
@@ -52,7 +55,7 @@ export const useInfiniteLogcat = ({ enabled, ...params }: Parameters<typeof getL
 /**
  * Network 무한스크롤 조회 hook
  */
-export const useInfiniteNetwork = ({
+export const useInfiniteNetwork = <T extends HTMLElement = HTMLDivElement>({
   enabled,
   ...params
 }: Parameters<typeof getNetwork>[0] & { enabled?: boolean }) => {
@@ -82,7 +85,7 @@ export const useInfiniteNetwork = ({
     },
   )
 
-  const ref = useIntersect((entry, observer) => {
+  const ref = useIntersect<T>((entry, observer) => {
     observer.unobserve(entry.target)
     if (hasNextPage && !isFetching) {
       fetchNextPage()
@@ -112,7 +115,7 @@ export const useShells = () => {
 /**
  * 쉘 로그 무한스크롤 조회 hook
  */
-export const useInfiniteShellLogs = ({
+export const useInfiniteShellLogs = <T extends HTMLElement = HTMLDivElement>({
   enabled,
   ...params
 }: Parameters<typeof getShellLogs>[0] & { enabled?: boolean }) => {
@@ -142,7 +145,7 @@ export const useInfiniteShellLogs = ({
     },
   )
 
-  const ref = useIntersect((entry, observer) => {
+  const ref = useIntersect<T>((entry, observer) => {
     observer.unobserve(entry.target)
     if (hasNextPage && !isFetching) {
       fetchNextPage()
