@@ -13,7 +13,7 @@ import LogcatTraceRowLoading from './LogcatTraceRowLoading'
  */
 const LogcatTrace: React.FC = () => {
   const cursorDateTime = useRecoilValue(cursorDateTimeState)
-  const { logcats, loadingRef, hasNextPage } = useInfiniteLogcat<HTMLTableRowElement>({
+  const { logcats, isLoading, loadingRef, hasNextPage } = useInfiniteLogcat<HTMLTableRowElement>({
     start_time: cursorDateTime?.toISOString()!,
     enabled: !!cursorDateTime,
   })
@@ -71,7 +71,7 @@ const LogcatTrace: React.FC = () => {
             </tr>
           </thead>
 
-          {!logcats && (
+          {isLoading && (
             <tbody>
               {range(3).map((num) => (
                 <LogcatTraceRowLoading key={`logcat-skeleton-${num}`} />

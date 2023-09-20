@@ -12,7 +12,7 @@ import NetworkTraceRowLoading from './NetworkTraceRowLoading'
  */
 const NetworkTrace: React.FC = () => {
   const cursorDateTime = useRecoilValue(cursorDateTimeState)
-  const { networks, loadingRef, hasNextPage } = useInfiniteNetwork<HTMLTableRowElement>({
+  const { networks, isLoading, loadingRef, hasNextPage } = useInfiniteNetwork<HTMLTableRowElement>({
     start_time: cursorDateTime?.toISOString()!,
     enabled: !!cursorDateTime,
   })
@@ -64,7 +64,7 @@ const NetworkTrace: React.FC = () => {
             </tr>
           </thead>
 
-          {!networks && (
+          {isLoading && (
             <tbody>
               {range(3).map((num) => (
                 <NetworkTraceRowLoading key={`logcat-skeleton-${num}`} />

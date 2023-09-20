@@ -17,7 +17,7 @@ interface ShellLogProps {
  */
 const ShellLog: React.FC<ShellLogProps> = ({ shell_mode }) => {
   const cursorDateTime = useRecoilValue(cursorDateTimeState)
-  const { shellLogs, loadingRef, hasNextPage } = useInfiniteShellLogs<HTMLTableRowElement>({
+  const { shellLogs, isLoading, loadingRef, hasNextPage } = useInfiniteShellLogs<HTMLTableRowElement>({
     shell_mode,
     start_time: cursorDateTime?.toISOString()!,
     enabled: !!cursorDateTime,
@@ -52,7 +52,7 @@ const ShellLog: React.FC<ShellLogProps> = ({ shell_mode }) => {
             </tr>
           </thead>
 
-          {!shellLogs && (
+          {isLoading && (
             <tbody>
               {range(3).map((num) => (
                 <ShellLogRowLoading key={`logcat-skeleton-${num}`} />

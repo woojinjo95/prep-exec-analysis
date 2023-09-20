@@ -14,7 +14,7 @@ export const useInfiniteLogcat = <T extends HTMLElement = HTMLDivElement>({
 }: Parameters<typeof getLogcat>[0] & { enabled?: boolean }) => {
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
-  const { data, hasNextPage, isFetching, fetchNextPage } = useInfiniteQuery(
+  const { data, hasNextPage, isLoading, isFetching, fetchNextPage } = useInfiniteQuery(
     ['infinite_logcat', params],
     ({ pageParam = 1 }) => {
       return getLogcat({
@@ -47,6 +47,7 @@ export const useInfiniteLogcat = <T extends HTMLElement = HTMLDivElement>({
 
   return {
     logcats: data?.pages.flatMap(({ items }) => items),
+    isLoading,
     loadingRef: ref,
     hasNextPage,
   }
@@ -61,7 +62,7 @@ export const useInfiniteNetwork = <T extends HTMLElement = HTMLDivElement>({
 }: Parameters<typeof getNetwork>[0] & { enabled?: boolean }) => {
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
-  const { data, hasNextPage, isFetching, fetchNextPage } = useInfiniteQuery(
+  const { data, hasNextPage, isLoading, isFetching, fetchNextPage } = useInfiniteQuery(
     ['infinite_network', params],
     ({ pageParam = 1 }) => {
       return getNetwork({
@@ -94,6 +95,7 @@ export const useInfiniteNetwork = <T extends HTMLElement = HTMLDivElement>({
 
   return {
     networks: data?.pages.flatMap(({ items }) => items),
+    isLoading,
     loadingRef: ref,
     hasNextPage,
   }
@@ -121,7 +123,7 @@ export const useInfiniteShellLogs = <T extends HTMLElement = HTMLDivElement>({
 }: Parameters<typeof getShellLogs>[0] & { enabled?: boolean }) => {
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
-  const { data, hasNextPage, isFetching, fetchNextPage } = useInfiniteQuery(
+  const { data, hasNextPage, isLoading, isFetching, fetchNextPage } = useInfiniteQuery(
     ['infinite_shell_logs', params],
     ({ pageParam = 1 }) => {
       return getShellLogs({
@@ -154,6 +156,7 @@ export const useInfiniteShellLogs = <T extends HTMLElement = HTMLDivElement>({
 
   return {
     shellLogs: data?.pages.flatMap(({ items }) => items),
+    isLoading,
     loadingRef: ref,
     hasNextPage,
   }
