@@ -422,7 +422,7 @@ const ActionBlockArea = (): JSX.Element => {
       >
         {!blocks && (
           <div className="w-full h-full pl-3 pr-3 pt-[2px] pb-[2px] ">
-            {[1, 2, 3, 4, 5, 6].map((num) => (
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
               <Skeleton
                 colorScheme="light"
                 key={`block_skeleton_${num}`}
