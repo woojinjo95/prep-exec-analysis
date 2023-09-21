@@ -1,8 +1,5 @@
 import React from 'react'
-import classnames from 'classnames/bind'
-import styles from './Skeleton.module.scss'
-
-const cx = classnames.bind(styles)
+import cx from 'classnames'
 
 interface SkeletonProps {
   className?: string
@@ -16,8 +13,19 @@ interface SkeletonProps {
  */
 const Skeleton: React.FC<SkeletonProps> = ({ className, colorScheme, children, style }) => {
   return (
-    <div className={cx(['skeleton', className, colorScheme])} style={style}>
-      {children}
+    <div
+      className={cx([
+        'animate-pulse',
+        {
+          'bg-light-black': colorScheme === 'dark',
+          'bg-light-charcoal': colorScheme === 'charcoal',
+          'bg-light-grey': colorScheme === 'light',
+        },
+        className,
+      ])}
+      style={style}
+    >
+      <div className="invisible">{children}</div>
     </div>
   )
 }

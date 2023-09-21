@@ -45,7 +45,7 @@ const LogPatternMatchingSummaryItem: React.FC<LogPatternMatchingSummaryItemProps
             </Text>
           </div>
 
-          <Text weight="medium">
+          <Text size="sm" weight="medium">
             {numberWithCommas(logPatternMatching.results.reduce((acc, curr) => acc + curr.total, 0))} times
           </Text>
         </div>
