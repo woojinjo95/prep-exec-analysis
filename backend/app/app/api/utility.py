@@ -56,7 +56,8 @@ def paginate_from_mongodb(col, page, page_size=None, param={}, sorting_keyword=N
     return convert_pageset(page_param, list(res.get('items', [])))
 
 
-def get_multi_or_paginate_by_res(col, page, page_size=10, sorting_keyword=None, is_descending=None, proj=None, param={}):
+def get_multi_or_paginate_by_res(
+        col, page, page_size=10, sorting_keyword=None, is_descending=None, proj=None, param={}):
     if page:
         res_dict = paginate_from_mongodb(col=col,
                                          page=page,
@@ -125,7 +126,8 @@ def set_ilike(param):
     return {'$regex': item, '$options': 'i'}
 
 
-def paginate_from_mongodb_aggregation(col: str, pipeline: list, sort_by: str, page: int, page_size: int = 10, sort_desc: bool = False):
+def paginate_from_mongodb_aggregation(
+        col: str, pipeline: list, sort_by: str, page: int, page_size: int = 10, sort_desc: bool = False):
     if sort_by is not None:
         sorting_pipeline = [{'$sort': {sort_by: -1 if sort_desc else 1}}]
         pipeline.extend(sorting_pipeline)
@@ -174,7 +176,7 @@ def get_config_from_scenario_mongodb(scenario_id: str, testrun_id: str, target: 
     pipeline = [{'$match': {'id': scenario_id}},
                 {'$unwind': {'path': '$testruns'}},
                 {'$match': {'testruns.id': testrun_id}},
-                {'$replaceRoot': {'newRoot': '$testruns.analysis.config.'+target}}]
+                {'$replaceRoot': {'newRoot': f'$testruns.analysis.config.{target}'}}]
     config = aggregate_from_mongodb('scenario', pipeline)
     return config[0] if len(config) else {}
 
@@ -193,14 +195,15 @@ def convert_data_in(collection_name, document):
     return data
 
 
-def make_basic_match_pipeline(scenario_id: str=None, testrun_id: str=None, start_time: str=None, end_time: str=None):
+def make_basic_match_pipeline(
+        scenario_id: str = None, testrun_id: str = None, start_time: str = None, end_time: str = None):
     time_range = {}
     if start_time:
         time_range['$gte'] = convert_iso_format(start_time)
     if end_time:
         time_range['$lte'] = convert_iso_format(end_time)
     if testrun_id is None:
-            testrun_id = RedisClient.hget('testrun', 'id')
+        testrun_id = RedisClient.hget('testrun', 'id')
     if scenario_id is None:
         scenario_id = RedisClient.hget('testrun', 'scenario_id')
 
