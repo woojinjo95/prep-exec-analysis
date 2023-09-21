@@ -7,7 +7,7 @@ import { Input, Title, ToggleButton, Text, Divider, Button } from '@global/ui'
 import { useHardwareConfiguration, useScenarioById } from '@global/api/hook'
 import { useWebsocket } from '@global/hook'
 import { useRecoilValue } from 'recoil'
-import { isBlockRecordModeState, scenarioIdState } from '@global/atom'
+import { isBlockRecordModeState, scenarioIdState, testRunIdState } from '@global/atom'
 import { SubscribeMessage } from '@global/hook/useWebsocket/types'
 import { useMutation } from 'react-query'
 import { postBlock, postBlocks } from '@page/ActionPage/components/ActionSection/api/func'
@@ -65,7 +65,9 @@ const NetworkEmulation: React.FC = () => {
 
   const scenarioId = useRecoilValue(scenarioIdState)
 
-  const { refetch: scenarioRefetch } = useScenarioById({ scenarioId })
+  const testrunId = useRecoilValue(testRunIdState)
+
+  const { refetch: scenarioRefetch } = useScenarioById({ scenarioId, testrunId })
 
   const { mutate: postBlockMutate } = useMutation(postBlock, {
     onSuccess: () => {
@@ -477,7 +479,7 @@ const NetworkEmulation: React.FC = () => {
 
       <div className="pb-1 px-1">
         <div>
-          <Text weight="medium">Packet Contorl (Inbound)</Text>
+          <Text weight="medium">Packet Control (Inbound)</Text>
         </div>
 
         <div className="pt-2 flex justify-between">

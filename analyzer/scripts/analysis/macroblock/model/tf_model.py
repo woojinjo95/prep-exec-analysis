@@ -13,31 +13,13 @@ logger = logging.getLogger('main')
 
 
 class TensorflowModel:
-    def __init__(self, model_dir_url: str, model_output_dir: str, gpu_index: int = None, gpus: list = []):
-        """_summary_
-        Args:
-            model_dir_url (str): model directory path
-            model_output_dir (str): model save directory
-            gpu_index (int, optional): gpu index for model. if this value is not None then gpus value is ignored
-                -> one gpu - one model binding
-            gpus (list, optional): gpu list for model (tensorflow physical device). if this value is not None then gpu_index value is ignored
-                -> multigpu binding
-        """
+    def __init__(self, model_dir_url: str, model_output_dir: str):
         self.output_dir = model_output_dir
-        self.gpu_index = gpu_index
-        self.gpus = gpus
 
         # load model
         logger.info(f'model url: {model_dir_url}')
         model_dir = self.download_model(model_dir_url)
-        if self.gpus:
-            logger.info(f'GPU IDs: {self.gpus}')
-            self.model = self.load_model_with_gpus(model_dir, self.gpus)
-        elif self.gpu_index is not None:
-            logger.info(f'GPU INDEX: {self.gpu_index}')
-            self.model = self.load_model_with_gpu_index(model_dir)
-        else:
-            self.model = self.load_model(model_dir)
+        self.model = self.load_model(model_dir)
 
         self.input_shape = self.model.input_shape[1:]
         logger.info(f'input shape: {self.input_shape}')
@@ -64,30 +46,16 @@ class TensorflowModel:
     def load_model(self, model_dir: str):
         model = tf.keras.models.load_model(model_dir)
         return model
-    
-    def load_model_with_gpu_index(self, model_dir: str):
-        model = tf.keras.models.load_model(model_dir)
-        return model
-
-    def load_model_with_gpus(self, model_dir: str, gpus: list) -> tf.keras.Model:
-        strategy = tf.distribute.MirroredStrategy(gpus)
-        with strategy.scope():
-            model = tf.keras.models.load_model(model_dir)
-        return model
 
     def predict_with_batch(self, batch):
-        if self.gpu_index is not None:
-            with tf.device(f'/GPU:{self.gpu_index}'):
-                result = self.model.predict_on_batch(batch)
-        else:
-            result = self.model.predict_on_batch(batch)
+        result = self.model.predict_on_batch(batch)
         return result
 
 
 class MacroblockModel(TensorflowModel):
 
-    def __init__(self, model_dir_url: str, model_output_dir: str, gpu_index: int = None, gpus: list = []):
-        super().__init__(model_dir_url=model_dir_url, model_output_dir=model_output_dir, gpu_index=gpu_index, gpus=gpus)
+    def __init__(self, model_dir_url: str, model_output_dir: str):
+        super().__init__(model_dir_url=model_dir_url, model_output_dir=model_output_dir)
 
     # preprocess for macroblock
     def preprocess(self, image):

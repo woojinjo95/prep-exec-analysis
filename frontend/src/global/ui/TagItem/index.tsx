@@ -64,7 +64,7 @@ const TagItem: React.FC<TagItemProps> = ({
   return (
     <li
       className={cx(
-        'rounded-[4px] px-3 py-2 cursor-pointer truncate hover:backdrop-brightness-110',
+        'rounded-[4px] px-3 py-1 cursor-pointer truncate hover:backdrop-brightness-110',
         {
           'bg-charcoal': colorScheme === 'dark' && isActive,
           'bg-light-charcoal': colorScheme === 'charcoal' && isActive,
@@ -86,8 +86,8 @@ const TagItem: React.FC<TagItemProps> = ({
       {...props}
     >
       {mode === 'item' && (
-        <div className="flex justify-between">
-          <Tag tag={tag} />
+        <div className="flex justify-between items-center">
+          <Tag colorScheme={colorScheme} tag={tag} />
           <DropdownWithMoreButton type="icon" colorScheme="charcoal">
             <OptionItem colorScheme="charcoal">
               <Input

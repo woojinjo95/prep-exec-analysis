@@ -1,25 +1,28 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useRecoilState } from 'recoil'
-import { Accordion, Text, SimpleButton } from '@global/ui'
+import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
+import { Accordion, SimpleButton, Text } from '@global/ui'
+import { convertDuration, numberWithCommas } from '@global/usecase'
 import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.svg'
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
 import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
-import { convertDuration, numberWithCommas } from '@global/usecase'
-import { bootTypeFilterListState } from '@global/atom'
-import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
+import { monkeyTestIdFilterListState } from '@global/atom'
 import { AnalysisTypeLabel } from '@global/constant'
-import { BootTypeLabel } from '../../../constant'
 
-interface BootSummaryItemProps {
-  boot: NonNullable<AnalysisResultSummary['boot']>
+interface MonkeyTestSummaryItemProps {
+  monkeyTest: NonNullable<AnalysisResultSummary['monkey_test']>
   setRawDataModalType: React.Dispatch<React.SetStateAction<keyof AnalysisResultSummary | null>>
 }
 
 /**
- * boot 분석결과 요약 아이템
+ * monkey test 분석 결과 요약 아이템
  */
-const BootSummaryItem: React.FC<BootSummaryItemProps> = ({ boot, setRawDataModalType }) => {
-  const [bootTypeFilterList, setBootTypeFilterList] = useRecoilState(bootTypeFilterListState)
+const MonkeyTestSummaryItem: React.FC<MonkeyTestSummaryItemProps> = ({ monkeyTest, setRawDataModalType }) => {
+  const [monkeyTestIdFilterList, setMonkeyTestIdFilterList] = useRecoilState(monkeyTestIdFilterListState)
+
+  useEffect(() => {
+    setMonkeyTestIdFilterList([])
+  }, [])
 
   return (
     <Accordion
@@ -29,15 +32,17 @@ const BootSummaryItem: React.FC<BootSummaryItemProps> = ({ boot, setRawDataModal
             <div
               className="w-4 h-4"
               style={{
-                backgroundColor: boot.color,
+                backgroundColor: monkeyTest.color,
               }}
             />
             <Text size="sm" weight="medium">
-              {AnalysisTypeLabel.boot}
+              {AnalysisTypeLabel.monkey_test}
             </Text>
           </div>
 
-          <Text weight="medium">{numberWithCommas(boot.results.reduce((acc, curr) => acc + curr.total, 0))} times</Text>
+          <Text size="sm" weight="medium">
+            {numberWithCommas(monkeyTest.results.length)} times
+          </Text>
         </div>
       }
     >
@@ -45,30 +50,30 @@ const BootSummaryItem: React.FC<BootSummaryItemProps> = ({ boot, setRawDataModal
         <div className="grid grid-cols-[1fr_auto_auto_auto] gap-x-4 gap-y-1 items-center">
           {/* header */}
           <Text weight="medium" size="sm">
-            Target
+            No.
           </Text>
           <Text weight="medium" size="sm">
-            Total
+            Duration Time
           </Text>
           <Text weight="medium" size="sm" className="ml-4">
-            Avg Time
+            Smart Sense
           </Text>
           <div />
 
-          {boot.results.map(({ total, target, avg_time }, index) => (
-            <React.Fragment key={`boot-summary-result-item-${index}`}>
-              <Text size="sm">{BootTypeLabel[target]}</Text>
+          {monkeyTest.results.map(({ id, duration_time, smart_sense }, index) => (
+            <React.Fragment key={`monkey-test-summary-result-item-${index}`}>
+              <Text size="sm">{index + 1}</Text>
               <Text size="sm" className="text-right">
-                {numberWithCommas(total)}
+                {convertDuration(duration_time)}
               </Text>
               <Text size="sm" className="text-right">
-                {convertDuration(avg_time)}
+                {numberWithCommas(smart_sense)} times
               </Text>
-              {bootTypeFilterList.includes(target) ? (
+              {monkeyTestIdFilterList.includes(id) ? (
                 <SimpleButton
                   isIcon
                   colorScheme="charcoal"
-                  onClick={() => setBootTypeFilterList((prev) => prev.filter((type) => type !== target))}
+                  onClick={() => setMonkeyTestIdFilterList((prev) => prev.filter((type) => type !== id))}
                 >
                   <HiddenEyeIcon className="h-4 w-5" />
                 </SimpleButton>
@@ -76,7 +81,7 @@ const BootSummaryItem: React.FC<BootSummaryItemProps> = ({ boot, setRawDataModal
                 <SimpleButton
                   isIcon
                   colorScheme="charcoal"
-                  onClick={() => setBootTypeFilterList((prev) => [...prev, target])}
+                  onClick={() => setMonkeyTestIdFilterList((prev) => [...prev, id])}
                 >
                   <ShowEyeIcon className="h-4 w-5" />
                 </SimpleButton>
@@ -85,7 +90,7 @@ const BootSummaryItem: React.FC<BootSummaryItemProps> = ({ boot, setRawDataModal
           ))}
         </div>
 
-        <SimpleButton colorScheme="charcoal" className="ml-auto" onClick={() => setRawDataModalType('boot')}>
+        <SimpleButton colorScheme="charcoal" className="ml-auto" onClick={() => setRawDataModalType('monkey_test')}>
           <ShowRawDataIcon className="w-4 h-4" />
           <Text colorScheme="light" weight="medium">
             Show Raw Data
@@ -96,4 +101,4 @@ const BootSummaryItem: React.FC<BootSummaryItemProps> = ({ boot, setRawDataModal
   )
 }
 
-export default BootSummaryItem
+export default MonkeyTestSummaryItem

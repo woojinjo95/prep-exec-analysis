@@ -16,6 +16,14 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+@router.get("/run_block", response_model=schemas.RunBlock)
+def read_run_block() -> schemas.RunBlock:
+    """
+    Retrieve run block id.
+    """
+    return {'items': {'id': RedisClient.hget('testrun', 'run_block')}}
+
+
 @router.post("/{scenario_id}", response_model=schemas.MsgWithId)
 def create_block(
     *,
@@ -193,11 +201,3 @@ def update_block_group(
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {'msg': 'Update a block_group', 'id': block_group_id}
-
-
-@router.get("/run_block", response_model=schemas.RunBlock)
-def read_run_block() -> schemas.RunBlock:
-    """
-    Retrieve run block id.
-    """
-    return {'items': {'id': RedisClient.hget('testrun', 'run_block')}}

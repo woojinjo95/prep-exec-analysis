@@ -20,7 +20,7 @@ const TimelineChartContainer = React.forwardRef<HTMLDivElement, TimelineChartCon
     return (
       <div
         ref={ref}
-        className="border-l-[0.5px] border-r-[0.5px] border-[#37383E] relative cursor-pointer"
+        className="relative cursor-pointer"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}

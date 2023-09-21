@@ -8,10 +8,13 @@ import { getLogcat, getNetwork, getShellLogs, getShells } from './func'
 /**
  * Logcat 무한스크롤 조회 hook
  */
-export const useInfiniteLogcat = ({ enabled, ...params }: Parameters<typeof getLogcat>[0] & { enabled?: boolean }) => {
+export const useInfiniteLogcat = <T extends HTMLElement = HTMLDivElement>({
+  enabled,
+  ...params
+}: Parameters<typeof getLogcat>[0] & { enabled?: boolean }) => {
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
-  const { data, hasNextPage, isFetching, fetchNextPage } = useInfiniteQuery(
+  const { data, hasNextPage, isLoading, isFetching, fetchNextPage } = useInfiniteQuery(
     ['infinite_logcat', params],
     ({ pageParam = 1 }) => {
       return getLogcat({
@@ -35,7 +38,7 @@ export const useInfiniteLogcat = ({ enabled, ...params }: Parameters<typeof getL
     },
   )
 
-  const ref = useIntersect((entry, observer) => {
+  const ref = useIntersect<T>((entry, observer) => {
     observer.unobserve(entry.target)
     if (hasNextPage && !isFetching) {
       fetchNextPage()
@@ -43,7 +46,8 @@ export const useInfiniteLogcat = ({ enabled, ...params }: Parameters<typeof getL
   })
 
   return {
-    logcats: data?.pages.flatMap(({ items }) => items) || [],
+    logcats: data?.pages.flatMap(({ items }) => items),
+    isLoading,
     loadingRef: ref,
     hasNextPage,
   }
@@ -52,13 +56,13 @@ export const useInfiniteLogcat = ({ enabled, ...params }: Parameters<typeof getL
 /**
  * Network 무한스크롤 조회 hook
  */
-export const useInfiniteNetwork = ({
+export const useInfiniteNetwork = <T extends HTMLElement = HTMLDivElement>({
   enabled,
   ...params
 }: Parameters<typeof getNetwork>[0] & { enabled?: boolean }) => {
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
-  const { data, hasNextPage, isFetching, fetchNextPage } = useInfiniteQuery(
+  const { data, hasNextPage, isLoading, isFetching, fetchNextPage } = useInfiniteQuery(
     ['infinite_network', params],
     ({ pageParam = 1 }) => {
       return getNetwork({
@@ -82,7 +86,7 @@ export const useInfiniteNetwork = ({
     },
   )
 
-  const ref = useIntersect((entry, observer) => {
+  const ref = useIntersect<T>((entry, observer) => {
     observer.unobserve(entry.target)
     if (hasNextPage && !isFetching) {
       fetchNextPage()
@@ -90,7 +94,8 @@ export const useInfiniteNetwork = ({
   })
 
   return {
-    networks: data?.pages.flatMap(({ items }) => items) || [],
+    networks: data?.pages.flatMap(({ items }) => items),
+    isLoading,
     loadingRef: ref,
     hasNextPage,
   }
@@ -112,13 +117,13 @@ export const useShells = () => {
 /**
  * 쉘 로그 무한스크롤 조회 hook
  */
-export const useInfiniteShellLogs = ({
+export const useInfiniteShellLogs = <T extends HTMLElement = HTMLDivElement>({
   enabled,
   ...params
 }: Parameters<typeof getShellLogs>[0] & { enabled?: boolean }) => {
   const scenarioId = useRecoilValue(scenarioIdState)
   const testRunId = useRecoilValue(testRunIdState)
-  const { data, hasNextPage, isFetching, fetchNextPage } = useInfiniteQuery(
+  const { data, hasNextPage, isLoading, isFetching, fetchNextPage } = useInfiniteQuery(
     ['infinite_shell_logs', params],
     ({ pageParam = 1 }) => {
       return getShellLogs({
@@ -142,7 +147,7 @@ export const useInfiniteShellLogs = ({
     },
   )
 
-  const ref = useIntersect((entry, observer) => {
+  const ref = useIntersect<T>((entry, observer) => {
     observer.unobserve(entry.target)
     if (hasNextPage && !isFetching) {
       fetchNextPage()
@@ -150,7 +155,8 @@ export const useInfiniteShellLogs = ({
   })
 
   return {
-    shellLogs: data?.pages.flatMap(({ items }) => items) || [],
+    shellLogs: data?.pages.flatMap(({ items }) => items),
+    isLoading,
     loadingRef: ref,
     hasNextPage,
   }

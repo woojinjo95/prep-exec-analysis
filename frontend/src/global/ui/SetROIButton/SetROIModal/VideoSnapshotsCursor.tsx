@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import * as d3 from 'd3'
 import { ReactComponent as CursorIcon } from '@assets/images/pentagon.svg'
-import { VIDEO_SNAPSHOT_HEIGHT } from '@global/ui/VideoSnapshots/constant'
+import { VIDEO_SNAPSHOT_HEIGHT } from '@global/constant'
 
 interface VideoSnapshotsCursorProps {
   startDuration: number

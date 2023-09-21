@@ -1,29 +1,27 @@
+import ctypes
 import logging
+import multiprocessing
+import os
 import random
+import signal
 import threading
 import time
 from typing import List
 
 import numpy as np
-
-from scripts.external.report import report_data, create_section, update_section
-from scripts.external.redis import get_monkey_test_arguments
 from scripts.external.image import get_banned_images
+from scripts.external.redis import get_monkey_test_arguments
+from scripts.external.report import create_section, report_data, update_section
+from scripts.format import MonkeyExternalInfo, SectionData
 from scripts.monkey.util import (check_image_similar, exec_keys,
                                  get_current_image)
 from scripts.util._timezone import get_utc_datetime
-from scripts.format import SectionData
-from scripts.monkey.format import MonkeyExternalInfo
 
 logger = logging.getLogger('monkey_agent')
 
 
 class Monkey:
-    """_summary_
-    press random keys for duration seconds.
-    if smart sense is detected, go to root.
-    """
-    def __init__(self, duration: float, 
+    def __init__(self, duration: float,
                  key_candidates: List[str], root_keyset: List[str], 
                  key_interval: float, company: str, remocon_type: str,
                  enable_smart_sense: bool=False, waiting_time: float=3, 
@@ -44,19 +42,19 @@ class Monkey:
         if not self.external_info:
             self.external_info = MonkeyExternalInfo()
 
-        self.main_stop_event = threading.Event()
+        self.main_stop_event = multiprocessing.Event()
+
         self.smart_sense_detected = False
         self.smart_sense_stop_event = threading.Event()
         self.smart_sense_count = 0
 
         self.banned_images = get_banned_images()
-        self.banned_image_detected = False
+        self.banned_image_detected = multiprocessing.Value(ctypes.c_bool, False)
 
         self.create_section()
 
     def run(self):
         logger.info('Start Monkey')
-        self.main_stop_event.clear()
         start_time = time.time()
 
         if self.root_when_start:
@@ -74,8 +72,6 @@ class Monkey:
                     self.report_smart_sense()
                     self.go_to_root()
                     self.start_smart_sense()
-            
-            self.update_section(SectionData(end_timestamp=get_utc_datetime(time.time())))
 
         self.stop_smart_sense()
         logger.info('Stop Monkey')
@@ -98,7 +94,7 @@ class Monkey:
     ##### Smart Sense #####
     def smart_sense(self):
         prev_frame = None
-        while not self.smart_sense_stop_event.is_set():
+        while not self.main_stop_event.is_set() and not self.smart_sense_stop_event.is_set():
             time.sleep(self.waiting_time)
             frame = get_current_image()
             if prev_frame is not None:
@@ -141,9 +137,18 @@ class Monkey:
             user_config=get_monkey_test_arguments()
         )
         self.section_report_id = create_section(section_data)
-    
+        self.start_end_time_updator()
+
     def update_section(self, section_in: SectionData):
         update_section(self.section_report_id, section_in)
+
+    def start_end_time_updator(self):
+        def end_time_updator():
+            while not self.main_stop_event.is_set():
+                self.update_section(SectionData(end_timestamp=get_utc_datetime(time.time())))
+                time.sleep(0.5)
+        th = threading.Thread(target=end_time_updator, daemon=True)
+        th.start()
 
     ##### Banned Image #####
     def compare_banned_image(self, image: np.ndarray) -> bool:
@@ -153,5 +158,33 @@ class Monkey:
         snapshot = get_current_image()
         if self.compare_banned_image(snapshot):
             logger.info('banned image is detected.')
+            self.banned_image_detected.value = True
             self.stop()
-            self.banned_image_detected = True
+
+
+def run_monkey(monkey: Monkey):
+    monkey_proc = multiprocessing.Process(target=monkey.run, daemon=True)
+    monkey_proc.start()
+
+    def stop_monkey():
+        monkey.stop()  # to kill all threads in monkey because threads are not killed though process is daemon.
+        monkey_proc.terminate()
+
+    # the process hierachy is A(main) - B(test_module) - C(monkey_agent). 
+    # A - B(daemon=False) - C(daemon=True) is forced because python daemon process cannot have child process.
+    # so C must have signal handler because B is non daemon process. (non daemon means that it cannot be auto terminated when parent process is terminated.)
+    def signal_handler(signum, frame):
+        stop_monkey()
+        os._exit(0)
+    # stop child process(Monkey Agent) when signal is received. (SIGTERM)
+    # if not, child process will be alive even if parent process is terminated.
+    signal.signal(signal.SIGTERM, signal_handler)
+
+    start_time = time.time()
+    current_duration = time.time() - start_time
+    while monkey_proc.is_alive() and current_duration < monkey.duration:
+        time.sleep(0.1)
+        current_duration = time.time() - start_time
+    logger.info(f'stop monkey process. current_duration: {current_duration} sec, duration: {monkey.duration} sec')
+
+    stop_monkey()

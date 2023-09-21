@@ -4,7 +4,7 @@ import { ToggleButton, Text, Divider, Title } from '@global/ui'
 import { useWebsocket } from '@global/hook'
 import { useHardwareConfiguration, useScenarioById } from '@global/api/hook'
 import { useRecoilValue } from 'recoil'
-import { isBlockRecordModeState, scenarioIdState } from '@global/atom'
+import { isBlockRecordModeState, scenarioIdState, testRunIdState } from '@global/atom'
 import { useMutation } from 'react-query'
 import { postBlock } from '@page/ActionPage/components/ActionSection/api/func'
 
@@ -26,7 +26,9 @@ const OnOffControl: React.FC = () => {
 
   const scenarioId = useRecoilValue(scenarioIdState)
 
-  const { refetch: scenarioRefetch } = useScenarioById({ scenarioId })
+  const testrunId = useRecoilValue(testRunIdState)
+
+  const { refetch: scenarioRefetch } = useScenarioById({ scenarioId, testrunId })
 
   const { mutate: postBlockMutate } = useMutation(postBlock, {
     onSuccess: () => {

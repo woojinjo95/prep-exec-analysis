@@ -1,6 +1,6 @@
 import React, { useMemo, useRef } from 'react'
 import { useRecoilValue } from 'recoil'
-import { PointChart, RangeChart, TimelineTooltip, TimelineTooltipItem, Text } from '@global/ui'
+import { PointChart, RangeChart, TimelineTooltip, TimelineTooltipItem, Text, Skeleton } from '@global/ui'
 import { convertDuration } from '@global/usecase'
 import { bootTypeFilterListState, resumeTypeFilterListState } from '@global/atom'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
@@ -14,12 +14,20 @@ interface ResumeBootChartProps {
   endTime: Date
   dimension: { left: number; width: number } | null
   summary: AnalysisResultSummary
+  isVisible?: boolean
 }
 
 /**
  * Resume(warm booting), Boot(cold booting) 시간 차트
  */
-const ResumeBootChart: React.FC<ResumeBootChartProps> = ({ scaleX, startTime, endTime, dimension, summary }) => {
+const ResumeBootChart: React.FC<ResumeBootChartProps> = ({
+  scaleX,
+  startTime,
+  endTime,
+  dimension,
+  summary,
+  isVisible,
+}) => {
   const resumeTypeFilterList = useRecoilValue(resumeTypeFilterListState)
   const bootTypeFilterList = useRecoilValue(bootTypeFilterListState)
   const wrapperRef = useRef<HTMLDivElement | null>(null)
@@ -63,13 +71,16 @@ const ResumeBootChart: React.FC<ResumeBootChartProps> = ({ scaleX, startTime, en
     width: dimension?.width,
   })
 
-  if (!data) return <div style={{ height: CHART_HEIGHT }} />
+  if (!isVisible) return null
+  if (!data) {
+    return <Skeleton className="w-full border-b border-[#37383E]" style={{ height: CHART_HEIGHT }} colorScheme="dark" />
+  }
   return (
     <div onMouseMove={onMouseMove(data)} onMouseLeave={onMouseLeave} className="relative">
       {!!posX && (
         <div
           ref={wrapperRef}
-          className="absolute top-0 h-full w-1 bg-white opacity-30 z-[5]"
+          className="absolute top-0 h-full w-1 bg-white/30 z-[5]"
           style={{
             transform: `translateX(${posX - 2}px)`,
           }}
@@ -86,6 +97,20 @@ const ResumeBootChart: React.FC<ResumeBootChartProps> = ({ scaleX, startTime, en
             </TimelineTooltip>
           )}
         </div>
+      )}
+
+      {/* 툴팁 데이터 위치를 표시하는 엘리먼트 */}
+      {!!tooltipData && !!scaleX && (
+        <div
+          className="absolute top-0 h-[calc(100%-1px)] bg-white/50 z-[5]"
+          style={{
+            transform: `translateX(${scaleX(new Date(tooltipData.datetime)) - 1}px)`,
+            width: Math.max(
+              scaleX(new Date(tooltipData.datetime + tooltipData.duration)) - scaleX(new Date(tooltipData.datetime)),
+              2,
+            ),
+          }}
+        />
       )}
 
       <div className="w-full relative border-b border-[#37383E]">

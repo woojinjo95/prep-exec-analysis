@@ -1,6 +1,6 @@
 import React, { useMemo, useRef } from 'react'
 import * as d3 from 'd3'
-import { AreaChart, TimelineTooltip, TimelineTooltipItem, Text } from '@global/ui'
+import { AreaChart, TimelineTooltip, TimelineTooltipItem, Text, Skeleton } from '@global/ui'
 import { CHART_HEIGHT } from '@global/constant'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { useLoudness } from '@page/AnalysisPage/api/hook'
@@ -12,12 +12,13 @@ interface LoudnessChartProps {
   endTime: Date
   dimension: { left: number; width: number } | null
   summary: AnalysisResultSummary
+  isVisible?: boolean
 }
 
 /**
  * Loudness(소리) 변화 차트
  */
-const LoudnessChart: React.FC<LoudnessChartProps> = ({ scaleX, startTime, endTime, dimension, summary }) => {
+const LoudnessChart: React.FC<LoudnessChartProps> = ({ scaleX, startTime, endTime, dimension, summary, isVisible }) => {
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const { loudness } = useLoudness({
     start_time: startTime.toISOString(),
@@ -43,13 +44,16 @@ const LoudnessChart: React.FC<LoudnessChartProps> = ({ scaleX, startTime, endTim
     width: dimension?.width,
   })
 
-  if (!loudnessData) return <div style={{ height: CHART_HEIGHT }} />
+  if (!isVisible) return null
+  if (!loudnessData) {
+    return <Skeleton className="w-full border-b border-[#37383E]" style={{ height: CHART_HEIGHT }} colorScheme="dark" />
+  }
   return (
     <div onMouseMove={onMouseMove(loudnessData)} onMouseLeave={onMouseLeave} className="relative overflow-hidden">
       {!!posX && (
         <div
           ref={wrapperRef}
-          className="absolute top-0 h-full w-1 bg-white opacity-30 z-[5]"
+          className="absolute top-0 h-full w-1 bg-white/30 z-[5]"
           style={{
             transform: `translateX(${posX - 2}px)`,
           }}

@@ -4,9 +4,9 @@ import cx from 'classnames'
 import { changeMinSecMsToMs, changeMsToMinSecMs, formMsToHundred } from '@global/usecase'
 import { useMutation } from 'react-query'
 import { useRecoilValue } from 'recoil'
-import { scenarioIdState } from '@global/atom'
+import { isBlockRecordModeState, scenarioIdState } from '@global/atom'
 import { Block } from '@global/api/entity'
-import { ActionStatus } from '../types'
+import { useServiceState } from '@global/api/hook'
 import { putBlock } from '../api/func'
 import { useRunBlock } from '../api/hook'
 
@@ -14,7 +14,6 @@ interface ActionBlockItemProps {
   block: Block
   selectedBlockIds: string[]
   handleBlockClick: (event: React.MouseEvent<HTMLDivElement>, blockId: string) => void
-  actionStatus: ActionStatus
   setModifyingBlockId: React.Dispatch<React.SetStateAction<string | null>>
   modifyingBlockId: string | null
   blockRefetch: () => void
@@ -24,7 +23,6 @@ const ActionBlockItem = ({
   block,
   selectedBlockIds,
   handleBlockClick,
-  actionStatus,
   setModifyingBlockId,
   modifyingBlockId,
   blockRefetch,
@@ -44,6 +42,8 @@ const ActionBlockItem = ({
 
   const scenarioId = useRecoilValue(scenarioIdState)
 
+  const isBlockRecordMode = useRecoilValue(isBlockRecordModeState)
+
   useEffect(() => {
     const minSecMillisec = changeMsToMinSecMs(block.delay_time)
     setChangedMin(String(minSecMillisec.m))
@@ -59,6 +59,8 @@ const ActionBlockItem = ({
       alert('블록 수정에 실패하였습니다')
     },
   })
+
+  const { serviceState } = useServiceState()
 
   const itemRef = useRef<HTMLDivElement>(null)
 
@@ -108,13 +110,14 @@ const ActionBlockItem = ({
     >
       <div
         className={cx(
-          `border-box h-full w-full min-h-[48px] pl-[10px] pr-[10px] grid grid-cols-[1fr_minmax(100px,auto)] border-[1px] border-[#DFE0EE] bg-white rounded-xl`,
+          `ml-1 mr-1 border-box h-full w-[calc(100%-8px)] min-h-[48px] pl-[10px] pr-[10px] grid grid-cols-[1fr_minmax(100px,auto)] border-[1px] border-[#DFE0EE] bg-white  rounded-xl`,
           {
             'hover:outline-1 hover:outline-[#4C4E68] hover:outline': !selectedBlockIds.includes(block.id),
             '!outline !outline-[1px] !outline-[#4C4E68]': selectedBlockIds.includes(block.id),
             '!bg-[#F1F2F4]': selectedBlockIds.includes(block.id) && modifyingBlockId !== block.id,
-            '!border-[#FF2300] !outline-[#FF2300]': actionStatus === 'RFC',
-            '!border-[#00B1FF] !outline-[#00B1FF]': actionStatus === 'playing' && runBlock && runBlock.id === block.id,
+            '!border-[#FF2300] !outline-[#FF2300]': !!isBlockRecordMode,
+            '!border-[#00B1FF] !outline-[#00B1FF]':
+              serviceState === 'playblock' && runBlock && runBlock.id === block.id,
           },
         )}
       >
@@ -124,8 +127,8 @@ const ActionBlockItem = ({
             {
               'hover:border-r-2 hover:border-[4C4E68]': !selectedBlockIds.includes(block.id),
               '!border-r-[1px] !border-[#4C4E68]': selectedBlockIds.includes(block.id),
-              '!border-[#FF2300] border-r-[2px]': actionStatus === 'RFC',
-              '!border-[#00B1FF] border-r-[2px]': actionStatus === 'playing' && runBlock && runBlock.id === block.id,
+              '!border-[#FF2300] border-r-[2px]': !!isBlockRecordMode,
+              '!border-[#00B1FF] border-r-[2px]': serviceState === 'playblock' && runBlock && runBlock.id === block.id,
             },
           )}
         >
@@ -187,9 +190,13 @@ const ActionBlockItem = ({
                 {block.delay_time}
               </div>
               <EditIcon
-                className="cursor-pointer ml-[10px] h-4 w-4"
+                className={cx('cursor-pointer ml-[10px] h-4 w-4', {
+                  'fill-light-grey cursor-auto': serviceState === 'playblock' || isBlockRecordMode,
+                })}
                 onClick={(e) => {
                   e.stopPropagation()
+
+                  if (serviceState === 'playblock' || isBlockRecordMode) return
 
                   setModifyingBlockId(block.id)
                 }}
