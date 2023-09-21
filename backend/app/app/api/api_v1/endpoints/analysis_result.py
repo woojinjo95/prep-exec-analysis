@@ -690,6 +690,14 @@ def get_data_of_macro_block(
                                              'timestamp': {'$dateToString': {'date': '$timestamp'}},
                                              'duration': 1}}]
 
+        config = get_config_from_scenario_mongodb(scenario_id=scenario_id,
+                                                  testrun_id=testrun_id,
+                                                  target='macroblock')
+        if config == {}:
+            raise HTTPException(status_code=404, detail='Not Found LogPatternMatching Configurataion')
+        additional_pipeline = [{'$match': {'user_config': config}}]
+        macroblock_pipeline.extend(additional_pipeline)
+
         macroblock = paginate_from_mongodb_aggregation(col=analysis_collection['macroblock'],
                                                        pipeline=macroblock_pipeline,
                                                        page=page,
