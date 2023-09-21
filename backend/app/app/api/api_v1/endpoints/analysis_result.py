@@ -690,6 +690,15 @@ def get_data_of_boot(
                                                              start_time=start_time,
                                                              end_time=end_time)
 
+        config = get_config_from_scenario_mongodb(scenario_id=scenario_id,
+                                                  testrun_id=testrun_id,
+                                                  target='channel_change_time')
+        if config == {}:
+            raise HTTPException(status_code=404, detail='Not Found ChannelChangeTime Configurataion')
+        target = config.get('targets', [])
+        additional_pipeline = [{'$match': {'user_config.targets': target}}]
+        channel_zapping_pipeline.extend(additional_pipeline)
+
         additional_pipeline = [
             {'$project': {'_id': 0,
                           'timestamp': {'$dateToString': {'date': '$timestamp'}},
