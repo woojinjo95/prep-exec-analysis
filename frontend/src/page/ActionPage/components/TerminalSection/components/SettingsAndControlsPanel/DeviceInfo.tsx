@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useMutation } from 'react-query'
 
-import { Button, Divider, Input, OptionItem, Select, Title, Text } from '@global/ui'
+import { Button, Divider, Input, OptionItem, Select, Title, Text, Skeleton } from '@global/ui'
 import { IPRegex } from '@global/constant'
 import { HardwareConfiguration } from '@global/api/entity'
 import { useHardwareConfiguration, useLogConnectionStatus, useScenarioById } from '@global/api/hook'
@@ -177,90 +177,95 @@ const DeviceInfo: React.FC = () => {
   }
 
   return (
-    <div className="row-span-2 bg-light-black p-5 rounded-lg min-h-full h-fit">
-      <Title as="h3" colorScheme="light" className="px-1">
-        Device Info
-      </Title>
+    <>
+      {!hardwareConfiguration && <Skeleton colorScheme="dark" className="p-5 rounded-lg h-[430px]" />}
+      {hardwareConfiguration && (
+        <div className="row-span-2 bg-light-black p-5 rounded-lg min-h-full h-fit">
+          <Title as="h3" colorScheme="light" className="px-1">
+            Device Info
+          </Title>
 
-      <Divider />
+          <Divider />
 
-      <div className="grid grid-cols-1 gap-y-4 px-1">
-        <Select
-          colorScheme="charcoal"
-          header={
-            <Text weight="bold" colorScheme="light">
-              {stbConnection.mode || 'Type'}
-            </Text>
-          }
-        >
-          {ConnectionTypes.map((connectionType) => (
-            <OptionItem
+          <div className="grid grid-cols-1 gap-y-4 px-1">
+            <Select
               colorScheme="charcoal"
-              key={`device-info-select-connection-mode-${connectionType}`}
-              onClick={() => {
-                if (stbConnection.mode !== connectionType) {
-                  setSTBConnection({ ...DefaultSTBConnection, mode: connectionType })
-                  setWarningMessage(DefaultWarningMessage)
-                }
-              }}
-              isActive={connectionType === stbConnection.mode}
+              header={
+                <Text weight="bold" colorScheme="light">
+                  {stbConnection.mode || 'Type'}
+                </Text>
+              }
             >
-              {connectionType}
-            </OptionItem>
-          ))}
-        </Select>
+              {ConnectionTypes.map((connectionType) => (
+                <OptionItem
+                  colorScheme="charcoal"
+                  key={`device-info-select-connection-mode-${connectionType}`}
+                  onClick={() => {
+                    if (stbConnection.mode !== connectionType) {
+                      setSTBConnection({ ...DefaultSTBConnection, mode: connectionType })
+                      setWarningMessage(DefaultWarningMessage)
+                    }
+                  }}
+                  isActive={connectionType === stbConnection.mode}
+                >
+                  {connectionType}
+                </OptionItem>
+              ))}
+            </Select>
 
-        {!!stbConnection.mode && (
-          <>
-            <div className="grid grid-rows-1 grid-cols-[2fr_1fr] gap-x-2">
-              <Input
-                onClick={() => {
-                  if (stbConnection.host) return
-
-                  setSTBConnection((prev) => ({
-                    ...prev,
-                    host: hardwareConfiguration?.dut_ip,
-                  }))
-                }}
-                placeholder={hardwareConfiguration?.dut_ip || 'IP'}
-                value={stbConnection.host || ''}
-                onChange={(e) => setSTBConnection((prev) => ({ ...prev, host: e.target.value }))}
-                warningMessage={warningMessage.host}
-              />
-              <Input
-                placeholder="Port"
-                value={stbConnection.port || ''}
-                onChange={(e) => setSTBConnection((prev) => ({ ...prev, port: e.target.value }))}
-                warningMessage={warningMessage.port}
-              />
-            </div>
-
-            {stbConnection.mode === 'ssh' && (
+            {!!stbConnection.mode && (
               <>
-                <Input
-                  placeholder="Username"
-                  value={stbConnection.username || ''}
-                  onChange={(e) => setSTBConnection((prev) => ({ ...prev, username: e.target.value }))}
-                  warningMessage={warningMessage.username}
-                />
-                <Input
-                  placeholder="Password"
-                  value={stbConnection.password || ''}
-                  onChange={(e) => setSTBConnection((prev) => ({ ...prev, password: e.target.value }))}
-                  warningMessage={warningMessage.password}
-                />
+                <div className="grid grid-rows-1 grid-cols-[2fr_1fr] gap-x-2">
+                  <Input
+                    onClick={() => {
+                      if (stbConnection.host) return
+
+                      setSTBConnection((prev) => ({
+                        ...prev,
+                        host: hardwareConfiguration?.dut_ip,
+                      }))
+                    }}
+                    placeholder={hardwareConfiguration?.dut_ip || 'IP'}
+                    value={stbConnection.host || ''}
+                    onChange={(e) => setSTBConnection((prev) => ({ ...prev, host: e.target.value }))}
+                    warningMessage={warningMessage.host}
+                  />
+                  <Input
+                    placeholder="Port"
+                    value={stbConnection.port || ''}
+                    onChange={(e) => setSTBConnection((prev) => ({ ...prev, port: e.target.value }))}
+                    warningMessage={warningMessage.port}
+                  />
+                </div>
+
+                {stbConnection.mode === 'ssh' && (
+                  <>
+                    <Input
+                      placeholder="Username"
+                      value={stbConnection.username || ''}
+                      onChange={(e) => setSTBConnection((prev) => ({ ...prev, username: e.target.value }))}
+                      warningMessage={warningMessage.username}
+                    />
+                    <Input
+                      placeholder="Password"
+                      value={stbConnection.password || ''}
+                      onChange={(e) => setSTBConnection((prev) => ({ ...prev, password: e.target.value }))}
+                      warningMessage={warningMessage.password}
+                    />
+                  </>
+                )}
+
+                {isChanged && (
+                  <Button colorScheme="primary" className="mb-2" isRoundedFull onClick={onClickSubmit}>
+                    Submit
+                  </Button>
+                )}
               </>
             )}
-
-            {isChanged && (
-              <Button colorScheme="primary" className="mb-2" isRoundedFull onClick={onClickSubmit}>
-                Submit
-              </Button>
-            )}
-          </>
-        )}
-      </div>
-    </div>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 
