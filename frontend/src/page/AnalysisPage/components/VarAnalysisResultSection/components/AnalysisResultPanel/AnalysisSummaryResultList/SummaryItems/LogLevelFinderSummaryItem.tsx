@@ -40,7 +40,7 @@ const LogLevelFinderSummaryItem: React.FC<LogLevelFinderSummaryItemProps> = ({ l
             </Text>
           </div>
 
-          <Text weight="medium">
+          <Text size="sm" weight="medium">
             {numberWithCommas(logLevelFinder.results.reduce((acc, curr) => acc + curr.total, 0))} times
           </Text>
         </div>

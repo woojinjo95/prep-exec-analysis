@@ -28,7 +28,9 @@ const LoudnessSummaryItem: React.FC<LoudnessSummaryItemProps> = ({ loudness }) =
             </Text>
           </div>
 
-          <Text weight="medium">{dropDecimalPoint(loudness.lkfs)} LKFS</Text>
+          <Text size="sm" weight="medium">
+            {dropDecimalPoint(loudness.lkfs)} LKFS
+          </Text>
         </div>
       }
     />
