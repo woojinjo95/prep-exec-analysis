@@ -2,7 +2,7 @@ import React from 'react'
 
 import { ReactComponent as IRIcon } from '@assets/images/icon_remote_ir_w.svg'
 import { ReactComponent as BluetoothIcon } from '@assets/images/icon_remote_bt_w.svg'
-import { ButtonGroup, Divider, GroupButton, Title } from '@global/ui'
+import { ButtonGroup, Divider, GroupButton, Skeleton, Title } from '@global/ui'
 import { useWebsocket } from '@global/hook'
 import { useHardwareConfiguration, useScenarioById } from '@global/api/hook'
 import { useRecoilValue } from 'recoil'
@@ -60,36 +60,38 @@ const RemoteControl: React.FC = () => {
   })
 
   return (
-    <div className="bg-light-black p-5 rounded-lg h-fit">
-      <Title as="h3" colorScheme="light" className="px-1">
-        Remote Control
-      </Title>
+    <Skeleton isLoaded={!!hardwareConfiguration} colorScheme="dark" className="rounded-lg">
+      <div className="bg-light-black p-5 rounded-lg h-fit">
+        <Title as="h3" colorScheme="light" className="px-1">
+          Remote Control
+        </Title>
 
-      <Divider />
+        <Divider />
 
-      <ButtonGroup>
-        <GroupButton
-          isActive={hardwareConfiguration?.remote_control_type === 'ir'}
-          icon={<IRIcon />}
-          onClick={() => {
-            if (hardwareConfiguration?.remote_control_type === 'ir') return
-            sendMessage({ msg: 'remocon_properties', data: { type: 'ir' } })
-          }}
-        >
-          IR
-        </GroupButton>
-        <GroupButton
-          isActive={hardwareConfiguration?.remote_control_type === 'bt'}
-          icon={<BluetoothIcon />}
-          onClick={() => {
-            if (hardwareConfiguration?.remote_control_type === 'bt') return
-            sendMessage({ msg: 'remocon_properties', data: { type: 'bt' } })
-          }}
-        >
-          Bluetooth
-        </GroupButton>
-      </ButtonGroup>
-    </div>
+        <ButtonGroup>
+          <GroupButton
+            isActive={hardwareConfiguration?.remote_control_type === 'ir'}
+            icon={<IRIcon />}
+            onClick={() => {
+              if (hardwareConfiguration?.remote_control_type === 'ir') return
+              sendMessage({ msg: 'remocon_properties', data: { type: 'ir' } })
+            }}
+          >
+            IR
+          </GroupButton>
+          <GroupButton
+            isActive={hardwareConfiguration?.remote_control_type === 'bt'}
+            icon={<BluetoothIcon />}
+            onClick={() => {
+              if (hardwareConfiguration?.remote_control_type === 'bt') return
+              sendMessage({ msg: 'remocon_properties', data: { type: 'bt' } })
+            }}
+          >
+            Bluetooth
+          </GroupButton>
+        </ButtonGroup>
+      </div>
+    </Skeleton>
   )
 }
 
