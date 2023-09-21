@@ -127,62 +127,59 @@ const OnOffControl: React.FC = () => {
   })
 
   return (
-    <>
-      {!hardwareConfiguration && <Skeleton colorScheme="dark" className="p-5 rounded-lg h-[260px]" />}
-      {hardwareConfiguration && (
-        <div className="bg-light-black p-5 rounded-lg h-fit">
-          <Title as="h3" colorScheme="light" className="px-1">
-            On/Off Control
-          </Title>
+    <Skeleton isLoaded={!!hardwareConfiguration} colorScheme="dark" className="rounded-lg">
+      <div className="bg-light-black p-5 rounded-lg h-fit">
+        <Title as="h3" colorScheme="light" className="px-1">
+          On/Off Control
+        </Title>
 
-          <Divider />
+        <Divider />
 
-          <ul className="grid grid-cols-1 gap-y-4 px-1">
-            <li className="flex items-center justify-between">
-              <Text weight="medium">DUT Power</Text>
-              <ToggleButton
-                isOn={!!hardwareConfiguration?.enable_dut_power}
-                onClick={(isOn) => {
-                  sendMessage({ msg: 'on_off_control', data: { enable_dut_power: isOn } })
-                }}
-              />
-            </li>
-            <li className="flex items-center justify-between">
-              <Text weight="medium">HDMI(HPD)</Text>
-              <ToggleButton
-                isOn={!!hardwareConfiguration?.enable_hdmi}
-                onClick={(isOn) => {
-                  sendMessage({ msg: 'on_off_control', data: { enable_hdmi: isOn } })
-                }}
-              />
-            </li>
-            <li className="flex items-center justify-between">
-              <Text weight="medium">DUT WAN</Text>
-              <ToggleButton
-                isOn={!!hardwareConfiguration?.enable_dut_wan}
-                onClick={(isOn) => {
-                  sendMessage({ msg: 'on_off_control', data: { enable_dut_wan: isOn } })
-                }}
-              />
-            </li>
-            <li className="flex items-center justify-between">
-              <Text weight="medium">Screen</Text>
-              <button
-                type="button"
-                className="bg-primary w-20 h-7 rounded-full"
-                onClick={() => {
-                  sendMessage({ msg: 'capture_board', data: { action: 'refresh' } })
-                }}
-              >
-                <Text colorScheme="light" size="xs" weight="medium">
-                  Reset
-                </Text>
-              </button>
-            </li>
-          </ul>
-        </div>
-      )}
-    </>
+        <ul className="grid grid-cols-1 gap-y-4 px-1">
+          <li className="flex items-center justify-between">
+            <Text weight="medium">DUT Power</Text>
+            <ToggleButton
+              isOn={!!hardwareConfiguration?.enable_dut_power}
+              onClick={(isOn) => {
+                sendMessage({ msg: 'on_off_control', data: { enable_dut_power: isOn } })
+              }}
+            />
+          </li>
+          <li className="flex items-center justify-between">
+            <Text weight="medium">HDMI(HPD)</Text>
+            <ToggleButton
+              isOn={!!hardwareConfiguration?.enable_hdmi}
+              onClick={(isOn) => {
+                sendMessage({ msg: 'on_off_control', data: { enable_hdmi: isOn } })
+              }}
+            />
+          </li>
+          <li className="flex items-center justify-between">
+            <Text weight="medium">DUT WAN</Text>
+            <ToggleButton
+              isOn={!!hardwareConfiguration?.enable_dut_wan}
+              onClick={(isOn) => {
+                sendMessage({ msg: 'on_off_control', data: { enable_dut_wan: isOn } })
+              }}
+            />
+          </li>
+          <li className="flex items-center justify-between">
+            <Text weight="medium">Screen</Text>
+            <button
+              type="button"
+              className="bg-primary w-20 h-7 rounded-full"
+              onClick={() => {
+                sendMessage({ msg: 'capture_board', data: { action: 'refresh' } })
+              }}
+            >
+              <Text colorScheme="light" size="xs" weight="medium">
+                Reset
+              </Text>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </Skeleton>
   )
 }
 
