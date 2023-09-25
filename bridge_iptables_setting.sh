@@ -1,3 +1,5 @@
+# run below command when first install
+
 sudo iptables -A INPUT -i br0 -j ACCEPT
 sudo iptables -A OUTPUT -o br0 -j ACCEPT
 sudo iptables -A FORWARD -i br0 -j ACCEPT
