@@ -889,7 +889,6 @@ def get_summary_data_of_measure_result(
             if len(last_updated_timestamp) > 0 else None
         result['last_updated_timestamp'] = last_updated_timestamp.strftime('%Y-%m-%dT%H:%M:%S.%fZ')\
             if (last_updated_timestamp is not None) else None
-        print(result)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {"items": result}
