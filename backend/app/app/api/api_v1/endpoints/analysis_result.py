@@ -494,11 +494,11 @@ def get_data_of_log_pattern_matching(
     log_pattern_matching_pipeline.extend(additional_pipeline)
 
     log_pattern_matching = paginate_from_mongodb_aggregation(col=analysis_collection['log_pattern_matching'],
-                                                                pipeline=log_pattern_matching_pipeline,
-                                                                page=page,
-                                                                page_size=page_size,
-                                                                sort_by=sort_by,
-                                                                sort_desc=sort_desc)
+                                                             pipeline=log_pattern_matching_pipeline,
+                                                             page=page,
+                                                             page_size=page_size,
+                                                             sort_by=sort_by,
+                                                             sort_desc=sort_desc)
     return log_pattern_matching
 
 
@@ -710,16 +710,16 @@ def get_data_of_boot(
                           'targets': '$user_config.targets'}}]
         channel_zapping_pipeline.extend(additional_pipeline)
 
-        measurement_boot = paginate_from_mongodb_aggregation(col=analysis_collection['channel_change_time'],
-                                                             pipeline=channel_zapping_pipeline,
-                                                             page=page,
-                                                             page_size=page_size,
-                                                             sort_by=sort_by,
-                                                             sort_desc=sort_desc)
+        channel_zapping = paginate_from_mongodb_aggregation(col=analysis_collection['channel_change_time'],
+                                                            pipeline=channel_zapping_pipeline,
+                                                            page=page,
+                                                            page_size=page_size,
+                                                            sort_by=sort_by,
+                                                            sort_desc=sort_desc)
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return measurement_boot
+    return channel_zapping
 
 
 # Process Lifecycle
@@ -795,8 +795,7 @@ def get_summary_data_of_measure_result(
         result = {}
 
         testrun_config = get_config_from_scenario_mongodb(scenario_id=scenario_id, testrun_id=testrun_id)
-        active_analysis_list = testrun_config.get('config', {})
-        for active_analysis, config in active_analysis_list.items():
+        for active_analysis, config in testrun_config.items():
             if config is None:
                 continue
             pipeline = []
