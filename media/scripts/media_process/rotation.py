@@ -199,7 +199,7 @@ class MakeVideo:
 
         with get_strict_redis_connection() as redis_connection:
             subscribe_count = publish(redis_connection, RedisChannel.command, {'msg': 'recording_response',
-                                                                               'data': {'video_info': video_info}})
+                                                                               'data': {'video_info': str(video_info)}})
 
         try:
             # update_to_mongodb('scenario', scenario_id, {'testrun.raw.videos': video_info})
