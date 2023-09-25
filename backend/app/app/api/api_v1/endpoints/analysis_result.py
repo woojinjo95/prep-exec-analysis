@@ -681,37 +681,30 @@ def get_data_of_macro_block(
     """
     화면 깨짐 데이터 조회
     """
-    try:
-        macroblock_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
-                                                        testrun_id=testrun_id,
-                                                        start_time=start_time,
-                                                        end_time=end_time)
+    macroblock_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
+                                                    testrun_id=testrun_id,
+                                                    start_time=start_time,
+                                                    end_time=end_time)
 
-        config = get_config_from_scenario_mongodb(scenario_id=scenario_id,
-                                                  testrun_id=testrun_id,
-                                                  target='macroblock')
+    config = get_config_from_scenario_mongodb(scenario_id=scenario_id,
+                                              testrun_id=testrun_id,
+                                              target='macroblock')
+    if config == {}:
+        raise HTTPException(status_code=404, detail='Not Found Macroblock Configurataion')
+    config_pipeline = [{'$match': {'user_config': config}}]
+    macroblock_pipeline.extend(config_pipeline)
 
-        if config == {}:
-            raise HTTPException(status_code=404, detail='Not Found Macroblock Configurataion')
-        config_pipeline = [{'$match': {'user_config': config}}]
-        macroblock_pipeline.extend(config_pipeline)
+    additional_pipeline = [{'$project': {'_id': 0,
+                                         'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                                         'duration': 1}}]
+    macroblock_pipeline.extend(additional_pipeline)
 
-        additional_pipeline = [{'$project': {'_id': 0,
-                                             'timestamp': {'$dateToString': {'date': '$timestamp'}},
-                                             'duration': 1}}]
-        macroblock_pipeline.extend(additional_pipeline)
-
-        macroblock = paginate_from_mongodb_aggregation(col=analysis_collection['macroblock'],
-                                                       pipeline=macroblock_pipeline,
-                                                       page=page,
-                                                       page_size=page_size,
-                                                       sort_by=sort_by,
-                                                       sort_desc=sort_desc)
-        print(macroblock)
-        print(config)
-    except Exception as e:
-        logger.error(traceback.format_exc())
-        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    macroblock = paginate_from_mongodb_aggregation(col=analysis_collection['macroblock'],
+                                                   pipeline=macroblock_pipeline,
+                                                   page=page,
+                                                   page_size=page_size,
+                                                   sort_by=sort_by,
+                                                   sort_desc=sort_desc)
     return macroblock
 
 
