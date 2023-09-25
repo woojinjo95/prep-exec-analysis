@@ -859,7 +859,7 @@ def get_summary_data_of_measure_result(
             elif active_analysis == 'macroblock':
                 additional_pipeline = [
                     {'$match': {'user_config': config}},
-                    {'$group': {'_id': 'testrun_id', 'results': {'$avg': '$duration'}}}]
+                    {'$group': {'_id': 'testrun_id', 'duration': {'$avg': '$duration'}}}]
             elif active_analysis == 'channel_change_time':
                 continue
             elif active_analysis == 'process_lifecycle_analysis':
