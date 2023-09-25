@@ -781,8 +781,7 @@ def get_summary_data_of_measure_result(
         result = {}
 
         testrun_config = get_config_from_scenario_mongodb(scenario_id=scenario_id, testrun_id=testrun_id)
-        active_analysis_list = testrun_config.get('config', {})
-        for active_analysis, config in active_analysis_list.items():
+        for active_analysis, config in testrun_config.items():
             if config is None:
                 continue
             pipeline = []
@@ -859,6 +858,7 @@ def get_summary_data_of_measure_result(
                                                                    'image_path': '$image_path'}}}}]
             elif active_analysis == 'macroblock':
                 additional_pipeline = [
+                    {'$match': {'user_config': config}},
                     {'$group': {'_id': 'testrun_id', 'results': {'$avg': '$duration'}}}]
             elif active_analysis == 'channel_change_time':
                 continue
@@ -889,6 +889,7 @@ def get_summary_data_of_measure_result(
             if len(last_updated_timestamp) > 0 else None
         result['last_updated_timestamp'] = last_updated_timestamp.strftime('%Y-%m-%dT%H:%M:%S.%fZ')\
             if (last_updated_timestamp is not None) else None
+        print(result)
     except Exception as e:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     return {"items": result}
