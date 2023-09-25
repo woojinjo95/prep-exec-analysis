@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useQuery } from 'react-query'
-import { OptionItem, Select, Text } from '@global/ui'
+import { OptionItem, Select, Skeleton, Text } from '@global/ui'
 import BackgroundImage from '@assets/images/background_pattern.svg'
 
 import { KeyEvent } from '@page/ActionPage/types'
@@ -57,6 +57,7 @@ const RemoconSection: React.FC<RemoconSectionProps> = ({ keyEvent }) => {
       }}
     >
       <div className="grid grid-rows-1 grid-cols-[1fr_auto] w-full pb-3 items-center">
+        {(!selectedRemocon || !remocons) && <Skeleton colorScheme="light" className="h-[60px] w-full rounded-xl" />}
         {selectedRemocon && remocons && (
           <Select
             header={
@@ -83,6 +84,22 @@ const RemoconSection: React.FC<RemoconSectionProps> = ({ keyEvent }) => {
         )}
       </div>
 
+      {(!selectedRemocon || !remocons) && (
+        <div className="w-full h-[calc(100%-62px)] grid grid-cols-2 grid-rows-1">
+          <div className="w-full flex">
+            <Skeleton colorScheme="light" className="h-full w-[95%] rounded-xl" />
+          </div>
+          <div className="w-full flex-col flex items-center">
+            <div className="w-full flex justify-between">
+              <Skeleton colorScheme="light" className="w-[65%] h-[48px] rounded-xl mb-[5px]" />
+              <Skeleton colorScheme="light" className="h-[48px] w-[25%] rounded-xl mb-[5px]" />
+            </div>
+            <Skeleton colorScheme="light" className="h-[48px] w-[100%] rounded-xl mb-[5px]" />
+            <Skeleton colorScheme="light" className="h-[48px] w-[100%] rounded-xl mb-[5px]" />
+            <Skeleton colorScheme="light" className="h-[48px] w-[100%] rounded-xl mb-[5px]" />
+          </div>
+        </div>
+      )}
       {selectedRemocon && <RemoconComponent remocon={selectedRemocon} keyEvent={keyEvent} />}
       {serviceState === 'playblock' && (
         <>

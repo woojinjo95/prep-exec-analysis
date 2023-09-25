@@ -15,6 +15,7 @@ import { Block, BlockGroup, Scenario } from '@global/api/entity'
 import { getScenarioById, putScenario } from '@global/api/func'
 import ScrollComponent from '@global/ui/ScrollComponent'
 import { useServiceState } from '@global/api/hook'
+import { Skeleton } from '@global/ui'
 import ActionBlockItem from './ActionBlockItem'
 import { postBlock, postBlocks } from '../api/func'
 
@@ -419,6 +420,18 @@ const ActionBlockArea = (): JSX.Element => {
           backgroundSize: '100%',
         }}
       >
+        {!blocks && (
+          <div className="w-full h-full pl-3 pr-3 pt-[2px] pb-[2px] ">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+              <Skeleton
+                colorScheme="light"
+                key={`block_skeleton_${num}`}
+                className="ml-1 mr-1 border-box h-[48px] w-[calc(100%-8px)] rounded-xl mb-[3px] "
+              />
+            ))}
+          </div>
+        )}
+
         {blocks && blockDummys && blocks.length > 0 && scenarioId && (
           <div className="w-full h-full pl-3 pr-3 overflow-y-auto pt-[2px] pb-[2px]">
             <ScrollComponent>
