@@ -666,6 +666,48 @@ def get_data_of_intelligent_monkey_smart_sense(
     return monkey_section
 
 
+# Macro Block
+@router.get("/macroblock", response_model=schemas.Macroblock)
+def get_data_of_macro_block(
+    start_time: str = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: str = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
+    scenario_id: Optional[str] = None,
+    testrun_id: Optional[str] = None,
+    page_size: Optional[int] = 10,
+    page: Optional[int] = None,
+    sort_by: Optional[str] = 'timestamp',
+    sort_desc: Optional[bool] = False
+):
+    """
+    화면 깨짐 데이터 조회
+    """
+    macroblock_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
+                                                    testrun_id=testrun_id,
+                                                    start_time=start_time,
+                                                    end_time=end_time)
+
+    config = get_config_from_scenario_mongodb(scenario_id=scenario_id,
+                                              testrun_id=testrun_id,
+                                              target='macroblock')
+    if config == {}:
+        raise HTTPException(status_code=404, detail='Not Found Macroblock Configurataion')
+    config_pipeline = [{'$match': {'user_config': config}}]
+    macroblock_pipeline.extend(config_pipeline)
+
+    additional_pipeline = [{'$project': {'_id': 0,
+                                         'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                                         'duration': 1}}]
+    macroblock_pipeline.extend(additional_pipeline)
+
+    macroblock = paginate_from_mongodb_aggregation(col=analysis_collection['macroblock'],
+                                                   pipeline=macroblock_pipeline,
+                                                   page=page,
+                                                   page_size=page_size,
+                                                   sort_by=sort_by,
+                                                   sort_desc=sort_desc)
+    return macroblock
+
+
 # Process Lifecycle
 # @router.get("/process_lifecycle", response_model=schemas.ProcessLifecycle)
 def get_data_of_process_lifecycle(
@@ -739,8 +781,7 @@ def get_summary_data_of_measure_result(
         result = {}
 
         testrun_config = get_config_from_scenario_mongodb(scenario_id=scenario_id, testrun_id=testrun_id)
-        active_analysis_list = testrun_config.get('config', {})
-        for active_analysis, config in active_analysis_list.items():
+        for active_analysis, config in testrun_config.items():
             if config is None:
                 continue
             pipeline = []
@@ -816,7 +857,9 @@ def get_summary_data_of_measure_result(
                                                                    'smart_sense': '$smart_sense',
                                                                    'image_path': '$image_path'}}}}]
             elif active_analysis == 'macroblock':
-                continue
+                additional_pipeline = [
+                    {'$match': {'user_config': config}},
+                    {'$group': {'_id': 'testrun_id', 'duration': {'$avg': '$duration'}}}]
             elif active_analysis == 'channel_change_time':
                 continue
             elif active_analysis == 'process_lifecycle_analysis':

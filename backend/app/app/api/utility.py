@@ -24,7 +24,8 @@ analysis_collection = {
     "event_log": "event_log",
     "color_reference": "an_color_reference",
     "monkey_test": "monkey_section",
-    "intelligent_monkey_test": "monkey_section"
+    "intelligent_monkey_test": "monkey_section",
+    "macroblock": "an_macroblock",
 }
 
 
