@@ -14,7 +14,7 @@ from app.api.utility import (analysis_collection, convert_data_in,
                              get_config_from_scenario_mongodb,
                              make_basic_match_pipeline,
                              paginate_from_mongodb_aggregation,
-                             parse_bytes_to_value, serialize_datetime)
+                             serialize_datetime)
 from app.crud.base import (aggregate_from_mongodb, insert_one_to_mongodb,
                            load_from_mongodb)
 from app.db.redis_session import RedisClient
@@ -496,11 +496,11 @@ def get_data_of_log_pattern_matching(
     log_pattern_matching_pipeline.extend(additional_pipeline)
 
     log_pattern_matching = paginate_from_mongodb_aggregation(col=analysis_collection['log_pattern_matching'],
-                                                                pipeline=log_pattern_matching_pipeline,
-                                                                page=page,
-                                                                page_size=page_size,
-                                                                sort_by=sort_by,
-                                                                sort_desc=sort_desc)
+                                                             pipeline=log_pattern_matching_pipeline,
+                                                             page=page,
+                                                             page_size=page_size,
+                                                             sort_by=sort_by,
+                                                             sort_desc=sort_desc)
     return log_pattern_matching
 
 
