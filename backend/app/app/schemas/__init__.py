@@ -1,6 +1,6 @@
 from .analysis_config import (Analysis, AnalysisConfig, AnalysisConfigBase,
                               FrameImage)
-from .analysis_result import (Boot, ColorReference, Cpu, DataSummary, EventLog,
+from .analysis_result import (Boot, ChannelChangeTime, ColorReference, Cpu, DataSummary, EventLog,
                               Freeze, IntelligentMonkeySmartSense, IntelligentMonkeyTest,
                               LogLevelFinder, LogPatternMatching, Loudness, Macroblock,
                               Memory, MonkeySmartSense, MonkeyTest, NetworkFilter,
