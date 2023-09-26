@@ -31,7 +31,8 @@ analysis_collection = {
     "event_log": "event_log",
     "color_reference": "an_color_reference",
     "monkey_test": "monkey_section",
-    "intelligent_monkey_test": "monkey_section"
+    "intelligent_monkey_test": "monkey_section",
+    "macroblock": "an_macroblock",
 }
 
 
@@ -63,7 +64,8 @@ def paginate_from_mongodb(col, page, page_size=None, param={}, sorting_keyword=N
     return convert_pageset(page_param, list(res.get('items', [])))
 
 
-def get_multi_or_paginate_by_res(col, page, page_size=10, sorting_keyword=None, is_descending=None, proj=None, param={}):
+def get_multi_or_paginate_by_res(
+        col, page, page_size=10, sorting_keyword=None, is_descending=None, proj=None, param={}):
     if page:
         res_dict = paginate_from_mongodb(col=col,
                                          page=page,
@@ -132,7 +134,8 @@ def set_ilike(param):
     return {'$regex': item, '$options': 'i'}
 
 
-def paginate_from_mongodb_aggregation(col: str, pipeline: list, sort_by: str, page: int, page_size: int = 10, sort_desc: bool = False):
+def paginate_from_mongodb_aggregation(
+        col: str, pipeline: list, sort_by: str, page: int, page_size: int = 10, sort_desc: bool = False):
     if sort_by is not None:
         sorting_pipeline = [{'$sort': {sort_by: -1 if sort_desc else 1}}]
         pipeline.extend(sorting_pipeline)
@@ -178,15 +181,14 @@ def serialize_datetime(obj):
     raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
 
 
-def get_config_from_scenario_mongodb(scenario_id: str, testrun_id: str):
-    pipeline = [{"$match": {'id': scenario_id}},
-                {"$unwind": "$testruns"},
-                {"$project": {"testrun_id": "$testruns.id",
-                              "config": f"$testruns.analysis.config"}},
-                {"$match": {"testrun_id": testrun_id}},
-                {"$project": {"_id": 0, "config": 1}}]
-    res = aggregate_from_mongodb('scenario', pipeline)
-    return res[0] if len(res) > 0 else {}
+def get_config_from_scenario_mongodb(scenario_id: str, testrun_id: str, target: str = None):
+    target = '$testruns.analysis.config' if target is None else f'$testruns.analysis.config.{target}'
+    pipeline = [{'$match': {'id': scenario_id}},
+                {'$unwind': {'path': '$testruns'}},
+                {'$match': {'testruns.id': testrun_id}},
+                {'$replaceRoot': {'newRoot': target}}]
+    config = aggregate_from_mongodb('scenario', pipeline)
+    return config[0] if len(config) else {}
 
 
 def convert_data_in(scenario_id, collection_name, document):

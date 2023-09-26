@@ -26,7 +26,9 @@ const ChannelChangeTimeSummaryItem: React.FC = () => {
             </Text>
           </div>
 
-          <Text weight="medium">times</Text>
+          <Text size="sm" weight="medium">
+            times
+          </Text>
         </div>
       }
     >

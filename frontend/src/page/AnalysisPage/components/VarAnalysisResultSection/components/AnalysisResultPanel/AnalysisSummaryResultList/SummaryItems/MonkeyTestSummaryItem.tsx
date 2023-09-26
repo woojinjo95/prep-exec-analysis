@@ -1,28 +1,27 @@
 import React, { useEffect } from 'react'
 import { useRecoilState } from 'recoil'
+import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
 import { Accordion, SimpleButton, Text } from '@global/ui'
+import { convertDuration, numberWithCommas } from '@global/usecase'
 import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.svg'
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
 import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
-import { numberWithCommas } from '@global/usecase'
-import { freezeTypeFilterListState } from '@global/atom'
-import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
+import { monkeyTestIdFilterListState } from '@global/atom'
 import { AnalysisTypeLabel } from '@global/constant'
-import { FreezeTypeLabel } from '../../../constant'
 
-interface FreezeSummaryItemProps {
-  freeze: NonNullable<AnalysisResultSummary['freeze']>
+interface MonkeyTestSummaryItemProps {
+  monkeyTest: NonNullable<AnalysisResultSummary['monkey_test']>
   setRawDataModalType: React.Dispatch<React.SetStateAction<keyof AnalysisResultSummary | null>>
 }
 
 /**
- * freeze 분석결과 요약 아이템
+ * monkey test 분석 결과 요약 아이템
  */
-const FreezeSummaryItem: React.FC<FreezeSummaryItemProps> = ({ freeze, setRawDataModalType }) => {
-  const [freezeTypeFilterList, setFreezeTypeFilterList] = useRecoilState(freezeTypeFilterListState)
+const MonkeyTestSummaryItem: React.FC<MonkeyTestSummaryItemProps> = ({ monkeyTest, setRawDataModalType }) => {
+  const [monkeyTestIdFilterList, setMonkeyTestIdFilterList] = useRecoilState(monkeyTestIdFilterListState)
 
   useEffect(() => {
-    setFreezeTypeFilterList([])
+    setMonkeyTestIdFilterList([])
   }, [])
 
   return (
@@ -33,50 +32,56 @@ const FreezeSummaryItem: React.FC<FreezeSummaryItemProps> = ({ freeze, setRawDat
             <div
               className="w-4 h-4"
               style={{
-                backgroundColor: freeze.color,
+                backgroundColor: monkeyTest.color,
               }}
             />
             <Text size="sm" weight="medium">
-              {AnalysisTypeLabel.freeze}
+              {AnalysisTypeLabel.monkey_test}
             </Text>
           </div>
 
-          <Text weight="medium">
-            {numberWithCommas(freeze.results.reduce((acc, curr) => acc + curr.total, 0))} times
+          <Text size="sm" weight="medium">
+            {numberWithCommas(monkeyTest.results.length)} times
           </Text>
         </div>
       }
     >
       <div className="grid grid-cols-1 gap-y-4 pt-1">
-        <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 gap-y-1 items-center">
+        <div className="grid grid-cols-[1fr_auto_auto_auto] gap-x-4 gap-y-1 items-center">
           {/* header */}
           <Text weight="medium" size="sm">
-            Error Type
+            No.
           </Text>
           <Text weight="medium" size="sm">
-            Total
+            Duration Time
+          </Text>
+          <Text weight="medium" size="sm" className="ml-4">
+            Smart Sense
           </Text>
           <div />
 
-          {freeze.results.map(({ total, error_type }, index) => (
-            <React.Fragment key={`freeze-summary-result-${index}`}>
-              <Text size="sm">{FreezeTypeLabel[error_type]}</Text>
+          {monkeyTest.results.map(({ id, duration_time, smart_sense }, index) => (
+            <React.Fragment key={`monkey-test-summary-result-item-${index}`}>
+              <Text size="sm">{index + 1}</Text>
               <Text size="sm" className="text-right">
-                {numberWithCommas(total)}
+                {convertDuration(duration_time)}
               </Text>
-              {freezeTypeFilterList.includes(error_type) ? (
+              <Text size="sm" className="text-right">
+                {numberWithCommas(smart_sense)} times
+              </Text>
+              {monkeyTestIdFilterList.includes(id) ? (
                 <SimpleButton
                   isIcon
                   colorScheme="charcoal"
-                  onClick={() => setFreezeTypeFilterList((prev) => prev.filter((type) => type !== error_type))}
+                  onClick={() => setMonkeyTestIdFilterList((prev) => prev.filter((type) => type !== id))}
                 >
                   <HiddenEyeIcon className="h-4 w-5" />
                 </SimpleButton>
               ) : (
                 <SimpleButton
-                  colorScheme="charcoal"
                   isIcon
-                  onClick={() => setFreezeTypeFilterList((prev) => [...prev, error_type])}
+                  colorScheme="charcoal"
+                  onClick={() => setMonkeyTestIdFilterList((prev) => [...prev, id])}
                 >
                   <ShowEyeIcon className="h-4 w-5" />
                 </SimpleButton>
@@ -85,7 +90,7 @@ const FreezeSummaryItem: React.FC<FreezeSummaryItemProps> = ({ freeze, setRawDat
           ))}
         </div>
 
-        <SimpleButton colorScheme="charcoal" className="ml-auto" onClick={() => setRawDataModalType('freeze')}>
+        <SimpleButton colorScheme="charcoal" className="ml-auto" onClick={() => setRawDataModalType('monkey_test')}>
           <ShowRawDataIcon className="w-4 h-4" />
           <Text colorScheme="light" weight="medium">
             Show Raw Data
@@ -96,4 +101,4 @@ const FreezeSummaryItem: React.FC<FreezeSummaryItemProps> = ({ freeze, setRawDat
   )
 }
 
-export default FreezeSummaryItem
+export default MonkeyTestSummaryItem
