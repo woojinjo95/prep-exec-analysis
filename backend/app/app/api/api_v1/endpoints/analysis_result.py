@@ -2,18 +2,20 @@ import io
 import json
 import logging
 import os
+import tarfile
 import traceback
-import zipfile
+import uuid
 from datetime import datetime
 from typing import Optional
 
 from app import schemas
-from app.api.utility import (analysis_collection, deserialize_datetime,
+from app.api.utility import (analysis_collection, convert_data_in,
+                             deserialize_datetime,
                              get_config_from_scenario_mongodb,
+                             make_basic_match_pipeline,
                              paginate_from_mongodb_aggregation,
-                             parse_bytes_to_value, serialize_datetime,
-                             make_basic_match_pipeline)
-from app.crud.base import (aggregate_from_mongodb, insert_many_to_mongodb,
+                             serialize_datetime)
+from app.crud.base import (aggregate_from_mongodb, insert_one_to_mongodb,
                            load_from_mongodb)
 from app.db.redis_session import RedisClient
 from fastapi import APIRouter, File, HTTPException, Query, Response, UploadFile
@@ -967,25 +969,26 @@ async def export_result(
     try:
         now = datetime.today().strftime('%Y-%m-%dT%H%M%SF%f')
         export_type = {
-            'file': ['videos', 'frames'],
+            'file': ['videos', 'frames', 'monkey'],  # TODO
             'db': ['scenario', 'stb_log', 'stb_info', 'loudness', 'network_trace', 'terminal_log',
                    'monkey_smart_sense', 'monkey_section', 'an_color_reference', 'an_freeze',
-                   'an_warm_boot', 'an_cold_boot', 'an_log_pattern']
+                   'an_warm_boot', 'an_cold_boot', 'an_log_pattern', 'video_snapshot']
         }
         export_item = {key: [item for item in jsonable_encoder(export_in.items) if item in values]
                        for key, values in export_type.items()}
         scenario_id = export_in.scenario_id if export_in.scenario_id else RedisClient.hget('testrun', 'scenario_id')
         testrun_id = export_in.testrun_id if export_in.testrun_id else RedisClient.hget('testrun', 'id')
 
-        zip_buffer = io.BytesIO()
-        with zipfile.ZipFile(zip_buffer, "w") as zipf:
+        tar_gz_buffer = io.BytesIO()
+        with tarfile.open(fileobj=tar_gz_buffer, mode="w:gz") as tarf:
             for file_type in export_item['file']:
                 path = f"{RedisClient.hget('testrun', 'workspace_path')}/{testrun_id}/raw/{file_type}"
                 for root, _, files in os.walk(path):
                     for file in files:
                         file_path = os.path.join(root, file)
                         relative_path = os.path.relpath(file_path, path)
-                        zipf.write(file_path, os.path.join('file', f'{testrun_id}', 'raw', file_type, relative_path))
+                        tarf.add(file_path, arcname=os.path.join(
+                            'file', f'{testrun_id}', 'raw', file_type, relative_path))
 
             for collection_name in export_item['db']:
                 param = {'id': scenario_id} if collection_name == 'scenario' \
@@ -994,49 +997,49 @@ async def export_result(
                     file_path = f"db/{collection_name}/{document['_id']}.json"
                     del document['_id']
                     data = json.dumps(document, indent=4, ensure_ascii=False, default=serialize_datetime)
-                    zipf.writestr(file_path, data)
+                    info = tarfile.TarInfo(file_path)
+                    info.size = len(data)
+                    tarf.addfile(info, io.BytesIO(data.encode('utf-8')))
 
-        zip_buffer.seek(0)
-        headers = {"Content-Disposition": f"attachment; filename=results_{now}.zip"}
+        tar_gz_buffer.seek(0)
+        headers = {"Content-Disposition": f"attachment; filename=results_{now}.tar.gz"}
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())
-    return Response(content=zip_buffer.read(), headers=headers, media_type="application/zip")
+    return Response(content=tar_gz_buffer.read(), headers=headers, media_type="application/tar+gzip")
 
 
 @router.post("/import", response_model=schemas.Msg)
 async def import_result(file: UploadFile = File(...)) -> schemas.Msg:
     try:
-        mongo_data = {}
-        zip_data = await file.read()
-        with zipfile.ZipFile(io.BytesIO(zip_data), "r") as zipf:
-            for full_name in zipf.namelist():
-                file_info = full_name.split('/')
-                file_type = file_info[0]
-                file_name = file_info[-1]
-                file_path = '/'.join(file_info[1:-1])
+        scenario_id = str(uuid.uuid4())
+        tar_gz_data = await file.read()
+        with tarfile.open(fileobj=io.BytesIO(tar_gz_data), mode="r:gz") as tarf:
+            for tar_info in tarf:
+                if tar_info.isfile():
+                    file_data = tarf.extractfile(tar_info).read()
+                    file_path = tar_info.name.split('/')
+                    file_type = file_path[0]
+                    file_name = file_path[-1]
+                    file_path = '/'.join(file_path[1:-1])
 
-                if file_type == 'file':
-                    workspace_path = RedisClient.hget('testrun', 'workspace_path')
-                    real_path = f"{workspace_path}/{file_path}"
-                    if not os.path.isdir(real_path):
-                        os.mkdir(real_path)
-                    with open(f'{real_path}/{file_name}', 'wb') as f:
-                        f.write(file.file.read())
+                    if file_type == 'file':
+                        workspace_path = RedisClient.hget('testrun', 'workspace_path')
+                        real_path = f"{workspace_path}/{file_path}"
+                        if not os.path.isdir(real_path):
+                            os.makedirs(real_path, exist_ok=True)
+                        with open(f'{real_path}/{file_name}', 'wb') as f:
+                            f.write(file_data)
 
-                if file_type == 'db':
-                    file_data = zipf.read(full_name).decode("utf-8")
-                    collection_name = os.path.dirname(f'{file_path}/{file_name}')
-                    # data = convert_data_in(collection_name, deserialize_datetime(json.loads(file_data)))
-                    data = deserialize_datetime(json.loads(file_data))
-                    if collection_name in mongo_data:
-                        mongo_data[collection_name].append(data)
-                    else:
-                        mongo_data[collection_name] = [data]
-
-        for collection_name, data in mongo_data.items():
-            insert_many_to_mongodb(collection_name, jsonable_encoder(data))
+                    if file_type == 'db':
+                        collection_name = os.path.dirname(f'{file_path}/{file_name}')
+                        data = deserialize_datetime(convert_data_in(
+                            scenario_id, collection_name, json.loads(file_data.decode("utf-8"))))
+                        # data = deserialize_datetime(json.loads(file_data.decode("utf-8")))
+                        insert_one_to_mongodb(col=collection_name, data=data)
     except Exception as e:
         logger.error(traceback.format_exc())
-        raise HTTPException(status_code=500, detail=traceback.format_exc())
+        # raise HTTPException(status_code=500, detail=traceback.format_exc())
+    finally:
+        pass
     return {'msg': f"Data from {file.filename} uploaded and restored to corresponding collections"}
