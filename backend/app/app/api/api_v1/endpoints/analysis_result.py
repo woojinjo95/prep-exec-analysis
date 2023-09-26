@@ -912,6 +912,10 @@ def get_summary_data_of_measure_result(
                     {'$group': {'_id': None, 'results': {'$push': {'section_id': '$section_id',
                                                                    'smart_sense': '$smart_sense',
                                                                    'image_path': '$image_path'}}}}]
+            elif active_analysis == 'macroblock':
+                additional_pipeline = [
+                    {'$match': {'user_config': config}},
+                    {'$group': {'_id': 'testrun_id', 'duration': {'$avg': '$duration'}}}]
             elif active_analysis == 'channel_change_time':
                 additional_pipeline = [
                     {'$project': {'_id': 0, 'measure_time': 1, 'targets': '$user_config.targets'}},
@@ -923,12 +927,6 @@ def get_summary_data_of_measure_result(
                                 'results': {'$push': {'target': '$_id',
                                                       'avg_time': '$avg_time',
                                                       'total': '$total'}}}}]
-            elif active_analysis == 'macroblock':
-                additional_pipeline = [
-                    {'$match': {'user_config': config}},
-                    {'$group': {'_id': 'testrun_id', 'duration': {'$avg': '$duration'}}}]
-            elif active_analysis == 'channel_change_time':
-                continue
             elif active_analysis == 'process_lifecycle_analysis':
                 continue
             elif active_analysis == 'network_filter':
