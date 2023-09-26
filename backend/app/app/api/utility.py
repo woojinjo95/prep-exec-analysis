@@ -33,6 +33,7 @@ analysis_collection = {
     "monkey_test": "monkey_section",
     "intelligent_monkey_test": "monkey_section",
     "macroblock": "an_macroblock",
+    "channel_change_time": "an_channel_change_time",
 }
 
 
