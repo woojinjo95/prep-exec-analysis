@@ -21,7 +21,7 @@ async def start_analysis(
         analysis_in = jsonable_encoder(analysis_in)
         new_measurements = set(analysis_in['measurement'])
         testrun_config = get_config_from_scenario_mongodb(
-            analysis_in['scenario_id'], analysis_in['testrun_id']).get('config', {})
+            analysis_in['scenario_id'], analysis_in['testrun_id'])
         old_measurements = set([key for key, value in testrun_config.items() if value is not None])
 
         for _type in list(old_measurements - new_measurements):
