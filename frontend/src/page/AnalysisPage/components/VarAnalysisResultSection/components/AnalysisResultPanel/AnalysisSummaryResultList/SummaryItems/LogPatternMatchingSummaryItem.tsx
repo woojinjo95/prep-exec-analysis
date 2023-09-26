@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useRecoilState } from 'recoil'
 import { Accordion, SimpleButton, Text } from '@global/ui'
 import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.svg'
@@ -25,6 +25,10 @@ const LogPatternMatchingSummaryItem: React.FC<LogPatternMatchingSummaryItemProps
     logPatternMatchingNameFilterListState,
   )
 
+  useEffect(() => {
+    setLogPatternMatchingNameFilterList([])
+  }, [])
+
   return (
     <Accordion
       header={
@@ -41,7 +45,7 @@ const LogPatternMatchingSummaryItem: React.FC<LogPatternMatchingSummaryItemProps
             </Text>
           </div>
 
-          <Text weight="medium">
+          <Text size="sm" weight="medium">
             {numberWithCommas(logPatternMatching.results.reduce((acc, curr) => acc + curr.total, 0))} times
           </Text>
         </div>

@@ -1,23 +1,21 @@
 
 import logging
-from typing import List, Tuple
-import time
 import threading
+import time
+from typing import List
 
 import numpy as np
-
 from scripts.analysis.image import get_cropped_image
-from scripts.monkey.format import NodeInfo, MonkeyArgs
-from scripts.monkey.monkey import Monkey
-from scripts.monkey.util import (check_cursor_is_same, check_shape_similar, 
-                                 exec_keys_with_each_interval, get_current_image, head_to_parent_sibling,
-                                 optimize_path, get_last_breadth_start_image,
-                                 get_cursor)
-from scripts.external.image import get_skipped_images
-from scripts.external.image import save_section_cursor_image
+from scripts.external.image import (get_skipped_images,
+                                    save_section_cursor_image)
+from scripts.format import Cursor, MonkeyArgs, MonkeyExternalInfo, NodeInfo
+from scripts.monkey.monkey import Monkey, run_monkey
+from scripts.monkey.util import (check_cursor_is_same, check_shape_similar,
+                                 cursor_to_xywh, exec_keys_with_each_interval,
+                                 get_current_image, get_cursor,
+                                 get_last_breadth_start_image,
+                                 head_to_parent_sibling, optimize_path)
 from scripts.util._timezone import get_utc_datetime
-from scripts.monkey.format import MonkeyExternalInfo
-
 
 logger = logging.getLogger('monkey_test')
 
@@ -37,7 +35,7 @@ class IntelligentMonkeyTestSK:
         # root keyset 근거
         # 1. 배터리 방전 팝업 없애기 위해 home 두번 입력
         # 2. 검증 대상 셋탑의 경우, up 4회
-        self.root_keyset = ['home', 'home', 'left'] + ['up'] * 4
+        self.root_keyset = ['exit', 'home', 'home', 'left'] + ['up'] * 4
         self.skipped_images = get_skipped_images()
 
         # init variables
@@ -92,7 +90,7 @@ class IntelligentMonkeyTestSK:
             same_with_breadth_start = check_cursor_is_same(last_breadth_start_image, self.get_cursor(last_breadth_start_image),
                                                         node_info.image, node_info.cursor, 
                                                         sim_thld=0.98)
-            shape_diff_with_prev = not check_shape_similar(self.node_histories[-1].cursor, node_info.cursor)
+            shape_diff_with_prev = not check_shape_similar(self.root_cursor, node_info.cursor)
 
             is_breadth_end = True if same_with_prev or same_with_breadth_start or shape_diff_with_prev else False
             logger.info(f'check breadth end done. is_breadth_end: {is_breadth_end}, same_with_prev: {same_with_prev}, same_with_breadth_start: {same_with_breadth_start}, shape_diff_with_prev: {shape_diff_with_prev}')
@@ -121,7 +119,7 @@ class IntelligentMonkeyTestSK:
             logger.info(f'cannot find root cursor. try_count: {try_count}')
             raise Exception('cannot find root cursor')
 
-    def check_leftmenu_opened(self, prev_image: np.ndarray, prev_cursor: Tuple, image: np.ndarray, cursor: Tuple) -> bool:
+    def check_leftmenu_opened(self, prev_image: np.ndarray, prev_cursor: Cursor, image: np.ndarray, cursor: Cursor) -> bool:
         if cursor is None:
             return False
         shape_similar = check_shape_similar(self.root_cursor, cursor, 10, 10)
@@ -146,29 +144,20 @@ class IntelligentMonkeyTestSK:
                 analysis_type=self.analysis_type,
                 section_id=self.section_id,
                 image_path=save_section_cursor_image(get_utc_datetime(time.time()).strftime('%y-%m-%d_%H:%M:%S.%f'), 
-                                                     get_cropped_image(node_info.image, node_info.cursor)),
+                                                     get_cropped_image(node_info.image, cursor_to_xywh(node_info.cursor))),
             ),
             root_when_start=False,
         )
-        monkey.run()
+        run_monkey(monkey)
 
-        if monkey.banned_image_detected:
+        if monkey.banned_image_detected.value:
             self.stop()
-        self.section_id += 1
 
-    ##### Skipped Image #####
-    def compare_skipped_with_cursor(self, image: np.ndarray) -> bool:
-        cursor = self.get_cursor(image)
-        for skipped_image in self.skipped_images:
-            skipped_cursor = self.get_cursor(skipped_image)
-            if check_cursor_is_same(image, cursor, skipped_image, skipped_cursor):
-                return True
-        else:
-            return False
+        self.section_id += 1
 
     ##### Re-Defined Functions #####
     def exec_keys(self, keys: List[str]):
-        key_and_intervals = [(key, self.key_interval) if key != 'home' else (key, 3) for key in keys]
+        key_and_intervals = [(key, 3) if key in ['home', 'exit'] else (key, self.key_interval) for key in keys]
         exec_keys_with_each_interval(key_and_intervals, self.profile, self.remocon_type)
 
     def head_to_next(self) -> bool:
@@ -179,12 +168,11 @@ class IntelligentMonkeyTestSK:
         except Exception:
             return False
 
-    def get_cursor(self, image: np.ndarray=None) -> Tuple[int, int, int, int]:
+    def get_cursor(self, image: np.ndarray=None) -> Cursor:
         try:
             if image is None:
                 image = get_current_image()
-            cursor = get_cursor(self.profile, image)
-            return (cursor.x, cursor.y, cursor.w, cursor.h)
+            return get_cursor(self.profile, image)
         except Exception as err:
             logger.warning(f'get cursor error. {err}')
             return None

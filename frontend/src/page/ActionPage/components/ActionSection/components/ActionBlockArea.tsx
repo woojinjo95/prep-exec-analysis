@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react'
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd'
 import cx from 'classnames'
 
-// import { Block, BlockGroup, Scenario } from '@page/ActionPage/components/ActionSection/api/entity'
 import { useMutation, useQuery } from 'react-query'
 import BackgroundImage from '@assets/images/background_pattern.svg'
 import { remoconService } from '@global/service/RemoconService/RemoconService'
@@ -11,9 +10,12 @@ import { CustomKeyTransmit, RemoconTransmit } from '@global/service/RemoconServi
 import { terminalService } from '@global/service/TerminalService/TerminalService'
 import { CommandTransmit } from '@global/service/TerminalService/type'
 import { useRecoilState, useRecoilValue } from 'recoil'
-import { isBlockRecordModeState, scenarioIdState, selectedBlockIdsState } from '@global/atom'
+import { isBlockRecordModeState, scenarioIdState, selectedBlockIdsState, testRunIdState } from '@global/atom'
 import { Block, BlockGroup, Scenario } from '@global/api/entity'
 import { getScenarioById, putScenario } from '@global/api/func'
+import ScrollComponent from '@global/ui/ScrollComponent'
+import { useServiceState } from '@global/api/hook'
+import { Skeleton } from '@global/ui'
 import ActionBlockItem from './ActionBlockItem'
 import { postBlock, postBlocks } from '../api/func'
 
@@ -23,6 +25,8 @@ type BlocksRef = {
 
 const ActionBlockArea = (): JSX.Element => {
   const scenarioId = useRecoilValue(scenarioIdState)
+
+  const { serviceState } = useServiceState()
 
   // 전체 블럭
   const [blocks, setBlocks] = useState<Block[] | null>(null)
@@ -34,9 +38,11 @@ const ActionBlockArea = (): JSX.Element => {
    */
   const [blockDummys, setBlockDummys] = useState<Block[][]>([])
 
+  const testrunId = useRecoilValue(testRunIdState)
+
   const { data: scenario, refetch: blockRefetch } = useQuery<Scenario>(
     ['scenario', scenarioId],
-    () => getScenarioById({ scenario_id: scenarioId! }),
+    () => getScenarioById({ scenario_id: scenarioId!, testrun_id: testrunId! }),
     {
       onSuccess: (res) => {
         if (res) {
@@ -53,7 +59,7 @@ const ActionBlockArea = (): JSX.Element => {
       onError: (err) => {
         console.error(err)
       },
-      enabled: !!scenarioId,
+      enabled: !!(scenarioId && testrunId),
     },
   )
 
@@ -337,7 +343,7 @@ const ActionBlockArea = (): JSX.Element => {
       .onCustomKey$()
       .subscribe((customKeyTransmit: CustomKeyTransmit) => {
         if (scenarioId && isBlockRecordMode) {
-          const newBlocks = customKeyTransmit.data.map((keyTransmit) => {
+          const newBlocks = customKeyTransmit.data.map((keyTransmit, idx) => {
             return {
               type: customKeyTransmit.msg,
               args: [
@@ -358,7 +364,7 @@ const ActionBlockArea = (): JSX.Element => {
                   value: keyTransmit.name,
                 },
               ],
-              delay_time: 0,
+              delay_time: idx === customKeyTransmit.data.length - 1 ? 3000 : 0,
               name: `RCU (${keyTransmit.type}) : ${keyTransmit.key}`,
             }
           })
@@ -414,59 +420,78 @@ const ActionBlockArea = (): JSX.Element => {
           backgroundSize: '100%',
         }}
       >
+        {!blocks && (
+          <div className="w-full h-full pl-3 pr-3 pt-[2px] pb-[2px] ">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+              <Skeleton
+                colorScheme="light"
+                key={`block_skeleton_${num}`}
+                className="ml-1 mr-1 border-box h-[48px] w-[calc(100%-8px)] rounded-xl mb-[3px] "
+              />
+            ))}
+          </div>
+        )}
+
         {blocks && blockDummys && blocks.length > 0 && scenarioId && (
           <div className="w-full h-full pl-3 pr-3 overflow-y-auto pt-[2px] pb-[2px]">
-            <DragDropContext onDragEnd={handleDragEnd}>
-              <Droppable droppableId="droppable">
-                {(provided) => (
-                  <div ref={provided.innerRef} {...provided.droppableProps} className="flex flex-col">
-                    {blockDummys.map((dummy, dummyIdx) => {
-                      return (
-                        <Draggable
-                          key={dummyIdx}
-                          draggableId={`dummy-${dummyIdx}`}
-                          index={dummyIdx}
-                          isDragDisabled={!!(modifyingBlockId && dummy.find((block) => block.id === modifyingBlockId))}
-                        >
-                          {(provided) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className={cx('w-full cursor-grab ', {})}
-                            >
-                              {dummy.map((block) => {
-                                return (
-                                  <div
-                                    key={block.id}
-                                    ref={(ele) => {
-                                      blocksRef.current[block.id] = ele
-                                    }}
-                                  >
-                                    <ActionBlockItem
-                                      actionStatus="normal"
-                                      block={block}
-                                      selectedBlockIds={selectedBlockIds}
-                                      handleBlockClick={handleBlockClick}
-                                      setModifyingBlockId={setModifyingBlockId}
-                                      modifyingBlockId={modifyingBlockId}
-                                      blockRefetch={() => {
-                                        blockRefetch()
+            <ScrollComponent>
+              <DragDropContext onDragEnd={handleDragEnd}>
+                <Droppable droppableId="droppable">
+                  {(provided) => (
+                    <div ref={provided.innerRef} {...provided.droppableProps} className="flex flex-col">
+                      {blockDummys.map((dummy, dummyIdx) => {
+                        return (
+                          <Draggable
+                            key={dummyIdx}
+                            draggableId={`dummy-${dummyIdx}`}
+                            index={dummyIdx}
+                            isDragDisabled={
+                              !!(
+                                (modifyingBlockId && dummy.find((block) => block.id === modifyingBlockId)) ||
+                                serviceState === 'playblock' ||
+                                isBlockRecordMode
+                              )
+                            }
+                          >
+                            {(provided) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                className={cx('w-full cursor-grab', {})}
+                              >
+                                {dummy.map((block) => {
+                                  return (
+                                    <div
+                                      key={block.id}
+                                      ref={(ele) => {
+                                        blocksRef.current[block.id] = ele
                                       }}
-                                    />
-                                  </div>
-                                )
-                              })}
-                            </div>
-                          )}
-                        </Draggable>
-                      )
-                    })}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
+                                    >
+                                      <ActionBlockItem
+                                        block={block}
+                                        selectedBlockIds={selectedBlockIds}
+                                        handleBlockClick={handleBlockClick}
+                                        setModifyingBlockId={setModifyingBlockId}
+                                        modifyingBlockId={modifyingBlockId}
+                                        blockRefetch={() => {
+                                          blockRefetch()
+                                        }}
+                                      />
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            )}
+                          </Draggable>
+                        )
+                      })}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
+            </ScrollComponent>
           </div>
         )}
 
@@ -491,7 +516,7 @@ const ActionBlockArea = (): JSX.Element => {
           />
         )}
       </div>
-      {modifyingBlockId && <div className="absolute top-0 left-0 h-full z-10 w-full bg-gray-100 opacity-50" />}
+      {modifyingBlockId && <div className="absolute top-0 left-0 h-full z-20 w-full bg-gray-100 opacity-50" />}
     </div>
   )
 }

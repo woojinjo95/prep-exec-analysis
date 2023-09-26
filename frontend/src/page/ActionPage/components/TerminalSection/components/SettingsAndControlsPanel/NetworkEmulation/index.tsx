@@ -3,11 +3,11 @@ import React, { useCallback, useState } from 'react'
 import { useToast } from '@chakra-ui/react'
 
 import { ReactComponent as RefreshIcon } from '@assets/images/icon_refresh_w.svg'
-import { Input, Title, ToggleButton, Text, Divider, Button } from '@global/ui'
+import { Input, Title, ToggleButton, Text, Divider, Button, Skeleton } from '@global/ui'
 import { useHardwareConfiguration, useScenarioById } from '@global/api/hook'
 import { useWebsocket } from '@global/hook'
 import { useRecoilValue } from 'recoil'
-import { isBlockRecordModeState, scenarioIdState } from '@global/atom'
+import { isBlockRecordModeState, scenarioIdState, testRunIdState } from '@global/atom'
 import { SubscribeMessage } from '@global/hook/useWebsocket/types'
 import { useMutation } from 'react-query'
 import { postBlock, postBlocks } from '@page/ActionPage/components/ActionSection/api/func'
@@ -65,7 +65,9 @@ const NetworkEmulation: React.FC = () => {
 
   const scenarioId = useRecoilValue(scenarioIdState)
 
-  const { refetch: scenarioRefetch } = useScenarioById({ scenarioId })
+  const testrunId = useRecoilValue(testRunIdState)
+
+  const { refetch: scenarioRefetch } = useScenarioById({ scenarioId, testrunId })
 
   const { mutate: postBlockMutate } = useMutation(postBlock, {
     onSuccess: () => {
@@ -444,124 +446,132 @@ const NetworkEmulation: React.FC = () => {
   )
 
   return (
-    <div className="row-span-2 bg-light-black p-5 rounded-lg h-fit">
-      <div className="flex items-center gap-x-5 px-1">
-        <Title as="h3" colorScheme="light">
-          Network Emulation
-        </Title>
+    <Skeleton isLoaded={!!hardwareConfiguration} colorScheme="dark" className="row-span-2 rounded-lg h-fit">
+      <div className="row-span-2 bg-light-black p-5 rounded-lg h-fit">
+        <div className="flex items-center gap-x-5 px-1">
+          <Title as="h3" colorScheme="light">
+            Network Emulation
+          </Title>
 
-        <ToggleButton
-          isOn={!!hardwareConfiguration?.enable_network_emulation}
-          onClick={(isOn) => {
-            sendMessage({ msg: 'network_emulation', data: { action: isOn ? 'start' : 'stop' } })
-          }}
-        />
+          <ToggleButton
+            isOn={!!hardwareConfiguration?.enable_network_emulation}
+            onClick={(isOn) => {
+              sendMessage({ msg: 'network_emulation', data: { action: isOn ? 'start' : 'stop' } })
+            }}
+          />
 
-        <button
-          type="button"
-          className="ml-auto"
-          onClick={() => {
-            // FIXME: confirm 함수 -> custom confirm으로 대체
-            if (
-              !window.confirm('Do you want to set all values ​​related to Network Emulation to their initial values?')
-            )
-              return
-            sendMessage({ msg: 'network_emulation', data: { action: 'reset' } })
-          }}
-        >
-          <RefreshIcon className="w-5 h-5" />
-        </button>
-      </div>
-
-      <Divider />
-
-      <div className="pb-1 px-1">
-        <div>
-          <Text weight="medium">Packet Contorl (Inbound)</Text>
+          <button
+            type="button"
+            className="ml-auto"
+            onClick={() => {
+              // FIXME: confirm 함수 -> custom confirm으로 대체
+              if (
+                !window.confirm('Do you want to set all values ​​related to Network Emulation to their initial values?')
+              )
+                return
+              sendMessage({ msg: 'network_emulation', data: { action: 'reset' } })
+            }}
+          >
+            <RefreshIcon className="w-5 h-5" />
+          </button>
         </div>
 
-        <div className="pt-2 flex justify-between">
-          <div className="w-1/3">
-            <Text weight="medium" size="xs">
-              Bandwidth
-            </Text>
-            <div className="mt-1 grid grid-rows-1 grid-cols-[55%_40%] gap-x-2 items-center">
-              <Input
-                colorScheme="charcoal"
-                value={input.bandwidth === null ? '' : input.bandwidth}
-                placeholder="1000"
-                type="number"
-                onChange={onChangeInput('bandwidth')}
-                onBlur={onBlurInput('bandwidth')}
-                onKeyDown={onKeyDownInput}
-              />
-              <Text weight="medium" size="xs" className="mr-2">
-                Mbps
-              </Text>
-            </div>
+        <Divider />
+
+        <div className="pb-1 px-1">
+          <div>
+            <Text weight="medium">Packet Control (Inbound)</Text>
           </div>
 
-          <div className="w-1/3">
-            <Text weight="medium" size="xs">
-              Delay
-            </Text>
-            <div className="mt-1 grid grid-rows-1 grid-cols-[55%_40%] gap-x-2 items-center">
-              <Input
-                colorScheme="charcoal"
-                value={input.delay === null ? '' : input.delay}
-                placeholder="0"
-                type="number"
-                onChange={onChangeInput('delay')}
-                onBlur={onBlurInput('delay')}
-                onKeyDown={onKeyDownInput}
-              />
-              <Text weight="medium" size="xs" className="mr-2">
-                ms
+          <div className="pt-2 flex justify-between">
+            <div className="w-1/3">
+              <Text weight="medium" size="xs">
+                Bandwidth
               </Text>
+              <div className="mt-1 grid grid-rows-1 grid-cols-[55%_40%] gap-x-2 items-center">
+                <Input
+                  colorScheme="charcoal"
+                  value={input.bandwidth === null ? '' : input.bandwidth}
+                  placeholder="1000"
+                  type="number"
+                  onChange={onChangeInput('bandwidth')}
+                  onBlur={onBlurInput('bandwidth')}
+                  onKeyDown={onKeyDownInput}
+                />
+                <Text weight="medium" size="xs" className="mr-2">
+                  Mbps
+                </Text>
+              </div>
             </div>
-          </div>
 
-          <div className="w-1/3">
-            <Text weight="medium" size="xs">
-              Loss
-            </Text>
-            <div className="mt-1 grid grid-rows-1 grid-cols-[55%_40%] gap-x-2 items-center">
-              <Input
-                colorScheme="charcoal"
-                value={input.loss === null ? '' : input.loss}
-                placeholder="0"
-                type="number"
-                onChange={onChangeInput('loss')}
-                onBlur={onBlurInput('loss')}
-                onKeyDown={onKeyDownInput}
-              />
-              <Text weight="medium" size="xs" className="mr-2">
-                %
+            <div className="w-1/3">
+              <Text weight="medium" size="xs">
+                Delay
               </Text>
+              <div className="mt-1 grid grid-rows-1 grid-cols-[55%_40%] gap-x-2 items-center">
+                <Input
+                  colorScheme="charcoal"
+                  value={input.delay === null ? '' : input.delay}
+                  placeholder="0"
+                  type="number"
+                  onChange={onChangeInput('delay')}
+                  onBlur={onBlurInput('delay')}
+                  onKeyDown={onKeyDownInput}
+                />
+                <Text weight="medium" size="xs" className="mr-2">
+                  ms
+                </Text>
+              </div>
+            </div>
+
+            <div className="w-1/3">
+              <Text weight="medium" size="xs">
+                Loss
+              </Text>
+              <div className="mt-1 grid grid-rows-1 grid-cols-[55%_40%] gap-x-2 items-center">
+                <Input
+                  colorScheme="charcoal"
+                  value={input.loss === null ? '' : input.loss}
+                  placeholder="0"
+                  type="number"
+                  onChange={onChangeInput('loss')}
+                  onBlur={onBlurInput('loss')}
+                  onKeyDown={onKeyDownInput}
+                />
+                <Text weight="medium" size="xs" className="mr-2">
+                  %
+                </Text>
+              </div>
             </div>
           </div>
         </div>
+
+        <Divider />
+
+        <div className="grid grid-cols-1 px-1">
+          <Text weight="medium" className="pb-4">
+            Configuring IP Limit
+          </Text>
+
+          {hardwareConfiguration?.packet_block?.map(({ id, ip, port, protocol }) => (
+            <IPLimitItem
+              key={`hardware-configuration-ip-limit-${id}`}
+              id={id}
+              ip={ip}
+              port={port}
+              protocol={protocol}
+            />
+          ))}
+          {isAddingIPLimit && <IPLimitItem isCreating close={() => setIsAddingIPLimit(false)} />}
+
+          {!isAddingIPLimit && (
+            <Button type="button" colorScheme="charcoal" onClick={() => setIsAddingIPLimit(true)}>
+              Add Item
+            </Button>
+          )}
+        </div>
       </div>
-
-      <Divider />
-
-      <div className="grid grid-cols-1 px-1">
-        <Text weight="medium" className="pb-4">
-          Configuring IP Limit
-        </Text>
-
-        {hardwareConfiguration?.packet_block?.map(({ id, ip, port, protocol }) => (
-          <IPLimitItem key={`hardware-configuration-ip-limit-${id}`} id={id} ip={ip} port={port} protocol={protocol} />
-        ))}
-        {isAddingIPLimit && <IPLimitItem isCreating close={() => setIsAddingIPLimit(false)} />}
-
-        {!isAddingIPLimit && (
-          <Button type="button" colorScheme="charcoal" onClick={() => setIsAddingIPLimit(true)}>
-            Add Item
-          </Button>
-        )}
-      </div>
-    </div>
+    </Skeleton>
   )
 }
 

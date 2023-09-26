@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { AnalysisTypeLabel, AppURL } from '@global/constant'
 import { numberWithCommas } from '@global/usecase'
@@ -8,6 +8,7 @@ import { ReactComponent as ShowRawDataIcon } from '@assets/images/icon_raw_data.
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
 import { ReactComponent as HiddenEyeIcon } from '@assets/images/icon_hidden.svg'
 import { AnalysisResultSummary } from '@page/AnalysisPage/api/entity'
+import ZoomInImageModal from './ZoomInImageModal'
 
 interface IntelligentMonkeyTestSummaryItemProps {
   intelligentMonkeyTest: NonNullable<AnalysisResultSummary['intelligent_monkey_test']>
@@ -24,6 +25,11 @@ const IntelligentMonkeyTestSummaryItem: React.FC<IntelligentMonkeyTestSummaryIte
   const [intelligentMonkeyTestSectionIdFilterList, setIntelligentMonkeyTestSectionIdFilterList] = useRecoilState(
     intelligentMonkeyTestSectionIdFilterListState,
   )
+  const [zoomInImagePath, setZoomInImagePath] = useState<string | null>(null)
+
+  useEffect(() => {
+    setIntelligentMonkeyTestSectionIdFilterList([])
+  }, [])
 
   return (
     <Accordion
@@ -51,7 +57,7 @@ const IntelligentMonkeyTestSummaryItem: React.FC<IntelligentMonkeyTestSummaryIte
           <Text weight="medium" size="sm">
             Menu
           </Text>
-          <Text weight="medium" size="sm">
+          <Text weight="medium" size="sm" className="pl-3">
             Image
           </Text>
           <Text weight="medium" size="sm" className="ml-4">
@@ -62,12 +68,14 @@ const IntelligentMonkeyTestSummaryItem: React.FC<IntelligentMonkeyTestSummaryIte
           {intelligentMonkeyTest.results.map(({ section_id, smart_sense, image_path }, index) => (
             <React.Fragment key={`monkey-test-summary-result-item-${index}`}>
               <Text size="sm"># {numberWithCommas(section_id + 1)}</Text>
-              <div>
-                <img
-                  className="h-6"
-                  src={`${AppURL.backendURL}/api/v1/file/download?path=${image_path}`}
-                  alt="intelligent monkey test menu img"
-                />
+              <div className="flex items-center">
+                <SimpleButton colorScheme="charcoal" onClick={() => setZoomInImagePath(image_path)}>
+                  <img
+                    className="h-6"
+                    src={`${AppURL.backendURL}/api/v1/file/download?path=${image_path}`}
+                    alt="intelligent monkey test menu img"
+                  />
+                </SimpleButton>
               </div>
               <Text size="sm" className="text-right">
                 {numberWithCommas(smart_sense)} times
@@ -105,6 +113,14 @@ const IntelligentMonkeyTestSummaryItem: React.FC<IntelligentMonkeyTestSummaryIte
             Show Raw Data
           </Text>
         </SimpleButton>
+
+        {!!zoomInImagePath && (
+          <ZoomInImageModal
+            isOpen={!!zoomInImagePath}
+            close={() => setZoomInImagePath(null)}
+            imagePath={zoomInImagePath}
+          />
+        )}
       </div>
     </Accordion>
   )

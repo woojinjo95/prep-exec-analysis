@@ -2,7 +2,7 @@ import { Button, Input, Modal, OptionItem, Select, Text, ToggleButton } from '@g
 import React, { useEffect, useRef, useState } from 'react'
 import { useHardwareConfiguration, useScenarioById } from '@global/api/hook'
 import { useRecoilValue } from 'recoil'
-import { scenarioIdState, selectedRemoconNameState } from '@global/atom'
+import { scenarioIdState, selectedRemoconNameState, testRunIdState } from '@global/atom'
 import { useMutation } from 'react-query'
 import cx from 'classnames'
 import { TimeUnit } from '../types'
@@ -30,7 +30,9 @@ const AddMonkeyTestBlockModal: React.FC<AddMonkeyTestBlockModalProps> = ({ isOpe
 
   const scenarioId = useRecoilValue(scenarioIdState)
 
-  const { refetch } = useScenarioById({ scenarioId })
+  const testrunId = useRecoilValue(testRunIdState)
+
+  const { refetch } = useScenarioById({ scenarioId, testrunId })
 
   const { mutate: postBlockMutate } = useMutation(postBlock, {
     onSuccess: () => {

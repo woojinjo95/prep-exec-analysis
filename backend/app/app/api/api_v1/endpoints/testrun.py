@@ -47,17 +47,6 @@ def create_testrun(
                                 data={'updated_at': get_utc_datetime(time.time()),
                                       'testruns': testruns})
 
-        # 워크스페이스 변경
-        RedisClient.hset('testrun', 'id', testrun_id)
-        RedisClient.hset('testrun', 'scenario_id', scenario_id)
-
-        # 워크스페이스 변경 메세지 전송
-        RedisClient.publish('command',
-                            set_redis_pub_msg(msg="workspace",
-                                              data={"workspace_path": workspace_path,
-                                                    "testrun_id": testrun_id,
-                                                    "scenario_id": scenario_id}))
-
     except Exception as e:
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=traceback.format_exc())

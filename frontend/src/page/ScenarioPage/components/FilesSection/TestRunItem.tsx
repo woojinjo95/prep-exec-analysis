@@ -42,7 +42,7 @@ const TestRunItem: React.FC<TestRunItemProps> = ({ scenarioSummary }) => {
               Last Updated
             </Text>
             <Text className="text-sm" colorScheme="grey">
-              Analyis Item
+              Analysis Item
             </Text>
             <div />
           </div>

@@ -13,7 +13,7 @@ export const scenarioIdState = atom<string | null>({
 })
 
 /**
- * 분석 페이지가 타겟중인 테스트런 id
+ * 서비스가 타겟중인 테스트런 id
  */
 export const testRunIdState = atom<string | null>({
   key: 'testRunIdState',

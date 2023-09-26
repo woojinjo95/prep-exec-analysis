@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import * as d3 from 'd3'
-import { Text, VideoSnapshots } from '@global/ui'
-import { CHART_HEIGHT } from '@global/constant'
+import { Skeleton, Text, VideoSnapshots } from '@global/ui'
+import { CHART_HEIGHT, VIDEO_SNAPSHOT_HEIGHT } from '@global/constant'
 
 import { useAnalysisResultSummary } from '@page/AnalysisPage/api/hook'
-import { useCursorEvent } from './hook'
+import ScrollComponent from '@global/ui/ScrollComponent'
+import { useCursorEvent, useHandleChartWheel } from './hook'
 import {
   HorizontalScrollBar,
   CPUChart,
@@ -83,6 +84,10 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
       setActiveChartList(newAllChartList)
     },
   })
+  const isReadyRenderChart = useMemo(
+    () => !!startTime && !!endTime && !!analysisResultSummary,
+    [startTime, endTime, analysisResultSummary],
+  )
 
   // X축 전체 scale
   const timelineScaleX: d3.ScaleTime<number, number, never> | null = useMemo(() => {
@@ -107,6 +112,14 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
       width: dimension?.width,
     })
 
+  // 차트 가로스크롤 hook
+  useHandleChartWheel({
+    ref: chartWrapperRef.current,
+    isReadyRenderChart,
+    setScrollBarTwoPosX,
+    chartWidth: dimension?.width,
+  })
+
   const handleWindowResize = () => {
     if (!chartWrapperRef.current || dimension?.width || dimension?.left || scrollBarTwoPosX) return
 
@@ -117,7 +130,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
   useEffect(() => {
     handleWindowResize()
     // dependency array: chartWrapperRef 렌더링 조건
-  }, [startTime, endTime, analysisResultSummary])
+  }, [isReadyRenderChart])
 
   useEffect(() => {
     window.addEventListener('resize', handleWindowResize)
@@ -126,6 +139,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
     }
   }, [])
 
+  // === isReadyRenderChart
   if (!startTime || !endTime || !analysisResultSummary) {
     return <section className="h-full bg-black grid grid-cols-1 grid-rows-[auto_1fr_auto]" />
   }
@@ -143,43 +157,50 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
         setAllChartList={setAllChartList}
       />
 
-      <div className="grid grid-cols-[auto_1fr] grid-rows-1 overflow-y-auto overflow-x-hidden">
-        <div className="w-48 z-10">
-          {allChartList
-            .filter((key) => activeChartList.includes(key))
-            .map((chartKey, index) => (
-              <div
-                key={`timeline-chart-title-${chartKey}-${index}`}
-                className="border-b-[1px] border-light-charcoal bg-charcoal py-2 px-5"
-                style={{ height: CHART_HEIGHT }}
-              >
-                <Text colorScheme="grey" weight="medium">
-                  {ChartLabel[chartKey]}
-                </Text>
-              </div>
-            ))}
-        </div>
+      <ScrollComponent>
+        <div className="grid grid-cols-[auto_1fr] grid-rows-1 overflow-y-auto overflow-x-hidden">
+          <div className="w-48 z-10">
+            {allChartList
+              .filter((key) => activeChartList.includes(key))
+              .map((chartKey, index) => (
+                <div
+                  key={`timeline-chart-title-${chartKey}-${index}`}
+                  className="border-b-[1px] border-light-charcoal bg-charcoal py-2 px-5"
+                  style={{ height: CHART_HEIGHT }}
+                >
+                  <Text colorScheme="grey" weight="medium">
+                    {ChartLabel[chartKey]}
+                  </Text>
+                </div>
+              ))}
+          </div>
 
-        {/* chart */}
-        <TimelineChartContainer
-          ref={chartWrapperRef}
-          chartCount={activeChartList.length}
-          cursorTranslateX={cursorTranslateX}
-          onPointerDown={onCursorPointerDown}
-          onPointerMove={onCursorPointerMove}
-          onPointerUp={onCursorPointerUp}
-        >
-          {allChartList
-            .filter((key) => activeChartList.includes(key))
-            .map((chartKey) => {
+          {/* chart */}
+          <TimelineChartContainer
+            ref={chartWrapperRef}
+            chartCount={activeChartList.length}
+            cursorTranslateX={cursorTranslateX}
+            onPointerDown={onCursorPointerDown}
+            onPointerMove={onCursorPointerMove}
+            onPointerUp={onCursorPointerUp}
+          >
+            {allChartList.map((chartKey) => {
               if (chartKey === 'video') {
                 return (
                   <VideoSnapshots
                     key={`chart-${chartKey}`}
+                    isVisible={activeChartList.includes(chartKey)}
                     tickCount={15}
                     scaleX={scrollbarScaleX}
                     startTime={timelineScaleX && scrollBarTwoPosX ? timelineScaleX.invert(scrollBarTwoPosX[0]) : null}
                     endTime={timelineScaleX && scrollBarTwoPosX ? timelineScaleX.invert(scrollBarTwoPosX[1]) : null}
+                    loadingComponent={
+                      <Skeleton
+                        className="w-full border-b border-[#37383E]"
+                        style={{ height: VIDEO_SNAPSHOT_HEIGHT }}
+                        colorScheme="dark"
+                      />
+                    }
                   />
                 )
               }
@@ -188,6 +209,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
                 return (
                   <ColorReferenceChart
                     key={`chart-${chartKey}`}
+                    isVisible={activeChartList.includes(chartKey)}
                     scaleX={scrollbarScaleX}
                     startTime={startTime}
                     endTime={endTime}
@@ -200,6 +222,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
                 return (
                   <EventLogChart
                     key={`chart-${chartKey}`}
+                    isVisible={activeChartList.includes(chartKey)}
                     scaleX={scrollbarScaleX}
                     startTime={startTime}
                     endTime={endTime}
@@ -212,6 +235,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
                 return (
                   <MonkeyTestChart
                     key={`chart-${chartKey}`}
+                    isVisible={activeChartList.includes(chartKey)}
                     scaleX={scrollbarScaleX}
                     startTime={startTime}
                     endTime={endTime}
@@ -225,6 +249,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
                 return (
                   <IntelligentMonkeyTestChart
                     key={`chart-${chartKey}`}
+                    isVisible={activeChartList.includes(chartKey)}
                     scaleX={scrollbarScaleX}
                     startTime={startTime}
                     endTime={endTime}
@@ -238,6 +263,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
                 return (
                   <FreezeChart
                     key={`chart-${chartKey}`}
+                    isVisible={activeChartList.includes(chartKey)}
                     scaleX={scrollbarScaleX}
                     startTime={startTime}
                     endTime={endTime}
@@ -251,6 +277,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
                 return (
                   <LoudnessChart
                     key={`chart-${chartKey}`}
+                    isVisible={activeChartList.includes(chartKey)}
                     scaleX={scrollbarScaleX}
                     startTime={startTime}
                     endTime={endTime}
@@ -264,6 +291,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
                 return (
                   <ResumeBootChart
                     key={`chart-${chartKey}`}
+                    isVisible={activeChartList.includes(chartKey)}
                     scaleX={scrollbarScaleX}
                     startTime={startTime}
                     endTime={endTime}
@@ -278,6 +306,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
                 return (
                   <LogLevelFinderChart
                     key={`chart-${chartKey}`}
+                    isVisible={activeChartList.includes(chartKey)}
                     scaleX={scrollbarScaleX}
                     startTime={startTime}
                     endTime={endTime}
@@ -291,6 +320,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
                 return (
                   <LogPatternMatchingChart
                     key={`chart-${chartKey}`}
+                    isVisible={activeChartList.includes(chartKey)}
                     scaleX={scrollbarScaleX}
                     startTime={startTime}
                     endTime={endTime}
@@ -304,6 +334,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
                 return (
                   <CPUChart
                     key={`chart-${chartKey}`}
+                    isVisible={activeChartList.includes(chartKey)}
                     scaleX={scrollbarScaleX}
                     startTime={startTime}
                     endTime={endTime}
@@ -316,6 +347,7 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
                 return (
                   <MemoryChart
                     key={`chart-${chartKey}`}
+                    isVisible={activeChartList.includes(chartKey)}
                     scaleX={scrollbarScaleX}
                     startTime={startTime}
                     endTime={endTime}
@@ -326,8 +358,9 @@ const TimelineSection: React.FC<TimelineSectionProps> = ({ startTime, endTime })
 
               return null
             })}
-        </TimelineChartContainer>
-      </div>
+          </TimelineChartContainer>
+        </div>
+      </ScrollComponent>
 
       <div className="grid grid-cols-[auto_1fr]">
         <div className="w-48" />

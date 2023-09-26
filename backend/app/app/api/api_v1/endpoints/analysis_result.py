@@ -8,8 +8,7 @@ from datetime import datetime
 from typing import Optional
 
 from app import schemas
-from app.api.utility import (analysis_collection, convert_data_in,
-                             convert_iso_format, deserialize_datetime,
+from app.api.utility import (analysis_collection, deserialize_datetime,
                              get_config_from_scenario_mongodb,
                              paginate_from_mongodb_aggregation,
                              parse_bytes_to_value, serialize_datetime,
@@ -31,7 +30,6 @@ def get_data_of_log_level_finder(
     end_time: Optional[str] = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
     scenario_id: Optional[str] = None,
     testrun_id: Optional[str] = None,
-    log_level: Optional[str] = Query(None, description='ex)V,D,I,W,E,F,S'),
     page_size: Optional[int] = 10,
     page: Optional[int] = None,
     sort_by: Optional[str] = 'timestamp',
@@ -49,17 +47,20 @@ def get_data_of_log_level_finder(
                                                               start_time=start_time,
                                                               end_time=end_time)
 
-        if log_level is None:
-            log_level = parse_bytes_to_value(RedisClient.hget('analysis_config:log_level_finder', 'targets'))
-        else:
-            log_level = log_level.split(',')
+        config = get_config_from_scenario_mongodb(scenario_id=scenario_id,
+                                                  testrun_id=testrun_id,
+                                                  target='log_level_finder')
+        if config == {}:
+            raise HTTPException(status_code=404, detail='Not Found LogLevelFinder Configurataion')
+        log_level = config.get('targets', [])
 
-        additional_pipeline = [{'$project': {'_id': 0, 'lines.timestamp': 1, 'lines.log_level': 1}},
-                               {'$unwind': {'path': '$lines'}},
-                               {'$replaceRoot': {'newRoot': '$lines'}},
-                               {'$match': {'log_level': {'$in': log_level}}},
-                               {'$project': {'timestamp': {'$dateToString': {'date': '$timestamp'}},
-                                             'log_level': 1}}]
+        additional_pipeline = [
+            {'$project': {'_id': 0, 'lines.timestamp': 1, 'lines.log_level': 1}},
+            {'$unwind': {'path': '$lines'}},
+            {'$replaceRoot': {'newRoot': '$lines'}},
+            {'$match': {'log_level': {'$in': log_level}}},
+            {'$project': {'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                          'log_level': 1}}]
         log_level_finder_pipeline.extend(additional_pipeline)
         log_level_finder = paginate_from_mongodb_aggregation(col=analysis_collection['log_level_finder'],
                                                              pipeline=log_level_finder_pipeline,
@@ -140,7 +141,7 @@ def get_data_of_memory(
                                                     end_time=end_time)
 
         additional_pipeline = [
-            {'$project': {'_id': 0, 
+            {'$project': {'_id': 0,
                           'timestamp': {'$dateToString': {'date': '$timestamp'}},
                           'memory_usage': 1,
                           'total_ram': 1, 'free_ram': 1,
@@ -227,9 +228,9 @@ def get_data_of_color_reference(
             raise HTTPException(status_code=400, detail='Need at least one time parameter')
 
         color_reference_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
-                                                       testrun_id=testrun_id,
-                                                       start_time=start_time,
-                                                       end_time=end_time)
+                                                             testrun_id=testrun_id,
+                                                             start_time=start_time,
+                                                             end_time=end_time)
 
         color_reference_pipeline = [
             {'$project': {'_id': 0,
@@ -272,7 +273,15 @@ def get_data_of_freeze(
                                                     start_time=start_time,
                                                     end_time=end_time)
 
+        config = get_config_from_scenario_mongodb(scenario_id=scenario_id,
+                                                  testrun_id=testrun_id,
+                                                  target='freeze')
+        if config == {}:
+            raise HTTPException(status_code=404, detail='Not Found Freeze Configurataion')
+        duration = config.get('duration', 3)
+
         additional_pipeline = [
+            {'$match': {'user_config.duration': duration}},
             {'$project': {'_id': 0,
                           'timestamp': {'$dateToString': {'date': '$timestamp'}},
                           'freeze_type': 1,
@@ -314,7 +323,7 @@ def get_data_of_loudness(
                                                       testrun_id=testrun_id,
                                                       start_time=start_time,
                                                       end_time=end_time)
-        
+
         additional_pipeline = [
             {'$project': {'_id': 0, 'lines': 1}},
             {'$unwind': {'path': '$lines'}},
@@ -358,11 +367,21 @@ def get_data_of_resume(
                                                          testrun_id=testrun_id,
                                                          start_time=start_time,
                                                          end_time=end_time)
-        
-        additional_pipeline = [{'$project': {'_id': 0,
-                                             'timestamp': {'$dateToString': {'date': '$timestamp'}},
-                                             'measure_time': 1,
-                                             'target': '$user_config.type'}}]
+
+        config = get_config_from_scenario_mongodb(scenario_id=scenario_id,
+                                                  testrun_id=testrun_id,
+                                                  target='resume')
+        if config == {}:
+            raise HTTPException(status_code=404, detail='Not Found Resume Configurataion')
+        type = config.get('type', '')
+        frame = config.get('frame', {})
+
+        additional_pipeline = [
+            {'$match': {'user_config.type': type, 'user_config.frame': frame}},
+            {'$project': {'_id': 0,
+                          'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                          'measure_time': 1,
+                          'target': '$user_config.type'}}]
         measurement_pipeline.extend(additional_pipeline)
 
         measurement_resume = paginate_from_mongodb_aggregation(col=analysis_collection['resume'],
@@ -401,7 +420,15 @@ def get_data_of_boot(
                                                          start_time=start_time,
                                                          end_time=end_time)
 
+        config = get_config_from_scenario_mongodb(scenario_id=scenario_id,
+                                                  testrun_id=testrun_id,
+                                                  target='boot')
+        if config == {}:
+            raise HTTPException(status_code=404, detail='Not Found Boot Configurataion')
+        frame = config.get('frame', {})
+
         additional_pipeline = [
+            {'$match': {'user.config.frame': frame}},
             {'$project': {'_id': 0,
                           'timestamp': {'$dateToString': {'date': '$timestamp'}},
                           'measure_time': 1,
@@ -436,37 +463,42 @@ def get_data_of_log_pattern_matching(
     """
     로그 패턴 매칭 데이터 조회
     """
-    try:
-        if start_time is None and end_time is None:
-            raise HTTPException(status_code=400, detail='Need at least one time parameter')
+    if start_time is None and end_time is None:
+        raise HTTPException(status_code=400, detail='Need at least one time parameter')
 
-        log_pattern_matching_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
-                                                                  testrun_id=testrun_id,
-                                                                  start_time=start_time,
-                                                                  end_time=end_time)
-        if pattern_name is not None:
-            pattern_name = pattern_name.split(',')
-            log_pattern_matching_pipeline[0]['$match']['matched_target.name'] = {'$in': pattern_name}
+    log_pattern_matching_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
+                                                              testrun_id=testrun_id,
+                                                              start_time=start_time,
+                                                              end_time=end_time)
+    if pattern_name:
+        name_pipeline = [{'$match': {'matched_target.name': {'$in': pattern_name.split(',')}}}]
+        log_pattern_matching_pipeline.extend(name_pipeline)
+    else:
+        config = get_config_from_scenario_mongodb(scenario_id=scenario_id,
+                                                  testrun_id=testrun_id,
+                                                  target='log_pattern_matching')
+        if config == {}:
+            raise HTTPException(status_code=404, detail='Not Found LogPatternMatching Configurataion')
+        name_pipeline = [
+            {'$match': {'user_config.items': {'$in': config.get('items', [])}}}]
+        log_pattern_matching_pipeline.extend(name_pipeline)
 
-        additional_pipeline = [
-            {'$project': {'_id': 0,
-                          'log_level': 1,
-                          'timestamp': {'$dateToString': {'date': '$timestamp'}},
-                          'message': 1,
-                          'regex': '$matched_target.regular_expression',
-                          'color': '$matched_target.color',
-                          'log_pattern_name': '$matched_target.name'}}]
-        log_pattern_matching_pipeline.extend(additional_pipeline)
+    additional_pipeline = [
+        {'$project': {'_id': 0,
+                      'log_level': 1,
+                      'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                      'message': 1,
+                      'regex': '$matched_target.regular_expression',
+                      'color': '$matched_target.color',
+                      'log_pattern_name': '$matched_target.name'}}]
+    log_pattern_matching_pipeline.extend(additional_pipeline)
 
-        log_pattern_matching = paginate_from_mongodb_aggregation(col=analysis_collection['log_pattern_matching'],
-                                                                 pipeline=log_pattern_matching_pipeline,
-                                                                 page=page,
-                                                                 page_size=page_size,
-                                                                 sort_by=sort_by,
-                                                                 sort_desc=sort_desc)
-    except Exception as e:
-        logger.error(traceback.format_exc())
-        raise HTTPException(status_code=500, detail=traceback.format_exc())
+    log_pattern_matching = paginate_from_mongodb_aggregation(col=analysis_collection['log_pattern_matching'],
+                                                                pipeline=log_pattern_matching_pipeline,
+                                                                page=page,
+                                                                page_size=page_size,
+                                                                sort_by=sort_by,
+                                                                sort_desc=sort_desc)
     return log_pattern_matching
 
 
@@ -634,6 +666,48 @@ def get_data_of_intelligent_monkey_smart_sense(
     return monkey_section
 
 
+# Macro Block
+@router.get("/macroblock", response_model=schemas.Macroblock)
+def get_data_of_macro_block(
+    start_time: str = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
+    end_time: str = Query(None, description='ex)2009-02-13T23:31:30+00:00'),
+    scenario_id: Optional[str] = None,
+    testrun_id: Optional[str] = None,
+    page_size: Optional[int] = 10,
+    page: Optional[int] = None,
+    sort_by: Optional[str] = 'timestamp',
+    sort_desc: Optional[bool] = False
+):
+    """
+    화면 깨짐 데이터 조회
+    """
+    macroblock_pipeline = make_basic_match_pipeline(scenario_id=scenario_id,
+                                                    testrun_id=testrun_id,
+                                                    start_time=start_time,
+                                                    end_time=end_time)
+
+    config = get_config_from_scenario_mongodb(scenario_id=scenario_id,
+                                              testrun_id=testrun_id,
+                                              target='macroblock')
+    if config == {}:
+        raise HTTPException(status_code=404, detail='Not Found Macroblock Configurataion')
+    config_pipeline = [{'$match': {'user_config': config}}]
+    macroblock_pipeline.extend(config_pipeline)
+
+    additional_pipeline = [{'$project': {'_id': 0,
+                                         'timestamp': {'$dateToString': {'date': '$timestamp'}},
+                                         'duration': 1}}]
+    macroblock_pipeline.extend(additional_pipeline)
+
+    macroblock = paginate_from_mongodb_aggregation(col=analysis_collection['macroblock'],
+                                                   pipeline=macroblock_pipeline,
+                                                   page=page,
+                                                   page_size=page_size,
+                                                   sort_by=sort_by,
+                                                   sort_desc=sort_desc)
+    return macroblock
+
+
 # Process Lifecycle
 # @router.get("/process_lifecycle", response_model=schemas.ProcessLifecycle)
 def get_data_of_process_lifecycle(
@@ -707,8 +781,7 @@ def get_summary_data_of_measure_result(
         result = {}
 
         testrun_config = get_config_from_scenario_mongodb(scenario_id=scenario_id, testrun_id=testrun_id)
-        active_analysis_list = testrun_config.get('config', {})
-        for active_analysis, config in active_analysis_list.items():
+        for active_analysis, config in testrun_config.items():
             if config is None:
                 continue
             pipeline = []
@@ -723,27 +796,40 @@ def get_summary_data_of_measure_result(
                     {'$group': {'_id': None, 'results': {'$push': {'target': '$_id', 'total': '$total'}}}},
                     {'$project': {'_id': 0, 'results': 1}}]
             elif active_analysis == 'freeze':
+                duration = config.get('duration', 0)
                 additional_pipeline = [
+                    {'$match': {'user_config.duration': duration}},
                     {'$group': {'_id': '$freeze_type', 'total': {'$sum': 1}, 'color': {'$first': '$user_config.color'}}},
                     {'$group': {'_id': '$color', 'results': {
                         '$push': {'total': '$total', 'error_type': '$_id'}}}},
                     {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'resume':
+                type = config.get('type', '')
+                frame = config.get('frame', {})
                 additional_pipeline = [
+                    {'$match': {'user_config.type': type, 'user_config.frame': frame}},
                     {'$group': {'_id': '$user_config.type', 'total': {'$sum': 1},
                                 'avg_time': {'$avg': '$measure_time'}, 'color': {'$first': '$user_config.color'}}},
                     {'$group': {'_id': '$color', 'results': {
                         '$push': {'target': '$_id', 'total': '$total', 'avg_time': '$avg_time'}}}},
                     {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'boot':
+                frame = config.get('frame', {})
                 additional_pipeline = [
+                    {'$match': {'user_config.frame': frame}},
                     {'$group': {'_id': '$user_config.type', 'total': {'$sum': 1},
                                 'avg_time': {'$avg': '$measure_time'}, 'color': {'$first': '$user_config.color'}}},
                     {'$group': {'_id': '$color', 'results': {
                         '$push': {'target': '$_id', 'total': '$total', 'avg_time': '$avg_time'}}}},
                     {'$project': {'_id': 0, 'color': '$_id', 'results': 1}}]
             elif active_analysis == 'log_pattern_matching':
+                name = config.get('name', '')
+                color = config.get('color', '')
+                level = config.get('level', '')
+                regular_expression = config.get('regular_expression', '')
                 additional_pipeline = [
+                    {'$match': {'matched_target': {'color': color, 'name': name, 'level': level,
+                                                   'regular_expression': regular_expression}}},
                     {'$project': {'_id': 0, 'list': ['$matched_target.name',
                                                      '$matched_target.color'], 'color': '$user_config.color'}},
                     {'$group': {'_id': '$list', 'total': {'$sum': 1}, 'color': {'$first': '$color'}}},
@@ -771,7 +857,9 @@ def get_summary_data_of_measure_result(
                                                                    'smart_sense': '$smart_sense',
                                                                    'image_path': '$image_path'}}}}]
             elif active_analysis == 'macroblock':
-                continue
+                additional_pipeline = [
+                    {'$match': {'user_config': config}},
+                    {'$group': {'_id': 'testrun_id', 'duration': {'$avg': '$duration'}}}]
             elif active_analysis == 'channel_change_time':
                 continue
             elif active_analysis == 'process_lifecycle_analysis':

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useRecoilState } from 'recoil'
 import { Accordion, SimpleButton, Text } from '@global/ui'
 import { ReactComponent as ShowEyeIcon } from '@assets/images/icon_shown_w.svg'
@@ -20,6 +20,10 @@ const LogLevelFinderSummaryItem: React.FC<LogLevelFinderSummaryItemProps> = ({ l
     logLevelFinderLogLevelFilterListState,
   )
 
+  useEffect(() => {
+    setLogLevelFinderLogLevelFilterList([])
+  }, [])
+
   return (
     <Accordion
       header={
@@ -36,7 +40,7 @@ const LogLevelFinderSummaryItem: React.FC<LogLevelFinderSummaryItemProps> = ({ l
             </Text>
           </div>
 
-          <Text weight="medium">
+          <Text size="sm" weight="medium">
             {numberWithCommas(logLevelFinder.results.reduce((acc, curr) => acc + curr.total, 0))} times
           </Text>
         </div>
