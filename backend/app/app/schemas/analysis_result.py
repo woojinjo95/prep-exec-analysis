@@ -183,6 +183,14 @@ class NetworkFilter(BaseModel):
     items: List[NetworkFilterBase]
 
 
+class MacroblockBase(TimestampBaseModel):
+    duration: float
+
+
+class Macroblock(PaginationBaseModel):
+    items: List[MacroblockBase]
+
+
 # ----- Summary Schemas -----
 class SummaryInnerBase(BaseModel):
     total: int
@@ -269,8 +277,8 @@ class IntelligentMonkeyTestSummary(SummaryBase):
     results: List[IntelligentMonkeyTestSummaryBase]
 
 
-class MacroblockSummary(BaseModel): # 미적용
-    pass
+class MacroblockSummary(BaseModel):
+    duration: float
 
 
 class DataSummaryBase(BaseModel):
@@ -283,7 +291,7 @@ class DataSummaryBase(BaseModel):
     log_pattern_matching: Optional[LogPatternMatchingSummary] = None
     loudness: Optional[LoudnessSummary] = None
     resume: Optional[ResumeSummary] = None
-    # macro_block: Optional[MacroblockSummary] = None
+    macroblock: Optional[MacroblockSummary] = None
     monkey_test: Optional[MonkeyTestSummary] = None
 
 
